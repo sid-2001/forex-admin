@@ -52,6 +52,7 @@ const KYCPage = () => {
   const [mockdata, setMockData] = useState<Array<any>>([])
   const[loader,setCommonLoader]=useRecoilState(loaderStateNew)
   const[checkboxOpen,setCheckboxOpen]=useState(false)
+  const[kycstatus,setKycStatus]=useState('p')
 
 
   const [comments, setComments] = useState([
@@ -149,6 +150,9 @@ const KYCPage = () => {
   if(selected_data.length>0){
 
 setSelectedKYC(selected_data[0])    
+
+console.log("coming select kyc,",selected_data[0])
+setKycStatus(selected_data[0]?.kycStatus)
   }
   
       })
@@ -196,7 +200,9 @@ setSelectedKYC(selected_data[0])
   console.log(selected_data)
   if(selected_data.length>0){
 
-setSelectedKYC(selected_data[0])    
+setSelectedKYC(selected_data[0])   
+setKycStatus(selected_data[0]?.kycStatus) 
+// setKycStatus(selected_data[0]?.kycstatus)
 setCheckboxOpen(false)
   }
   
@@ -248,6 +254,7 @@ setCheckboxOpen(false)
   const openDrawer = (row: any) => {
 console.log("openign drawer")
     console.log(row)
+    setKycStatus(row?.kycStatus)
     setSelectedKYC(row)
     setIsDrawerOpen(true)
 console.log(row)
@@ -487,7 +494,7 @@ console.log(row)
                 KYC ID - {selectedKYC?.kycId}
               </Typography>
               <Typography variant="subtitle1" style={{ backgroundColor: '#FFEEBA', padding: '4px 8px', borderRadius: '4px' }}>
-                {selectedKYC?.kycStatus == 'v' ? 'verified' : 'unverified'}
+                {kycstatus=='v'?"Verified":"Unverified"}
               </Typography>
             </Box>
 
@@ -629,7 +636,7 @@ console.log(row)
                 (proofType) => (
                 <Grid container spacing={2} alignItems="center" mt={1} key={proofType}>
                   <Grid item xs={2}>
-                    <TextField label="Document Code" fullWidth defaultValue={proofType?.documentCode} disabled />
+                    <TextField label="Document Code" fullWidth defaultValue={proofType?.id?.documentCode} disabled />
                   </Grid>
                   <Grid item xs={2}>
                     <TextField label="Verification Type" fullWidth defaultValue="Auto" disabled />
@@ -666,7 +673,7 @@ console.log(row)
                     <Typography
       style={{
         backgroundColor:
-          proofType.verificationStatus === 'va' ? '#C8E6C9' : '#FFCDD2',
+         ( proofType.verificationStatus === 'va') ? '#C8E6C9' : '#FFCDD2',
         borderRadius: '4px',
         textAlign: 'center',
         display: 'flex',
@@ -675,11 +682,11 @@ console.log(row)
         padding: '4px 8px',
       }}
     >
-      {proofType.verificationStatus === 'va' ? (
+      {/* {(proofType.verificationStatus === 'va' ||kycstatus=='v')? (
 
 <>
 
-        Verified
+        Verified {kycstatus}
         <IconButton
         onClick={async () => {
 
@@ -709,7 +716,39 @@ console.log(row)
             <CheckCircleOutlineIcon />
           </IconButton>
         </>
-      )}
+      )} */}
+
+
+
+{(proofType.verificationStatus === 'va') ? (
+  <>
+    Verified
+    <IconButton
+      onClick={async () => {
+        setCheckboxOpen(true);
+        setProoftype(proofType);
+        // await unverifyProofType(proofType); // API call
+      }}
+      disabled={proofType.verificationStatus === 'v'}
+    >
+      <CloseIcon />
+    </IconButton>
+  </>
+) : (
+  <>
+    Failed
+    <IconButton
+      onClick={async () => {
+        await verifyProofType(proofType); // API call
+      }}
+      disabled={proofType.verificationStatus === 'va'}
+    >
+      <CheckCircleOutlineIcon />
+    </IconButton>
+  </>
+)}
+
+
     </Typography>
 
                  

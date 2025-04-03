@@ -32,161 +32,6 @@ function formatDateTime(timestamp:any) {
 
 
 const TransactionPage = () => {
-  const columns: GridColDef[] = [
-    { field: 'id', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'destination', headerName: 'Destination', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'value', headerName: 'Amount', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'currency', headerName: 'Currency', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'settlement', headerName: 'Settlement', flex: 1, headerClassName: 'super-app-theme--header' },
-
-
-    {
-      field: "stpError",
-      headerName: "STP Error",
-      flex: 1,
-      headerClassName: "super-app-theme--header",
-      renderCell: (params) =>
-        params.value ? (
-        
-            <Chip onClick={()=>{
-              setmodalOpen(true)
-  
-            }}  label= {  params.value}  color="error" />
-         
-        ) : (
-
-          <Chip
-            onClick={() => {
-              setmodalOpen(true)
-
-            }}
-
-            label="No Error" color="success" />
-
-        ),
-    },
-
-    {
-      field: "reporting",
-      headerName: "Reporting Status",
-      flex: 1,
-      headerClassName: "super-app-theme--header",
-      renderCell: (params) =>
-        params.value ? (
-          <Tooltip title={params.value.reporting || "Unknown Error"} arrow>
-            <Chip label="Error" color="error" />
-          </Tooltip>
-        ) : (
-          <Chip label="No Error" color="success" />
-        ),
-    },
-    {
-      field: "status",
-      headerName: "Trx Status",
-      flex: 1,
-      headerClassName: "super-app-theme--header",
-      renderCell: (params) =>
-        params.value ? (
-          <Tooltip title={params.value.errorCause || "Unknown Error"} arrow>
-            <Chip label="Error" color="error" />
-          </Tooltip>
-        ) : (
-          <Chip label="No Error" color="success" />
-        ),
-    },
-
-
-
-
-
-
-    { field: 'destinationBank', headerName: 'Destination Bank', flex: 1, headerClassName: 'super-app-theme--header' },
-
-    // { field: 'date', headerName: 'Date', flex: 1, headerClassName: 'super-app-theme--header' },
-    {
-      field: 'action',
-      headerName: 'Action',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params) => (
-        // <Button variant="contained" color="primary" onClick={() => handleViewMore(params.row)}>
-        //   View More
-        // </Button>
-
-        <IconButton onClick={() => {
-
-          handleViewMore(params.row)
-        }}>
-          <VisibilityIcon />
-        </IconButton>
-
-      ),
-    },
-
-
-
-  ]
-
-  const columns_inwards: GridColDef[] = [
-    { field: 'id', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'sendingCountry', headerName: 'Destination', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'receivingCountry', headerName: 'Source', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'currency', headerName: 'Currency', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'final_amount', headerName: 'Settlement', flex: 1, headerClassName: 'super-app-theme--header' },
-    {
-      field: "stpError",
-      headerName: "STP Error",
-      flex: 1,
-      headerClassName: "super-app-theme--header",
-      renderCell: (params) =>
-        params.value ? (
-          <Tooltip title={params.value.errorCause || "Unknown Error"} arrow>
-            <Chip label="Error" color="error" />
-          </Tooltip>
-        ) : (
-          <Chip label="No Error" color="success" />
-        ),
-    },
-    { field: 'destinationBank', headerName: 'Destination Bank', flex: 1, headerClassName: 'super-app-theme--header' },
-
-    // status:e?.transactionOutward?.transactionStatus=="CR"?"Pending":"Done",
-
-
-    {
-      field: "reporting",
-      headerName: "Reporting Status",
-      flex: 1,
-      headerClassName: "super-app-theme--header",
-      renderCell: (params) =>
-        params?.value?.reporting == "Reported" ? (
-          <Tooltip title={params?.value?.reporting || "Unknown Error"} arrow>
-            <Chip label="Reported" color="success" />
-          </Tooltip>
-        ) : (
-          <Chip label="Pending" color="error" />
-        ),
-    },
-
-
-
-    {
-      field: "status",
-      headerName: "Status",
-      flex: 1,
-      headerClassName: "super-app-theme--header",
-      renderCell: (params) =>
-        params?.value?.status == 'Pending' ? (
-          <Tooltip title={params.value.status || "Unknown Error"} arrow>
-            <Chip label="Pending" color="error" />
-          </Tooltip>
-        ) : (
-          <Chip label="Done" color="success" />
-        ),
-    },
-
-
-
-  ]
 
   // reporting:e?.transactionOutward?.reportingStatus=="ACK"?"Reported":"Pending",
   //           status:e?.transactionOutward?.transactionStatus=="CR"?"Pending":"Done",
@@ -363,8 +208,9 @@ const[selectedCountryOption,setSelectedCountryOption]=useRecoilState(selectedCou
 
   const [transactionData, setTransactionData] = useState(inboundTransaction)
   const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
-
+const[selectedCountryoption,setselectedCountryoption]=useRecoilState(selectedCountryState)
   const [userList, setUserList] = useState([])
+  const[creattrx,setCreatetrx]=useState('')
 
   let applicant_service = new ApplicantService()
 
@@ -419,7 +265,54 @@ const[selectedCountryOption,setSelectedCountryOption]=useRecoilState(selectedCou
 
   }, [])
 
+
+const addpayment=()=>{
+
+  let trx_service=new TransactionService()
+  trx_service.createTransaction(creattrx).then(data=>{
+
+    console.log(data)
+  })
+}
+
   const handleViewMore = (row: any) => {
+
+    console.log(row)
+
+  let d={
+    //@ts-ignore
+    benificary:{"benificaryId":  row?.beneficiaryId},
+    transferMethod:'Bank Trannsfer',
+     destinationCountry:row.destination,
+     selectedTimeMethod:'1',
+     gatewayStatus:'Payz',
+     amount:row.value,
+    applicant:row.applicantId,
+    forex: row.exchangeRates,
+    gatewayId:'13122',
+     //@ts-ignore
+    timecharge:row.charges,
+    sourceCurrency:selectedCountryoption=="SA"?"ZAR":"INR",
+  
+    sourceCountry:selectedCountryoption=='SA'?"ZA":"IN",
+    destinationCurrency:selectedCountryoption=='SA'?"INR":"ZAR",
+   totalpaybleamount: (Number(row.value)+  Number(row.charges)),
+   transactionId:row?.transactionNumber
+  
+   
+} 
+
+
+setCreatetrx(d as any)
+
+addpayment()
+
+
+
+
+console.log(d)
+
+
     setTransactionDetails(row)
     setDrawerOpen(true)
   }
@@ -786,9 +679,7 @@ const[selectedCountryOption,setSelectedCountryOption]=useRecoilState(selectedCou
               </Grid>
 
             </Grid>
-            {
-             JSON.stringify( transactionDetails)
-            }
+          
 
             <Button variant="contained" color="primary" onClick={closeDrawer}>
               Close
