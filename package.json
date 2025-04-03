@@ -25,6 +25,7 @@
     "@vitejs/plugin-react": "^4.3.1",
     "axios": "^1.7.2",
     "braintree-web-drop-in-react": "^1.2.1",
+    "cashfree-pg": "^5.0.3",
     "chart.js": "^4.4.7",
     "country-state-city": "^3.2.1",
     "country-state-city-custom": "^1.1.5",

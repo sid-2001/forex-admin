@@ -1,8 +1,24 @@
 import React from "react";
 import axios from "axios";
 import { Button } from "@mui/material";
+import { TransactionService } from "@/services/transaction.service";
 
-const CashfreePayment = ({ amount }: { amount: number }) => {
+import { Cashfree } from "cashfree-pg"; 
+
+
+
+const CashfreePayment = ({ amount,data }: { amount: number,data:any }) => {
+
+  let transaction_service=new TransactionService()
+
+ transaction_service.createTransaction(data).then(res=>{
+console.log(res)
+  console.log(data.data)
+
+ })
+
+ 
+ 
   const initiatePayment = async () => {
     try {
       const response = await axios.post("http://localhost:5000/api/create-order", { amount });
@@ -14,9 +30,9 @@ const CashfreePayment = ({ amount }: { amount: number }) => {
       }
 
       // Open the payment page in a new window
-      const paymentWindow = window.open("", "_blank", "width=600,height=800");
+      // const paymentWindow = window.open("", "_blank", "width=600,height=800");
 
-      if (paymentWindow) {
+      // if (paymentWindow) {
         const htmlContent = ` <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,12 +59,12 @@ const CashfreePayment = ({ amount }: { amount: number }) => {
 </html>
       `;
 
-        paymentWindow.document.open();
-        paymentWindow.document.write(htmlContent);
-        paymentWindow.document.close();
-      } else {
-        alert("Popup blocked! Please allow popups for this site.");
-      }
+        document.open();
+      document.write(htmlContent);
+      document.close();
+      // } else {
+      //   alert("Popup blocked! Please allow popups for this site.");
+      // }
     } catch (error) {
       console.error("Payment initiation failed:", error);
       alert("Payment failed. Please try again.");

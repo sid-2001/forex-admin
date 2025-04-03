@@ -1242,7 +1242,27 @@ selectedCountryoption=="SA"?<>
               Confirm & Pay
             </Button>
   </>:<>
-  <CashfreePayment amount={(Number(amount)+  Number(selecteTimeChange)+ Number(gatewayCharge))} /> 
+  <CashfreePayment data={   {
+        //@ts-ignore
+        benificary:{"benificaryId":  selectedBenficary?.benificaryId},
+        transferMethod:selectedTransferMethod,
+         destinationCountry:selectedCountry,
+         selectedTimeMethod:selectedTime,
+         gatewayStatus:selectedGateway,
+         amount:amount,
+        applicant:selectedUser,
+        forex:forexRate,
+        gatewayId:'13122',
+         //@ts-ignore
+        timecharge:selectedTime?.time,
+        sourceCurrency:selectedCountryoption=="SA"?"ZAR":"INR",
+      
+        sourceCountry:selectedCountryoption=='SA'?"ZA":"IN",
+        destinationCurrency:selectedCountryoption=='SA'?"INR":"ZAR",
+       totalpaybleamount: (Number(amount)+  Number(selecteTimeChange)+ Number(gatewayCharge))
+      
+       
+    }  }  amount={(Number(amount)+  Number(selecteTimeChange)+ Number(gatewayCharge))} /> 
   </>
 }
 

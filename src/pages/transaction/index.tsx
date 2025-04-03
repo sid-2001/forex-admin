@@ -786,10 +786,13 @@ const[selectedCountryOption,setSelectedCountryOption]=useRecoilState(selectedCou
               </Grid>
 
             </Grid>
+            {
+             JSON.stringify( transactionDetails)
+            }
 
-            {/* <Button variant="contained" color="primary" onClick={closeDrawer}>
+            <Button variant="contained" color="primary" onClick={closeDrawer}>
               Close
-            </Button> */}
+            </Button>
           </Box>
         )}
       </Drawer>
