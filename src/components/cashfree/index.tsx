@@ -4,6 +4,10 @@ import { Button } from "@mui/material";
 import { TransactionService } from "@/services/transaction.service";
 
 import { Cashfree } from "cashfree-pg"; 
+import { useRecoilState } from "recoil";
+import { selectedCountryState } from "@/states/state";
+
+const { VITE_APP_BACKEND } = import.meta.env
 
 
 
@@ -11,28 +15,49 @@ const CashfreePayment = ({ amount,data }: { amount: number,data:any }) => {
 
   let transaction_service=new TransactionService()
 
- transaction_service.createTransaction(data).then(res=>{
-console.log(res)
-  console.log(data.data)
+  const[selectedCountryoption,setSelectedCountryoption]=useRecoilState(selectedCountryState)
 
- })
 
+console.log("Payment data is here",data)
  
  
   const initiatePayment = async () => {
     try {
-      const response = await axios.post("http://localhost:5000/api/create-order", { amount });
+      const response = await axios.post(`${VITE_APP_BACKEND}/api/create-order`, { amount });
       const { payment_session_id } = response.data;
+      console.log(data)
+
+let deal_data=      await    transaction_service.createDealcover({
+        sourceCurrency:selectedCountryoption=="SA"?"ZAR":"INR",
+        destinationCurrency:selectedCountryoption=='SA'?"INR":"ZAR",
+        destinationCountry:selectedCountryoption=='SA'?"IN":"ZA",
+        applicantId:data?.applicant?.applicantId as any,
+        rate: Number(data.forex)
+        
+        
+        
+        })
+        console.log(deal_data.dealNumber)
+
+        if(deal_data.dealNumber){
+
+
+          await  transaction_service.createTransaction(data).then(res=>{
+            console.log(res)
+              console.log(data.data)
+            
+             })
+    
+        }
+
+       
 
       if (!payment_session_id) {
         alert("Failed to get session ID");
         return;
       }
 
-      // Open the payment page in a new window
-      // const paymentWindow = window.open("", "_blank", "width=600,height=800");
-
-      // if (paymentWindow) {
+ 
         const htmlContent = ` <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -59,9 +84,12 @@ console.log(res)
 </html>
       `;
 
-        document.open();
-      document.write(htmlContent);
-      document.close();
+     
+      //   document.open();
+      // document.write(htmlContent);
+      // document.close()
+
+
       // } else {
       //   alert("Popup blocked! Please allow popups for this site.");
       // }

@@ -27,6 +27,12 @@ export const sidbarSelectionState = atom({
   default: '',
 })
 
+
+export const availableBalanceState = atom({
+  key: 'availableBalanceState',
+  default: '0000000',
+})
+
 export const role = atom({
   key: 'role',
   default: 'admin',

@@ -17,6 +17,7 @@ import { useRecoilState } from 'recoil'
 import { loaderState, loaderStateNew, selectedCountryState } from '@/states/state'
 import { ApplicantService } from '@/services/applicant.service'
 import CompliancTool from '@/components/compliance-tool'
+import { HelperService } from '@/helpers/helper'
 function formatDateTime(timestamp:any) {
   const date = new Date(timestamp);
 
@@ -35,6 +36,8 @@ const TransactionPage = () => {
 
   // reporting:e?.transactionOutward?.reportingStatus=="ACK"?"Reported":"Pending",
   //           status:e?.transactionOutward?.transactionStatus=="CR"?"Pending":"Done",
+
+  const helper=new HelperService()
 
   const columns_outward: GridColDef[] = [
     { field: 'id', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
@@ -211,6 +214,7 @@ const[selectedCountryOption,setSelectedCountryOption]=useRecoilState(selectedCou
 const[selectedCountryoption,setselectedCountryoption]=useRecoilState(selectedCountryState)
   const [userList, setUserList] = useState([])
   const[creattrx,setCreatetrx]=useState('')
+  const[zaphierlink,setZaphierLink]=useState('')
 
   let applicant_service = new ApplicantService()
 
@@ -266,12 +270,26 @@ const[selectedCountryoption,setselectedCountryoption]=useRecoilState(selectedCou
   }, [])
 
 
-const addpayment=()=>{
+
+
+const addpayment=(create_trx:any)=>{
 
   let trx_service=new TransactionService()
-  trx_service.createTransaction(creattrx).then(data=>{
+  trx_service.createTransaction(create_trx).then(data=>{
 
     console.log(data)
+  })
+
+  console.log("trx detials",transactionDetails)
+  trx_service.createZaphierTransaction({
+
+    amount:(Number(create_trx?.totalpaybleamount)),
+    currency:"ZAR"
+  }).then(data=>{
+ console.log(data?.redirectUrl)
+    setZaphierLink(data?.redirectUrl)
+
+    // console.log(data?.redirectUrl)
   })
 }
 
@@ -284,8 +302,14 @@ const addpayment=()=>{
     benificary:{"benificaryId":  row?.beneficiaryId},
     transferMethod:'Bank Trannsfer',
      destinationCountry:row.destination,
-     selectedTimeMethod:'1',
-     gatewayStatus:'Payz',
+     selectedTimeMethod:{
+      "id": 2,
+      "time": "8 hours",
+      "charges": 5,
+      "total": 200,
+      "segment": 2
+  },
+     gatewayStatus:'Success',
      amount:row.value,
     applicant:row.applicantId,
     forex: row.exchangeRates,
@@ -305,8 +329,7 @@ const addpayment=()=>{
 
 setCreatetrx(d as any)
 
-addpayment()
-
+addpayment(d as any)
 
 
 
@@ -351,7 +374,7 @@ console.log(d)
             destination: e?.transactionInwardList?.receivingCountry,
             value: e?.transactionInwardList?.settlementAmount,
             currency: e?.transactionInwardList?.settlementCurrency,
-            settlement: e?.transactionInwardList?.settlementAmount,
+            settlement: helper.roundToTwoFixed( e?.transactionInwardList?.settlementAmount),
             destinationBank: e?.transactionInwardList?.destinationBankCode,
             errorCause: " ",
             forex: e?.transactionOutward?.exchangeRates,
@@ -373,14 +396,14 @@ console.log(d)
             destination: e?.transactionOutward?.receiveCountry,
             value: e?.transactionOutward?.principalAmount,
             currency: e?.transactionOutward?.settlementCurrency,
-            settlement: e?.transactionOutward?.principalAmount * e?.transactionOutward?.exchangeRates,
+            settlement:  helper.roundToTwoFixed( e?.transactionOutward?.principalAmount * e?.transactionOutward?.exchangeRates),
             destinationBank: e?.transactionOutward?.destinationBankBicCode,
-            forex: e?.transactionOutward?.exchangeRates,
+            forex:  helper.roundToTwoFixed( e?.transactionOutward?.exchangeRates),
             date: e?.transactionOutward?.owCreatedDate,
   
             reporting: e?.transactionOutward?.reportingStatus,
             status: e?.transactionOutward?.transactionStatus,
-            final_amount: e?.transactionOutward?.exchangeRates * e?.transactionOutward?.principalAmount,
+            final_amount:  helper.roundToTwoFixed( e?.transactionOutward?.exchangeRates * e?.transactionOutward?.principalAmount),
             applicant: e?.applicant,
           };
         })
@@ -435,6 +458,9 @@ console.log(d)
 
   const closeDrawer = () => {
     setDrawerOpen(false)
+    // window.location.href = zaphierlink;
+  
+   
   }
   const theme = useTheme()
   const navigate = useNavigate()
@@ -451,6 +477,7 @@ console.log(d)
   // Close the dialog
   const handleClose = () => {
     setOpen(false);
+   
   };
 
   // Handle applying filters
@@ -680,10 +707,14 @@ console.log(d)
 
             </Grid>
           
-
-            <Button variant="contained" color="primary" onClick={closeDrawer}>
-              Close
-            </Button>
+            <Button variant="outlined" onClick={closeDrawer}>
+  <img
+    src="https://media.licdn.com/dms/image/v2/C560BAQEH3RSdlorC_g/company-logo_200_200/company-logo_200_200/0/1675795834026/zapier_logo?e=2147483647&v=beta&t=Hx-pHbieeJMPM-LUGcTe3O8iwYPYW7xUBc0W1uC2tBs"
+    alt="Zapier Logo"
+    style={{ width: 24, height: 24, marginRight: 8, borderRadius: '50%' }}
+  />
+  Complete Payment
+</Button>
           </Box>
         )}
       </Drawer>

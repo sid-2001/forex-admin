@@ -14,6 +14,7 @@ import {
   Toolbar,
   Menu,
   MenuItem,
+  TextField,
 } from '@mui/material'
 import { styled } from '@mui/system'
 import { Chuks, John, Logo, LogoWhite } from '@/assets/images'
@@ -24,7 +25,7 @@ import { useRecoilState } from 'recoil'
 // import { studentService } from "@/services/student.service";
 import { LocalStorageService } from '@/helpers/local-storage-service'
 
-import { alertState, alertTextState, alertTypeState, loaderState, role, sidbarSelectionState, selectedAppState, loaderStateNew, selectedCountryState } from '@/states/state'
+import { alertState, alertTextState, alertTypeState, loaderState, role, sidbarSelectionState, selectedAppState, loaderStateNew, selectedCountryState, availableBalanceState } from '@/states/state'
 import { useState } from 'react'
 import Fade from '@mui/material/Fade'
 import Backdrop from '@mui/material/Backdrop'
@@ -61,6 +62,7 @@ import ShowChartIcon from '@mui/icons-material/ShowChart'
 // import { IconButton } from '@mui/material';
 
 import { Us, Sa, Za,In } from 'react-flags-select'
+import { TransactionService } from '@/services/transaction.service'
 
 
 const RotatingImage = (
@@ -159,6 +161,7 @@ const DashboardLayout = () => {
   const [text, setText] = useRecoilState(alertTextState)
   const [type, settype] = useRecoilState(alertTypeState)
   const [selectedTab, setSelectedTab] = useRecoilState(sidbarSelectionState)
+  const[balance,setBalance]=useRecoilState(availableBalanceState)
 
   const [droppopopen, setdropopoOpen] = useState(false)
 
@@ -329,7 +332,18 @@ const DashboardLayout = () => {
 
   // let [cartitme,se]
 
+let trx_service=new TransactionService()
+  
+
   useEffect(() => {
+
+trx_service.getBalanceEnquiry().then(data=>{
+
+console.log(data)
+setBalance(data as any)
+
+})
+    
     setTimeout(() => {
       setLoader(false)
     }, 2000)
@@ -430,6 +444,19 @@ const DashboardLayout = () => {
           <Box sx={{ flexGrow: 1, p: 1, color: 'white' }}>
             <img src={LogoWhite} alt="Logo" style={{ height: 60 }} />
           </Box>
+
+
+          <Box
+          sx={{
+
+            marginRight:"23px"
+          }}
+          >
+
+<strong>Availbale Balance :</strong><br></br>
+<text>{balance}</text>
+
+</Box>
           <Box
             sx={{
               display: 'flex',
@@ -444,6 +471,9 @@ const DashboardLayout = () => {
               marginBottom: '6px',
             }}
           >
+
+
+        
        
 
             {
