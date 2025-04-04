@@ -208,6 +208,7 @@ const TransactionPage = () => {
 const[selectedCountryOption,setSelectedCountryOption]=useRecoilState(selectedCountryState)
   //@ts-ignore
   const [applicant, setApplicant] = useState<Applicant>(null)
+  const[trxStatus,settrxStatus]=useState('')
 
   const [transactionData, setTransactionData] = useState(inboundTransaction)
   const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
@@ -280,7 +281,7 @@ const addpayment=(create_trx:any)=>{
     console.log(data)
   })
 
-  console.log("trx detials",transactionDetails)
+  console.log("trx detials",)
   trx_service.createZaphierTransaction({
 
     amount:(Number(create_trx?.totalpaybleamount)),
@@ -297,6 +298,8 @@ const addpayment=(create_trx:any)=>{
 
     console.log(row)
 
+    settrxStatus(row?.status)
+
   let d={
     //@ts-ignore
     benificary:{"benificaryId":  row?.beneficiaryId},
@@ -311,7 +314,9 @@ const addpayment=(create_trx:any)=>{
   },
      gatewayStatus:'Success',
      amount:row.value,
-    applicant:row.applicantId,
+    applicant:{
+      
+  "applicantId":   row.applicantId},
     forex: row.exchangeRates,
     gatewayId:'13122',
      //@ts-ignore
@@ -458,7 +463,7 @@ console.log(d)
 
   const closeDrawer = () => {
     setDrawerOpen(false)
-    // window.location.href = zaphierlink;
+    window.location.href = zaphierlink;
   
    
   }
@@ -707,7 +712,11 @@ console.log(d)
 
             </Grid>
           
-            <Button variant="outlined" onClick={closeDrawer}>
+
+          {
+
+            trxStatus=="DRAFT"?(<>
+                        <Button variant="outlined" onClick={closeDrawer}>
   <img
     src="https://media.licdn.com/dms/image/v2/C560BAQEH3RSdlorC_g/company-logo_200_200/company-logo_200_200/0/1675795834026/zapier_logo?e=2147483647&v=beta&t=Hx-pHbieeJMPM-LUGcTe3O8iwYPYW7xUBc0W1uC2tBs"
     alt="Zapier Logo"
@@ -715,6 +724,11 @@ console.log(d)
   />
   Complete Payment
 </Button>
+            
+            </>):(<>
+            </>)
+          }
+
           </Box>
         )}
       </Drawer>

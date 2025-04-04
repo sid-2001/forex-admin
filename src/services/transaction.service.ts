@@ -54,7 +54,7 @@ export class TransactionService extends BaseService {
     let url = `/api/transactions/transaction-details//balanceEnquiry`
     try {
 
-      let {data} = await api1.get(url)
+      let data = await api1.get(url)
       console.log(data)
       
       return data

@@ -453,8 +453,8 @@ setBalance(data as any)
           }}
           >
 
-<strong>Availbale Balance :</strong><br></br>
-<text>{balance}</text>
+<strong>Available Balance :</strong><br></br>
+<text>₹{balance}</text>
 
 </Box>
           <Box
