@@ -280,10 +280,6 @@ const[selectedCountryoption,setselectedCountryoption]=useRecoilState(selectedCou
 const addpayment=(create_trx:any)=>{
 
   let trx_service=new TransactionService()
-  trx_service.createTransaction(create_trx).then(data=>{
-
-    console.log(data)
-  })
 
   console.log("trx detials",)
   trx_service.createZaphierTransaction({
@@ -466,7 +462,21 @@ console.log(d)
   }
 
   const closeDrawer = () => {
+
+let trx_service=new TransactionService();
+
+if(trxStatus=="DRAFT"||trxStatus=="PENDING"){
+  trx_service.createTransaction(creattrx).then(data=>{
+
+    console.log(data)
+  })
+}
+
+ 
+  
+
     setDrawerOpen(false)
+    setZaphierLink('')
     // window.location.href = zaphierlink;
   
    
@@ -721,7 +731,7 @@ console.log(d)
           {
 
             (trxStatus=="DRAFT"||trxStatus=="PENDING")?(<>
-                        <Button variant="outlined" onClick={()=>{closeDrawer()
+                        <Button  disabled={zaphierlink.length>0?false:true} variant="outlined" onClick={()=>{closeDrawer()
 
                           // window.location.href=zaphierlink;
                           openInNewTab(zaphierlink)
