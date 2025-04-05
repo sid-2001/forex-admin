@@ -8,7 +8,6 @@ import { useParams } from 'react-router-dom'
 
 const { VITE_FOREX_NODE_APP_URL } = import.meta.env
 
-// const backendUrl = VITE_FOREX_NODE_APP_URL
 const backendUrl = VITE_FOREX_NODE_APP_URL
 
 const disableFormFieldsViaStatus = 'Released'
@@ -133,7 +132,7 @@ const BopScreen: React.FC = () => {
       .then((response) => response.json())
       .then((result) => {
         console.log(result, 'payal')
-        // window.location.reload()
+        window.location.reload()
       })
       .catch((error) => console.error(error))
   }
