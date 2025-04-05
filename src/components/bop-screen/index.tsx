@@ -133,7 +133,7 @@ const BopScreen: React.FC = () => {
       .then((response) => response.json())
       .then((result) => {
         console.log(result, 'payal')
-        // window.location.reload()
+        window.location.reload()
       })
       .catch((error) => console.error(error))
   }
