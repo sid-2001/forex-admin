@@ -192,7 +192,11 @@ const TransactionPage = () => {
     //    headerClassName: 'super-app-theme--header' 
     // },
   ];
-  
+
+  const openInNewTab = (url:any) => {
+    const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+    if (newWindow) newWindow.opener = null
+  }
 
   const [isDrawerOpen, setDrawerOpen] = useState(false)
   const [modalOpen, setmodalOpen] = useState(false)
@@ -463,7 +467,7 @@ console.log(d)
 
   const closeDrawer = () => {
     setDrawerOpen(false)
-    window.location.href = zaphierlink;
+    // window.location.href = zaphierlink;
   
    
   }
@@ -640,7 +644,8 @@ console.log(d)
             >
               TRN ID- {transactionDetails.id}
             </Typography>
-            <Chip label="Pending" color="warning" sx={{ marginBottom: 2 }} />
+            
+            <Chip label={transactionDetails?.status} color="warning" sx={{ marginBottom: 2 }} />
             <Divider sx={{ my: 2 }} />
 
             {/* Transaction Details Section */}
@@ -715,8 +720,14 @@ console.log(d)
 
           {
 
-            trxStatus=="DRAFT"?(<>
-                        <Button variant="outlined" onClick={closeDrawer}>
+            (trxStatus=="DRAFT"||trxStatus=="PENDING")?(<>
+                        <Button variant="outlined" onClick={()=>{closeDrawer()
+
+                          // window.location.href=zaphierlink;
+                          openInNewTab(zaphierlink)
+
+
+                        }}>
   <img
     src="https://media.licdn.com/dms/image/v2/C560BAQEH3RSdlorC_g/company-logo_200_200/company-logo_200_200/0/1675795834026/zapier_logo?e=2147483647&v=beta&t=Hx-pHbieeJMPM-LUGcTe3O8iwYPYW7xUBc0W1uC2tBs"
     alt="Zapier Logo"
