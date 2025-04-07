@@ -8,7 +8,6 @@ import { useParams } from 'react-router-dom'
 
 const { VITE_FOREX_NODE_APP_URL } = import.meta.env
 
-// const backendUrl = VITE_FOREX_NODE_APP_URL
 const backendUrl = VITE_FOREX_NODE_APP_URL
 
 const disableFormFieldsViaStatus = 'Released'
@@ -24,6 +23,9 @@ const BopScreen: React.FC = () => {
   const [errors, setErrors] = useState<any>({})
   const [bopData, setBopData] = useState<any>({})
   const [bopCat, setbopCat] = useState<any>(null)
+
+  const storedLocalData = localStorage.getItem('user') || "";
+  const parseData = JSON.parse(storedLocalData);
 
   const validateForm = () => {
     // const newErrors: any = {};
@@ -186,11 +188,12 @@ const BopScreen: React.FC = () => {
       .then((result) => {
         setBopData({ ...result.data })
         const { data } = result
+        const userName  = data?.name.replace(/\s+/g, ' ')
         setFormData({
           ...data,
-          first_name: data.name.split(' ')[0],
-          middle_name: data?.name.split(' ').length === 3 ? data?.name.split(' ')[1] : '',
-          last_name: data.name.split(' ').length === 3 ? data.name.split(' ')[2] : data.name.split(' ')[1],
+          first_name: userName.split(' ')[0],
+          middle_name: userName.split(' ').length === 3 ? userName.split(' ')[1] : '',
+          last_name: userName.split(' ').length === 3 ? userName.split(' ')[2] : userName.split(' ')[1],
           dob: dayjs(data.dob).format('MM/DD/YYYY'),
         })
       })
@@ -277,19 +280,18 @@ const BopScreen: React.FC = () => {
         <Grid item xs={3}>
           <TextField
             size="small"
-            label="Bop Category"
+            label={parseData?.citizenship === 'India' ? "Purpose Code" : "Bop Category"}
             variant="outlined"
             name="bop_category"
-            value={bopCat?.bop_category || '401'}
+            value={parseData?.citizenship === 'India' ? "S1302" : "401"}
             fullWidth
-            // onChange={handleBopCategoryChange}
             disabled
           />
         </Grid>
         <Grid item xs={3}>
           <TextField
             size="small"
-            label="Bop Sub Category"
+            label="Sub Category"
             variant="outlined"
             name="bop_subcategory"
             value={bopCat?.bop_subcategory || '00'}
@@ -652,7 +654,7 @@ const BopScreen: React.FC = () => {
           </Grid>
           <Grid item xs={2.2}>
             <TextField
-              label="State/Provance"
+              label="State/Province"
               fullWidth
               size="small"
               name="residence_state"
@@ -771,7 +773,7 @@ const BopScreen: React.FC = () => {
           </Grid>
           <Grid item xs={2.2}>
             <TextField
-              label="Postal State/Postal Provance"
+              label="Postal State/Province"
               fullWidth
               size="small"
               name="postal_state"
@@ -830,7 +832,7 @@ const BopScreen: React.FC = () => {
             fullWidth
           />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <TextField
             label="Address Line 1"
             fullWidth
@@ -841,7 +843,7 @@ const BopScreen: React.FC = () => {
             disabled
           />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <TextField
             label="Address Line 2"
             fullWidth
@@ -852,7 +854,7 @@ const BopScreen: React.FC = () => {
             disabled
           />
         </Grid>
-        <Grid item xs={3}>
+        {/* <Grid item xs={3}>
           <TextField
             label="Address Line 3"
             fullWidth
@@ -862,8 +864,8 @@ const BopScreen: React.FC = () => {
             value={formData.benificiary_physical_address_line3 || ''}
             disabled
           />
-        </Grid>
-        <Grid item xs={2}>
+        </Grid> */}
+        {/* <Grid item xs={2}>
           <TextField
             label="Suburb"
             fullWidth
@@ -873,8 +875,8 @@ const BopScreen: React.FC = () => {
             value={formData.benificiary_suburb || ''}
             disabled
           />
-        </Grid>
-        <Grid item xs={2}>
+        </Grid> */}
+        <Grid item xs={2.3}>
           <TextField
             label="City"
             size="small"
@@ -885,9 +887,9 @@ const BopScreen: React.FC = () => {
             disabled
           />
         </Grid>
-        <Grid item xs={2}>
+        <Grid item xs={2.3}>
           <TextField
-            label="State/Provance"
+            label="State/Province"
             fullWidth
             size="small"
             name="benificiary_state"
@@ -896,7 +898,7 @@ const BopScreen: React.FC = () => {
             disabled
           />
         </Grid>
-        <Grid item xs={2}>
+        <Grid item xs={2.3}>
           <TextField
             label="Zipcode"
             size="small"
@@ -907,7 +909,7 @@ const BopScreen: React.FC = () => {
             disabled
           />
         </Grid>
-        <Grid item xs={2}>
+        <Grid item xs={2.3}>
           <TextField
             label="Country"
             size="small"
@@ -918,7 +920,7 @@ const BopScreen: React.FC = () => {
             disabled
           />
         </Grid>
-        <Grid item xs={2}>
+        <Grid item xs={2.3}>
           <TextField
             size="small"
             label="Non Resident Account Identifier"
