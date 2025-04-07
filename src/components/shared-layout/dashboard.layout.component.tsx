@@ -480,7 +480,8 @@ setBalance(data as any)
 
 selecteCountryState=="SA"?<>
 
-<Avatar >{local_service.get_user().firstName[0] }</Avatar>
+<Avatar >{ <strong>{ (local_service.get_user().firstName[0] ) +(local_service.get_user().lastName[0])}</strong>
+                }</Avatar>
 
 <Box ml={1}>
               <Typography
@@ -520,7 +521,7 @@ selecteCountryState=="SA"?<>
               </Stack>
             </Box>
 </>:<>
-<Avatar >{local_service.get_user().firstName[0] }</Avatar>
+<Avatar >{local_service.get_user().firstName[0]+" "+local_service.get_user().lastName[0] }</Avatar>
 
 <Box ml={1}>
               <Typography

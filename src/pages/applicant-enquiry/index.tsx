@@ -91,11 +91,11 @@ const ApplicantEnquiry = () => {
             }}
           />
         </Grid>
-        <Grid marginInline={4}>
+        {/* <Grid marginInline={4}>
           <strong>OR</strong>
-        </Grid>
+        </Grid> */}
 
-        <Grid item xs={3}> {/* Both fields have equal width */}
+        {/* <Grid item xs={3}> 
           <TextField
             variant="standard"
             fullWidth
@@ -110,7 +110,7 @@ const ApplicantEnquiry = () => {
               },
             }}
           />
-        </Grid>
+        </Grid> */}
 
         <Grid item xs={4} container spacing={2}>
           <Grid item xs={4}>

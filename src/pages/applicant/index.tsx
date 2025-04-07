@@ -407,7 +407,7 @@ setPostalSelectedCity(city);
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
-              }} src={chuks}>SK</Avatar>
+              }}>{firstName[0]+""+lastName[0]}</Avatar>
             </Box>
           </Grid>
           <Grid item xs={12} sm={8}>

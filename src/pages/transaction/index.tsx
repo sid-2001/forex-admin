@@ -12,23 +12,43 @@ import {
   TransactionInwardCalclulated,
   TransactionOutward,
 } from '@/types/transaction.type'
-import { Filter1Outlined, SettingsAccessibilityRounded, Sync } from '@mui/icons-material'
+import { Filter1Outlined, PreviewOutlined, SettingsAccessibilityRounded, Sync } from '@mui/icons-material'
 import { useRecoilState } from 'recoil'
 import { loaderState, loaderStateNew, selectedCountryState } from '@/states/state'
 import { ApplicantService } from '@/services/applicant.service'
 import CompliancTool from '@/components/compliance-tool'
 import { HelperService } from '@/helpers/helper'
-function formatDateTime(timestamp:any) {
-  const date = new Date(timestamp);
+// function formatDateTime(timestamp: string) {
+//  console.log(timestamp)
 
-  // Format Date as DD/MM/YYYY
-  const formattedDate = date.toLocaleDateString('en-GB'); 
+//   const date = new Date(timestamp);
 
-  // Format Time as HH:MM:SS
-  const formattedTime = date.toLocaleTimeString('en-GB', { hour12: false });
+//   // Format Date as DD/MM/YYYY in IST
+//   const formattedDate = date.toLocaleDateString('en-GB', {
+//     timeZone: 'Asia/Kolkata',
+//   });
 
-  return `${formattedDate} and ${formattedTime}`;
+//   // Format Time as HH:MM:SS in IST (24-hour format)
+//   const formattedTime = date.toLocaleTimeString('en-GB', {
+//     timeZone: 'Asia/Kolkata',
+//     hour12: false,
+//   });
+
+//   return `${formattedDate}  ${formattedTime}`;
+// }
+
+
+import moment from "moment-timezone";
+
+
+function formatDateTime(timestamp: string): string {
+  // const istTime = moment(timestamp).tz("Asia/Kolkata");
+  // return istTime.format("DD/MM/YYYY HH:mm:ss");
+
+  return timestamp
 }
+
+
 
 
 
@@ -42,7 +62,12 @@ const TransactionPage = () => {
   const columns_outward: GridColDef[] = [
     { field: 'id', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'destination', headerName: 'Destination', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'value', headerName: 'Amount ', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'value', headerName: ' Principal Amount ', flex: 1, headerClassName: 'super-app-theme--header' },
+
+    { field: 'principalCurrency', headerName: ' Principal Currency ', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'settlementAmount', headerName: ' Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' },
+
+    { field: 'settlementCurrency', headerName: 'Settlement Currency  ', flex: 1, headerClassName: 'super-app-theme--header' },
 
    
     {
@@ -61,8 +86,8 @@ const TransactionPage = () => {
     { field: 'forex', headerName: 'Exchange Rate', flex: 1, headerClassName: 'super-app-theme--header' },
 
     { field: 'charges', headerName: 'Charges', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'currency', headerName: 'Currency', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'final_amount', headerName: 'Settlement Amount INR', flex: 1, headerClassName: 'super-app-theme--header' },
+    // { field: 'currency', headerName: 'Currency', flex: 1, headerClassName: 'super-app-theme--header' },
+    // { field: 'final_amount', headerName: 'Settlement Amount ', flex: 1, headerClassName: 'super-app-theme--header' },
     {
       field: "stpError",
       headerName: "STP Error",
@@ -100,12 +125,31 @@ const TransactionPage = () => {
           }}>
             <VisibilityIcon />
           </IconButton>
-          {params?.row?.transactionNumber? <a style={{
-              cursor: 'pointer',
-            }}
-            onClick={()=>navigate(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`)}>
-            View Bop
-          </a>:null}
+      
+         </>
+      ),
+    },
+
+
+    {
+      field: 'bob action',
+      headerName: 'Bop',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => (
+      
+        <>
+          <IconButton onClick={() => {
+
+navigate(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`)
+            handleViewMore(params.row)
+          }}>
+
+
+
+            <PreviewOutlined />
+          </IconButton>
+         
          </>
       ),
     },
@@ -138,7 +182,7 @@ const TransactionPage = () => {
         params
            
         )=>{
- formatDateTime(params.value?.owCreatedDate)
+  return  formatDateTime(params.value?.owCreatedDate)
 
         }
      
@@ -354,7 +398,7 @@ console.log(d)
     setcommonloader(true)
 
 
-    transaction_Service.getInwardTransaction(selectedCountryOption== "IN"?"IN":"SA").then(data=>{
+    transaction_Service.getInwardTransaction(selectedCountryOption== "IN"?"IN":"ZA").then(data=>{
       console.log('Inward Transaction')
       console.log(data)
       setInboundTransaction(data)
@@ -515,10 +559,12 @@ if(trxStatus=="DRAFT"||trxStatus=="PENDING"){
         <strong>Transactions</strong>
       </Typography>
       <ToggleButtonGroup value={transactionType} exclusive onChange={handleToggleTransactionType} sx={{ mb: 2 }}>
-        <ToggleButton value="inwards" sx={{ backgroundColor: '#005099', color: 'white' }}>
+        <ToggleButton value=" outwards" sx={{ backgroundColor: '#005099', color: 'white' }}>
           Inwards
         </ToggleButton>
-        <ToggleButton value="outwards" sx={{ backgroundColor: '#005099', color: 'white' }}>
+
+       
+        <ToggleButton value="inwards" sx={{ backgroundColor: '#005099', color: 'white' }}>
           Outwards
         </ToggleButton>
       </ToggleButtonGroup>

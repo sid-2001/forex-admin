@@ -180,6 +180,34 @@ setKycStatus(selected_data[0]?.kycStatus)
 
         console.log(data)
 
+        kycservice.changeKycStatus('p',proofType?.id?.kycId).then(data=>{
+
+          console.log(data)
+
+          applicant_service.getApplicantKyc().then((data) => {
+      
+            // console.log(data)
+          
+            setMockData(data)
+             //@ts-ignores
+            setFilteredData(data)
+            setCommonLoader(false)
+      
+      let selected_data=data.filter(e=>e.kycId==proofType?.id?.kycId)
+      console.log(selected_data)
+      if(selected_data.length>0){
+    
+    setSelectedKYC(selected_data[0])   
+    setKycStatus(selected_data[0]?.kycStatus) 
+    // setKycStatus(selected_data[0]?.kycstatus)
+    setCheckboxOpen(false)
+      }
+      
+          })
+
+
+        })
+
         // window.location.reload()
       }).catch(err=>{
 
@@ -187,26 +215,9 @@ setKycStatus(selected_data[0]?.kycStatus)
       })
 
 
-      applicant_service.getApplicantKyc().then((data) => {
-      
-        // console.log(data)
-      
-        setMockData(data)
-         //@ts-ignores
-        setFilteredData(data)
-        setCommonLoader(false)
-  
-  let selected_data=data.filter(e=>e.kycId==proofType?.id?.kycId)
-  console.log(selected_data)
-  if(selected_data.length>0){
+    
 
-setSelectedKYC(selected_data[0])   
-setKycStatus(selected_data[0]?.kycStatus) 
-// setKycStatus(selected_data[0]?.kycstatus)
-setCheckboxOpen(false)
-  }
   
-      })
   
   
 
@@ -616,7 +627,10 @@ console.log(row)
     alignItems: "center",
     justifyContent: "center",
   }}
-/>
+> { 
+
+
+selectedKYC?.applicantName?.split(" ").length>0? (selectedKYC?.applicantName.split(" ")[0][0] +' ' + (selectedKYC?.applicantName.split(" ")[1][0]?(selectedKYC?.applicantName.split(" ")[1][0]):"")  ): (selectedKYC?.applicantName.split(" ")[0])} </Avatar>
 
 
                 
