@@ -41,17 +41,46 @@ import { HelperService } from '@/helpers/helper'
 import moment from "moment-timezone";
 
 
+// function formatDateTime(timestamp: string): string {
+//   const istTime = moment(timestamp).tz("Asia/Kolkata");
+//   return istTime.format("DD/MM/YYYY HH:mm:ss");
+
+//   return timestamp
+// }
+
+// function formatDateTime(timestamp: any): string {
+//   const timeStr = String(timestamp).trim();
+
+//   const istTime = moment.tz(timeStr, "Asia/Kolkata");
+
+//   if (!istTime.isValid()) {
+//     console.warn("Invalid timestamp provided:", timestamp);
+//     return "Invalid Date";
+//   }
+ 
+//   return istTime.format("DD/MM/YYYY HH:mm:ss");
+// }
+
+
+// function formatDateTime(timestamp: string): string {
+//   const istTime = moment.utc(timestamp).tz("Asia/Kolkata");
+
+//   if (!istTime.isValid()) {
+//     return "Invalid Date";
+//   }
+ 
+//   return istTime.format("DD/MM/YYYY HH:mm:ss");
+// }
+
 function formatDateTime(timestamp: string): string {
-  // const istTime = moment(timestamp).tz("Asia/Kolkata");
-  // return istTime.format("DD/MM/YYYY HH:mm:ss");
+  const istTime = moment.utc(timestamp).tz("Asia/Kolkata");
 
-  return timestamp
+  if (!istTime.isValid()) {
+    return "Invalid Date";
+  }
+ 
+  return istTime.format("DD/MM/YYYY HH:mm:ss");
 }
-
-
-
-
-
 const TransactionPage = () => {
 
   // reporting:e?.transactionOutward?.reportingStatus=="ACK"?"Reported":"Pending",
@@ -182,7 +211,7 @@ navigate(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_att
         params
            
         )=>{
-  return  formatDateTime(params.value?.owCreatedDate)
+  return  formatDateTime( (params.value?.owCreatedDate))
 
         }
      
