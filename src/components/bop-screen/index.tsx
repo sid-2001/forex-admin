@@ -234,11 +234,11 @@ const BopScreen: React.FC = () => {
           disabled={!(bopData?.sap_status === 'Nack')}
           onClick={() => handleCancelReplaceBopFunc()}
         >
-          Cancel Replace Bop
+          Cancel Replace
         </Button>
       </Box>
       <Box>
-        <Typography variant="h5">Bop Details</Typography>
+        <Typography variant="h5">Reporting Details</Typography>
       </Box>
 
       <Grid container spacing={2} mt={1}>
@@ -273,7 +273,9 @@ const BopScreen: React.FC = () => {
       </Grid>
 
       <Box mt={3}>
-        <Typography variant="h5">Bop Category Details</Typography>
+        <Typography variant="h5">
+        {parseData?.citizenship === 'India' ? "Purpose Code Details" : "Bop Category Details"}
+          </Typography>
       </Box>
 
       <Grid container spacing={2} mt={1}>
