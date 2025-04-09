@@ -48,6 +48,7 @@ import { Segment } from '@mui/icons-material'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import CashfreePayment from '@/components/cashfree'
+import { HelperService } from '@/helpers/helper'
 const { VITE_APP_BACKEND, VITE_APP_URL, VITE_APP_APPLICANT, VITE_APP_KYC, VITE_APP_TRANSACTION } = import.meta.env
 
 let cashfree;
@@ -160,6 +161,8 @@ const[selectedCountryoption,setSelectedCountryOption]=useRecoilState(selectedCou
   let applicant_service = new ApplicantService()
   let transaction_service = new TransactionService()
 
+
+  const helper=new HelperService()
   useEffect(() => {
     setcommonloader(true)
     applicant_service.getApplicantDetalis().then((data) => {
@@ -357,6 +360,20 @@ console.log((countrySelected == "IN" ? countries_in:countries))
       };
 
       // Create transaction
+
+
+
+  await    transaction_service.createDealcover({
+        sourceCurrency:selectedCountryoption=="SA"?"ZAR":"INR",
+        destinationCurrency:selectedCountryoption=='SA'?"INR":"ZAR",
+        destinationCountry:selectedCountryoption=='SA'?"INR":"ZAR",
+        applicantId:selectedUser as any,
+        rate: Number(forexRate)
+        
+        
+        
+        })
+
       const transactionResponse = await transaction_service.createTransaction(
         payload
       );
@@ -441,6 +458,19 @@ console.log((countrySelected == "IN" ? countries_in:countries))
        }
        
     
+
+
+  await    transaction_service.createDealcover({
+    sourceCurrency:selectedCountryoption=="SA"?"ZAR":"INR",
+    destinationCurrency:selectedCountryoption=='SA'?"INR":"ZAR",
+    destinationCountry:selectedCountryoption=='SA'?"INR":"ZAR",
+    applicantId:selectedUser as any,
+    rate: Number(forexRate)
+    
+    
+    
+    })
+
 
 
        transaction_service.createTransaction(payload).then(data=>{
@@ -775,7 +805,7 @@ console.log((countrySelected == "IN" ? countries_in:countries))
                   <TextField
                     label="Forex Rate"
                     variant="filled"
-                    value={forexRate}
+                    value= { helper.roundToTwoFixed( forexRate)}
                     InputProps={{
                       readOnly: true,
                     }}
@@ -883,7 +913,7 @@ console.log((countrySelected == "IN" ? countries_in:countries))
 
             <Box sx={{ textAlign: 'left', marginTop: 2 }}>
               <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                Settlement Amount: {  (amount * Number(forexRate)).toFixed(4) + ' ' + currency}
+                Settlement Amount: {   helper.roundToTwoFixed  (amount * Number(forexRate)) + ' ' + currency}
               </Typography>
               <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                 Total Amount: {Number(amount) + Number(selecteTimeChange) + ' ' + sourceCountry}
@@ -1129,14 +1159,14 @@ console.log((countrySelected == "IN" ? countries_in:countries))
                     <TableCell align="right">
                       {
                         //@ts-ignore
-                        amount * forexRate + ' ' + currency
+                        helper.roundToTwoFixed  ( amount * forexRate )+ ' ' + currency
                       }
                     </TableCell>
                   </TableRow>
 
                   <TableRow>
                     <TableCell>Amount</TableCell>
-                    <TableCell align="right">{amount + ' ' + sourceCountry}</TableCell>
+                    <TableCell align="right">{  helper.roundToTwoFixed  (amount )+' ' + sourceCountry}</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell>Platfrom Charges</TableCell>
@@ -1191,19 +1221,30 @@ selectedCountryoption=="SA"?<>
    }
  
 
- transaction_service.createTransaction(payload).then(data=>{
 
-  console.log(data.data)
-//   transaction_service.createPayfastTransaction(data?.data,((Number(amount)+  Number(selecteTimeChange)+ Number(gatewayCharge)))).then((res)=>{
+transaction_service.createDealcover({
+sourceCurrency:selectedCountryoption=="SA"?"ZAR":"INR",
+destinationCurrency:selectedCountryoption=='SA'?"INR":"ZAR",
+destinationCountry:selectedCountryoption=='SA'?"INR":"ZAR",
+applicantId:selectedUser as any,
+rate: Number(forexRate)
 
-// seturl(res.url)
 
 
-// window.open(JSON.parse(res.data)?.url, "_blank", "noopener,noreferrer");
- 
+}).then(
+  //@ts-ignore
+  data=>{
 
-// })
- })
+  transaction_service.createTransaction(payload).then(data=>{
+
+    console.log(data.data)
+  
+   })
+  
+
+})
+
+
 
 
  setGifSuccess(true)
@@ -1242,7 +1283,27 @@ selectedCountryoption=="SA"?<>
               Confirm & Pay
             </Button>
   </>:<>
-  <CashfreePayment amount={(Number(amount)+  Number(selecteTimeChange)+ Number(gatewayCharge))} /> 
+  <CashfreePayment data={   {
+        //@ts-ignore
+        benificary:{"benificaryId":  selectedBenficary?.benificaryId},
+        transferMethod:selectedTransferMethod,
+         destinationCountry:selectedCountry,
+         selectedTimeMethod:selectedTime,
+         gatewayStatus:"Success",
+         amount:amount,
+        applicant:selectedUser,
+        forex:forexRate,
+        gatewayId:'13122',
+         //@ts-ignore
+        timecharge:selectedTime?.time,
+        sourceCurrency:selectedCountryoption=="SA"?"ZAR":"INR",
+      
+        sourceCountry:selectedCountryoption=='SA'?"ZA":"IN",
+        destinationCurrency:selectedCountryoption=='SA'?"INR":"ZAR",
+       totalpaybleamount: (Number(amount)+  Number(selecteTimeChange)+ Number(gatewayCharge))
+      
+       
+    }  }  amount={(Number(amount)+  Number(selecteTimeChange)+ Number(gatewayCharge))} /> 
   </>
 }
 

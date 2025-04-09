@@ -47,6 +47,23 @@ export class TransactionService extends BaseService {
   }
 
 
+    
+   
+  async getBalanceEnquiry(): Promise<Array<TransactionInward>> {
+   
+    let url = `/api/transactions/transaction-details//balanceEnquiry`
+    try {
+
+      let data = await api1.get(url)
+      console.log(data)
+      
+      return data
+    } catch (e) {
+      throw new Error(e as any)
+    }
+  }
+
+
   async getOutwardTransaction(): Promise<TransactionDetailsResponse> {
    
     let url = `/api/transactions/transaction-details`
@@ -74,6 +91,43 @@ export class TransactionService extends BaseService {
 
 
 
+      return data
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  async createDealcover(payload: {
+    "sourceCurrency": String,
+    "destinationCurrency": String,
+    "destinationCountry": String,
+    "applicantId": String,
+    "rate": Number
+}) {
+    let url = `${VITE_APP_TRANSACTION}/api/transactions/deal/bookCover`
+    try {
+
+      
+      let { data } = await axios.post(url, payload)
+
+
+
+      return data
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+
+  async createZaphierTransaction(payload: {
+
+    amount:any,
+    currency:any
+  }) {
+    let url = `${VITE_APP_TRANSACTION}/api/zaphier/generate-uuid`
+    try {
+      
+      let { data } = await axios.post(url, payload)
       return data
     } catch (err) {
       console.log(err)

@@ -26,7 +26,46 @@ console.log(err)
     }
 }
 
+async unverifyDocument(doccode:string,kycid:string){
 
+    let url=`${VITE_APP_KYC}/api/kyc/documents/${kycid}/${doccode}/unVerify`
+        try{
+            let payload= {
+                "kycId": kycid,               // KYC ID for this document
+                "documentCode": doccode  // Document Code
+                  }
+    // let {data}=await axios.post(url,payload)
+    
+    const { data } = await axios.post(url, payload);
+    
+    return data
+        }
+        catch(err){
+    console.log(err)
+    
+        }
+    }
+
+
+async changeKycStatus(status:string,kycid:string){
+
+
+   
+
+        let url=`/api/kyc/kyc/kycId/${kycid}/kycStatus/${status}`
+            try{
+              
+        // let {data}=await axios.post(url,payload)
+        
+        const { data } = await api1.post(url, {});
+        
+        return data
+            }
+            catch(err){
+        console.log(err)
+        
+            }
+        }
 
 async createComment(payload:any){
 

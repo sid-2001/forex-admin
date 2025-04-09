@@ -32,125 +32,8 @@ import { Close, Comment, Coronavirus, Send } from '@mui/icons-material'
 import axios from 'axios'
 import { loaderStateNew } from '@/states/state'
 import { useRecoilState } from 'recoil'
-// import { theme } from '@/contants/theme'
-// const mockData = [
-//   {
-//     id: 1,
-//     kycId: 'KYCIN0012',
-//     customerName: 'Chakshu Chopra',
-//     nationality: 'Indian',
-//     residentCountry: 'South Africa',
-//     idProof: 'Passport',
-//     addressProof: 'Utility Bill',
-//     verificationStatus: 'Pending',
-//     pemanentAddress: {
-//       country: 'South Africa',
-//       zipCode: '233002',
-//       state: 'CapTown',
-//       city: 'Labnon',
-//     },
-//     currentAddress: {
-//       country: 'South Africa',
-//       zipCode: '233002',
-//       state: 'CapTown',
-//       city: 'Labnon',
-//     },
+import CloseIcon from '@mui/icons-material/Close';
 
-//     kyc: {
-//       idProof: {
-//         idType: 'Pasport',
-//         verificationType: 'Sybrin',
-//         documentStatus: 'uploaded/NotUploaded',
-//         documentLink: 'www.aws.....***.com',
-//         verificationStatus: '',
-//         documnentNumber: '23232323232',
-//         expiryDate: '12/21/2021',
-//         nameAsPerDocument: 'Chakshu Document',
-//         issuingAuthoriy: 'SA Republic',
-//         additionalComment: '',
-//       },
-
-//       addressProof: {
-//         idType: 'Pasport',
-//         verificationType: 'Sybrin',
-//         documentStatus: 'uploaded/NotUploaded',
-//         documentLink: 'www.aws.....***.com',
-//         verificationStatus: '',
-//         documnentNumber: '23232323232',
-//         expiryDate: '12/21/2021',
-//         nameAsPerDocument: 'Chakshu Document',
-//         issuingAuthoriy: 'SA Republic',
-//         additionalComment: '',
-//       },
-
-//       incomeProof: {
-//         idType: 'Passport',
-//         verificationType: 'Sybrin',
-//         documentStatus: 'uploaded/NotUploaded',
-//         documentLink: 'www.aws.....***.com',
-//         verificationStatus: '',
-//         documnentNumber: '23232323232',
-//         expiryDate: '12/21/2021',
-//         nameAsPerDocument: 'Chakshu Document',
-//         issuingAuthoriy: 'SA Republic',
-//         additionalComment: '',
-//         failureCause: 'Poor Qulaity Image',
-//       },
-//     },
-//     // dob: '1990-05-20',
-//     // phone: '+91 1234567890',
-//     // email: 'chakshu@gmail.com',
-//     kycSubmittedOn: '2024-01-01',
-//     verifiedOn: 'N/A',
-
-//     //new
-//     kycStatus: 'v',
-//     kycStartDate: '2025-01-01T10:00:00Z',
-//     kycApprovalDate: '2025-01-05T10:00:00Z',
-//     kycExpiryDate: '2025-12-31T23:59:59Z',
-//     kycCountry: 'IN',
-//     dob: '1990-01-01',
-//     email: 'john.doe@example.com',
-//     applicantName: 'John Doe',
-//     permanentAddressCountry: 'India',
-//     permanentAddressLine1: '123, Main Street',
-//     permanentAddressLine2: 'Apartment 5B',
-//     permanentAddressSuburb: 'Suburb A',
-//     permanentAddressCity: 'City X',
-//     permanentAddressState: 'State Y',
-//     permanentAddressZip: '123456',
-//     currentAddressLine1: '456, Secondary Street',
-//     currentAddressLine2: 'Apartment 10A',
-//     currentAddressSuburb: 'Suburb B',
-//     currentAddressCity: 'City Z',
-//     currentAddressState: 'State W',
-//     currentAddressZip: '654321',
-//     currentAddressCountry: 'India',
-//     kycCustomerImage: 'https://example.com/images/kyc_customer.jpg',
-//     applicantId: 'A12345',
-//     sanctionPartnerId: 'SP123',
-
-//     documents: [
-//       {
-//         //new
-
-//         kycId: 'KYC12345678',
-//         documentCode: 'DOC123',
-//         uploadDate: '2025-01-05T06:30:00.000+00:00',
-//         verificationStatus: 'va',
-//         documentUrl: 'https://example.com/documents/passport.pdf',
-//         verificationStatusComments: 'Verified',
-//       },
-//       {
-//         documentCode: 'DOC124',
-//         uploadDate: '2025-01-10T12:00:00Z',
-//         verificationStatus: 'vp',
-//         documentUrl: 'https://example.com/documents/d2.pdf',
-//         verificationStatusComments: 'Pending',
-//       },
-//     ],
-//   },
-// ]
 
 const KYCPage = () => {
   console.log('sdffsdfas')
@@ -168,6 +51,8 @@ const KYCPage = () => {
   const [selectedVerifcationOpen, setselectedVerifcationOpen] = useState(false)
   const [mockdata, setMockData] = useState<Array<any>>([])
   const[loader,setCommonLoader]=useRecoilState(loaderStateNew)
+  const[checkboxOpen,setCheckboxOpen]=useState(false)
+  const[kycstatus,setKycStatus]=useState('p')
 
 
   const [comments, setComments] = useState([
@@ -186,7 +71,7 @@ const KYCPage = () => {
   ]);
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(false);
-
+    const[prooftype,setProoftype]=useState()
  
 
   const handleAddComment = async () => {
@@ -233,23 +118,115 @@ const KYCPage = () => {
   const verifyProofType = async (proofType:any) => {
     try {
       // Your API call logic here
+      setCommonLoader(true)
+
+      console.log("I have beenn clicked")
       console.log(selectedKYC);
       console.log(proofType)
       console.log(proofType.kycId,proofType.documentCode)
+
       kycservice.verifyDocument(proofType?.id?.documentCode,proofType?.id?.kycId).then(data=>{
 
         console.log(data)
 
-        window.location.reload()
+        // window.location.reload()
       }).catch(err=>{
 
         console.log(err)
       })
+
+
+      applicant_service.getApplicantKyc().then((data) => {
+      
+        // console.log(data)
+      
+        setMockData(data)
+         //@ts-ignores
+        setFilteredData(data)
+        setCommonLoader(false)
+  
+  let selected_data=data.filter(e=>e.kycId==proofType?.id?.kycId)
+  console.log(selected_data)
+  if(selected_data.length>0){
+
+setSelectedKYC(selected_data[0])    
+
+console.log("coming select kyc,",selected_data[0])
+setKycStatus(selected_data[0]?.kycStatus)
+  }
+  
+      })
+  
+  
+
       // kycservice.verifyDocument(pro)
     } catch (error) {
       console.error("Error calling API:", error);
     }
   };
+
+
+  const unverifyProofType = async (proofType:any) => {
+    try {
+      // Your API call logic here
+      setCommonLoader(true)
+
+      console.log("I have beenn clicked")
+      console.log(selectedKYC);
+      console.log(proofType)
+      console.log(proofType.kycId,proofType.documentCode)
+
+      kycservice.unverifyDocument(proofType?.id?.documentCode,proofType?.id?.kycId).then(data=>{
+
+        console.log(data)
+
+        kycservice.changeKycStatus('p',proofType?.id?.kycId).then(data=>{
+
+          console.log(data)
+
+          applicant_service.getApplicantKyc().then((data) => {
+      
+            // console.log(data)
+          
+            setMockData(data)
+             //@ts-ignores
+            setFilteredData(data)
+            setCommonLoader(false)
+      
+      let selected_data=data.filter(e=>e.kycId==proofType?.id?.kycId)
+      console.log(selected_data)
+      if(selected_data.length>0){
+    
+    setSelectedKYC(selected_data[0])   
+    setKycStatus(selected_data[0]?.kycStatus) 
+    // setKycStatus(selected_data[0]?.kycstatus)
+    setCheckboxOpen(false)
+      }
+      
+          })
+
+
+        })
+
+        // window.location.reload()
+      }).catch(err=>{
+
+        console.log(err)
+      })
+
+
+    
+
+  
+  
+  
+
+      // kycservice.verifyDocument(pro)
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+
   let applicant_service = new ApplicantService()
 
   useEffect(() => {
@@ -286,6 +263,9 @@ const KYCPage = () => {
   }
 
   const openDrawer = (row: any) => {
+console.log("openign drawer")
+    console.log(row)
+    setKycStatus(row?.kycStatus)
     setSelectedKYC(row)
     setIsDrawerOpen(true)
 console.log(row)
@@ -525,7 +505,7 @@ console.log(row)
                 KYC ID - {selectedKYC?.kycId}
               </Typography>
               <Typography variant="subtitle1" style={{ backgroundColor: '#FFEEBA', padding: '4px 8px', borderRadius: '4px' }}>
-                {selectedKYC?.kycStatus == 'v' ? 'verified' : 'unverified'}
+                {kycstatus=='v'?"Verified":"Unverified"}
               </Typography>
             </Box>
 
@@ -636,19 +616,26 @@ console.log(row)
                 </Grid>
               </Grid>
               <Grid item xs={4} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
-                <Box
-                  width={100}
-                  component="img"
-              
-                  height={100}
-                  border="2px solid  green"
-                  borderRadius="50%"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                ></Box>
+              <Avatar
+  src="https://via.placeholder.com/100" // Replace with actual image URL
+  sx={{
+    width: 100,
+    height: 100,
+    border: "2px solid green",
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  }}
+> { 
+
+
+selectedKYC?.applicantName?.split(" ").length>0? (selectedKYC?.applicantName.split(" ")[0][0] +' ' + (selectedKYC?.applicantName.split(" ")[1][0]?(selectedKYC?.applicantName.split(" ")[1][0]):"")  ): (selectedKYC?.applicantName.split(" ")[0])} </Avatar>
+
+
+                
                 <Typography mt={2} color="green">
-                  <strong>Matched with ID Proof</strong>
+                  {/* <strong>Matched with ID Proof </strong> */}
                 </Typography>
               </Grid>
             </Grid>
@@ -700,7 +687,7 @@ console.log(row)
                     <Typography
       style={{
         backgroundColor:
-          proofType.verificationStatus === 'va' ? '#C8E6C9' : '#FFCDD2',
+         ( proofType.verificationStatus === 'va') ? '#C8E6C9' : '#FFCDD2',
         borderRadius: '4px',
         textAlign: 'center',
         display: 'flex',
@@ -709,8 +696,26 @@ console.log(row)
         padding: '4px 8px',
       }}
     >
-      {proofType.verificationStatus === 'va' ? (
-        'Verified'
+      {/* {(proofType.verificationStatus === 'va' ||kycstatus=='v')? (
+
+<>
+
+        Verified {kycstatus}
+        <IconButton
+        onClick={async () => {
+
+          setCheckboxOpen(true)
+
+          setProoftype(proofType)
+        
+          // await unverifyProofType(proofType); // API call
+        
+        }}
+        disabled={proofType.verificationStatus === 'v' }
+      >
+        <CloseIcon />
+      </IconButton>
+</>
       ) : (
         <>
           Failed
@@ -725,7 +730,39 @@ console.log(row)
             <CheckCircleOutlineIcon />
           </IconButton>
         </>
-      )}
+      )} */}
+
+
+
+{(proofType.verificationStatus === 'va') ? (
+  <>
+    Verified
+    <IconButton
+      onClick={async () => {
+        setCheckboxOpen(true);
+        setProoftype(proofType);
+        // await unverifyProofType(proofType); // API call
+      }}
+      disabled={proofType.verificationStatus === 'v'}
+    >
+      <CloseIcon />
+    </IconButton>
+  </>
+) : (
+  <>
+    Failed
+    <IconButton
+      onClick={async () => {
+        await verifyProofType(proofType); // API call
+      }}
+      disabled={proofType.verificationStatus === 'va'}
+    >
+      <CheckCircleOutlineIcon />
+    </IconButton>
+  </>
+)}
+
+
     </Typography>
 
                  
@@ -870,7 +907,47 @@ console.log(row)
             </IconButton>
           </Box>
         </Box>
+
+
       </Modal>
+
+
+
+{/* {Asking for verify ?} */}
+<Modal open={checkboxOpen} onClose={()=>{
+
+  setOpen(false)
+}}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 400,
+          bgcolor: "background.paper",
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 2,
+          textAlign: "center",
+        }}
+      >
+        <Typography variant="h6" gutterBottom>
+          Are you sure you want to unverify this document?
+        </Typography>
+        <Box mt={2} display="flex" justifyContent="space-between">
+          <Button variant="outlined" onClick={()=>{
+
+            setCheckboxOpen(false)
+          }}>
+            Cancel
+          </Button>
+          <Button variant="contained" color="error" onClick={()=>{unverifyProofType(prooftype)}}>
+            Unverify
+          </Button>
+        </Box>
+      </Box>
+    </Modal>
 
 
 
