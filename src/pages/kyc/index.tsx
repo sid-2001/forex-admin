@@ -663,7 +663,7 @@ console.log(row)
                 (proofType) => (
                 <Grid container spacing={2} alignItems="center" mt={1} key={proofType}>
                   <Grid item xs={2}>
-                    <TextField label="Document Code" fullWidth defaultValue={proofType?.documentCode} disabled />
+                    <TextField label="Document Name" fullWidth defaultValue={proofType?.documentName} disabled />
                   </Grid>
                   <Grid item xs={2}>
                     <TextField label="Verification Type" fullWidth defaultValue="Auto" disabled />

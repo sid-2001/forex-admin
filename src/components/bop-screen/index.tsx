@@ -194,7 +194,7 @@ const BopScreen: React.FC = () => {
           first_name: userName.split(' ')[0],
           middle_name: userName.split(' ').length === 3 ? userName.split(' ')[1] : '',
           last_name: userName.split(' ').length === 3 ? userName.split(' ')[2] : userName.split(' ')[1],
-          dob: dayjs(data.dob).format('MM/DD/YYYY'),
+          dob: dayjs(data.dob).format('DD/MM/YYYY'),
         })
       })
       .catch((error) => console.error(error))
@@ -495,11 +495,12 @@ const BopScreen: React.FC = () => {
               <DatePicker
                 label="Date Of Birth"
                 //@ts-ignore
+                format='DD/MM/YYYY'
                 value={formData.dob ? dayjs(formData.dob) : null}
                 onChange={(newDate: any) => {
                   setFormData((prev: any) => ({
                     ...prev,
-                    dob: newDate.format('MM/DD/YYYY'),
+                    dob: newDate.format('DD/MM/YYYY'),
                   }))
                 }}
                 disabled={bopData?.sap_status === disableFormFieldsViaStatus}
