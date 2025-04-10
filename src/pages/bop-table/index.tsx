@@ -12,6 +12,7 @@ const BopTable: React.FC = () => {
   const [bopData, setBopData] = React.useState([])
   const navigate = useNavigate();
   const helper = new HelperService()
+  const test = 10;
 
 
   useEffect(() => {
