@@ -57,7 +57,7 @@ import moment from "moment-timezone";
 //     console.warn("Invalid timestamp provided:", timestamp);
 //     return "Invalid Date";
 //   }
- 
+
 //   return istTime.format("DD/MM/YYYY HH:mm:ss");
 // }
 
@@ -68,7 +68,7 @@ import moment from "moment-timezone";
 //   if (!istTime.isValid()) {
 //     return "Invalid Date";
 //   }
- 
+
 //   return istTime.format("DD/MM/YYYY HH:mm:ss");
 // }
 
@@ -78,7 +78,7 @@ function formatDateTime(timestamp: string): string {
   if (!istTime.isValid()) {
     return "Invalid Date";
   }
- 
+
   return istTime.format("DD/MM/YYYY HH:mm:ss");
 }
 const TransactionPage = () => {
@@ -86,7 +86,7 @@ const TransactionPage = () => {
   // reporting:e?.transactionOutward?.reportingStatus=="ACK"?"Reported":"Pending",
   //           status:e?.transactionOutward?.transactionStatus=="CR"?"Pending":"Done",
 
-  const helper=new HelperService()
+  const helper = new HelperService()
 
   const columns_outward: GridColDef[] = [
     { field: 'id', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
@@ -98,7 +98,7 @@ const TransactionPage = () => {
 
     { field: 'settlementCurrency', headerName: 'Settlement Currency  ', flex: 1, headerClassName: 'super-app-theme--header' },
 
-   
+
     {
       field: 'applicant',
       headerName: 'Applicant',
@@ -106,14 +106,7 @@ const TransactionPage = () => {
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => params.value?.applicantId || ''
     },
-    
-
-
-    
-
-
     { field: 'forex', headerName: 'Exchange Rate', flex: 1, headerClassName: 'super-app-theme--header' },
-
     { field: 'charges', headerName: 'Charges', flex: 1, headerClassName: 'super-app-theme--header' },
     // { field: 'currency', headerName: 'Currency', flex: 1, headerClassName: 'super-app-theme--header' },
     // { field: 'final_amount', headerName: 'Settlement Amount ', flex: 1, headerClassName: 'super-app-theme--header' },
@@ -124,9 +117,9 @@ const TransactionPage = () => {
       headerClassName: "super-app-theme--header",
       renderCell: (params) =>
         params.value ? (
-          
-          <Chip  label={params.value=="N"?"No Error":"Error"} color={params.value=="N"?"success":"error"} />
-        
+
+          <Chip label={params.value == "N" ? "No Error" : "Error"} color={params.value == "N" ? "success" : "error"} />
+
         ) : (
           <Chip onClick={() => {
             setmodalOpen(true)
@@ -154,8 +147,8 @@ const TransactionPage = () => {
           }}>
             <VisibilityIcon />
           </IconButton>
-      
-         </>
+
+        </>
       ),
     },
 
@@ -166,11 +159,11 @@ const TransactionPage = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
-      
+
         <>
           <IconButton onClick={() => {
 
-navigate(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`)
+            navigate(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`)
             handleViewMore(params.row)
           }}>
 
@@ -178,8 +171,8 @@ navigate(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_att
 
             <PreviewOutlined />
           </IconButton>
-         
-         </>
+
+        </>
       ),
     },
 
@@ -195,12 +188,12 @@ navigate(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_att
         ) : (
           (
             params?.value?.status
-             )
+          )
         ),
     },
 
 
-    
+
 
     {
       field: "owCreatedDate",
@@ -209,12 +202,12 @@ navigate(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_att
       headerClassName: "super-app-theme--header",
       renderCell: (
         params
-           
-        )=>{
-  return  formatDateTime( (params.value?.owCreatedDate))
 
-        }
-     
+      ) => {
+        return helper.convertDateAndTime((params.value?.owCreatedDate))
+
+      }
+
     },
 
 
@@ -229,7 +222,7 @@ navigate(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_att
             <Chip label="Pending" color="error" />
           </Tooltip>
         ) : (
-       params?.value?.status
+          params?.value?.status
         ),
     },
 
@@ -242,13 +235,13 @@ navigate(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_att
 
 
   const inward_columns = [
-    { field: 'transactionNumberIw', headerName: 'Transaction Number IW', flex: 1, headerClassName: 'super-app-theme--header'  },
-    { field: 'owTransactionNumber', headerName: 'OW Transaction Number', flex: 1, headerClassName: 'super-app-theme--header'  },
-    { field: 'sendingCountry', headerName: 'Sending Country', width: 130, headerClassName: 'super-app-theme--header'  },
-    { field: 'receivingCountry', headerName: 'Receiving Country', width: 130, headerClassName: 'super-app-theme--header'  },
-    { field: 'settlementCurrency', headerName: 'Settlement Currency', width: 150 , headerClassName: 'super-app-theme--header' },
-    { field: 'settlementAmount', headerName: 'Settlement Amount', type: 'number', width: 150, headerClassName: 'super-app-theme--header'  },
-    { field: 'reportingStatus', headerName: 'Reporting Status', width: 130, headerClassName: 'super-app-theme--header'  },
+    { field: 'transactionNumberIw', headerName: 'Transaction Number IW', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'owTransactionNumber', headerName: 'OW Transaction Number', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'sendingCountry', headerName: 'Sending Country', width: 130, headerClassName: 'super-app-theme--header' },
+    { field: 'receivingCountry', headerName: 'Receiving Country', width: 130, headerClassName: 'super-app-theme--header' },
+    { field: 'settlementCurrency', headerName: 'Settlement Currency', width: 150, headerClassName: 'super-app-theme--header' },
+    { field: 'settlementAmount', headerName: 'Settlement Amount', type: 'number', width: 150, headerClassName: 'super-app-theme--header' },
+    { field: 'reportingStatus', headerName: 'Reporting Status', width: 130, headerClassName: 'super-app-theme--header' },
     // { field: 'destinationBankCode', headerName: 'Destination Bank Code', width: 180, headerClassName: 'super-app-theme--header'  },
     // {
     //   field: 'inCreatedDate',
@@ -264,9 +257,22 @@ navigate(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_att
     //   valueGetter: (params) => new Date(params.value).toLocaleString('en-GB'),
     //    headerClassName: 'super-app-theme--header' 
     // },
+    {
+      field: 'action',
+      headerName: 'Action',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => (
+        <IconButton onClick={() => {
+          navigate(`/bop-details/${params.row.owTransactionNumber}/${params.row.tran_bop_attempt}`)
+        }}>
+          <PreviewOutlined />
+        </IconButton>
+      ),
+    },
   ];
 
-  const openInNewTab = (url:any) => {
+  const openInNewTab = (url: any) => {
     const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
     if (newWindow) newWindow.opener = null
   }
@@ -282,17 +288,17 @@ navigate(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_att
   const [toolopen, setToolOpen] = useState(false)
   const [errors, seterrors] = useState(["Invalid email", "Password too short", "Username required"])
 
-const[selectedCountryOption,setSelectedCountryOption]=useRecoilState(selectedCountryState)
+  const [selectedCountryOption, setSelectedCountryOption] = useRecoilState(selectedCountryState)
   //@ts-ignore
   const [applicant, setApplicant] = useState<Applicant>(null)
-  const[trxStatus,settrxStatus]=useState('')
+  const [trxStatus, settrxStatus] = useState('')
 
   const [transactionData, setTransactionData] = useState(inboundTransaction)
   const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
-const[selectedCountryoption,setselectedCountryoption]=useRecoilState(selectedCountryState)
+  const [selectedCountryoption, setselectedCountryoption] = useRecoilState(selectedCountryState)
   const [userList, setUserList] = useState([])
-  const[creattrx,setCreatetrx]=useState('')
-  const[zaphierlink,setZaphierLink]=useState('')
+  const [creattrx, setCreatetrx] = useState('')
+  const [zaphierlink, setZaphierLink] = useState('')
 
   let applicant_service = new ApplicantService()
 
@@ -350,22 +356,22 @@ const[selectedCountryoption,setselectedCountryoption]=useRecoilState(selectedCou
 
 
 
-const addpayment=(create_trx:any)=>{
+  const addpayment = (create_trx: any) => {
 
-  let trx_service=new TransactionService()
+    let trx_service = new TransactionService()
 
-  console.log("trx detials",)
-  trx_service.createZaphierTransaction({
+    console.log("trx detials",)
+    trx_service.createZaphierTransaction({
 
-    amount:(Number(create_trx?.totalpaybleamount)),
-    currency:"ZAR"
-  }).then(data=>{
- console.log(data?.redirectUrl)
-    setZaphierLink(data?.redirectUrl)
+      amount: (Number(create_trx?.totalpaybleamount)),
+      currency: "ZAR"
+    }).then(data => {
+      console.log(data?.redirectUrl)
+      setZaphierLink(data?.redirectUrl)
 
-    // console.log(data?.redirectUrl)
-  })
-}
+      // console.log(data?.redirectUrl)
+    })
+  }
 
   const handleViewMore = (row: any) => {
 
@@ -373,45 +379,46 @@ const addpayment=(create_trx:any)=>{
 
     settrxStatus(row?.status)
 
-  let d={
-    //@ts-ignore
-    benificary:{"benificaryId":  row?.beneficiaryId},
-    transferMethod:'Bank Trannsfer',
-     destinationCountry:row.destination,
-     selectedTimeMethod:{
-      "id": 2,
-      "time": "8 hours",
-      "charges": 5,
-      "total": 200,
-      "segment": 2
-  },
-     gatewayStatus:'Success',
-     amount:row.value,
-    applicant:{
-      
-  "applicantId":   row.applicantId},
-    forex: row.exchangeRates,
-    gatewayId:'13122',
-     //@ts-ignore
-    timecharge:row.charges,
-    sourceCurrency:selectedCountryoption=="SA"?"ZAR":"INR",
-  
-    sourceCountry:selectedCountryoption=='SA'?"ZA":"IN",
-    destinationCurrency:selectedCountryoption=='SA'?"INR":"ZAR",
-   totalpaybleamount: (Number(row.value)+  Number(row.charges)),
-   transactionId:row?.transactionNumber
-  
-   
-} 
+    let d = {
+      //@ts-ignore
+      benificary: { "benificaryId": row?.beneficiaryId },
+      transferMethod: 'Bank Trannsfer',
+      destinationCountry: row.destination,
+      selectedTimeMethod: {
+        "id": 2,
+        "time": "8 hours",
+        "charges": 5,
+        "total": 200,
+        "segment": 2
+      },
+      gatewayStatus: 'Success',
+      amount: row.value,
+      applicant: {
+
+        "applicantId": row.applicantId
+      },
+      forex: row.exchangeRates,
+      gatewayId: '13122',
+      //@ts-ignore
+      timecharge: row.charges,
+      sourceCurrency: selectedCountryoption == "SA" ? "ZAR" : "INR",
+
+      sourceCountry: selectedCountryoption == 'SA' ? "ZA" : "IN",
+      destinationCurrency: selectedCountryoption == 'SA' ? "INR" : "ZAR",
+      totalpaybleamount: (Number(row.value) + Number(row.charges)),
+      transactionId: row?.transactionNumber
 
 
-setCreatetrx(d as any)
-
-addpayment(d as any)
+    }
 
 
+    setCreatetrx(d as any)
 
-console.log(d)
+    addpayment(d as any)
+
+
+
+    console.log(d)
 
 
     setTransactionDetails(row)
@@ -427,13 +434,13 @@ console.log(d)
     setcommonloader(true)
 
 
-    transaction_Service.getInwardTransaction(selectedCountryOption== "IN"?"IN":"ZA").then(data=>{
+    transaction_Service.getInwardTransaction(selectedCountryOption == "IN" ? "IN" : "ZA").then(data => {
       console.log('Inward Transaction')
       console.log(data)
       setInboundTransaction(data)
 
-  
-      
+
+
     })
 
     transaction_Service
@@ -452,7 +459,7 @@ console.log(d)
             destination: e?.transactionInwardList?.receivingCountry,
             value: e?.transactionInwardList?.settlementAmount,
             currency: e?.transactionInwardList?.settlementCurrency,
-            settlement: helper.roundToTwoFixed( e?.transactionInwardList?.settlementAmount),
+            settlement: helper.roundToTwoFixed(e?.transactionInwardList?.settlementAmount),
             destinationBank: e?.transactionInwardList?.destinationBankCode,
             errorCause: " ",
             forex: e?.transactionOutward?.exchangeRates,
@@ -464,27 +471,27 @@ console.log(d)
 
 
         let outbound: Array<TransactionOutward> | any = data?.transactionDetailsList
-        ?.map((e) => {
-          return {
-            ...e.transactionOutward,
-            ...e.beneficiary,
-            ...e.applicant,
-      
-            id: e?.transactionOutward?.transactionNumber,
-            destination: e?.transactionOutward?.receiveCountry,
-            value: e?.transactionOutward?.principalAmount,
-            currency: e?.transactionOutward?.settlementCurrency,
-            settlement:  helper.roundToTwoFixed( e?.transactionOutward?.principalAmount * e?.transactionOutward?.exchangeRates),
-            destinationBank: e?.transactionOutward?.destinationBankBicCode,
-            forex:  helper.roundToTwoFixed( e?.transactionOutward?.exchangeRates),
-            date: e?.transactionOutward?.owCreatedDate,
-  
-            reporting: e?.transactionOutward?.reportingStatus,
-            status: e?.transactionOutward?.transactionStatus,
-            final_amount:  helper.roundToTwoFixed( e?.transactionOutward?.exchangeRates * e?.transactionOutward?.principalAmount),
-            applicant: e?.applicant,
-          };
-        })
+          ?.map((e) => {
+            return {
+              ...e.transactionOutward,
+              ...e.beneficiary,
+              ...e.applicant,
+
+              id: e?.transactionOutward?.transactionNumber,
+              destination: e?.transactionOutward?.receiveCountry,
+              value: e?.transactionOutward?.principalAmount,
+              currency: e?.transactionOutward?.settlementCurrency,
+              settlement: helper.roundToTwoFixed(e?.transactionOutward?.principalAmount * e?.transactionOutward?.exchangeRates),
+              destinationBank: e?.transactionOutward?.destinationBankBicCode,
+              forex: helper.roundToTwoFixed(e?.transactionOutward?.exchangeRates),
+              date: e?.transactionOutward?.owCreatedDate,
+
+              reporting: e?.transactionOutward?.reportingStatus,
+              status: e?.transactionOutward?.transactionStatus,
+              final_amount: helper.roundToTwoFixed(e?.transactionOutward?.exchangeRates * e?.transactionOutward?.principalAmount),
+              applicant: e?.applicant,
+            };
+          })
         // ?.filter((transaction) => {
         //   if (selectedCountryOption === "IN") {
         //     return (transaction.destination?.toLowerCase() !== "in");
@@ -496,7 +503,7 @@ console.log(d)
 
         //   return true; // If selectedCountryOption is not "IN", include all destinations
         // });
-      
+
 
 
         let user: Array<Applicant>[] | any = data?.transactionDetailsList.map((e) => {
@@ -506,7 +513,7 @@ console.log(d)
           }
         })
 
-     
+
 
         // setInboundTransaction([])
         setTransactionData(inbound)
@@ -536,23 +543,23 @@ console.log(d)
 
   const closeDrawer = () => {
 
-let trx_service=new TransactionService();
+    let trx_service = new TransactionService();
 
-if(trxStatus=="DRAFT"||trxStatus=="PENDING"){
-  trx_service.createTransaction(creattrx).then(data=>{
+    if (trxStatus == "DRAFT" || trxStatus == "PENDING") {
+      trx_service.createTransaction(creattrx).then(data => {
 
-    console.log(data)
-  })
-}
+        console.log(data)
+      })
+    }
 
- 
-  
+
+
 
     setDrawerOpen(false)
     setZaphierLink('')
     // window.location.href = zaphierlink;
-  
-   
+
+
   }
   const theme = useTheme()
   const navigate = useNavigate()
@@ -569,7 +576,7 @@ if(trxStatus=="DRAFT"||trxStatus=="PENDING"){
   // Close the dialog
   const handleClose = () => {
     setOpen(false);
-   
+
   };
 
   // Handle applying filters
@@ -592,7 +599,7 @@ if(trxStatus=="DRAFT"||trxStatus=="PENDING"){
           Inwards
         </ToggleButton>
 
-       
+
         <ToggleButton value="inwards" sx={{ backgroundColor: '#005099', color: 'white' }}>
           Outwards
         </ToggleButton>
@@ -659,7 +666,7 @@ if(trxStatus=="DRAFT"||trxStatus=="PENDING"){
 
 
           transactionType == 'inwards' ? (<DataGrid
-            rows={inboundTransaction?.length>0?inboundTransaction:[]}
+            rows={inboundTransaction?.length > 0 ? inboundTransaction : []}
             //@ts-ignore
             columns={inward_columns}
             getRowId={(row) => row?.transactionNumberIw}
@@ -729,7 +736,7 @@ if(trxStatus=="DRAFT"||trxStatus=="PENDING"){
             >
               TRN ID- {transactionDetails.id}
             </Typography>
-            
+
             <Chip label={transactionDetails?.status} color="warning" sx={{ marginBottom: 2 }} />
             <Divider sx={{ my: 2 }} />
 
@@ -801,29 +808,30 @@ if(trxStatus=="DRAFT"||trxStatus=="PENDING"){
               </Grid>
 
             </Grid>
-          
-
-          {
-
-            (trxStatus=="DRAFT"||trxStatus=="PENDING")?(<>
-                        <Button  disabled={zaphierlink.length>0?false:true} variant="outlined" onClick={()=>{closeDrawer()
-
-                          // window.location.href=zaphierlink;
-                          openInNewTab(zaphierlink)
 
 
-                        }}>
-  <img
-    src="https://media.licdn.com/dms/image/v2/C560BAQEH3RSdlorC_g/company-logo_200_200/company-logo_200_200/0/1675795834026/zapier_logo?e=2147483647&v=beta&t=Hx-pHbieeJMPM-LUGcTe3O8iwYPYW7xUBc0W1uC2tBs"
-    alt="Zapier Logo"
-    style={{ width: 24, height: 24, marginRight: 8, borderRadius: '50%' }}
-  />
-  Complete Payment
-</Button>
-            
-            </>):(<>
-            </>)
-          }
+            {
+
+              (trxStatus == "DRAFT" || trxStatus == "PENDING") ? (<>
+                <Button disabled={zaphierlink.length > 0 ? false : true} variant="outlined" onClick={() => {
+                  closeDrawer()
+
+                  // window.location.href=zaphierlink;
+                  openInNewTab(zaphierlink)
+
+
+                }}>
+                  <img
+                    src="https://media.licdn.com/dms/image/v2/C560BAQEH3RSdlorC_g/company-logo_200_200/company-logo_200_200/0/1675795834026/zapier_logo?e=2147483647&v=beta&t=Hx-pHbieeJMPM-LUGcTe3O8iwYPYW7xUBc0W1uC2tBs"
+                    alt="Zapier Logo"
+                    style={{ width: 24, height: 24, marginRight: 8, borderRadius: '50%' }}
+                  />
+                  Complete Payment
+                </Button>
+
+              </>) : (<>
+              </>)
+            }
 
           </Box>
         )}

@@ -188,7 +188,7 @@ const BopScreen: React.FC = () => {
       .then((result) => {
         setBopData({ ...result.data })
         const { data } = result
-        const userName  = data?.name.replace(/\s+/g, ' ')
+        const userName = data?.name.replace(/\s+/g, ' ')
         setFormData({
           ...data,
           first_name: userName.split(' ')[0],
@@ -222,7 +222,7 @@ const BopScreen: React.FC = () => {
   }, [])
 
   return (
-    <Box style={{ width: '80vw' }}>
+    <Box style={{ width: '80vw', height: '80vh', overflowY: 'scroll' }}>
       <Box sx={{ textAlign: 'right' }}>
         <Button variant="outlined" color="primary" onClick={() => handleReleaseBopData()} disabled={formData.sap_status === 'Released'}>
           Release
@@ -274,8 +274,8 @@ const BopScreen: React.FC = () => {
 
       <Box mt={3}>
         <Typography variant="h5">
-        {parseData?.citizenship === 'India' ? "Purpose Code Details" : "Bop Category Details"}
-          </Typography>
+          {parseData?.citizenship === 'India' ? "Purpose Code Details" : "Bop Category Details"}
+        </Typography>
       </Box>
 
       <Grid container spacing={2} mt={1}>

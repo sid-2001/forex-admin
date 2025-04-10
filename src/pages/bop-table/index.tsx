@@ -1,16 +1,18 @@
 import React, { useEffect } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
-import { Box, Typography,IconButton } from '@mui/material'
+import { Box, Typography, IconButton } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import VisibilityIcon from '@mui/icons-material/Visibility'
+import { HelperService } from '@/helpers/helper'
 
-
-const {VITE_FOREX_NODE_APP_URL} = import.meta.env;
+const { VITE_FOREX_NODE_APP_URL } = import.meta.env;
 const backendUrl = VITE_FOREX_NODE_APP_URL
 
 const BopTable: React.FC = () => {
   const [bopData, setBopData] = React.useState([])
   const navigate = useNavigate();
+  const helper = new HelperService()
+
 
   useEffect(() => {
     fetchBopListingData()
@@ -71,20 +73,32 @@ const BopTable: React.FC = () => {
       headerClassName: 'super-app-theme--header',
     },
     {
+      field: "created_at",
+      headerName: "Date",
+      flex: 1,
+      headerClassName: "super-app-theme--header",
+      renderCell: (
+        params: any
+
+      ) => {
+        return helper.convertDateAndTime(params.row.created_at);
+      }
+    },
+    {
       field: 'id1',
       headerName: 'Action',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
-        
+
         <IconButton onClick={() => {
           navigate(`/bop-details/${params.row.transaction_number}/${params.row.transaction_attempt}`)
         }}>
-          <VisibilityIcon  style={{
+          <VisibilityIcon style={{
             cursor: 'pointer',
           }} />
         </IconButton>
-        
+
       ),
     },
   ]
