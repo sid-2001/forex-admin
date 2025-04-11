@@ -64,14 +64,15 @@ export const alertTypeState = atom({
 })
 
 // <STUDENT>
-export const studentListState = atom({
-  key: 'studentlist',
-  default: [],
-})
 
 export const notificationState = atom({
   key: 'studentlist',
   default: [],
+})
+
+export const applicantView = atom({
+  key: 'applicantView',
+  default:false,
 })
 
 export const selectedAppState = atom({

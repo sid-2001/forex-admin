@@ -599,7 +599,6 @@ const TransactionPage = () => {
           Inwards
         </ToggleButton>
 
-
         <ToggleButton value="inwards" sx={{ backgroundColor: '#005099', color: 'white' }}>
           Outwards
         </ToggleButton>

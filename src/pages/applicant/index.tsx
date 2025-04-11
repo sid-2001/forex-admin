@@ -7,6 +7,7 @@ import { ApplicantService } from '@/services/applicant.service';
 import BeneficiaryTable from '@/components/beneficiary-table';
 import { BeneficiaryService } from '@/services/beneficiary.service';
 import chuks from '../../assets/images/chuks.jpg'
+import { PieChart } from '@mui/x-charts/PieChart/PieChart';
 
 const applicant_service = new ApplicantService();
 const beneficiary_service = new BeneficiaryService();
@@ -64,6 +65,9 @@ const ApplicantPage = () => {
   const [postalselectedState,  setPostalSelectedState] = useState("");
   const [postalselectedCity,  setPostalSelectedCity] = useState("");
   const [postalzipCode,  setPostalZipCode] = useState("");
+  const [ utilizedLimit, setutilizedLimit ] = useState(0)
+  const [availableLimit,setAvailableLimit]=useState(0)
+  const[ maxlimit,setMaxlimit]=useState(0)
 
 
 
@@ -126,6 +130,82 @@ const zipCodes: Record<string, string> = {
   Pietermaritzburg: "3201",
   "Richards Bay": "3900"
 };
+
+
+function LimitPieChart() {
+  
+  const utilized = Math.abs(utilizedLimit);
+  const available = Math.abs(availableLimit);
+
+  return (
+    <Box>
+      <PieChart
+        series={[
+          {
+            data: [
+              {
+                id: 0,
+                value: utilized,
+                label: 'Utilized Limit',
+                color: '#FF6B6B',
+              },
+              {
+                id: 1,
+                value: available,
+                label: 'Available Limit',
+                color: '#4ECDC4',
+              },
+            ],
+            innerRadius: 35, // donut shape
+            outerRadius: 50,
+          },
+        ]}
+        width={400}
+        height={100}
+      />
+      <Typography
+        variant="subtitle2"
+        sx={{
+          position: 'absolute',
+          top: '17.5%',
+          right:"-14.5%",
+          
+          // transform: 'translate(-50%, -50%)',
+          textAlign: 'center',
+          fontWeight: 'bold',
+          color:"pink",
+          fontSize:"0.5em"
+        }}
+      >
+      
+
+        Max Limit
+        <br />
+        {maxlimit.toLocaleString()}
+      
+      </Typography>
+    </Box>
+  );
+}
+
+
+useEffect(()=>{
+  // Fetch compliance data with testing data appended
+    applicant_service.getCompliance(
+    applicantId,
+     ).then(comp_data=>{
+      console.log("Compliance Data:", comp_data); // Log the compliance data
+ 
+      setutilizedLimit(comp_data?.utilizedLimit)
+      setAvailableLimit(comp_data?.availableLimit)
+      setAvailableLimit(comp_data?.maxlimit)
+
+
+     })
+      fetchBeneficiaries();
+ 
+      
+  },[])
 
 
 const handleCountryChange = (event: any) => {
@@ -372,6 +452,7 @@ setPostalSelectedCity(city);
         control={<Switch  disabled  checked={isEditable} onChange={handleToggleChange} />}
         label="Edit Mode"
       />
+    
       </Box>
       <Box mb={1} display="flex" justifyContent="space-between" alignItems="center">
         <Typography
@@ -390,9 +471,9 @@ setPostalSelectedCity(city);
       </Box>
 
       {/* Applicant Information Form */}
-      <Box sx={{ width: '50vw' }}>
+      <Box sx={{ width: '70vw' }}>
         <Grid container spacing={2} mb={2} alignItems="flex-start" justifyContent="space-between">
-          <Grid item xs={12} sm={4} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+          <Grid item xs={12} sm={3} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
             {/* <Typography mt={2}>Applicant Picture</Typography> */}
             <Box
               width={110}
@@ -410,7 +491,7 @@ setPostalSelectedCity(city);
               }}>{firstName[0]+""+lastName[0]}</Avatar>
             </Box>
           </Grid>
-          <Grid item xs={12} sm={8}>
+          <Grid item xs={12} sm={5}>
             <Grid container spacing={2} marginBottom={1}>
               <Grid item xs={12} sm={4}>
                 <TextField
@@ -467,6 +548,11 @@ setPostalSelectedCity(city);
               </Grid>
             </Grid>
           </Grid>
+
+
+          <Grid item xs={12} sm={4} sx={{ alignContent:"top"}}>
+            <LimitPieChart></LimitPieChart>
+            </Grid>
         </Grid>
       </Box>
 
