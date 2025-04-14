@@ -6,9 +6,10 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs from 'dayjs'
 import { useParams } from 'react-router-dom'
 
-const { VITE_FOREX_NODE_APP_URL } = import.meta.env
+const { VITE_FOREX_NODE_APP_URL, VITE_APP_BACKEND } = import.meta.env
 
 const backendUrl = VITE_FOREX_NODE_APP_URL
+const baseUrl = VITE_APP_BACKEND
 
 const disableFormFieldsViaStatus = 'Released'
 const genderArry = [
@@ -22,7 +23,9 @@ const BopScreen: React.FC = () => {
   const [formData, setFormData] = useState<any>({})
   const [errors, setErrors] = useState<any>({})
   const [bopData, setBopData] = useState<any>({})
-  const [bopCat, setbopCat] = useState<any>(null)
+  const [bopCat, setbopCat] = useState<any>({})
+  const [bopCategory, setBopCategory] = useState<any>([])
+  const [bopCategoryStaticData, setBopCategoryStaticData] = useState<any>([])
 
   const storedLocalData = localStorage.getItem('user') || "";
   const parseData = JSON.parse(storedLocalData);
@@ -55,7 +58,6 @@ const BopScreen: React.FC = () => {
       name: `${formData.first_name} ${formData.middle_name} ${formData.last_name}`,
     })
 
-    console.log(resp, 'resp')
     const requestOptions: any = {
       method: 'PUT',
       headers: myHeaders,
@@ -65,10 +67,7 @@ const BopScreen: React.FC = () => {
 
     fetch(`${backendUrl}/bop/${formData.id}`, requestOptions)
       .then((response) => response.json())
-      .then((result) => {
-        console.log(result, 'payal')
-        window.location.reload()
-      })
+      .then(() => window.location.reload())
       .catch((error) => console.error(error))
 
     // const isValid = validateForm();
@@ -133,17 +132,11 @@ const BopScreen: React.FC = () => {
 
     fetch(`${backendUrl}/bop/release-bopdata`, requestOptions)
       .then((response) => response.json())
-      .then((result) => {
-        console.log(result, 'payal')
-        window.location.reload()
-      })
+      .then(() => window.location.reload())
       .catch((error) => console.error(error))
   }
 
   const handleCancelReplaceBopFunc = () => {
-    console.log(formData, 'formdata')
-    console.log(bopCat, 'bop category data')
-
     const myHeaders = new Headers()
     myHeaders.append('Content-Type', 'application/json')
 
@@ -159,8 +152,6 @@ const BopScreen: React.FC = () => {
       newbopCategoryData: { ...bopCat },
     })
 
-    console.log(payload, 'final payload')
-
     const requestOptions: any = {
       method: 'POST',
       headers: myHeaders,
@@ -170,10 +161,7 @@ const BopScreen: React.FC = () => {
 
     fetch(`${backendUrl}/bop/cancelReplaceTransaction`, requestOptions)
       .then((response) => response.json())
-      .then((result) => {
-        console.log(result, 'payal')
-        window.location.reload()
-      })
+      .then(() =>window.location.reload())
       .catch((error) => console.error(error))
   }
 
@@ -214,10 +202,44 @@ const BopScreen: React.FC = () => {
       .catch((error) => console.error(error))
   }
 
+  const fetchBopStaticData = async () => {
+    try {
+      const countryCode = parseData?.citizenship === 'India' ? 'IN' : 'ZA'
+      const response = await fetch(`${baseUrl}/api/static-table/forex-static-data/by-country?countryCode=${countryCode}`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setBopCategoryStaticData(data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
+  const fetchBopCategoryListing = async () => {
+    const url = `${baseUrl}/api/static-table/forex-bop/by-country?country=${parseData?.citizenship}`
+    try {
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const { data } = await response.json();
+      setBopCategory(data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
   useEffect(() => {
     if (transactionId) {
       fetchBopBetailById()
       fetchBopCategoryDataById()
+      fetchBopCategoryListing()
+      fetchBopStaticData()
     }
   }, [])
 
@@ -280,40 +302,77 @@ const BopScreen: React.FC = () => {
 
       <Grid container spacing={2} mt={1}>
         <Grid item xs={3}>
-          <TextField
-            size="small"
-            label={parseData?.citizenship === 'India' ? "Purpose Code" : "Bop Category"}
-            variant="outlined"
-            name="bop_category"
-            value={parseData?.citizenship === 'India' ? "S1302" : "401"}
-            fullWidth
-            disabled
-          />
+          <FormControl fullWidth>
+            <InputLabel>{parseData?.citizenship === 'India' ? "Purpose Code" : "Bop Category"}</InputLabel>
+            <Select
+              label={parseData?.citizenship === 'India' ? "Purpose Code" : "Bop Category"}
+              variant="outlined"
+              name="bop_category"
+              value={bopCat?.bop_category || ''}
+              size="small"
+              onChange={(e) => {
+                setbopCat((prev: any) => ({
+                  ...prev,
+                  bop_category: e.target.value,
+                }))
+              }}
+            >
+              {bopCategory.map((item: any, ind: any) => (
+                <MenuItem key={ind} value={item.bopCategoryCd}>
+                  {item.bopCategoryCd}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Grid>
         <Grid item xs={3}>
-          <TextField
-            size="small"
-            label="Sub Category"
-            variant="outlined"
-            name="bop_subcategory"
-            value={bopCat?.bop_subcategory || '00'}
-            fullWidth
-            // onChange={handleBopCategoryChange}
-            disabled
-          />
+          <FormControl fullWidth>
+            <InputLabel>Sub Category</InputLabel>
+            <Select
+              label="Sub Category"
+              variant="outlined"
+              name="bop_subcategory"
+              value={bopCat?.bop_subcategory || ''}
+              size="small"
+              onChange={(e) => {
+                setbopCat((prev: any) => ({
+                  ...prev,
+                  bop_subcategory: e.target.value,
+                }))
+              }}
+            >
+              {bopCategory.map((item: any, ind: any) => (
+                <MenuItem key={ind} value={item.bopSubCategoryCd}>
+                  {item.bopSubCategoryCd}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Grid>
 
         <Grid item xs={6}>
-          <TextField
-            size="small"
-            label="Category Description"
-            variant="outlined"
-            name="bop_description"
-            value={bopCat?.bop_description || ''}
-            fullWidth
-            // onChange={handleBopCategoryChange}
-            disabled
-          />
+          <FormControl fullWidth>
+            <InputLabel>Category Description</InputLabel>
+            <Select
+              label="Category Description"
+              variant="outlined"
+              name="bop_description"
+              value={bopCat?.bop_description || ''}
+              size="small"
+              onChange={(e) => {
+                setbopCat((prev: any) => ({
+                  ...prev,
+                  bop_description: e.target.value,
+                }))
+              }}
+            >
+              {bopCategory.map((item: any, ind: any) => (
+                <MenuItem key={ind} value={item.categoryDescription}>
+                  {item.categoryDescription}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Grid>
 
         <Grid item xs={3}>
@@ -362,26 +421,51 @@ const BopScreen: React.FC = () => {
         </Grid>
 
         <Grid item xs={6}>
-          <TextField
-            size="small"
-            label="Excon Ruling Indicator"
-            variant="outlined"
-            name="excon_ruling_indicator"
-            value={bopCat?.excon_ruling_indicator || ''}
-            fullWidth
-            disabled
-          />
+          <FormControl fullWidth>
+            <InputLabel>Excon Ruling Indicator</InputLabel>
+            <Select
+              label="Excon Ruling Indicator"
+              variant="outlined"
+              name="excon_ruling_indicator"
+              value={bopCat?.excon_ruling_indicator || ''}
+              size="small"
+              onChange={(e) => {
+                setbopCat((prev: any) => ({
+                  ...prev,
+                  excon_ruling_indicator: e.target.value,
+                }))
+              }}
+            >
+              {bopCategoryStaticData.filter((item: any) => item.moduleName === "Excon Ruling Indicator").map((mItem: any, ind: any) => (
+                <MenuItem key={ind} value={mItem.keyValue}>
+                  {mItem.keyValue}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Grid>
         <Grid item xs={6}>
-          <TextField
-            size="small"
-            label="Excon Ruling Section"
-            variant="outlined"
-            name="excon_ruling_section"
-            value={bopCat?.excon_ruling_section || ''}
-            fullWidth
-            disabled
-          />
+          <FormControl fullWidth>
+            <InputLabel>Excon Ruling Section</InputLabel>
+            <Select
+              label="Excon Ruling Section"
+              variant="outlined"
+              name="excon_ruling_section"
+              value={bopCat?.excon_ruling_section || ''}
+              size="small"
+              onChange={(e) => {
+                setbopCat((prev: any) => ({
+                  ...prev,
+                  excon_ruling_section: e.target.value,
+                }))
+              }}>
+              {bopCategoryStaticData.filter((item: any) => item.moduleName === "Excon Ruling Section").map((mItem: any, ind: any) => (
+                <MenuItem key={ind} value={mItem.keyValue}>
+                  {mItem.keyValue}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Grid>
 
         {/* <Grid item xs={3}>
@@ -396,26 +480,52 @@ const BopScreen: React.FC = () => {
           />
         </Grid> */}
         <Grid item xs={6}>
-          <TextField
-            size="small"
-            label="Adhoc Subject"
-            variant="outlined"
-            name="adhoc_subject"
-            value={bopCat?.adhoc_subject || ''}
-            disabled
-            fullWidth
-          />
+          <FormControl fullWidth>
+            <InputLabel>Adhoc Subject</InputLabel>
+            <Select
+              label="Adhoc Subject"
+              variant="outlined"
+              name="adhoc_subject"
+              value={bopCat?.adhoc_subject || ''}
+              size="small"
+              onChange={(e) => {
+                setbopCat((prev: any) => ({
+                  ...prev,
+                  adhoc_subject: e.target.value,
+                }))
+              }}
+            >
+              {bopCategoryStaticData.filter((item: any) => item.moduleName === "Adhoc Subject").map((mItem: any, ind: any) => (
+                <MenuItem key={ind} value={mItem.keyValue}>
+                  {mItem.keyValue}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Grid>
         <Grid item xs={6}>
-          <TextField
-            size="small"
-            label="Subject Description"
-            variant="outlined"
-            name="subject_description"
-            value={bopCat?.subject_description || ''}
-            disabled
-            fullWidth
-          />
+          <FormControl fullWidth>
+            <InputLabel>Subject Description</InputLabel>
+            <Select
+              label="Subject Description"
+              variant="outlined"
+              name="subject_description"
+              value={bopCat?.subject_description || ''}
+              size="small"
+              onChange={(e) => {
+                setbopCat((prev: any) => ({
+                  ...prev,
+                  subject_description: e.target.value,
+                }))
+              }}
+            >
+              {bopCategoryStaticData.filter((item: any) => item.moduleName === "Subject Description").map((mItem: any, ind: any) => (
+                <MenuItem key={ind} value={mItem.keyValue}>
+                  {mItem.keyValue}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Grid>
       </Grid>
 
@@ -941,7 +1051,7 @@ const BopScreen: React.FC = () => {
           Save
         </Button>
       </Box>
-    </Box>
+    </Box >
   )
 }
 
