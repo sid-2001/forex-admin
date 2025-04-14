@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Grid, TextField, Typography, Button } from '@mui/material';
 import ApplicantTable from '@/components/applicant-table'; // Ensure this component is already set up
 import { useNavigate } from 'react-router-dom';
 import { ApplicantService } from '@/services/applicant.service'; // Assuming you have this service
+import { PieChart } from '@mui/x-charts/PieChart/PieChart';
+import { useRecoilState } from 'recoil';
+import { applicantView } from '@/states/state';
+import ApplicantList from '@/components/applicant-list';
 
 const applicant_service = new ApplicantService();
 
@@ -10,12 +14,82 @@ const ApplicantEnquiry = () => {
   const navigate = useNavigate();
   const [nationality, setNationality] = useState('');
   const [applicantId, setApplicantId] = useState('');
+
+  const [viewapplicatn,setViewApplicant]=useRecoilState(applicantView)
+
+
+  useEffect(()=>{
+setViewApplicant(true)
+
+  },[])
+
+  const [ utilizedLimit, setutilizedLimit ] = useState(0)
+  const [availableLimit,setAvailableLimit]=useState(0)
+  const[ maxlimit,setMaxlimit]=useState(0)
+
+  function LimitPieChart() {
+  
+    const utilized = Math.abs(utilizedLimit);
+    const available = Math.abs(availableLimit);
+  
+    return (
+      <Box sx={{  width: 400, height: 100, }}>
+        <PieChart
+          series={[
+            {
+              data: [
+                {
+                  id: 0,
+                  value: utilized,
+                  label: 'Utilized Limit',
+                  color: '#FF6B6B',
+                },
+                {
+                  id: 1,
+                  value: available,
+                  label: 'Available Limit',
+                  color: '#4ECDC4',
+                },
+              ],
+              innerRadius: 50, // donut shape
+              outerRadius: 100,
+            },
+          ]}
+          width={400}
+          height={200}
+        />
+        <Typography
+          variant="subtitle2"
+          sx={{
+            position: 'absolute',
+            top: '60%',
+            left: '40%',
+            transform: 'translate(-50%, -50%)',
+            textAlign: 'center',
+            fontWeight: 'bold',
+          }}
+        >
+          ₹{maxlimit.toLocaleString()}
+          <br />
+          Max Limit
+        </Typography>
+      </Box>
+    );
+  }
+
+
+
+
   const [errors, setErrors] = useState({
     nationality: '',
     applicantId: '',
   });
   const [showTable, setShowTable] = useState(false);
   const [filteredApplicants, setFilteredApplicants] = useState([]);
+
+
+
+
 
   const handleSearch = async () => {
     setErrors({ nationality: '', applicantId: '' });
@@ -125,6 +199,7 @@ const ApplicantEnquiry = () => {
           </Grid> */}
         </Grid>
       </Grid>
+
 
       {showTable && <ApplicantTable applicants={filteredApplicants} />}
     </Box>

@@ -23,7 +23,10 @@ class ApplicantService extends BaseService {
     }
   }
   async getCompliance(id:any): Promise<any> {
-    let url = `/api/compliance/check/${id}`
+    let url = `/api/compliance/limits/check?applicantId=${id}`
+
+
+    // /compliance/limits/check?applicantId=APSIN2025040828909
     try {
       // let { data } = await axios.get(url)
      let {data}=await api1.get(url)

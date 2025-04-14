@@ -18,17 +18,16 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import { ApplicantService } from "@/services/applicant.service";
 import { PieChart } from '@mui/x-charts/PieChart';
-
-
-
-
-
-
-
-export default function ComplianceTool(
+import { useRecoilState } from "recoil";
+import { applicantView } from "@/states/state";
+export default function ApplicantList(
   
   //@ts-ignore
   { open, setOpen, userList, fetchUserDetails }) {
+
+
+     const [viewapplicatn,setViewApplicant]=useRecoilState(applicantView)
+    
   const [searchText, setSearchText] = useState("");
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [showList, setShowList] = useState(false);
@@ -174,7 +173,7 @@ export default function ComplianceTool(
       </IconButton>
 
       {/* Modal */}
-      <Modal open={open} onClose={() => setOpen(false)}>
+      <Modal open={viewapplicatn} onClose={() => setOpen(false)}>
         <Box
           sx={{
             position: "absolute",

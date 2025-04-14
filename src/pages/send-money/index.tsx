@@ -913,10 +913,10 @@ console.log((countrySelected == "IN" ? countries_in:countries))
 
             <Box sx={{ textAlign: 'left', marginTop: 2 }}>
               <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                Settlement Amount: {   helper.roundToTwoFixed  (amount * Number(forexRate)) + ' ' + currency}
+              Principal Amount: {   helper.roundToTwoFixed  (amount * Number(forexRate)) + ' ' + currency}
               </Typography>
               <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                Total Amount: {Number(amount) + Number(selecteTimeChange) + ' ' + sourceCountry}
+               Settlmente Amount: {Number(amount) + Number(selecteTimeChange) + ' ' + sourceCountry}
               </Typography>
               <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                 Base Amount: {amount + ' ' + sourceCountry}
