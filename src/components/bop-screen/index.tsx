@@ -5,13 +5,14 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs from 'dayjs'
 import { useParams } from 'react-router-dom'
+import { HelperService } from '@/helpers/helper'
 
 const { VITE_FOREX_NODE_APP_URL, VITE_APP_BACKEND } = import.meta.env
 
 const backendUrl = VITE_FOREX_NODE_APP_URL
 const baseUrl = VITE_APP_BACKEND
 
-const disableFormFieldsViaStatus = 'Released'
+const disableFormFieldsViaStatus = 'RELEASED'
 const genderArry = [
   { label: 'Male', value: 'Male' },
   { label: 'Female', value: 'Female' },
@@ -29,6 +30,7 @@ const BopScreen: React.FC = () => {
 
   const storedLocalData = localStorage.getItem('user') || "";
   const parseData = JSON.parse(storedLocalData);
+  const helper = new HelperService()
 
   const validateForm = () => {
     // const newErrors: any = {};
@@ -161,7 +163,7 @@ const BopScreen: React.FC = () => {
 
     fetch(`${backendUrl}/bop/cancelReplaceTransaction`, requestOptions)
       .then((response) => response.json())
-      .then(() =>window.location.reload())
+      .then(() => window.location.reload())
       .catch((error) => console.error(error))
   }
 
@@ -177,12 +179,14 @@ const BopScreen: React.FC = () => {
         setBopData({ ...result.data })
         const { data } = result
         const userName = data?.name.replace(/\s+/g, ' ')
+        console.log(data.dob, "data", dayjs(data.dob).format('YYYY-MM-DD'))
+
         setFormData({
           ...data,
           first_name: userName.split(' ')[0],
           middle_name: userName.split(' ').length === 3 ? userName.split(' ')[1] : '',
           last_name: userName.split(' ').length === 3 ? userName.split(' ')[2] : userName.split(' ')[1],
-          dob: dayjs(data.dob).format('DD/MM/YYYY'),
+          dob: dayjs(data.dob).format('YYYY-MM-DD'),
         })
       })
       .catch((error) => console.error(error))
@@ -197,7 +201,12 @@ const BopScreen: React.FC = () => {
     })
       .then((response) => response.json())
       .then((result) => {
-        setbopCat(result.data)
+        const { data } = result
+        setbopCat({
+          ...data,
+          principal_amount: helper.roundToTwoFixed(data.principal_amount),
+          settlement_amount: helper.roundToTwoFixed(data.settlement_amount)
+        })
       })
       .catch((error) => console.error(error))
   }
@@ -219,7 +228,8 @@ const BopScreen: React.FC = () => {
   }
 
   const fetchBopCategoryListing = async () => {
-    const url = `${baseUrl}/api/static-table/forex-bop/by-country?country=${parseData?.citizenship}`
+    const countryCode = parseData?.citizenship === 'India' ? 'IN' : 'ZA'
+    const url = `${baseUrl}/api/static-table/forex-bop/by-country?country=${countryCode}`
     try {
       const response = await fetch(url);
 
@@ -244,9 +254,10 @@ const BopScreen: React.FC = () => {
   }, [])
 
   return (
-    <Box style={{ width: '80vw', height: '80vh', overflowY: 'scroll' }}>
+    <Box style={{ width: '80vw', height: '80vh', overflowY: 'scroll', padding: '10px' }}>
       <Box sx={{ textAlign: 'right' }}>
-        <Button variant="outlined" color="primary" onClick={() => handleReleaseBopData()} disabled={formData.sap_status === 'Released'}>
+        <Button variant="outlined" color="primary"
+          onClick={() => handleReleaseBopData()} disabled={formData.status === 'RELEASED'}>
           Release
         </Button>
         <Button
@@ -290,7 +301,7 @@ const BopScreen: React.FC = () => {
           <TextField size="small" label="Status" disabled variant="outlined" name="status" value={formData.status || ''} fullWidth />
         </Grid>
         <Grid item xs={3}>
-          <TextField size="small" label="Sap Status" disabled variant="outlined" name="sap_status" value={formData.sap_status || ''} fullWidth />
+          <TextField size="small" label="Sarb Status" disabled variant="outlined" name="sap_status" value={formData.sap_status || ''} fullWidth />
         </Grid>
       </Grid>
 
@@ -331,13 +342,13 @@ const BopScreen: React.FC = () => {
             <Select
               label="Sub Category"
               variant="outlined"
-              name="bop_subcategory"
-              value={bopCat?.bop_subcategory || ''}
+              name="bop_sub_category"
+              value={bopCat?.bop_sub_category || ''}
               size="small"
               onChange={(e) => {
                 setbopCat((prev: any) => ({
                   ...prev,
-                  bop_subcategory: e.target.value,
+                  bop_sub_category: e.target.value,
                 }))
               }}
             >
@@ -467,18 +478,6 @@ const BopScreen: React.FC = () => {
             </Select>
           </FormControl>
         </Grid>
-
-        {/* <Grid item xs={3}>
-          <TextField
-            size="small"
-            label="Transaction Purpose"
-            variant="outlined"
-            name="transaction_purpose"
-            value={bopCat?.transaction_purpose || ''}
-            disabled
-            fullWidth
-          />
-        </Grid> */}
         <Grid item xs={6}>
           <FormControl fullWidth>
             <InputLabel>Adhoc Subject</InputLabel>
@@ -533,7 +532,7 @@ const BopScreen: React.FC = () => {
         <Typography variant="h5">Resident Details</Typography>
 
         <Grid container spacing={2} mt={1}>
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <TextField
               size="small"
               label="First Name"
@@ -544,10 +543,10 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.first_name)}
               helperText={errors.first_name}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <TextField
               size="small"
               label="Middle Name"
@@ -558,10 +557,10 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.middle_name)}
               helperText={errors.middle_name}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <TextField
               size="small"
               label="Last Name"
@@ -572,10 +571,10 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.last_name)}
               helperText={errors.last_name}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <FormControl fullWidth>
               <InputLabel>Gender</InputLabel>
               <Select
@@ -590,7 +589,7 @@ const BopScreen: React.FC = () => {
                     gender: e.target.value,
                   }))
                 }}
-                disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+                disabled={bopData?.status === disableFormFieldsViaStatus}
               >
                 {genderArry.map((item, ind) => (
                   <MenuItem key={ind} value={item.value}>
@@ -600,27 +599,27 @@ const BopScreen: React.FC = () => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 label="Date Of Birth"
                 //@ts-ignore
-                format='DD/MM/YYYY'
+                format='YYYY-MM-DD'
                 value={formData.dob ? dayjs(formData.dob) : null}
                 onChange={(newDate: any) => {
                   setFormData((prev: any) => ({
                     ...prev,
-                    dob: newDate.format('DD/MM/YYYY'),
+                    dob: newDate.format('YYYY-MM-DD'),
                   }))
                 }}
-                disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+                disabled={bopData?.status === disableFormFieldsViaStatus}
                 slotProps={{ textField: { size: 'small' } }}
                 //@ts-ignore
                 renderInput={(params) => <TextField {...params} fullWidth variant="outlined" />}
               />
             </LocalizationProvider>
           </Grid>
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <TextField
               size="small"
               label="Id Type"
@@ -631,10 +630,10 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.id_type)}
               helperText={errors.id_type}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <TextField
               size="small"
               label="Id Details"
@@ -645,10 +644,10 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.id_details)}
               helperText={errors.id_details}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <TextField
               size="small"
               label="Contact Type"
@@ -659,10 +658,10 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.contact_type)}
               helperText={errors.contact_type}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <TextField
               size="small"
               label="Contact Details"
@@ -673,10 +672,10 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.contact_details)}
               helperText={errors.contact_details}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <TextField
               size="small"
               label="Account Identifier"
@@ -694,7 +693,7 @@ const BopScreen: React.FC = () => {
         </Box>
 
         <Grid container spacing={2} mt={1}>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <TextField
               label="Address Line 1"
               fullWidth
@@ -705,10 +704,10 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.physical_address_line1)}
               helperText={errors.physical_address_line1}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <TextField
               label="Address Line 2"
               fullWidth
@@ -719,25 +718,11 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.physical_address_line2)}
               helperText={errors.physical_address_line2}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
-            />
-          </Grid>
-          <Grid item xs={4}>
-            <TextField
-              label="Address Line 3"
-              fullWidth
-              size="small"
-              name="physical_address_line3"
-              variant="outlined"
-              value={formData.physical_address_line3 || ''}
-              onChange={handleChange}
-              error={Boolean(errors.physical_address_line3)}
-              helperText={errors.physical_address_line3}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
 
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <TextField
               label="Suburb"
               fullWidth
@@ -748,10 +733,10 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.suburb)}
               helperText={errors.suburb}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <TextField
               label="City"
               size="small"
@@ -762,10 +747,10 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.city)}
               helperText={errors.city}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <TextField
               label="State/Province"
               fullWidth
@@ -776,10 +761,10 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.residence_state)}
               helperText={errors.residence_state}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <TextField
               label="Zipcode"
               size="small"
@@ -790,10 +775,10 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.postcode)}
               helperText={errors.postcode}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <TextField
               label="Country"
               size="small"
@@ -803,7 +788,7 @@ const BopScreen: React.FC = () => {
               value={formData.residence_country || ''}
               onChange={handleChange}
               error={Boolean(errors.residence_country)}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
               helperText={errors.residence_country}
             />
           </Grid>
@@ -814,7 +799,7 @@ const BopScreen: React.FC = () => {
         </Box>
 
         <Grid container spacing={2} mt={2}>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <TextField
               size="small"
               label="Postal Address Line 1"
@@ -825,9 +810,10 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.postal_address_line1)}
               helperText={errors.postal_address_line1}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <TextField
               label="Postal Address Line 2"
               fullWidth
@@ -838,25 +824,11 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.postal_address_line2)}
               helperText={errors.postal_address_line2}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
-            />
-          </Grid>
-          <Grid item xs={4}>
-            <TextField
-              label="Postal Address Line 3"
-              fullWidth
-              size="small"
-              name="postal_address_line3"
-              variant="outlined"
-              value={formData.postal_address_line3 || ''}
-              onChange={handleChange}
-              error={Boolean(errors.postal_address_line3)}
-              helperText={errors.postal_address_line3}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
 
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <TextField
               label="Postal Suburb"
               fullWidth
@@ -867,10 +839,10 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.postal_suburb)}
               helperText={errors.postal_suburb}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <TextField
               label="Postal City"
               fullWidth
@@ -881,10 +853,10 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.postal_city)}
               helperText={errors.postal_city}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <TextField
               label="Postal State/Province"
               fullWidth
@@ -895,10 +867,10 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.postal_state)}
               helperText={errors.postal_state}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <TextField
               label="Postal Zipcode"
               fullWidth
@@ -909,10 +881,10 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.postal_postcode)}
               helperText={errors.postal_postcode}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
-          <Grid item xs={2.2}>
+          <Grid item xs={2.3}>
             <TextField
               label="Postal Country"
               fullWidth
@@ -923,7 +895,7 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.postal_country)}
               helperText={errors.postal_country}
-              disabled={bopData?.sap_status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             />
           </Grid>
         </Grid>
@@ -934,7 +906,7 @@ const BopScreen: React.FC = () => {
       </Box>
 
       <Grid container spacing={2} mt={1}>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <TextField
             size="small"
             label="Non Resident Name"
@@ -1047,7 +1019,7 @@ const BopScreen: React.FC = () => {
       </Grid>
 
       <Box mt={3}>
-        <Button variant="contained" color="primary" onClick={handleSubmit}>
+        <Button variant="contained" color="primary" disabled={formData?.status === 'RELEASED'} onClick={handleSubmit}>
           Save
         </Button>
       </Box>

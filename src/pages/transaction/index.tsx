@@ -92,13 +92,9 @@ const TransactionPage = () => {
     { field: 'id', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'destination', headerName: 'Destination', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'value', headerName: ' Principal Amount ', flex: 1, headerClassName: 'super-app-theme--header' },
-
     { field: 'principalCurrency', headerName: ' Principal Currency ', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'settlementAmount', headerName: ' Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' },
-
     { field: 'settlementCurrency', headerName: 'Settlement Currency  ', flex: 1, headerClassName: 'super-app-theme--header' },
-
-
     {
       field: 'applicant',
       headerName: 'Applicant',
@@ -159,24 +155,16 @@ const TransactionPage = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
-
         <>
           <IconButton onClick={() => {
-
             navigate(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`)
             handleViewMore(params.row)
           }}>
-
-
-
             <PreviewOutlined />
           </IconButton>
-
         </>
       ),
     },
-
-
     {
       field: "reporting",
       headerName: "Reporting Status",
@@ -191,26 +179,15 @@ const TransactionPage = () => {
           )
         ),
     },
-
-
-
-
     {
       field: "owCreatedDate",
       headerName: "Date",
       flex: 1,
       headerClassName: "super-app-theme--header",
-      renderCell: (
-        params
-
-      ) => {
+      renderCell: (params) => {
         return helper.convertDateAndTime((params.value?.owCreatedDate))
-
       }
-
     },
-
-
     {
       field: "status",
       headerName: "Status",
@@ -225,14 +202,7 @@ const TransactionPage = () => {
           params?.value?.status
         ),
     },
-
-
-
-
-
   ]
-
-
 
   const inward_columns = [
     { field: 'transactionNumberIw', headerName: 'Transaction Number IW', flex: 1, headerClassName: 'super-app-theme--header' },
@@ -243,13 +213,15 @@ const TransactionPage = () => {
     { field: 'settlementAmount', headerName: 'Settlement Amount', type: 'number', width: 150, headerClassName: 'super-app-theme--header' },
     { field: 'reportingStatus', headerName: 'Reporting Status', width: 130, headerClassName: 'super-app-theme--header' },
     // { field: 'destinationBankCode', headerName: 'Destination Bank Code', width: 180, headerClassName: 'super-app-theme--header'  },
-    // {
-    //   field: 'inCreatedDate',
-    //   headerName: 'Created Date',
-    //   width: 180,
-    //   valueGetter: (params) => new Date(params.value).toLocaleString('en-GB'),
-    //    headerClassName: 'super-app-theme--header' 
-    // },
+    {
+      field: "inCreatedDate",
+      headerName: "Created Date",
+      flex: 1,
+      headerClassName: "super-app-theme--header",
+      renderCell: (params: any) => {
+        return helper.convertDateAndTime((params.row?.inCreatedDate))
+      }
+    },
     // {
     //   field: 'inModifiedDate',
     //   headerName: 'Modified Date',
@@ -302,23 +274,13 @@ const TransactionPage = () => {
 
   let applicant_service = new ApplicantService()
 
-
-
-
   useEffect(() => {
     setcommonloader(true)
     applicant_service.getApplicantDetalis().then(data => {
-
-
       console.log(data)
-
       let users = data.map((e) => {
         let benificiary_list = e.beneficiaryList.map((b) => {
-
           return (
-
-
-
             {
               "benificaryId": b.beneficiaryId,
               "name": b.beneficiaryName,
@@ -327,8 +289,6 @@ const TransactionPage = () => {
               "bank": b.bankName,
               "ifscCode": b.bankBicCode
             })
-
-
         })
 
         return ({
@@ -339,46 +299,27 @@ const TransactionPage = () => {
           accountNumber: '**********789',
           profilePhoto: 'https://randomuser.me/api/portraits/women/4.jpg',
           benificary: benificiary_list
-
         })
       })
-
-
       setUserList(users as any)
       setcommonloader(false)
-
     })
-
-    // console.log(se)
-
   }, [])
 
-
-
-
   const addpayment = (create_trx: any) => {
-
     let trx_service = new TransactionService()
-
-    console.log("trx detials",)
     trx_service.createZaphierTransaction({
-
       amount: (Number(create_trx?.totalpaybleamount)),
       currency: "ZAR"
     }).then(data => {
       console.log(data?.redirectUrl)
       setZaphierLink(data?.redirectUrl)
-
-      // console.log(data?.redirectUrl)
     })
   }
 
   const handleViewMore = (row: any) => {
-
     console.log(row)
-
     settrxStatus(row?.status)
-
     let d = {
       //@ts-ignore
       benificary: { "benificaryId": row?.beneficiaryId },
@@ -394,7 +335,6 @@ const TransactionPage = () => {
       gatewayStatus: 'Success',
       amount: row.value,
       applicant: {
-
         "applicantId": row.applicantId
       },
       forex: row.exchangeRates,
@@ -402,45 +342,27 @@ const TransactionPage = () => {
       //@ts-ignore
       timecharge: row.charges,
       sourceCurrency: selectedCountryoption == "SA" ? "ZAR" : "INR",
-
       sourceCountry: selectedCountryoption == 'SA' ? "ZA" : "IN",
       destinationCurrency: selectedCountryoption == 'SA' ? "INR" : "ZAR",
       totalpaybleamount: (Number(row.value) + Number(row.charges)),
       transactionId: row?.transactionNumber
-
-
     }
-
-
     setCreatetrx(d as any)
-
     addpayment(d as any)
-
-
-
-    console.log(d)
-
-
     setTransactionDetails(row)
     setDrawerOpen(true)
   }
 
   let transaction_Service = new TransactionService()
 
-
   const trnx = []
+
   useEffect(() => {
-
     setcommonloader(true)
-
-
     transaction_Service.getInwardTransaction(selectedCountryOption == "IN" ? "IN" : "ZA").then(data => {
       console.log('Inward Transaction')
       console.log(data)
       setInboundTransaction(data)
-
-
-
     })
 
     transaction_Service
@@ -454,7 +376,6 @@ const TransactionPage = () => {
             //@ts-ignore
             ...e.transactionInwardList,
             ...e.beneficiary,
-
             id: e?.transactionInwardList?.transactionNumberIw,
             destination: e?.transactionInwardList?.receivingCountry,
             value: e?.transactionInwardList?.settlementAmount,
@@ -469,14 +390,12 @@ const TransactionPage = () => {
           })
         })
 
-
         let outbound: Array<TransactionOutward> | any = data?.transactionDetailsList
           ?.map((e) => {
             return {
               ...e.transactionOutward,
               ...e.beneficiary,
               ...e.applicant,
-
               id: e?.transactionOutward?.transactionNumber,
               destination: e?.transactionOutward?.receiveCountry,
               value: e?.transactionOutward?.principalAmount,
@@ -485,7 +404,6 @@ const TransactionPage = () => {
               destinationBank: e?.transactionOutward?.destinationBankBicCode,
               forex: helper.roundToTwoFixed(e?.transactionOutward?.exchangeRates),
               date: e?.transactionOutward?.owCreatedDate,
-
               reporting: e?.transactionOutward?.reportingStatus,
               status: e?.transactionOutward?.transactionStatus,
               final_amount: helper.roundToTwoFixed(e?.transactionOutward?.exchangeRates * e?.transactionOutward?.principalAmount),
@@ -503,24 +421,16 @@ const TransactionPage = () => {
 
         //   return true; // If selectedCountryOption is not "IN", include all destinations
         // });
-
-
-
         let user: Array<Applicant>[] | any = data?.transactionDetailsList.map((e) => {
           return {
             ...e.applicant
-
           }
         })
-
-
 
         // setInboundTransaction([])
         setTransactionData(inbound)
         setOutboundTransaction(outbound)
         setcommonloader(false)
-
-
       })
       .catch(
         //@ts-ignore
@@ -531,7 +441,6 @@ const TransactionPage = () => {
   }, [])
 
   const handleToggleTransactionType = (
-
     //@ts-ignore
     event, newType) => {
     if (newType) {
@@ -561,9 +470,9 @@ const TransactionPage = () => {
 
 
   }
+
   const theme = useTheme()
   const navigate = useNavigate()
-
   const [open, setOpen] = useState(false);
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
@@ -576,7 +485,6 @@ const TransactionPage = () => {
   // Close the dialog
   const handleClose = () => {
     setOpen(false);
-
   };
 
   // Handle applying filters
@@ -588,18 +496,16 @@ const TransactionPage = () => {
 
   return (
     <Box sx={{ width: '100%' }}>
-
-
-
       <Typography variant="h4" gutterBottom>
         <strong>Transactions</strong>
       </Typography>
-      <ToggleButtonGroup value={transactionType} exclusive onChange={handleToggleTransactionType} sx={{ mb: 2 }}>
-        <ToggleButton value=" outwards" sx={{ backgroundColor: '#005099', color: 'white' }}>
+      <ToggleButtonGroup value={transactionType} color='primary'
+        exclusive onChange={handleToggleTransactionType} sx={{ mb: 2 }}>
+        <ToggleButton value="inwards">
           Inwards
         </ToggleButton>
 
-        <ToggleButton value="inwards" sx={{ backgroundColor: '#005099', color: 'white' }}>
+        <ToggleButton value="outwards">
           Outwards
         </ToggleButton>
       </ToggleButtonGroup>
@@ -627,18 +533,11 @@ const TransactionPage = () => {
               alignSelf: 'flex-end',
             }}
           >
-
-
-
-
             <IconButton onClick={() => setToolOpen(true)}>
               <SettingsAccessibilityRounded />
             </IconButton>
-
             <IconButton onClick={() => {
-
               navigate('/recon')
-
             }} color="primary">
               <Sync sx={{
                 marginBottom: "10%"
@@ -661,47 +560,44 @@ const TransactionPage = () => {
             </Button>
           </div>
         </div>
-        {
-
-
-          transactionType == 'inwards' ? (<DataGrid
-            rows={inboundTransaction?.length > 0 ? inboundTransaction : []}
-            //@ts-ignore
-            columns={inward_columns}
-            getRowId={(row) => row?.transactionNumberIw}
-            //@ts-ignore
-            pageSize={5}
-            rowsPerPageOptions={[5]}
-            disableSelectionOnClick
-            sx={{
-              '& .MuiDataGrid-root': {
-                border: '1 px solid blue',
-              },
-              '& .MuiDataGrid-cell': {
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              },
-            }}
-          />) : (<DataGrid
-            rows={outboundTransaction}
-            columns={columns_outward}
-            getRowId={(row) => row.id}
-            //@ts-ignore
-            pageSize={5}
-            rowsPerPageOptions={[5]}
-            disableSelectionOnClick
-            sx={{
-              '& .MuiDataGrid-root': {
-                border: '1 px solid blue',
-              },
-              '& .MuiDataGrid-cell': {
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              },
-            }}
-          />)
+        {transactionType === 'inwards' ? (<DataGrid
+          rows={inboundTransaction?.length > 0 ? inboundTransaction : []}
+          //@ts-ignore
+          columns={inward_columns}
+          getRowId={(row) => row?.transactionNumberIw}
+          //@ts-ignore
+          pageSize={5}
+          rowsPerPageOptions={[5]}
+          disableSelectionOnClick
+          sx={{
+            '& .MuiDataGrid-root': {
+              border: '1 px solid blue',
+            },
+            '& .MuiDataGrid-cell': {
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            },
+          }}
+        />) : (<DataGrid
+          rows={outboundTransaction}
+          columns={columns_outward}
+          getRowId={(row) => row.id}
+          //@ts-ignore
+          pageSize={5}
+          rowsPerPageOptions={[5]}
+          disableSelectionOnClick
+          sx={{
+            '& .MuiDataGrid-root': {
+              border: '1 px solid blue',
+            },
+            '& .MuiDataGrid-cell': {
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            },
+          }}
+        />)
         }
 
       </Box>
@@ -805,20 +701,13 @@ const TransactionPage = () => {
               <Grid item xs={12} md={6}>
                 <TextField label="Applicant Name" variant="filled" fullWidth defaultValue={transactionDetails?.applicant?.firstName} size="small" disabled />
               </Grid>
-
             </Grid>
-
-
             {
-
               (trxStatus == "DRAFT" || trxStatus == "PENDING") ? (<>
                 <Button disabled={zaphierlink.length > 0 ? false : true} variant="outlined" onClick={() => {
                   closeDrawer()
-
                   // window.location.href=zaphierlink;
                   openInNewTab(zaphierlink)
-
-
                 }}>
                   <img
                     src="https://media.licdn.com/dms/image/v2/C560BAQEH3RSdlorC_g/company-logo_200_200/company-logo_200_200/0/1675795834026/zapier_logo?e=2147483647&v=beta&t=Hx-pHbieeJMPM-LUGcTe3O8iwYPYW7xUBc0W1uC2tBs"
@@ -827,11 +716,8 @@ const TransactionPage = () => {
                   />
                   Complete Payment
                 </Button>
-
-              </>) : (<>
-              </>)
+              </>) : (<></>)
             }
-
           </Box>
         )}
       </Drawer>

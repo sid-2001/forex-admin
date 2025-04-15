@@ -8,8 +8,6 @@ export class HelperService {
   convertDateAndTime(date: any) {
     return moment(date).tz("Asia/Kolkata").format("DD-MM-YYYY HH:mm:ss");
   }
-
-
 }
 
 
