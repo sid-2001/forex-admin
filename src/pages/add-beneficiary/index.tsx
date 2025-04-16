@@ -12,110 +12,99 @@ const beneficiary_service = new BeneficiaryService();
 const AddBeneficiary = () => {
   const navigate = useNavigate();
   const theme = useTheme();
-    const [text, setText] = useState('');
-    const [type, setType] = useState('');
-    const [open, setOpen] = useState(false);
-      const [searchText, setSearchText] = useState("");
-      const [selectedUser, setSelectedUser] = useState<any>(null);
-      const [showList, setShowList] = useState(false);
-      const [userDetails, setUserDetails] = useState<any>(null);
-        
-          const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
-      
-    
-          const[userList,setUserList]=useState([])
-    
-   
- 
-let applicant_service=new ApplicantService()
-         
-        useEffect(()=>{
-          setcommonloader(true)
-          applicant_service.getApplicantDetalis().then(data=>{
-        
-        
-            console.log(data)
-            
-            let users=data.map((e)=>{
-          let benificiary_list=e.beneficiaryList.map((b)=>{
-        
-            return(
-        
-        
-        
-              { "benificaryId": b.beneficiaryId,
-                "name": b.beneficiaryName,
-                "accountHolderName":b.beneficiaryName,
-                 "accountNumber": b.bankBicCode, 
-                 "bank": b.bankName, 
-                 "ifscCode": b.bankBicCode })
-            
-            
+  const [text, setText] = useState('');
+  const [type, setType] = useState('');
+  const [open, setOpen] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [showList, setShowList] = useState(false);
+  const [userDetails, setUserDetails] = useState<any>(null);
+  const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
+  const [userList, setUserList] = useState([])
+
+  let applicant_service = new ApplicantService()
+
+  useEffect(() => {
+    setcommonloader(true)
+    applicant_service.getApplicantDetalis().then(data => {
+      console.log(data)
+      let users = data.map((e) => {
+        let benificiary_list = e.beneficiaryList.map((b) => {
+          return (
+            {
+              "benificaryId": b.beneficiaryId,
+              "name": b.beneficiaryName,
+              "accountHolderName": b.beneficiaryName,
+              "accountNumber": b.bankBicCode,
+              "bank": b.bankName,
+              "ifscCode": b.bankBicCode
             })
-        
-          return ({
-             "applicantId": e.applicant.applicantId,
-        id:e.applicant.applicantId,
+        })
+
+        return ({
+          "applicantId": e.applicant.applicantId,
+          id: e.applicant.applicantId,
+          //@ts-ignore
+          name: e.applicant?.firstName,
+          accountNumber: '**********789',
+          profilePhoto: 'https://randomuser.me/api/portraits/women/4.jpg',
+          benificary: benificiary_list
+
+        })
+      })
+
+
+      setUserList(users as any)
+      setcommonloader(false)
+
+    })
+
+    // console.log(se)
+
+  }, [])
+
+
+  const handleUserSelect = async (user: any) => {
+
+    setSelectedUser(user);
+    setSearchText(user.name);
+    setShowList(false);
+    setUserDetails(null);
+
+    try {
+      let applicant_service = new ApplicantService();
+
+      console.log("Selected User:", user);
+
+      // Fetch compliance data with testing data appended
+      let comp_data = await applicant_service.getCompliance({
+        applicantId: user.applicantId,
         //@ts-ignore
-        name:e.applicant?.firstName,
-        accountNumber: '**********789',
-        profilePhoto: 'https://randomuser.me/api/portraits/women/4.jpg',
-        benificary:benificiary_list
-        
-          })
-        })
-        
-        
-        setUserList(users as any)
-        setcommonloader(false)
-        
-        })
-          
-        // console.log(se)
-        
-        },[])  
+        ...testData, // Appending test data
+      });
+
+      console.log("Compliance Data:", comp_data); // Log the compliance data
+
+      // Fetch user details with testing data appended
+      //@ts-ignore
+      const response = []
+
+      // Merge compliance data into userDetails state
+      setUserDetails({
+        //@ts-ignore
+        ...response,
+        //@ts-ignore
+        complianceLimit: comp_data?.limit || testData.mockData.complianceLimit, // Extract compliance limit or use test data
+        //@ts-ignore
+        message: comp_data?.message || testData.mockData.message,
+      });
+
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
+  };
 
 
-          const handleUserSelect = async (user:any) => {
-            setSelectedUser(user);
-            setSearchText(user.name);
-            setShowList(false);
-            setUserDetails(null);
-        
-            try {
-              let applicant_service = new ApplicantService();
-        
-              console.log("Selected User:", user);
-        
-              // Fetch compliance data with testing data appended
-              let comp_data = await applicant_service.getCompliance({
-                applicantId: user.applicantId,
-                //@ts-ignore
-                ...testData, // Appending test data
-              });
-        
-              console.log("Compliance Data:", comp_data); // Log the compliance data
-        
-              // Fetch user details with testing data appended
-               //@ts-ignore
-              const response = []
-        
-              // Merge compliance data into userDetails state
-              setUserDetails({
-                 //@ts-ignore
-                ...response,
-                 //@ts-ignore
-                complianceLimit: comp_data?.limit || testData.mockData.complianceLimit, // Extract compliance limit or use test data
-                //@ts-ignore
-                message: comp_data?.message || testData.mockData.message,
-              });
-        
-            } catch (error) {
-              console.error("Error fetching user details:", error);
-            }
-          };
-
-  
   // Initial state for form data and errors
   const [formData, setFormData] = useState<BeneficiaryFormData>({
     beneficiaryName: '',
@@ -127,7 +116,7 @@ let applicant_service=new ApplicantService()
     physicalAddressLine1: '',
     physicalAddressLine2: '',
     physicalAddressLine3: '',
-    suburb:'',
+    suburb: '',
     city: '',
     state: '',
     zipCode: '',
@@ -136,19 +125,17 @@ let applicant_service=new ApplicantService()
     accountNumber: '',
     bankName: '',
     bankBicCode: '',
-    applicant:'',
-    bankLocation:'',
-    ifscCode:''
+    applicant: '',
+    bankLocation: '',
+    ifscCode: ''
   });
-//@ts-ignore
+  //@ts-ignore
   const [formErrors, setFormErrors] = useState<BeneficiaryFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  
-
 
   const filteredUsers = userList.filter((b) =>
 
-       //@ts-ignore
+    //@ts-ignore
     b.name.toLowerCase().includes(searchText.toLowerCase())
   );
 
@@ -157,12 +144,10 @@ let applicant_service=new ApplicantService()
     const { name, value } = e.target;
     //@ts-ignore
 
-
     setFormData((prevData) => ({
       ...prevData,
-      
       [name]: value,
-      applicant:selectedUser?.applicantId
+      applicant: selectedUser?.applicantId
     }));
   };
 
@@ -189,21 +174,14 @@ let applicant_service=new ApplicantService()
     if (!formData.bankBicCode) errors.bankBicCode = 'Bank Code is required';
     if (!formData.bankLocation) errors.bankLocation = 'Bank Location is required';
     if (!formData.ifscCode) errors.ifscCode = 'IFSC Code is required';
-    
+
     return errors;
   };
 
   const handleSubmit = async (e: any) => {
-
-
-
-
     console.log("added neficary")
     e.preventDefault();
     setIsSubmitting(true);
-
-    
-
     const errors = validateForm();
     console.log(Object.keys(errors))
     if (Object.keys(errors).length > 1) {
@@ -211,21 +189,17 @@ let applicant_service=new ApplicantService()
       setIsSubmitting(false);
       return;
     }
-   
-
-  
     // setfilterdUsers(filteredUsers)
     // Simulate form submission
     console.log(selectedUser)
     console.log('Form submitted:', formData);
-  
     setIsSubmitting(false);
     // Navigate to another page after successful submission
 
     try {
-        //@ts-ignore
-        console.log(formData);
-        setcommonloader(true)
+      //@ts-ignore
+      console.log(formData);
+      setcommonloader(true)
       const response = await beneficiary_service.submitBeneficiaryForm(formData);
       //@ts-ignore
       if (response.status == 200) {
@@ -239,8 +213,6 @@ let applicant_service=new ApplicantService()
         setType('error');
         setOpen(true);
       }
-
-
       setcommonloader(false)
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -251,17 +223,14 @@ let applicant_service=new ApplicantService()
     }
   };
 
-
-
-
   return (
     <Box sx={{ width: "80vw" }}>
-      <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', marginBottom: 1 }}>
-        Add Beneficiary 
+      <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', marginBottom: 2 }}>
+        Add Beneficiary
       </Typography>
 
       {/* Applicant ID Section */}
-      <Box mb={2} display="flex" justifyContent="space-between" alignItems="center">
+      {/* <Box mb={2} display="flex" justifyContent="space-between" alignItems="center">
         <Typography
           variant="body1"
           sx={{
@@ -274,7 +243,7 @@ let applicant_service=new ApplicantService()
         >
           Beneficiary ID - ________
         </Typography>
-      </Box>
+      </Box> */}
 
       {/* Applicant Information Fields */}
       <Box sx={{ width: '50vw' }}>
@@ -291,57 +260,56 @@ let applicant_service=new ApplicantService()
               helperText={formErrors.applicant}
             /> */}
 
-<TextField
-            variant="filled"
-            fullWidth
-            value={searchText}
-            onChange={(e) => {
-              setSearchText(e.target.value);
-              setShowList(true);
-            }}
-            placeholder="Type a User name or ID..."
-            InputProps={{
-              startAdornment: selectedUser && (
-                <InputAdornment position="start">
+            <TextField
+              variant="filled"
+              fullWidth
+              value={searchText}
+              onChange={(e) => {
+                if (e.target.value !== "") {
+                  setShowList(true);
+                } else {
+                  setShowList(false);
+                }
+                setSearchText(e.target.value);
+              }}
+              placeholder="Search by Applicant ID"
+              InputProps={{
+                startAdornment: selectedUser && (
+                  <InputAdornment position="start">
+                    <Avatar src={selectedUser.profilePhoto} alt={selectedUser.name} />
+                  </InputAdornment>
+                ),
+              }}
+            />
 
-                  <Avatar src={selectedUser.profilePhoto} alt={selectedUser.name} />
-                </InputAdornment>
-              ),
-            }}
-          />
-
-          {/* User List */}
-          {showList && filteredUsers.length > 0 && (
-            <Paper elevation={3} sx={{ mt: 2 }}>
-              <List>
-                {filteredUsers.map((b) => (
-                  <ListItem
-                  //@ts-ignore
-                    key={b.benificaryId}
-                    divider
-                    button
-                    onClick={() => handleUserSelect(b)}
-                  >
-                    <ListItemAvatar>
-                      <Avatar 
+            {/* User List */}
+            {showList && filteredUsers.length > 0 && (
+              <Paper elevation={3} sx={{ mt: 2 }}>
+                <List>
+                  {filteredUsers.map((b) => (
+                    <ListItem
                       //@ts-ignore
-                      src={b.profilePhoto} alt={b.name} />
-                    </ListItemAvatar>
-                    <ListItemText
-
-                    //@ts-ignore
-                      primary={b.name}
-                      //@ts-ignore
-                      secondary={`ID: ${b.benificaryId} | Account: ${b.accountNumber}`}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </Paper>
-          )}
-
-
-
+                      key={b.benificaryId}
+                      divider
+                      button
+                      onClick={() => handleUserSelect(b)}
+                    >
+                      <ListItemAvatar>
+                        <Avatar
+                          //@ts-ignore
+                          src={b.profilePhoto} alt={b.name} />
+                      </ListItemAvatar>
+                      <ListItemText
+                        //@ts-ignore
+                        primary={b.name}
+                        //@ts-ignore
+                        secondary={`ID: ${b.benificaryId} | Account: ${b.accountNumber}`}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </Paper>
+            )}
           </Grid>
         </Grid>
 
@@ -566,29 +534,29 @@ let applicant_service=new ApplicantService()
           </Grid>
         </Grid>
         <Grid container spacing={2} marginBottom={2}>
-                <Grid item xs={12} sm={4}>
-                    <TextField
-                      fullWidth
-                      label="Bank Location"
-                      name="bankLocation"
-                      value={formData?.bankLocation|| ''}
-                      onChange={handleChange}
-                      error={!!formErrors.bankLocation}
-                      helperText={formErrors.bankLocation}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={4}>
-                    <TextField
-                      fullWidth
-                      label="IFSC Code"
-                      name="ifscCode"
-                      value={formData?.ifscCode|| ''}
-                      onChange={handleChange}
-                      error={!!formErrors.ifscCode}
-                       helperText={formErrors.ifscCode}
-                    />
-                  </Grid>
-                </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              label="Bank Location"
+              name="bankLocation"
+              value={formData?.bankLocation || ''}
+              onChange={handleChange}
+              error={!!formErrors.bankLocation}
+              helperText={formErrors.bankLocation}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              label="IFSC Code"
+              name="ifscCode"
+              value={formData?.ifscCode || ''}
+              onChange={handleChange}
+              error={!!formErrors.ifscCode}
+              helperText={formErrors.ifscCode}
+            />
+          </Grid>
+        </Grid>
       </Box>
 
       {/* Transaction Section */}

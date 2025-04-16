@@ -179,8 +179,6 @@ const BopScreen: React.FC = () => {
         setBopData({ ...result.data })
         const { data } = result
         const userName = data?.name.replace(/\s+/g, ' ')
-        console.log(data.dob, "data", dayjs(data.dob).format('YYYY-MM-DD'))
-
         setFormData({
           ...data,
           first_name: userName.split(' ')[0],
@@ -222,6 +220,15 @@ const BopScreen: React.FC = () => {
 
       const data = await response.json();
       setBopCategoryStaticData(data);
+      const account_Identifier_data = data.find((item: any) => item.moduleName === 'Account Identifier')
+      const non_resident_account_Identifier_data = data.find((item: any) => item.moduleName === 'Non Resident Account Identifier')
+
+      setFormData((prev: any) => ({
+        ...prev,
+        account_identifier: account_Identifier_data.keyValue,
+        non_resident_account_identifier: non_resident_account_Identifier_data.keyValue
+      }))
+
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -682,7 +689,7 @@ const BopScreen: React.FC = () => {
               variant="outlined"
               name="account_identifier"
               fullWidth
-              value={formData.account_identifier || ''}
+              value={formData?.account_identifier || ""}
               disabled
             />
           </Grid>
@@ -1010,9 +1017,9 @@ const BopScreen: React.FC = () => {
             size="small"
             label="Non Resident Account Identifier"
             variant="outlined"
-            name="beneficiary_account_identifier"
+            name="non_resident_account_identifier"
             fullWidth
-            value={'12345678'}
+            value={formData?.non_resident_account_identifier || ""}
             disabled
           />
         </Grid>

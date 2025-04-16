@@ -121,10 +121,10 @@ const paymentGateways = [
 
 const SendMoneyPage = () => {
 
-    const [open, setOpen] = useRecoilState(alertState)
-    const [text, setText] = useRecoilState(alertTextState)
-    const [type, settype] = useRecoilState(alertTypeState)
-    const[commonLoader,setCommonLoader]=useRecoilState(loaderStateNew)
+  const [open, setOpen] = useRecoilState(alertState)
+  const [text, setText] = useRecoilState(alertTextState)
+  const [type, settype] = useRecoilState(alertTypeState)
+  const [commonLoader, setCommonLoader] = useRecoilState(loaderStateNew)
   const [checkoutId, setCheckoutId] = useState("");
   const [searchText, setSearchText] = useState('')
   const [filteredUsers, setFilteredUsers] = useState([])
@@ -132,8 +132,8 @@ const SendMoneyPage = () => {
   const [selectedTime, setSelectedTime] = useState({})
   const [selectedTimeTableRow, setSelectedTimeTableRow] = useState<number | null>(null)
   const [finalamount, setFinalAmount] = useState(0)
-  const[countrySelected,setCountrySelected]=useRecoilState(selectedCountryState)
-  const [sourceCountry, setSourceCountry] = useState(countrySelected=="IN"?"INR":"ZAR")
+  const [countrySelected, setCountrySelected] = useRecoilState(selectedCountryState)
+  const [sourceCountry, setSourceCountry] = useState(countrySelected == "IN" ? "INR" : "ZAR")
   const [gatewayCharge, setGatewayCharge] = useState(0)
   const [selectedBenficary, setSelectedBenificary] = useState({})
   const [userlist, setUserList] = useState([])
@@ -141,9 +141,9 @@ const SendMoneyPage = () => {
   const [gifsuccess, setGifSuccess] = useState(false)
   const [sendCountry, setsendCountry] = useState('')
   const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
-const[selectedCountryoption,setSelectedCountryOption]=useRecoilState(selectedCountryState)
+  const [selectedCountryoption, setSelectedCountryOption] = useRecoilState(selectedCountryState)
 
-//   const[selected ]
+  //   const[selected ]
 
   const [selecteTimeChange, setSelectedTimeCharge] = useState<number | null>(null)
 
@@ -162,7 +162,7 @@ const[selectedCountryoption,setSelectedCountryOption]=useRecoilState(selectedCou
   let transaction_service = new TransactionService()
 
 
-  const helper=new HelperService()
+  const helper = new HelperService()
   useEffect(() => {
     setcommonloader(true)
     applicant_service.getApplicantDetalis().then((data) => {
@@ -197,9 +197,7 @@ const[selectedCountryoption,setSelectedCountryOption]=useRecoilState(selectedCou
   }, [])
 
 
-  useEffect(()=>{
-
-
+  useEffect(() => {
     setSelectedTimeTableRow(null)
     // kyc_service.getCharges('SA', sendCountry, amount,1).then(data => {
     //   console.log(data)
@@ -212,43 +210,31 @@ const[selectedCountryoption,setSelectedCountryOption]=useRecoilState(selectedCou
 
     //     setSelectedTimeCharge(0)
     //   }
-
-
-
     // })
 
-  },[amount])
+  }, [amount])
   let kyc_service = new KycService()
 
   const handleCountryChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const countryCode = event.target.value as string
-
-
-    console.log(countryCode)
-
-    console.log(countrySelected)
     setSelectedCountry(countryCode)
 
     // Find the selected country
     // const selected = countries.find((country) => country.code === countryCode)
-console.log((countrySelected == "IN" ? countries_in:countries))
+    console.log((countrySelected == "IN" ? countries_in : countries))
 
-    const selected = (countrySelected == "IN" ? countries_in :countries ).find(
+    const selected = (countrySelected == "IN" ? countries_in : countries).find(
       (country) => country.code === countryCode
     );
 
-
-    console.log("selected")
-    console.log(selected)
-
     if (selected) {
-      transaction_service.getForexRate(selected?.currency,countrySelected).then((data) => {
+      transaction_service.getForexRate(selected?.currency, countrySelected).then((data) => {
         console.log(data)
         setForexRate(data)
       })
       setCurrency(selected.currency)
       setsendCountry(selected.code)
-      setSourceCountry(countrySelected=="IN"?"INR":"ZAR")
+      setSourceCountry(countrySelected == "IN" ? "INR" : "ZAR")
     }
   }
   const handleRadioChange = (row: any) => {
@@ -284,10 +270,9 @@ console.log((countrySelected == "IN" ? countries_in:countries))
             let data = kyc_service.getCharges('SA', sendCountry, amount, params?.row?.id).then(data => {
               console.log(data)
               if (data?.length > 0) {
-                console.log()
                 setSelectedTimeCharge(data[0].minimumCharges)
 
-              }else{
+              } else {
 
                 setSelectedTimeCharge(0)
               }
@@ -337,7 +322,7 @@ console.log((countrySelected == "IN" ? countries_in:countries))
       setFilteredUsers(filtered)
     }
   }
- let navigate=useNavigate()
+  let navigate = useNavigate()
 
   const handlePayment = async () => {
     try {
@@ -360,25 +345,17 @@ console.log((countrySelected == "IN" ? countries_in:countries))
       };
 
       // Create transaction
-
-
-
-  await    transaction_service.createDealcover({
-        sourceCurrency:selectedCountryoption=="SA"?"ZAR":"INR",
-        destinationCurrency:selectedCountryoption=='SA'?"INR":"ZAR",
-        destinationCountry:selectedCountryoption=='SA'?"INR":"ZAR",
-        applicantId:selectedUser as any,
+      await transaction_service.createDealcover({
+        sourceCurrency: selectedCountryoption == "SA" ? "ZAR" : "INR",
+        destinationCurrency: selectedCountryoption == 'SA' ? "INR" : "ZAR",
+        destinationCountry: selectedCountryoption == 'SA' ? "INR" : "ZAR",
+        applicantId: selectedUser as any,
         rate: Number(forexRate)
-        
-        
-        
-        })
+      })
 
       const transactionResponse = await transaction_service.createTransaction(
         payload
       );
-
-      console.log(transactionResponse.data);
 
       // Call Peach Payments API
       const peachResponse = await axios.post(
@@ -399,8 +376,6 @@ console.log((countrySelected == "IN" ? countries_in:countries))
       );
 
       const checkoutId = peachResponse.data.id;
-      console.log("Checkout ID:", checkoutId);
-
       setCheckoutId(checkoutId);
 
       window.open(
@@ -435,86 +410,82 @@ console.log((countrySelected == "IN" ? countries_in:countries))
       });
 
       const data = await response.json();
-      console.log("API Response:", data);
-      let payload={
+      let payload = {
         //@ts-ignore
-        benificary:{"benificaryId":  selectedBenficary?.benificaryId},
-        transferMethod:selectedTransferMethod,
-         destinationCountry:selectedCountry,
-         selectedTimeMethod:selectedTime,
-         gatewayStatus:selectedGateway,
-         amount:amount,
-        applicant:selectedUser,
-        forex:forexRate,
-        gatewayId:'13122',
-         //@ts-ignore
-        timecharge:selectedTime?.time,
-        sourceCurrency:selectedCountryoption=="SA"?"ZAR":"INR",
-      
-        sourceCountry:selectedCountryoption=='SA'?"ZA":"IN",
-        destinationCurrency:selectedCountryoption=='SA'?"INR":"ZAR",
-       totalpaybleamount: (Number(amount)+  Number(selecteTimeChange)+ Number(gatewayCharge))
-      
-       }
-       
-    
+        benificary: { "benificaryId": selectedBenficary?.benificaryId },
+        transferMethod: selectedTransferMethod,
+        destinationCountry: selectedCountry,
+        selectedTimeMethod: selectedTime,
+        gatewayStatus: selectedGateway,
+        amount: amount,
+        applicant: selectedUser,
+        forex: forexRate,
+        gatewayId: '13122',
+        //@ts-ignore
+        timecharge: selectedTime?.time,
+        sourceCurrency: selectedCountryoption == "SA" ? "ZAR" : "INR",
 
+        sourceCountry: selectedCountryoption == 'SA' ? "ZA" : "IN",
+        destinationCurrency: selectedCountryoption == 'SA' ? "INR" : "ZAR",
+        totalpaybleamount: (Number(amount) + Number(selecteTimeChange) + Number(gatewayCharge))
 
-  await    transaction_service.createDealcover({
-    sourceCurrency:selectedCountryoption=="SA"?"ZAR":"INR",
-    destinationCurrency:selectedCountryoption=='SA'?"INR":"ZAR",
-    destinationCountry:selectedCountryoption=='SA'?"INR":"ZAR",
-    applicantId:selectedUser as any,
-    rate: Number(forexRate)
-    
-    
-    
-    })
+      }
 
 
 
-       transaction_service.createTransaction(payload).then(data=>{
+
+      await transaction_service.createDealcover({
+        sourceCurrency: selectedCountryoption == "SA" ? "ZAR" : "INR",
+        destinationCurrency: selectedCountryoption == 'SA' ? "INR" : "ZAR",
+        destinationCountry: selectedCountryoption == 'SA' ? "INR" : "ZAR",
+        applicantId: selectedUser as any,
+        rate: Number(forexRate)
+
+
+
+      })
+
+
+
+      transaction_service.createTransaction(payload).then(data => {
         setCommonLoader(true)
 
-        if(data){
+        if (data) {
 
           settype('success')
-        setText("Tnansaction created Succesfully")
+          setText("Tnansaction created Succesfully")
         }
-        else{
+        else {
 
           settype('error')
           setText("Tnansaction created false")
         }
         setOpen(true)
         setcommonloader(false)
-       
+
         navigate('/transaction')
-        console.log(data.data)
-      //   transaction_service.createPayfastTransaction(data?.data,((Number(amount)+  Number(selecteTimeChange)+ Number(gatewayCharge)))).then((res)=>{
-      
+        //   transaction_service.createPayfastTransaction(data?.data,((Number(amount)+  Number(selecteTimeChange)+ Number(gatewayCharge)))).then((res)=>{
+        //     console.log(res)
+        //  seturl(res.url)
 
-      //     console.log(res)
-      //  seturl(res.url)
+        //  if(res){
+        //   settype('success')
+        //   setText("Tnansaction created Succesfully")
 
-      //  if(res){
-      //   settype('success')
-      //   setText("Tnansaction created Succesfully")
+        //  }else{
+        //   settype('error')
+        //   setText("Tnansaction created false")
 
-      //  }else{
-      //   settype('error')
-      //   setText("Tnansaction created false")
+        //  }
 
-      //  }
-     
-      //  setOpen(true)
-      // setcommonloader(false)
-      
-      // window.open(JSON.parse(res.data)?.url, "_blank", "noopener,noreferrer");
-       
-      
-      // })
-       })
+        //  setOpen(true)
+        // setcommonloader(false)
+
+        // window.open(JSON.parse(res.data)?.url, "_blank", "noopener,noreferrer");
+
+
+        // })
+      })
 
       //  if (data.id) {
       //   // HTML content for the new window
@@ -541,22 +512,22 @@ console.log((countrySelected == "IN" ? countries_in:countries))
       //     </body>
       //     </html>
       //   `;
-      
+
       //   // Open a new window and write the HTML content
       //   const paymentWindow = window.open("", "_blank", "width=600,height=800");
       //   if (paymentWindow) {
       //     paymentWindow.document.open();
       //     paymentWindow.document.write(htmlContent);
       //     paymentWindow.document.close();
-      
+
       //     // Check if the window is closed
       //     const interval = setInterval(() => {
       //       if (paymentWindow.closed) {
       //         clearInterval(interval);
       //         navigate('/transaction/create'); // Navigate when the window is closed
-            
+
       //       }
-          
+
       //     }, 50);
 
 
@@ -596,15 +567,14 @@ console.log((countrySelected == "IN" ? countries_in:countries))
         `);
         document.close();
       }
-      
-      
+
+
     } catch (error) {
       console.error("Payment initiation failed:", error);
       alert("Error processing payment!");
     }
   };
   const handleUserSelect = (user: { name: string; accountNumber: string }) => {
-    console.log(user)
     setSelectedUser(user)
     setSearchText(user.name) // Set selected user's name in TextField
     setFilteredUsers([]) // Clear th
@@ -678,7 +648,7 @@ console.log((countrySelected == "IN" ? countries_in:countries))
                   placeholder="Type a  User name or ID..."
                   InputProps={{
                     startAdornment: selectedUser && (
-                      <InputAdornment  sx={{marginBottom:'10px'}} position="start">
+                      <InputAdornment sx={{ marginBottom: '10px' }} position="start">
                         <Avatar
                           //@ts-ignore
                           // src={selectedUser.profilePhoto}
@@ -756,14 +726,14 @@ console.log((countrySelected == "IN" ? countries_in:countries))
                       onChange={handleCountryChange}
                       displayEmpty
                     >
-{(selectedCountryoption === "IN" ? countries_in : countries).map((country) => (
-  <MenuItem key={country.code} value={country.code}>
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      <Avatar src={country.flag} alt={country.name} sx={{ width: 24, height: 24, marginRight: '8px' }} />
-      <Typography>{country.name}</Typography>
-    </div>
-  </MenuItem>
-))}
+                      {(selectedCountryoption === "IN" ? countries_in : countries).map((country) => (
+                        <MenuItem key={country.code} value={country.code}>
+                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <Avatar src={country.flag} alt={country.name} sx={{ width: 24, height: 24, marginRight: '8px' }} />
+                            <Typography>{country.name}</Typography>
+                          </div>
+                        </MenuItem>
+                      ))}
 
 
                     </Select>
@@ -781,7 +751,7 @@ console.log((countrySelected == "IN" ? countries_in:countries))
 
 
                       setAmount(e.target.value as any)
-                   
+
                       setSelectedTimeCharge(0)
                     }}
                   />
@@ -805,7 +775,7 @@ console.log((countrySelected == "IN" ? countries_in:countries))
                   <TextField
                     label="Forex Rate"
                     variant="filled"
-                    value= { helper.roundToTwoFixed( forexRate)}
+                    value={helper.roundToTwoFixed(forexRate)}
                     InputProps={{
                       readOnly: true,
                     }}
@@ -827,14 +797,14 @@ console.log((countrySelected == "IN" ? countries_in:countries))
                 >
                   {selectedCountry && amount > 0 ? (
                     <>
-                      {' '}
                       <DataGrid
                         rows={TimechargesRows}
                         columns={chargesTableColumns}
                         //@ts-ignore
-                        pageSize={5}
+                        pagination={false}
                         disableSelectionOnClick
-                        hideFooterSelectedRowCount
+                        // hideFooterSelectedRowCount
+                        hideFooterPagination={true}
                       />
                     </>
                   ) : (
@@ -913,10 +883,10 @@ console.log((countrySelected == "IN" ? countries_in:countries))
 
             <Box sx={{ textAlign: 'left', marginTop: 2 }}>
               <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-              Principal Amount: {   helper.roundToTwoFixed  (amount * Number(forexRate)) + ' ' + currency}
+                Principal Amount: {helper.roundToTwoFixed(amount * Number(forexRate)) + ' ' + currency}
               </Typography>
               <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-               Settlmente Amount: {Number(amount) + Number(selecteTimeChange) + ' ' + sourceCountry}
+                Settlement Amount: {Number(amount) + Number(selecteTimeChange) + ' ' + sourceCountry}
               </Typography>
               <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                 Base Amount: {amount + ' ' + sourceCountry}
@@ -958,14 +928,14 @@ console.log((countrySelected == "IN" ? countries_in:countries))
                     onChange={handleCountryChange}
                     displayEmpty
                   >
-                   {(selectedCountryoption === "IN" ? countries_in : countries).map((country) => (
-  <MenuItem key={country.code} value={country.code}>
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      <Avatar src={country.flag} alt={country.name} sx={{ width: 24, height: 24, marginRight: '8px' }} />
-      <Typography>{country.name}</Typography>
-    </div>
-  </MenuItem>
-))}
+                    {(selectedCountryoption === "IN" ? countries_in : countries).map((country) => (
+                      <MenuItem key={country.code} value={country.code}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <Avatar src={country.flag} alt={country.name} sx={{ width: 24, height: 24, marginRight: '8px' }} />
+                          <Typography>{country.name}</Typography>
+                        </div>
+                      </MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
               </Grid>
@@ -1006,7 +976,7 @@ console.log((countrySelected == "IN" ? countries_in:countries))
                     InputProps={{
                       startAdornment: selectedUser && (
                         <InputAdornment position="start" sx={{
-                          marginBottom:'10px'
+                          marginBottom: '10px'
                         }}>
                           <Avatar
                             //@ts-ignore
@@ -1159,14 +1129,14 @@ console.log((countrySelected == "IN" ? countries_in:countries))
                     <TableCell align="right">
                       {
                         //@ts-ignore
-                        helper.roundToTwoFixed  ( amount * forexRate )+ ' ' + currency
+                        helper.roundToTwoFixed(amount * forexRate) + ' ' + currency
                       }
                     </TableCell>
                   </TableRow>
 
                   <TableRow>
                     <TableCell>Amount</TableCell>
-                    <TableCell align="right">{  helper.roundToTwoFixed  (amount )+' ' + sourceCountry}</TableCell>
+                    <TableCell align="right">{helper.roundToTwoFixed(amount) + ' ' + sourceCountry}</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell>Platfrom Charges</TableCell>
@@ -1190,127 +1160,127 @@ console.log((countrySelected == "IN" ? countries_in:countries))
 
 
 
-{
+            {
 
-selectedCountryoption=="SA"?<>
-         <Button variant="outlined" color="primary" sx={{ marginTop: 3,display: "flex", alignItems: "center", gap: 1, padding: "6px 16px" }} onClick={() => {
-  setcommonloader(true)
-  
-  let payload={
-    //@ts-ignore
-    benificary:{"benificaryId":  selectedBenficary?.benificaryId},
-    transferMethod:selectedTransferMethod,
-     destinationCountry:selectedCountry,
-     selectedTimeMethod:selectedTime,
-     gatewayStatus:selectedGateway,
-     amount:amount,
-    applicant:selectedUser,
-    forex:forexRate,
-    gatewayId:'13122',
-     //@ts-ignore
-    timecharge:selectedTime?.time,
-    
+              selectedCountryoption == "SA" ? <>
+                <Button variant="outlined" color="primary" sx={{ marginTop: 3, display: "flex", alignItems: "center", gap: 1, padding: "6px 16px" }} onClick={() => {
+                  setcommonloader(true)
 
-
-    sourceCurrency:selectedCountryoption=="SA"?"ZAR":"INR",
-      
-    sourceCountry:selectedCountryoption=='SA'?"ZA":"IN",
-    destinationCurrency:selectedCountryoption=='SA'?"INR":"ZAR",
-   totalpaybleamount: (Number(amount)+  Number(selecteTimeChange)+ Number(gatewayCharge))
-  
-   }
- 
-
-
-transaction_service.createDealcover({
-sourceCurrency:selectedCountryoption=="SA"?"ZAR":"INR",
-destinationCurrency:selectedCountryoption=='SA'?"INR":"ZAR",
-destinationCountry:selectedCountryoption=='SA'?"INR":"ZAR",
-applicantId:selectedUser as any,
-rate: Number(forexRate)
+                  let payload = {
+                    //@ts-ignore
+                    benificary: { "benificaryId": selectedBenficary?.benificaryId },
+                    transferMethod: selectedTransferMethod,
+                    destinationCountry: selectedCountry,
+                    selectedTimeMethod: selectedTime,
+                    gatewayStatus: selectedGateway,
+                    amount: amount,
+                    applicant: selectedUser,
+                    forex: forexRate,
+                    gatewayId: '13122',
+                    //@ts-ignore
+                    timecharge: selectedTime?.time,
 
 
 
-}).then(
-  //@ts-ignore
-  data=>{
+                    sourceCurrency: selectedCountryoption == "SA" ? "ZAR" : "INR",
 
-  transaction_service.createTransaction(payload).then(data=>{
+                    sourceCountry: selectedCountryoption == 'SA' ? "ZA" : "IN",
+                    destinationCurrency: selectedCountryoption == 'SA' ? "INR" : "ZAR",
+                    totalpaybleamount: (Number(amount) + Number(selecteTimeChange) + Number(gatewayCharge))
 
-    console.log(data.data)
-  
-   })
-  
-
-})
+                  }
 
 
 
+                  transaction_service.createDealcover({
+                    sourceCurrency: selectedCountryoption == "SA" ? "ZAR" : "INR",
+                    destinationCurrency: selectedCountryoption == 'SA' ? "INR" : "ZAR",
+                    destinationCountry: selectedCountryoption == 'SA' ? "INR" : "ZAR",
+                    applicantId: selectedUser as any,
+                    rate: Number(forexRate)
 
- setGifSuccess(true)
 
- setcommonloader(false)
- navigate('/transaction')
- 
+
+                  }).then(
+                    //@ts-ignore
+                    data => {
+
+                      transaction_service.createTransaction(payload).then(data => {
+
+                        console.log(data.data)
+
+                      })
+
+
+                    })
 
 
 
 
-            }}>
+                  setGifSuccess(true)
 
-
-              <img
-                src="https://cdn.prod.website-files.com/6282d4840afd19e1afa62e70/6491490c213c45a9d600d387_ozow_small_xs.png"
-                alt="Ozow"
-                style={{ height: "20px" }}
-              />
-              Confirm & Pay
-
-            </Button>
+                  setcommonloader(false)
+                  navigate('/transaction')
 
 
 
 
 
-            <Button variant="outlined" color="primary" sx={{ marginTop: 3, display: "flex", alignItems: "center", gap: 1, padding: "6px 16px" }} onClick={handlePaymentClick}>
-
-              <img
-                src="https://www.peachpayments.com/hubfs/peachpayments-logo.svg"
-                alt="Ozow"
-                style={{ height: "20px" }}
-              />
-
-              Confirm & Pay
-            </Button>
-  </>:<>
-  <CashfreePayment data={   {
-        //@ts-ignore
-        benificary:{"benificaryId":  selectedBenficary?.benificaryId},
-        transferMethod:selectedTransferMethod,
-         destinationCountry:selectedCountry,
-         selectedTimeMethod:selectedTime,
-         gatewayStatus:"Success",
-         amount:amount,
-        applicant:selectedUser,
-        forex:forexRate,
-        gatewayId:'13122',
-         //@ts-ignore
-        timecharge:selectedTime?.time,
-        sourceCurrency:selectedCountryoption=="SA"?"ZAR":"INR",
-      
-        sourceCountry:selectedCountryoption=='SA'?"ZA":"IN",
-        destinationCurrency:selectedCountryoption=='SA'?"INR":"ZAR",
-       totalpaybleamount: (Number(amount)+  Number(selecteTimeChange)+ Number(gatewayCharge))
-      
-       
-    }  }  amount={(Number(amount)+  Number(selecteTimeChange)+ Number(gatewayCharge))} /> 
-  </>
-}
+                }}>
 
 
-     
-            
-         
+                  <img
+                    src="https://cdn.prod.website-files.com/6282d4840afd19e1afa62e70/6491490c213c45a9d600d387_ozow_small_xs.png"
+                    alt="Ozow"
+                    style={{ height: "20px" }}
+                  />
+                  Confirm & Pay
+
+                </Button>
+
+
+
+
+
+                <Button variant="outlined" color="primary" sx={{ marginTop: 3, display: "flex", alignItems: "center", gap: 1, padding: "6px 16px" }} onClick={handlePaymentClick}>
+
+                  <img
+                    src="https://www.peachpayments.com/hubfs/peachpayments-logo.svg"
+                    alt="Ozow"
+                    style={{ height: "20px" }}
+                  />
+
+                  Confirm & Pay
+                </Button>
+              </> : <>
+                <CashfreePayment data={{
+                  //@ts-ignore
+                  benificary: { "benificaryId": selectedBenficary?.benificaryId },
+                  transferMethod: selectedTransferMethod,
+                  destinationCountry: selectedCountry,
+                  selectedTimeMethod: selectedTime,
+                  gatewayStatus: "Success",
+                  amount: amount,
+                  applicant: selectedUser,
+                  forex: forexRate,
+                  gatewayId: '13122',
+                  //@ts-ignore
+                  timecharge: selectedTime?.time,
+                  sourceCurrency: selectedCountryoption == "SA" ? "ZAR" : "INR",
+
+                  sourceCountry: selectedCountryoption == 'SA' ? "ZA" : "IN",
+                  destinationCurrency: selectedCountryoption == 'SA' ? "INR" : "ZAR",
+                  totalpaybleamount: (Number(amount) + Number(selecteTimeChange) + Number(gatewayCharge))
+
+
+                }} amount={(Number(amount) + Number(selecteTimeChange) + Number(gatewayCharge))} />
+              </>
+            }
+
+
+
+
+
 
           </Box>
         </TabPanel>

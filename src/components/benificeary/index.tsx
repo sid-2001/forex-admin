@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import { Grid, TextField, Menu, MenuItem, IconButton, Avatar, ListItemText, ListItemIcon } from '@mui/material'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 
-const BeneficiaryForm = ({ 
-   //@ts-ignore
+const BeneficiaryForm = ({
+  //@ts-ignore
   setselectedBenficiary, selectedBenificary, beneficiaries }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [formData, setFormData] = useState({
@@ -59,16 +59,16 @@ const BeneficiaryForm = ({
           }}
         />
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseMenu}>
-          {beneficiaries?.map(
-             //@ts-ignore
+          {beneficiaries && beneficiaries.length > 0 ? beneficiaries.map(
+            //@ts-ignore
             (beneficiary, index) => (
-            <MenuItem key={index} onClick={() => handleSelectBeneficiary(beneficiary)}>
-              <ListItemIcon>
-                <Avatar>{beneficiary.name.charAt(0)}</Avatar>
-              </ListItemIcon>
-              <ListItemText primary={beneficiary.name} />
-            </MenuItem>
-          ))}
+              <MenuItem key={index} onClick={() => handleSelectBeneficiary(beneficiary)}>
+                <ListItemIcon>
+                  <Avatar>{beneficiary.name.charAt(0)}</Avatar>
+                </ListItemIcon>
+                <ListItemText primary={beneficiary.name} />
+              </MenuItem>
+            )) : <MenuItem>No Beneficiary added</MenuItem>}
         </Menu>
       </Grid>
 
@@ -79,7 +79,8 @@ const BeneficiaryForm = ({
           fullWidth
           placeholder="Enter Account Number"
           value={formData.accountNumber}
-          onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
+          disabled
+        // onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
         />
       </Grid>
 
@@ -90,7 +91,8 @@ const BeneficiaryForm = ({
           fullWidth
           placeholder="Enter Bank Name"
           value={formData.bank}
-          onChange={(e) => setFormData({ ...formData, bank: e.target.value })}
+          disabled
+        // onChange={(e) => setFormData({ ...formData, bank: e.target.value })}
         />
       </Grid>
 
@@ -101,7 +103,8 @@ const BeneficiaryForm = ({
           fullWidth
           placeholder="Enter IFSC Code"
           value={formData.ifscCode}
-          onChange={(e) => setFormData({ ...formData, ifscCode: e.target.value })}
+          disabled
+        // onChange={(e) => setFormData({ ...formData, ifscCode: e.target.value })}
         />
       </Grid>
     </Grid>
