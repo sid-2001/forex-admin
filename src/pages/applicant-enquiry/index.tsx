@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { ApplicantService } from '@/services/applicant.service'; // Assuming you have this service
 import { PieChart } from '@mui/x-charts/PieChart/PieChart';
 import { useRecoilState } from 'recoil';
-import { applicantView } from '@/states/state';
+import { applicantView, selectedCountryState } from '@/states/state';
 import ApplicantList from '@/components/applicant-list';
 import ApplicantDataGrid from '@/components/applicant';
 
@@ -25,13 +25,14 @@ const ApplicantEnquiry = () => {
   const [availableLimit,setAvailableLimit]=useState(0)
   const[ maxlimit,setMaxlimit]=useState(0)
   const[applicantList,setapplicantList]=useState([])
+  const[selectedCountryoption,setselectedCountryoption]=useRecoilState(selectedCountryState)
 
 
 
 
   useEffect(()=>{
     setViewApplicant(true)
-    applicant_service.getApplicantDetalis().then(data=>{
+    applicant_service.getApplicantDetalisByCountry(selectedCountryoption=="SA"?"ZA":"IN").then(data=>{
     
       // console.log(data)
 //@ts-ignore

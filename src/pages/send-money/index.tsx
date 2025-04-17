@@ -141,6 +141,7 @@ const SendMoneyPage = () => {
   const [gifsuccess, setGifSuccess] = useState(false)
   const [sendCountry, setsendCountry] = useState('')
   const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
+
   const [selectedCountryoption, setSelectedCountryOption] = useRecoilState(selectedCountryState)
 
   //   const[selected ]
@@ -574,6 +575,8 @@ const SendMoneyPage = () => {
       alert("Error processing payment!");
     }
   };
+
+  
   const handleUserSelect = (user: { name: string; accountNumber: string }) => {
     setSelectedUser(user)
     setSearchText(user.name) // Set selected user's name in TextField
@@ -743,7 +746,7 @@ const SendMoneyPage = () => {
                 {/* Amount Input */}
                 <Grid item xs={12} md={3}>
                   <TextField
-                    label={` Amount `}
+                    label={` Amount  ${selectedCountryoption=="SA"?"ZAR":"INR"}`}
                     variant="filled"
                     fullWidth
                     onChange={(e) => {

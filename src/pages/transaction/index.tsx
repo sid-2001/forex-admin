@@ -717,7 +717,7 @@ const TransactionPage = () => {
               <Grid item xs={12} md={6}>
                 <TextField label="Value" variant="filled" fullWidth
                   //@ts-ignore
-                  defaultValue={transactionDetails.value} size="small" disabled />
+                  defaultValue={transactionDetails.value?.toFixed(2)} size="small" disabled />
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField label="Currency" variant="filled" fullWidth
@@ -727,7 +727,7 @@ const TransactionPage = () => {
               <Grid item xs={12} md={6}>
                 <TextField label="Date" variant="filled" fullWidth
                   //@ts-ignore
-                  defaultValue={transactionDetails.date} size="small" disabled />
+                  defaultValue={ helper.convertDateAndTime( transactionDetails.date)} size="small" disabled />
               </Grid>
             </Grid>
 
