@@ -61,9 +61,10 @@ import SourceIcon from '@mui/icons-material/Source'
 import ShowChartIcon from '@mui/icons-material/ShowChart'
 // import { IconButton } from '@mui/material';
 
-import { Us, Sa, Za,In } from 'react-flags-select'
+import { Us, Sa, Za, In } from 'react-flags-select'
 import { TransactionService } from '@/services/transaction.service'
-
+// import LogoutModalProps from '../logout/logout.component'
+import ConfirmationModal from '../logout/logout.component'
 
 const RotatingImage = (
   //@ts-ignore
@@ -114,7 +115,7 @@ const LoaderBackdrop = ({
   </Backdrop>
 )
 
-let local_service:any = new LocalStorageService()
+let local_service: any = new LocalStorageService()
 const DashboardContainer = styled(Box)({
   display: 'flex',
 })
@@ -137,8 +138,9 @@ const DashboardLayout = () => {
   let navigate = useNavigate()
   const theme = useTheme()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const[selecteCountryState,setselectedCountryState]=useRecoilState(selectedCountryState)
+  const [selecteCountryState, setselectedCountryState] = useRecoilState(selectedCountryState)
   const opendropdown = Boolean(anchorEl)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -161,7 +163,7 @@ const DashboardLayout = () => {
   const [text, setText] = useRecoilState(alertTextState)
   const [type, settype] = useRecoilState(alertTypeState)
   const [selectedTab, setSelectedTab] = useRecoilState(sidbarSelectionState)
-  const[balance,setBalance]=useRecoilState(availableBalanceState)
+  const [balance, setBalance] = useRecoilState(availableBalanceState)
 
   const [droppopopen, setdropopoOpen] = useState(false)
 
@@ -171,6 +173,10 @@ const DashboardLayout = () => {
 
   const toggleDrawer = () => {
     setDrawerOpen(!isDrawerOpen)
+  }
+
+  const handleModalClose = () => {
+    setIsModalOpen(!isModalOpen);
   }
 
   const menuItems = [
@@ -332,18 +338,18 @@ const DashboardLayout = () => {
 
   // let [cartitme,se]
 
-let trx_service=new TransactionService()
-  
+  let trx_service = new TransactionService()
+
 
   useEffect(() => {
 
-trx_service.getBalanceEnquiry().then(data=>{
+    trx_service.getBalanceEnquiry().then(data => {
 
-console.log(data)
-setBalance(data as any)
+      console.log(data)
+      setBalance(data as any)
 
-})
-    
+    })
+
     setTimeout(() => {
       setLoader(false)
     }, 2000)
@@ -423,11 +429,10 @@ setBalance(data as any)
   }
 
   const handleLogout = () => {
-    // Add your logout logic here
-    console.log('Logout clicked')
     navigate('/login')
     local_service?.delete_eaccestoke()
   }
+
   return (
     <ThemeProvider theme={theme}>
       {/* <CustomSnackbar></CustomSnackbar> */}
@@ -445,18 +450,12 @@ setBalance(data as any)
             <img src={LogoWhite} alt="Logo" style={{ height: 60 }} />
           </Box>
 
-
           <Box
-          sx={{
+            sx={{ marginRight: "23px" }}>
+            <strong>Available Balance :</strong><br></br>
+            <text>₹{balance}</text>
+          </Box>
 
-            marginRight:"23px"
-          }}
-          >
-
-<strong>Available Balance :</strong><br></br>
-<text>₹{balance}</text>
-
-</Box>
           <Box
             sx={{
               display: 'flex',
@@ -471,100 +470,85 @@ setBalance(data as any)
               marginBottom: '6px',
             }}
           >
+            {selecteCountryState == "SA" ? <>
+              <Avatar>{<strong>{(local_service.get_user().firstName[0]) + (local_service.get_user().lastName[0])}</strong>
+              }</Avatar>
 
-
-        
-       
-
-            {
-
-selecteCountryState=="SA"?<>
-
-<Avatar >{ <strong>{ (local_service.get_user().firstName[0] ) +(local_service.get_user().lastName[0])}</strong>
-                }</Avatar>
-
-<Box ml={1}>
-              <Typography
-                variant="subtitle1"
-                sx={{
-                  fontFamily: 'sans-serif',
-                  fontSize: '12px',
-                  color: 'white',
-                }}
-              >
-                <strong>{ (local_service.get_user().firstName ) +" "+(local_service.get_user().lastName)}</strong>
-               
-              </Typography>
-
-              <Stack direction="row">
+              <Box ml={1}>
                 <Typography
-                  variant="subtitle2"
+                  variant="subtitle1"
                   sx={{
                     fontFamily: 'sans-serif',
-                    fontSize: '11px',
+                    fontSize: '12px',
                     color: 'white',
                   }}
                 >
-                     <strong>{ (local_service.get_user().id)}</strong>
-        
-                      </Typography>
+                  <strong>{(local_service.get_user().firstName) + " " + (local_service.get_user().lastName)}</strong>
+                </Typography>
 
-                <Za
-                  style={{
-                    height: '20px',
-                    width: '25px',
-                    marginLeft: '5%',
-                    // padding: '10px',
-                    borderRadius: '30%',
-                  }}
-                />
-              </Stack>
-            </Box>
-</>:<>
-<Avatar >{local_service.get_user().firstName[0]+" "+local_service.get_user().lastName[0] }</Avatar>
+                <Stack direction="row">
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontFamily: 'sans-serif',
+                      fontSize: '11px',
+                      color: 'white',
+                    }}
+                  >
+                    <strong>{(local_service.get_user().id)}</strong>
 
-<Box ml={1}>
-              <Typography
-                variant="subtitle1"
-                sx={{
-                  fontFamily: 'sans-serif',
-                  fontSize: '12px',
-                  color: 'white',
-                }}
-              >
-                <strong>{ (local_service.get_user().firstName ) +" "+(local_service.get_user().lastName)}</strong>
-               
-              </Typography>
+                  </Typography>
 
-              <Stack direction="row">
+                  <Za
+                    style={{
+                      height: '20px',
+                      width: '25px',
+                      marginLeft: '5%',
+                      // padding: '10px',
+                      borderRadius: '30%',
+                    }}
+                  />
+                </Stack>
+              </Box>
+            </> : <>
+              <Avatar >{local_service.get_user().firstName[0] + " " + local_service.get_user().lastName[0]}</Avatar>
+
+              <Box ml={1}>
                 <Typography
-                  variant="subtitle2"
+                  variant="subtitle1"
                   sx={{
                     fontFamily: 'sans-serif',
-                    fontSize: '11px',
+                    fontSize: '12px',
                     color: 'white',
                   }}
                 >
-                     <strong>{ (local_service.get_user().id)}</strong>
-        
-                      </Typography>
+                  <strong>{(local_service.get_user().firstName) + " " + (local_service.get_user().lastName)}</strong>
+                </Typography>
 
-                <In
-                  style={{
-                    height: '20px',
-                    width: '25px',
-                    marginLeft: '5%',
-                    // padding: '10px',
-                    borderRadius: '30%',
-                  }}
-                />
-              </Stack>
-            </Box>
-</>
+                <Stack direction="row">
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontFamily: 'sans-serif',
+                      fontSize: '11px',
+                      color: 'white',
+                    }}
+                  >
+                    <strong>{(local_service.get_user().id)}</strong>
+                  </Typography>
 
-            }
-
-        
+                  <In
+                    style={{
+                      height: '20px',
+                      width: '25px',
+                      marginLeft: '5%',
+                      // padding: '10px',
+                      borderRadius: '30%',
+                    }}
+                  />
+                </Stack>
+              </Box>
+            </>}
           </Box>
         </Toolbar>
       </AppBar>
@@ -649,7 +633,9 @@ selecteCountryState=="SA"?<>
                   // marginTop: '50vh',
                   // Push this item to the end
                 }}
-                onClick={handleLogout}
+                onClick={() => {
+                  setIsModalOpen(true);
+                }}
               >
                 <Stack>
                   <Item>
@@ -692,7 +678,9 @@ selecteCountryState=="SA"?<>
                   alignItems: 'center',
                   // backgroundColor: 'pink',
                 }}
-                onClick={handleLogout}
+                onClick={() => {
+                  setIsModalOpen(true);
+                }}
               >
                 <Stack>
                   <Item>
@@ -713,7 +701,6 @@ selecteCountryState=="SA"?<>
           <Box
             sx={{
               flexGrow: 1,
-
               padding: '2%',
               paddingLeft: '5%',
               marginLeft: 0, // Prevent the sidebar from affecting the content
@@ -726,8 +713,16 @@ selecteCountryState=="SA"?<>
 
               <Outlet />
             </MainContent>
+
+            {isModalOpen && <ConfirmationModal isOpen={isModalOpen}
+              message='Do you really want to Logout?'
+              handleConfirm={() => { handleLogout() }}
+              handleClose={() => { handleModalClose() }}
+            />}
           </Box>
         </Box>
+
+
       </DashboardContainer>
     </ThemeProvider>
   )
