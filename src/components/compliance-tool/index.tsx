@@ -70,7 +70,7 @@ export default function ComplianceTool(
           width={400}
           height={200}
         />
-        <Typography
+        {/* <Typography
           variant="subtitle2"
           sx={{
             position: 'absolute',
@@ -84,7 +84,7 @@ export default function ComplianceTool(
           ₹{maxlimit.toLocaleString()}
           <br />
           Max Limit
-        </Typography>
+        </Typography> */}
       </Box>
     );
   }
@@ -129,7 +129,7 @@ export default function ComplianceTool(
 
       setutilizedLimit(comp_data?.utilizedLimit)
       setAvailableLimit(comp_data?.availableLimit)
-      setAvailableLimit(comp_data?.maxlimit)
+      // setMaxlimit(comp_data?.maxlimit)
 
 
       // const [ utilizedLimit, setutilizedLimit ] = useState(0)
@@ -193,6 +193,10 @@ export default function ComplianceTool(
             variant="filled"
             fullWidth
             value={searchText}
+            sx={{
+
+              marginBottom:"2%"
+            }}
             onChange={(e) => {
               setSelectedUser(null);
               setSearchText(e.target.value);
