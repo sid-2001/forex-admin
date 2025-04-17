@@ -328,6 +328,7 @@ const BopScreen: React.FC = () => {
               name="bop_category"
               value={bopCat?.bop_category || ''}
               size="small"
+              disabled={bopData?.status === disableFormFieldsViaStatus}
               onChange={(e) => {
                 setbopCat((prev: any) => ({
                   ...prev,
@@ -352,6 +353,7 @@ const BopScreen: React.FC = () => {
               name="bop_sub_category"
               value={bopCat?.bop_sub_category || ''}
               size="small"
+              disabled={bopData?.status === disableFormFieldsViaStatus}
               onChange={(e) => {
                 setbopCat((prev: any) => ({
                   ...prev,
@@ -375,6 +377,7 @@ const BopScreen: React.FC = () => {
               label="Category Description"
               variant="outlined"
               name="bop_description"
+              disabled={bopData?.status === disableFormFieldsViaStatus}
               value={bopCat?.bop_description || ''}
               size="small"
               onChange={(e) => {
@@ -445,6 +448,7 @@ const BopScreen: React.FC = () => {
               label="Excon Ruling Indicator"
               variant="outlined"
               name="excon_ruling_indicator"
+              disabled={bopData?.status === disableFormFieldsViaStatus}
               value={bopCat?.excon_ruling_indicator || ''}
               size="small"
               onChange={(e) => {
@@ -471,6 +475,7 @@ const BopScreen: React.FC = () => {
               name="excon_ruling_section"
               value={bopCat?.excon_ruling_section || ''}
               size="small"
+              disabled={bopData?.status === disableFormFieldsViaStatus}
               onChange={(e) => {
                 setbopCat((prev: any) => ({
                   ...prev,
@@ -500,6 +505,7 @@ const BopScreen: React.FC = () => {
                   adhoc_subject: e.target.value,
                 }))
               }}
+              disabled={bopData?.status === disableFormFieldsViaStatus}
             >
               {bopCategoryStaticData.filter((item: any) => item.moduleName === "Adhoc Subject").map((mItem: any, ind: any) => (
                 <MenuItem key={ind} value={mItem.keyValue}>
@@ -516,6 +522,7 @@ const BopScreen: React.FC = () => {
               label="Subject Description"
               variant="outlined"
               name="subject_description"
+              disabled={bopData?.status === disableFormFieldsViaStatus}
               value={bopCat?.subject_description || ''}
               size="small"
               onChange={(e) => {
