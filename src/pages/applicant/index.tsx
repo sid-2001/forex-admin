@@ -163,12 +163,12 @@ function LimitPieChart() {
         width={400}
         height={100}
       />
-      <Typography
+      {/* <Typography
         variant="subtitle2"
         sx={{
           position: 'absolute',
           top: '17.5%',
-          right:"-14.5%",
+          right:"-20.5%",
           
           // transform: 'translate(-50%, -50%)',
           textAlign: 'center',
@@ -183,7 +183,7 @@ function LimitPieChart() {
         <br />
         {maxlimit.toLocaleString()}
       
-      </Typography>
+      </Typography> */}
     </Box>
   );
 }

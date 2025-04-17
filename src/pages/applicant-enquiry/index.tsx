@@ -7,6 +7,7 @@ import { PieChart } from '@mui/x-charts/PieChart/PieChart';
 import { useRecoilState } from 'recoil';
 import { applicantView } from '@/states/state';
 import ApplicantList from '@/components/applicant-list';
+import ApplicantDataGrid from '@/components/applicant';
 
 const applicant_service = new ApplicantService();
 
@@ -18,15 +19,28 @@ const ApplicantEnquiry = () => {
   const [viewapplicatn,setViewApplicant]=useRecoilState(applicantView)
 
 
-  useEffect(()=>{
-setViewApplicant(true)
 
-  },[])
 
   const [ utilizedLimit, setutilizedLimit ] = useState(0)
   const [availableLimit,setAvailableLimit]=useState(0)
   const[ maxlimit,setMaxlimit]=useState(0)
+  const[applicantList,setapplicantList]=useState([])
 
+
+
+
+  useEffect(()=>{
+    setViewApplicant(true)
+    applicant_service.getApplicantDetalis().then(data=>{
+    
+      // console.log(data)
+//@ts-ignore
+      setapplicantList(data)
+    
+    
+    })
+    
+      },[])
   function LimitPieChart() {
   
     const utilized = Math.abs(utilizedLimit);
@@ -145,13 +159,13 @@ setViewApplicant(true)
   return (
     <Box padding={2} sx={{ width: '70vw'}}>
       <Typography variant="h4" gutterBottom>
-        <strong>Applicant Enquiry</strong>
+        {/* <strong>Applicant Enquiry</strong> */}
       </Typography>
       
 
       <Grid container spacing={3} marginBottom={2} alignItems="center" >
         <Grid item xs={3}> {/* Both fields have equal width */}
-          <TextField
+          {/* <TextField
             variant="standard"
             fullWidth
             label="Applicant ID"
@@ -163,7 +177,7 @@ setViewApplicant(true)
                 color: 'red',
               },
             }}
-          />
+          /> */}
         </Grid>
         {/* <Grid marginInline={4}>
           <strong>OR</strong>
@@ -186,20 +200,18 @@ setViewApplicant(true)
           />
         </Grid> */}
 
-        <Grid item xs={4} container spacing={2}>
+        {/* <Grid item xs={4} container spacing={2}>
           <Grid item xs={4}>
             <Button variant="contained" fullWidth sx={{ padding: '4px 20px' }} onClick={handleSearch}>
               Search
             </Button>
           </Grid>
-          {/* <Grid item xs={4}>
-            <Button variant="contained" fullWidth sx={{ marginLeft: '50px', padding: '4px 20px' }} onClick={handleAddApplicantDetails} >
-              Add
-            </Button>
-          </Grid> */}
-        </Grid>
+         
+        </Grid> */}
       </Grid>
 
+
+<ApplicantDataGrid data={applicantList}/>
 
       {showTable && <ApplicantTable applicants={filteredApplicants} />}
     </Box>

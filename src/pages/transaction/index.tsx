@@ -87,21 +87,90 @@ const TransactionPage = () => {
   //           status:e?.transactionOutward?.transactionStatus=="CR"?"Pending":"Done",
 
   const helper = new HelperService()
-
+ //@ts-ignore
   const columns_outward: GridColDef[] = [
+
+     //@ts-ignore
     { field: 'id', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'destination', headerName: 'Destination', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'value', headerName: ' Principal Amount ', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'principalCurrency', headerName: ' Principal Currency ', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'settlementAmount', headerName: ' Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'settlementCurrency', headerName: 'Settlement Currency  ', flex: 1, headerClassName: 'super-app-theme--header' },
+    // {
+    //   field: 'applicant',
+    //   headerName: 'Applicant',
+    //   flex: 1,
+    //   headerClassName: 'super-app-theme--header',
+    //   renderCell: (params) =>  { return( params.value?.applicantId || '')}
+    // },
+
+
+    // {
+    //   field: 'applicant',
+    //   headerName: 'Applicant',
+    //   flex: 1,
+    //   headerClassName: 'super-app-theme--header',
+    //   renderCell: (params) => {
+    //     return (
+    //       <span onClick={()=>{
+
+    //         console.log("indid")
+
+    //      navigate(`/applicant-details/${params.value?.applicantId}`)
+    //       }}>
+    //         {params.value?.name || params.value?.applicantId || 'N/A'}
+    //       </span>
+    //     );
+    //   }
+    // },
+
+,
     {
       field: 'applicant',
       headerName: 'Applicant',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => params.value?.applicantId || ''
+      renderCell: (params) => {
+        const navigate = useNavigate();
+    
+        const nameOrId = params.value?.name || params.value?.applicantId || 'N/A';
+    
+        return (
+          <Tooltip title={`Go to ${nameOrId}'s details`} arrow>
+            <span
+              onClick={() => navigate(`/applicant-details/${params.value?.applicantId}`)}
+              style={{ cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}
+            >
+              {nameOrId}
+            </span>
+          </Tooltip>
+        );
+      }
     },
+    // {
+    //   field: 'applicant',
+    //   headerName: 'Applicant',
+    //   flex: 1,
+    //   headerClassName: 'super-app-theme--header',
+    //   renderCell: (params) => {
+    //     const applicant = params.value;
+  
+    //     if (!applicant) return '';
+  
+    //     return (
+    //       <span
+    //         style={{ cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}
+    //         onClick={() => navigate(`/applicants/${applicant.applicantId}`)}
+    //       >
+           
+    //         {applicant.name}
+    //       </span>
+    //     );
+    //   }
+    // },
+
+
     { field: 'forex', headerName: 'Exchange Rate', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'charges', headerName: 'Charges', flex: 1, headerClassName: 'super-app-theme--header' },
     // { field: 'currency', headerName: 'Currency', flex: 1, headerClassName: 'super-app-theme--header' },
