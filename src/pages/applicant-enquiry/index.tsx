@@ -159,7 +159,7 @@ const ApplicantEnquiry = () => {
   return (
     <Box padding={2} sx={{ width: '70vw'}}>
       <Typography variant="h4" gutterBottom>
-        {/* <strong>Applicant Enquiry</strong> */}
+        <strong>Applicant </strong>
       </Typography>
       
 

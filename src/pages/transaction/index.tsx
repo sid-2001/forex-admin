@@ -93,9 +93,9 @@ const TransactionPage = () => {
      //@ts-ignore
     { field: 'id', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'destination', headerName: 'Destination', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'value', headerName: ' Principal Amount ', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'value', headerName: ' Principal Amount ', flex: 1, headerClassName: 'super-app-theme--header',renderCell:(params)=> params?.value?.toFixed(2) },
     { field: 'principalCurrency', headerName: ' Principal Currency ', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'settlementAmount', headerName: ' Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'settlementAmount', headerName: ' Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' ,renderCell:(params)=> params?.value?.toFixed(2) },
     { field: 'settlementCurrency', headerName: 'Settlement Currency  ', flex: 1, headerClassName: 'super-app-theme--header' },
     // {
     //   field: 'applicant',
