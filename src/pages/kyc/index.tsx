@@ -337,12 +337,12 @@ console.log(row)
               headerClassName: 'super-app-theme--header',
             },
             {
-              field: 'kycCountry',
+              field: 'nationality',
               headerName: 'Nationality',
               flex: 1,
               headerClassName: 'super-app-theme--header',
             },
-            { field: 'permanentAddressCountry', headerName: 'Resident Country', flex: 1, headerClassName: 'super-app-theme--header' },
+            { field: 'kycCountry', headerName: 'Resident Country', flex: 1, headerClassName: 'super-app-theme--header' },
             ,
 
             { field: 'applicantId', headerName: 'Applicant ID', flex: 1, headerClassName: 'super-app-theme--header' },
