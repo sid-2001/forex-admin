@@ -286,7 +286,7 @@ const BeneficiaryDetailPage = () => {
           </Grid>
         </Grid>
         <Grid container spacing={2} marginBottom={2}>
-          <Grid item xs={12} sm={4}>
+          {/* <Grid item xs={12} sm={4}>
             <TextField
               fullWidth
               label="Address Line 3"
@@ -297,7 +297,7 @@ const BeneficiaryDetailPage = () => {
                 readOnly: !isEditable,
               }}
             />
-          </Grid>
+          </Grid> */}
           <Grid item xs={12} sm={2}>
               <TextField
                 fullWidth

@@ -418,7 +418,7 @@ const AddBeneficiary = () => {
           </Grid>
         </Grid>
         <Grid container spacing={2} marginBottom={2}>
-          <Grid item xs={12} sm={4.5}>
+          {/* <Grid item xs={12} sm={4.5}>
             <TextField
               fullWidth
               label="Address Line 3 (Optional)"
@@ -426,7 +426,7 @@ const AddBeneficiary = () => {
               value={formData.physicalAddressLine3}
               onChange={handleChange}
             />
-          </Grid>
+          </Grid> */}
           <Grid item xs={12} sm={1.5}>
             <TextField
               fullWidth
