@@ -141,6 +141,7 @@ const SendMoneyPage = () => {
   const [gifsuccess, setGifSuccess] = useState(false)
   const [sendCountry, setsendCountry] = useState('')
   const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
+
   const [selectedCountryoption, setSelectedCountryOption] = useRecoilState(selectedCountryState)
 
   //   const[selected ]
@@ -183,7 +184,7 @@ const SendMoneyPage = () => {
           id: e.applicant.applicantId,
           //@ts-ignore
           name: e.applicant?.firstName,
-          accountNumber: '**********789',
+          accountNumber: e.applicant.applicantId,
           profilePhoto: 'https://randomuser.me/api/portraits/women/4.jpg',
           benificary: benificiary_list,
         }
@@ -574,6 +575,8 @@ const SendMoneyPage = () => {
       alert("Error processing payment!");
     }
   };
+
+  
   const handleUserSelect = (user: { name: string; accountNumber: string }) => {
     setSelectedUser(user)
     setSearchText(user.name) // Set selected user's name in TextField
@@ -631,8 +634,8 @@ const SendMoneyPage = () => {
 
       <TabContext value={tabValue}>
         <Tabs value={tabValue} onChange={handleChange} sx={{ marginBottom: 3 }}>
-          <Tab label="Select Applicant" value="1" />
-          <Tab label="Select Beneficiary" value="2" />
+          <Tab label="Create Transaction" value="1" />
+          {/* <Tab label="Select Beneficiary" value="2" /> */}
           <Tab label="Pay Now" value="3" />
         </Tabs>
         <TabPanel value="1">
@@ -693,7 +696,7 @@ const SendMoneyPage = () => {
                               user.name
                             }
                             //@ts-ignore
-                            secondary={`ID: ${user.id} | Account: ${user.accountNumber}`}
+                            secondary={`ID: ${user.id} `}
                           />
                         </ListItem>
                       ))}
@@ -743,7 +746,7 @@ const SendMoneyPage = () => {
                 {/* Amount Input */}
                 <Grid item xs={12} md={3}>
                   <TextField
-                    label={` Amount `}
+                    label={` Amount  ${selectedCountryoption=="SA"?"ZAR":"INR"}`}
                     variant="filled"
                     fullWidth
                     onChange={(e) => {
@@ -881,6 +884,33 @@ const SendMoneyPage = () => {
               </Grid>
             </Box>
 
+
+            <Typography variant="h6" gutterBottom>
+              Beneficiary
+            </Typography>
+       
+            <BeneficiaryForm
+              selectedBenificary={selectedBenficary}
+              setselectedBenficiary={setSelectedBenificary}
+              //@ts-ignore
+              beneficiaries={selectedUser?.benificary}
+            ></BeneficiaryForm>
+
+            <Divider sx={{ marginY: 2 }} />
+
+            <Typography variant="h6" gutterBottom>
+              BOP Category
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={12}>
+                <BobCategoryDropdown amount={amount}></BobCategoryDropdown>
+              </Grid>
+
+              
+            </Grid>
+
+
+
             <Box sx={{ textAlign: 'left', marginTop: 2 }}>
               <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                 Principal Amount: {helper.roundToTwoFixed(amount * Number(forexRate)) + ' ' + currency}
@@ -902,7 +932,7 @@ const SendMoneyPage = () => {
                 variant="contained"
                 color="primary"
                 onClick={() => {
-                  setTabValue('2')
+                  setTabValue('3')
                 }}
               >
                 Continue
@@ -1034,20 +1064,7 @@ const SendMoneyPage = () => {
             <Typography variant="h6" gutterBottom>
               Beneficiary
             </Typography>
-            {/* <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <TextField label="Account Holder Name" variant="filled" fullWidth placeholder="Enter Account Holder Name" />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField label="Account Number" variant="filled" fullWidth placeholder="Enter Account Number" />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField label="Bank" variant="filled" fullWidth placeholder="Enter Bank Name" />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField label="IFSC Code" variant="filled" fullWidth placeholder="Enter IFSC Code" />
-              </Grid>
-            </Grid> */}
+       
             <BeneficiaryForm
               selectedBenificary={selectedBenficary}
               setselectedBenficiary={setSelectedBenificary}
@@ -1065,9 +1082,7 @@ const SendMoneyPage = () => {
                 <BobCategoryDropdown amount={amount}></BobCategoryDropdown>
               </Grid>
 
-              {/* <Grid item xs={12} md={6}>
-                <TextField label="Amount" variant="filled" fullWidth placeholder="Enter Amount" />
-              </Grid> */}
+              
             </Grid>
 
             <Button

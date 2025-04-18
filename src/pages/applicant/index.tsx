@@ -198,7 +198,7 @@ const ApplicantPage = () => {
 
       setutilizedLimit(comp_data?.utilizedLimit)
       setAvailableLimit(comp_data?.availableLimit)
-      setAvailableLimit(comp_data?.maxlimit)
+      // setAvailableLimit(comp_data?.maxlimit)
 
 
     })

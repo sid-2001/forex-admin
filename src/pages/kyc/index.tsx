@@ -30,7 +30,7 @@ import { ApplicantService } from '@/services/applicant.service'
 import { KycService } from '@/services/kyc.service'
 import { Close, Comment, Coronavirus, Send } from '@mui/icons-material'
 import axios from 'axios'
-import { loaderStateNew } from '@/states/state'
+import { loaderStateNew, selectedCountryState } from '@/states/state'
 import { useRecoilState } from 'recoil'
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -54,6 +54,7 @@ const KYCPage = () => {
   const[checkboxOpen,setCheckboxOpen]=useState(false)
   const[kycstatus,setKycStatus]=useState('p')
 
+  const[selectedcountry,setselectedCountry]=useRecoilState(selectedCountryState)
 
   const [comments, setComments] = useState([
     {
@@ -136,12 +137,14 @@ const KYCPage = () => {
       })
 
 
-      applicant_service.getApplicantKyc().then((data) => {
+      applicant_service.getApplicantKyc(selectedcountry=="SA"?"ZA":"IN").then((data) => {
       
         // console.log(data)
       
         setMockData(data)
          //@ts-ignores
+
+
         setFilteredData(data)
         setCommonLoader(false)
   
@@ -184,7 +187,7 @@ setKycStatus(selected_data[0]?.kycStatus)
 
           console.log(data)
 
-          applicant_service.getApplicantKyc().then((data) => {
+          applicant_service.getApplicantKyc(selectedcountry=="SA"?"ZA":"IN").then((data) => {
       
             // console.log(data)
           
@@ -232,7 +235,7 @@ setKycStatus(selected_data[0]?.kycStatus)
   useEffect(() => {
     console.log("setting Loader")
     setCommonLoader(true)
-    applicant_service.getApplicantKyc().then((data) => {
+    applicant_service.getApplicantKyc(selectedcountry=="SA"?"ZA":"IN").then((data) => {
       
       // console.log(data)
 
@@ -293,106 +296,6 @@ console.log(row)
         <strong>Know-Your Customer</strong>
       </Typography>
 
-      {/* Filters */}
-      {/* <Grid container spacing={2} marginBottom={2}>
-        <Grid item xs={4}>
-          <TextField
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                color: '#000',
-                fontFamily: 'Arial',
-                fontWeight: 'bold',
-                // Class for the border around the input field
-                '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#2e2e2e',
-                  borderWidth: '2px',
-                },
-              },
-              // Class for the label of the input field
-              '& .MuiInputLabel': {
-                color: 'red',
-                fontWeight: 'bold',
-              },
-            }}
-            //@ts-ignore
-            sx={{
-              // Label
-              '& .MuiInputLabel-standard': {
-                // color: theme.palette.primary.main,
-                fontWeight: 'bold',
-                '&.Mui-focused': {
-                  color: ' theme.palette.primary.main',
-
-                  fontSize: '20px',
-                  //   fontWeight: '400px',
-                },
-              },
-            }}
-            variant="standard"
-            fullWidth
-            label="KYC ID"
-            value={filterValues.kycId}
-            onChange={(e) => handleFilterChange('kycId', e.target.value)}
-          />
-        </Grid>
-        <Grid item xs={4}>
-          <TextField
-            fullWidth
-            label="Verification Status"
-            variant="standard"
-            select
-            value={filterValues.verificationStatus}
-            onChange={(e) => handleFilterChange('verificationStatus', e.target.value)}
-            sx={{
-              // Label
-              '& .MuiInputLabel-standard': {
-                // color: theme.palette.primary.main,
-                fontWeight: 'bold',
-                '&.Mui-focused': {
-                  color: ' theme.palette.primary.main',
-
-                  fontSize: '20px',
-                  //   fontWeight: '400px',
-                },
-              },
-            }}
-          >
-            <MenuItem value="">All</MenuItem>
-            <MenuItem value="Pending">Pending</MenuItem>
-            <MenuItem value="Verified">Verified</MenuItem>
-          </TextField>
-        </Grid>
-        <Grid item xs={4}>
-          <TextField
-            fullWidth
-            label="Country"
-            variant="standard"
-            select
-            value={filterValues.country}
-            sx={{
-              // Label
-              '& .MuiInputLabel-standard': {
-                // color: theme.palette.primary.main,
-                fontWeight: 'bold',
-                '&.Mui-focused': {
-                  color: ' theme.palette.primary.main',
-
-                  fontSize: '20px',
-                  //   fontWeight: '400px',
-                },
-              },
-            }}
-            onChange={(e) => handleFilterChange('country', e.target.value)}
-          >
-            <MenuItem value="">All</MenuItem>
-            <MenuItem value="South Africa">South Africa</MenuItem>
-            <MenuItem value="USA">USA</MenuItem>
-          </TextField>
-        </Grid>
-      </Grid>
-      <Button variant="contained" onClick={applyFilters}>
-        Apply Filters
-      </Button> */}
 
       {/* Data Grid */}
       <Box
@@ -439,7 +342,7 @@ console.log(row)
               flex: 1,
               headerClassName: 'super-app-theme--header',
             },
-            { field: 'permanentAddressCountry', headerName: 'Resident Country', flex: 1, headerClassName: 'super-app-theme--header' },
+            { field: 'kycCountry', headerName: 'Resident Country', flex: 1, headerClassName: 'super-app-theme--header' },
             ,
 
             { field: 'applicantId', headerName: 'Applicant ID', flex: 1, headerClassName: 'super-app-theme--header' },

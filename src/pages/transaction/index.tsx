@@ -92,10 +92,12 @@ const TransactionPage = () => {
 
      //@ts-ignore
     { field: 'id', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
+
+    { field: 'transactionInwardNumber', headerName: 'Inward ID', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'destination', headerName: 'Destination', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'value', headerName: ' Principal Amount ', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'value', headerName: ' Principal Amount ', flex: 1, headerClassName: 'super-app-theme--header',renderCell:(params)=> params?.value?.toFixed(2) },
     { field: 'principalCurrency', headerName: ' Principal Currency ', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'settlementAmount', headerName: ' Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'settlementAmount', headerName: ' Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' ,renderCell:(params)=> params?.value?.toFixed(2) },
     { field: 'settlementCurrency', headerName: 'Settlement Currency  ', flex: 1, headerClassName: 'super-app-theme--header' },
     // {
     //   field: 'applicant',
@@ -402,7 +404,7 @@ const TransactionPage = () => {
         "segment": 2
       },
       gatewayStatus: 'Success',
-      amount: row.value,
+      amount: row?.settlementAmount,
       applicant: {
         "applicantId": row.applicantId
       },
@@ -477,6 +479,8 @@ const TransactionPage = () => {
               status: e?.transactionOutward?.transactionStatus,
               final_amount: helper.roundToTwoFixed(e?.transactionOutward?.exchangeRates * e?.transactionOutward?.principalAmount),
               applicant: e?.applicant,
+              //@ts-ignore
+              inid:e?.transactionInwardNumber
             };
           })
         // ?.filter((transaction) => {
@@ -717,7 +721,7 @@ const TransactionPage = () => {
               <Grid item xs={12} md={6}>
                 <TextField label="Value" variant="filled" fullWidth
                   //@ts-ignore
-                  defaultValue={transactionDetails.value} size="small" disabled />
+                  defaultValue={transactionDetails.value?.toFixed(2)} size="small" disabled />
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField label="Currency" variant="filled" fullWidth
@@ -727,7 +731,7 @@ const TransactionPage = () => {
               <Grid item xs={12} md={6}>
                 <TextField label="Date" variant="filled" fullWidth
                   //@ts-ignore
-                  defaultValue={transactionDetails.date} size="small" disabled />
+                  defaultValue={ helper.convertDateAndTime( transactionDetails.date)} size="small" disabled />
               </Grid>
             </Grid>
 

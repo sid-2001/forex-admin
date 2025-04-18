@@ -55,6 +55,23 @@ class ApplicantService extends BaseService {
     }
   }
 
+
+  async getApplicantDetalisByCountry(country:any): Promise<Array<ApplicantData>> {
+    let url = `/api/applicant/applicant-all-details/residenceCountry/${country}`
+    try {
+      // let { data } = await axios.get(url)
+     let {data}=await api1.get(url)
+      // let response = await api1.post(url, payload)
+      //@ts-ignore
+      console.log(data.data)
+      return data
+    } catch (err) {
+      console.log('error in service file', err)
+      throw new Error('Unable to submit applicant form. Please try again.')
+    }
+  }
+
+
   async getTransactionsByApplicantId(applicantId: string): Promise<Array<ApplicantData>> {
     let url = `/api/transactions/transaction-details/applicant/id/${applicantId}`
     try {
@@ -70,8 +87,8 @@ class ApplicantService extends BaseService {
     }
   }
 
-  async getApplicantKyc(): Promise<Array<KYCData>> {
-    let url = `/api/kyc/kyc`
+  async getApplicantKyc(country:any): Promise<Array<KYCData>> {
+    let url = `/api/kyc/kyc/kycCountry/${country}`
     try {
       // let { data } = await axios.get(url)
       let data= await api1.get(url)
