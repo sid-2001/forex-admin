@@ -32,8 +32,6 @@ const BopScreen: React.FC = () => {
   const parseData = JSON.parse(storedLocalData);
   const helper = new HelperService()
 
-  console.log("test commit")
-
   const validateForm = () => {
     // const newErrors: any = {};
     // let isValid = true;
@@ -170,7 +168,7 @@ const BopScreen: React.FC = () => {
   }
 
   const fetchBopBetailById = async () => {
-    fetch(`${backendUrl}/bop/${transactionId}`, {
+    fetch(`${backendUrl}/bop/${transactionId}/${transaction_attempt}`, {
       method: 'GET', // The HTTP method (GET by default, so this is optional)
       headers: {
         'Content-Type': 'application/json',
@@ -193,7 +191,7 @@ const BopScreen: React.FC = () => {
   }
 
   const fetchBopCategoryDataById = async () => {
-    fetch(`${backendUrl}/bopCategory/${transactionId}`, {
+    fetch(`${backendUrl}/bopCategory/${transactionId}/${transaction_attempt}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
