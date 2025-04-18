@@ -404,7 +404,7 @@ const TransactionPage = () => {
         "segment": 2
       },
       gatewayStatus: 'Success',
-      amount: row.value,
+      amount: row?.settlementAmount,
       applicant: {
         "applicantId": row.applicantId
       },

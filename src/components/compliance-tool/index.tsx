@@ -170,7 +170,7 @@ export default function ComplianceTool(
     <>
       {/* Search Icon Button */}
       <IconButton onClick={() => setOpen(true)}>
-        <SearchIcon />
+        {/* <SearchIcon /> */}
       </IconButton>
 
       {/* Modal */}
