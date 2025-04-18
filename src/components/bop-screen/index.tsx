@@ -32,6 +32,8 @@ const BopScreen: React.FC = () => {
   const parseData = JSON.parse(storedLocalData);
   const helper = new HelperService()
 
+  console.log("test commit")
+
   const validateForm = () => {
     // const newErrors: any = {};
     // let isValid = true;
