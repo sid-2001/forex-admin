@@ -32,6 +32,9 @@ const BopScreen: React.FC = () => {
   const parseData = JSON.parse(storedLocalData);
   const helper = new HelperService()
 
+  const [accIdentifierValue, setAccountIdentifierValue] = useState("")
+  const [beneficiaryAccIdentifierValue, setBeneficiaryAccountIdentifierValue] = useState("")
+
   const validateForm = () => {
     // const newErrors: any = {};
     // let isValid = true;
@@ -220,15 +223,12 @@ const BopScreen: React.FC = () => {
 
       const data = await response.json();
       setBopCategoryStaticData(data);
-      const account_Identifier_data = data.find((item: any) => item.moduleName === 'Account Identifier')
-      const non_resident_account_Identifier_data = data.find((item: any) => item.moduleName === 'Non Resident Account Identifier')
+      const account_identifier_text = data.find((item: any) => item.moduleName === 'Account Identifier')
+      const non_resident_Acc_identifier_text = data.find((item: any) => item.moduleName === 'Non Resident Account Identifier')
 
-      console.log(account_Identifier_data, non_resident_account_Identifier_data,"----------")
-      setFormData((prev: any) => ({
-        ...prev,
-        account_identifier: account_Identifier_data.keyValue,
-        non_resident_account_identifier: non_resident_account_Identifier_data.keyValue
-      }))
+      console.log(account_identifier_text, non_resident_Acc_identifier_text, "----------")
+      setAccountIdentifierValue(account_identifier_text.keyValue)
+      setBeneficiaryAccountIdentifierValue(non_resident_Acc_identifier_text.keyValue)
 
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -697,7 +697,7 @@ const BopScreen: React.FC = () => {
               variant="outlined"
               name="account_identifier"
               fullWidth
-              value={formData?.account_identifier || ""}
+              value={accIdentifierValue}
               disabled
             />
           </Grid>
@@ -1027,7 +1027,7 @@ const BopScreen: React.FC = () => {
             variant="outlined"
             name="non_resident_account_identifier"
             fullWidth
-            value={formData?.non_resident_account_identifier || ""}
+            value={beneficiaryAccIdentifierValue}
             disabled
           />
         </Grid>

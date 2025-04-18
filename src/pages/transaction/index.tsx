@@ -87,17 +87,17 @@ const TransactionPage = () => {
   //           status:e?.transactionOutward?.transactionStatus=="CR"?"Pending":"Done",
 
   const helper = new HelperService()
- //@ts-ignore
+  //@ts-ignore
   const columns_outward: GridColDef[] = [
 
-     //@ts-ignore
+    //@ts-ignore
     { field: 'id', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
 
     { field: 'transactionInwardNumber', headerName: 'Inward ID', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'destination', headerName: 'Destination', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'value', headerName: ' Principal Amount ', flex: 1, headerClassName: 'super-app-theme--header',renderCell:(params)=> params?.value?.toFixed(2) },
+    { field: 'value', headerName: ' Principal Amount ', flex: 1, headerClassName: 'super-app-theme--header', renderCell: (params) => params?.value?.toFixed(2) },
     { field: 'principalCurrency', headerName: ' Principal Currency ', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'settlementAmount', headerName: ' Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' ,renderCell:(params)=> params?.value?.toFixed(2) },
+    { field: 'settlementAmount', headerName: ' Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header', renderCell: (params) => params?.value?.toFixed(2) },
     { field: 'settlementCurrency', headerName: 'Settlement Currency  ', flex: 1, headerClassName: 'super-app-theme--header' },
     // {
     //   field: 'applicant',
@@ -127,7 +127,7 @@ const TransactionPage = () => {
     //   }
     // },
 
-,
+    ,
     {
       field: 'applicant',
       headerName: 'Applicant',
@@ -135,9 +135,9 @@ const TransactionPage = () => {
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => {
         const navigate = useNavigate();
-    
+
         const nameOrId = params.value?.name || params.value?.applicantId || 'N/A';
-    
+
         return (
           <Tooltip title={`Go to ${nameOrId}'s details`} arrow>
             <span
@@ -157,15 +157,15 @@ const TransactionPage = () => {
     //   headerClassName: 'super-app-theme--header',
     //   renderCell: (params) => {
     //     const applicant = params.value;
-  
+
     //     if (!applicant) return '';
-  
+
     //     return (
     //       <span
     //         style={{ cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}
     //         onClick={() => navigate(`/applicants/${applicant.applicantId}`)}
     //       >
-           
+
     //         {applicant.name}
     //       </span>
     //     );
@@ -281,7 +281,7 @@ const TransactionPage = () => {
     { field: 'sendingCountry', headerName: 'Sending Country', width: 130, headerClassName: 'super-app-theme--header' },
     { field: 'receivingCountry', headerName: 'Receiving Country', width: 130, headerClassName: 'super-app-theme--header' },
     { field: 'settlementCurrency', headerName: 'Settlement Currency', width: 150, headerClassName: 'super-app-theme--header' },
-    { field: 'settlementAmount', headerName: 'Settlement Amount', type: 'number', width: 150, headerClassName: 'super-app-theme--header' },
+    { field: 'settlementAmount', headerName: 'Settlement Amount', type: 'number', width: 150, headerClassName: 'super-app-theme--header', renderCell: (params: any) => params?.value?.toFixed(2) },
     { field: 'reportingStatus', headerName: 'Reporting Status', width: 130, headerClassName: 'super-app-theme--header' },
     // { field: 'destinationBankCode', headerName: 'Destination Bank Code', width: 180, headerClassName: 'super-app-theme--header'  },
     {
@@ -480,7 +480,7 @@ const TransactionPage = () => {
               final_amount: helper.roundToTwoFixed(e?.transactionOutward?.exchangeRates * e?.transactionOutward?.principalAmount),
               applicant: e?.applicant,
               //@ts-ignore
-              inid:e?.transactionInwardNumber
+              inid: e?.transactionInwardNumber
             };
           })
         // ?.filter((transaction) => {
@@ -731,7 +731,7 @@ const TransactionPage = () => {
               <Grid item xs={12} md={6}>
                 <TextField label="Date" variant="filled" fullWidth
                   //@ts-ignore
-                  defaultValue={ helper.convertDateAndTime( transactionDetails.date)} size="small" disabled />
+                  defaultValue={helper.convertDateAndTime(transactionDetails.date)} size="small" disabled />
               </Grid>
             </Grid>
 
