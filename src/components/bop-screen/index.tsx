@@ -223,6 +223,7 @@ const BopScreen: React.FC = () => {
       const account_Identifier_data = data.find((item: any) => item.moduleName === 'Account Identifier')
       const non_resident_account_Identifier_data = data.find((item: any) => item.moduleName === 'Non Resident Account Identifier')
 
+      console.log(account_Identifier_data, non_resident_account_Identifier_data,"----------")
       setFormData((prev: any) => ({
         ...prev,
         account_identifier: account_Identifier_data.keyValue,
