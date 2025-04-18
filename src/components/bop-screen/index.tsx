@@ -226,7 +226,6 @@ const BopScreen: React.FC = () => {
       const account_identifier_text = data.find((item: any) => item.moduleName === 'Account Identifier')
       const non_resident_Acc_identifier_text = data.find((item: any) => item.moduleName === 'Non Resident Account Identifier')
 
-      console.log(account_identifier_text, non_resident_Acc_identifier_text, "----------")
       setAccountIdentifierValue(account_identifier_text.keyValue)
       setBeneficiaryAccountIdentifierValue(non_resident_Acc_identifier_text.keyValue)
 
