@@ -503,7 +503,7 @@ const ApplicantPage = () => {
                   InputProps={{ readOnly: !isEditable }}
                 />
               </Grid>
-              <Grid item xs={12} sm={4}>
+              {middleName && <Grid item xs={12} sm={4}>
                 <TextField
                   label="Applicant Middle Name"
                   variant="filled"
@@ -512,7 +512,8 @@ const ApplicantPage = () => {
                   fullWidth
                   InputProps={{ readOnly: !isEditable }}
                 />
-              </Grid>
+              </Grid>}
+
               <Grid item xs={12} sm={4}>
                 <TextField
                   label="Applicant Last Name"
