@@ -139,7 +139,7 @@ const BeneficiaryDetailPage = () => {
         />
         <Button
           variant="outlined"
-          onClick={() => navigate("/sendmoney")}
+          onClick={() => navigate(`/sendmoney?applicantId=${tempData.applicant}`)}
         >
           Add Transaction +
         </Button>

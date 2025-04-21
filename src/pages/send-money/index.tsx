@@ -46,7 +46,7 @@ import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState, loaderStateNew, selectedCountryState } from '@/states/state'
 import { Segment } from '@mui/icons-material'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import CashfreePayment from '@/components/cashfree'
 import { HelperService } from '@/helpers/helper'
 const { VITE_APP_BACKEND, VITE_APP_URL, VITE_APP_APPLICANT, VITE_APP_KYC, VITE_APP_TRANSACTION } = import.meta.env
@@ -158,43 +158,90 @@ const SendMoneyPage = () => {
   const [selectedTransferMethod, setSelectedTransferMethod] = useState('BankTransfer')
 
   const [url, seturl] = useState<string>('')
+  const [searchParams] = useSearchParams();
+
+  const applicantId = searchParams.get("applicantId")
+  console.log(applicantId, "applicant Id")
 
   let applicant_service = new ApplicantService()
   let transaction_service = new TransactionService()
 
 
   const helper = new HelperService()
-  useEffect(() => {
-    setcommonloader(true)
-    applicant_service.getApplicantDetalis().then((data) => {
-      let users = data.map((e) => {
-        let benificiary_list = e.beneficiaryList.map((b) => {
-          return {
-            benificaryId: b.beneficiaryId,
-            name: b.beneficiaryName,
-            accountHolderName: b.beneficiaryName,
-            accountNumber: b.bankBicCode,
-            bank: b.bankName,
-            ifscCode: b.bankBicCode,
-          }
-        })
 
+  const fetchApplicantData = async () => {
+    if (!applicantId) {
+      console.error("Applicant ID is missing in the URL");
+      return;
+    }
+
+    try {
+      const { data } = await applicant_service.searchByApplicantId(applicantId);
+      console.log(data, "data found")
+      setcommonloader(false)
+
+      //@ts-ignore
+      let benificiary_list = data.beneficiaryList.map((b) => {
         return {
-          applicantId: e.applicant.applicantId,
-          id: e.applicant.applicantId,
-          //@ts-ignore
-          name: e.applicant?.firstName,
-          accountNumber: e.applicant.applicantId,
-          profilePhoto: 'https://randomuser.me/api/portraits/women/4.jpg',
-          benificary: benificiary_list,
+          benificaryId: b.beneficiaryId,
+          name: b.beneficiaryName,
+          accountHolderName: b.beneficiaryName,
+          accountNumber: b.bankBicCode,
+          bank: b.bankName,
+          ifscCode: b.bankBicCode,
         }
       })
 
-      setUserList(users as any)
-      setcommonloader(false)
-    })
+      return {
+        //@ts-ignore
+        applicantId: data?.applicant?.applicantId,
+        //@ts-ignore
+        id: data?.applicant?.applicantId,
+        //@ts-ignore
+        name: data.applicant?.firstName,
+        //@ts-ignore
+        accountNumber: data.applicant.applicantId,
+        profilePhoto: 'https://randomuser.me/api/portraits/women/4.jpg',
+        benificary: benificiary_list,
+      }
+    } catch (error) {
+      console.error("Error fetching applicant data:", error);
+    }
+  };
 
-    // console.log(se)
+  useEffect(() => {
+    setcommonloader(true)
+    if (applicantId) {
+      fetchApplicantData();
+    } else {
+      applicant_service.getApplicantDetalis().then((data) => {
+        let users = data.map((e) => {
+          let benificiary_list = e.beneficiaryList.map((b) => {
+            return {
+              benificaryId: b.beneficiaryId,
+              name: b.beneficiaryName,
+              accountHolderName: b.beneficiaryName,
+              accountNumber: b.bankBicCode,
+              bank: b.bankName,
+              ifscCode: b.bankBicCode,
+            }
+          })
+
+          return {
+            applicantId: e.applicant.applicantId,
+            id: e.applicant.applicantId,
+            //@ts-ignore
+            name: e.applicant?.firstName,
+            accountNumber: e.applicant.applicantId,
+            profilePhoto: 'https://randomuser.me/api/portraits/women/4.jpg',
+            benificary: benificiary_list,
+          }
+        })
+
+        setUserList(users as any)
+        setcommonloader(false)
+      })
+    }
   }, [])
 
 
@@ -257,6 +304,7 @@ const SendMoneyPage = () => {
     { id: 2, time: '8 hours', charges: 5, total: 200, segment: 2 },
     { id: 3, time: '2 days', charges: 0.5, total: 200, Segment: 3 },
   ]
+
   const chargesTableColumns: GridColDef[] = [
     {
       field: 'select',
@@ -576,7 +624,7 @@ const SendMoneyPage = () => {
     }
   };
 
-  
+
   const handleUserSelect = (user: { name: string; accountNumber: string }) => {
     setSelectedUser(user)
     setSearchText(user.name) // Set selected user's name in TextField
@@ -746,7 +794,7 @@ const SendMoneyPage = () => {
                 {/* Amount Input */}
                 <Grid item xs={12} md={3}>
                   <TextField
-                    label={` Amount  ${selectedCountryoption=="SA"?"ZAR":"INR"}`}
+                    label={` Amount  ${selectedCountryoption == "SA" ? "ZAR" : "INR"}`}
                     variant="filled"
                     fullWidth
                     onChange={(e) => {
@@ -888,7 +936,7 @@ const SendMoneyPage = () => {
             <Typography variant="h6" gutterBottom>
               Beneficiary
             </Typography>
-       
+
             <BeneficiaryForm
               selectedBenificary={selectedBenficary}
               setselectedBenficiary={setSelectedBenificary}
@@ -906,7 +954,7 @@ const SendMoneyPage = () => {
                 <BobCategoryDropdown amount={amount}></BobCategoryDropdown>
               </Grid>
 
-              
+
             </Grid>
 
 
@@ -1064,7 +1112,7 @@ const SendMoneyPage = () => {
             <Typography variant="h6" gutterBottom>
               Beneficiary
             </Typography>
-       
+
             <BeneficiaryForm
               selectedBenificary={selectedBenficary}
               setselectedBenficiary={setSelectedBenificary}
@@ -1082,7 +1130,7 @@ const SendMoneyPage = () => {
                 <BobCategoryDropdown amount={amount}></BobCategoryDropdown>
               </Grid>
 
-              
+
             </Grid>
 
             <Button
