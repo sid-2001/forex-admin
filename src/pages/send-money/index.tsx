@@ -191,8 +191,8 @@ const SendMoneyPage = () => {
           ifscCode: b.bankBicCode,
         }
       })
-
-      return {
+      //@ts-ignore
+      setSelectedUser({
         //@ts-ignore
         applicantId: data?.applicant?.applicantId,
         //@ts-ignore
@@ -203,7 +203,13 @@ const SendMoneyPage = () => {
         accountNumber: data.applicant.applicantId,
         profilePhoto: 'https://randomuser.me/api/portraits/women/4.jpg',
         benificary: benificiary_list,
-      }
+      })
+      //@ts-ignore
+      setSearchText(data.applicant?.firstName) // Set selected user's name in TextField
+      setFilteredUsers([]) // Clear th
+
+
+      return;
     } catch (error) {
       console.error("Error fetching applicant data:", error);
     }
@@ -626,6 +632,7 @@ const SendMoneyPage = () => {
 
 
   const handleUserSelect = (user: { name: string; accountNumber: string }) => {
+    console.log(user, "============")
     setSelectedUser(user)
     setSearchText(user.name) // Set selected user's name in TextField
     setFilteredUsers([]) // Clear th
@@ -708,6 +715,7 @@ const SendMoneyPage = () => {
                         >{selectedUser.name[0]}</Avatar>
                       </InputAdornment>
                     ),
+                    readOnly: applicantId ? true : false
                   }}
                 />
 

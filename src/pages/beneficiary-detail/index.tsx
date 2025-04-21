@@ -446,7 +446,7 @@ const BeneficiaryDetailPage = () => {
 
           <TransactionTable
             //@ts-ignore
-            transaction={transactions} />
+            transaction={transactions} applicantId={tempData.applicant || ""} />
         </Box>
       )}
 

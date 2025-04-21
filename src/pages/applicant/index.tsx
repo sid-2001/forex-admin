@@ -878,6 +878,8 @@ const ApplicantPage = () => {
 
       {selectedTab === 1 && <TransactionTable
         //@ts-ignore
+        applicantId={applicantId || ""}
+        //@ts-ignore
         transaction={transactions} />}
 
       {/* Action Buttons */}

@@ -16,8 +16,8 @@ interface TransactionTableProps {
   transactions: Transaction[];
 }
 //@ts-ignore
-const TransactionTable: React.FC<TransactionTableProps> = ({ transaction }) => {
- let navigate= useNavigate()
+const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applicantId }) => {
+  let navigate = useNavigate()
   const columns = [
     {
       field: 'id',
@@ -75,18 +75,18 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction }) => {
 
   return (
     <Box sx={{ width: '70vw' }}>
-
-
-    <Button
-          variant="outlined"
-          onClick={() => navigate("/sendmoney")}
-          sx={{
-    
-            marginBottom:"3%"
-          }}
-        >
+      <Button
+        variant="outlined"
+        onClick={() => {
+          const url = applicantId ? `/sendmoney?applicantId=${applicantId}` : '/sendmoney'
+          navigate(url)
+        }}
+        sx={{
+          marginBottom: "3%"
+        }}
+      >
         Add Transaction +
-        </Button>
+      </Button>
 
       <DataGrid
         sx={{
