@@ -495,7 +495,7 @@ const ApplicantPage = () => {
             <Grid container spacing={2} marginBottom={1}>
               <Grid item xs={12} sm={4}>
                 <TextField
-                  label="Applicant Name"
+                  label="Applicant first Name"
                   variant="filled"
                   value={firstName}
                   onChange={handleFieldChange(setFirstName)}
@@ -505,6 +505,26 @@ const ApplicantPage = () => {
               </Grid>
               <Grid item xs={12} sm={4}>
                 <TextField
+                  label="Applicant Middle Name"
+                  variant="filled"
+                  value={middleName}
+                  onChange={handleFieldChange(setMiddleName)}
+                  fullWidth
+                  InputProps={{ readOnly: !isEditable }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  label="Applicant Last Name"
+                  variant="filled"
+                  value={lastName}
+                  onChange={handleFieldChange(setLastName)}
+                  fullWidth
+                  InputProps={{ readOnly: !isEditable }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
                   label="Nationality"
                   variant="filled"
                   value={nationality}
@@ -513,7 +533,7 @@ const ApplicantPage = () => {
                   InputProps={{ readOnly: !isEditable }}
                 />
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   label="Residence Country"
                   variant="filled"
@@ -523,14 +543,11 @@ const ApplicantPage = () => {
                   InputProps={{ readOnly: !isEditable }}
                 />
               </Grid>
-            </Grid>
-            <Grid container spacing={2} marginBottom={1}>
               <Grid item xs={12} sm={6}>
                 <TextField
                   label="Phone"
                   variant="filled"
                   value={phone}
-
                   onChange={handleFieldChange(setPhone)}
                   fullWidth
                   InputProps={{ readOnly: true }}
@@ -600,29 +617,33 @@ const ApplicantPage = () => {
               InputProps={{ readOnly: !isEditable }}
             />
           </Grid>
-          {/* Country Dropdown */}
+
+          {/* City Dropdown */}
           <Grid item xs={12} sm={2}>
-            {isEditable ? (<FormControl fullWidth>
-              <InputLabel>Country</InputLabel>
-              <Select value={postalselectedCountry} onChange={handlePostalCountryChange} disabled={!isEditable}>
-                {countries.map((country) => (
-                  <MenuItem key={country.code} value={country.code}>
-                    {country.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>) : (<>
+            {isEditable ? <>
+              <FormControl fullWidth disabled={!postalselectedState || !isEditable}>
+                <InputLabel>City</InputLabel>
+                <Select value={postalselectedCity} onChange={handlePostalCityChange}>
+                  {
+                    //@ts-ignore
+                    cities[postalselectedState]?.map((city) => (
+                      <MenuItem key={city} value={city}>
+                        {city}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </> : <>
               <TextField
                 fullWidth
-                label="Country"
-                value={country}
+                label="city"
+                value={city}
                 contentEditable="false"
                 //@ts-ignore
                 onChange={handleFieldChange(suburb)}
                 InputProps={{ readOnly: !isEditable }}
               />
-            </>)
-            }
+            </>}
           </Grid>
 
           {/* State Dropdown */}
@@ -654,33 +675,6 @@ const ApplicantPage = () => {
             }
           </Grid>
 
-          {/* City Dropdown */}
-          <Grid item xs={12} sm={2}>
-            {isEditable ? <>
-              <FormControl fullWidth disabled={!postalselectedState || !isEditable}>
-                <InputLabel>City</InputLabel>
-                <Select value={postalselectedCity} onChange={handlePostalCityChange}>
-                  {
-                    //@ts-ignore
-                    cities[postalselectedState]?.map((city) => (
-                      <MenuItem key={city} value={city}>
-                        {city}
-                      </MenuItem>
-                    ))}
-                </Select>
-              </FormControl>
-            </> : <>
-              <TextField
-                fullWidth
-                label="city"
-                value={city}
-                contentEditable="false"
-                //@ts-ignore
-                onChange={handleFieldChange(suburb)}
-                InputProps={{ readOnly: !isEditable }}
-              />
-            </>}
-          </Grid>
           <Grid item xs={12} sm={1.5}>
             <TextField
               fullWidth
@@ -689,6 +683,30 @@ const ApplicantPage = () => {
               onChange={handleFieldChange(setPostalCode)}
               InputProps={{ readOnly: !isEditable }}
             />
+          </Grid>
+          {/* Country Dropdown */}
+          <Grid item xs={12} sm={2}>
+            {isEditable ? (<FormControl fullWidth>
+              <InputLabel>Country</InputLabel>
+              <Select value={postalselectedCountry} onChange={handlePostalCountryChange} disabled={!isEditable}>
+                {countries.map((country) => (
+                  <MenuItem key={country.code} value={country.code}>
+                    {country.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>) : (<>
+              <TextField
+                fullWidth
+                label="Country"
+                value={country}
+                contentEditable="false"
+                //@ts-ignore
+                onChange={handleFieldChange(suburb)}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </>)
+            }
           </Grid>
         </Grid>
 
@@ -738,45 +756,37 @@ const ApplicantPage = () => {
             />
           </Grid>
 
-          {/* Country Dropdown */}
-
+          {/* City Dropdown */}
           <Grid item xs={12} sm={2}>
 
-
-
             {
+              isEditable ? (<>
+                <FormControl fullWidth disabled={!selectedState || !isEditable}>
+                  <InputLabel>City</InputLabel>
+                  <Select value={selectedCity} onChange={handleCityChange}>
 
-              isEditable ? <>
 
-                <FormControl fullWidth>
-                  <InputLabel>Country</InputLabel>
-
-
-                  <Select value={selectedCountry} onChange={handleCountryChange} disabled={!isEditable}>
-                    {countries.map((country) => (
-                      <MenuItem key={country.code} value={country.code}>
-                        {country.name}
-                      </MenuItem>
-                    ))}
+                    {
+                      //@ts-ignore
+                      cities[selectedState]?.map((city) => (
+                        <MenuItem key={city} value={city}>
+                          {city}
+                        </MenuItem>
+                      ))}
                   </Select>
                 </FormControl>
-
-              </> : <>
-
-
+              </>) : <>
                 <TextField
                   fullWidth
-                  label="Country"
-                  value={residenceCountry}
+                  label="City"
+                  value={residenceCity}
                   onChange={(e) => (e.target.value)}
                   InputProps={{ readOnly: !isEditable }}
                 />
               </>
             }
 
-
           </Grid>
-
           {/* State Dropdown */}
           <Grid item xs={12} sm={2}>
 
@@ -815,56 +825,40 @@ const ApplicantPage = () => {
 
           </Grid>
 
-          {/* City Dropdown */}
-          <Grid item xs={12} sm={2}>
-
-            {
-              isEditable ? (<>
-                <FormControl fullWidth disabled={!selectedState || !isEditable}>
-                  <InputLabel>City</InputLabel>
-                  <Select value={selectedCity} onChange={handleCityChange}>
-
-
-                    {
-                      //@ts-ignore
-                      cities[selectedState]?.map((city) => (
-                        <MenuItem key={city} value={city}>
-                          {city}
-                        </MenuItem>
-                      ))}
-                  </Select>
-                </FormControl>
-              </>) : <>
-
-                <TextField
-                  fullWidth
-                  label="City"
-                  value={residenceCity}
-                  onChange={(e) => (e.target.value)}
-                  InputProps={{ readOnly: !isEditable }}
-                />
-
-              </>
-
-
-            }
-
-          </Grid>
-
           {/* Zip Code Auto-Filled */}
-
-
           <Grid item xs={12} sm={2}>
             <TextField fullWidth label="Zip Code" value={residencePostalCode} InputProps={{ readOnly: true }} />
           </Grid>
+
+          {/* Country Dropdown */}
+
+          <Grid item xs={12} sm={2}>
+            {isEditable ? <>
+              <FormControl fullWidth>
+                <InputLabel>Country</InputLabel>
+                <Select value={selectedCountry} onChange={handleCountryChange} disabled={!isEditable}>
+                  {countries.map((country) => (
+                    <MenuItem key={country.code} value={country.code}>
+                      {country.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+            </> : <>
+              <TextField
+                fullWidth
+                label="Country"
+                value={residenceCountry}
+                onChange={(e) => (e.target.value)}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </>
+            }
+
+          </Grid>
         </Grid>
-
-
-
-
       </Box>
-
-
       {/* Tab Component */}
       <Tabs sx={{ marginBottom: '10px' }} value={selectedTab} onChange={handleTabChange} aria-label="Customer data tabs" >
         {/* <Tab label="Documents" sx={{ marginRight: '2px' }} /> */}
