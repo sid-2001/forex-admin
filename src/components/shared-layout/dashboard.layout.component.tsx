@@ -146,6 +146,7 @@ const DashboardLayout = () => {
     setAnchorEl(event.currentTarget)
   }
 
+
   const handledropClose = (option?: string) => {
     setAnchorEl(null)
     if (option) {
@@ -495,7 +496,7 @@ const DashboardLayout = () => {
                       color: 'white',
                     }}
                   >
-                    <strong>{(local_service.get_user().id)}</strong>
+                    <strong>{(local_service.get_user().applicantId)}</strong>
 
                   </Typography>
 
@@ -534,7 +535,7 @@ const DashboardLayout = () => {
                       color: 'white',
                     }}
                   >
-                    <strong>{(local_service.get_user().id)}</strong>
+                    <strong>{(local_service.get_user().applicantId)}</strong>
                   </Typography>
 
                   <In
@@ -715,9 +716,11 @@ const DashboardLayout = () => {
             </MainContent>
 
             {isModalOpen && <ConfirmationModal isOpen={isModalOpen}
-              message='Do you really want to Logout?'
+              message='Do you really want to logout?'
               handleConfirm={() => { handleLogout() }}
               handleClose={() => { handleModalClose() }}
+              confirmBtnText='Logout'
+              showIcon={true}
             />}
           </Box>
         </Box>

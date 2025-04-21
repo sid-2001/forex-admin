@@ -8,8 +8,8 @@ const beneficiary_service = new BeneficiaryService();
 
 const BeneficiaryDetailPage = () => {
   const navigate = useNavigate();
-  const {beneficiaryId} = useParams();
-  
+  const { beneficiaryId } = useParams();
+
   const [formData, setFormData] = useState<any>([]);
   const [isEditable, setIsEditable] = useState(false);
   const [tempData, setTempData] = useState<any>([]);
@@ -40,9 +40,9 @@ const BeneficiaryDetailPage = () => {
     setTempData((
       //@ts-ignore
       prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+        ...prevData,
+        [name]: value,
+      }));
     setIsChanged(true);
   };
 
@@ -74,10 +74,10 @@ const BeneficiaryDetailPage = () => {
           const updatedData = { ...tempData }; // Collect the data to be updated
           console.log("Updated Data", updatedData);
           const response = await beneficiary_service.updateBeneficiaryForm(updatedData);
-          
-          setFormData(updatedData); 
-          setIsChanged(false); 
-          setIsEditable(false); 
+
+          setFormData(updatedData);
+          setIsChanged(false);
+          setIsEditable(false);
           alert('Changes saved successfully!');
         } catch (error) {
           alert('Failed to save changes. Please try again later.');
@@ -95,10 +95,10 @@ const BeneficiaryDetailPage = () => {
       const data = await beneficiary_service.getTransactionsByBeneficiaryId(beneficiaryId);
       const transactionArray = Array.isArray(data) ? data : [data];
 
-      const formattedData = transactionArray[0].transactionDetailsList?.map((transaction: any, index:number) => ({
-          id:index+1,
+      const formattedData = transactionArray[0].transactionDetailsList?.map((transaction: any, index: number) => ({
+        id: index + 1,
         transactionNumber: transaction?.transactionOutward?.transactionNumber,
-       sendCountry: transaction?.transactionOutward?.sendCountry,
+        sendCountry: transaction?.transactionOutward?.sendCountry,
         receiveCountry: transaction?.transactionOutward?.receiveCountry,
         beneficiaryName: transaction?.beneficiary?.beneficiaryName,
         amount: transaction?.transactionOutward?.principalAmount,
@@ -106,7 +106,7 @@ const BeneficiaryDetailPage = () => {
       }));
 
       setTransactions(formattedData || []);
-      setShowTransactionTable(true); 
+      setShowTransactionTable(true);
     } catch (error) {
       console.error('Error fetching transactions:', error);
     }
@@ -115,7 +115,7 @@ const BeneficiaryDetailPage = () => {
   const handleSearchTransaction = async () => {
     setIsSearchClicked(true);  // Indicate search was clicked
     setShowTransactionTable(true); // Show the table once button is clicked
-  
+
     try {
       await fetchTransactions();  // Fetch the transactions
     } catch (error) {
@@ -126,32 +126,38 @@ const BeneficiaryDetailPage = () => {
   const handleBack = () => {
     navigate('/beneficiary');
   };
-  
+
   return (
     <Box sx={{ width: "50vw" }} >
-      <Box  display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
-              Beneficiary Details
-            </Typography>
-            <FormControlLabel
-              control={<Switch disabled checked={isEditable} onChange={handleToggleChange} />}
-              label="Edit Mode"
-            />
-       </Box>
-       <Box mb={2} display="flex" justifyContent="space-between" alignItems="center">
-              <Typography
-                variant="body1"
-                sx={{
-                  backgroundColor: 'primary.main',
-                  p: '0.5%',
-                  color: 'white',
-                  paddingBlock: 1,
-                  paddingInline: 1,
-                }}
-              >
-                Beneficiary Id - {beneficiaryId}
-              </Typography>
-            </Box>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
+          Beneficiary Details
+        </Typography>
+        <FormControlLabel
+          control={<Switch disabled checked={isEditable} onChange={handleToggleChange} />}
+          label="Edit Mode"
+        />
+        <Button
+          variant="outlined"
+          onClick={() => navigate("/sendmoney")}
+        >
+          Add Transaction +
+        </Button>
+      </Box>
+      <Box mb={2} display="flex" justifyContent="space-between" alignItems="center">
+        <Typography
+          variant="body1"
+          sx={{
+            backgroundColor: 'primary.main',
+            p: '0.5%',
+            color: 'white',
+            paddingBlock: 1,
+            paddingInline: 1,
+          }}
+        >
+          Beneficiary Id - {beneficiaryId}
+        </Typography>
+      </Box>
       {/* Beneficiary Information Form */}
       <Box >
         <Grid container spacing={2} marginBottom={1}>
@@ -185,7 +191,7 @@ const BeneficiaryDetailPage = () => {
             />
           </Grid>
           <Grid item xs={12} sm={4}>
-            
+
             <TextField
               label="Nationality"
               variant="filled"
@@ -204,7 +210,7 @@ const BeneficiaryDetailPage = () => {
               variant="filled"
               name="residenceCountry"
               fullWidth
-              value={tempData.residenceCountry||''}
+              value={tempData.residenceCountry || ''}
               onChange={handleChange}
               InputProps={{
                 readOnly: !isEditable,
@@ -299,13 +305,13 @@ const BeneficiaryDetailPage = () => {
             />
           </Grid> */}
           <Grid item xs={12} sm={2}>
-              <TextField
-                fullWidth
-                label="Suburb"
-                name="suburb"
-                value={tempData.suburb || ''}
-                onChange={handleChange}
-              />
+            <TextField
+              fullWidth
+              label="Suburb"
+              name="suburb"
+              value={tempData.suburb || ''}
+              onChange={handleChange}
+            />
           </Grid>
           <Grid item xs={12} sm={1.5}>
             <TextField
@@ -359,7 +365,7 @@ const BeneficiaryDetailPage = () => {
       </Box>
 
       {/* Bank Account Section */}
-      <Box  sx={{ width: "80vw" }} mb={3}>
+      <Box sx={{ width: "80vw" }} mb={3}>
         <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}><strong>Bank Details</strong></Typography>
         <Grid container spacing={2} marginBottom={2}>
           <Grid item xs={12} sm={2}>
@@ -403,20 +409,20 @@ const BeneficiaryDetailPage = () => {
               fullWidth
               label="BIC Code/ IFSC Code"
               name="bankBicCode"
-              value={tempData?.bankBicCode|| ''}
+              value={tempData?.bankBicCode || ''}
               onChange={handleChange}
               InputProps={{
                 readOnly: !isEditable,
               }}
             />
-           
-        </Grid>
-        <Grid item xs={12} sm={3}>
+
+          </Grid>
+          <Grid item xs={12} sm={3}>
             <TextField
               fullWidth
               label="Bank Location"
               name="bankLocation"
-              value={tempData?.bankLocation|| ''}
+              value={tempData?.bankLocation || ''}
               onChange={handleChange}
               InputProps={{
                 readOnly: !isEditable,
@@ -426,25 +432,25 @@ const BeneficiaryDetailPage = () => {
         </Grid>
       </Box>
 
-        <Grid container spacing={2} marginBottom={1}>
+      <Grid container spacing={2} marginBottom={1}>
         <Grid item xs={12} sm={4}>
           {/* <Button variant="contained" fullWidth onClick={handleSearchTransaction}>
             Show Transaction
           </Button> */}
         </Grid>
-      </Grid> 
+      </Grid>
 
-     {showTransactionTable && transactions.length > 0 && (
+      {showTransactionTable && transactions.length > 0 && (
         <Box mb={3}>
           <Typography variant="h6" sx={{ marginBottom: 1 }}><strong>Transactions</strong></Typography>
-          
-          <TransactionTable 
-          //@ts-ignore
-          transaction={transactions} />
+
+          <TransactionTable
+            //@ts-ignore
+            transaction={transactions} />
         </Box>
       )}
 
-     {showTransactionTable && transactions.length === 0 && (
+      {showTransactionTable && transactions.length === 0 && (
         <Typography variant="body2" color="textSecondary">
           No transactions found for this beneficiary.
         </Typography>
@@ -452,7 +458,7 @@ const BeneficiaryDetailPage = () => {
 
       {/* Save and Back Buttons */}
       <Grid container spacing={2} sx={{ marginTop: 2 }} display={'flex'}>
-      <Grid item xs={12} sm={3}>
+        <Grid item xs={12} sm={3}>
           {/* <Button variant="outlined" onClick={handleBack} fullWidth>
             Back to List
           </Button> */}
@@ -464,10 +470,10 @@ const BeneficiaryDetailPage = () => {
             </Button>
           )}
         </Grid>
-        
+
       </Grid>
 
-      
+
 
     </Box>
   );

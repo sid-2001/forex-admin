@@ -8,9 +8,11 @@ interface ConfirmationModalProps {
   handleClose: () => void
   message: string
   isOpen: boolean
+  showIcon: boolean
+  confirmBtnText: string
 }
 
-const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ message = '', handleClose, handleConfirm, isOpen }) => {
+const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ confirmBtnText = "", showIcon, message = '', handleClose, handleConfirm, isOpen }) => {
   return (<>
     <Modal open={isOpen} onClose={() => handleClose()}>
       <Box sx={{
@@ -21,9 +23,10 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ message = '', han
         transform: "translate(-50%, -50%)",
         p: 4, borderRadius: 2, boxShadow: 3, bgcolor: 'background.paper'
       }}>
-        <Box sx={{ textAlign: 'center', mb: 2 }}>
-          <LogoutIcon sx={{ fontSize: 60, color: 'primary.main' }} />
-        </Box>
+        {showIcon &&
+          <Box sx={{ textAlign: 'center', mb: 2 }}>
+            <LogoutIcon sx={{ fontSize: 60, color: 'primary.main' }} />
+          </Box>}
         <Typography id="transition-modal-title" variant="h4" component="h2" sx={{ textAlign: 'center', mb: 2 }}>
           Are you sure?
         </Typography>
@@ -37,14 +40,14 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ message = '', han
             sx={{ mr: 1 }}
             onClick={() => { handleConfirm() }}
           >
-            Logout
+            {confirmBtnText}
           </Button>
           <Button
             variant="outlined"
             color="secondary"
             onClick={() => { handleClose() }}
           >
-            No
+            Cancel
           </Button>
         </Box>
       </Box>
