@@ -6,7 +6,7 @@ import { AuthService } from '@/services/auth.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { Logo } from '@/assets/images' // Assuming the logo is properly imported
 import { useRecoilState } from 'recoil'
-import { alertState, alertTextState, alertTypeState, loaderState, selectedCountryState } from '@/states/state'
+import { alertState, alertTextState, alertTypeState, loaderState, selectedAppState, selectedCountryState, sidbarSelectionState } from '@/states/state'
 import LoaderBackdrop from '@/components/loader/loader'
 import CustomSnackbar from '@/components/customsnackbar/snackbar'
 import CloseIcon from '@mui/icons-material/Close'
@@ -19,6 +19,9 @@ const LoginPage = () => {
   const [open, setOpen] = useState(false)
   const [commonloader, setcommonloader] = useRecoilState(loaderState)
     const[selecteCountryState,setselectedCountryState]=useRecoilState(selectedCountryState)
+    const [selectedTab, setSelectedTab] = useRecoilState(selectedAppState)
+
+    
 
   const [openSnackbar, setOpenSnackBar] = useState(false)
 
@@ -64,6 +67,8 @@ window.location.reload()
     try {
       // setcommonloader(true)
 
+      setSelectedTab("Price")
+
       auth_service
         .loginAdmin({
          "username": email,
@@ -90,7 +95,7 @@ window.location.reload()
                 local_service.set_accesstoken('"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImVtYWlsIjoic2hpdmFuc2hAaW1wcm9uaWNzLmNvbSIsInVzZXJfaWQiOiJjYmMzZDg3OS1iMTM2LTQyYTAtODY3Yy1mYjg2YTQ4MmI3ODciLCJyb2xlIjoiYWRtaW4ifSwiZXhwIjoxNzM4NTk3ODk1LCJqdGkiOiIwZTMxMDA1OS02ZTIyLTQ1MjgtYTliYS04OTA3MTNhZDZiMmYiLCJyZWZyZXNoIjpmYWxzZX0.06XT7DA3cs13hOIDyqlXcHElSXpFzHFO2L0y507Z0YQ"')
                 local_service.set_user((data.data))
                 local_service.set_role('user')
-              }, 2000);
+              }, 1000);
              
               console.log("i m here in the data")
               console.log(data)

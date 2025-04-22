@@ -41,6 +41,24 @@ throw new Error(err as any)
 
 }
 
+
+async getBop(country:any):Promise<Array<Charge>>{
+    let url=`${VITE_APP_STATIC}/api/static-table/forex-bop/by-country?country=${country}`
+    try{
+        const {data} = await axios.get(url); 
+    
+        return data as any;  
+    
+    }
+    catch(err){
+    throw new Error(err as any)
+    
+    }
+    
+    }
+
+
+
 async AddCharges(payload:any):Promise<any>{
 let url=`${VITE_APP_STATIC}/charges`
     try{

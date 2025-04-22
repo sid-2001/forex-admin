@@ -70,21 +70,7 @@ export default function ComplianceTool(
           width={400}
           height={200}
         />
-        {/* <Typography
-          variant="subtitle2"
-          sx={{
-            position: 'absolute',
-            top: '60%',
-            left: '40%',
-            transform: 'translate(-50%, -50%)',
-            textAlign: 'center',
-            fontWeight: 'bold',
-          }}
-        >
-          ₹{maxlimit.toLocaleString()}
-          <br />
-          Max Limit
-        </Typography> */}
+      
       </Box>
     );
   }
@@ -206,7 +192,14 @@ export default function ComplianceTool(
             InputProps={{
               startAdornment: selectedUser && (
                 <InputAdornment position="start">
-                  <Avatar src={selectedUser.profilePhoto} alt={selectedUser.name} />
+                  {/* <Avatar src={selectedUser?.name[0]} alt={selectedUser.name} /> */}
+
+                   <Avatar
+                                              //@ts-ignore
+                                              // src={selectedUser.profilePhoto}
+                                              alt={selectedUser.name}
+                                              style={{ marginRight: '8px' }}
+                                            >{selectedUser.name[0]}</Avatar>
                 </InputAdornment>
               ),
             }}
@@ -224,7 +217,23 @@ export default function ComplianceTool(
                     onClick={() => handleUserSelect(b)}
                   >
                     <ListItemAvatar>
-                      <Avatar src={b.profilePhoto} alt={b.name} />
+
+                      
+                      {/* <Avatar src={b.profilePhoto} alt={b.name} /> */}
+
+                        <Avatar
+                                                    // src={
+                                                    //   //@ts-ignore
+                                                    //   user.profilePhoto
+                                                    // }
+                                                    //@ts-ignore
+                                                    // alt={user.name}
+                                                  >
+                                                    {
+                                                      //@ts-ignore
+                                                      b.name[0]
+  }
+                                                  </Avatar>
                     </ListItemAvatar>
                     <ListItemText
                       primary={b.name}

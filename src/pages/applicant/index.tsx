@@ -137,33 +137,36 @@ const ApplicantPage = () => {
     const utilized = Math.abs(utilizedLimit);
     const available = Math.abs(availableLimit);
 
-    return (
-      <Box>
-        <PieChart
-          series={[
-            {
-              data: [
-                {
-                  id: 0,
-                  value: utilized,
-                  label: 'Utilized Limit',
-                  color: '#FF6B6B',
-                },
-                {
-                  id: 1,
-                  value: available,
-                  label: 'Available Limit',
-                  color: '#4ECDC4',
-                },
-              ],
-              innerRadius: 35, // donut shape
-              outerRadius: 50,
-            },
-          ]}
-          width={400}
-          height={100}
-        />
-        {/* <Typography
+  return (
+    <Box>
+
+
+
+      <PieChart
+        series={[
+          {
+            data: [
+              {
+                id: 0,
+                value: utilized,
+                label: 'Utilized Limit',
+                color: '#FF6B6B',
+              },
+              {
+                id: 1,
+                value: available,
+                label: 'Available Limit',
+                color: '#4ECDC4',
+              },
+            ],
+            innerRadius: 35, // donut shape
+            outerRadius: 50,
+          },
+        ]}
+        width={400}
+        height={100}
+      />
+      {/* <Typography
         variant="subtitle2"
         sx={{
           position: 'absolute',
@@ -444,15 +447,15 @@ const ApplicantPage = () => {
 
   return (
     <Box sx={{ width: "50vw" }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', }}>
-          Applicant Details
-        </Typography>
-        <FormControlLabel
-          control={<Switch disabled checked={isEditable} onChange={handleToggleChange} />}
-          label="Edit Mode"
-        />
-
+      <Box  display="flex" justifyContent="space-between" alignItems="center">
+      <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', }}>
+        Applicant Details
+      </Typography>
+      {/* <FormControlLabel
+        control={<Switch  disabled  checked={isEditable} onChange={handleToggleChange} />}
+        label="Edit Mode"
+      /> */}
+    
       </Box>
       <Box mb={1} display="flex" justifyContent="space-between" alignItems="center">
         <Typography

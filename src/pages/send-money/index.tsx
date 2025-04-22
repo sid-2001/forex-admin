@@ -49,6 +49,7 @@ import axios from 'axios'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import CashfreePayment from '@/components/cashfree'
 import { HelperService } from '@/helpers/helper'
+import { ChargesService } from '@/services/charges.service'
 const { VITE_APP_BACKEND, VITE_APP_URL, VITE_APP_APPLICANT, VITE_APP_KYC, VITE_APP_TRANSACTION } = import.meta.env
 
 let cashfree;
@@ -156,6 +157,17 @@ const SendMoneyPage = () => {
   const [forexRate, setForexRate] = useState<string>('')
   const [amount, setAmount] = useState<number>(0)
   const [selectedTransferMethod, setSelectedTransferMethod] = useState('BankTransfer')
+  const [remittanceList, setRemittanceList] = useState<{
+    id: number;
+    categoryDescription: string;
+    purchSaleInd: string;
+    bopCategoryCd: string;
+    prpsPymtCd: string;
+    channelName: string;
+    bopSubCategoryCd: string;
+    countryName: string;
+  }[]>([]);
+
 
   const [url, seturl] = useState<string>('')
   const [searchParams] = useSearchParams();
@@ -165,6 +177,7 @@ const SendMoneyPage = () => {
 
   let applicant_service = new ApplicantService()
   let transaction_service = new TransactionService()
+  let charges_service =new ChargesService()
 
 
   const helper = new HelperService()
@@ -959,7 +972,7 @@ const SendMoneyPage = () => {
             </Typography>
             <Grid container spacing={2}>
               <Grid item xs={12} md={12}>
-                <BobCategoryDropdown amount={amount}></BobCategoryDropdown>
+                <BobCategoryDropdown amount={amount} setAmount={setAmount} remittanceList={remittanceList}></BobCategoryDropdown>
               </Grid>
 
 
@@ -1135,7 +1148,8 @@ const SendMoneyPage = () => {
             </Typography>
             <Grid container spacing={2}>
               <Grid item xs={12} md={12}>
-                <BobCategoryDropdown amount={amount}></BobCategoryDropdown>
+              
+                <BobCategoryDropdown amount={amount} setAmount={setAmount} remittanceList={remittanceList}></BobCategoryDropdown>
               </Grid>
 
 

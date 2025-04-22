@@ -269,6 +269,7 @@ const AddBeneficiary = () => {
                   setShowList(true);
                 } else {
                   setShowList(false);
+                  setSelectedUser(null)
                 }
                 setSearchText(e.target.value);
               }}
@@ -276,7 +277,15 @@ const AddBeneficiary = () => {
               InputProps={{
                 startAdornment: selectedUser && (
                   <InputAdornment position="start">
-                    <Avatar src={selectedUser.profilePhoto} alt={selectedUser.name} />
+
+                    { selectedUser?(<>
+                      <Avatar alt={selectedUser.name} >
+                    {selectedUser.name[0]}
+
+                    </Avatar>
+                    </>):<>
+                    </>}
+                   
                   </InputAdornment>
                 ),
               }}
@@ -295,9 +304,21 @@ const AddBeneficiary = () => {
                       onClick={() => handleUserSelect(b)}
                     >
                       <ListItemAvatar>
-                        <Avatar
-                          //@ts-ignore
-                          src={b.profilePhoto} alt={b.name} />
+                    
+
+<Avatar
+                                                    // src={
+                                                    //   //@ts-ignore
+                                                    //   user.profilePhoto
+                                                    // }
+                                                    //@ts-ignore
+                                                    // alt={user.name}
+                                                  >
+                                                    {
+                                                      //@ts-ignore
+                                                      b.name[0]
+                                                    }
+                                                  </Avatar>
                       </ListItemAvatar>
                       <ListItemText
                         //@ts-ignore
@@ -620,7 +641,7 @@ const AddBeneficiary = () => {
           </Button>
         </Grid>
         <Grid item xs={12} sm={2}>
-          <Button variant="outlined" onClick={() => navigate('/beneficiary-list')} fullWidth>
+          <Button variant="outlined" onClick={() => navigate('/applicant')} fullWidth>
             Cancel
           </Button>
         </Grid>

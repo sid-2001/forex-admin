@@ -169,6 +169,7 @@ function App() {
               </Route>
             ) : currentrole == 'user' ? (
               <Route path="/" element={<ProtectedRoute {...defaultProtectedRouteProps} outlet={<DashboardLayout />} />}>
+                
                 <Route path="transaction" element={<NewTransactionPage />} />
                 <Route path="sendmoney" element={<SendMoneyPage />} />
                 <Route path="kyc" element={<KYCPage />} />

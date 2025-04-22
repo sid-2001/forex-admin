@@ -1,16 +1,36 @@
-import React, { useState } from 'react';
-import { Select, MenuItem, FormControl, InputLabel, Button, Input } from '@mui/material';
-import FileUploadIcon from '@mui/icons-material/FileUpload';
+import React, { useState } from "react";
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Button
+} from "@mui/material";
+import FileUploadIcon from "@mui/icons-material/UploadFile";
 
-//@ts-igno
+interface RemittanceDetails {
+  id: number;
+  categoryDescription: string;
+  purchSaleInd: string;
+  bopCategoryCd: string;
+  prpsPymtCd: string;
+  channelName: string;
+  bopSubCategoryCd: string;
+  countryName: string;
+}
 
-const BobCategoryDropdown = (
-  //@ts-ignore
-  {amount}) => {
+interface BobCategoryDropdownProps {
+  amount: number;
+  setAmount: (val: number) => void;
+  remittanceList: RemittanceDetails[];
+}
 
-
-  const [category, setCategory] = useState<string>('');
- 
+const BobCategoryDropdown: React.FC<BobCategoryDropdownProps> = ({
+  amount,
+  setAmount,
+  remittanceList
+}) => {
+  const [category, setCategory] = useState<string>("");
   const [contract, setContract] = useState<File | null>(null);
   const [addressProof, setAddressProof] = useState<File | null>(null);
 
@@ -19,53 +39,42 @@ const BobCategoryDropdown = (
   };
 
   const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-//@ts-ignore
-
     setAmount(Number(event.target.value));
   };
 
   const handleContractChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files ? event.target.files[0] : null;
+    const file = event.target.files?.[0] || null;
     setContract(file);
   };
 
   const handleAddressProofChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files ? event.target.files[0] : null;
+    const file = event.target.files?.[0] || null;
     setAddressProof(file);
   };
 
-  const handleSubmit = () => {
-    // Handle form submission, e.g., sending the files to an API
-    console.log("Category:", category);
-    console.log("Amount:", amount);
-    console.log("Contract File:", contract);
-    console.log("Address Proof File:", addressProof);
-  };
-
-  const showAddressProof = category === '417' || amount > 50000;
+  const showAddressProof = category === "417" || amount > 50000;
 
   return (
     <div>
       <FormControl fullWidth>
-        <InputLabel id="bob-category-label">Select Bop Category</InputLabel>
+        <InputLabel id="bob-category-label">Select BOP Category</InputLabel>
         <Select
           labelId="bob-category-label"
           value={category}
           //@ts-ignore
           onChange={handleCategoryChange}
-          label="Select Bob Category"
+          label="Select BOP Category"
         >
-          <MenuItem value="401">Gift</MenuItem>
-          <MenuItem value="417">Foreign Nationals</MenuItem>
+          {remittanceList.map((item) => (
+            <MenuItem key={item.id} value={item.bopCategoryCd}>
+              {item.categoryDescription}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
 
-      <div>
-        
-      </div>
-
       {/* Contract Upload */}
-      {category === '417' && (
+      {category === "417" && (
         <div>
           <Button
             variant="contained"
@@ -73,17 +82,10 @@ const BobCategoryDropdown = (
             color="primary"
             fullWidth
             startIcon={<FileUploadIcon />}
-            sx={{
-                marginTop:"10px",
-                marginBottom:"10px"
-            }}
+            sx={{ mt: 2, mb: 2 }}
           >
             Upload Salary Contract
-           <input
-    type="file"
-    hidden
-  />
-          
+            <input type="file" hidden onChange={handleContractChange} />
           </Button>
         </div>
       )}
@@ -99,18 +101,10 @@ const BobCategoryDropdown = (
             startIcon={<FileUploadIcon />}
           >
             Upload Address Proof
-          
-
-<input
-    type="file"
-    hidden
-  />
-            
+            <input type="file" hidden onChange={handleAddressProofChange} />
           </Button>
         </div>
       )}
-
-      
     </div>
   );
 };

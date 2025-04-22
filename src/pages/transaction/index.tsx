@@ -483,17 +483,17 @@ const TransactionPage = () => {
               inid: e?.transactionInwardNumber
             };
           })
-        // ?.filter((transaction) => {
-        //   if (selectedCountryOption === "IN") {
-        //     return (transaction.destination?.toLowerCase() !== "in");
-        //   }
-        //   else{
-        //     return (transaction.destination?.toLowerCase() !== "za");
+        ?.filter((transaction) => {
+          if (selectedCountryOption === "IN") {
+            return (transaction.destination?.toLowerCase() !== "in");
+          }
+          else if((selectedCountryOption === "SA") ){
+            return (transaction.destination?.toLowerCase() !== "za");
 
-        //   }
+          }
 
-        //   return true; // If selectedCountryOption is not "IN", include all destinations
-        // });
+          return true; // If selectedCountryOption is not "IN", include all destinations
+        });
         let user: Array<Applicant>[] | any = data?.transactionDetailsList.map((e) => {
           return {
             ...e.applicant

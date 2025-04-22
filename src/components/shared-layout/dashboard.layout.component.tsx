@@ -512,7 +512,12 @@ const DashboardLayout = () => {
                 </Stack>
               </Box>
             </> : <>
-              <Avatar >{local_service.get_user().firstName[0] + " " + local_service.get_user().lastName[0]}</Avatar>
+            {/* {local_service.get_user()?.firstName?(
+local_service.get_user()?.firstName[0]
+
+
+            ):(L)} */}
+              {/* <Avatar >{local_service.get_user()?.firstName[0] + " " + local_service.get_user()?.lastName[0]}</Avatar> */}
 
               <Box ml={1}>
                 <Typography
