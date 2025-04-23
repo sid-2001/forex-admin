@@ -8,11 +8,14 @@ import BeneficiaryTable from '@/components/beneficiary-table';
 import { BeneficiaryService } from '@/services/beneficiary.service';
 import chuks from '../../assets/images/chuks.jpg'
 import { PieChart } from '@mui/x-charts/PieChart/PieChart';
+import { HelperService } from '@/helpers/helper';
 
 const applicant_service = new ApplicantService();
 const beneficiary_service = new BeneficiaryService();
 
 const ApplicantPage = () => {
+
+
   const navigate = useNavigate();
 
   // Define separate states for each field
@@ -329,6 +332,8 @@ const ApplicantPage = () => {
     setApplicantName(fullName);
   };
 
+  let helper=new HelperService()
+
   const fetchBeneficiaries = useCallback(async () => {
     if (!applicantId) return;
 
@@ -368,8 +373,13 @@ const ApplicantPage = () => {
       console.log("getting trx for applicant Id", applicantId)
       const data = await applicant_service.getTransactionsByApplicantId(applicantId);
       const transactionArray = Array.isArray(data) ? data : [data];
-      console.log("__________-hudhush________ ", transactionArray);
+     
       const formattedData = data?.map((transaction: any, index: number) => ({
+
+        ...transaction?.transactionOutward,
+        ...transaction?.beneficiary,
+        ...transaction?.transactionInwardList,
+        ...transaction?.applicant,
         id: index + 1,
         transactionNumber: transaction?.transactionOutward?.transactionNumber,
         sendCountry: transaction?.transactionOutward?.sendCountry,
@@ -377,7 +387,31 @@ const ApplicantPage = () => {
         beneficiaryName: transaction?.beneficiary?.beneficiaryName,
         amount: transaction?.transactionOutward?.principalAmount,
         transactionStatus: transaction?.transactionOutward?.transactionStatus,
+
+     
+        destination: transaction?.transactionOutward?.receiveCountry,
+        value: transaction?.transactionOutward?.principalAmount,
+        currency: transaction?.transactionOutward?.settlementCurrency,
+        settlement: helper.roundToTwoFixed(transaction?.transactionOutward?.principalAmount * transaction?.transactionOutward?.exchangeRates),
+        destinationBank: transaction?.transactionOutward?.destinationBankBicCode,
+        forex: helper.roundToTwoFixed(transaction?.transactionOutward?.exchangeRates),
+        date: transaction?.transactionOutward?.owCreatedDate,
+        reporting: transaction?.transactionOutward?.reportingStatus,
+        status: transaction?.transactionOutward?.transactionStatus,
+        final_amount: helper.roundToTwoFixed(transaction?.transactionOutward?.exchangeRates * transaction?.transactionOutward?.principalAmount),
+        applicant: transaction?.applicant,
+        //@ts-ignore
+        inid: transaction?.transactionInwardNumber
+      
+
+
+
       }));
+
+
+      
+      
+       
       setTransactions(formattedData || []);
       console.log(formattedData)
     } catch (error) {

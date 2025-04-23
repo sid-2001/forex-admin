@@ -202,12 +202,7 @@ const TransactionPage = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
-        // <Button variant="contained" color="primary" onClick={() => handleViewMore(params.row)}>
-        //   View More
-        // </Button>
-        // <Button variant="contained" color="primary" startIcon={<VisibilityIcon />} onClick={() => handleViewMore(params.row)}>
-        //   View More
-        // </Button>
+       
         <>
           <IconButton onClick={() => {
             handleViewMore(params.row)
