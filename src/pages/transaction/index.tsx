@@ -772,7 +772,7 @@ const TransactionPage = () => {
             </Grid>
             {
               (trxStatus == "DRAFT" || trxStatus == "PENDING") ? (<>
-                <Button disabled={zaphierlink.length > 0 ? false : true} variant="outlined" onClick={() => {
+                <Button disabled={zaphierlink?.length > 0 ? false : true} variant="outlined" onClick={() => {
                   closeDrawer()
                   // window.location.href=zaphierlink;
                   openInNewTab(zaphierlink)
