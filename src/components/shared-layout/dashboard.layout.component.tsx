@@ -294,21 +294,21 @@ const DashboardLayout = () => {
     //       label: 'beneficiary',
     //     },
 
-    {
-      icon: (
-        <>
-          <SourceIcon
-            sx={{
-              //@ts-ignore
-              fontSize: '30px',
-              //@ts-ignore
-              color: theme.palette.primary.light, // Corrected theme usage
-            }}
-          />
-        </>
-      ),
-      label: 'configuration',
-    },
+    // {
+    //   icon: (
+    //     <>
+    //       <SourceIcon
+    //         sx={{
+    //           //@ts-ignore
+    //           fontSize: '30px',
+    //           //@ts-ignore
+    //           color: theme.palette.primary.light, // Corrected theme usage
+    //         }}
+    //       />
+    //     </>
+    //   ),
+    //   label: 'configuration',
+    // },
 
     {
       icon: (

@@ -7,7 +7,7 @@ import { ApplicantService } from '@/services/applicant.service';
 import { useRecoilState } from 'recoil';
 import { loaderState, loaderStateNew } from '@/states/state';
 
-
+import { useParams } from 'react-router-dom';
 const beneficiary_service = new BeneficiaryService();
 const AddBeneficiary = () => {
   const navigate = useNavigate();
@@ -21,6 +21,8 @@ const AddBeneficiary = () => {
   const [userDetails, setUserDetails] = useState<any>(null);
   const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
   const [userList, setUserList] = useState([])
+
+  const { id } = useParams();
 
   let applicant_service = new ApplicantService()
 
@@ -54,10 +56,21 @@ const AddBeneficiary = () => {
       })
 
 
+   let seletex_user= users.filter((e)=>e.id==id)
+console.log("the selecte duser ",seletex_user)
+  setSelectedUser(seletex_user[0]
+  )
+
+
       setUserList(users as any)
       setcommonloader(false)
 
     })
+
+
+  
+
+    
 
     // console.log(se)
 
@@ -65,6 +78,12 @@ const AddBeneficiary = () => {
 
 
   const handleUserSelect = async (user: any) => {
+
+
+  
+
+
+    console.log(user)
 
     setSelectedUser(user);
     setSearchText(user.name);

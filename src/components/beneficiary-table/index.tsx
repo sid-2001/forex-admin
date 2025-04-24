@@ -8,7 +8,7 @@ import { BeneficiaryService } from '@/services/beneficiary.service';
 const beneficiary_service= new BeneficiaryService();
 const BeneficiaryTable = ({ 
   //@ts-ignore
-  beneficiary,deleteBeneficiary 
+  beneficiary,deleteBeneficiary ,applicantId
 }) => {
   const navigate = useNavigate();
 
@@ -104,7 +104,7 @@ const BeneficiaryTable = ({
 
     <Button
           variant="outlined"
-          onClick={() => navigate("/add-beneficiary")}
+          onClick={() => navigate(`/add-beneficiary/${applicantId}`)}
           sx={{
     
             marginBottom:"3%"

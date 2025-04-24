@@ -178,7 +178,7 @@ function App() {
                 <Route path="applicant" element={<ApplicantEnquiry />} />
                 <Route path="add-applicant" element={<AddApplicant />} />
                 <Route path="about-beneficiary" element={<AboutBeneficiary />} />
-                <Route path="add-beneficiary" element={<AddBeneficiary />} />
+                <Route path="add-beneficiary/:id" element={<AddBeneficiary />} />
                 <Route path="recon" element={<ReconPage />} />
                 <Route path="charges/add" element={<ChargesDataGridTable />} />
                 <Route path="list-charges" element={<ListCharges />} />

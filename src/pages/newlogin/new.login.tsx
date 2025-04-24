@@ -58,7 +58,7 @@ const LoginPage = () => {
       setTimeout(()=>{
 window.location.reload()
       
-      },2000)
+      },100)
     
     }
   }, [navigate, local_service])
@@ -193,7 +193,15 @@ window.location.reload()
               <Typography variant="h6" color={theme.palette.primary.main} textAlign="center" fontFamily="Inter">
               User Id
               </Typography>
-              <TextField placeholder="User Id" variant="standard" fullWidth margin="normal" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <TextField
+  placeholder="User Id"
+  variant="standard"
+  fullWidth
+  margin="normal"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  inputProps={{ maxLength: 20 }}
+/>
 
               <Typography variant="h6" color={theme.palette.primary.main} textAlign="center" fontFamily="Inter">
                 Password
@@ -215,7 +223,7 @@ window.location.reload()
                 }}
               />
 
-              <Button variant="contained" color="primary" fullWidth sx={{ mt: 3, padding: '10px 0' }} onClick={handleLogin}>
+              <Button  disabled={email.length>0&&password.length>0?false:true} variant="contained" color="primary" fullWidth sx={{ mt: 3, padding: '10px 0' }} onClick={handleLogin}>
                 Sign In
               </Button>
             </Box>

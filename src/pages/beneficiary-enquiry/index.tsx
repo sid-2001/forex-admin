@@ -126,7 +126,7 @@ const BeneficiaryEnquiry = () => {
 
       {/* Conditionally render the table if there is data in filteredBeneficiary */}
       {showTable && (
-        <BeneficiaryTable beneficiary={filteredBeneficiary} deleteBeneficiary={filteredBeneficiary} />
+        <BeneficiaryTable beneficiary={filteredBeneficiary} deleteBeneficiary={filteredBeneficiary} applicantId={applicantId} />
       )}
     </Box>
   );

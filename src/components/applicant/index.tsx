@@ -57,7 +57,7 @@ const ApplicantDataGrid: React.FC<Props> = ({ data }) => {
       flex: 1,
       valueFormatter: (params) => 
         //@ts-ignore
-        helper_service.convertDateAndTime(params.value),
+      (params.value),
        headerClassName: 'super-app-theme--header'
     },
     { field: 'residenceCountry', headerName: 'Residence Country', flex: 1,

@@ -906,7 +906,7 @@ const ApplicantPage = () => {
 
       {/* Tab Content */}
       {/* {selectedTab === 0 && <DocumentComponent />} */}
-      {selectedTab === 0 && <BeneficiaryTable beneficiary={beneficiaries} deleteBeneficiary={beneficiaries} />}
+      {selectedTab === 0 && <BeneficiaryTable beneficiary={beneficiaries} deleteBeneficiary={beneficiaries} applicantId={applicantId} />}
 
       {selectedTab === 1 && <TransactionTable
         //@ts-ignore
