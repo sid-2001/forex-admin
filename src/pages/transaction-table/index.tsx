@@ -102,7 +102,8 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
       headerName: 'Action',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      //@ts-ignore
+      //@ts-ignorenpm run build
+      
       renderCell: (params) => (
        
         <>
@@ -212,7 +213,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
                       borderRadius: '3%',
                     }}
                   >
-                    TRN ID- {transactionDetails.id}
+                    TRN ID- {transactionDetails?.transactionNumber}
                   </Typography>
       
                   <Chip label={transactionDetails?.status} color="warning" sx={{ marginBottom: 2 }} />
@@ -279,11 +280,11 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
                   </Typography>
                   <Grid container spacing={2} mb={2}>
                     <Grid item xs={12} md={6}>
-                      <TextField label="Applicant Id" variant="filled" fullWidth defaultValue={JSON.stringify(transactionDetails?.applicant?.applicantId)} size="small" disabled />
+                      <TextField label="Applicant Id" variant="filled" fullWidth defaultValue={ (transactionDetails?.applicantId)} size="small" disabled />
                     </Grid>
-                    <Grid item xs={12} md={6}>
+                    {/* <Grid item xs={12} md={6}>
                       <TextField label="Applicant Name" variant="filled" fullWidth defaultValue={transactionDetails?.applicant?.firstName} size="small" disabled />
-                    </Grid>
+                    </Grid> */}
                   </Grid>
                   {
                     (trxStatus == "DRAFT" || trxStatus == "PENDING") ? (<>

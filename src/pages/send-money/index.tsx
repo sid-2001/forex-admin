@@ -52,6 +52,9 @@ import { HelperService } from '@/helpers/helper'
 import { ChargesService } from '@/services/charges.service'
 const { VITE_APP_BACKEND, VITE_APP_URL, VITE_APP_APPLICANT, VITE_APP_KYC, VITE_APP_TRANSACTION } = import.meta.env
 
+
+
+
 let cashfree;
 
 
@@ -150,6 +153,9 @@ const SendMoneyPage = () => {
   const [selecteTimeChange, setSelectedTimeCharge] = useState<number | null>(null)
 
   const [selectedUser, setSelectedUser] = useState<{ name: string; accountNumber: string } | null>(null)
+   const [category, setCategory] = useState<string>("");
+
+
   //   const [selected]
 
   const [selectedCountry, setSelectedCountry] = useState<string>('')
@@ -258,8 +264,20 @@ const SendMoneyPage = () => {
         })
 
         setUserList(users as any)
+
+
+      
         setcommonloader(false)
       })
+
+      transaction_service.getBop().then(data=>{
+setRemittanceList(data as any)
+      
+         
+      })
+
+
+    
     }
   }, [])
 
@@ -492,10 +510,13 @@ const SendMoneyPage = () => {
         //@ts-ignore
         timecharge: selectedTime?.time,
         sourceCurrency: selectedCountryoption == "SA" ? "ZAR" : "INR",
+        bopId:category,
 
         sourceCountry: selectedCountryoption == 'SA' ? "ZA" : "IN",
         destinationCurrency: selectedCountryoption == 'SA' ? "INR" : "ZAR",
-        totalpaybleamount: (Number(amount) + Number(selecteTimeChange) + Number(gatewayCharge))
+        // totalpaybleamount: (Number(amount) + Number(selecteTimeChange) + Number(gatewayCharge))
+         totalpaybleamount: (Number(amount) * Number(forexRate))
+       
 
       }
 
@@ -972,7 +993,7 @@ const SendMoneyPage = () => {
             </Typography>
             <Grid container spacing={2}>
               <Grid item xs={12} md={12}>
-                <BobCategoryDropdown amount={amount} setAmount={setAmount} remittanceList={remittanceList}></BobCategoryDropdown>
+                <BobCategoryDropdown amount={amount} setAmount={setAmount} remittanceList={remittanceList} category={category}  setCategory={setCategory} ></BobCategoryDropdown>
               </Grid>
 
 
@@ -1149,7 +1170,7 @@ const SendMoneyPage = () => {
             <Grid container spacing={2}>
               <Grid item xs={12} md={12}>
               
-                <BobCategoryDropdown amount={amount} setAmount={setAmount} remittanceList={remittanceList}></BobCategoryDropdown>
+                <BobCategoryDropdown amount={amount} setAmount={setAmount} remittanceList={remittanceList} category={category} setCategory={setCategory}></BobCategoryDropdown>
               </Grid>
 
 

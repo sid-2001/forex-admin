@@ -18,69 +18,13 @@ import { loaderState, loaderStateNew, selectedCountryState } from '@/states/stat
 import { ApplicantService } from '@/services/applicant.service'
 import CompliancTool from '@/components/compliance-tool'
 import { HelperService } from '@/helpers/helper'
-// function formatDateTime(timestamp: string) {
-//  console.log(timestamp)
 
-//   const date = new Date(timestamp);
-
-//   // Format Date as DD/MM/YYYY in IST
-//   const formattedDate = date.toLocaleDateString('en-GB', {
-//     timeZone: 'Asia/Kolkata',
-//   });
-
-//   // Format Time as HH:MM:SS in IST (24-hour format)
-//   const formattedTime = date.toLocaleTimeString('en-GB', {
-//     timeZone: 'Asia/Kolkata',
-//     hour12: false,
-//   });
-
-//   return `${formattedDate}  ${formattedTime}`;
-// }
 
 
 import moment from "moment-timezone";
 
 
-// function formatDateTime(timestamp: string): string {
-//   const istTime = moment(timestamp).tz("Asia/Kolkata");
-//   return istTime.format("DD/MM/YYYY HH:mm:ss");
 
-//   return timestamp
-// }
-
-// function formatDateTime(timestamp: any): string {
-//   const timeStr = String(timestamp).trim();
-
-//   const istTime = moment.tz(timeStr, "Asia/Kolkata");
-
-//   if (!istTime.isValid()) {
-//     console.warn("Invalid timestamp provided:", timestamp);
-//     return "Invalid Date";
-//   }
-
-//   return istTime.format("DD/MM/YYYY HH:mm:ss");
-// }
-
-
-// function formatDateTime(timestamp: string): string {
-//   const istTime = moment.utc(timestamp).tz("Asia/Kolkata");
-
-//   if (!istTime.isValid()) {
-//     return "Invalid Date";
-//   }
-
-//   return istTime.format("DD/MM/YYYY HH:mm:ss");
-// }
-
-function formatDateTime(timestamp: string): string {
-  const istTime = moment.utc(timestamp).tz("Asia/Kolkata");
-
-  if (!istTime.isValid()) {
-    return "Invalid Date";
-  }
-
-  return istTime.format("DD/MM/YYYY HH:mm:ss");
-}
 const TransactionPage = () => {
 
   // reporting:e?.transactionOutward?.reportingStatus=="ACK"?"Reported":"Pending",
@@ -374,6 +318,15 @@ const TransactionPage = () => {
 
   const addpayment = (create_trx: any) => {
     let trx_service = new TransactionService()
+
+
+    if (trxStatus == "DRAFT" || trxStatus == "PENDING") {
+      trx_service.createTransaction(creattrx).then(data => {
+
+        console.log(data)
+      })
+    }
+
     trx_service.createZaphierTransaction({
       amount: (Number(create_trx?.totalpaybleamount)),
       currency: "ZAR"
@@ -410,7 +363,11 @@ const TransactionPage = () => {
       sourceCurrency: selectedCountryoption == "SA" ? "ZAR" : "INR",
       sourceCountry: selectedCountryoption == 'SA' ? "ZA" : "IN",
       destinationCurrency: selectedCountryoption == 'SA' ? "INR" : "ZAR",
-      totalpaybleamount: (Number(row.value) + Number(row.charges)),
+      bopId:row?.bobId,
+
+  
+      // totalpaybleamount: (Number(row.value) + Number(row.charges)),
+      totalpaybleamount: (Number(row.value) * Number(row.exchangeRates)),
       transactionId: row?.transactionNumber
     }
     setCreatetrx(d as any)
@@ -522,13 +479,7 @@ const TransactionPage = () => {
 
     let trx_service = new TransactionService();
 
-    if (trxStatus == "DRAFT" || trxStatus == "PENDING") {
-      trx_service.createTransaction(creattrx).then(data => {
-
-        console.log(data)
-      })
-    }
-
+   
 
 
 

@@ -23,18 +23,25 @@ interface BobCategoryDropdownProps {
   amount: number;
   setAmount: (val: number) => void;
   remittanceList: RemittanceDetails[];
+  category:any
+  setCategory:any
 }
 
 const BobCategoryDropdown: React.FC<BobCategoryDropdownProps> = ({
   amount,
   setAmount,
-  remittanceList
+  remittanceList,
+  category,
+  setCategory
 }) => {
-  const [category, setCategory] = useState<string>("");
+  // const [category, setCategory] = useState<string>("");
   const [contract, setContract] = useState<File | null>(null);
   const [addressProof, setAddressProof] = useState<File | null>(null);
 
   const handleCategoryChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+
+console.log("Bop categfory")
+    console.log(event)
     setCategory(event.target.value as string);
   };
 
@@ -56,22 +63,42 @@ const BobCategoryDropdown: React.FC<BobCategoryDropdownProps> = ({
 
   return (
     <div>
+     
+
       <FormControl fullWidth>
-        <InputLabel id="bob-category-label">Select BOP Category</InputLabel>
-        <Select
-          labelId="bob-category-label"
-          value={category}
-          //@ts-ignore
-          onChange={handleCategoryChange}
-          label="Select BOP Category"
-        >
-          {remittanceList.map((item) => (
-            <MenuItem key={item.id} value={item.bopCategoryCd}>
-              {item.categoryDescription}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+  <InputLabel id="bob-category-label">Select BOP Category</InputLabel>
+  <Select
+    labelId="bob-category-label"
+    value={category}
+    //@ts-ignore
+    onChange={handleCategoryChange}
+    label="Select BOP Category"
+    MenuProps={{
+      PaperProps: {
+        style: {
+          maxHeight: 300, // limit dropdown height if many options
+        },
+      },
+      anchorOrigin: {
+        vertical: 'bottom',
+        horizontal: 'left',
+      },
+      transformOrigin: {
+        vertical: 'top',
+        horizontal: 'left',
+      },
+      //@ts-ignore
+      getContentAnchorEl: null,
+    }}
+  >
+    {remittanceList.map((item) => (
+      <MenuItem key={item.id} value={item.id}>
+        {item.categoryDescription}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
+
 
       {/* Contract Upload */}
       {category === "417" && (

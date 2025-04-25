@@ -86,11 +86,22 @@ export class TransactionService extends BaseService {
     let url = `${VITE_APP_TRANSACTION}/api/transactions/transaction-outward/create`
     try {
 
-      
       let { data } = await axios.post(url, payload)
 
 
 
+      return data
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+
+  async getBop() {
+    let url = `${VITE_APP_TRANSACTION}/api/static-table/forex-bop`
+    try {
+
+      let { data } = await axios.get(url)
       return data
     } catch (err) {
       console.log(err)
