@@ -62,6 +62,24 @@ const BopTable: React.FC = () => {
       headerClassName: 'super-app-theme--header',
     },
     {
+      field: 'benificiary_name',
+      headerName: 'Non Resident Name',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+    // {
+    //   field: 'residence_country',
+    //   headerName: 'Resident Country',
+    //   flex: 1,
+    //   headerClassName: 'super-app-theme--header',
+    // },
+    // {
+    //   field: 'benificiary_country',
+    //   headerName: 'Non Resident Country',
+    //   flex: 1,
+    //   headerClassName: 'super-app-theme--header',
+    // },
+    {
       field: 'status',
       headerName: 'Status',
       flex: 1,
@@ -105,7 +123,7 @@ const BopTable: React.FC = () => {
   ]
 
   return (
-    <Box sx={{ width: '70vw' }}>
+    <Box sx={{ width: '85vw', height: '80vh' }}>
       <DataGrid
         sx={{
           width: '100%',
