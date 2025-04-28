@@ -125,7 +125,6 @@ const BopScreen: React.FC = () => {
     const payload = JSON.stringify({
       transaction_attempt: Number(transaction_attempt),
       transaction_number: transactionId,
-      sap_status: 'Released',
     })
 
     const requestOptions: any = {
