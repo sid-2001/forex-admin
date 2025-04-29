@@ -268,16 +268,7 @@ console.log("the selecte duser ",seletex_user)
       <Box sx={{ width: '50vw' }}>
         <Grid container spacing={2} marginBottom={1}>
           <Grid item xs={12} sm={4}>
-            {/* <TextField
-              label="Applicant ID"
-              variant="filled"
-              name="applicant"
-              fullWidth
-              value={formData.applicant}
-              onChange={handleChange}
-              error={!!formErrors.applicant}
-              helperText={formErrors.applicant}
-            /> */}
+         
 
             <TextField
               variant="filled"
@@ -292,7 +283,7 @@ console.log("the selecte duser ",seletex_user)
                 }
                 setSearchText(e.target.value);
               }}
-              placeholder="Search by Applicant ID"
+              placeholder={(selectedUser?.name)?(selectedUser?.name):(selectedUser?.name)}
               InputProps={{
                 startAdornment: selectedUser && (
                   <InputAdornment position="start">
@@ -335,7 +326,9 @@ console.log("the selecte duser ",seletex_user)
                                                   >
                                                     {
                                                       //@ts-ignore
-                                                      b.name[0]
+                                                           selectedUser?  (selectedUser?.name[0]):<></>
+
+                                                    
                                                     }
                                                   </Avatar>
                       </ListItemAvatar>

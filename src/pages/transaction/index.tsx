@@ -35,7 +35,13 @@ const TransactionPage = () => {
   const columns_outward: GridColDef[] = [
 
     //@ts-ignore
-    { field: 'id', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'id', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header',   renderCell: (params) =>  { return( <a href="#" onClick={(e)=>{
+
+
+console.log(" i have done this")
+
+handleViewMore(params.row)
+    }}>{params?.value}</a>)} },
 
     { field: 'transactionInwardNumber', headerName: 'Inward ID', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'destination', headerName: 'Destination', flex: 1, headerClassName: 'super-app-theme--header' },
@@ -123,7 +129,7 @@ const TransactionPage = () => {
     // { field: 'final_amount', headerName: 'Settlement Amount ', flex: 1, headerClassName: 'super-app-theme--header' },
     {
       field: "stpError",
-      headerName: "STP Error",
+      headerName: "STP",
       flex: 1,
       headerClassName: "super-app-theme--header",
       renderCell: (params) =>
@@ -140,23 +146,23 @@ const TransactionPage = () => {
     },
     // { field: 'destinationBank', headerName: 'Destination Bank', flex: 1, headerClassName: 'super-app-theme--header' },
 
-    {
-      field: 'action',
-      headerName: 'Action',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params) => (
+    // {
+    //   field: 'action',
+    //   headerName: 'Action',
+    //   flex: 1,
+    //   headerClassName: 'super-app-theme--header',
+    //   renderCell: (params) => (
        
-        <>
-          <IconButton onClick={() => {
-            handleViewMore(params.row)
-          }}>
-            <VisibilityIcon />
-          </IconButton>
+    //     <>
+    //       <IconButton onClick={() => {
+    //         handleViewMore(params.row)
+    //       }}>
+    //         <VisibilityIcon />
+    //       </IconButton>
 
-        </>
-      ),
-    },
+    //     </>
+    //   ),
+    // },
 
 
     {
@@ -320,7 +326,7 @@ const TransactionPage = () => {
     let trx_service = new TransactionService()
 
 
-    if (trxStatus == "DRAFT" || trxStatus == "PENDING") {
+    if (trxStatus.toLocaleLowerCase() == "DRAFT" || trxStatus.toLocaleLowerCase() == "PENDING") {
       trx_service.createTransaction(creattrx).then(data => {
 
         console.log(data)
@@ -371,7 +377,7 @@ const TransactionPage = () => {
       transactionId: row?.transactionNumber
     }
     setCreatetrx(d as any)
-    addpayment(d as any)
+    // addpayment(d as any)
     setTransactionDetails(row)
     setDrawerOpen(true)
   }
@@ -672,7 +678,7 @@ const TransactionPage = () => {
               <Grid item xs={12} md={6}>
                 <TextField label="Currency" variant="filled" fullWidth
                   //@ts-ignore
-                  defaultValue={transactionDetails.currency} size="small" disabled />
+                  defaultValue={transactionDetails?.principalCurrency} size="small" disabled />
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField label="Date" variant="filled" fullWidth
@@ -696,6 +702,8 @@ const TransactionPage = () => {
               <Grid item xs={12} md={6}>
                 <TextField label="Bank Code" variant="filled" fullWidth defaultValue={transactionDetails?.bankBicCode} size="small" disabled />
               </Grid>
+
+              
               <Grid item xs={12} md={6}>
                 <TextField
                   label="Account Holder Name"
@@ -715,11 +723,12 @@ const TransactionPage = () => {
             </Typography>
             <Grid container spacing={2} mb={2}>
               <Grid item xs={12} md={6}>
-                <TextField label="Applicant Id" variant="filled" fullWidth defaultValue={JSON.stringify(transactionDetails?.applicant?.applicantId)} size="small" disabled />
+                <TextField label="Applicant Id" variant="filled" fullWidth defaultValue={(transactionDetails?.applicant?.applicantId)} size="small" disabled />
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField label="Applicant Name" variant="filled" fullWidth defaultValue={transactionDetails?.applicant?.firstName} size="small" disabled />
               </Grid>
+             
             </Grid>
             {
               (trxStatus == "DRAFT" || trxStatus == "PENDING") ? (<>
@@ -727,6 +736,7 @@ const TransactionPage = () => {
                   closeDrawer()
                   // window.location.href=zaphierlink;
                   openInNewTab(zaphierlink)
+                  addpayment(creattrx)
                 }}>
                   <img
                     src="https://media.licdn.com/dms/image/v2/C560BAQEH3RSdlorC_g/company-logo_200_200/company-logo_200_200/0/1675795834026/zapier_logo?e=2147483647&v=beta&t=Hx-pHbieeJMPM-LUGcTe3O8iwYPYW7xUBc0W1uC2tBs"

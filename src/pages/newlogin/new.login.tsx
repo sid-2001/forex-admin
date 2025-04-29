@@ -20,6 +20,7 @@ const LoginPage = () => {
   const [commonloader, setcommonloader] = useRecoilState(loaderState)
     const[selecteCountryState,setselectedCountryState]=useRecoilState(selectedCountryState)
     const [selectedTab, setSelectedTab] = useRecoilState(selectedAppState)
+    const [error, setError] = useState('');
 
     
 
@@ -29,6 +30,27 @@ const LoginPage = () => {
   const local_service = new LocalStorageService()
   const navigate = useNavigate()
   const theme = useTheme()
+
+
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let input = e.target.value;
+
+    // Enforce lowercase only
+    input = input.toLowerCase();
+
+    const regex = /^[a-z0-9]*$/; // Only lowercase letters and numbers
+
+    if (!regex.test(input)) {
+      setError('Only lowercase letters and numbers are allowed.');
+    } else if (input.length > 0 && input.length <= 10) {
+      setError('Username must be more than 10 characters.');
+    } else {
+      setError('');
+    }
+
+    setEmail(input);
+  };
 
   const handleClose = (
      //@ts-ignore
@@ -77,11 +99,21 @@ window.location.reload()
         })
         .then((data:any) => {
           
+        console.log("i m in the data",data)
+
+
+
+
+
+
         
           if (data.status == true) {
 
+            console.log(data?.data)
+
               setText('User SuccesFully Logged In')
 
+              setText(data?.message)
               setType('success')
               setOpen(true)
               if(data?.data?.residenceCountry=="India"){
@@ -108,10 +140,15 @@ window.location.reload()
          
           
           } else {
+            setText(data?.message)
+            console.log(data?.message)
             console.log('i m in the not success page')
-            setText('Unable to Verify Your Identity')
+            // setText('Unable to Verify Your Identity')
             setType('error')
+
+           setOpen(true)
             setOpen(true)
+            console.log(open)
           }
         })
         .catch((err) => {
@@ -194,17 +231,22 @@ window.location.reload()
           >
             <Box sx={{ width: '100%' }}>
               <Typography variant="h6" color={theme.palette.primary.main} textAlign="center" fontFamily="Inter">
-              User Id
+              User Name
               </Typography>
-              <TextField
-  placeholder="User Id"
-  variant="standard"
-  fullWidth
-  margin="normal"
-  value={email}
-  onChange={(e) => setEmail(e.target.value)}
-  inputProps={{ maxLength: 20 }}
-/>
+
+    
+
+<TextField
+      placeholder="User Name"
+      variant="standard"
+      fullWidth
+      margin="normal"
+      value={email}
+      onChange={handleChange}
+      inputProps={{ maxLength: 20 }}
+      error={!!error}
+      helperText={error}
+    />
 
               <Typography variant="h6" color={theme.palette.primary.main} textAlign="center" fontFamily="Inter">
                 Password

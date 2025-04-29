@@ -393,7 +393,7 @@ const KYCPage = () => {
                 </Typography>
                 <Grid container spacing={2}>
                   <Grid item xs={3}>
-                    <TextField label="Applicant ID" variant="filled"
+                    <TextField label="Applicant ID" variant="filled" fullWidth
                       //@ts-ignore
                       defaultValue={selectedKYC?.applicantId} disabled />
                   </Grid>
@@ -460,7 +460,7 @@ const KYCPage = () => {
                         color: 'grey',
                       }}
                     >
-                      Current Address
+                      Postal Address
                     </Typography>
 
                     <Grid container spacing={2}>
@@ -547,14 +547,16 @@ const KYCPage = () => {
             {/* KYC Status Section */}
             <Box mt={4}>
               <Typography variant="h6">
-                <strong>KYC Status</strong>
+                <strong>KYC Documents</strong>
               </Typography>
               {selectedKYC?.documents?.map(
                 //@ts-ignore
                 (proofType) => (
                   <Grid container spacing={2} alignItems="center" mt={1} key={proofType}>
                     <Grid item xs={2}>
-                      <TextField label="Document Name" fullWidth defaultValue={proofType?.documentName} disabled />
+                      {/* {JSON.stringify(proofType?.document?.documentName)}
+                    */}
+                      <TextField label="Document Name" fullWidth defaultValue={proofType?.document?.documentName} disabled />
                     </Grid>
                     <Grid item xs={2}>
                       <TextField label="Verification Type" fullWidth defaultValue="Auto" disabled />
