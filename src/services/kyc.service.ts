@@ -72,6 +72,8 @@ async createComment(payload:any){
 let url=`${VITE_APP_KYC}/api/comments`
 
     try{
+
+    
      let data= axios.post(url,payload)
      return data
     }
@@ -81,17 +83,27 @@ let url=`${VITE_APP_KYC}/api/comments`
     }
 }
 
-async getComment(kyc_id:any){
+  //@ts-ignore
 
-    let url=`${VITE_APP_KYC}/api/comments/${kyc_id}`
+async getComment(kyc_id:any):Promise<Array<{
+    commentId: string;
+    commentText: string;
+    commentDate: string; // ISO format
+    user: string;
+    kycId: string;
+  }>>{
+
+    let url=`/api/kyc/comments`
     
         try{
          let data= api1.get(url)
+         
          return data
         }
         catch(err){
     
             console.log(err)
+            return null as any
         }
     }
     

@@ -240,7 +240,11 @@ const KYCPage = () => {
     setSelectedKYC(row)
     setIsDrawerOpen(true)
     console.log(row)
-    kycservice.getComment(row)
+    kycservice.getComment(row?.kycId).then(data=>{
+
+    setComments(  data.filter(e=>e.kycId==row?.kycI))
+    
+    })
   }
 
   const closeDrawer = () => {
@@ -605,7 +609,7 @@ const KYCPage = () => {
                         {/* {(proofType.verificationStatus === 'va' ||kycstatus=='v')? (
 
 <>
-
+ƒ
         Verified {kycstatus}
         <IconButton
         onClick={async () => {
@@ -674,20 +678,11 @@ const KYCPage = () => {
                       <IconButton onClick={() => {
                         setOpen(true)
                         console.log(selectedKYC?.comments)
-                        setComments([
-                          {
-                            commentId: "CMT1",
-                            commentText: "Document verification in progress.",
-                            commentDate: "2025-01-06T10:00:00Z",
-                            user: "admin",
-                          },
-                          {
-                            commentId: "CMT2",
-                            commentText: "Document uploaded for verification.",
-                            commentDate: "2025-01-05T12:30:00Z",
-                            user: "user1",
-                          },
-                        ])
+                        kycservice.getComment(selectedKYC?.kycId).then(data=>{
+
+                          setComments(  data.filter(e=>e.kycId==(selectedKYC?.kycId)))
+                          
+                          })
 
                         kycservice.getComment(selectedKYC?.kycId)
                         // setComments()

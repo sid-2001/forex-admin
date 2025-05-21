@@ -12,6 +12,7 @@ import {
   TransactionInwardCalclulated,
   TransactionOutward,
 } from '@/types/transaction.type'
+import AssessmentIcon from '@mui/icons-material/Assessment';
 import { Filter1Outlined, PreviewOutlined, SettingsAccessibilityRounded, Sync } from '@mui/icons-material'
 import { useRecoilState } from 'recoil'
 import { loaderState, loaderStateNew, selectedCountryState } from '@/states/state'
@@ -561,6 +562,17 @@ handleViewMore(params.row)
             <IconButton onClick={() => setToolOpen(true)}>
               <SettingsAccessibilityRounded />
             </IconButton>
+
+ 
+                    
+            <IconButton onClick={() => {
+              navigate('/utilization')
+            }} color="primary">
+              <AssessmentIcon sx={{
+                marginBottom: "10%"
+              }} />
+            </IconButton>
+            
             <IconButton onClick={() => {
               navigate('/recon')
             }} color="primary">
