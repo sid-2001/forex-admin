@@ -7,6 +7,13 @@ import dayjs from 'dayjs'
 import { useParams } from 'react-router-dom'
 import { HelperService } from '@/helpers/helper'
 
+const countryCodes = {
+  'India': 'IN',
+  'South Africa': 'ZA',
+  'IN': 'IN',
+  'ZA': 'ZA'
+}
+
 const { VITE_FOREX_NODE_APP_URL, VITE_APP_BACKEND } = import.meta.env
 
 const backendUrl = VITE_FOREX_NODE_APP_URL
@@ -26,26 +33,25 @@ const BopScreen: React.FC = () => {
   const [bopData, setBopData] = useState<any>({})
   const [bopCat, setbopCat] = useState<any>({})
   const [bopCategory, setBopCategory] = useState<any>([])
-  const [bopCategoryStaticData, setBopCategoryStaticData] = useState<any>([])
+  // const [bopCategoryStaticData, setBopCategoryStaticData] = useState<any>([])
 
   const storedLocalData = localStorage.getItem('user') || "";
   const parseData = JSON.parse(storedLocalData);
   const helper = new HelperService()
-
-  const [accIdentifierValue, setAccountIdentifierValue] = useState("")
-  const [beneficiaryAccIdentifierValue, setBeneficiaryAccountIdentifierValue] = useState("")
+  //@ts-ignore
+  const userLoggedInCountry = countryCodes[parseData?.citizenship]
 
   const validateForm = () => {
     // const newErrors: any = {};
     // let isValid = true;
-    // Object.keys(formData).forEach((field:any) => {
+    // Object.keys(formData).forEach((field: any) => {
     //   //@ts-ignore
     //   if (!formData[field]) {
     //     newErrors[field] = 'This field is required';
     //     isValid = false;
     //   }
     // });
-    // // Specific validation for email format
+    // Specific validation for email format
     // if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
     //   newErrors.email = 'Please enter a valid email address';
     //   isValid = false;
@@ -55,6 +61,9 @@ const BopScreen: React.FC = () => {
   }
 
   const handleSubmit = async () => {
+    // const isValid = validateForm();
+    // console.log(isValid, "---------------", formData)
+    // if (!isValid) return;
     const myHeaders = new Headers()
     myHeaders.append('Content-Type', 'application/json')
 
@@ -80,34 +89,10 @@ const BopScreen: React.FC = () => {
 
     fetch(`${backendUrl}/bop/${formData.id}`, requestOptions)
       .then((response) => response.json())
-      .then(() => window.location.reload())
+      .then(() => {
+         window.location.reload()
+      })
       .catch((error) => console.error(error))
-
-    // const isValid = validateForm();
-    // if (!isValid) return;
-    // console.log("Dattttaaa",formData);
-    // try {
-    //   const response = await applicant_service.submitApplicantForm(formData);
-    //   //@ts-ignore
-    //   if (response.status == 200) {
-    //     console.log("200", formData);
-    //     setText('Applicant Successfully Added');
-    //     setType('success');
-    //     setOpen(true);
-    //     alert("Applicant created successfully!");
-    //     navigate('/applicant');
-    //   } else {
-    //     console.log("errorororororo");
-    //     setText('Unable to Submit Applicant');
-    //     setType('error');
-    //     setOpen(true);
-    //   }
-    // } catch (error) {
-    //   console.error('Error submitting form:', error);
-    //   setText('Error while submitting form');
-    //   setType('error');
-    //   setOpen(true);
-    // }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: any; value: any }>) => {
@@ -193,49 +178,77 @@ const BopScreen: React.FC = () => {
   }
 
   const fetchBopCategoryDataById = async () => {
-    fetch(`${backendUrl}/bopCategory/${transactionId}/${transaction_attempt}`, {
+    const response = await fetch(`${backendUrl}/bopCategory/${transactionId}/${transaction_attempt}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
     })
-      .then((response) => response.json())
-      .then((result) => {
-        const { data } = result
-        setbopCat({
-          ...data,
-          principal_amount: helper.roundToTwoFixed(data.principal_amount),
-          settlement_amount: helper.roundToTwoFixed(data.settlement_amount)
-        })
-      })
-      .catch((error) => console.error(error))
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const { data } = await response.json();
+
+    setbopCat({
+      ...data,
+      principal_amount: helper.roundToTwoFixed(data.principal_amount),
+      settlement_amount: helper.roundToTwoFixed(data.settlement_amount)
+    })
+
+    if (data.bop_category) {
+      fetchStaticBopMapping(data.bop_category)
+    }
+
   }
 
-  const fetchBopStaticData = async () => {
+  const fetchStaticBopMapping = async (bopCategoryValue: string) => {
+    //@ts-ignore
+    const countryCode = countryCodes[parseData?.citizenship]
+    const url = `${baseUrl}/api/static-table/static-data/key1/Bop%20Mapping/countryCode/ZA`
     try {
-      const countryCode = parseData?.citizenship === 'India' ? 'IN' : 'ZA'
-      const response = await fetch(`${baseUrl}/api/static-table/forex-static-data/by-country?countryCode=${countryCode}`);
+      const response = await fetch(url);
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
       const data = await response.json();
-      setBopCategoryStaticData(data);
-      const account_identifier_text = data.find((item: any) => item.moduleName === 'Account Identifier')
-      const non_resident_Acc_identifier_text = data.find((item: any) => item.moduleName === 'Non Resident Account Identifier')
-
-      setAccountIdentifierValue(account_identifier_text.keyValue)
-      setBeneficiaryAccountIdentifierValue(non_resident_Acc_identifier_text.keyValue)
-
+      //Mapping of bop data
+      if ((data.key2 === userLoggedInCountry) && (data.value1 === bopCategoryValue)) {
+        setbopCat((prev: any) => ({
+          ...prev,
+          bop_category: data.value2
+        }))
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   }
 
-  const fetchBopCategoryListing = async () => {
-    const countryCode = parseData?.citizenship === 'India' ? 'IN' : 'ZA'
-    const url = `${baseUrl}/api/static-table/forex-bop/by-country?country=${countryCode}`
+  // const fetchBopStaticData = async () => {
+  //   try {
+  //     const countryCode = parseData?.citizenship === 'India' ? 'IN' : 'ZA'
+  //     const response = await fetch(`${baseUrl}/api/static-table/forex-static-data/by-country?countryCode=${countryCode}`);
+
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error! Status: ${response.status}`);
+  //     }
+
+  //     const data = await response.json();
+  //     setBopCategoryStaticData(data);
+  //     const account_identifier_text = data.find((item: any) => item.moduleName === 'Account Identifier')
+  //     const non_resident_Acc_identifier_text = data.find((item: any) => item.moduleName === 'Non Resident Account Identifier')
+
+  //     setAccountIdentifierValue(account_identifier_text.keyValue)
+  //     setBeneficiaryAccountIdentifierValue(non_resident_Acc_identifier_text.keyValue)
+
+  //   } catch (error) {
+  //     console.error('Error fetching data:', error);
+  //   }
+  // }
+
+  const fetchBopMatrixCategoriesListing = async () => {
+    const url = `${baseUrl}/api/static-table/forex-bop/by-country?country=${userLoggedInCountry}`
     try {
       const response = await fetch(url);
 
@@ -254,8 +267,8 @@ const BopScreen: React.FC = () => {
     if (transactionId) {
       fetchBopBetailById()
       fetchBopCategoryDataById()
-      fetchBopCategoryListing()
-      fetchBopStaticData()
+      fetchBopMatrixCategoriesListing()
+      // fetchStaticBopMapping()
     }
   }, [])
 
@@ -313,16 +326,16 @@ const BopScreen: React.FC = () => {
 
       <Box mt={3}>
         <Typography variant="h5">
-          {parseData?.citizenship === 'India' ? "Purpose Code Details" : "Bop Category Details"}
+          {userLoggedInCountry === 'IN' ? "Purpose Code Details" : "Bop Category Details"}
         </Typography>
       </Box>
 
       <Grid container spacing={2} mt={1}>
         <Grid item xs={3}>
           <FormControl fullWidth>
-            <InputLabel>{parseData?.citizenship === 'India' ? "Purpose Code" : "Bop Category"}</InputLabel>
+            <InputLabel>{userLoggedInCountry === 'IN' ? "Purpose Code" : "Bop Category"}</InputLabel>
             <Select
-              label={parseData?.citizenship === 'India' ? "Purpose Code" : "Bop Category"}
+              label={userLoggedInCountry === 'IN' ? "Purpose Code" : "Bop Category"}
               variant="outlined"
               name="bop_category"
               value={bopCat?.bop_category || ''}
@@ -348,7 +361,16 @@ const BopScreen: React.FC = () => {
           </FormControl>
         </Grid>
         <Grid item xs={3}>
-          <FormControl fullWidth>
+          <TextField
+            size="small"
+            label="Sub Category"
+            variant="outlined"
+            name="bop_sub_category"
+            value={bopCat?.bop_sub_category || ''}
+            disabled
+            fullWidth
+          />
+          {/* <FormControl fullWidth>
             <InputLabel>Sub Category</InputLabel>
             <Select
               label="Sub Category"
@@ -357,13 +379,6 @@ const BopScreen: React.FC = () => {
               value={bopCat?.bop_sub_category || ''}
               size="small"
               disabled
-            // disabled={bopData?.status === disableFormFieldsViaStatus}
-            // onChange={(e) => {
-            //   setbopCat((prev: any) => ({
-            //     ...prev,
-            //     bop_sub_category: e.target.value,
-            //   }))
-            // }}
             >
               {bopCategory.map((item: any, ind: any) => (
                 <MenuItem key={ind} value={item.bopSubCategoryCd}>
@@ -371,26 +386,28 @@ const BopScreen: React.FC = () => {
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
+          </FormControl> */}
         </Grid>
 
         <Grid item xs={6}>
-          <FormControl fullWidth>
+          <TextField
+            size="small"
+            label="Category Description"
+            variant="outlined"
+            name="bop_description"
+            value={bopCat?.bop_description || ''}
+            disabled
+            fullWidth
+          />
+          {/* <FormControl fullWidth>
             <InputLabel>Category Description</InputLabel>
             <Select
               label="Category Description"
               variant="outlined"
               name="bop_description"
-              // disabled={bopData?.status === disableFormFieldsViaStatus}
               value={bopCat?.bop_description || ''}
               size="small"
               disabled
-            // onChange={(e) => {
-            //   setbopCat((prev: any) => ({
-            //     ...prev,
-            //     bop_description: e.target.value,
-            //   }))
-            // }}
             >
               {bopCategory.map((item: any, ind: any) => (
                 <MenuItem key={ind} value={item.categoryDescription}>
@@ -398,7 +415,7 @@ const BopScreen: React.FC = () => {
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
+          </FormControl> */}
         </Grid>
 
         <Grid item xs={3}>
@@ -447,22 +464,24 @@ const BopScreen: React.FC = () => {
         </Grid>
 
         <Grid item xs={3}>
-          <FormControl fullWidth>
+          <TextField
+            size="small"
+            label="Excon Ruling Indicator"
+            variant="outlined"
+            name="excon_ruling_indicator"
+            value={bopCat?.excon_ruling_indicator || ''}
+            disabled
+            fullWidth
+          />
+          {/* <FormControl fullWidth>
             <InputLabel>Excon Ruling Indicator</InputLabel>
             <Select
               label="Excon Ruling Indicator"
               variant="outlined"
               name="excon_ruling_indicator"
               disabled
-              // disabled={bopData?.status === disableFormFieldsViaStatus}
               value={bopCat?.excon_ruling_indicator || ''}
               size="small"
-            // onChange={(e) => {
-            //   setbopCat((prev: any) => ({
-            //     ...prev,
-            //     excon_ruling_indicator: e.target.value,
-            //   }))
-            // }}
             >
               {bopCategoryStaticData.filter((item: any) => item.moduleName === "Excon Ruling Indicator").map((mItem: any, ind: any) => (
                 <MenuItem key={ind} value={mItem.keyValue}>
@@ -470,10 +489,19 @@ const BopScreen: React.FC = () => {
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
+          </FormControl> */}
         </Grid>
         <Grid item xs={3}>
-          <FormControl fullWidth>
+          <TextField
+            size="small"
+            label="Excon Ruling Section"
+            variant="outlined"
+            name="excon_ruling_section"
+            value={bopCat?.excon_ruling_section || ''}
+            disabled
+            fullWidth
+          />
+          {/* <FormControl fullWidth>
             <InputLabel>Excon Ruling Section</InputLabel>
             <Select
               label="Excon Ruling Section"
@@ -482,13 +510,6 @@ const BopScreen: React.FC = () => {
               value={bopCat?.excon_ruling_section || ''}
               size="small"
               disabled
-            // disabled={bopData?.status === disableFormFieldsViaStatus}
-            // onChange={(e) => {
-            //   setbopCat((prev: any) => ({
-            //     ...prev,
-            //     excon_ruling_section: e.target.value,
-            //   }))
-            // }}
             >
               {bopCategoryStaticData.filter((item: any) => item.moduleName === "Excon Ruling Section").map((mItem: any, ind: any) => (
                 <MenuItem key={ind} value={mItem.keyValue}>
@@ -496,10 +517,19 @@ const BopScreen: React.FC = () => {
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
+          </FormControl> */}
         </Grid>
         <Grid item xs={3}>
-          <FormControl fullWidth>
+          <TextField
+            size="small"
+            label="Adhoc Subject"
+            variant="outlined"
+            name="adhoc_subject"
+            value={bopCat?.adhoc_subject || ''}
+            disabled
+            fullWidth
+          />
+          {/* <FormControl fullWidth>
             <InputLabel>Adhoc Subject</InputLabel>
             <Select
               label="Adhoc Subject"
@@ -508,13 +538,6 @@ const BopScreen: React.FC = () => {
               value={bopCat?.adhoc_subject || ''}
               size="small"
               disabled
-            // onChange={(e) => {
-            //   setbopCat((prev: any) => ({
-            //     ...prev,
-            //     adhoc_subject: e.target.value,
-            //   }))
-            // }}
-            // disabled={bopData?.status === disableFormFieldsViaStatus}
             >
               {bopCategoryStaticData.filter((item: any) => item.moduleName === "Adhoc Subject").map((mItem: any, ind: any) => (
                 <MenuItem key={ind} value={mItem.keyValue}>
@@ -522,25 +545,27 @@ const BopScreen: React.FC = () => {
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
+          </FormControl> */}
         </Grid>
         <Grid item xs={3}>
-          <FormControl fullWidth>
+          <TextField
+            size="small"
+            label="Subject Description"
+            variant="outlined"
+            name="subject_description"
+            value={bopCat?.subject_description || ''}
+            disabled
+            fullWidth
+          />
+          {/* <FormControl fullWidth>
             <InputLabel>Subject Description</InputLabel>
             <Select
               label="Subject Description"
               variant="outlined"
               name="subject_description"
-              // disabled={bopData?.status === disableFormFieldsViaStatus}
               value={bopCat?.subject_description || ''}
               size="small"
               disabled
-            // onChange={(e) => {
-            //   setbopCat((prev: any) => ({
-            //     ...prev,
-            //     subject_description: e.target.value,
-            //   }))
-            // }}
             >
               {bopCategoryStaticData.filter((item: any) => item.moduleName === "Subject Description").map((mItem: any, ind: any) => (
                 <MenuItem key={ind} value={mItem.keyValue}>
@@ -548,7 +573,7 @@ const BopScreen: React.FC = () => {
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
+          </FormControl> */}
         </Grid>
       </Grid>
 
@@ -568,6 +593,7 @@ const BopScreen: React.FC = () => {
               error={Boolean(errors.first_name)}
               helperText={errors.first_name}
               disabled={bopData?.status === disableFormFieldsViaStatus}
+              // required={true}
             />
           </Grid>
           <Grid item xs={2.3}>
@@ -582,6 +608,7 @@ const BopScreen: React.FC = () => {
               error={Boolean(errors.middle_name)}
               helperText={errors.middle_name}
               disabled={bopData?.status === disableFormFieldsViaStatus}
+              // required={true}
             />
           </Grid>
           <Grid item xs={2.3}>
@@ -596,6 +623,7 @@ const BopScreen: React.FC = () => {
               error={Boolean(errors.last_name)}
               helperText={errors.last_name}
               disabled={bopData?.status === disableFormFieldsViaStatus}
+              // required={true}
             />
           </Grid>
           <Grid item xs={2.3}>
@@ -614,6 +642,7 @@ const BopScreen: React.FC = () => {
                   }))
                 }}
                 disabled={bopData?.status === disableFormFieldsViaStatus}
+                // required={true}
               >
                 {genderArry.map((item, ind) => (
                   <MenuItem key={ind} value={item.value}>
@@ -683,6 +712,7 @@ const BopScreen: React.FC = () => {
               error={Boolean(errors.contact_type)}
               helperText={errors.contact_type}
               disabled={bopData?.status === disableFormFieldsViaStatus}
+              // required={true}
             />
           </Grid>
           <Grid item xs={2.3}>
@@ -697,6 +727,7 @@ const BopScreen: React.FC = () => {
               error={Boolean(errors.contact_details)}
               helperText={errors.contact_details}
               disabled={bopData?.status === disableFormFieldsViaStatus}
+              // required={true}
             />
           </Grid>
           <Grid item xs={2.3}>
@@ -706,7 +737,7 @@ const BopScreen: React.FC = () => {
               variant="outlined"
               name="account_identifier"
               fullWidth
-              value={accIdentifierValue}
+              value={formData?.account_identifier || ""}
               disabled
             />
           </Grid>
@@ -729,6 +760,7 @@ const BopScreen: React.FC = () => {
               error={Boolean(errors.physical_address_line1)}
               helperText={errors.physical_address_line1}
               disabled={bopData?.status === disableFormFieldsViaStatus}
+              // required={true}
             />
           </Grid>
           <Grid item xs={6}>
@@ -743,6 +775,7 @@ const BopScreen: React.FC = () => {
               error={Boolean(errors.physical_address_line2)}
               helperText={errors.physical_address_line2}
               disabled={bopData?.status === disableFormFieldsViaStatus}
+              // required={true}
             />
           </Grid>
 
@@ -758,6 +791,7 @@ const BopScreen: React.FC = () => {
               error={Boolean(errors.suburb)}
               helperText={errors.suburb}
               disabled={bopData?.status === disableFormFieldsViaStatus}
+              // required={true}
             />
           </Grid>
           <Grid item xs={2.3}>
@@ -772,6 +806,7 @@ const BopScreen: React.FC = () => {
               error={Boolean(errors.city)}
               helperText={errors.city}
               disabled={bopData?.status === disableFormFieldsViaStatus}
+              // required={true}
             />
           </Grid>
           <Grid item xs={2.3}>
@@ -786,6 +821,7 @@ const BopScreen: React.FC = () => {
               error={Boolean(errors.residence_state)}
               helperText={errors.residence_state}
               disabled={bopData?.status === disableFormFieldsViaStatus}
+              // required={true}
             />
           </Grid>
           <Grid item xs={2.3}>
@@ -800,6 +836,7 @@ const BopScreen: React.FC = () => {
               error={Boolean(errors.postcode)}
               helperText={errors.postcode}
               disabled={bopData?.status === disableFormFieldsViaStatus}
+              // required={true}
             />
           </Grid>
           <Grid item xs={2.3}>
@@ -814,6 +851,7 @@ const BopScreen: React.FC = () => {
               error={Boolean(errors.residence_country)}
               disabled={bopData?.status === disableFormFieldsViaStatus}
               helperText={errors.residence_country}
+              // required={true}
             />
           </Grid>
         </Grid>
@@ -834,7 +872,8 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.postal_address_line1)}
               helperText={errors.postal_address_line1}
-              disabled={bopData?.status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus} 
+              //required={true}
             />
           </Grid>
           <Grid item xs={6}>
@@ -849,6 +888,7 @@ const BopScreen: React.FC = () => {
               error={Boolean(errors.postal_address_line2)}
               helperText={errors.postal_address_line2}
               disabled={bopData?.status === disableFormFieldsViaStatus}
+              // required={true}
             />
           </Grid>
 
@@ -864,6 +904,7 @@ const BopScreen: React.FC = () => {
               error={Boolean(errors.postal_suburb)}
               helperText={errors.postal_suburb}
               disabled={bopData?.status === disableFormFieldsViaStatus}
+              // required={true}
             />
           </Grid>
           <Grid item xs={2.3}>
@@ -877,7 +918,8 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.postal_city)}
               helperText={errors.postal_city}
-              disabled={bopData?.status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus} 
+              //required={true}
             />
           </Grid>
           <Grid item xs={2.3}>
@@ -891,7 +933,8 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.postal_state)}
               helperText={errors.postal_state}
-              disabled={bopData?.status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus} 
+              //required={true}
             />
           </Grid>
           <Grid item xs={2.3}>
@@ -906,6 +949,7 @@ const BopScreen: React.FC = () => {
               error={Boolean(errors.postal_postcode)}
               helperText={errors.postal_postcode}
               disabled={bopData?.status === disableFormFieldsViaStatus}
+              // required={true}
             />
           </Grid>
           <Grid item xs={2.3}>
@@ -919,7 +963,8 @@ const BopScreen: React.FC = () => {
               onChange={handleChange}
               error={Boolean(errors.postal_country)}
               helperText={errors.postal_country}
-              disabled={bopData?.status === disableFormFieldsViaStatus}
+              disabled={bopData?.status === disableFormFieldsViaStatus} 
+              //required={true}
             />
           </Grid>
         </Grid>
@@ -1036,7 +1081,7 @@ const BopScreen: React.FC = () => {
             variant="outlined"
             name="non_resident_account_identifier"
             fullWidth
-            value={beneficiaryAccIdentifierValue}
+            value={formData.non_resident_account_identifier || ""}
             disabled
           />
         </Grid>
