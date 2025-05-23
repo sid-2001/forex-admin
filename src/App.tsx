@@ -58,6 +58,8 @@ import ChargesDataGridTable from './pages/add-charges'
 import ListCharges from './pages/list-chages'
 import BopScreen from './components/bop-screen'
 import BopTable from './pages/bop-table'
+import UtilizationEnquiryForm from './pages/utilization'
+import UserTable from './pages/users'
 // const { VITE_APP_VAPID_KEY } = import.meta.env
 
 // const[sta]
@@ -174,12 +176,17 @@ function App() {
                 <Route path="sendmoney" element={<SendMoneyPage />} />
                 <Route path="kyc" element={<KYCPage />} />
 
+                <Route path="profile" element={<UserTable />} />
+                <Route path="profile/add" element={<UserAdd />} />
+
+
                 <Route path="applicant-details/:applicantId" element={<ApplicantPage />} />
                 <Route path="applicant" element={<ApplicantEnquiry />} />
                 <Route path="add-applicant" element={<AddApplicant />} />
                 <Route path="about-beneficiary" element={<AboutBeneficiary />} />
                 <Route path="add-beneficiary/:id" element={<AddBeneficiary />} />
                 <Route path="recon" element={<ReconPage />} />
+                <Route path="utilization" element={<UtilizationEnquiryForm />} />
                 <Route path="charges/add" element={<ChargesDataGridTable />} />
                 <Route path="list-charges" element={<ListCharges />} />
 
@@ -189,7 +196,7 @@ function App() {
 
                 <Route path="driver" element={<DriverList />} />
                 <Route path="users" element={<UserList />} />
-                {/* <Route path="users/add" element={<UserAdd />} /> */}
+                <Route path="users/add" element={<UserAdd />} />
                 <Route path="price" element={<CurrencyBarChart />} />
                 <Route path="bop-details/:transactionId/:transaction_attempt" element={<BopScreen />} />
                 <Route path="bop-listing" element={<BopTable />} />

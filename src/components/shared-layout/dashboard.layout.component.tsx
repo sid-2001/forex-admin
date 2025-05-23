@@ -20,6 +20,7 @@ import { styled } from '@mui/system'
 import { Chuks, John, Logo, LogoWhite } from '@/assets/images'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
+import Person2Icon from '@mui/icons-material/Person2';
 // import { sidbarSelectionState, studentListState } from "../../states/state";
 
 // import { studentService } from "@/services/student.service";
@@ -159,7 +160,6 @@ const DashboardLayout = () => {
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
   //@ts-ignore
   const [selectedrole, setselectedrole] = useRecoilState(role)
-
   const [open, setOpen] = useRecoilState(alertState)
   const [text, setText] = useRecoilState(alertTextState)
   const [type, settype] = useRecoilState(alertTypeState)
@@ -324,6 +324,22 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'bop-listing',
+    },
+
+    {
+      icon: (
+        <>
+          <Person2Icon
+            sx={{
+              //@ts-ignore
+              fontSize: '30px',
+              //@ts-ignore
+              color: theme.palette.primary.light, // Corrected theme usage
+            }}
+          />
+        </>
+      ),
+      label: 'profile',
     },
   ]
 
