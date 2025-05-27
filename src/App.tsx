@@ -108,31 +108,24 @@ function App() {
   // }, [])
 
   useEffect(() => {
-    let local_storage_service = new LocalStorageService()
-    let role = local_storage_service.get_role()
-    console.log(role)
-    console.log('genrated token')
-    // requestPermission()
-    // console.log(role)
-    if (role) {
-      setcurrentrole(role.replace(/"/g, ''))
-    }
+    // let local_storage_service = new LocalStorageService()
+    // let role = local_storage_service.get_role()
 
-    // console.log('logged the the apptsx', currentrole)
+    // if (role) {
+    //   setcurrentrole(role.replace(/"/g, ''))
+    // }
   }, [])
-  useEffect(() => {
-    console.log(currentrole)
-    console.log(currentrole == '"student"')
-  }, [currentrole])
-  // const [count, setCount] = useState(0)
+
+  // useEffect(() => {
+  //   console.log(currentrole)
+  //   console.log(currentrole == '"student"')
+  // }, [currentrole])
 
   const theme = createTheme({
     palette: {
       primary: {
         main: '#0061B1',
         light: '#CDEDFF',
-
-        // Blue,
       },
       secondary: {
         main: '#323232',
@@ -155,74 +148,37 @@ function App() {
 
         <BrowserRouter>
           <Routes>
-            {currentrole == 'admin' ? (
-              <Route path="/" element={<ProtectedRoute {...defaultProtectedRouteProps} outlet={<DashboardLayout />} />}>
-                {/* <Route path="transaction" element={<TransactionPage />} /> */}
-                <Route path="driver/add" element={<CreateDriver />} />
-                <Route path="driver" element={<DriverList />} />
-                <Route path="users" element={<UserList />} />
-                <Route path="users/add" element={<UserAdd />} />
-                {/* <Route path="dashboard" element={<Dashboard />} /> */}
-                <Route path="logs" element={<LogsList />} />
-                <Route path="logs/add" element={<NewLog />} />
-                <Route path="schedule" element={<Scheduler />} />
-                <Route path="configuration" element={<MainTabsPage />} />
-                <Route path="*" element={<IndexPage />} />
-              </Route>
-            ) : currentrole == 'user' ? (
-              <Route path="/" element={<ProtectedRoute {...defaultProtectedRouteProps} outlet={<DashboardLayout />} />}>
-                
-                <Route path="transaction" element={<NewTransactionPage />} />
-                <Route path="sendmoney" element={<SendMoneyPage />} />
-                <Route path="kyc" element={<KYCPage />} />
+         
+            <Route path="/" element={<ProtectedRoute {...defaultProtectedRouteProps}
+              outlet={<DashboardLayout />} />}>
 
-                <Route path="profile" element={<UserTable />} />
-                <Route path="profile/add" element={<UserAdd />} />
-
-
-                <Route path="applicant-details/:applicantId" element={<ApplicantPage />} />
-                <Route path="applicant" element={<ApplicantEnquiry />} />
-                <Route path="add-applicant" element={<AddApplicant />} />
-                <Route path="about-beneficiary" element={<AboutBeneficiary />} />
-                <Route path="add-beneficiary/:id" element={<AddBeneficiary />} />
-                <Route path="recon" element={<ReconPage />} />
-                <Route path="utilization" element={<UtilizationEnquiryForm />} />
-                <Route path="charges/add" element={<ChargesDataGridTable />} />
-                <Route path="list-charges" element={<ListCharges />} />
-
-                <Route path="beneficiary-details/:beneficiaryId" element={<BeneficiaryDetailPage />} />
-                <Route path="beneficiary" element={<BeneficiaryEnquiry />} />
-                <Route path="configuration" element={<MainTabsPage />} />
-
-                <Route path="driver" element={<DriverList />} />
-                <Route path="users" element={<UserList />} />
-                <Route path="users/add" element={<UserAdd />} />
-                <Route path="price" element={<CurrencyBarChart />} />
-                <Route path="bop-details/:transactionId/:transaction_attempt" element={<BopScreen />} />
-                <Route path="bop-listing" element={<BopTable />} />
-
-                {/* <Route path="customer" element={<CustomerDatabase/>}/> */}
-                <Route path="logs" element={<LogsList />} />
-                <Route path="logs/add" element={<NewLog />} />
-                {/* <Route path="schedule" element={<Scheduler />} /> */}
-
-                <Route path="*" element={<IndexPage />} />
-              </Route>
-            ) : (
-              <Route path="/" element={<ProtectedRoute {...defaultProtectedRouteProps} outlet={<DashboardLayout />} />}>
-                <Route path="driver/add" element={<CreateDriver />} />
-                <Route path="driver" element={<DriverList />} />
-                <Route path="users" element={<UserList />} />
-                <Route path="users/add" element={<UserAdd />} />
-                {/* <Route path="dashboard" element={<Dashboard />} /> */}
-                <Route path="logs" element={<LogsList />} />
-                <Route path="logs/add" element={<NewLog />} />
-                <Route path="schedule" element={<Scheduler />} />
-
-                <Route path="*" element={<IndexPage />} />
-                {/* <Route path="applicant" element={<ApplicantPage/>}/> */}
-              </Route>
-            )}
+              <Route path="transaction" element={<NewTransactionPage />} />
+              <Route path="sendmoney" element={<SendMoneyPage />} />
+              <Route path="kyc" element={<KYCPage />} />
+              <Route path="profile" element={<UserTable />} />
+              <Route path="profile/add" element={<UserAdd />} />
+              <Route path="applicant-details/:applicantId" element={<ApplicantPage />} />
+              <Route path="applicant" element={<ApplicantEnquiry />} />
+              <Route path="add-applicant" element={<AddApplicant />} />
+              <Route path="about-beneficiary" element={<AboutBeneficiary />} />
+              <Route path="add-beneficiary/:id" element={<AddBeneficiary />} />
+              <Route path="recon" element={<ReconPage />} />
+              <Route path="utilization" element={<UtilizationEnquiryForm />} />
+              <Route path="charges/add" element={<ChargesDataGridTable />} />
+              <Route path="list-charges" element={<ListCharges />} />
+              <Route path="beneficiary-details/:beneficiaryId" element={<BeneficiaryDetailPage />} />
+              <Route path="beneficiary" element={<BeneficiaryEnquiry />} />
+              <Route path="configuration" element={<MainTabsPage />} />
+              <Route path="driver" element={<DriverList />} />
+              <Route path="users" element={<UserList />} />
+              <Route path="users/add" element={<UserAdd />} />
+              <Route path="price" element={<CurrencyBarChart />} />
+              <Route path="bop-details/:transactionId/:transaction_attempt" element={<BopScreen />} />
+              <Route path="bop-listing" element={<BopTable />} />
+              <Route path="logs" element={<LogsList />} />
+              <Route path="logs/add" element={<NewLog />} />
+              <Route path="*" element={<IndexPage />} />
+            </Route>
 
             <Route path="login" element={<Login />} />
             <Route path="transaction/create" element={<GifModal />} />

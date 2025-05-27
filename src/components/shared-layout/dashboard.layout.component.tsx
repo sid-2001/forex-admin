@@ -1,4 +1,4 @@
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider } from '@mui/material/styles'
 import {
   Box,
   Typography,
@@ -117,6 +117,7 @@ const LoaderBackdrop = ({
 )
 
 let local_service: any = new LocalStorageService()
+
 const DashboardContainer = styled(Box)({
   display: 'flex',
 })
@@ -156,7 +157,6 @@ const DashboardLayout = () => {
     }
   }
 
-  // const [studentList, setstudentList] = useRecoilState(studentListState);
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
   //@ts-ignore
   const [selectedrole, setselectedrole] = useRecoilState(role)
@@ -165,11 +165,8 @@ const DashboardLayout = () => {
   const [type, settype] = useRecoilState(alertTypeState)
   const [selectedTab, setSelectedTab] = useRecoilState(sidbarSelectionState)
   const [balance, setBalance] = useRecoilState(availableBalanceState)
-
   const [droppopopen, setdropopoOpen] = useState(false)
-
   const [openloader, setopenloader] = useRecoilState(loaderStateNew)
-
   const [isDrawerOpen, setDrawerOpen] = useState(false)
 
   const toggleDrawer = () => {
@@ -347,24 +344,16 @@ const DashboardLayout = () => {
   // const [openbar, setopentBar] = useRecoilState(snackbarOpenState);
 
   const handleClose = () => {
-    // console.log("u are closed");
     setdropopoOpen(false)
     setdropopoOpen(false)
   }
   let [loader, setLoader] = useRecoilState(loaderState)
-
-  // let [cartitme,se]
-
   let trx_service = new TransactionService()
 
 
   useEffect(() => {
-
     trx_service.getBalanceEnquiry().then(data => {
-
-      console.log(data)
       setBalance(data as any)
-
     })
 
     setTimeout(() => {
@@ -470,7 +459,7 @@ const DashboardLayout = () => {
           <Box
             sx={{ marginRight: "23px" }}>
             <strong>Available Balance :</strong><br></br>
-            <text>₹{balance}</text>
+            <span>₹{balance}</span>
           </Box>
 
           <Box
@@ -488,8 +477,11 @@ const DashboardLayout = () => {
             }}
           >
             {selecteCountryState == "SA" ? <>
-              <Avatar>{<strong>{(local_service.get_user().firstName[0]) + (local_service.get_user().lastName[0])}</strong>
-              }</Avatar>
+              <Avatar>
+                {<strong>
+                  {(local_service?.get_staff_access().staffFirstName[0]) + (local_service?.get_staff_access().staffLastName[0])}
+                </strong>
+                }</Avatar>
 
               <Box ml={1}>
                 <Typography
@@ -500,7 +492,7 @@ const DashboardLayout = () => {
                     color: 'white',
                   }}
                 >
-                  <strong>{(local_service.get_user().firstName) + " " + (local_service.get_user().lastName)}</strong>
+                  <strong>{(local_service?.get_staff_access().staffFirstName) + " " + (local_service?.get_staff_access().staffLastName)}</strong>
                 </Typography>
 
                 <Stack direction="row">
@@ -512,7 +504,7 @@ const DashboardLayout = () => {
                       color: 'white',
                     }}
                   >
-                    <strong>{(local_service.get_user().applicantId)}</strong>
+                    <strong>{(local_service?.get_staff_access().staffId)}</strong>
 
                   </Typography>
 
@@ -528,7 +520,7 @@ const DashboardLayout = () => {
                 </Stack>
               </Box>
             </> : <>
-            {/* {local_service.get_user()?.firstName?(
+              {/* {local_service.get_user()?.firstName?(
 local_service.get_user()?.firstName[0]
 
 
@@ -544,7 +536,7 @@ local_service.get_user()?.firstName[0]
                     color: 'white',
                   }}
                 >
-                  <strong>{(local_service.get_user().firstName) + " " + (local_service.get_user().lastName)}</strong>
+                  <strong>{(local_service?.get_staff_access().staffFirstName) + " " + (local_service?.get_staff_access().staffLastName)}</strong>
                 </Typography>
 
                 <Stack direction="row">
@@ -556,7 +548,7 @@ local_service.get_user()?.firstName[0]
                       color: 'white',
                     }}
                   >
-                    <strong>{(local_service.get_user().applicantId)}</strong>
+                    <strong>{(local_service?.get_staff_access().staffId)}</strong>
                   </Typography>
 
                   <In
