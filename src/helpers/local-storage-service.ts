@@ -56,6 +56,11 @@ class LocalStorageService {
     return JSON.parse(staff_record)
   }
 
+  get_modules() {
+    let modules_record: any = this.get('modules')
+    return JSON.parse(modules_record)
+  }
+
   set_staff_access(staff_data: any) {
     return this.set('staff_access', staff_data)
   }

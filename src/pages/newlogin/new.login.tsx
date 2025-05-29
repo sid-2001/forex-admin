@@ -11,6 +11,7 @@ import {
 } from '@/states/state'
 import LoaderBackdrop from '@/components/loader/loader'
 import CloseIcon from '@mui/icons-material/Close'
+import { UserService } from '@/services/user.service'
 
 const LoginPage = () => {
   const [email, setEmail] = useState('')
@@ -27,6 +28,7 @@ const LoginPage = () => {
 
   const auth_service = new AuthService()
   const local_service = new LocalStorageService()
+  const user_service = new UserService()
   const navigate = useNavigate()
   const theme = useTheme()
 
@@ -54,16 +56,6 @@ const LoginPage = () => {
     setOpen(false)
   }
 
-  const action = (
-    <React.Fragment>
-      <Button color="secondary" size="small" onClick={handleClose}>
-        UNDO
-      </Button>
-      <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose}>
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </React.Fragment>
-  )
   useEffect(() => {
     if (local_service.get_accesstoken()) {
       navigate('/price')
@@ -74,6 +66,21 @@ const LoginPage = () => {
     }
   }, [navigate, local_service])
 
+  const fetchAllModulesList = async () => {
+    try {
+      const response: any = await user_service.getAllModulesData()
+      if (response) {
+        let moduleObj: any = {}
+        response.forEach((item: any) => {
+          moduleObj[item.staffModuleDescription.replace(/\s+/g, '_').toUpperCase()] = item.staffModuleDescription;
+        })
+        localStorage.setItem('modules', JSON.stringify(moduleObj));
+      }
+    } catch (error) {
+      console.error('There was a problem with the fetch operation:', error)
+    }
+  }
+
   const handleLogin = async () => {
     try {
       setSelectedTab("Price")
@@ -83,6 +90,7 @@ const LoginPage = () => {
         })
         .then((data: any) => {
           console.log(data)
+          fetchAllModulesList()
           setText('User SuccesFully Logged In')
           setType('success')
           setOpen(true)
@@ -106,6 +114,17 @@ const LoginPage = () => {
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword)
   }
+
+  const action = (
+    <React.Fragment>
+      <Button color="secondary" size="small" onClick={handleClose}>
+        UNDO
+      </Button>
+      <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose}>
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  )
 
   return (
     <div

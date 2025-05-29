@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Grid, TextField, Typography, Button } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Box, Typography } from '@mui/material';
 import ApplicantTable from '@/components/applicant-table'; // Ensure this component is already set up
 import { useNavigate } from 'react-router-dom';
 import { ApplicantService } from '@/services/applicant.service'; // Assuming you have this service
@@ -8,47 +8,44 @@ import { useRecoilState } from 'recoil';
 import { applicantView, selectedCountryState } from '@/states/state';
 import ApplicantList from '@/components/applicant-list';
 import ApplicantDataGrid from '@/components/applicant';
+import HasPermission from '@/components/permissionWrapper';
+import { LocalStorageService } from '@/helpers/local-storage-service';
 
 const applicant_service = new ApplicantService();
+const local_service = new LocalStorageService();
 
 const ApplicantEnquiry = () => {
   const navigate = useNavigate();
   const [nationality, setNationality] = useState('');
   const [applicantId, setApplicantId] = useState('');
+  const [viewapplicatn, setViewApplicant] = useRecoilState(applicantView)
+  const [utilizedLimit, setutilizedLimit] = useState(0)
+  const [availableLimit, setAvailableLimit] = useState(0)
+  const [maxlimit, setMaxlimit] = useState(0)
+  const [applicantList, setapplicantList] = useState([])
+  const [selectedCountryoption, setselectedCountryoption] = useRecoilState(selectedCountryState)
+  const [errors, setErrors] = useState({
+    nationality: '',
+    applicantId: '',
+  });
+  const [showTable, setShowTable] = useState(false);
+  const [filteredApplicants, setFilteredApplicants] = useState([]);
 
-  const [viewapplicatn,setViewApplicant]=useRecoilState(applicantView)
-
-
-
-
-  const [ utilizedLimit, setutilizedLimit ] = useState(0)
-  const [availableLimit,setAvailableLimit]=useState(0)
-  const[ maxlimit,setMaxlimit]=useState(0)
-  const[applicantList,setapplicantList]=useState([])
-  const[selectedCountryoption,setselectedCountryoption]=useRecoilState(selectedCountryState)
-
-
-
-
-  useEffect(()=>{
+  useEffect(() => {
     setViewApplicant(true)
-    applicant_service.getApplicantDetalisByCountry(selectedCountryoption=="SA"?"ZA":"IN").then(data=>{
-    
-      // console.log(data)
-//@ts-ignore
+    applicant_service.getApplicantDetalisByCountry(selectedCountryoption == "SA" ? "ZA" : "IN").then(data => {
+      //@ts-ignore
       setapplicantList(data)
-    
-    
     })
-    
-      },[])
+  }, [])
+
   function LimitPieChart() {
-  
+
     const utilized = Math.abs(utilizedLimit);
     const available = Math.abs(availableLimit);
-  
+
     return (
-      <Box sx={{  width: 400, height: 100, }}>
+      <Box sx={{ width: 400, height: 100, }}>
         <PieChart
           series={[
             {
@@ -92,20 +89,6 @@ const ApplicantEnquiry = () => {
     );
   }
 
-
-
-
-  const [errors, setErrors] = useState({
-    nationality: '',
-    applicantId: '',
-  });
-  const [showTable, setShowTable] = useState(false);
-  const [filteredApplicants, setFilteredApplicants] = useState([]);
-
-
-
-
-
   const handleSearch = async () => {
     setErrors({ nationality: '', applicantId: '' });
 
@@ -115,7 +98,7 @@ const ApplicantEnquiry = () => {
       // Call the respective API based on search fields
       if (applicantId && nationality) {
         data = await applicant_service.searchByApplicantIdAndCountry(applicantId, nationality);
-        console.log("data=>",data)
+        console.log("data=>", data)
       } else if (applicantId) {
         data = await applicant_service.searchByApplicantId(applicantId);
       } else if (nationality) {
@@ -134,7 +117,7 @@ const ApplicantEnquiry = () => {
         residenceCountry: applicant.data.applicant.residenceCountry,
       }));
 
-    //@ts-ignore
+      //@ts-ignore
       setFilteredApplicants(formattedData);
       setShowTable(true);
 
@@ -147,26 +130,29 @@ const ApplicantEnquiry = () => {
     navigate("/add-applicant");
   };
 
-  const handleCountryCodeChange = (e:any) => {
+  const handleCountryCodeChange = (e: any) => {
     const value = e.target.value.toUpperCase();
     setNationality(value);
   };
 
-  const handleApplicantIdChange = (e:any) => {
+  const handleApplicantIdChange = (e: any) => {
     const value = e.target.value.toUpperCase();
     setApplicantId(value);
   };
 
   return (
-    <Box padding={2} sx={{ width: '70vw'}}>
-      <Typography variant="h4" gutterBottom>
-        <strong>Applicant </strong>
-      </Typography>
-      
+    <Box padding={2} sx={{ width: '70vw' }}>
+      <HasPermission permission={'canRead'} module={local_service.get_modules()?.APPLICANT}>
+        <Typography variant="h4" gutterBottom>
+          <strong>Applicant </strong>
+        </Typography>
+        <ApplicantDataGrid data={applicantList} />
+      </HasPermission>
 
-      <Grid container spacing={3} marginBottom={2} alignItems="center" >
-        <Grid item xs={3}> {/* Both fields have equal width */}
-          {/* <TextField
+      {/* <Grid container spacing={3} marginBottom={2} alignItems="center" >
+        <Grid item xs={3}>  */}
+      {/* Both fields have equal width */}
+      {/* <TextField
             variant="standard"
             fullWidth
             label="Applicant ID"
@@ -179,12 +165,12 @@ const ApplicantEnquiry = () => {
               },
             }}
           /> */}
-        </Grid>
-        {/* <Grid marginInline={4}>
+      {/* </Grid> */}
+      {/* <Grid marginInline={4}>
           <strong>OR</strong>
         </Grid> */}
 
-        {/* <Grid item xs={3}> 
+      {/* <Grid item xs={3}> 
           <TextField
             variant="standard"
             fullWidth
@@ -201,7 +187,7 @@ const ApplicantEnquiry = () => {
           />
         </Grid> */}
 
-        {/* <Grid item xs={4} container spacing={2}>
+      {/* <Grid item xs={4} container spacing={2}>
           <Grid item xs={4}>
             <Button variant="contained" fullWidth sx={{ padding: '4px 20px' }} onClick={handleSearch}>
               Search
@@ -209,12 +195,8 @@ const ApplicantEnquiry = () => {
           </Grid>
          
         </Grid> */}
-      </Grid>
-
-
-<ApplicantDataGrid data={applicantList}/>
-
-      {showTable && <ApplicantTable applicants={filteredApplicants} />}
+      {/* </Grid> */}
+      {/* {showTable && <ApplicantTable applicants={filteredApplicants} />} */}
     </Box>
   );
 };

@@ -11,12 +11,11 @@ export class HelperService {
     return moment(date).tz("Asia/Kolkata").format("DD-MM-YYYY HH:mm:ss");
   }
 
-  checkUserPermission(moduleName: string, action: string) {
-    console.log(moduleName, action, "=========")
-    const staffData = this.local_service.get_staff_access()
-    console.log(staffData, "=---------------")
-    return true;
+  checkUserHasPermission(module: string, permission: string) {
+    const permission_granted = this.local_service.get_staff_access()?.modules.find((item:any) => item.moduleDescription === module);
+    return permission_granted?.access[permission] ? true : false;
   }
+
 }
 
 

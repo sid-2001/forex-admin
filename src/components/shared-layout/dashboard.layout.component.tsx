@@ -436,7 +436,7 @@ const DashboardLayout = () => {
 
   const handleLogout = () => {
     navigate('/login')
-    local_service?.delete_eaccestoke()
+    localStorage.clear();
   }
 
   return (

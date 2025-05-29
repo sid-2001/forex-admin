@@ -55,15 +55,9 @@ const ApplicantPage = () => {
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [zipCode, setZipCode] = useState("");
-
-
-
-
   const [postalAddressLine1, setPostalAddressLine1] = useState('');
   const [postalAddressLine2, setPostalAddressLine2] = useState('');
   const [postalAddressLine3, setPostalAddressLine3] = useState('');
-
-
   const [postalselectedCountry, setPostalSelectedCountry] = useState("");
   const [postalselectedState, setPostalSelectedState] = useState("");
   const [postalselectedCity, setPostalSelectedCity] = useState("");
@@ -71,28 +65,6 @@ const ApplicantPage = () => {
   const [utilizedLimit, setutilizedLimit] = useState(0)
   const [availableLimit, setAvailableLimit] = useState(0)
   const [maxlimit, setMaxlimit] = useState(0)
-
-
-
-
-
-
-
-
-
-
-
-
-
-  //postal
-
-
-  // Address Fields (Physical)
-
-
-
-
-  // Handlers for Dropdowns
 
   const countries = [
     { code: "IN", name: "India" },

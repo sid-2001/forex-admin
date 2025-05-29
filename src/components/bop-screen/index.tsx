@@ -35,11 +35,11 @@ const BopScreen: React.FC = () => {
   const [bopCategory, setBopCategory] = useState<any>([])
   // const [bopCategoryStaticData, setBopCategoryStaticData] = useState<any>([])
 
-  const storedLocalData = localStorage.getItem('user') || "";
+  const storedLocalData = localStorage.getItem('staff_access') || "";
   const parseData = JSON.parse(storedLocalData);
   const helper = new HelperService()
   //@ts-ignore
-  const userLoggedInCountry = countryCodes[parseData?.citizenship]
+  const userLoggedInCountry = countryCodes[parseData?.staffCountry]
 
   const validateForm = () => {
     // const newErrors: any = {};
@@ -203,7 +203,7 @@ const BopScreen: React.FC = () => {
 
   const fetchStaticBopMapping = async (bopCategoryValue: string) => {
     //@ts-ignore
-    const countryCode = countryCodes[parseData?.citizenship]
+    const countryCode = countryCodes[parseData?.staffCountry]
     const url = `${baseUrl}/api/static-table/static-data/key1/Bop%20Mapping/countryCode/ZA`
     try {
       const response = await fetch(url);
@@ -265,6 +265,7 @@ const BopScreen: React.FC = () => {
 
   useEffect(() => {
     if (transactionId) {
+      console.log("hello here")
       fetchBopBetailById()
       fetchBopCategoryDataById()
       fetchBopMatrixCategoriesListing()
