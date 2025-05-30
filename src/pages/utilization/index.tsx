@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -17,6 +17,10 @@ import {
   Typography
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { ApplicantService } from '@/services/applicant.service';
+import { TransactionService } from '@/services/transaction.service';
+import TransactionTable from '../transaction-table';
+import { HelperService } from '@/helpers/helper';
 
 const UtilizationEnquiryForm: React.FC = () => {
   const [apiType, setApiType] = useState('');
@@ -25,8 +29,88 @@ const UtilizationEnquiryForm: React.FC = () => {
   const [applicantId, setApplicantId] = useState('');
   const [nationalId, setNationalId] = useState('');
   const [showResults, setShowResults] = useState(false);
+  const[applicantData,setapplicantData]=useState<any>({})
+  const[limitData,setLimitData]=useState<any>({})
+  const[transactionData,setTranactiondata]=useState([])
+
+  let appilicant_service=new ApplicantService()
+  let transaction_service=new TransactionService()
+let helper=new HelperService()
+
+
+
+
+
+
+  
+   
+
+
 
   const handleSubmit = (e: React.FormEvent) => {
+
+ appilicant_service.getTransactionsByApplicantId(applicantId).then(data=>{
+console.log("Get Transaction Applicant")
+
+appilicant_service.getCompliance(applicantId).then(data=>{
+  console.log("I m in the Compliance data")
+console.log(data)
+setLimitData(data)
+
+
+})
+
+
+const formattedData:any = data?.map((transaction: any, index: number) => ({
+
+  ...transaction?.transactionOutward,
+  ...transaction?.beneficiary,
+  ...transaction?.transactionInwardList,
+  ...transaction?.applicant,
+  id: index + 1,
+  transactionNumber: transaction?.transactionOutward?.transactionNumber,
+  sendCountry: transaction?.transactionOutward?.sendCountry,
+  receiveCountry: transaction?.transactionOutward?.receiveCountry,
+  beneficiaryName: transaction?.beneficiary?.beneficiaryName,
+  amount: transaction?.transactionOutward?.principalAmount,
+  transactionStatus: transaction?.transactionOutward?.transactionStatus,
+
+
+  destination: transaction?.transactionOutward?.receiveCountry,
+  value: transaction?.transactionOutward?.principalAmount,
+  currency: transaction?.transactionOutward?.settlementCurrency,
+  settlement: helper.roundToTwoFixed(transaction?.transactionOutward?.principalAmount * transaction?.transactionOutward?.exchangeRates),
+  destinationBank: transaction?.transactionOutward?.destinationBankBicCode,
+  forex: helper.roundToTwoFixed(transaction?.transactionOutward?.exchangeRates),
+  date: transaction?.transactionOutward?.owCreatedDate,
+  reporting: transaction?.transactionOutward?.reportingStatus,
+  status: transaction?.transactionOutward?.transactionStatus,
+  final_amount: helper.roundToTwoFixed(transaction?.transactionOutward?.exchangeRates * transaction?.transactionOutward?.principalAmount),
+  applicant: transaction?.applicant,
+  //@ts-ignore
+  inid: transaction?.transactionInwardNumber
+
+
+
+
+}));
+console.log(formattedData)
+
+
+setTranactiondata(formattedData || []);
+
+
+  console.log(data)
+  // setapplicantData(data)
+
+ })
+ appilicant_service.searchByApplicantId(applicantId).then((data:any)=>{
+console.log("get Serch by apllicant id")
+  console.log(data?.data?.applicant)
+  setapplicantData(data?.data?.applicant)
+
+ })
+  
     e.preventDefault();
     setShowResults(true);
   };
@@ -59,33 +143,15 @@ const UtilizationEnquiryForm: React.FC = () => {
 
   return (
     <Box sx={{ flexGrow: 1, p: 3 }}>
-      <Typography variant="h4" gutterBottom fontWeight="bold" textAlign="center">
+      <Typography variant="h4" gutterBottom fontWeight="bold" textAlign="left">
         Limit Utilization Enquiry
       </Typography>
 
       <Grid container spacing={2}>
         {/* Left side: Form */}
-        <Grid item xs={12} md={4} sx={{width:"50vw"}} >
-          <form onSubmit={handleSubmit}>
-            <FormControl fullWidth margin="normal" 
-            sx={{
+        <Grid item xs={12} md={4} sx={{width:"80vw"}} >
 
-              width:"100%"
-            }}
-            >
-              <InputLabel id="api-type-label">API Type</InputLabel>
-              <Select
-                labelId="api-type-label"
-                value={apiType}
-                fullWidth
-                onChange={(e: SelectChangeEvent) => setApiType(e.target.value)}
-              >
-                <MenuItem value="type1">Type 1</MenuItem>
-                <MenuItem value="type2">Type 2</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl fullWidth margin="normal">
+        <FormControl fullWidth margin="normal">
               <InputLabel id="enquiry-type-label">Enquiry Type</InputLabel>
               <Select
                 labelId="enquiry-type-label"
@@ -97,6 +163,29 @@ const UtilizationEnquiryForm: React.FC = () => {
               </Select>
             </FormControl>
 
+          <form onSubmit={handleSubmit}>
+            <FormControl fullWidth margin="normal" 
+            sx={{
+
+              width:"100%"
+            }}
+            >
+
+
+              <InputLabel id="api-type-label">API Type</InputLabel>
+              <Select
+                labelId="api-type-label"
+                value={apiType}
+                fullWidth
+                onChange={(e: SelectChangeEvent) => setApiType(e.target.value)}
+              >
+                <MenuItem value="type1">SDA</MenuItem>
+                <MenuItem value="type2">FIA</MenuItem>
+                <MenuItem value="type2">FN</MenuItem>
+              </Select>
+            </FormControl>
+
+       
             <FormControl component="fieldset" margin="normal">
               <RadioGroup
                 row
@@ -104,7 +193,7 @@ const UtilizationEnquiryForm: React.FC = () => {
                 onChange={(e) => setSearchBy(e.target.value as 'applicantId' | 'nationalId')}
               >
                 <FormControlLabel value="applicantId" control={<Radio />} label="Applicant ID" />
-                <FormControlLabel value="nationalId" control={<Radio />} label="National ID" />
+                <FormControlLabel value="nationalId" disabled={true} control={<Radio />} label="National ID" />
               </RadioGroup>
             </FormControl>
             {searchBy === 'applicantId' ? (
@@ -155,11 +244,11 @@ const UtilizationEnquiryForm: React.FC = () => {
               <Grid item xs={12} sm={6}>
                 <Card>
                   <CardContent>
-                    <Typography variant="h6">Applicant Info</Typography>
-                    <Typography>Name: {applicant.name}</Typography>
-                    <Typography>Permit: {applicant.permit}</Typography>
-                    <Typography>Status: {applicant.residentStatus}</Typography>
-                    <Typography>Monthly Salary: ${applicant.salary}</Typography>
+                    <Typography variant="h6"><b>Applicant Info</b></Typography>
+                    <Typography>Name: {applicantData?.firstName?(applicantData?.firstName):"No Data Found"}</Typography>
+              
+                    <Typography>Gender: {applicantData?.gender?(applicantData?.gender):("No Data Found")}</Typography>
+                    <Typography>Country: {applicantData?.residenceCountry?(applicantData?.residenceCountry):("No Data Foiund")}</Typography>
                   </CardContent>
                 </Card>
               </Grid>
@@ -167,20 +256,26 @@ const UtilizationEnquiryForm: React.FC = () => {
               <Grid item xs={12} sm={6}>
                 <Card>
                   <CardContent>
-                    <Typography variant="h6">Limits</Typography>
-                    <Typography>Min Limit: ${limits.min}</Typography>
-                    <Typography>Max Limit: ${limits.max}</Typography>
-                    <Typography>Available: ${limits.available}</Typography>
+                    <Typography variant="h6"> <b>Limits</b></Typography>
+                    <Typography>Max Limit: {limitData?.maxLimit?(limitData?.maxLimit):("No Data Found")}</Typography>
+                    <Typography>Utilized Limit: {limitData?.utilizedLimit?(limitData?.utilizedLimit):("No Data Found")}</Typography>
+                    <Typography>Available Limit {limitData?.availableLimit?(limitData?.availableLimit):"No Data Found"}</Typography>
                   </CardContent>
                 </Card>
               </Grid>
 
               <Grid item xs={12}>
                 <Typography variant="h6" sx={{ mt: 2 }}>
-                  Transactions
+                  <b>  Transactions</b>
+                
                 </Typography>
-                <Box sx={{ height: 300, width: '100%' }}>
-                  <DataGrid
+                <Box sx={{ height: "40vh", width: '60vw' }}>
+
+<TransactionTable 
+//@ts-ignore
+transaction={transactionData}  applicantId={applicantId} availabledata={(applicantData?.firstName)?true:false} ></TransactionTable>
+
+                  {/* <DataGrid
                     rows={transactions}
                     columns={columns}
                       //@ts-ignore
@@ -194,7 +289,7 @@ const UtilizationEnquiryForm: React.FC = () => {
                         fontWeight: 'bold'
                       }
                     }}
-                  />
+                  /> */}
                 </Box>
               </Grid>
             </Grid>

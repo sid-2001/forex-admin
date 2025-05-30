@@ -19,7 +19,7 @@ interface TransactionTableProps {
   transactions: Transaction[];
 }
 //@ts-ignore
-const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applicantId }) => {
+const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applicantId,availabledata=true }) => {
   let navigate = useNavigate()
     const theme = useTheme()
     const helper=new HelperService()
@@ -137,17 +137,20 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
   ];
 
   return (
-    <Box sx={{ width: '70vw' }}>
+    <Box sx={{ width: '100%' ,height:"100%"}}>
       <Button
+      disabled={!availabledata}
         variant="outlined"
         onClick={() => {
           const url = applicantId ? `/sendmoney?applicantId=${applicantId}` : '/sendmoney'
           navigate(url)
+          
         }}
         sx={{
           marginBottom: "3%"
         }}
       >
+
         Add Transaction +
       </Button>
 
