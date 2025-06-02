@@ -153,6 +153,7 @@ const ModuleTable: React.FC = () => {
             headerName: 'Action',
             flex: 1,
             headerClassName: 'super-app-theme--header',
+            //@ts-ignore
             renderCell: (params: any) => (
                 <IconButton onClick={() => {
                     // delete api call
