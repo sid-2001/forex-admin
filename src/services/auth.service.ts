@@ -19,7 +19,6 @@ class AuthService extends BaseService {
     let url = '/admin/login'
 
     try {
-
       switch (role.split(' ').join('')) {
         case 'admin':
           url = `/admin/login`

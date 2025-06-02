@@ -475,11 +475,7 @@ const BeneficiaryDetailPage = () => {
               </Button>
             )}
           </Grid>
-
         </Grid>
-
-
-
       </Box></HasPermission>
   );
 };

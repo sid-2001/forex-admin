@@ -117,7 +117,6 @@ const LoaderBackdrop = ({
 )
 
 let local_service: any = new LocalStorageService()
-
 const DashboardContainer = styled(Box)({
   display: 'flex',
 })
