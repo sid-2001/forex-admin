@@ -1,0 +1,185 @@
+/* eslint-disable no-useless-catch */
+import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig, AxiosRequestHeaders, AxiosProgressEvent } from 'axios'
+import { redirect } from 'react-router-dom'
+import { LocalStorageService } from '../../helpers/local-storage-service'
+import { BaseError } from '../../types/error.type'
+import { logger } from '../../helpers/logger'
+
+const { VITE_APP_BACKEND, VITE_APP_URL, VITE_APP_APPLICANT } = import.meta.env
+
+interface AdaptAxiosRequestConfig extends AxiosRequestConfig {
+  headers: AxiosRequestHeaders
+}
+
+const BaseUrl = VITE_APP_BACKEND
+
+const baseUrl = BaseUrl
+
+const instance: AxiosInstance = axios.create({
+  baseURL: baseUrl,
+  responseType: 'json',
+})
+
+instance.interceptors.request.use(
+  (config: AdaptAxiosRequestConfig) => {
+    const localStorageService = new LocalStorageService()
+    const token = (localStorageService.get_accesstoken() as any)?.replaceAll(`"`, '')
+
+    if (token) {
+      // config.headers['Authorization'] = 'Bearer ' + token
+        config.headers["ngrok-skip-browser-warning"] = "69420";
+        // "ngrok-skip-browser-warning": true;
+        config.headers['access-control-allow-credentials']="true"
+
+      config.headers ['access-control-allow-origin']="*"
+        config.headers["ngrok-skip-browser-warning"]="true"
+    }
+    return config
+  },
+  (error: any) => {
+    // Handle request error
+    logger.error('Request Interceptor Error:', error)
+    return Promise.reject(error)
+  },
+)
+
+// Response interceptor
+instance.interceptors.response.use(
+  async (response: AxiosResponse) => {
+    if (response.status == 401) {
+      const newToken = await refreshToken()
+      window.location.reload()
+    }
+    if (response.status == 403) {
+      // window.location.replace(`${VITE_APP_URL}/login`)
+    }
+    return response
+  },
+  async (error) => {
+    console.log(error.status)
+
+    if (error.status === 401) {
+      try {
+        const newToken = await refreshToken()
+        error.config.headers['Authorization'] = 'Bearer ' + newToken
+        return instance.request(error.config) // Retry the original request
+      } catch (refreshError) {
+        localStorage.clear()
+        window.location.replace('/login')
+        return Promise.reject(refreshError)
+      }
+    } else {
+      const err = new BaseError()
+      err.error_message = error?.response?.data || 'Bad Response'
+      err.error_code = String(error.response.status)
+      logger.error('Response Interceptor Error:', err)
+      return Promise.reject(err)
+    }
+  },
+)
+
+const refreshToken = async () => {
+  try {
+    let local_service = new LocalStorageService()
+    const response = await axios.get(`${BaseUrl}/auth/refresh-token`, {
+      headers: {
+        Authorization: 'Bearer ' + local_service.get_accesstoken(),
+      },
+    })
+
+    const newAccessToken = response.data as any
+
+    local_service.set_accesstoken(newAccessToken) // update token in storage
+    return newAccessToken
+  } catch (error) {
+    redirect('/')
+    return Promise.reject(error)
+  }
+}
+
+const init = () => {
+  // instance.defaults.headers['Cache-Control'] = 'no-cache'
+  // // Access-Control-Allow-Origin: *,
+  // instance.defaults.headers['Access-Control-Allow-Origin'] = '*'
+  // instance.defaults.headers['ngrok-skip-browser-warning']="f434"
+  // instance.defaults.withCredentials = true;
+
+}
+
+const get = async (url: string) => {
+  try {
+    const { data } = await instance.get(url)
+    return data
+  } catch (error) {
+    throw error
+  }
+}
+
+const post = async (url: string, object: any) => {
+  try {
+    const data = await instance.post(url, object,{
+      headers: {
+        'Content-Type': 'application/json',
+      },
+        })
+
+    return data
+  } catch (error) {
+    throw error
+  }
+}
+
+const put = async (url: string, object: any) => {
+  try {
+    const data = await instance.put(url, object)
+    return data
+  } catch (error) {
+    throw error
+  }
+}
+//
+const patch = async (url: string, object: any) => {
+  try {
+    const { data } = await instance.patch(url, object)
+    return data
+  } catch (error) {
+    throw error
+  }
+}
+
+const del = async (url: string, object: any) => {
+  try {
+    const { data } = await instance.delete(url, object)
+    return data
+  } catch (error) {
+    throw error
+  }
+}
+
+const upload = async (url: string, formData: any, onUploadProgress: (progressEvent: AxiosProgressEvent) => void) => {
+  try {
+    const { data } = await instance.post(url, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress,
+    })
+    return data
+  } catch (error) {
+    throw error
+  }
+}
+
+const api1 = {
+  baseUrl,
+  instance,
+  init,
+  get,
+  post,
+  put,
+  del,
+  upload,
+  patch,
+}
+
+export default api1

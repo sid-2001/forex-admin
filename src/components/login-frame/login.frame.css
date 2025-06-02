@@ -1,0 +1,328 @@
+.frame-child {
+    width: 792px;
+    height: 460px;
+    position: relative;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    background-color: #fff;
+    display: none;
+    max-width: 100%;
+  }
+  .lms-portal {
+    margin: 0;
+    position: relative;
+    font-size: inherit;
+    font-weight: 600;
+    font-family: inherit;
+    z-index: 1;
+  }
+  .lms-portal-wrapper {
+    align-self: stretch;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 0px 0px 0px 10px;
+  }
+  .sign-in {
+    margin: 0;
+    position: relative;
+    font-size: 40px;
+    font-weight: 600;
+    font-family: Inter;
+    color: #66c1fc;
+    text-align: left;
+    z-index: 1;
+  }
+  .sign-in-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 0px 0px 5px;
+  }
+  .email {
+    position: relative;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: Inter;
+    color: #000;
+    text-align: left;
+    display: inline-block;
+    min-width: 32px;
+    z-index: 1;
+  }
+  .frame-item {
+    border: none;
+    background-color: transparent;
+    align-self: stretch;
+    height: 28px;
+    font-family: Inter;
+    font-size: 10px;
+    color: #c1c1c1;
+    z-index: 1;
+  }
+  .email-parent {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 0px 0px 4px;
+    gap: 2px;
+  }
+  .password {
+    position: relative;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: Inter;
+    color: #000;
+    text-align: left;
+    display: inline-block;
+    min-width: 57px;
+    z-index: 1;
+  }
+  .forgot-password {
+    border: none;
+    background-color: transparent;
+    align-self: stretch;
+    height: 28px;
+    font-family: Inter;
+    font-size: 10px;
+    color: #c1c1c1;
+    z-index: 1;
+  }
+  .forgot-password1 {
+    position: relative;
+    font-size: 6px;
+    display: inline-block;
+    font-style: italic;
+    font-weight: 300;
+    font-family: Inter;
+    color: #000;
+    text-align: left;
+    min-width: 51px;
+    z-index: 1;
+  }
+  .password-parent {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 2px;
+  }
+  .branch {
+    position: relative;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: Inter;
+    color: #000;
+    text-align: left;
+    display: inline-block;
+    min-width: 42px;
+    z-index: 1;
+  }
+  .frame-inner {
+    height: 28px;
+    width: 251px;
+    position: relative;
+    border-radius: 5px;
+    background-color: #fff;
+    border: 1px solid #66c1fc;
+    box-sizing: border-box;
+    display: none;
+  }
+  .headquarters {
+    position: relative;
+    font-size: 10px;
+    font-family: Inter;
+    color: #c1c1c1;
+    text-align: left;
+    display: inline-block;
+    min-width: 66px;
+    z-index: 2;
+  }
+  .sign-in-button {
+    width: 9px;
+    height: 7px;
+    position: relative;
+    object-fit: contain;
+    z-index: 2;
+  }
+  .sign-in-button-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 2px 0px 0px;
+    box-sizing: border-box;
+    width: 9px;
+    height: 9px;
+  }
+  .rectangle-group {
+    align-self: stretch;
+    border-radius: 5px;
+    background-color: #fff;
+    border: 1px solid #66c1fc;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 6px 15px 6px 13px;
+    gap: 20px;
+    z-index: 1;
+  }
+  .branch-parent {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 0px 0px 11px;
+    gap: 2px;
+  }
+  .rectangle-div {
+    height: 23px;
+    width: 65px;
+    position: relative;
+    border-radius: 5px;
+    background-color: #0c9600;
+    display: none;
+  }
+  .sign-in1 {
+    position: relative;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: Inter;
+    color: #fff;
+    text-align: left;
+    display: inline-block;
+    min-width: 40px;
+    z-index: 2;
+  }
+  .rectangle-container {
+    cursor: pointer;
+    border: none;
+    padding: 4px 12px;
+    background-color: #0c9600;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    white-space: nowrap;
+    z-index: 1;
+  }
+  .rectangle-container:hover {
+    background-color: #33bd26;
+  }
+  .frame-group {
+    margin: 0;
+    width: 251px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+  .logo {
+    width: 1px;
+    flex: 1;
+    position: relative;
+    border-right: 1px solid #66c1fc;
+    box-sizing: border-box;
+    z-index: 1;
+  }
+  .logo-wrapper {
+    height: 233px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 0px 7px 9px 0px;
+    box-sizing: border-box;
+  }
+  .qiq-newlogos-1-icon {
+    align-self: stretch;
+    flex: 1;
+    position: relative;
+    max-width: 100%;
+    overflow: hidden;
+    max-height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
+  .qiq-newlogos-1-wrapper {
+    height: 219px;
+    width: 196px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 0px 0px 38px;
+    box-sizing: border-box;
+  }
+  .frame-parent {
+    width: 633px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    max-width: 100%;
+  }
+  .rectangle-parent {
+    width: 792px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 32px 61px 94px;
+    box-sizing: border-box;
+    gap: 20px;
+    max-width: 100%;
+    text-align: left;
+    font-size: 32px;
+    color: rgba(0, 83, 136, 0.59);
+    font-family: Inter;
+  }
+  
+  @media screen and (max-width: 800px) {
+    .lms-portal {
+      font-size: 26px;
+    }
+  
+    .sign-in {
+      font-size: 32px;
+    }
+  
+    .rectangle-parent {
+      padding-left: 30px;
+      padding-right: 30px;
+      box-sizing: border-box;
+    }
+  }
+  @media screen and (max-width: 675px) {
+    .frame-parent {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
+  @media screen and (max-width: 450px) {
+    .lms-portal {
+      font-size: 19px;
+    }
+  
+    .sign-in {
+      font-size: 24px;
+    }
+  
+    .rectangle-parent {
+      padding-top: 21px;
+      padding-bottom: 61px;
+      box-sizing: border-box;
+    }
+  }
+  

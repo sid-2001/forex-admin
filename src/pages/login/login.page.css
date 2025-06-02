@@ -1,0 +1,15 @@
+.login-admin {
+    width: 100%;
+    position: relative;
+    background-color: #66c1fc;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 186px 20px;
+    box-sizing: border-box;
+    line-height: normal;
+    letter-spacing: normal;
+  }
+  

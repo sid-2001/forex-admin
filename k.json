@@ -1,0 +1,60 @@
+{
+    "message": "Transactions retreived successfully",
+    "status": true,
+    "transactionDetailsList": [
+        {
+            "transactionOutward": {
+                "transactionNumber": "T002",
+                "sendCountry": "USA",
+                "receiveCountry": "GBR",
+                "applicantId": "A001",
+                "receiverId": "B001",
+                "dealCoverNumber": "D223456",
+                "exchangeRates": 1.3,
+                "principalCurrency": "USD",
+                "principalAmount": 15000.0,
+                "settlementCurrency": "GBP",
+                "settlementAmount": 19500.0,
+                "charges": 150.0,
+                "lcharges2": 75.0,
+                "destinationBankBicCode": "BICCODE124",
+                "transactionStatus": "ST",
+                "reportingStatus": "RP"
+            },
+            "transactionInward": {
+                "transactionNumberIw": "IW001",
+                "owTransactionNumber": "T002",
+                "sendingCountry": "US",
+                "receivingCountry": "GB",
+                "settlementCurrency": "USD",
+                "settlementAmount": 1000.5,
+                "reportingStatus": "RS",
+                "destinationBankCode": "BANKCODE01"
+            },
+            "beneficiary": {
+                "beneficiaryId": "B001",
+                "residenceCountry": "USA",
+                "nationality": "American",
+                "beneficiaryName": "Alice Johnson",
+                "idType": "Passport",
+                "idNumber": "P123456789",
+                "physicalAddressLine1": "456 Oak St",
+                "physicalAddressLine2": "Apt 7B",
+                "physicalAddressLine3": "Floor 4",
+                "suburb": "Uptown",
+                "city": "New York",
+                "postCode": "10002",
+                "country": "USA",
+                "bankName": "XYZ Bank",
+                "bankBicCode": "BIC123XYZ",
+                "sortCode": "678901",
+                "iban": "US9876543210",
+                "profileStatus": true,
+                "sanctionStatus": false,
+                "fraudStatus": false,
+                "applicant": "A001",
+                "activeStatus": true
+            }
+        }
+    ]
+}
