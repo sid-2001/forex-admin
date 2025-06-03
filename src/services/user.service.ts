@@ -240,4 +240,26 @@ export class UserService extends BaseService {
       throw new Error(err as any)
     }
   }
+
+  async editStaff(payload: any,staffId:string): Promise<any> {
+    let url = `/api/staff/staff-details/update/staff/${staffId}`
+    try {
+      let { data } = await api1.put(url, payload)
+      return data
+    } catch (err) {
+      throw new Error(err as any)
+    }
+  }
+  async getRole(rollId:string): Promise<any> {
+    let url = `/api/staff/staff-roles/${rollId}`
+    try {
+      let  data  = await api1.get(url)
+      return data
+    } catch (err) {
+      throw new Error(err as any)
+    }
+  }
+
+
+
 }
