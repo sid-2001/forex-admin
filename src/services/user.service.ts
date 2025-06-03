@@ -76,6 +76,7 @@ export class UserService extends BaseService {
       throw new Error(err as any)
     }
   }
+
   async addUser(payload: {
     user_code: String
     first_name: String
@@ -93,6 +94,7 @@ export class UserService extends BaseService {
       throw new Error(err as any)
     }
   }
+
   async editUser(
     id: String,
     payload: {
@@ -113,6 +115,7 @@ export class UserService extends BaseService {
       throw new Error(err as any)
     }
   }
+
   async deleteUser(id: String): Promise<User> {
     let url = `/users/${id}`
     try {
@@ -122,6 +125,7 @@ export class UserService extends BaseService {
       throw new Error(err as any)
     }
   }
+
   async getAvailableUser(startDate: string, endDate: string, shift: string): Promise<User[]> {
     let url = `/schedules/user?start_date=${startDate}&end_date=${endDate}&shift=${shift}`
     try {
@@ -193,6 +197,16 @@ export class UserService extends BaseService {
     }
   }
 
+  async createModule(payload: any): Promise<any> {
+    let url = '/api/staff/staff-modules'
+    try {
+      let { data } = await api1.post(url, payload)
+      return data
+    } catch (err) {
+      throw new Error(err as any)
+    }
+  }
+
   async getAllStaffList(): Promise<Staff> {
     let url = '/api/staff/staff-details/getAllStaff'
     try {
@@ -243,15 +257,16 @@ export class UserService extends BaseService {
     }
   }
 
-  async createModule(payload: any): Promise<any> {
-    let url = '/api/staff/staff-modules'
+  async editStaff(payload: any, staffId: string): Promise<any> {
+    let url = `/api/staff/staff-details/update/staff/${staffId}`
     try {
-      let { data } = await api1.post(url, payload)
+      let { data } = await api1.put(url, payload)
       return data
     } catch (err) {
       throw new Error(err as any)
     }
   }
+
   async deleteModule(id: number): Promise<any> {
     let url = `/api/staff/staff-modules/deleteModule/${id}`
     try {
@@ -261,6 +276,7 @@ export class UserService extends BaseService {
       throw new Error(err as any)
     }
   }
+
   async updateModule(payload: any, id: string): Promise<any> {
     let url = `/api/staff/staff-modules/updateModule/${id}`
     try {
@@ -271,4 +287,13 @@ export class UserService extends BaseService {
     }
   }
 
+   async getRole(roleId:string): Promise<any> {
+    let url = `/api/staff/staff-roles/${roleId}`
+    try {
+      let  data  = await api1.get(url)
+      return data
+    } catch (err) {
+      throw new Error(err as any)
+    }
+  }
 }

@@ -1,6 +1,7 @@
 import { BaseService } from './base.service'
 import api1 from './apis/api1'
 import { BaseResponse, CustomerResponse, LoginResponse, Loginreq, StaffResponse } from '@/types/auth.type'
+
 import { LocalStorageService } from '../helpers/local-storage-service'
 // import instance from "../services/apis/api1"
 import axios, { AxiosResponse } from 'axios'
@@ -19,6 +20,7 @@ class AuthService extends BaseService {
     let url = '/admin/login'
 
     try {
+
       switch (role.split(' ').join('')) {
         case 'admin':
           url = `/admin/login`

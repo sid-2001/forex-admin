@@ -34,6 +34,7 @@ const ApplicantDataGrid: React.FC<Props> = ({ data }) => {
       headerName: 'Applicant ID',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+
       renderCell: (params: GridRenderCellParams) => (
         <span
           style={{ color: '#1976d2', cursor: 'pointer' }}

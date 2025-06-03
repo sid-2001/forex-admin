@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart } from '@mui/x-charts/BarChart';
 import HasPermission from '@/components/permissionWrapper'
+
 const API_URL = "https://data.fixer.io/api/latest?access_key=a2a71cbc49db03a0c67fb2fa5cb4e5a9&base=ZAR";
 const STORAGE_KEY = "exchange_rates";
 const EXPIRATION_TIME = 30 * 60 * 1000; // 30 minutes

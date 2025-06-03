@@ -1,24 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box, Grid, TextField, Typography, Button, Switch,
-  MenuItem,
+  MenuItem
 } from '@mui/material';
 import { useParams } from 'react-router-dom';
-// import GradientDivider from '@/components/divider';
 import { DataGrid } from '@mui/x-data-grid';
-import { UserService } from '@/services/user.service';
 import HasPermission from '@/components/permissionWrapper';
 import { LocalStorageService } from '@/helpers/local-storage-service';
 
-const local_service = new LocalStorageService();
-const user_service = new UserService();
+import { Modules, UserService } from '@/services/user.service';
+import { StaffProfile } from '@/types/staff.type';
+import { alertState, alertTextState, alertTypeState } from '@/states/state';
+import { useRecoilState } from 'recoil';
 
-const responsibilities = [
-  'Dashboard',
-  'Users',
-  'Reports',
-  'Settings',
-];
+const user_service = new UserService();
+const local_service = new LocalStorageService();
 
 const inputLabelStyle = {
   color: "black", textDecoration: "bold",
@@ -26,22 +22,56 @@ const inputLabelStyle = {
 }
 
 const UserAdd = () => {
-  const initialPermissions = responsibilities.map((res, index) => ({
-    id: index,
-    responsibility: res,
-    create: false,
-    read: false,
-    update: false,
-    view: false,
-  }));
+
   //@ts-ignore
-  const handleToggleChangePermisson = (id, field) => {
+  const [staffData, setStaffData] = useState<StaffProfile>({ "staffIdNumber": "14-5678-9012", "staffIdType": "Aadhar" })
+  const [countrieslist] = useState(['USA', 'Canada', 'India']);
+  const [flows] = useState(['Onboarding', 'Approval', 'Checkout']);
+  const [roles, setRoles] = useState<any>([]);
+  const [selectedRole, setSelectedRole] = useState('');
+  const [permissions, setPermissions] = useState([]);
+  const [modulePermissons, setModulePermisson] = useState<Array<Modules>>([])
+  const [open, setOpen] = useRecoilState(alertState);
+  const [text, setText] = useRecoilState(alertTextState);
+  const [type, settype] = useRecoilState(alertTypeState);
+  const [isEditable, setIsEditable] = useState(true);
+
+
+  const { staffId } = useParams();
+
+  const handleToggleChangePermisson = (
+    //@ts-ignore
+    id, field) => {
+    //@ts-ignore
     setPermissions((prev) =>
       prev.map((row) =>
         //@ts-ignore
         row.id === id ? { ...row, [field]: !row[field] } : row
       )
     );
+
+    console.log(permissions)
+
+    let permisson_data = permissions.map((e: any) => ({
+      //@ts-ignore
+      moduleDescription: e?.responsibility,
+      moduleId: e?.id,
+      moduleStatus: true,
+      access: {
+        canCreate: e?.create,
+        canRead: e?.read,
+        canUpdate: e?.update,
+        canDelete: e?.view // Consider renaming this if 'view' is not truly 'delete'
+      }
+    }));
+
+    setModulePermisson(permisson_data as any)
+    setStaffData({
+      ...staffData,
+      //@ts-ignore
+
+      "specialAccessModules": permisson_data, "roleId": Number(selectedRole)
+    });
   };
 
   const columns = [
@@ -51,7 +81,7 @@ const UserAdd = () => {
       ,
       headerName: 'Modules', flex: 1
     },
-    ...['Create', 'Read', 'Update', 'Delete'].map((field) => ({
+    ...['create', 'read', 'update', 'delete'].map((field) => ({
       field,
       headerName: field.charAt(0).toUpperCase() + field.slice(1),
       headerClassName: 'super-app-theme--header',
@@ -59,26 +89,16 @@ const UserAdd = () => {
       //@ts-ignore
 
       renderCell: (params) => (
-        <Switch
-          checked={params.row[field]}
-          onChange={() => handleToggleChangePermisson(params.row.id, field)}
-        />
+        <>
+          {/* <span>{ params}</span> */}
+          <Switch
+            checked={params.row[field]}
+            onChange={() => handleToggleChangePermisson(params.row.id, field)}
+          />
+        </>
       ),
     })),
   ];
-
-  const [countrieslist] = useState(['USA', 'Canada', 'India']);
-  const [flows] = useState(['Onboarding', 'Approval', 'Checkout']);
-  const [roles, setRoles] = useState<any>([]);
-  const [selectedRole, setSelectedRole] = useState('');
-  const [permissions, setPermissions] = useState(initialPermissions);
-  const [isEditable, setIsEditable] = useState(true);
-  const [isChanged, setIsChanged] = useState(false);
-  const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
-  const [openSaveDialog, setOpenSaveDialog] = useState(false);
-  const [staffData, setStaffData] = useState<any>({})
-
-  const { staffId } = useParams();
 
   const fetchRolesList = async () => {
     try {
@@ -95,8 +115,33 @@ const UserAdd = () => {
       return;
     }
     try {
-      let response = await user_service.getStaffDetailsById(staffId)
+      let response: StaffProfile = await user_service.getStaffDetailsById(staffId)
+
+      setSelectedRole(
+        //@ts-ignore
+        response?.roleId)
+
       setStaffData(response);
+      setModulePermisson(
+        //@ts-ignore
+        response?.modules)
+
+      const initialPermissions = response?.modules?.map(
+        //@ts-ignore
+        (res, index) => ({
+          id: res.moduleId,
+          responsibility: res.moduleDescription,
+          create: res.access.canCreate,
+          read: res.access.canRead,
+          update: res.access.canUpdate,
+          view: res.access.canRead,
+
+          delete: res.access.canDelete
+        }));
+
+      setPermissions(
+        //@ts-ignore
+        initialPermissions)
 
     } catch (error) {
       console.error("Error fetching staff data:", error);
@@ -120,32 +165,6 @@ const UserAdd = () => {
       [name]: value,
     }))
   }
-
-  const handleToggleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      setIsEditable(true);
-    } else {
-      if (isChanged) {
-        setOpenConfirmationDialog(true);
-      } else {
-        setIsEditable(false);
-      }
-    }
-  };
-
-  const handleSaveChanges = () => {
-    if (isChanged) {
-      setOpenSaveDialog(true); // Show save confirmation dialog
-    } else {
-      alert('No changes made to save!');
-    }
-  };
-
-  const handleSaveConfirm = () => {
-    setOpenSaveDialog(false);
-    setIsEditable(false);
-    console.log("Saved applicant data");
-  };
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.STAFF}>
@@ -320,13 +339,6 @@ const UserAdd = () => {
               />
             </Grid>
           </Grid>
-
-          {/* <GradientDivider
-          gradient='#1C58F2,white'
-          //@ts-ignore
-          width='20'
-        ></GradientDivider> */}
-
         </Box>
 
         <Grid container spacing={2}>
@@ -338,7 +350,25 @@ const UserAdd = () => {
               fullWidth
               variant="filled"
               value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
+              onChange={(e) => {
+                setSelectedRole(e.target.value)
+                user_service.getRole(e?.target?.value).then(data => {
+                  console.log("i m in the data", data)
+                  const initialPermissions = data?.modules?.map(
+                    //@ts-ignore
+                    (res, index) => ({
+                      id: res.moduleId,
+                      responsibility: res.moduleDescription,
+                      create: res.access.canCreate,
+                      read: res.access.canRead,
+                      update: res.access.canUpdate,
+                      view: res.access.canRead,
+                      delete: res.access.canDelete
+                    }));
+                  console.log(initialPermissions)
+                  setPermissions(initialPermissions)
+                })
+              }}
               sx={{
                 '& .MuiFilledInput-root': {
                   backgroundColor: 'white',
@@ -357,6 +387,7 @@ const UserAdd = () => {
           <Grid item xs={12} sm={4}>
             <TextField
               select
+              disabled
               label="Select Country"
               fullWidth
               sx={{
@@ -379,6 +410,8 @@ const UserAdd = () => {
           <Grid item xs={12} sm={4}>
             <TextField
               select
+              disabled
+              type='disabled'
               label="Select Flow"
               fullWidth
               variant="filled"
@@ -396,8 +429,55 @@ const UserAdd = () => {
               ))}
             </TextField>
           </Grid>
-        </Grid>
+          <Button
+            sx={{ mt: 2, ml: 2 }}
+            variant="contained"
+            onClick={() => {
+              if (staffId) {
+                user_service.editStaff(staffData, staffData?.staffId).then(data => {
+                  console.log(data)
+                  if (data) {
+                    settype('success')
+                    setText("Succesfully Updated Staff")
+                    setTimeout(() => {
+                      // window.location.reload();
+                    }, 1233);
+                    // window.location.reload()
+                  }
+                  else {
+                    setText(data?.message)
+                    settype("error")
+                    // settype('success')
+                  }
+                  setOpen(true)
+                })
+              }
+              else {
 
+                user_service.createStaff({
+                  ...staffData, "staffIdNumber": "14-5678-9012",
+                  "staffIdType": "Aadhar"
+                }).then(data => {
+                  if (data?.status == "true") {
+                    settype('success')
+                    setText("Succesfully created Staff")
+                    window.location.reload()
+                  }
+                  else {
+                    console.log("i m her eint eh success")
+                    setText(data?.message)
+                    settype("error")
+
+                    // settype('success')
+                  }
+                  setOpen(true)
+                })
+              }
+
+
+            }}
+          >{staffId ? <>UPDATE</> : "ADD"}</Button>
+        </Grid>
 
         <Box p={2}>
           {/* DataGrid Appears When a Role Is Selected */}
@@ -431,6 +511,7 @@ const UserAdd = () => {
           )}
         </Box>
       </Box>
+
     </HasPermission>
   );
 };
