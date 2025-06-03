@@ -69,7 +69,7 @@ const TransactionPage = () => {
       renderCell: (params: any) =>
         params.value ? (
           <Chip label={params.value == "N" ? "No Error" : "Error"}
-           color={params.value == "N" ? "success" : "error"} />
+            color={params.value == "N" ? "success" : "error"} />
         ) : (
           <Chip onClick={() => {
             setmodalOpen(true)
@@ -360,7 +360,7 @@ const TransactionPage = () => {
     setTransactionDetails(row)
     setDrawerOpen(true)
   }
-//@ts-ignore
+  //@ts-ignore
   const handleToggleTransactionType = (event: any, newType: string) => {
     if (newType) {
       setTransactionType(newType)
@@ -430,14 +430,18 @@ const TransactionPage = () => {
 
             <IconButton onClick={() => {
               navigate('/utilization')
-            }} color="primary">
+            }}
+              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
+              color="primary">
               <AssessmentIcon sx={{
                 marginBottom: "10%"
               }} />
             </IconButton>
-            <IconButton onClick={() => {
-              navigate('/recon')
-            }} color="primary">
+            <IconButton
+              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
+              onClick={() => {
+                navigate('/recon')
+              }} color="primary">
               <Sync sx={{
                 marginBottom: "10%"
               }} />
