@@ -45,9 +45,11 @@ export interface Staff {
 }
 
 export interface Modules {
-  staffModuleId: number
-  staffModuleDescription: string
-  staffModuleStatus: boolean
+  moduleId: number
+  moduleName:string
+  moduleDescription: string
+  moduleStatus: boolean
+  moduleLink:string
 }
 
 export interface Roles {
@@ -185,6 +187,23 @@ export class UserService extends BaseService {
     let url = '/schedules'
     try {
       let data = await api1.get(url)
+      return data
+    } catch (err) {
+      throw new Error(err as any)
+    }
+  }
+
+
+
+
+
+
+
+
+  async createModule(payload: any): Promise<any> {
+    let url = '/api/staff/staff-modules'
+    try {
+      let { data } = await api1.post(url, payload)
       return data
     } catch (err) {
       throw new Error(err as any)

@@ -9,6 +9,7 @@ import { useRecoilState } from 'recoil'
 import {
   loaderState, selectedAppState, selectedCountryState
 } from '@/states/state'
+
 import LoaderBackdrop from '@/components/loader/loader'
 import CloseIcon from '@mui/icons-material/Close'
 import { UserService } from '@/services/user.service'
@@ -72,7 +73,7 @@ const LoginPage = () => {
       if (response) {
         let moduleObj: any = {}
         response.forEach((item: any) => {
-          moduleObj[item.staffModuleDescription.replace(/\s+/g, '_').toUpperCase()] = item.staffModuleDescription;
+          moduleObj[item.moduleName.replace(/\s+/g, '_').toUpperCase()] = item.moduleName;
         })
         localStorage.setItem('modules', JSON.stringify(moduleObj));
       }

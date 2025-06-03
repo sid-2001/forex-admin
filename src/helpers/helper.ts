@@ -12,7 +12,7 @@ export class HelperService {
   }
 
   checkUserHasPermission(module: string, permission: string) {
-    const permission_granted = this.local_service.get_staff_access()?.modules.find((item:any) => item.moduleDescription === module);
+    const permission_granted = this.local_service.get_staff_access()?.modules.find((item:any) => item.moduleName === module);
     return permission_granted?.access[permission] ? true : false;
   }
 

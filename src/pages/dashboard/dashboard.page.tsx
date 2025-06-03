@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart } from '@mui/x-charts/BarChart';
 import HasPermission from '@/components/permissionWrapper'
+
 const API_URL = "https://data.fixer.io/api/latest?access_key=a2a71cbc49db03a0c67fb2fa5cb4e5a9&base=ZAR";
 const STORAGE_KEY = "exchange_rates";
 const EXPIRATION_TIME = 30 * 60 * 1000; // 30 minutes
+import { LocalStorageService } from '@/helpers/local-storage-service';
 
 const fetchExchangeRates = async () => {
   try {
@@ -32,7 +34,7 @@ const getExchangeRates = async () => {
 
 const ExchangeRateBarChart = () => {
   const [rates, setRates] = useState([]);
-
+  const local_service = new LocalStorageService();
   useEffect(() => {
     const updateRates = async () => {
       const data = await getExchangeRates();
@@ -53,7 +55,7 @@ const ExchangeRateBarChart = () => {
   }, []);
 
   return (
-    <HasPermission permission={'canRead'} module={'DASHBOARD'}>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.DASHBOARD}>
       <BarChart
         series={[{
           data: rates.map((item) =>

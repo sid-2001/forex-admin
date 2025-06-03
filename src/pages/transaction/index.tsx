@@ -435,7 +435,6 @@ const TransactionPage = () => {
                 marginBottom: "10%"
               }} />
             </IconButton>
-
             <IconButton onClick={() => {
               navigate('/recon')
             }} color="primary">
@@ -582,7 +581,6 @@ const TransactionPage = () => {
                 <TextField label="Bank Code" variant="filled" fullWidth defaultValue={transactionDetails?.bankBicCode} size="small" disabled />
               </Grid>
 
-
               <Grid item xs={12} md={6}>
                 <TextField
                   label="Account Holder Name"
@@ -606,7 +604,6 @@ const TransactionPage = () => {
               <Grid item xs={12} md={6}>
                 <TextField label="Applicant Name" variant="filled" fullWidth defaultValue={transactionDetails?.applicant?.firstName} size="small" disabled />
               </Grid>
-
             </Grid>
             {
               (trxStatus == "DRAFT" || trxStatus == "PENDING") ? (<>

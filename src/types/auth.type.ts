@@ -94,10 +94,12 @@ export interface Staff {
   password: string,
   roleId: number,
   roleDescription: string,
-  specialAccessModules: [
+  modules: [
     {
-      staffModuleId: number,
-      staffModuleDescription: string,
+      moduleId: number,
+      moduleDescription: string,
+      moduleName:string
+      moduleLink:string
       access: {
         canCreate: boolean,
         canRead: boolean,

@@ -49,6 +49,7 @@ import BopScreen from './components/bop-screen'
 import BopTable from './pages/bop-table'
 import UtilizationEnquiryForm from './pages/utilization'
 import UserTable from './pages/users'
+import ModuleTable from './pages/module-list'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -135,6 +136,7 @@ function App() {
               <Route path="bop-listing" element={<BopTable />} />
               <Route path="logs" element={<LogsList />} />
               <Route path="logs/add" element={<NewLog />} />
+              <Route path="module" element={<ModuleTable />} />
               <Route path="*" element={<IndexPage />} />
             </Route>
 

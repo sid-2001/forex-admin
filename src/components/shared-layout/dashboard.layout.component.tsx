@@ -338,6 +338,21 @@ const DashboardLayout = () => {
       ),
       label: 'profile',
     },
+     {
+      icon: (
+        <>
+          <Person2Icon
+            sx={{
+              //@ts-ignore
+              fontSize: '30px',
+              //@ts-ignore
+              color: theme.palette.primary.light, // Corrected theme usage
+            }}
+          />
+        </>
+      ),
+      label: 'Module',
+    },
   ]
 
   // const[alert]

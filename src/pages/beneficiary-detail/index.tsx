@@ -3,8 +3,13 @@ import { Box, Grid, TextField, Typography, Button, Switch, FormControlLabel } fr
 import { useNavigate, useParams } from 'react-router-dom';
 import TransactionTable from '../transaction-table';
 import { BeneficiaryService } from '@/services/beneficiary.service';
+import HasPermission from '@/components/permissionWrapper';
+import { LocalStorageService } from '@/helpers/local-storage-service';
+import { HelperService } from '@/helpers/helper';
 
 const beneficiary_service = new BeneficiaryService();
+const local_service = new LocalStorageService();
+const helper_service = new HelperService();
 
 const BeneficiaryDetailPage = () => {
   const navigate = useNavigate();
@@ -72,9 +77,7 @@ const BeneficiaryDetailPage = () => {
       if (confirmSave) {
         try {
           const updatedData = { ...tempData }; // Collect the data to be updated
-          console.log("Updated Data", updatedData);
           const response = await beneficiary_service.updateBeneficiaryForm(updatedData);
-
           setFormData(updatedData);
           setIsChanged(false);
           setIsEditable(false);
@@ -128,171 +131,173 @@ const BeneficiaryDetailPage = () => {
   };
 
   return (
-    <Box sx={{ width: "50vw" }} >
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
-          Beneficiary Details
-        </Typography>
-        <FormControlLabel
-          control={<Switch disabled checked={isEditable} onChange={handleToggleChange} />}
-          label="Edit Mode"
-        />
-        <Button
-          variant="outlined"
-          onClick={() => navigate(`/sendmoney?applicantId=${tempData.applicant}`)}
-        >
-          Add Transaction +
-        </Button>
-      </Box>
-      <Box mb={2} display="flex" justifyContent="space-between" alignItems="center">
-        <Typography
-          variant="body1"
-          sx={{
-            backgroundColor: 'primary.main',
-            p: '0.5%',
-            color: 'white',
-            paddingBlock: 1,
-            paddingInline: 1,
-          }}
-        >
-          Beneficiary Id - {beneficiaryId}
-        </Typography>
-      </Box>
-      {/* Beneficiary Information Form */}
-      <Box >
-        <Grid container spacing={2} marginBottom={1}>
-          <Grid item xs={12} sm={4}>
-            <TextField
-              label="Applicant ID"
-              variant="filled"
-              name="applicantId"
-              fullWidth
-              value={tempData.applicant || ''}
-              InputProps={{
-                readOnly: !isEditable,
-              }}
-              onChange={handleChange}
-            />
+    <HasPermission module={local_service.get_modules()?.BENEFICIARY} permission={'canRead'}>
+      <Box sx={{ width: "50vw" }} >
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
+            Beneficiary Details
+          </Typography>
+          <FormControlLabel
+            control={<Switch disabled checked={isEditable} onChange={handleToggleChange} />}
+            label="Edit Mode"
+          />
+          <Button
+            variant="outlined"
+            onClick={() => navigate(`/sendmoney?applicantId=${tempData.applicant}`)}
+            disabled={!helper_service.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
+          >
+            Add Transaction +
+          </Button>
+        </Box>
+        <Box mb={2} display="flex" justifyContent="space-between" alignItems="center">
+          <Typography
+            variant="body1"
+            sx={{
+              backgroundColor: 'primary.main',
+              p: '0.5%',
+              color: 'white',
+              paddingBlock: 1,
+              paddingInline: 1,
+            }}
+          >
+            Beneficiary Id - {beneficiaryId}
+          </Typography>
+        </Box>
+        {/* Beneficiary Information Form */}
+        <Box >
+          <Grid container spacing={2} marginBottom={1}>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="Applicant ID"
+                variant="filled"
+                name="applicantId"
+                fullWidth
+                value={tempData.applicant || ''}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+                onChange={handleChange}
+              />
+            </Grid>
           </Grid>
-        </Grid>
 
-        <Grid container spacing={2} marginBottom={1}>
-          <Grid item xs={12} sm={4}>
-            <TextField
-              label="Beneficiary Name"
-              variant="filled"
-              name="beneficiaryName"
-              fullWidth
-              value={tempData.beneficiaryName || ''}
-              onChange={handleChange}
-              InputProps={{
-                readOnly: !isEditable,
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid container spacing={2} marginBottom={1}>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="Beneficiary Name"
+                variant="filled"
+                name="beneficiaryName"
+                fullWidth
+                value={tempData.beneficiaryName || ''}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
 
-            <TextField
-              label="Nationality"
-              variant="filled"
-              name="nationality"
-              fullWidth
-              value={tempData.nationality || ''}
-              onChange={handleChange}
-              InputProps={{
-                readOnly: !isEditable,
-              }}
-            />
+              <TextField
+                label="Nationality"
+                variant="filled"
+                name="nationality"
+                fullWidth
+                value={tempData.nationality || ''}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="Resident Country"
+                variant="filled"
+                name="residenceCountry"
+                fullWidth
+                value={tempData.residenceCountry || ''}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+              />
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={4}>
-            <TextField
-              label="Resident Country"
-              variant="filled"
-              name="residenceCountry"
-              fullWidth
-              value={tempData.residenceCountry || ''}
-              onChange={handleChange}
-              InputProps={{
-                readOnly: !isEditable,
-              }}
-            />
-          </Grid>
-        </Grid>
 
-        <Grid container spacing={2} marginBottom={1}>
-          <Grid item xs={12} sm={4}>
-            <TextField
-              label="Phone"
-              variant="filled"
-              name="phone"
-              fullWidth
-              value={tempData.phone || ''}
-              onChange={handleChange}
-              InputProps={{
-                readOnly: !isEditable,
-              }}
-            />
+          <Grid container spacing={2} marginBottom={1}>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="Phone"
+                variant="filled"
+                name="phone"
+                fullWidth
+                value={tempData.phone || ''}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="Email"
+                variant="filled"
+                name="email"
+                fullWidth
+                value={tempData.email || ''}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="ID Type"
+                variant="filled"
+                name="idType"
+                fullWidth
+                value={tempData.idType || ''}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+              />
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={4}>
-            <TextField
-              label="Email"
-              variant="filled"
-              name="email"
-              fullWidth
-              value={tempData.email || ''}
-              onChange={handleChange}
-              InputProps={{
-                readOnly: !isEditable,
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <TextField
-              label="ID Type"
-              variant="filled"
-              name="idType"
-              fullWidth
-              value={tempData.idType || ''}
-              onChange={handleChange}
-              InputProps={{
-                readOnly: !isEditable,
-              }}
-            />
-          </Grid>
-        </Grid>
-      </Box>
+        </Box>
 
-      {/* Address Section */}
-      <Box mb={3} sx={{ width: "80vw" }}>
-        <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}><strong>Address</strong></Typography>
-        <Grid container spacing={2} marginBottom={2}>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Address Line 1"
-              name="physicalAddressLine1"
-              value={tempData?.physicalAddressLine1 || ''}
-              onChange={handleChange}
-              InputProps={{
-                readOnly: !isEditable,
-              }}
-            />
+        {/* Address Section */}
+        <Box mb={3} sx={{ width: "80vw" }}>
+          <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}><strong>Address</strong></Typography>
+          <Grid container spacing={2} marginBottom={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Address Line 1"
+                name="physicalAddressLine1"
+                value={tempData?.physicalAddressLine1 || ''}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Address Line 2"
+                name="addressLine2"
+                value={tempData.physicalAddressLine2 || ''}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+              />
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Address Line 2"
-              name="addressLine2"
-              value={tempData.physicalAddressLine2 || ''}
-              onChange={handleChange}
-              InputProps={{
-                readOnly: !isEditable,
-              }}
-            />
-          </Grid>
-        </Grid>
-        <Grid container spacing={2} marginBottom={2}>
-          {/* <Grid item xs={12} sm={4}>
+          <Grid container spacing={2} marginBottom={2}>
+            {/* <Grid item xs={12} sm={4}>
             <TextField
               fullWidth
               label="Address Line 3"
@@ -304,178 +309,174 @@ const BeneficiaryDetailPage = () => {
               }}
             />
           </Grid> */}
-          <Grid item xs={12} sm={2}>
-            <TextField
-              fullWidth
-              label="Suburb"
-              name="suburb"
-              value={tempData.suburb || ''}
-              onChange={handleChange}
-            />
+            <Grid item xs={12} sm={2}>
+              <TextField
+                fullWidth
+                label="Suburb"
+                name="suburb"
+                value={tempData.suburb || ''}
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={12} sm={1.5}>
+              <TextField
+                fullWidth
+                label="City"
+                name="city"
+                value={tempData.city || ''}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={1.5}>
+              <TextField
+                fullWidth
+                label="State/Province"
+                name="state"
+                value={tempData.beneficiaryState || ''}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={1.5}>
+              <TextField
+                fullWidth
+                label="ZipCode"
+                name="postCode"
+                value={tempData.postCode || ''}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={1.5}>
+              <TextField
+                fullWidth
+                label="Country"
+                name="country"
+                value={tempData.country || ''}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+              />
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={1.5}>
-            <TextField
-              fullWidth
-              label="City"
-              name="city"
-              value={tempData.city || ''}
-              onChange={handleChange}
-              InputProps={{
-                readOnly: !isEditable,
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={1.5}>
-            <TextField
-              fullWidth
-              label="State/Province"
-              name="state"
-              value={tempData.beneficiaryState || ''}
-              onChange={handleChange}
-              InputProps={{
-                readOnly: !isEditable,
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={1.5}>
-            <TextField
-              fullWidth
-              label="ZipCode"
-              name="postCode"
-              value={tempData.postCode || ''}
-              onChange={handleChange}
-              InputProps={{
-                readOnly: !isEditable,
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={1.5}>
-            <TextField
-              fullWidth
-              label="Country"
-              name="country"
-              value={tempData.country || ''}
-              onChange={handleChange}
-              InputProps={{
-                readOnly: !isEditable,
-              }}
-            />
-          </Grid>
-        </Grid>
-      </Box>
+        </Box>
 
-      {/* Bank Account Section */}
-      <Box sx={{ width: "80vw" }} mb={3}>
-        <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}><strong>Bank Details</strong></Typography>
-        <Grid container spacing={2} marginBottom={2}>
-          <Grid item xs={12} sm={2}>
-            <TextField
-              fullWidth
-              label="Account Holder Name"
-              name="beneficiaryName"
-              value={tempData.beneficiaryName || ''}
-              onChange={handleChange}
-              InputProps={{
-                readOnly: !isEditable,
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={2}>
-            <TextField
-              fullWidth
-              label="Account Number"
-              name="accountNumber"
-              value={tempData.accountNumber || ''}
-              onChange={handleChange}
-              InputProps={{
-                readOnly: !isEditable,
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={2}>
-            <TextField
-              fullWidth
-              label="Bank Name"
-              name="bankName"
-              value={tempData.bankName || ''}
-              onChange={handleChange}
-              InputProps={{
-                readOnly: !isEditable,
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={2}>
-            <TextField
-              fullWidth
-              label="BIC Code/ IFSC Code"
-              name="bankBicCode"
-              value={tempData?.bankBicCode || ''}
-              onChange={handleChange}
-              InputProps={{
-                readOnly: !isEditable,
-              }}
-            />
+        {/* Bank Account Section */}
+        <Box sx={{ width: "80vw" }} mb={3}>
+          <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}><strong>Bank Details</strong></Typography>
+          <Grid container spacing={2} marginBottom={2}>
+            <Grid item xs={12} sm={2}>
+              <TextField
+                fullWidth
+                label="Account Holder Name"
+                name="beneficiaryName"
+                value={tempData.beneficiaryName || ''}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <TextField
+                fullWidth
+                label="Account Number"
+                name="accountNumber"
+                value={tempData.accountNumber || ''}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <TextField
+                fullWidth
+                label="Bank Name"
+                name="bankName"
+                value={tempData.bankName || ''}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <TextField
+                fullWidth
+                label="BIC Code/ IFSC Code"
+                name="bankBicCode"
+                value={tempData?.bankBicCode || ''}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+              />
 
+            </Grid>
+            <Grid item xs={12} sm={3}>
+              <TextField
+                fullWidth
+                label="Bank Location"
+                name="bankLocation"
+                value={tempData?.bankLocation || ''}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+              />
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={3}>
-            <TextField
-              fullWidth
-              label="Bank Location"
-              name="bankLocation"
-              value={tempData?.bankLocation || ''}
-              onChange={handleChange}
-              InputProps={{
-                readOnly: !isEditable,
-              }}
-            />
-          </Grid>
-        </Grid>
-      </Box>
+        </Box>
 
-      <Grid container spacing={2} marginBottom={1}>
-        <Grid item xs={12} sm={4}>
-          {/* <Button variant="contained" fullWidth onClick={handleSearchTransaction}>
+        <Grid container spacing={2} marginBottom={1}>
+          <Grid item xs={12} sm={4}>
+            {/* <Button variant="contained" fullWidth onClick={handleSearchTransaction}>
             Show Transaction
           </Button> */}
+          </Grid>
         </Grid>
-      </Grid>
 
-      {showTransactionTable && transactions.length > 0 && (
-        <Box mb={3}>
-          <Typography variant="h6" sx={{ marginBottom: 1 }}><strong>Transactions</strong></Typography>
+        {showTransactionTable && transactions.length > 0 && (
+          <Box mb={3}>
+            <Typography variant="h6" sx={{ marginBottom: 1 }}><strong>Transactions</strong></Typography>
 
-          <TransactionTable
-            //@ts-ignore
-            transaction={transactions} applicantId={tempData.applicant || ""} />
-        </Box>
-      )}
+            <TransactionTable
+              //@ts-ignore
+              transaction={transactions} applicantId={tempData.applicant || ""} />
+          </Box>
+        )}
 
-      {showTransactionTable && transactions.length === 0 && (
-        <Typography variant="body2" color="textSecondary">
-          No transactions found for this beneficiary.
-        </Typography>
-      )}
+        {showTransactionTable && transactions.length === 0 && (
+          <Typography variant="body2" color="textSecondary">
+            No transactions found for this beneficiary.
+          </Typography>
+        )}
 
-      {/* Save and Back Buttons */}
-      <Grid container spacing={2} sx={{ marginTop: 2 }} display={'flex'}>
-        <Grid item xs={12} sm={3}>
-          {/* <Button variant="outlined" onClick={handleBack} fullWidth>
+        {/* Save and Back Buttons */}
+        <Grid container spacing={2} sx={{ marginTop: 2 }} display={'flex'}>
+          <Grid item xs={12} sm={3}>
+            {/* <Button variant="outlined" onClick={handleBack} fullWidth>
             Back to List
           </Button> */}
+          </Grid>
+          <Grid item xs={12} sm={3}>
+            {isEditable && (
+              <Button variant="contained" fullWidth onClick={handleSaveChanges}>
+                Save Changes
+              </Button>
+            )}
+          </Grid>
         </Grid>
-        <Grid item xs={12} sm={3}>
-          {isEditable && (
-            <Button variant="contained" fullWidth onClick={handleSaveChanges}>
-              Save Changes
-            </Button>
-          )}
-        </Grid>
-
-      </Grid>
-
-
-
-    </Box>
+      </Box></HasPermission>
   );
 };
 
