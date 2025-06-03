@@ -46,10 +46,10 @@ export interface Staff {
 
 export interface Modules {
   moduleId: number
-  moduleName:string
+  moduleName: string
   moduleDescription: string
   moduleStatus: boolean
-  moduleLink:string
+  moduleLink: string
 }
 
 export interface Roles {
@@ -233,7 +233,7 @@ export class UserService extends BaseService {
     }
   }
 
-   async createStaff(payload: any): Promise<any> {
+  async createStaff(payload: any): Promise<any> {
     let url = '/api/staff/staff-details/add'
     try {
       let { data } = await api1.post(url, payload)
@@ -252,4 +252,23 @@ export class UserService extends BaseService {
       throw new Error(err as any)
     }
   }
+  async deleteModule(id: number): Promise<any> {
+    let url = `/api/staff/staff-modules/deleteModule/${id}`
+    try {
+      let data = await api1.del(url, {})
+      return data
+    } catch (err) {
+      throw new Error(err as any)
+    }
+  }
+  async updateModule(payload: any, id: string): Promise<any> {
+    let url = `/api/staff/staff-modules/updateModule/${id}`
+    try {
+      let { data } = await api1.put(url, payload)
+      return data
+    } catch (err) {
+      throw new Error(err as any)
+    }
+  }
+
 }

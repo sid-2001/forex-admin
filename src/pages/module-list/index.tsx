@@ -6,8 +6,11 @@ import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { DeleteOutline } from '@mui/icons-material'
 import { UserService } from '@/services/user.service'
+import ConfirmationModal from '@/components/logout/logout.component'
 
 const user_service = new UserService();
+const helper = new HelperService()
+const local_service = new LocalStorageService()
 
 const AddModuleDialog: React.FC<any> = ({ action = "Add", handleClose, handleSubmit, isOpen }) => {
 
@@ -39,6 +42,7 @@ const AddModuleDialog: React.FC<any> = ({ action = "Add", handleClose, handleSub
         handleClose()
         setModuleData({})
     }
+
     return (<Modal open={isOpen} onClose={() => { handleClose() }}>
         <Box
             sx={{
@@ -90,12 +94,13 @@ const AddModuleDialog: React.FC<any> = ({ action = "Add", handleClose, handleSub
             </Box>
             <Box sx={{ mt: 2, display: 'flex', alignItems: "flex-end" }}>
                 <Button variant="contained" color="primary"
-                    fullWidth onClick={() => handleAddModule()} sx={{ mt: 2 }}>
+                    disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MODULE, 'canCreate')}
+                    onClick={() => handleAddModule()} sx={{ mt: 2 }}>
                     Submit
                 </Button>
 
                 <Button variant="outlined"
-                    fullWidth onClick={() => handleCancelBtn()} sx={{ mt: 2, ml: 2 }}>
+                    onClick={() => handleCancelBtn()} sx={{ mt: 2, ml: 2 }}>
                     Close
                 </Button>
             </Box>
@@ -107,9 +112,8 @@ const AddModuleDialog: React.FC<any> = ({ action = "Add", handleClose, handleSub
 const ModuleTable: React.FC = () => {
     const [moduleData, setModuleData] = useState<any>([])
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const helper = new HelperService()
-    const local_service = new LocalStorageService()
+    const [confirmDelete, setConfirmDelete] = useState(false);
+    const [selectedModule, setSelectedModule] = useState<any>({});
 
     const MODULE_COLUMNS = [
         {
@@ -156,8 +160,8 @@ const ModuleTable: React.FC = () => {
             //@ts-ignore
             renderCell: (params: any) => (
                 <IconButton onClick={() => {
-                    // delete api call
-                    // handleDeleteModuleApi()
+                    setConfirmDelete(true);
+                    setSelectedModule(params.row)
                 }}>
                     <DeleteOutline style={{
                         cursor: 'pointer',
@@ -181,6 +185,18 @@ const ModuleTable: React.FC = () => {
         }
     }
 
+    const handleDeleteModuleApi = async () => {
+        try {
+            const response: any = await user_service.deleteModule(selectedModule?.moduleId)
+            setSelectedModule({})
+            fetchModuleListingData()
+        }
+        catch (error) {
+            console.error('There was a problem with the fetch operation:', error)
+        }
+
+    }
+
     const handleAddNewModule = (data: any) => {
         setModuleData([...moduleData, data])
         setIsModalOpen(false);
@@ -188,53 +204,60 @@ const ModuleTable: React.FC = () => {
 
     return (
         <HasPermission permission={'canRead'} module={local_service.get_modules()?.MODULE}>
-        <Box sx={{ width: '85vw', height: '80vh' }}>
-            <div style={{ textAlign: 'end' }}>
-                <Button variant="outlined" 
-                disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MODULE,'canCreate')}
-                onClick={() => { setIsModalOpen(true) }}>Add Module</Button>
-            </div>
-            <DataGrid
-                sx={{
-                    marginTop: '20px',
-                    width: '100%',
-                    '& .MuiDataGrid-columnHeaders': {
-                        '& .super-app-theme--header': {
-                            backgroundColor: '#005099',
-                            color: 'white',
+            <Box sx={{ width: '85vw', height: '80vh' }}>
+                <div style={{ textAlign: 'end' }}>
+                    <Button variant="outlined"
+                        disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MODULE, 'canCreate')}
+                        onClick={() => { setIsModalOpen(true) }}>Add Module</Button>
+                </div>
+                <DataGrid
+                    sx={{
+                        marginTop: '20px',
+                        width: '100%',
+                        '& .MuiDataGrid-columnHeaders': {
+                            '& .super-app-theme--header': {
+                                backgroundColor: '#005099',
+                                color: 'white',
+                            },
                         },
-                    },
-                    '& .MuiDataGrid-columnHeaderTitle': {
-                        fontWeight: 'bold',
-                    },
-                    '& .MuiDataGrid-cell': {
-                        fontSize: '14px',
-                    },
-                    '& .MuiDataGrid-row:nth-of-type(even)': {
-                        backgroundColor: '#f0f8ff',
-                    },
-                    '& .MuiDataGrid-row:nth-of-type(odd)': {
-                        backgroundColor: '#ffffff',
-                    },
-                    '& .super-app-theme--header': {
-                        fontSize: '16px',
-                    },
+                        '& .MuiDataGrid-columnHeaderTitle': {
+                            fontWeight: 'bold',
+                        },
+                        '& .MuiDataGrid-cell': {
+                            fontSize: '14px',
+                        },
+                        '& .MuiDataGrid-row:nth-of-type(even)': {
+                            backgroundColor: '#f0f8ff',
+                        },
+                        '& .MuiDataGrid-row:nth-of-type(odd)': {
+                            backgroundColor: '#ffffff',
+                        },
+                        '& .super-app-theme--header': {
+                            fontSize: '16px',
+                        },
+                    }}
+                    columns={MODULE_COLUMNS}
+                    rows={moduleData}
+                    //@ts-ignore
+                    pageSize={5}
+                    rowsPerPageOptions={[5]}
+                    getRowId={(row: any) => row.moduleId} // Ensure proper row ID handling
+                />
+                {isModalOpen && <AddModuleDialog isOpen={isModalOpen} handleClose={() => {
+                    setIsModalOpen(false)
                 }}
-                columns={MODULE_COLUMNS}
-                rows={moduleData}
-                //@ts-ignore
-                pageSize={5}
-                rowsPerPageOptions={[5]}
-                getRowId={(row: any) => row.moduleId} // Ensure proper row ID handling
-            />
-            {isModalOpen && <AddModuleDialog isOpen={isModalOpen} handleClose={() => {
-                setIsModalOpen(false)
-            }}
-                handleSubmit={(response: any) => { handleAddNewModule(response) }}
-            />}
-        </Box>
-         </HasPermission>
-
+                    handleSubmit={(response: any) => { handleAddNewModule(response) }}
+                />}
+                {confirmDelete && <ConfirmationModal showIcon={false} handleClose={() => {
+                    setConfirmDelete(false)
+                    setSelectedModule({})
+                }} handleConfirm={() => {
+                    handleDeleteModuleApi()
+                    setConfirmDelete(false)
+                }}
+                    confirmBtnText='Delete' message='You want to delete module.' isOpen={confirmDelete} />}
+            </Box>
+        </HasPermission>
     )
 }
 

@@ -7,6 +7,10 @@ import { useParams } from 'react-router-dom';
 // import GradientDivider from '@/components/divider';
 import { DataGrid } from '@mui/x-data-grid';
 import { UserService } from '@/services/user.service';
+import HasPermission from '@/components/permissionWrapper';
+import { LocalStorageService } from '@/helpers/local-storage-service';
+
+const local_service = new LocalStorageService();
 const user_service = new UserService();
 
 const responsibilities = [
@@ -144,288 +148,290 @@ const UserAdd = () => {
   };
 
   return (
-    <Box sx={{ width: "50vw" }}>
-      <Typography mb={2} variant="h5" gutterBottom sx={{ fontWeight: 'bold', }}>
-        Staff Details
-      </Typography>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.STAFF}>
+      <Box sx={{ width: "50vw" }}>
+        <Typography mb={2} variant="h5" gutterBottom sx={{ fontWeight: 'bold', }}>
+          Staff Details
+        </Typography>
 
 
-      <Box sx={{ width: '80vw' }}>
-        <Grid container spacing={2} mb={2} >
+        <Box sx={{ width: '80vw' }}>
+          <Grid container spacing={2} mb={2} >
 
-          <Grid item xs={12} sm={4}>
-            <label style={inputLabelStyle}>First Name</label>
-            <TextField
-              value={staffData?.staffFirstName || ""}
-              onChange={handleChange}
-              fullWidth
-              name="staffFirstName"
-              InputProps={{ readOnly: !isEditable }}
-            />
+            <Grid item xs={12} sm={4}>
+              <label style={inputLabelStyle}>First Name</label>
+              <TextField
+                value={staffData?.staffFirstName || ""}
+                onChange={handleChange}
+                fullWidth
+                name="staffFirstName"
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <label style={inputLabelStyle}>Last Name</label>
+              <TextField
+                value={staffData?.staffLastName || ""}
+                onChange={handleChange}
+                name="staffLastName"
+                fullWidth
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <label style={inputLabelStyle}>Branch</label>
+              <TextField
+                value={staffData?.staffBranch || ''}
+                onChange={handleChange}
+                name="staffBranch"
+                fullWidth
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={3}>
+              <label style={inputLabelStyle}>Phone</label>
+              <TextField
+                value={staffData?.staffContactNumber || ""}
+                onChange={handleChange}
+                name="staffContactNumber"
+                fullWidth
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={3}>
+              <label style={inputLabelStyle}>Email</label>
+              <TextField
+                value={staffData?.email || ""}
+                onChange={handleChange}
+                name="email"
+                fullWidth
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={3}>
+              <label style={inputLabelStyle}> <b>
+                Password
+              </b></label>
+              <TextField
+                fullWidth
+                name="password"
+                value={staffData?.password || ""}
+                onChange={handleChange}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={3}>
+              <label style={inputLabelStyle}>
+                Username
+              </label>
+              <TextField
+                fullWidth
+                name='username'
+                value={staffData?.username || ""}
+                onChange={handleChange}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
           </Grid>
 
-          <Grid item xs={12} sm={4}>
-            <label style={inputLabelStyle}>Last Name</label>
-            <TextField
-              value={staffData?.staffLastName || ""}
-              onChange={handleChange}
-              name="staffLastName"
-              fullWidth
-              InputProps={{ readOnly: !isEditable }}
-            />
+        </Box>
+
+        <Box sx={{ width: "80vw" }}>
+          <Grid container spacing={2} marginBottom={2}>
+            <Grid item xs={12} sm={6}>
+              <label style={inputLabelStyle}>
+                Address Line 1
+              </label>
+              <TextField
+                fullWidth
+                name="staffAddressLine2"
+                value={staffData?.staffAddressLine1 || ''}
+                onChange={handleChange}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <label style={inputLabelStyle}>
+                Address Line 2
+              </label>
+              <TextField
+                fullWidth
+                name="staffAddressLine2"
+                value={staffData?.staffAddressLine2 || ''}
+                onChange={handleChange}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={2}>
+              <label style={inputLabelStyle}>
+                Suburb
+              </label>
+              <TextField
+                name="staffSuburb"
+                value={staffData?.staffSuburb || ''}
+                onChange={handleChange}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={2}>
+              <label style={inputLabelStyle}>
+                City
+              </label>
+              <TextField
+                fullWidth
+                name="city"
+                value={staffData?.staffCity || ''}
+                onChange={handleChange}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={2}>
+              <label style={inputLabelStyle}>
+                Postal Code
+              </label>
+              <TextField
+                fullWidth
+                name="staffPostalCode"
+                value={staffData?.staffPostalCode || ''}
+                onChange={handleChange}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={2}>
+              <label style={inputLabelStyle}>
+                Country
+              </label>
+              <TextField
+                fullWidth
+                value={staffData?.staffCountry || ''}
+                name="staffCountry"
+                onChange={handleChange}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
           </Grid>
 
-          <Grid item xs={12} sm={4}>
-            <label style={inputLabelStyle}>Branch</label>
-            <TextField
-              value={staffData?.staffBranch || ''}
-              onChange={handleChange}
-              name="staffBranch"
-              fullWidth
-              InputProps={{ readOnly: !isEditable }}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={3}>
-            <label style={inputLabelStyle}>Phone</label>
-            <TextField
-              value={staffData?.staffContactNumber || ""}
-              onChange={handleChange}
-              name="staffContactNumber"
-              fullWidth
-              InputProps={{ readOnly: true }}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={3}>
-            <label style={inputLabelStyle}>Email</label>
-            <TextField
-              value={staffData?.email || ""}
-              onChange={handleChange}
-              name="email"
-              fullWidth
-              InputProps={{ readOnly: !isEditable }}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={3}>
-            <label style={inputLabelStyle}> <b>
-              Password
-            </b></label>
-            <TextField
-              fullWidth
-              name="password"
-              value={staffData?.password || ""}
-              onChange={handleChange}
-              InputProps={{ readOnly: !isEditable }}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={3}>
-            <label style={inputLabelStyle}>
-              Username
-            </label>
-            <TextField
-              fullWidth
-              name='username'
-              value={staffData?.username || ""}
-              onChange={handleChange}
-              InputProps={{ readOnly: !isEditable }}
-            />
-          </Grid>
-        </Grid>
-
-      </Box>
-
-      <Box sx={{ width: "80vw" }}>
-        <Grid container spacing={2} marginBottom={2}>
-          <Grid item xs={12} sm={6}>
-            <label style={inputLabelStyle}>
-              Address Line 1
-            </label>
-            <TextField
-              fullWidth
-              name="staffAddressLine2"
-              value={staffData?.staffAddressLine1 || ''}
-              onChange={handleChange}
-              InputProps={{ readOnly: !isEditable }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <label style={inputLabelStyle}>
-              Address Line 2
-            </label>
-            <TextField
-              fullWidth
-              name="staffAddressLine2"
-              value={staffData?.staffAddressLine2 || ''}
-              onChange={handleChange}
-              InputProps={{ readOnly: !isEditable }}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={2}>
-            <label style={inputLabelStyle}>
-              Suburb
-            </label>
-            <TextField
-              name="staffSuburb"
-              value={staffData?.staffSuburb || ''}
-              onChange={handleChange}
-              InputProps={{ readOnly: !isEditable }}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={2}>
-            <label style={inputLabelStyle}>
-              City
-            </label>
-            <TextField
-              fullWidth
-              name="city"
-              value={staffData?.staffCity || ''}
-              onChange={handleChange}
-              InputProps={{ readOnly: !isEditable }}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={2}>
-            <label style={inputLabelStyle}>
-              Postal Code
-            </label>
-            <TextField
-              fullWidth
-              name="staffPostalCode"
-              value={staffData?.staffPostalCode || ''}
-              onChange={handleChange}
-              InputProps={{ readOnly: !isEditable }}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={2}>
-            <label style={inputLabelStyle}>
-              Country
-            </label>
-            <TextField
-              fullWidth
-              value={staffData?.staffCountry || ''}
-              name="staffCountry"
-              onChange={handleChange}
-              InputProps={{ readOnly: !isEditable }}
-            />
-          </Grid>
-        </Grid>
-
-        {/* <GradientDivider
+          {/* <GradientDivider
           gradient='#1C58F2,white'
           //@ts-ignore
           width='20'
         ></GradientDivider> */}
 
-      </Box>
+        </Box>
 
-      <Grid container spacing={2}>
-        {/* Role Select */}
-        <Grid item xs={12} sm={4}>
-          <TextField
-            select
-            label="Select Role"
-            fullWidth
-            variant="filled"
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-            sx={{
-              '& .MuiFilledInput-root': {
-                backgroundColor: 'white',
-              },
-            }}
-          >
-            {roles.map((role: any) => (
-              <MenuItem key={role.roleId} value={role.roleId}>
-                {role.roleDescription}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
-
-        {/* Country Select */}
-        <Grid item xs={12} sm={4}>
-          <TextField
-            select
-            label="Select Country"
-            fullWidth
-            sx={{
-              '& .MuiFilledInput-root': {
-                backgroundColor: 'white',
-              },
-            }}
-            variant="filled"
-            defaultValue=""
-          >
-            {countrieslist.map((country) => (
-              <MenuItem key={country} value={country}>
-                {country}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
-
-        {/* Flow Select */}
-        <Grid item xs={12} sm={4}>
-          <TextField
-            select
-            label="Select Flow"
-            fullWidth
-            variant="filled"
-            defaultValue=""
-            sx={{
-              '& .MuiFilledInput-root': {
-                backgroundColor: 'white',
-              },
-            }}
-          >
-            {flows.map((flow) => (
-              <MenuItem key={flow} value={flow}>
-                {flow}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
-      </Grid>
-
-
-      <Box p={2}>
-        {/* DataGrid Appears When a Role Is Selected */}
-        {selectedRole && (
-          <Box mt={4} height={400} width="80vw">
-            <DataGrid
-              rows={permissions}
-              columns={columns}
-              disableRowSelectionOnClick
-              hideFooter
-              getRowClassName={(params) =>
-                params.indexRelativeToCurrentPage % 2 === 0
-                  ? 'even-row'
-                  : 'odd-row'
-              }
+        <Grid container spacing={2}>
+          {/* Role Select */}
+          <Grid item xs={12} sm={4}>
+            <TextField
+              select
+              label="Select Role"
+              fullWidth
+              variant="filled"
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
               sx={{
-                '& .even-row': {
-                  backgroundColor: '#e3f2fd', // Light blue
-                },
-                '& .odd-row': {
-                  backgroundColor: '#ffffff',
-                },
-
-                '& .super-app-theme--header': {
-                  backgroundColor: '#005099',
-                  color: 'white',
+                '& .MuiFilledInput-root': {
+                  backgroundColor: 'white',
                 },
               }}
-            />
-          </Box>
-        )}
+            >
+              {roles.map((role: any) => (
+                <MenuItem key={role.roleId} value={role.roleId}>
+                  {role.roleDescription}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+
+          {/* Country Select */}
+          <Grid item xs={12} sm={4}>
+            <TextField
+              select
+              label="Select Country"
+              fullWidth
+              sx={{
+                '& .MuiFilledInput-root': {
+                  backgroundColor: 'white',
+                },
+              }}
+              variant="filled"
+              defaultValue=""
+            >
+              {countrieslist.map((country) => (
+                <MenuItem key={country} value={country}>
+                  {country}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+
+          {/* Flow Select */}
+          <Grid item xs={12} sm={4}>
+            <TextField
+              select
+              label="Select Flow"
+              fullWidth
+              variant="filled"
+              defaultValue=""
+              sx={{
+                '& .MuiFilledInput-root': {
+                  backgroundColor: 'white',
+                },
+              }}
+            >
+              {flows.map((flow) => (
+                <MenuItem key={flow} value={flow}>
+                  {flow}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+        </Grid>
+
+
+        <Box p={2}>
+          {/* DataGrid Appears When a Role Is Selected */}
+          {selectedRole && (
+            <Box mt={4} height={400} width="80vw">
+              <DataGrid
+                rows={permissions}
+                columns={columns}
+                disableRowSelectionOnClick
+                hideFooter
+                getRowClassName={(params) =>
+                  params.indexRelativeToCurrentPage % 2 === 0
+                    ? 'even-row'
+                    : 'odd-row'
+                }
+                sx={{
+                  '& .even-row': {
+                    backgroundColor: '#e3f2fd', // Light blue
+                  },
+                  '& .odd-row': {
+                    backgroundColor: '#ffffff',
+                  },
+
+                  '& .super-app-theme--header': {
+                    backgroundColor: '#005099',
+                    color: 'white',
+                  },
+                }}
+              />
+            </Box>
+          )}
+        </Box>
       </Box>
-    </Box>
+    </HasPermission>
   );
 };
 
