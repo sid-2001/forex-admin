@@ -7,6 +7,7 @@ import { UserService } from '@/services/user.service';
 import HasPermission from '@/components/permissionWrapper';
 import { LocalStorageService } from '@/helpers/local-storage-service';
 import { HelperService } from '@/helpers/helper';
+import RoleModal from '@/components/roles-tab';
 
 const StyledDataGrid = styled(DataGrid)({
   '& .MuiDataGrid-columnHeaders': {
@@ -36,6 +37,7 @@ const StyledDataGrid = styled(DataGrid)({
 
 const UserTable: React.FC = () => {
   const [staffList, setStaffList] = useState<any>([]);
+  const[open,setOpen]=useState(false)
 
   let navigate = useNavigate()
   const user_service = new UserService();
@@ -127,7 +129,7 @@ const UserTable: React.FC = () => {
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.STAFF}>
       <Box sx={{ width: '80vw' }}>
-      <Grid item xs={12} sx={{ mb: 2 }}>
+      <Grid item xs={6} sx={{ mb: 2 }}>
         <Button
           variant="contained"
           color="primary"
@@ -137,6 +139,30 @@ const UserTable: React.FC = () => {
           }}>
           Add User
         </Button>
+
+        <Button
+
+        sx={{
+
+          marginLeft:"1%"
+        }}
+          variant="contained"
+          color="primary"
+          disabled={!helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF,'canCreate')}
+          onClick={() => {
+            // navigate('/profile/add')
+            setOpen(true)
+          }}>
+          Add Role
+        
+        </Button>
+
+     
+      </Grid>
+
+      <Grid item xs={6} sx={{ mb: 2 }}>
+
+     
       </Grid>
       <StyledDataGrid
         rows={staffList || []}
@@ -146,8 +172,15 @@ const UserTable: React.FC = () => {
         disableRowSelectionOnClick
         getRowId={(row) => row.staffId}
       />
+
+
+<RoleModal   open={open} setOpen={setOpen}>
+
+
+</RoleModal>
     </Box>
     </HasPermission>
+   
   );
 };
 
