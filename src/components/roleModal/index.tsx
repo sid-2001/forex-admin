@@ -1,0 +1,289 @@
+import React, { useEffect, useState } from 'react';
+import {
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  Button, TextField, Select, MenuItem, FormControl,
+  InputLabel, Checkbox, OutlinedInput, Chip, Box
+} from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
+import { UserService } from '@/services/user.service';
+
+const allModules = [
+  { moduleId: 1, moduleName: 'Transaction Outward' },
+  { moduleId: 2, moduleName: 'Transaction Inward' },
+  { moduleId: 3, moduleName: 'BOP' },
+  { moduleId: 4, moduleName: 'KYC' },
+  { moduleId: 5, moduleName: 'Dashboard' },
+  { moduleId: 6, moduleName: 'Compliance Monitor' },
+  { moduleId: 7, moduleName: 'Applicant' },
+  { moduleId: 8, moduleName: 'Beneficiary' },
+  { moduleId: 9, moduleName: 'Reconcillation' },
+  { moduleId: 10, moduleName: 'Staff' },
+  { moduleId: 11, moduleName: 'Module' }
+];
+
+const RoleModal = ({ 
+  //@ts-ignore
+  open,
+  //@ts-ignore
+  onClose, initialData, onSave }
+//@ts-ignore
+
+) => {
+  const [roleName, setRoleName] = useState('');
+  const [selectedModules, setSelectedModules] = useState([]);
+  const [permissions, setPermissions] = useState<any>({});
+  const [roleId, setRoleId] = useState(null);
+
+  useEffect(() => {
+    if (initialData) {
+
+        console.log(initialData)
+      setRoleName(initialData.roleDescription || '');
+      setRoleId(initialData.roleId || null);
+
+      const selected = (initialData.modules || []).map((m:any) => m.moduleId);
+      setSelectedModules(selected);
+
+      const perms = {};
+      (initialData.modules || []).forEach((mod:any) => {
+        //@ts-ignore
+        perms[mod.moduleId] = {
+          create: mod.access.canCreate,
+          read: mod.access.canRead,
+          update: mod.access.canUpdate,
+          delete: mod.access.canDelete,
+        };
+      });
+      setPermissions(perms);
+    }
+  }, [initialData]);
+
+  const handleModuleChange = (event:any) => {
+    const newSelection = event.target.value;
+    setSelectedModules(newSelection);
+
+    const updatedPermissions = { ...permissions };
+    newSelection.forEach((id:any) => {
+      //@ts-ignore
+      if (!updatedPermissions[id]) {
+        //@ts-ignore
+        updatedPermissions[id] = { create: false, read: false, update: false, delete: false };
+      }
+    });
+
+    // Clean up removed modules
+    Object.keys(updatedPermissions).forEach((id) => {
+      if (!newSelection.includes(Number(id))) {
+        delete updatedPermissions[id];
+      }
+    });
+
+    setPermissions(updatedPermissions);
+  };
+
+  const handleToggle = (
+    //@ts-ignore
+    id, type) => {
+    setPermissions((prev:any) => ({
+      ...prev,
+      [id]: {
+        //@ts-ignore
+        ...prev[id],
+        //@ts-ignore
+        [type]: !prev[id][type],
+      },
+    }));
+  };
+
+  const columns = [
+    { field: 'moduleName', headerName: 'Module Name', width: 200 },
+    {
+      field: 'create',
+      headerName: 'Create',
+    flex:1,
+      renderCell: (params:any) => (
+        <Checkbox
+          checked={permissions[params.row.moduleId]?.create || false}
+          onChange={() => handleToggle(params.row.moduleId, 'create')}
+        />
+      ),
+    },
+    {
+      field: 'read',
+      headerName: 'Read',
+ flex:1,
+      renderCell: (params:any) => (
+        <Checkbox
+          checked={permissions[params.row.moduleId]?.read || false}
+          onChange={() => handleToggle(params.row.moduleId, 'read')}
+        />
+      ),
+    },
+    {
+      field: 'update',
+      headerName: 'Update',
+ flex:1,
+      renderCell: (params:any) => (
+        <Checkbox
+          checked={permissions[params.row.moduleId]?.update || false}
+          onChange={() => handleToggle(params.row.moduleId, 'update')}
+        />
+      ),
+    },
+    {
+      field: 'delete',
+      headerName: 'Delete',
+      flex: 1,
+      renderCell: (params:any) => (
+        <Checkbox
+          checked={permissions[params.row.moduleId]?.delete || false}
+          onChange={() => handleToggle(params.row.moduleId, 'delete')}
+        />
+      ),
+    },
+  ];
+
+  let user_service=new UserService()
+  const handleSave = () => {
+    // const payload = {
+    //   roleId,
+    //   roleDescription: roleName,
+    //   roleStatus: true,
+    //   modules: selectedModules.map((id) => {
+    //     const mod = allModules.find((m) => m.moduleId === id);
+    //     return {
+    //       staffModuleId: id,
+    //       staffModuleDescription: `${mod.moduleName} Screen`,
+    //       access: {
+    //         accessId: 1,
+    //         canCreate: permissions[id]?.create || false,
+    //         canRead: permissions[id]?.read || false,
+    //         canUpdate: permissions[id]?.update || false,
+    //         canDelete: permissions[id]?.delete || false,
+    //       },
+    //     };
+    //   }),
+    // };
+     var payload 
+
+    if(roleId){
+  payload=  {
+      roleId,
+      roleDescription: roleName,
+      roleStatus: true,
+      modules: selectedModules.map((id) => {
+        const mod = allModules.find((m) => m.moduleId === id);
+        return {
+          staffModuleId: id,
+          staffModuleDescription: `${mod?.moduleName} Screen`,
+          access: {
+            accessId: 1,
+            canCreate: permissions[id]?.create || false,
+            canRead: permissions[id]?.read || false,
+            canUpdate: permissions[id]?.update || false,
+            canDelete: permissions[id]?.delete || false,
+          },
+        };
+      }),
+    };
+    user_service.editRoles(roleId,payload)
+
+    }else{
+  payload=  {
+      roleId,
+      roleDescription: roleName,
+      roleStatus: true,
+      modules: selectedModules.map((id) => {
+        const mod = allModules.find((m) => m.moduleId === id);
+        return {
+          staffModuleId: id,
+          staffModuleDescription: `${mod?.moduleName} Screen`,
+          access: {
+            accessId: 1,
+            canCreate: permissions[id]?.create || false,
+            canRead: permissions[id]?.read || false,
+            canUpdate: permissions[id]?.update || false,
+            canDelete: permissions[id]?.delete || false,
+          },
+        };
+      }),
+    };
+
+    user_service.addRole(payload)
+    }
+    console.log(payload)
+setTimeout(()=>{
+
+  window.location.reload()
+  setRoleId(null)
+},1200)
+
+    // onSave(payload);
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+      <DialogTitle> {roleId?"Edit Role":"Add Role"}  </DialogTitle>
+      <DialogContent>
+        <TextField
+          fullWidth
+          margin="normal"
+          label="Role Name"
+          value={roleName}
+          onChange={(e) => setRoleName(e.target.value)}
+        />
+
+        <FormControl fullWidth margin="normal">
+          <InputLabel id="module-select-label">Select Modules</InputLabel>
+          <Select
+            labelId="module-select-label"
+            multiple
+            value={selectedModules}
+            onChange={handleModuleChange}
+            input={<OutlinedInput label="Select Modules" />}
+            renderValue={(selected) => (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {selected.map((id) => {
+                  const mod = allModules.find((m) => m.moduleId === id);
+                  return <Chip key={id} label={mod?.moduleName} />;
+                })}
+              </Box>
+            )}
+          >
+            {allModules.map((mod) => (
+              <MenuItem key={mod.moduleId} value={mod.moduleId}>
+                {mod.moduleName}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <div style={{ height: 400, width: '100%', marginTop: 16 }}>
+          <DataGrid
+            rows={allModules.filter((m) => selectedModules.includes(
+              //@ts-ignore
+              m?.moduleId))}
+            columns={columns}
+            getRowId={(row) => row.moduleId}
+            //@ts-ignore
+            pageSize={5}
+            disableSelectionOnClick
+          />
+        </div>
+      </DialogContent>
+
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button variant="contained" onClick={handleSave}>
+          Save Changes
+        </Button>
+      </DialogActions>
+
+      <>
+      
+      </>
+    </Dialog>
+  );
+};
+
+export default RoleModal;

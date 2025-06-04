@@ -287,10 +287,40 @@ export class UserService extends BaseService {
     }
   }
 
-   async getRole(roleId:string): Promise<any> {
+  async getRole(roleId: string): Promise<any> {
     let url = `/api/staff/staff-roles/${roleId}`
     try {
-      let  data  = await api1.get(url)
+      let data = await api1.get(url)
+      return data
+    } catch (err) {
+      throw new Error(err as any)
+    }
+  }
+
+  async addRole(payload: any): Promise<any> {
+    let url = `/api/staff/staff-roles/add`
+    try {
+      let data = await api1.post(url, payload)
+      return data
+    } catch (err) {
+      throw new Error(err as any)
+    }
+  }
+
+  async getRolesList(): Promise<any> {
+    let url = `/api/staff/staff-roles/getAll`
+    try {
+      let data = await api1.get(url)
+      return data
+    } catch (err) {
+      throw new Error(err as any)
+    }
+  }
+
+  async editRoles(roleId: string, payload: any): Promise<any> {
+    let url = `/api/staff/staff-roles/update/${roleId}`
+    try {
+      let data = await api1.post(url, payload)
       return data
     } catch (err) {
       throw new Error(err as any)
