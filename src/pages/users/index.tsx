@@ -140,7 +140,7 @@ const UserTable: React.FC = () => {
           Add User
         </Button>
 
-        <Button
+        {/* <Button
 
         sx={{
 
@@ -155,7 +155,7 @@ const UserTable: React.FC = () => {
           }}>
           Add Role
         
-        </Button>
+        </Button> */}
 
      
       </Grid>

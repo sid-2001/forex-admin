@@ -185,7 +185,7 @@ const DashboardLayout = () => {
           sx={{
             //@ts-ignore
             color: theme.palette.secondary.light,
-            fontSize: '30px',
+            fontSize: '2vh',
             //@ts-ignore
 
             color: theme.palette.primary.light,
@@ -204,7 +204,7 @@ const DashboardLayout = () => {
           sx={{
             //@ts-ignore
             color: theme.palette.secondary.light,
-            fontSize: '30px',
+            fontSize: '2vh',
             //@ts-ignore
             color: theme.palette.primary.light,
             '&:hover': {
@@ -223,7 +223,7 @@ const DashboardLayout = () => {
           sx={{
             //@ts-ignore
             color: theme.palette.secondary.light,
-            fontSize: '30px',
+            fontSize: '2vh',
 
             //@ts-ignore
             color: theme.palette.primary.light,
@@ -259,7 +259,7 @@ const DashboardLayout = () => {
           sx={{
             //@ts-ignore
             color: theme.palette.secondary.light,
-            fontSize: '30px',
+            fontSize: '2vh',
 
             //@ts-ignore
             color: theme.palette.primary.light,
@@ -314,7 +314,7 @@ const DashboardLayout = () => {
           <SourceIcon
             sx={{
               //@ts-ignore
-              fontSize: '30px',
+              fontSize: '2vh',
               //@ts-ignore
               color: theme.palette.primary.light, // Corrected theme usage
             }}
@@ -330,7 +330,7 @@ const DashboardLayout = () => {
           <Person2Icon
             sx={{
               //@ts-ignore
-              fontSize: '30px',
+              fontSize: '2vh',
               //@ts-ignore
               color: theme.palette.primary.light, // Corrected theme usage
             }}
@@ -345,7 +345,7 @@ const DashboardLayout = () => {
           <Person2Icon
             sx={{
               //@ts-ignore
-              fontSize: '30px',
+              fontSize: '2vh',
               //@ts-ignore
               color: theme.palette.primary.light, // Corrected theme usage
             }}
@@ -361,14 +361,14 @@ const DashboardLayout = () => {
           <SupervisedUserCircleIcon
             sx={{
               //@ts-ignore
-              fontSize: '30px',
+              fontSize: '2vh',
               //@ts-ignore
               color: theme.palette.primary.light, // Corrected theme usage
             }}
           />
         </>
       ),
-      label: 'Roles',
+      label: 'Role',
     },
   ]
 

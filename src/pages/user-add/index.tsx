@@ -60,16 +60,46 @@ const UserAdd = () => {
     //@ts-ignore
     id, field) => {
     //@ts-ignore
-    setPermissions((prev) =>
-      prev.map((row) =>
-        //@ts-ignore
-        row.id === id ? { ...row, [field]: !row[field] } : row
-      )
-    );
+
+    var new_permisson_data;
+  let full_data=JSON.parse(JSON.stringify(permissions));
+
+
+    let find_handels=full_data.filter( 
+      //@ts-ignore
+      e=>e.id===id)
+  
+    if(find_handels.length>0){
+
+    let changed_row=find_handels[0]
+
+    changed_row[field]=  !changed_row[field]
+
+let remaning_data=full_data.filter(
+   //@ts-ignore
+  e=>e.id!=id)
+  if(remaning_data.length>0){
+new_permisson_data=[ ...remaning_data,changed_row ]
+console.log(new_permisson_data,"new permissond ata")
 
 
 
-   console.log(permissions)
+  }
+  else{
+
+new_permisson_data=[ changed_row ]
+
+  }
+setPermissions(
+  //@ts-ignore
+  new_permisson_data.sort(e=>e.id))
+
+
+    }
+
+
+
+
 
 
  let permisson_data=   permissions.map((e:any) => ({
@@ -81,7 +111,7 @@ const UserAdd = () => {
         canCreate: e?.create,
         canRead: e?.read,
         canUpdate: e?.update,
-        canDelete: e?.view // Consider renaming this if 'view' is not truly 'delete'
+        canDelete: e?.delete // Consider renaming this if 'view' is not truly 'delete'
       }
     }));
 
@@ -174,14 +204,14 @@ const UserAdd = () => {
         create: res.access.canCreate,
         read: res.access.canRead,
         update: res.access.canUpdate,
-        view: res.access.canRead,
+      
 
         delete:res.access.canDelete
       }));
     
       setPermissions(
         //@ts-ignore
-        initialPermissions)
+        initialPermissions.sort(e=>e.id))
 
     } catch (error) {
       console.error("Error fetching staff data:", error);
@@ -431,7 +461,7 @@ const UserAdd = () => {
               console.log(e?.target?.value)
 
 user_service.getRole(e?.target?.value).then(data=>{
-console.log("i m in the data",data)
+
 
   const initialPermissions = data?.modules?.map(
     //@ts-ignore
@@ -441,12 +471,39 @@ console.log("i m in the data",data)
     create: res.access.canCreate,
     read: res.access.canRead,
     update: res.access.canUpdate,
-    view: res.access.canRead,
 
     delete:res.access.canDelete
   }));
+
+     
+
+
   console.log(initialPermissions)
-  setPermissions(initialPermissions)
+  setPermissions(initialPermissions.sort(
+    //@ts-ignore
+    e=>e.id))
+
+
+  let permisson_data=   initialPermissions.sort(
+     //@ts-ignore
+    e=>e.id).map((e:any) => ({
+  //@ts-ignore
+      moduleDescription: e?.responsibility,
+      moduleId: e?.id,
+      moduleStatus: true,
+      access: {
+        canCreate: e?.create,
+        canRead: e?.read,
+        canUpdate: e?.update,
+        canDelete: e?.delete // Consider renaming this if 'view' is not truly 'delete'
+      }
+    }));
+
+  
+   setStaffData({...staffData,
+      //@ts-ignore
+      
+      "specialAccessModules":permisson_data,"roleId": Number(selectedRole)});
 
 
 
@@ -538,9 +595,9 @@ console.log(data)
           settype('success')
           setText("Succesfully Updated Staff")
       setTimeout(() => {
-        // window.location.reload();
+        window.location.reload();
       }, 1233);
-          // window.location.reload()
+          window.location.reload()
          
         
         }
@@ -553,6 +610,7 @@ console.log(data)
         }
 
         setOpen(true)
+        
       
         })
 
@@ -575,7 +633,7 @@ console.log(data)
         
         }
         else{
-          console.log("i m her eint eh success")
+      
           setText(data?.message)
           settype("error")
        
@@ -585,6 +643,7 @@ console.log(data)
         })
       }
      
+  
 
     }}
       >{staffId?<>UPDATE</>:"ADD"}</Button>
