@@ -368,7 +368,7 @@ const DashboardLayout = () => {
           />
         </>
       ),
-      label: 'Roles',
+      label: 'Role',
     },
   ]
 
