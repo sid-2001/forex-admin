@@ -277,8 +277,8 @@ export class UserService extends BaseService {
     }
   }
 
-  async updateModule(payload: any, id: string): Promise<any> {
-    let url = `/api/staff/staff-modules/updateModule/${id}`
+  async updateModule(payload: any, moduleId: number): Promise<any> {
+    let url = `/api/staff/staff-modules/updateModule/${moduleId}`
     try {
       let { data } = await api1.put(url, payload)
       return data
