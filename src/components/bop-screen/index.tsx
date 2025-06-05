@@ -6,6 +6,9 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs from 'dayjs'
 import { useParams } from 'react-router-dom'
 import { HelperService } from '@/helpers/helper'
+import { LocalStorageService } from '@/helpers/local-storage-service'
+import HasPermission from '../permissionWrapper'
+
 
 const countryCodes = {
   'India': 'IN',
@@ -18,6 +21,7 @@ const { VITE_FOREX_NODE_APP_URL, VITE_APP_BACKEND } = import.meta.env
 
 const backendUrl = VITE_FOREX_NODE_APP_URL
 const baseUrl = VITE_APP_BACKEND
+const local_service = new LocalStorageService();
 
 const disableFormFieldsViaStatus = 'RELEASED'
 const genderArry = [
@@ -274,10 +278,11 @@ const BopScreen: React.FC = () => {
   }, [])
 
   return (
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>
     <Box style={{ width: '80vw', height: '80vh', overflowY: 'scroll', padding: '10px' }}>
       <Box sx={{ textAlign: 'right' }}>
         <Button variant="outlined" color="primary"
-          onClick={() => handleReleaseBopData()} disabled={formData.status === 'RELEASED'}>
+          onClick={() => handleReleaseBopData()} disabled={formData.status === 'RELEASED' || !helper.checkUserHasPermission(local_service.get_modules()?.BOP,'canUpdate')}>
           Release
         </Button>
         <Button
@@ -1089,11 +1094,14 @@ const BopScreen: React.FC = () => {
       </Grid>
 
       <Box mt={3}>
-        <Button variant="contained" color="primary" disabled={formData?.status === 'RELEASED'} onClick={handleSubmit}>
+        <Button variant="contained" color="primary"
+         disabled={formData?.status === 'RELEASED'||!helper.checkUserHasPermission(local_service.get_modules()?.BOP,'canUpdate')}
+         onClick={handleSubmit}>
           Save
         </Button>
       </Box>
     </Box >
+    </HasPermission>
   )
 }
 

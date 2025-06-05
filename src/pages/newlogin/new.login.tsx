@@ -37,14 +37,14 @@ const LoginPage = () => {
     let input = e.target.value;
     // Enforce lowercase only
     input = input.toLowerCase();
-    const regex = /^[a-z0-9]*$/; // Only lowercase letters and numbers
-    if (!regex.test(input)) {
-      setError('Only lowercase letters and numbers are allowed.');
-    } else if (input.length > 0 && input.length <= 10) {
-      setError('Username must be more than 10 characters.');
-    } else {
-      setError('');
-    }
+    // const regex = /^[-z0-9]*$/; // Only lowercase letters and numbers
+    // if (!regex.test(input)) {
+    //   setError('Only lowercase letters and numbers are allowed.');
+    // } else if (input.length > 0 && input.length <= 2) {
+    //   setError('Username must be more than 2 characters.');
+    // } else {
+    //   setError('');
+    // }
     setEmail(input);
   };
 

@@ -31,5 +31,6 @@ export interface StaffAccess {
     roleId: number;
     roleDescription: string;
     modules: StaffModule[];
+    password:string;
   }
   

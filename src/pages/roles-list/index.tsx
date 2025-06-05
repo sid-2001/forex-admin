@@ -4,20 +4,25 @@ import RoleModal from '../../components/roleModal';
 import axios from 'axios';
 import { Box, Button, Grid } from '@mui/material';
 import { UserService } from '@/services/user.service';
+import HasPermission from '@/components/permissionWrapper';
+import { LocalStorageService } from '@/helpers/local-storage-service';
+import { HelperService } from '@/helpers/helper';
 
 const RoleManagementPage = () => {
   const [roles, setRoles] = useState([]);
   const [selectedRole, setSelectedRole] = useState(null);
-  const[open,setOpen]=useState(false)
+  const [open, setOpen] = useState(false)
 
-  let api_service=new UserService()
+  const api_service = new UserService();
+  const local_service = new LocalStorageService();
 
+const helper_service = new HelperService();
 
   const fetchRoles = () => {
-    api_service.getRolesList().then(data=>{
+    api_service.getRolesList().then(data => {
 
-        console.log(data)
-        setRoles(data)
+      console.log(data)
+      setRoles(data)
     })
     // axios.get('/api/roles') 
     //   .then((res) => setRoles(res.data))
@@ -28,7 +33,7 @@ const RoleManagementPage = () => {
     fetchRoles();
   }, []);
 
-  const handleSave = (updatedRole:any) => {
+  const handleSave = (updatedRole: any) => {
 
 
     api_service.addRole(updatedRole)
@@ -43,44 +48,41 @@ const RoleManagementPage = () => {
   };
 
   return (
-    <>
+    <HasPermission module={local_service.get_modules()?.ROLE} permission={'canRead'}>
       <h2> Roles</h2>
-      <div style={{ height: 400 ,width:'80vw'}}>
+      <div style={{ height: 400, width: '80vw' }}>
         <Grid container>
-<Grid xs={12}>
+          <Grid xs={12}>
 
-    <Button variant='contained' sx={{mb:2}} onClick={()=>{
-setSelectedRole(null)
-//@ts-ignore
-setSelectedRole("create")
-
-    }}>
-
-         Add Role
-    </Button>
-</Grid>
+            <Button variant='contained'
+            disabled={!helper_service.checkUserHasPermission(local_service.get_modules()?.ROLE,'canCreate')}
+            sx={{ mb: 2 }} onClick={() => {
+              setSelectedRole(null)
+              //@ts-ignore
+              setSelectedRole("create")
+            }}>
+              Add Role
+            </Button>
+          </Grid>
         </Grid>
         <Box sx={{
 
-             '& .super-app-theme--header': {
+          '& .super-app-theme--header': {
             backgroundColor: '#005099',
             color: 'white',
-          
+
           },
-          height:"33vw"
+          height: "33vw"
         }}>
-
-
-
-        <DataGrid
-          rows={roles}
-          //@ts-ignore
-          columns={[
-            { field: 'roleDescription', headerName: 'Role Name', width: 250 ,flex:1, headerClassName: 'super-app-theme--header'},
-            { field: 'roleStatus', headerName: 'Status', width: 120 ,flex:1, headerClassName: 'super-app-theme--header'},,
-          ]}
-          //@ts-ignore//@ts-ignore
-          getRowId={(row) => row?.roleId}
+          <DataGrid
+            rows={roles}
+            //@ts-ignore
+            columns={[
+              { field: 'roleDescription', headerName: 'Role Name', width: 250, flex: 1, headerClassName: 'super-app-theme--header' },
+              { field: 'roleStatus', headerName: 'Status', width: 120, flex: 1, headerClassName: 'super-app-theme--header' }, ,
+            ]}
+            //@ts-ignore//@ts-ignore
+            getRowId={(row) => row?.roleId}
 
             sx={{
               '& .MuiDataGrid-root': {
@@ -92,8 +94,8 @@ setSelectedRole("create")
                 textOverflow: 'ellipsis',
               },
             }}
-          onRowClick={(params) => setSelectedRole(params.row)}
-        />
+            onRowClick={(params) => setSelectedRole(params.row)}
+          />
 
         </Box>
       </div>
@@ -110,9 +112,9 @@ setSelectedRole("create")
 
 
 
-    </>
+    </HasPermission>
 
-    
+
   );
 };
 

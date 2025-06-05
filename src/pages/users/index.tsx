@@ -66,7 +66,14 @@ const UserTable: React.FC = () => {
   }, [])
 
   const columns: GridColDef[] = [
-    { field: 'staffId', headerName: 'Staff ID', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'staffId', headerName: 'Staff ID', flex: 1, headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return <a style={{ cursor: 'pointer', color: 'rgb(25, 118, 210)' }}
+          onClick={() => {
+            navigate(`/profile/edit/${params.row.staffId}`)
+          }}>{params.row.staffId}</a>
+      }
+     },
     {
       field: 'id1', headerName: 'Name', flex: 1,
       headerClassName: 'super-app-theme--header',
@@ -102,28 +109,6 @@ const UserTable: React.FC = () => {
     //   )
     //   , headerClassName: 'super-app-theme--header'
     // },
-    {
-      field: 'viewmore',
-      headerName: 'View More',
-      width: 120,
-      sortable: false,
-      //@ts-ignore
-      renderCell: (params: GridRenderCellParams) => (
-        <Typography
-          onClick={() => {
-            navigate(`/profile/edit/${params.row.staffId}`)
-          }}
-          sx={{
-            mt: 2,
-            color: "grey",
-            textDecoration: "underline",
-            cursor: 'pointer'
-          }}
-
-        >View More</Typography>
-      )
-      , headerClassName: 'super-app-theme--header'
-    },
   ];
 
   return (

@@ -46,10 +46,11 @@ export interface Staff {
 
 export interface Modules {
   moduleId: number
-  moduleName:string
+  moduleName: string
   moduleDescription: string
-  moduleStatus: boolean
-  moduleLink:string
+  moduleStatus: string
+  moduleLink: string
+  // moduleStatus:string
 }
 
 export interface Roles {
@@ -76,6 +77,7 @@ export class UserService extends BaseService {
       throw new Error(err as any)
     }
   }
+
   async addUser(payload: {
     user_code: String
     first_name: String
@@ -93,6 +95,7 @@ export class UserService extends BaseService {
       throw new Error(err as any)
     }
   }
+
   async editUser(
     id: String,
     payload: {
@@ -113,6 +116,7 @@ export class UserService extends BaseService {
       throw new Error(err as any)
     }
   }
+
   async deleteUser(id: String): Promise<User> {
     let url = `/users/${id}`
     try {
@@ -122,6 +126,7 @@ export class UserService extends BaseService {
       throw new Error(err as any)
     }
   }
+
   async getAvailableUser(startDate: string, endDate: string, shift: string): Promise<User[]> {
     let url = `/schedules/user?start_date=${startDate}&end_date=${endDate}&shift=${shift}`
     try {
@@ -193,13 +198,6 @@ export class UserService extends BaseService {
     }
   }
 
-
-
-
-
-
-
-
   async createModule(payload: any): Promise<any> {
     let url = '/api/staff/staff-modules'
     try {
@@ -220,7 +218,7 @@ export class UserService extends BaseService {
     }
   }
 
-  async getAllModulesData(): Promise<Modules> {
+  async getAllModulesData(): Promise<Array<Modules>> {
     let url = '/api/staff/staff-modules'
     try {
       let data = await api1.get(url)
@@ -250,7 +248,7 @@ export class UserService extends BaseService {
     }
   }
 
-   async createStaff(payload: any): Promise<any> {
+  async createStaff(payload: any): Promise<any> {
     let url = '/api/staff/staff-details/add'
     try {
       let { data } = await api1.post(url, payload)
@@ -260,7 +258,7 @@ export class UserService extends BaseService {
     }
   }
 
-  async editStaff(payload: any,staffId:string): Promise<any> {
+  async editStaff(payload: any, staffId: string): Promise<any> {
     let url = `/api/staff/staff-details/update/staff/${staffId}`
     try {
       let { data } = await api1.put(url, payload)
@@ -269,8 +267,29 @@ export class UserService extends BaseService {
       throw new Error(err as any)
     }
   }
-  async getRole(rollId:string): Promise<any> {
-    let url = `/api/staff/staff-roles/${rollId}`
+
+  async deleteModule(id: number): Promise<any> {
+    let url = `/api/staff/staff-modules/deleteModule/${id}`
+    try {
+      let data = await api1.del(url, {})
+      return data
+    } catch (err) {
+      throw new Error(err as any)
+    }
+  }
+
+  async updateModule(payload: any, moduleId: number): Promise<any> {
+    let url = `/api/staff/staff-modules/updateModule/${moduleId}`
+    try {
+      let { data } = await api1.put(url, payload)
+      return data
+    } catch (err) {
+      throw new Error(err as any)
+    }
+  }
+
+  async getRole(roleId: string): Promise<any> {
+    let url = `/api/staff/staff-roles/${roleId}`
     try {
       let  {data}  = await api1.get(url)
       return data
@@ -278,36 +297,34 @@ export class UserService extends BaseService {
       throw new Error(err as any)
     }
   }
-    async addRole(payload:any): Promise<any> {
+
+  async addRole(payload: any): Promise<any> {
     let url = `/api/staff/staff-roles/add`
     try {
-      let  data  = await api1.post(url,payload)
+      let data = await api1.post(url, payload)
       return data
     } catch (err) {
       throw new Error(err as any)
     }
-    
   }
 
-
-    async getRolesList(): Promise<any> {
+  async getRolesList(): Promise<any> {
     let url = `/api/staff/staff-roles/getAll`
     try {
-      let  data  = await api1.get(url)
+      let data = await api1.get(url)
       return data
     } catch (err) {
       throw new Error(err as any)
     }
   }
-      async editRoles(roleId:string,payload:any): Promise<any> {
+
+  async editRoles(roleId: string, payload: any): Promise<any> {
     let url = `/api/staff/staff-roles/update/${roleId}`
     try {
-      let  data  = await api1.post(url,payload)
+      let data = await api1.post(url, payload)
       return data
     } catch (err) {
       throw new Error(err as any)
     }
   }
-
-
 }

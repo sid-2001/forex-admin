@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
-import { Box, Typography, IconButton, Button, Modal, Grid, TextField, Switch } from '@mui/material'
+import { Box, Typography, Button, Modal, Grid, TextField, FormControl, MenuItem, Select } from '@mui/material'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-import { DeleteOutline } from '@mui/icons-material'
 import { UserService } from '@/services/user.service'
 
 const user_service = new UserService();
+const helper = new HelperService()
+const local_service = new LocalStorageService()
 
-const AddModuleDialog: React.FC<any> = ({ action = "Add", handleClose, handleSubmit, isOpen }) => {
+const AddUpdateModuleDialog: React.FC<any> = ({ action = "Add", handleClose, handleSubmit, isOpen, selectedModuleData = {} }) => {
 
     const [moduleData, setModuleData] = useState<any>({})
     const inputLabelStyle = {
@@ -17,11 +18,22 @@ const AddModuleDialog: React.FC<any> = ({ action = "Add", handleClose, handleSub
         fontWeight: 800, fontStyle: "bold"
     }
 
-    const handleAddModule = async () => {
+    useEffect(() => {
+        if (selectedModuleData?.moduleId) {
+            setModuleData(selectedModuleData)
+        }
+    }, [])
+
+    const handleModuleSubmit = async () => {
         try {
-            const response = await user_service.createModule(moduleData)
+            let response;
+            if (selectedModuleData?.moduleId) {
+                response = await user_service.updateModule(moduleData, selectedModuleData?.moduleId)
+            } else {
+                response = await user_service.createModule(moduleData)
+            }
             setModuleData({})
-            handleSubmit({ ...response })
+            handleSubmit({ ...response.data })
         } catch (error) {
             console.error('There was a problem with the fetch operation:', error)
         }
@@ -39,6 +51,8 @@ const AddModuleDialog: React.FC<any> = ({ action = "Add", handleClose, handleSub
         handleClose()
         setModuleData({})
     }
+
+
     return (<Modal open={isOpen} onClose={() => { handleClose() }}>
         <Box
             sx={{
@@ -86,16 +100,40 @@ const AddModuleDialog: React.FC<any> = ({ action = "Add", handleClose, handleSub
                             name="moduleLink"
                         />
                     </Grid>
+                    <Grid item xs={12} sm={12}>
+                        <FormControl fullWidth>
+                            <label style={inputLabelStyle}>Module Status</label>
+                            <Select
+                                variant="outlined"
+                                name="moduleStatus"
+                                value={moduleData.moduleStatus || ''}
+                                onChange={(e) => {
+                                    setModuleData((prev: any) => ({
+                                        ...prev,
+                                        moduleStatus: e.target.value,
+                                    }))
+                                }}
+                            >
+                                <MenuItem value={'active'}>
+                                    Active
+                                </MenuItem>
+                                <MenuItem value={'inactive'}>
+                                    Inactive
+                                </MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
                 </Grid>
             </Box>
             <Box sx={{ mt: 2, display: 'flex', alignItems: "flex-end" }}>
                 <Button variant="contained" color="primary"
-                    fullWidth onClick={() => handleAddModule()} sx={{ mt: 2 }}>
-                    Submit
+                    disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MODULE, 'canCreate')}
+                    onClick={() => handleModuleSubmit()} sx={{ mt: 2 }}>
+                    {action}
                 </Button>
 
                 <Button variant="outlined"
-                    fullWidth onClick={() => handleCancelBtn()} sx={{ mt: 2, ml: 2 }}>
+                    onClick={() => handleCancelBtn()} sx={{ mt: 2, ml: 2 }}>
                     Close
                 </Button>
             </Box>
@@ -107,9 +145,7 @@ const AddModuleDialog: React.FC<any> = ({ action = "Add", handleClose, handleSub
 const ModuleTable: React.FC = () => {
     const [moduleData, setModuleData] = useState<any>([])
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const helper = new HelperService()
-    const local_service = new LocalStorageService()
+    const [selectedModule, setSelectedModule] = useState<any>({});
 
     const MODULE_COLUMNS = [
         {
@@ -131,15 +167,6 @@ const ModuleTable: React.FC = () => {
             headerClassName: 'super-app-theme--header',
         },
         {
-            field: 'moduleStatus',
-            headerName: 'Active/Inactive',
-            flex: 1,
-            headerClassName: 'super-app-theme--header',
-            renderCell: (params: any) => {
-                return <div>{params.row.moduleStatus ? 'Active' : 'Inactive'}</div>
-            }
-        },
-        {
             field: "moduleCreatedDate",
             headerName: "Date",
             flex: 1,
@@ -149,22 +176,14 @@ const ModuleTable: React.FC = () => {
             }
         },
         {
-            field: 'id1',
-            headerName: 'Action',
+            field: 'moduleStatus',
+            headerName: 'Status',
             flex: 1,
             headerClassName: 'super-app-theme--header',
-            //@ts-ignore
-            renderCell: (params: any) => (
-                <IconButton onClick={() => {
-                    // delete api call
-                    // handleDeleteModuleApi()
-                }}>
-                    <DeleteOutline style={{
-                        cursor: 'pointer',
-                    }} />
-                </IconButton>
-            ),
-        },
+            renderCell: (params: any) => {
+                return <div>{params.row.moduleStatus}</div>
+            }
+        }
     ]
 
     useEffect(() => {
@@ -181,60 +200,75 @@ const ModuleTable: React.FC = () => {
         }
     }
 
-    const handleAddNewModule = (data: any) => {
-        setModuleData([...moduleData, data])
+    const handleSavedModule = (data: any) => {
+        if (selectedModule?.moduleId) {
+            const filteredItems = moduleData.map((x: any) => (x.moduleId === data.moduleId) ? data : x)
+            setModuleData([...filteredItems]);
+        } else {
+            setModuleData([...moduleData, data])
+        }
         setIsModalOpen(false);
+        setSelectedModule({})
     }
 
     return (
         <HasPermission permission={'canRead'} module={local_service.get_modules()?.MODULE}>
-        <Box sx={{ width: '85vw', height: '80vh' }}>
-            <div style={{ textAlign: 'end' }}>
-                <Button variant="outlined" 
-                disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MODULE,'canCreate')}
-                onClick={() => { setIsModalOpen(true) }}>Add Module</Button>
-            </div>
-            <DataGrid
-                sx={{
-                    marginTop: '20px',
-                    width: '100%',
-                    '& .MuiDataGrid-columnHeaders': {
-                        '& .super-app-theme--header': {
-                            backgroundColor: '#005099',
-                            color: 'white',
+            <Box sx={{ width: '85vw', height: '80vh' }}>
+                <div style={{ textAlign: 'end' }}>
+                    <Button variant="outlined"
+                        disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MODULE, 'canCreate')}
+                        onClick={() => { setIsModalOpen(true) }}>Add Module</Button>
+                </div>
+                <DataGrid
+                    sx={{
+                        marginTop: '20px',
+                        width: '100%',
+                        '& .MuiDataGrid-columnHeaders': {
+                            '& .super-app-theme--header': {
+                                backgroundColor: '#005099',
+                                color: 'white',
+                            },
                         },
-                    },
-                    '& .MuiDataGrid-columnHeaderTitle': {
-                        fontWeight: 'bold',
-                    },
-                    '& .MuiDataGrid-cell': {
-                        fontSize: '14px',
-                    },
-                    '& .MuiDataGrid-row:nth-of-type(even)': {
-                        backgroundColor: '#f0f8ff',
-                    },
-                    '& .MuiDataGrid-row:nth-of-type(odd)': {
-                        backgroundColor: '#ffffff',
-                    },
-                    '& .super-app-theme--header': {
-                        fontSize: '16px',
-                    },
-                }}
-                columns={MODULE_COLUMNS}
-                rows={moduleData}
-                //@ts-ignore
-                pageSize={5}
-                rowsPerPageOptions={[5]}
-                getRowId={(row: any) => row.moduleId} // Ensure proper row ID handling
-            />
-            {isModalOpen && <AddModuleDialog isOpen={isModalOpen} handleClose={() => {
-                setIsModalOpen(false)
-            }}
-                handleSubmit={(response: any) => { handleAddNewModule(response) }}
-            />}
-        </Box>
-         </HasPermission>
-
+                        '& .MuiDataGrid-columnHeaderTitle': {
+                            fontWeight: 'bold',
+                        },
+                        '& .MuiDataGrid-cell': {
+                            fontSize: '14px',
+                        },
+                        '& .MuiDataGrid-row:nth-of-type(even)': {
+                            backgroundColor: '#f0f8ff',
+                        },
+                        '& .MuiDataGrid-row:nth-of-type(odd)': {
+                            backgroundColor: '#ffffff',
+                        },
+                        '& .super-app-theme--header': {
+                            fontSize: '16px',
+                        },
+                    }}
+                    columns={MODULE_COLUMNS}
+                    rows={moduleData}
+                    //@ts-ignore
+                    pageSize={5}
+                    rowsPerPageOptions={[5]}
+                    getRowId={(row: any) => row.moduleId} // Ensure proper row ID handling
+                    onRowClick={(params) => {
+                        setIsModalOpen(true)
+                        setSelectedModule(params.row)
+                    }}
+                />
+                {isModalOpen && <AddUpdateModuleDialog
+                    isOpen={isModalOpen}
+                    handleClose={() => {
+                        setIsModalOpen(false)
+                        setSelectedModule({})
+                    }}
+                    action={selectedModule?.moduleId ? 'Edit' : 'Add'}
+                    selectedModuleData={selectedModule?.moduleId ? selectedModule : {}}
+                    handleSubmit={(response: any) => { handleSavedModule(response) }}
+                />
+                }
+            </Box>
+        </HasPermission>
     )
 }
 

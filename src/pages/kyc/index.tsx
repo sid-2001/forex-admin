@@ -31,6 +31,7 @@ import { useNavigate } from 'react-router-dom';
 import ConfirmationModal from '@/components/logout/logout.component'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import HasPermission from '@/components/permissionWrapper';
+import { HelperService } from '@/helpers/helper'
 
 const KYCPage = () => {
   const [open, setOpen] = useState(false);
@@ -56,6 +57,7 @@ const KYCPage = () => {
   const local_service = new LocalStorageService();
   let applicant_service = new ApplicantService()
   let kycservice = new KycService()
+  const helper_service = new HelperService();
 
   const [comments, setComments] = useState([
     {
@@ -587,7 +589,7 @@ const KYCPage = () => {
                                 setProoftype(proofType);
                                 // await unverifyProofType(proofType); // API call
                               }}
-                              disabled={proofType.verificationStatus === 'v'}
+                              disabled={proofType.verificationStatus === 'v' || helper_service.checkUserHasPermission(local_service.get_modules()?.KYC, 'canUpdate')}
                             >
                               <CloseIcon />
                             </IconButton>
@@ -601,7 +603,7 @@ const KYCPage = () => {
                                 setProoftype(proofType);
                                 // await verifyProofType(proofType); // API call
                               }}
-                              disabled={proofType.verificationStatus === 'va'}
+                              disabled={proofType.verificationStatus === 'va' || helper_service.checkUserHasPermission(local_service.get_modules()?.KYC, 'canUpdate')}
                             >
                               <CheckCircleOutlineIcon />
                             </IconButton>

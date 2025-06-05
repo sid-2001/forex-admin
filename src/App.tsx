@@ -6,7 +6,6 @@ import ResetPasswordPage from './pages/resetpassword'
 import ProtectedRoute, { ProtectedRouteProps } from './helpers/protected-route'
 import IndexPage from './pages/defaultpage'
 import DriverList from './pages/list-driver'
-import UserList from './pages/user-list'
 import UserAdd from './pages/user-add'
 import LogsList from './pages/log-list'
 import NewLog from './pages/add-log'
@@ -130,11 +129,10 @@ function App() {
               <Route path="beneficiary" element={<BeneficiaryEnquiry />} />
               <Route path="configuration" element={<MainTabsPage />} />
               <Route path="driver" element={<DriverList />} />
-              <Route path="users" element={<UserList />} />
               <Route path="users/add" element={<UserAdd />} />
               <Route path="price" element={<CurrencyBarChart />} />
               <Route path="bop-details/:transactionId/:transaction_attempt" element={<BopScreen />} />
-              <Route path="bop-listing" element={<BopTable />} />
+              <Route path="bop" element={<BopTable />} />
               <Route path="logs" element={<LogsList />} />
               <Route path="logs/add" element={<NewLog />} />
               <Route path="module" element={<ModuleTable />} />

@@ -8,49 +8,64 @@ import { DataGrid } from '@mui/x-data-grid';
 import { UserService } from '@/services/user.service';
 import { useRecoilState } from 'recoil';
 import { alertState, alertTextState, alertTypeState } from '@/states/state';
+import { HelperService } from '@/helpers/helper';
+import { LocalStorageService } from '@/helpers/local-storage-service';
+import HasPermission from '../permissionWrapper';
 
-const allModules = [
-  { moduleId: 1, moduleName: 'Transaction Outward' },
-  { moduleId: 2, moduleName: 'Transaction Inward' },
-  { moduleId: 3, moduleName: 'BOP' },
-  { moduleId: 4, moduleName: 'KYC' },
-  { moduleId: 5, moduleName: 'Dashboard' },
-  { moduleId: 6, moduleName: 'Compliance Monitor' },
-  { moduleId: 7, moduleName: 'Applicant' },
-  { moduleId: 8, moduleName: 'Beneficiary' },
-  { moduleId: 9, moduleName: 'Reconcillation' },
-  { moduleId: 10, moduleName: 'Staff' },
-  { moduleId: 11, moduleName: 'Module' }
-];
 
-const RoleModal = ({ 
+const RoleModal = ({
   //@ts-ignore
   open,
   //@ts-ignore
   onClose, initialData, onSave }
-//@ts-ignore
+  //@ts-ignore
 
 ) => {
   const [roleName, setRoleName] = useState('');
   const [selectedModules, setSelectedModules] = useState([]);
   const [permissions, setPermissions] = useState<any>({});
   const [roleId, setRoleId] = useState(null);
-    const [openmodal, setOpen] = useRecoilState(alertState)
-    const [text, setText] = useRecoilState(alertTextState)
-    const [type, settype] = useRecoilState(alertTypeState)
+  const [openmodal, setOpen] = useRecoilState(alertState)
+  const [text, setText] = useRecoilState(alertTextState)
+  const [type, settype] = useRecoilState(alertTypeState)
+  const [allModules, setAllModules] = useState<any>([])
+  const user_service = new UserService();
+  const local_service = new LocalStorageService();
+
+  const helper_service = new HelperService();
+
+
+
+  const getModuleList = () => {
+    try {
+
+      user_service.getAllModulesData().then(data => {
+        console.log("module", data)
+        const active_module = data?.filter(e => e.moduleStatus === "active")
+        setAllModules([...active_module])
+
+      })
+    } catch (err) {
+
+
+    }
+
+  }
+
 
   useEffect(() => {
     if (initialData) {
 
-        console.log(initialData)
+
+      console.log(initialData)
       setRoleName(initialData.roleDescription || '');
       setRoleId(initialData.roleId || null);
 
-      const selected = (initialData.modules || []).map((m:any) => m.moduleId);
+      const selected = (initialData.modules || []).map((m: any) => m.moduleId);
       setSelectedModules(selected);
 
       const perms = {};
-      (initialData.modules || []).forEach((mod:any) => {
+      (initialData.modules || []).forEach((mod: any) => {
         //@ts-ignore
         perms[mod.moduleId] = {
           create: mod.access.canCreate,
@@ -60,15 +75,16 @@ const RoleModal = ({
         };
       });
       setPermissions(perms);
+      getModuleList()
     }
   }, [initialData]);
 
-  const handleModuleChange = (event:any) => {
+  const handleModuleChange = (event: any) => {
     const newSelection = event.target.value;
     setSelectedModules(newSelection);
 
     const updatedPermissions = { ...permissions };
-    newSelection.forEach((id:any) => {
+    newSelection.forEach((id: any) => {
       //@ts-ignore
       if (!updatedPermissions[id]) {
         //@ts-ignore
@@ -89,7 +105,7 @@ const RoleModal = ({
   const handleToggle = (
     //@ts-ignore
     id, type) => {
-    setPermissions((prev:any) => ({
+    setPermissions((prev: any) => ({
       ...prev,
       [id]: {
         //@ts-ignore
@@ -105,8 +121,8 @@ const RoleModal = ({
     {
       field: 'create',
       headerName: 'Create',
-    flex:1,
-      renderCell: (params:any) => (
+      flex: 1,
+      renderCell: (params: any) => (
         <Checkbox
           checked={permissions[params.row.moduleId]?.create || false}
           onChange={() => handleToggle(params.row.moduleId, 'create')}
@@ -116,8 +132,8 @@ const RoleModal = ({
     {
       field: 'read',
       headerName: 'Read',
- flex:1,
-      renderCell: (params:any) => (
+      flex: 1,
+      renderCell: (params: any) => (
         <Checkbox
           checked={permissions[params.row.moduleId]?.read || false}
           onChange={() => handleToggle(params.row.moduleId, 'read')}
@@ -127,8 +143,8 @@ const RoleModal = ({
     {
       field: 'update',
       headerName: 'Update',
- flex:1,
-      renderCell: (params:any) => (
+      flex: 1,
+      renderCell: (params: any) => (
         <Checkbox
           checked={permissions[params.row.moduleId]?.update || false}
           onChange={() => handleToggle(params.row.moduleId, 'update')}
@@ -139,7 +155,7 @@ const RoleModal = ({
       field: 'delete',
       headerName: 'Delete',
       flex: 1,
-      renderCell: (params:any) => (
+      renderCell: (params: any) => (
         <Checkbox
           checked={permissions[params.row.moduleId]?.delete || false}
           onChange={() => handleToggle(params.row.moduleId, 'delete')}
@@ -148,7 +164,7 @@ const RoleModal = ({
     },
   ];
 
-  let user_service=new UserService()
+
   const handleSave = () => {
     // const payload = {
     //   roleId,
@@ -169,72 +185,72 @@ const RoleModal = ({
     //     };
     //   }),
     // };
-     var payload 
+    var payload
 
-    if(roleId){
-  payload=  {
-      roleId,
-      roleDescription: roleName,
-      roleStatus: true,
-      modules: selectedModules.map((id) => {
-        const mod = allModules.find((m) => m.moduleId === id);
-        return {
-          staffModuleId: id,
-          staffModuleDescription: `${mod?.moduleName} Screen`,
-          access: {
-            accessId: 1,
-            canCreate: permissions[id]?.create || false,
-            canRead: permissions[id]?.read || false,
-            canUpdate: permissions[id]?.update || false,
-            canDelete: permissions[id]?.delete || false,
-          },
-        };
-      }),
-    };
-    user_service.editRoles(roleId,payload)
+    if (roleId) {
+      payload = {
+        roleId,
+        roleDescription: roleName,
+        roleStatus: true,
+        modules: selectedModules.map((id) => {
+          const mod = allModules.find((m:any) => m.moduleId === id);
+          return {
+            staffModuleId: id,
+            staffModuleDescription: `${mod?.moduleName} Screen`,
+            access: {
+              accessId: 1,
+              canCreate: permissions[id]?.create || false,
+              canRead: permissions[id]?.read || false,
+              canUpdate: permissions[id]?.update || false,
+              canDelete: permissions[id]?.delete || false,
+            },
+          };
+        }),
+      };
+      user_service.editRoles(roleId, payload)
 
-    }else{
-  payload=  {
-      roleId,
-      roleDescription: roleName,
-      roleStatus: true,
-      modules: selectedModules.map((id) => {
-        const mod = allModules.find((m) => m.moduleId === id);
-        return {
-          staffModuleId: id,
-          staffModuleDescription: `${mod?.moduleName} Screen`,
-          access: {
-            accessId: 1,
-            canCreate: permissions[id]?.create || false,
-            canRead: permissions[id]?.read || false,
-            canUpdate: permissions[id]?.update || false,
-            canDelete: permissions[id]?.delete || false,
-          },
-        };
-      }),
-    };
+    } else {
+      payload = {
+        roleId,
+        roleDescription: roleName,
+        roleStatus: true,
+        modules: selectedModules.map((id) => {
+          const mod = allModules.find((m:any) => m.moduleId === id);
+          return {
+            staffModuleId: id,
+            staffModuleDescription: `${mod?.moduleName} Screen`,
+            access: {
+              accessId: 1,
+              canCreate: permissions[id]?.create || false,
+              canRead: permissions[id]?.read || false,
+              canUpdate: permissions[id]?.update || false,
+              canDelete: permissions[id]?.delete || false,
+            },
+          };
+        }),
+      };
 
-    user_service.addRole(payload)
+      user_service.addRole(payload)
     }
     console.log(payload)
 
 
-       settype('success')
-          setText("Succesfully Updated Staff")
-    
-    
-setTimeout(()=>{
+    settype('success')
+    setText("Succesfully Updated Staff")
 
-  window.location.reload()
-  setRoleId(null)
-},1200)
+
+    setTimeout(() => {
+
+      window.location.reload()
+      setRoleId(null)
+    }, 1200)
 
     // onSave(payload);
   };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle> {roleId?"Edit Role":"Add Role"}  </DialogTitle>
+      <DialogTitle> {roleId ? "Edit Role" : "Add Role"}  </DialogTitle>
       <DialogContent>
         <TextField
           fullWidth
@@ -255,13 +271,13 @@ setTimeout(()=>{
             renderValue={(selected) => (
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                 {selected.map((id) => {
-                  const mod = allModules.find((m) => m.moduleId === id);
+                  const mod = allModules.find((m:any) => m.moduleId === id);
                   return <Chip key={id} label={mod?.moduleName} />;
                 })}
               </Box>
             )}
           >
-            {allModules.map((mod) => (
+            {allModules.map((mod:any) => (
               <MenuItem key={mod.moduleId} value={mod.moduleId}>
                 {mod.moduleName}
               </MenuItem>
@@ -271,7 +287,7 @@ setTimeout(()=>{
 
         <div style={{ height: 400, width: '100%', marginTop: 16 }}>
           <DataGrid
-            rows={allModules.filter((m) => selectedModules.includes(
+            rows={allModules.filter((m:any) => selectedModules.includes(
               //@ts-ignore
               m?.moduleId))}
             columns={columns}
@@ -291,7 +307,7 @@ setTimeout(()=>{
       </DialogActions>
 
       <>
-      
+
       </>
     </Dialog>
   );
