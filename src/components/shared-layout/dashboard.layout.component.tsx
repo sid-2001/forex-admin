@@ -540,7 +540,7 @@ const DashboardLayout = () => {
 
                   </Typography>
 
-                  <Za
+{/*                   <Za
                     style={{
                       height: '20px',
                       width: '25px',
@@ -548,7 +548,7 @@ const DashboardLayout = () => {
                       // padding: '10px',
                       borderRadius: '30%',
                     }}
-                  />
+                  /> */}
                 </Stack>
               </Box>
             </> : <>
@@ -582,7 +582,7 @@ local_service.get_user()?.firstName[0]
                   >
                     <strong>{(local_service?.get_staff_access()?.staffId)}</strong>
                   </Typography>
-
+{/* 
                   <In
                     style={{
                       height: '20px',
@@ -591,7 +591,7 @@ local_service.get_user()?.firstName[0]
                       // padding: '10px',
                       borderRadius: '30%',
                     }}
-                  />
+                  /> */}
                 </Stack>
               </Box>
             </>}
