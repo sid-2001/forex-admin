@@ -90,18 +90,37 @@ const LoginPage = () => {
           "username": email, "password": password
         })
         .then((data: any) => {
-          console.log(data)
+         if(data?.data){
+
+
+  
           fetchAllModulesList()
           setText('User SuccesFully Logged In')
           setType('success')
           setOpen(true)
+
+          // if(data?.)
+
+
+
           if (data?.staffCountry) setselectedCountryState(data.staffCountry)
           setTimeout(() => {
             local_service.set_accesstoken('"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImVtYWlsIjoic2hpdmFuc2hAaW1wcm9uaWNzLmNvbSIsInVzZXJfaWQiOiJjYmMzZDg3OS1iMTM2LTQyYTAtODY3Yy1mYjg2YTQ4MmI3ODciLCJyb2xlIjoiYWRtaW4ifSwiZXhwIjoxNzM4NTk3ODk1LCJqdGkiOiIwZTMxMDA1OS02ZTIyLTQ1MjgtYTliYS04OTA3MTNhZDZiMmYiLCJyZWZyZXNoIjpmYWxzZX0.06XT7DA3cs13hOIDyqlXcHElSXpFzHFO2L0y507Z0YQ"')
-            local_service.set_staff_access(data)
+            local_service.set_staff_access(data.data)
             local_service.set_role(data.roleDescription)
             navigate('/price')
           }, 500);
+
+
+                 }
+                 else{
+
+          setText(data?.message)
+          setType('error')
+          setOpen(true)
+
+
+                 }
         })
 
         .catch((err) => {

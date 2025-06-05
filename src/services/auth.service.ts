@@ -78,7 +78,7 @@ class AuthService extends BaseService {
     let url = '/api/staff/staff-details/login'
     try {
       let { data } = await api1.post(url, payload)
-      return data.data
+      return data
     } catch (err) {
       throw new Error("Can't Verify your Identiy")
     }

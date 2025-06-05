@@ -272,7 +272,7 @@ export class UserService extends BaseService {
   async getRole(rollId:string): Promise<any> {
     let url = `/api/staff/staff-roles/${rollId}`
     try {
-      let  data  = await api1.get(url)
+      let  {data}  = await api1.get(url)
       return data
     } catch (err) {
       throw new Error(err as any)

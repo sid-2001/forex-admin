@@ -62,7 +62,7 @@ import { Tooltip } from '@mui/material'
 import SourceIcon from '@mui/icons-material/Source'
 import ShowChartIcon from '@mui/icons-material/ShowChart'
 // import { IconButton } from '@mui/material';
-
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import { Us, Sa, Za, In } from 'react-flags-select'
 import { TransactionService } from '@/services/transaction.service'
 // import LogoutModalProps from '../logout/logout.component'
@@ -270,7 +270,7 @@ const DashboardLayout = () => {
           }}
         />
       ),
-      label: 'applicant',
+      label: 'Applicant',
     },
     //     {
     //       icon: (
@@ -321,7 +321,7 @@ const DashboardLayout = () => {
           />
         </>
       ),
-      label: 'bop-listing',
+      label: 'Bop',
     },
 
     {
@@ -337,12 +337,12 @@ const DashboardLayout = () => {
           />
         </>
       ),
-      label: 'profile',
+      label: 'Profile',
     },
      {
       icon: (
         <>
-          <Person2Icon
+          <ViewModuleIcon
             sx={{
               //@ts-ignore
               fontSize: '2vh',
@@ -568,7 +568,7 @@ local_service.get_user()?.firstName[0]
                     color: 'white',
                   }}
                 >
-                  <strong>{(local_service?.get_staff_access().staffFirstName) + " " + (local_service?.get_staff_access().staffLastName)}</strong>
+                  <strong>{(local_service?.get_staff_access()?.staffFirstName) + " " + (local_service?.get_staff_access()?.staffLastName)}</strong>
                 </Typography>
 
                 <Stack direction="row">
@@ -580,7 +580,7 @@ local_service.get_user()?.firstName[0]
                       color: 'white',
                     }}
                   >
-                    <strong>{(local_service?.get_staff_access().staffId)}</strong>
+                    <strong>{(local_service?.get_staff_access()?.staffId)}</strong>
                   </Typography>
 
                   <In

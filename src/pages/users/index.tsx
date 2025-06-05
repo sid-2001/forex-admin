@@ -179,7 +179,7 @@ const UserTable: React.FC = () => {
 
 </RoleModal>
     </Box>
-    </HasPermission>
+  </HasPermission>
    
   );
 };

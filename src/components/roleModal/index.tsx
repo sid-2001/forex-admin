@@ -6,6 +6,8 @@ import {
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { UserService } from '@/services/user.service';
+import { useRecoilState } from 'recoil';
+import { alertState, alertTextState, alertTypeState } from '@/states/state';
 
 const allModules = [
   { moduleId: 1, moduleName: 'Transaction Outward' },
@@ -33,6 +35,9 @@ const RoleModal = ({
   const [selectedModules, setSelectedModules] = useState([]);
   const [permissions, setPermissions] = useState<any>({});
   const [roleId, setRoleId] = useState(null);
+    const [openmodal, setOpen] = useRecoilState(alertState)
+    const [text, setText] = useRecoilState(alertTextState)
+    const [type, settype] = useRecoilState(alertTypeState)
 
   useEffect(() => {
     if (initialData) {
@@ -212,11 +217,17 @@ const RoleModal = ({
     user_service.addRole(payload)
     }
     console.log(payload)
-// setTimeout(()=>{
 
-//   window.location.reload()
-//   setRoleId(null)
-// },2200)
+
+       settype('success')
+          setText("Succesfully Updated Staff")
+    
+    
+setTimeout(()=>{
+
+  window.location.reload()
+  setRoleId(null)
+},1200)
 
     // onSave(payload);
   };

@@ -14,6 +14,24 @@ import { alertState,alertTextState,alertTypeState } from '@/states/state';
 import { useRecoilState } from 'recoil';
 const user_service = new UserService();
 
+
+
+//@ts-ignore
+function sortAscending(arr, key) {
+  return [...arr].sort((a, b) => {
+    const valA = a[key];
+    const valB = b[key];
+
+    // Handle numbers
+    if (typeof valA === "number" && typeof valB === "number") {
+      return valA - valB;
+    }
+
+    // Handle strings (case-insensitive)
+    return String(valA).localeCompare(String(valB), undefined, { sensitivity: 'base' });
+  });
+}
+
 const responsibilities = [
   'Dashboard',
   'Users',
@@ -62,6 +80,7 @@ const UserAdd = () => {
     //@ts-ignore
 
     var new_permisson_data;
+    console.log(permissions)
   let full_data=JSON.parse(JSON.stringify(permissions));
 
 
@@ -90,11 +109,14 @@ console.log(new_permisson_data,"new permissond ata")
 new_permisson_data=[ changed_row ]
 
   }
+ 
+ let sorted=  new_permisson_data.sort((a, b) => a.id - b.id);
+ console.log(sorted)
+
 setPermissions(
   //@ts-ignore
-  new_permisson_data.sort(e=>e.id))
-
-
+  sortAscending(new_permisson_data,id)
+)
     }
 
 
@@ -102,7 +124,7 @@ setPermissions(
 
 
 
- let permisson_data=   permissions.map((e:any) => ({
+ let permisson_data=   new_permisson_data?.map((e:any) => ({
   //@ts-ignore
       moduleDescription: e?.responsibility,
       moduleId: e?.id,
@@ -334,12 +356,15 @@ setPermissions(
             </b></label>
             <TextField
               fullWidth
+              type='password'
               name="password"
               value={
                 //@ts-ignore
                 staffData?.password || ""}
               onChange={handleChange}
-              InputProps={{ readOnly: !isEditable }}
+
+            disabled={isEditable}
+              // InputProps={{ readOnly: !isEditable }}
             />
           </Grid>
 
@@ -462,7 +487,7 @@ setPermissions(
 
 user_service.getRole(e?.target?.value).then(data=>{
 
-
+console.log(data)
   const initialPermissions = data?.modules?.map(
     //@ts-ignore
     (res, index) => ({
@@ -477,8 +502,9 @@ user_service.getRole(e?.target?.value).then(data=>{
 
      
 
-
   console.log(initialPermissions)
+
+
   setPermissions(initialPermissions.sort(
     //@ts-ignore
     e=>e.id))
@@ -548,7 +574,7 @@ user_service.getRole(e?.target?.value).then(data=>{
         </Grid>
 
         {/* Flow Select */}
-        <Grid item xs={12} sm={4}>
+        {/* <Grid item xs={12} sm={4}>
           <TextField
             select
             disabled
@@ -572,7 +598,7 @@ user_service.getRole(e?.target?.value).then(data=>{
     
     
     
-        </Grid>
+        </Grid> */}
         <Button 
         sx={{
           mt:2,
@@ -584,21 +610,21 @@ user_service.getRole(e?.target?.value).then(data=>{
      
 
       if(staffId){
-        user_service.editStaff(staffData,staffData?.staffId).then(data=>{
+ 
+        //@ts-ignore
+        delete staffData?.password;
+
+        user_service.editStaff(   staffData,staffData?.staffId).then(data=>{
 
 console.log(data)
 
 
         if(data){
 
-        
           settype('success')
           setText("Succesfully Updated Staff")
-      setTimeout(() => {
-        window.location.reload();
-      }, 1233);
-          window.location.reload()
-         
+          
+    
         
         }
         else{
@@ -608,7 +634,10 @@ console.log(data)
        
           // settype('success')
         }
-
+  setTimeout(() => {
+        window.location.reload();
+      }, 1233);
+      
         setOpen(true)
         
       
@@ -637,7 +666,7 @@ console.log(data)
           setText(data?.message)
           settype("error")
        
-          // settype('success')
+          settype('success')
         }
         setOpen(true) 
         })
