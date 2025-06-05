@@ -34,7 +34,6 @@ instance.interceptors.request.use(
       config.headers ['access-control-allow-origin']="*"
         config.headers["ngrok-skip-browser-warning"]="true"
     }
-    logger.log('Request Interceptor:', config)
     return config
   },
   (error: any) => {
@@ -47,8 +46,6 @@ instance.interceptors.request.use(
 // Response interceptor
 instance.interceptors.response.use(
   async (response: AxiosResponse) => {
-    logger.log('Response Interceptor:', response)
-
     if (response.status == 401) {
       const newToken = await refreshToken()
       window.location.reload()

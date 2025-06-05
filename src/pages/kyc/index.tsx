@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Box,
   Button,
@@ -29,14 +29,14 @@ import { useRecoilState } from 'recoil'
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 import ConfirmationModal from '@/components/logout/logout.component'
+import { LocalStorageService } from '@/helpers/local-storage-service'
+import HasPermission from '@/components/permissionWrapper';
+import { HelperService } from '@/helpers/helper'
 
 const KYCPage = () => {
   const [open, setOpen] = useState(false);
-  const theme = useTheme()
   const [filterValues, setFilterValues] = useState({
-    kycId: '',
-    verificationStatus: '',
-    country: '',
+    kycId: '', verificationStatus: '', country: '',
   })
   const [filteredData, setFilteredData] = useState<Array<Customer>>([])
   const [selectedKYC, setSelectedKYC] = useState<any>(null)
@@ -47,9 +47,17 @@ const KYCPage = () => {
   const [loader, setCommonLoader] = useRecoilState(loaderStateNew)
   const [checkboxOpen, setCheckboxOpen] = useState(false)
   const [kycstatus, setKycStatus] = useState('p')
+  const [selectedcountry, setselectedCountry] = useRecoilState(selectedCountryState);
+  const [newComment, setNewComment] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [prooftype, setProoftype] = useState()
 
-  const [selectedcountry, setselectedCountry] = useRecoilState(selectedCountryState)
   const navigate = useNavigate();
+  const theme = useTheme();
+  const local_service = new LocalStorageService();
+  let applicant_service = new ApplicantService()
+  let kycservice = new KycService()
+  const helper_service = new HelperService();
 
   const [comments, setComments] = useState([
     {
@@ -65,10 +73,82 @@ const KYCPage = () => {
       user: "user1",
     },
   ]);
-  const [newComment, setNewComment] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [prooftype, setProoftype] = useState()
 
+
+  const KycColumns = [
+    {
+      field: 'kycId',
+      headerName: 'KYC ID',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return <a style={{ cursor: 'pointer', color: 'rgb(25, 118, 210)' }}
+          onClick={() => openDrawer(params.row)}>{params.row.kycId}</a>
+      }
+    },
+    {
+      field: 'applicantName',
+      headerName: 'Customer Name',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'nationality',
+      headerName: 'Nationality',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'kycCountry', headerName: 'Resident Country', flex: 1,
+      headerClassName: 'super-app-theme--header'
+    },
+    {
+      field: 'applicantId', headerName: 'Applicant ID', flex: 1,
+      headerClassName: 'super-app-theme--header',
+
+      renderCell: (params: any) => {
+        return <a style={{ cursor: 'pointer', color: 'rgb(25, 118, 210)' }}
+          onClick={() => {
+            navigate(`/applicant-details/${params.row.applicantId}`)
+          }}>{params.row.applicantId}</a>
+      }
+    },
+    {
+      field: 'kycStatus',
+      headerName: 'Verification Status',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        let color: 'success' | 'warning' | 'error' = 'success'
+        if (params.value === '') color = 'warning'
+        else if (params.value === 'Rejected') color = 'error'
+
+        return <Chip label={params.value == 'v' ? 'verified' : 'unverified'}
+          color={params.value == 'v' ? 'success' : 'warning'} variant="outlined" />
+      },
+    },
+    {
+      field: 'action',
+      headerName: 'Action',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => (
+        <Button variant="outlined" onClick={() => openDrawer(params.row)}>
+          View More
+        </Button>
+      ),
+    },
+  ]
+
+  useEffect(() => {
+    setCommonLoader(true)
+    applicant_service.getApplicantKyc(selectedcountry == "SA" ? "ZA" : "IN").then((data) => {
+      setMockData(data)
+      //@ts-ignores
+      setFilteredData(data)
+      setCommonLoader(false)
+    })
+  }, [])
 
   const handleAddComment = async () => {
     if (newComment.trim() === "") return;
@@ -106,50 +186,25 @@ const KYCPage = () => {
     }
   };
 
-  const handleFilterChange = (key: string, value: string) => {
-    setFilterValues((prev) => ({ ...prev, [key]: value }))
-  }
-
-  let kycservice = new KycService()
   const verifyProofType = async (proofType: any) => {
     try {
       // Your API call logic here
       setCommonLoader(true)
-
-      console.log("I have beenn clicked")
-      console.log(selectedKYC);
-      console.log(proofType)
-      console.log(proofType.kycId, proofType.documentCode)
-
       kycservice.verifyDocument(proofType?.id?.documentCode, proofType?.id?.kycId).then(data => {
-
         console.log(data)
-
         // window.location.reload()
       }).catch(err => {
-
         console.log(err)
       })
 
-
       applicant_service.getApplicantKyc(selectedcountry == "SA" ? "ZA" : "IN").then((data) => {
-
-        // console.log(data)
-
         setMockData(data)
         //@ts-ignores
-
-
         setFilteredData(data)
         setCommonLoader(false)
-
         let selected_data = data.filter(e => e.kycId == proofType?.id?.kycId)
-        console.log(selected_data)
         if (selected_data.length > 0) {
-
           setSelectedKYC(selected_data[0])
-
-          console.log("coming select kyc,", selected_data[0])
           setKycStatus(selected_data[0]?.kycStatus)
           setCheckboxOpen(false)
         }
@@ -160,38 +215,19 @@ const KYCPage = () => {
     }
   };
 
-
   const unverifyProofType = async (proofType: any) => {
     try {
       // Your API call logic here
       setCommonLoader(true)
-
-      console.log("I have beenn clicked")
-      console.log(selectedKYC);
-      console.log(proofType)
-      console.log(proofType.kycId, proofType.documentCode)
-
-      kycservice.unverifyDocument(proofType?.id?.documentCode, proofType?.id?.kycId).then(data => {
-
-        console.log(data)
-
-        kycservice.changeKycStatus('p', proofType?.id?.kycId).then(data => {
-
-          console.log(data)
-
+      kycservice.unverifyDocument(proofType?.id?.documentCode, proofType?.id?.kycId).then(() => {
+        kycservice.changeKycStatus('p', proofType?.id?.kycId).then(() => {
           applicant_service.getApplicantKyc(selectedcountry == "SA" ? "ZA" : "IN").then((data) => {
-
-            // console.log(data)
-
             setMockData(data)
             //@ts-ignores
             setFilteredData(data)
             setCommonLoader(false)
-
             let selected_data = data.filter(e => e.kycId == proofType?.id?.kycId)
-            console.log(selected_data)
             if (selected_data.length > 0) {
-
               setSelectedKYC(selected_data[0])
               setKycStatus(selected_data[0]?.kycStatus)
               // setKycStatus(selected_data[0]?.kycstatus)
@@ -211,39 +247,12 @@ const KYCPage = () => {
     }
   };
 
-  let applicant_service = new ApplicantService()
-
-  useEffect(() => {
-    setCommonLoader(true)
-    applicant_service.getApplicantKyc(selectedcountry == "SA" ? "ZA" : "IN").then((data) => {
-      setMockData(data)
-      //@ts-ignores
-      setFilteredData(data)
-      setCommonLoader(false)
-    })
-  }, [])
-
-  const applyFilters = () => {
-    const filtered = mockdata?.filter((item) => {
-      return (
-        (filterValues.kycId === '' || item.kycId.includes(filterValues.kycId)) &&
-        (filterValues.verificationStatus === '' || item.verificationStatus === filterValues.verificationStatus) &&
-        (filterValues.country === '' || item.residentCountry === filterValues.country)
-      )
-    })
-    setFilteredData(filtered)
-  }
-
   const openDrawer = (row: any) => {
-    console.log(row)
     setKycStatus(row?.kycStatus)
     setSelectedKYC(row)
     setIsDrawerOpen(true)
-    console.log(row)
-    kycservice.getComment(row?.kycId).then(data=>{
-
-    setComments(  data.filter(e=>e.kycId==row?.kycI))
-    
+    kycservice.getComment(row?.kycId).then(data => {
+      setComments(data.filter(e => e.kycId == row?.kycI))
     })
   }
 
@@ -258,104 +267,33 @@ const KYCPage = () => {
   }
   return (
     <Box padding={3}>
-      <VerifyDocumentModal open={selectedVerifcationOpen} onClose={handleClose}
+      <HasPermission permission={'canRead'} module={local_service.get_modules()?.KYC}>
+        <Typography variant="h4" gutterBottom>
+          <strong>Know-Your Customer</strong>
+        </Typography>
 
-        //@ts-ignore
-        sampledata={selectedDocumentModal}></VerifyDocumentModal>
-
-      <Typography variant="h4" gutterBottom>
-        <strong>Know-Your Customer</strong>
-      </Typography>
-
-
-      {/* Data Grid */}
-      <Box
-        marginTop={2}
-        sx={{
-          width: '73vw',
-          height: '80vh',
-          '& .super-app-theme--header': {
-            backgroundColor: '#005099',
-            color: 'white',
-          },
-        }}
-      >
-        <DataGrid
+        <Box
+          marginTop={2}
           sx={{
-            width: '100%',
+            width: '73vw',
+            height: '80vh',
+            '& .super-app-theme--header': {
+              backgroundColor: '#005099',
+              color: 'white',
+            },
           }}
-          rows={filteredData}
-          getRowId={(row) => row.kycId}
-
-          //@ts-ignore
-          columns={[
-            {
-              field: 'kycId',
-              headerName: 'KYC ID',
-              flex: 1,
-              headerClassName: 'super-app-theme--header',
-              renderCell: (params: any) => {
-                return <a style={{ cursor: 'pointer', color: 'rgb(25, 118, 210)' }} onClick={() => openDrawer(params.row)}>{params.row.kycId}</a>
-              }
-            },
-            {
-              field: 'applicantName',
-              headerName: 'Customer Name',
-              flex: 1,
-              headerClassName: 'super-app-theme--header',
-            },
-            {
-              field: 'nationality',
-              headerName: 'Nationality',
-              flex: 1,
-              headerClassName: 'super-app-theme--header',
-            },
-            { field: 'kycCountry', headerName: 'Resident Country', flex: 1, headerClassName: 'super-app-theme--header' },
-            ,
-
-            {
-              field: 'applicantId', headerName: 'Applicant ID', flex: 1,
-              headerClassName: 'super-app-theme--header',
-
-              renderCell: (params: any) => {
-                return <a style={{ cursor: 'pointer', color: 'rgb(25, 118, 210)' }} onClick={() => {
-                  navigate(`/applicant-details/${params.row.applicantId}`)
-                }}>{params.row.applicantId}</a>
-              }
-            },
-
-
-            {
-              field: 'kycStatus',
-              headerName: 'Verification Status',
-              flex: 1,
-              headerClassName: 'super-app-theme--header',
-
-              renderCell: (params: any) => {
-                let color: 'success' | 'warning' | 'error' = 'success'
-                if (params.value === '') color = 'warning'
-                else if (params.value === 'Rejected') color = 'error'
-
-                return <Chip label={params.value == 'v' ? 'verified' : 'unverified'} color={params.value == 'v' ? 'success' : 'warning'} variant="outlined" />
-              },
-            },
-            {
-              field: 'action',
-              headerName: 'Action',
-              flex: 1,
-              headerClassName: 'super-app-theme--header',
-              renderCell: (params) => (
-                <Button variant="outlined" onClick={() => openDrawer(params.row)}>
-                  View More
-                </Button>
-              ),
-            },
-          ]}
-          //@ts-ignore
-          pageSize={5}
-          rowsPerPageOptions={[5]}
-        />
-      </Box>
+        >
+          <DataGrid
+            sx={{ width: '100%' }}
+            rows={filteredData}
+            getRowId={(row) => row.kycId}
+            columns={KycColumns || []}
+            //@ts-ignore
+            pageSize={5}
+            rowsPerPageOptions={[5]}
+          />
+        </Box>
+      </HasPermission>
 
       {/* Full-Screen Drawer */}
 
@@ -651,7 +589,7 @@ const KYCPage = () => {
                                 setProoftype(proofType);
                                 // await unverifyProofType(proofType); // API call
                               }}
-                              disabled={proofType.verificationStatus === 'v'}
+                              disabled={proofType.verificationStatus === 'v' || helper_service.checkUserHasPermission(local_service.get_modules()?.KYC, 'canUpdate')}
                             >
                               <CloseIcon />
                             </IconButton>
@@ -665,7 +603,7 @@ const KYCPage = () => {
                                 setProoftype(proofType);
                                 // await verifyProofType(proofType); // API call
                               }}
-                              disabled={proofType.verificationStatus === 'va'}
+                              disabled={proofType.verificationStatus === 'va' || helper_service.checkUserHasPermission(local_service.get_modules()?.KYC, 'canUpdate')}
                             >
                               <CheckCircleOutlineIcon />
                             </IconButton>
@@ -677,15 +615,10 @@ const KYCPage = () => {
                       {/* <TextField label="Additional Comments" fullWidth defaultValue={proofType?.verificationStatusComments} disabled /> */}
                       <IconButton onClick={() => {
                         setOpen(true)
-                        console.log(selectedKYC?.comments)
-                        kycservice.getComment(selectedKYC?.kycId).then(data=>{
-
-                          setComments(  data.filter(e=>e.kycId==(selectedKYC?.kycId)))
-                          
-                          })
-
+                        kycservice.getComment(selectedKYC?.kycId).then(data => {
+                          setComments(data.filter(e => e.kycId == (selectedKYC?.kycId)))
+                        })
                         kycservice.getComment(selectedKYC?.kycId)
-                        // setComments()
                       }}>
                         <Comment />
                       </IconButton>
@@ -706,7 +639,6 @@ const KYCPage = () => {
           </Box>
         </Box>
       </Drawer>
-
 
       <Modal open={open} onClose={() => setOpen(false)}>
         <Box
@@ -792,8 +724,6 @@ const KYCPage = () => {
             </IconButton>
           </Box>
         </Box>
-
-
       </Modal>
 
       {checkboxOpen && <ConfirmationModal
@@ -805,8 +735,12 @@ const KYCPage = () => {
         message={prooftype?.verificationStatus === 'va' ? 'Do you want to unverify this document?' : 'Do you want to verify this document?'}
         //@ts-ignore
         handleConfirm={() => { prooftype?.verificationStatus === 'va' ? unverifyProofType(prooftype) : verifyProofType(prooftype) }}
-        handleClose={() => setCheckboxOpen(false)} />}
+        handleClose={() => setCheckboxOpen(false)} />
+      }
 
+      <VerifyDocumentModal open={selectedVerifcationOpen} onClose={handleClose}
+        //@ts-ignore
+        sampledata={selectedDocumentModal} />
     </Box>
   )
 }

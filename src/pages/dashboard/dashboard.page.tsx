@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart } from '@mui/x-charts/BarChart';
+import HasPermission from '@/components/permissionWrapper'
 
 const API_URL = "https://data.fixer.io/api/latest?access_key=a2a71cbc49db03a0c67fb2fa5cb4e5a9&base=ZAR";
 const STORAGE_KEY = "exchange_rates";
 const EXPIRATION_TIME = 30 * 60 * 1000; // 30 minutes
+import { LocalStorageService } from '@/helpers/local-storage-service';
 
 const fetchExchangeRates = async () => {
   try {
@@ -32,18 +34,18 @@ const getExchangeRates = async () => {
 
 const ExchangeRateBarChart = () => {
   const [rates, setRates] = useState([]);
-
+  const local_service = new LocalStorageService();
   useEffect(() => {
     const updateRates = async () => {
       const data = await getExchangeRates();
       if (data && data.rates) {
         const weakerCurrencies = Object.entries(data.rates)
-          .filter(([_, value]) => 
+          .filter(([_, value]) =>
             //@ts-ignore
             value < 1)
           .map(([currency, value]) => ({ currency, value }));
 
-          //@ts-ignore
+        //@ts-ignore
         setRates(weakerCurrencies);
       }
     };
@@ -53,21 +55,29 @@ const ExchangeRateBarChart = () => {
   }, []);
 
   return (
-    <BarChart
-      series={[{ data: rates.map((item) => 
-        
-        //@ts-ignore
-        item.value), label: ' Rates' }]}
-      xAxis={[{ data: rates.map((item) =>
-        //@ts-ignore
-        item.currency), scaleType: 'band' }]}
-      yAxis={[{ min: 0, max: Math.max(...rates.map((item) => 
-        //@ts-ignore
-        item.value), 1) * 1.1 }]} // Fixed yAxis type to be an array
-      // barLabel={(item) => (item.value ? item.value.toFixed(6) : null)}
-      width={1200}
-      height={350}
-    />
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.DASHBOARD}>
+      <BarChart
+        series={[{
+          data: rates.map((item) =>
+
+            //@ts-ignore
+            item.value), label: ' Rates'
+        }]}
+        xAxis={[{
+          data: rates.map((item) =>
+            //@ts-ignore
+            item.currency), scaleType: 'band'
+        }]}
+        yAxis={[{
+          min: 0, max: Math.max(...rates.map((item) =>
+            //@ts-ignore
+            item.value), 1) * 1.1
+        }]} // Fixed yAxis type to be an array
+        // barLabel={(item) => (item.value ? item.value.toFixed(6) : null)}
+        width={1200}
+        height={350}
+      />
+    </HasPermission>
   );
 };
 

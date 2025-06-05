@@ -3,7 +3,7 @@ import { json } from 'react-router-dom'
 // import { json } from 'react-router-dom'
 
 class LocalStorageService {
-  constructor() {}
+  constructor() { }
 
   get(key: string) {
     return localStorage.getItem(key)
@@ -49,6 +49,20 @@ class LocalStorageService {
   }
   set_user(admin: any) {
     return this.set('user', admin)
+  }
+
+  get_staff_access() {
+    let staff_record: any = this.get('staff_access')
+    return JSON.parse(staff_record)
+  }
+
+  get_modules() {
+    let modules_record: any = this.get('modules')
+    return JSON.parse(modules_record)
+  }
+
+  set_staff_access(staff_data: any) {
+    return this.set('staff_access', staff_data)
   }
 
   get_user(): User | null {

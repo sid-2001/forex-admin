@@ -30,13 +30,13 @@ const ReconPage = () => {
   const [globalTransactionId, setGlobalTransactionId] = useState('');
   const [rows, setRows] = useState();
 
-  
+
   const [filteredRows, setFilteredRows] = useState([]);
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [selectAll, setSelectAll] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-  const [allreconData,setallRecondData]=useState([])
+  const [allreconData, setallRecondData] = useState([])
   const [reconciliation, setReconciliation] = useState({
     reconId: '',
     reconDate: dayjs(),
@@ -50,12 +50,12 @@ const ReconPage = () => {
   });
 
 
-    const [text, setText] = useRecoilState(alertTextState)
-    const [type, setType] = useRecoilState(alertTypeState)
-    const [open, setOpen] = useRecoilState(alertState)
-    const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
-  
-    const[reconid,setReconID]=useState('')
+  const [text, setText] = useRecoilState(alertTextState)
+  const [type, setType] = useRecoilState(alertTypeState)
+  const [open, setOpen] = useRecoilState(alertState)
+  const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
+
+  const [reconid, setReconID] = useState('')
 
 
   const handleCheckboxChange = (rowId: string, isChecked: boolean) => {
@@ -71,7 +71,7 @@ const ReconPage = () => {
   };
 
 
-  let transaction_service=new TransactionService()
+  let transaction_service = new TransactionService()
 
 
   useEffect(() => {
@@ -79,7 +79,7 @@ const ReconPage = () => {
     transaction_service.gettransactions().then(data => {
       if (data && data.transactionDetailsList) {
 
-//@ts-ignore
+        //@ts-ignore
 
         setallRecondData(data.transactionDetailsList)
 
@@ -88,30 +88,30 @@ const ReconPage = () => {
         const all_data = data.transactionDetailsList
 
 
-     
-        .map(e => {
 
-     
-          if (!e?.transactionOutward?.reconId) {  // Check for undefined or null reconId
-            return {
-              id: e.transactionOutward?.transactionNumber || "",
-              destination: e.transactionOutward?.receiveCountry || "",
-              value: e.transactionOutward?.principalAmount || 0,
-              currency: e.transactionOutward?.principalAmount && e.transactionOutward?.exchangeRates
-                ? e.transactionOutward.principalAmount * e.transactionOutward.exchangeRates
-                : "0", // Ensuring safe multiplication
-              settlement: e.transactionOutward?.owCreatedDate || new Date(),
-              destinationBank: e.transactionOutward?.destinationBankBicCode || "",
-              reconid:(e.transactionOutward?.reconId)?(e.transactionOutward.reconId):null
-             
-            };
-          }
-          return null; // This will be filtered out later
-        })
-        .filter(Boolean); // Removes all null values from the array
-      
+          .map(e => {
 
-//@ts-ignore
+
+            if (!e?.transactionOutward?.reconId) {  // Check for undefined or null reconId
+              return {
+                id: e.transactionOutward?.transactionNumber || "",
+                destination: e.transactionOutward?.receiveCountry || "",
+                value: e.transactionOutward?.principalAmount || 0,
+                currency: e.transactionOutward?.principalAmount && e.transactionOutward?.exchangeRates
+                  ? e.transactionOutward.principalAmount * e.transactionOutward.exchangeRates
+                  : "0", // Ensuring safe multiplication
+                settlement: e.transactionOutward?.owCreatedDate || new Date(),
+                destinationBank: e.transactionOutward?.destinationBankBicCode || "",
+                reconid: (e.transactionOutward?.reconId) ? (e.transactionOutward.reconId) : null
+
+              };
+            }
+            return null; // This will be filtered out later
+          })
+          .filter(Boolean); // Removes all null values from the array
+
+
+        //@ts-ignore
         setRows(all_data);
         //@ts-ignore
         setFilteredRows(all_data)
@@ -119,7 +119,7 @@ const ReconPage = () => {
       }
     });
   }, []);
-  
+
 
 
   const handleTextFieldChange = (rowId: string, value: string) => {
@@ -133,7 +133,7 @@ const ReconPage = () => {
     if (isChecked) {
       const allSelected = Object.fromEntries(
         //@ts-ignore
-        
+
         rows.map((row) => [row.id, ""]));
       setSelectedRows(allSelected);
     } else {
@@ -156,23 +156,23 @@ const ReconPage = () => {
 
   const handleSave = () => {
 
-    
+
     const payload = Object.keys(selectedRows).map((rowId) => ({
-        transactionId: rowId,
-        reconId: selectedRows[rowId],
+      transactionId: rowId,
+      reconId: selectedRows[rowId],
     }));
     console.log('Payload:', payload);
-    transaction_service.createRecons(payload).then(response=>{
-console.log(response)
-if(response?.status==200){
+    transaction_service.createRecons(payload).then(response => {
+      console.log(response)
+      if (response?.status == 200) {
 
-setcommonloader(true)
-setTimeout(() => {
-    setcommonloader(false)
-    window.location.reload()
-}, 2000);
+        setcommonloader(true)
+        setTimeout(() => {
+          setcommonloader(false)
+          window.location.reload()
+        }, 2000);
 
-}
+      }
 
 
     })
@@ -183,7 +183,7 @@ setTimeout(() => {
     if (startDate && endDate) {
 
       //@ts-ignore
-      const filtered = rows.filter((row:any) =>
+      const filtered = rows.filter((row: any) =>
         //@ts-ignore
         dayjs(row.settlement).isBetween(
           startDate,
@@ -226,12 +226,9 @@ setTimeout(() => {
       field: 'checkbox',
       headerName: '',
       width: 50,
-
-
-      
       renderCell: (params) => (
         <Checkbox
-        //@ts-ignore
+          //@ts-ignore
           checked={selectedRows[params.row.id]}
           onChange={(e) =>
             handleCheckboxChange(params.row.id, e.target.checked)
@@ -250,24 +247,24 @@ setTimeout(() => {
       headerName: 'Recon Id',
       flex: 1,
       renderCell: (params) =>
-         
-        
+
+
         selectedRows[params.row.id] !== undefined ? (
-        
+
           <TextField
 
             value={selectedRows[params.row.id]}
-            onChange={(e) =>{
-              
-          console.log()
-             
+            onChange={(e) => {
+
+              console.log()
+
               handleTextFieldChange(params.row.id, e.target.value)
-         
+
             }
             }
             size="small"
           />
-        ) : <>{params.row.reconid?params.row.reconid:"-----"}</>,
+        ) : <>{params.row.reconid ? params.row.reconid : "-----"}</>,
     },
   ];
 
@@ -306,24 +303,20 @@ setTimeout(() => {
           />
 
 
-<IconButton onClick={()=>{
+          <IconButton onClick={() => {
 
-setStartDate(null)
-setEndDate(null)
+            setStartDate(null)
+            setEndDate(null)
 
-setFilteredRows(
-    //@ts-ignore
-  rows)
+            setFilteredRows(
+              //@ts-ignore
+              rows)
+          }}>
+            <RestartAltIcon></RestartAltIcon>
+          </IconButton>
 
-
-}}>
-
-
-    <RestartAltIcon></RestartAltIcon>
-</IconButton>
-
-           {/* Apply Filter Button */}
-           <Button variant="contained" color="primary" onClick={handleDateFilter}>
+          {/* Apply Filter Button */}
+          <Button variant="contained" color="primary" onClick={handleDateFilter}>
             Apply Filter
           </Button>
 
@@ -335,86 +328,81 @@ setFilteredRows(
             size="small"
           />
 
+          <TextField
+            label="Recon ID"
+            variant="outlined"
+            value={reconid}
+            onChange={(v) => {
+              setReconID(v.target.value)
+              console.log(v.target.value)
+              var all_data = allreconData.map((e: any) => {
+                if (
+                  //@ts-ignore
+                  e?.transactionOutward?.reconId == v.target.value) {  // Check for undefined or null reconId
+                  return {
+                    //@ts-ignore
+                    id: e.transactionOutward?.transactionNumber || "",
+                    //@ts-ignore
+                    destination: e.transactionOutward?.receiveCountry || "",
+                    //@ts-ignore
+                    value: e.transactionOutward?.principalAmount || 0,
+                    //@ts-ignore
+                    currency: e.transactionOutward?.principalAmount && e.transactionOutward?.exchangeRates
+                      ? e.transactionOutward.principalAmount * e.transactionOutward.exchangeRates
+                      : "0", // Ensuring safe multiplication
+                    settlement: e.transactionOutward?.owCreatedDate || new Date(),
+                    destinationBank: e.transactionOutward?.destinationBankBicCode || "",
+                    reconid: (e.transactionOutward?.reconId) ? (e.transactionOutward.reconId) : null
+                  };
+                }
+                return null; // This will be filtered out later
+              })
+                .filter(Boolean);
+              console.log(all_data)
+              //@ts-ignore
+              setRows(all_data);
+              //@ts-ignore
+              setFilteredRows(all_data)
+            }
+            }
+            fullWidth
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={() => {
 
-<TextField
-      label="Recon ID"
-      variant="outlined"
-      value={reconid}
-      onChange={(v) => {setReconID(v.target.value)
-        console.log(v.target.value)
-   var all_data=  allreconData.map( (e :any)   => {
-
-     
-        if (
-          //@ts-ignore
-          e?.transactionOutward?.reconId==v.target.value) {  // Check for undefined or null reconId
-          return {
-            //@ts-ignore
-            id: e.transactionOutward?.transactionNumber || "",
-//@ts-ignore
-            destination: e.transactionOutward?.receiveCountry || "",
-            //@ts-ignore
-            value: e.transactionOutward?.principalAmount || 0,
-            //@ts-ignore
-            currency: e.transactionOutward?.principalAmount && e.transactionOutward?.exchangeRates
-              ? e.transactionOutward.principalAmount * e.transactionOutward.exchangeRates
-              : "0", // Ensuring safe multiplication
-            settlement: e.transactionOutward?.owCreatedDate || new Date(),
-            destinationBank: e.transactionOutward?.destinationBankBicCode || "",
-            reconid:(e.transactionOutward?.reconId)?(e.transactionOutward.reconId):null
-          };
-        }
-        return null; // This will be filtered out later
-      })
-      .filter(Boolean); 
-console.log(all_data)
-//@ts-ignore
-      setRows(all_data);
-      //@ts-ignore
-      setFilteredRows(all_data)
-      }
+                    var all_data = allreconData.map((e: any) => {
 
 
+                      if (!e?.transactionOutward?.reconId) {  // Check for undefined or null reconId
+                        return {
+                          id: e.transactionOutward?.transactionNumber || "",
+                          destination: e.transactionOutward?.receiveCountry || "",
+                          value: e.transactionOutward?.principalAmount || 0,
+                          currency: e.transactionOutward?.principalAmount && e.transactionOutward?.exchangeRates
+                            ? e.transactionOutward.principalAmount * e.transactionOutward.exchangeRates
+                            : "0", // Ensuring safe multiplication
+                          settlement: e.transactionOutward?.owCreatedDate || new Date(),
+                          destinationBank: e.transactionOutward?.destinationBankBicCode || "",
+                          reconid: (e.transactionOutward?.reconId) ? (e.transactionOutward.reconId) : null
+                        };
+                      }
+                      return null; // This will be filtered out later
+                    })
+                      .filter(Boolean);
+                    console.log(all_data)
+                    //@ts-ignore
+                    setRows(all_data);
+                    //@ts-ignore
+                    setFilteredRows(all_data)
 
-    }
-      fullWidth
-      InputProps={{
-        endAdornment: (
-          <InputAdornment position="end">
-            <IconButton onClick={()=>{
-
-var all_data=  allreconData.map((e:any) => {
-
-  
-     if (!e?.transactionOutward?.reconId) {  // Check for undefined or null reconId
-       return {
-         id: e.transactionOutward?.transactionNumber || "",
-         destination: e.transactionOutward?.receiveCountry || "",
-         value: e.transactionOutward?.principalAmount || 0,
-         currency: e.transactionOutward?.principalAmount && e.transactionOutward?.exchangeRates
-           ? e.transactionOutward.principalAmount * e.transactionOutward.exchangeRates
-           : "0", // Ensuring safe multiplication
-         settlement: e.transactionOutward?.owCreatedDate || new Date(),
-         destinationBank: e.transactionOutward?.destinationBankBicCode || "",
-         reconid:(e.transactionOutward?.reconId)?(e.transactionOutward.reconId):null
-       };
-     }
-     return null; // This will be filtered out later
-   })
-   .filter(Boolean); 
-console.log(all_data)
-//@ts-ignore
-   setRows(all_data);
-   //@ts-ignore
-   setFilteredRows(all_data)
-
-            }} edge="end">
-              <LocalDrink />
-            </IconButton>
-          </InputAdornment>
-        ),
-      }}
-    />
+                  }} edge="end">
+                    <LocalDrink />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
 
           {/* Copy to All Button */}
           <Button
@@ -445,29 +433,29 @@ console.log(all_data)
           </Button> */}
         </Box>
 
-<Box
-        marginTop={2}
-        sx={{
-          width: '80vw',
-          height:'80vh',
+        <Box
+          marginTop={2}
+          sx={{
+            width: '80vw',
+            height: '80vh',
 
-          '& .super-app-theme--header': {
-            backgroundColor: '#005099',
-            color: 'white',
-          },
-        }}
-      >
+            '& .super-app-theme--header': {
+              backgroundColor: '#005099',
+              color: 'white',
+            },
+          }}
+        >
 
-        <DataGrid
-          rows={filteredRows}
-          columns={columns}
-          autoHeight
-          checkboxSelection={false}
-          //@ts-ignore
-          disableSelectionOnClick
-        />
+          <DataGrid
+            rows={filteredRows}
+            columns={columns}
+            autoHeight
+            checkboxSelection={false}
+            //@ts-ignore
+            disableSelectionOnClick
+          />
 
-</Box>
+        </Box>
 
         {/* Add Reconciliation Modal */}
         <Modal open={openModal} onClose={handleCloseModal}>
@@ -498,8 +486,8 @@ console.log(all_data)
               label="From Transaction Date"
               value={reconciliation.from_transactionDate}
               onChange={(newDate) => setReconciliation(
-                
-                (prev:any) => ({ ...prev, from_transactionDate: newDate }))}
+
+                (prev: any) => ({ ...prev, from_transactionDate: newDate }))}
               //@ts-ignore
               renderInput={(params) => <TextField {...params} fullWidth sx={{ marginBottom: 2 }} />}
             />
@@ -507,7 +495,7 @@ console.log(all_data)
             <DatePicker
               label="To Transaction Date"
               value={reconciliation.to_transactionDate}
-              onChange={(newDate) => setReconciliation((prev:any) => ({ ...prev, to_transactionDate: newDate }))}
+              onChange={(newDate) => setReconciliation((prev: any) => ({ ...prev, to_transactionDate: newDate }))}
               //@ts-ignore
               renderInput={(params) => <TextField {...params} fullWidth sx={{ marginBottom: 2 }} />}
             />
@@ -571,9 +559,6 @@ console.log(all_data)
         </Modal>
       </Box>
     </LocalizationProvider>
-
-
-
   );
 };
 

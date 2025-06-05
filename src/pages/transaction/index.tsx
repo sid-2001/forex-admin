@@ -1,90 +1,48 @@
-import React, { useEffect, useState } from 'react'
-import { Box, Button, Divider, Grid, Typography, Chip, TextField, Drawer, ToggleButton, ToggleButtonGroup, useTheme, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Tooltip, Modal, List, ListItem, ListItemText } from '@mui/material'
-import { DataGrid, GridColDef, GridFilterAltIcon } from '@mui/x-data-grid'
-import VisibilityIcon from '@mui/icons-material/Visibility'
+import { useEffect, useState } from 'react'
+import {
+  Box, Button, Divider, Grid, Typography, Chip, TextField, Drawer,
+  ToggleButton, ToggleButtonGroup, useTheme, IconButton, Dialog, DialogTitle, DialogContent,
+  DialogActions, Tooltip, Modal, List, ListItem, ListItemText
+} from '@mui/material'
+import { DataGrid } from '@mui/x-data-grid'
 import { useNavigate } from 'react-router-dom'
-import { TransactionService } from '@/services/transaction.service'
 import {
   Applicant,
-  TansactionOutwardCalculated,
   TransactionDetailsResponse,
   TransactionInward,
   TransactionInwardCalclulated,
   TransactionOutward,
 } from '@/types/transaction.type'
 import AssessmentIcon from '@mui/icons-material/Assessment';
-import { Filter1Outlined, PreviewOutlined, SettingsAccessibilityRounded, Sync } from '@mui/icons-material'
+import { PreviewOutlined, SettingsAccessibilityRounded, Sync } from '@mui/icons-material'
 import { useRecoilState } from 'recoil'
-import { loaderState, loaderStateNew, selectedCountryState } from '@/states/state'
-import { ApplicantService } from '@/services/applicant.service'
+import { loaderStateNew, selectedCountryState } from '@/states/state'
 import CompliancTool from '@/components/compliance-tool'
 import { HelperService } from '@/helpers/helper'
-
-
-
-import moment from "moment-timezone";
-
-
+import { LocalStorageService } from '@/helpers/local-storage-service'
+import { TransactionService } from '@/services/transaction.service'
+import { ApplicantService } from '@/services/applicant.service'
 
 const TransactionPage = () => {
 
-  // reporting:e?.transactionOutward?.reportingStatus=="ACK"?"Reported":"Pending",
-  //           status:e?.transactionOutward?.transactionStatus=="CR"?"Pending":"Done",
-
-  const helper = new HelperService()
-  //@ts-ignore
-  const columns_outward: GridColDef[] = [
-
-    //@ts-ignore
-    { field: 'id', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header',   renderCell: (params) =>  { return( <a href="#" onClick={(e)=>{
-
-
-console.log(" i have done this")
-
-handleViewMore(params.row)
-    }}>{params?.value}</a>)} },
-
+  const columns_outward = [
+    {
+      field: 'id', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header', renderCell: (params: any) => {
+        return (<a href="#" onClick={() => handleViewMore(params.row)}>{params?.value}</a>)
+      }
+    },
     { field: 'transactionInwardNumber', headerName: 'Inward ID', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'destination', headerName: 'Destination', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'value', headerName: ' Principal Amount ', flex: 1, headerClassName: 'super-app-theme--header', renderCell: (params) => params?.value?.toFixed(2) },
+    { field: 'value', headerName: ' Principal Amount ', flex: 1, headerClassName: 'super-app-theme--header', renderCell: (params: any) => params?.value?.toFixed(2) },
     { field: 'principalCurrency', headerName: ' Principal Currency ', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'settlementAmount', headerName: ' Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header', renderCell: (params) => params?.value?.toFixed(2) },
+    { field: 'settlementAmount', headerName: ' Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header', renderCell: (params: any) => params?.value?.toFixed(2) },
     { field: 'settlementCurrency', headerName: 'Settlement Currency  ', flex: 1, headerClassName: 'super-app-theme--header' },
-    // {
-    //   field: 'applicant',
-    //   headerName: 'Applicant',
-    //   flex: 1,
-    //   headerClassName: 'super-app-theme--header',
-    //   renderCell: (params) =>  { return( params.value?.applicantId || '')}
-    // },
-
-
-    // {
-    //   field: 'applicant',
-    //   headerName: 'Applicant',
-    //   flex: 1,
-    //   headerClassName: 'super-app-theme--header',
-    //   renderCell: (params) => {
-    //     return (
-    //       <span onClick={()=>{
-
-    //         console.log("indid")
-
-    //      navigate(`/applicant-details/${params.value?.applicantId}`)
-    //       }}>
-    //         {params.value?.name || params.value?.applicantId || 'N/A'}
-    //       </span>
-    //     );
-    //   }
-    // },
-
-    ,
     {
       field: 'applicant',
       headerName: 'Applicant',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => {
+      renderCell: (params: any) => {
         const navigate = useNavigate();
 
         const nameOrId = params.value?.name || params.value?.applicantId || 'N/A';
@@ -101,77 +59,29 @@ handleViewMore(params.row)
         );
       }
     },
-    // {
-    //   field: 'applicant',
-    //   headerName: 'Applicant',
-    //   flex: 1,
-    //   headerClassName: 'super-app-theme--header',
-    //   renderCell: (params) => {
-    //     const applicant = params.value;
-
-    //     if (!applicant) return '';
-
-    //     return (
-    //       <span
-    //         style={{ cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}
-    //         onClick={() => navigate(`/applicants/${applicant.applicantId}`)}
-    //       >
-
-    //         {applicant.name}
-    //       </span>
-    //     );
-    //   }
-    // },
-
-
     { field: 'forex', headerName: 'Exchange Rate', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'charges', headerName: 'Charges', flex: 1, headerClassName: 'super-app-theme--header' },
-    // { field: 'currency', headerName: 'Currency', flex: 1, headerClassName: 'super-app-theme--header' },
-    // { field: 'final_amount', headerName: 'Settlement Amount ', flex: 1, headerClassName: 'super-app-theme--header' },
     {
       field: "stpError",
       headerName: "STP",
       flex: 1,
       headerClassName: "super-app-theme--header",
-      renderCell: (params) =>
+      renderCell: (params: any) =>
         params.value ? (
-
-          <Chip label={params.value == "N" ? "No Error" : "Error"} color={params.value == "N" ? "success" : "error"} />
-
+          <Chip label={params.value == "N" ? "No Error" : "Error"}
+            color={params.value == "N" ? "success" : "error"} />
         ) : (
           <Chip onClick={() => {
             setmodalOpen(true)
-
           }} label="Error" color="error" />
         ),
     },
-    // { field: 'destinationBank', headerName: 'Destination Bank', flex: 1, headerClassName: 'super-app-theme--header' },
-
-    // {
-    //   field: 'action',
-    //   headerName: 'Action',
-    //   flex: 1,
-    //   headerClassName: 'super-app-theme--header',
-    //   renderCell: (params) => (
-       
-    //     <>
-    //       <IconButton onClick={() => {
-    //         handleViewMore(params.row)
-    //       }}>
-    //         <VisibilityIcon />
-    //       </IconButton>
-
-    //     </>
-    //   ),
-    // },
-
-
     {
-      field: 'bob action',
+      field: 'Bop action',
       headerName: 'Bop',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => (
+      renderCell: (params: any) => (
         <>
           <IconButton onClick={() => {
             navigate(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`)
@@ -187,7 +97,7 @@ handleViewMore(params.row)
       headerName: "Reporting Status",
       flex: 1,
       headerClassName: "super-app-theme--header",
-      renderCell: (params) =>
+      renderCell: (params: any) =>
         params?.value?.reporting == "Reported" ? (
           params.value.status
         ) : (
@@ -201,7 +111,7 @@ handleViewMore(params.row)
       headerName: "Date",
       flex: 1,
       headerClassName: "super-app-theme--header",
-      renderCell: (params) => {
+      renderCell: (params: any) => {
         return helper.convertDateAndTime((params.value?.owCreatedDate))
       }
     },
@@ -210,7 +120,7 @@ handleViewMore(params.row)
       headerName: "Status",
       flex: 1,
       headerClassName: "super-app-theme--header",
-      renderCell: (params) =>
+      renderCell: (params: any) =>
         params?.value?.status == 'Pending' ? (
           <Tooltip title={params?.value?.status || "Unknown Error"} arrow>
             <Chip label="Pending" color="error" />
@@ -229,7 +139,6 @@ handleViewMore(params.row)
     { field: 'settlementCurrency', headerName: 'Settlement Currency', width: 150, headerClassName: 'super-app-theme--header' },
     { field: 'settlementAmount', headerName: 'Settlement Amount', type: 'number', width: 150, headerClassName: 'super-app-theme--header', renderCell: (params: any) => params?.value?.toFixed(2) },
     { field: 'reportingStatus', headerName: 'Reporting Status', width: 130, headerClassName: 'super-app-theme--header' },
-    // { field: 'destinationBankCode', headerName: 'Destination Bank Code', width: 180, headerClassName: 'super-app-theme--header'  },
     {
       field: "inCreatedDate",
       headerName: "Created Date",
@@ -239,13 +148,6 @@ handleViewMore(params.row)
         return helper.convertDateAndTime((params.row?.inCreatedDate))
       }
     },
-    // {
-    //   field: 'inModifiedDate',
-    //   headerName: 'Modified Date',
-    //   width: 180,
-    //   valueGetter: (params) => new Date(params.value).toLocaleString('en-GB'),
-    //    headerClassName: 'super-app-theme--header' 
-    // },
     {
       field: 'action',
       headerName: 'Action',
@@ -261,40 +163,38 @@ handleViewMore(params.row)
     },
   ];
 
-  const openInNewTab = (url: any) => {
-    const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
-    if (newWindow) newWindow.opener = null
-  }
-
   const [isDrawerOpen, setDrawerOpen] = useState(false)
   const [modalOpen, setmodalOpen] = useState(false)
-
   const [transactionDetails, setTransactionDetails] = useState<any>(null)
   const [transactionType, setTransactionType] = useState('inwards') // Default to 'inwards'
-
   const [inboundTransaction, setInboundTransaction] = useState<Array<TransactionInward>>([])
   const [outboundTransaction, setOutboundTransaction] = useState<Array<TransactionOutward>>([])
   const [toolopen, setToolOpen] = useState(false)
   const [errors, seterrors] = useState(["Invalid email", "Password too short", "Username required"])
-
   const [selectedCountryOption, setSelectedCountryOption] = useRecoilState(selectedCountryState)
   //@ts-ignore
   const [applicant, setApplicant] = useState<Applicant>(null)
   const [trxStatus, settrxStatus] = useState('')
-
   const [transactionData, setTransactionData] = useState(inboundTransaction)
   const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
   const [selectedCountryoption, setselectedCountryoption] = useRecoilState(selectedCountryState)
   const [userList, setUserList] = useState([])
   const [creattrx, setCreatetrx] = useState('')
   const [zaphierlink, setZaphierLink] = useState('')
+  const [open, setOpen] = useState(false);
+  const [startDate, setStartDate] = useState<string | null>(null);
+  const [endDate, setEndDate] = useState<string | null>(null);
 
   let applicant_service = new ApplicantService()
+  let transaction_Service = new TransactionService()
+  const helper = new HelperService()
+  const local_service = new LocalStorageService()
+  const theme = useTheme()
+  const navigate = useNavigate()
 
   useEffect(() => {
     setcommonloader(true)
     applicant_service.getApplicantDetalis().then(data => {
-      console.log(data)
       let users = data.map((e) => {
         let benificiary_list = e.beneficiaryList.map((b) => {
           return (
@@ -323,83 +223,15 @@ handleViewMore(params.row)
     })
   }, [])
 
-  const addpayment = (create_trx: any) => {
-    let trx_service = new TransactionService()
-
-
-    if (trxStatus.toLocaleLowerCase() == "DRAFT" || trxStatus.toLocaleLowerCase() == "PENDING") {
-      trx_service.createTransaction(creattrx).then(data => {
-
-        console.log(data)
-      })
-    }
-
-    trx_service.createZaphierTransaction({
-      amount: (Number(create_trx?.totalpaybleamount)),
-      currency: "ZAR"
-    }).then(data => {
-      console.log(data?.redirectUrl)
-      setZaphierLink(data?.redirectUrl)
-    })
-  }
-
-  const handleViewMore = (row: any) => {
-    console.log(row)
-    settrxStatus(row?.status)
-    let d = {
-      //@ts-ignore
-      benificary: { "benificaryId": row?.beneficiaryId },
-      transferMethod: 'Bank Trannsfer',
-      destinationCountry: row.destination,
-      selectedTimeMethod: {
-        "id": 2,
-        "time": "8 hours",
-        "charges": 5,
-        "total": 200,
-        "segment": 2
-      },
-      gatewayStatus: 'Success',
-      amount: row?.settlementAmount,
-      applicant: {
-        "applicantId": row.applicantId
-      },
-      forex: row.exchangeRates,
-      gatewayId: '13122',
-      //@ts-ignore
-      timecharge: row.charges,
-      sourceCurrency: selectedCountryoption == "SA" ? "ZAR" : "INR",
-      sourceCountry: selectedCountryoption == 'SA' ? "ZA" : "IN",
-      destinationCurrency: selectedCountryoption == 'SA' ? "INR" : "ZAR",
-      bopId:row?.bobId,
-
-  
-      // totalpaybleamount: (Number(row.value) + Number(row.charges)),
-      totalpaybleamount: (Number(row.value) * Number(row.exchangeRates)),
-      transactionId: row?.transactionNumber
-    }
-    setCreatetrx(d as any)
-    // addpayment(d as any)
-    setTransactionDetails(row)
-    setDrawerOpen(true)
-  }
-
-  let transaction_Service = new TransactionService()
-
-  const trnx = []
-
   useEffect(() => {
     setcommonloader(true)
     transaction_Service.getInwardTransaction(selectedCountryOption == "IN" ? "IN" : "ZA").then(data => {
-      console.log('Inward Transaction')
-      console.log(data)
       setInboundTransaction(data)
     })
 
     transaction_Service
       .gettransactions()
       .then((data: TransactionDetailsResponse) => {
-        console.log("data-----------------------", data);
-
         let inbound: Array<TransactionInwardCalclulated>[] | any = data?.transactionDetailsList.map((e: any) => {
           //@ts-ignore
           return ({
@@ -442,17 +274,16 @@ handleViewMore(params.row)
               inid: e?.transactionInwardNumber
             };
           })
-        ?.filter((transaction) => {
-          if (selectedCountryOption === "IN") {
-            return (transaction.destination?.toLowerCase() !== "in");
-          }
-          else if((selectedCountryOption === "SA") ){
-            return (transaction.destination?.toLowerCase() !== "za");
+          ?.filter((transaction) => {
+            if (selectedCountryOption === "IN") {
+              return (transaction.destination?.toLowerCase() !== "in");
+            }
+            else if ((selectedCountryOption === "SA")) {
+              return (transaction.destination?.toLowerCase() !== "za");
+            }
 
-          }
-
-          return true; // If selectedCountryOption is not "IN", include all destinations
-        });
+            return true; // If selectedCountryOption is not "IN", include all destinations
+          });
         let user: Array<Applicant>[] | any = data?.transactionDetailsList.map((e) => {
           return {
             ...e.applicant
@@ -472,9 +303,65 @@ handleViewMore(params.row)
         })
   }, [])
 
-  const handleToggleTransactionType = (
-    //@ts-ignore
-    event, newType) => {
+  const openInNewTab = (url: any) => {
+    const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+    if (newWindow) newWindow.opener = null
+  }
+
+  const addpayment = (create_trx: any) => {
+    if (trxStatus.toLocaleLowerCase() == "DRAFT" || trxStatus.toLocaleLowerCase() == "PENDING") {
+      transaction_Service.createTransaction(creattrx).then(data => {
+        console.log(data)
+      })
+    }
+
+    transaction_Service.createZaphierTransaction({
+      amount: (Number(create_trx?.totalpaybleamount)),
+      currency: "ZAR"
+    }).then(data => {
+      setZaphierLink(data?.redirectUrl)
+    })
+  }
+
+  const handleViewMore = (row: any) => {
+    console.log(row)
+    settrxStatus(row?.status)
+    let d = {
+      //@ts-ignore
+      benificary: { "benificaryId": row?.beneficiaryId },
+      transferMethod: 'Bank Trannsfer',
+      destinationCountry: row.destination,
+      selectedTimeMethod: {
+        "id": 2,
+        "time": "8 hours",
+        "charges": 5,
+        "total": 200,
+        "segment": 2
+      },
+      gatewayStatus: 'Success',
+      amount: row?.settlementAmount,
+      applicant: {
+        "applicantId": row.applicantId
+      },
+      forex: row.exchangeRates,
+      gatewayId: '13122',
+      //@ts-ignore
+      timecharge: row.charges,
+      sourceCurrency: selectedCountryoption == "SA" ? "ZAR" : "INR",
+      sourceCountry: selectedCountryoption == 'SA' ? "ZA" : "IN",
+      destinationCurrency: selectedCountryoption == 'SA' ? "INR" : "ZAR",
+      bopId: row?.bobId,
+      // totalpaybleamount: (Number(row.value) + Number(row.charges)),
+      totalpaybleamount: (Number(row.value) * Number(row.exchangeRates)),
+      transactionId: row?.transactionNumber
+    }
+    setCreatetrx(d as any)
+    // addpayment(d as any)
+    setTransactionDetails(row)
+    setDrawerOpen(true)
+  }
+  //@ts-ignore
+  const handleToggleTransactionType = (event: any, newType: string) => {
     if (newType) {
       setTransactionType(newType)
       //@ts-ignore
@@ -483,30 +370,10 @@ handleViewMore(params.row)
   }
 
   const closeDrawer = () => {
-
-    let trx_service = new TransactionService();
-
-   
-
-
-
     setDrawerOpen(false)
     setZaphierLink('')
     // window.location.href = zaphierlink;
-
-
   }
-
-  const theme = useTheme()
-  const navigate = useNavigate()
-  const [open, setOpen] = useState(false);
-  const [startDate, setStartDate] = useState<string | null>(null);
-  const [endDate, setEndDate] = useState<string | null>(null);
-
-  // Open the dialog
-  const handleOpen = () => {
-    setOpen(true);
-  };
 
   // Close the dialog
   const handleClose = () => {
@@ -515,8 +382,6 @@ handleViewMore(params.row)
 
   // Handle applying filters
   const handleApply = () => {
-    console.log('Start Date:', startDate);
-    console.log('End Date:', endDate);
     setOpen(false);
   };
 
@@ -563,19 +428,20 @@ handleViewMore(params.row)
               <SettingsAccessibilityRounded />
             </IconButton>
 
- 
-                    
             <IconButton onClick={() => {
               navigate('/utilization')
-            }} color="primary">
+            }}
+              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
+              color="primary">
               <AssessmentIcon sx={{
                 marginBottom: "10%"
               }} />
             </IconButton>
-            
-            <IconButton onClick={() => {
-              navigate('/recon')
-            }} color="primary">
+            <IconButton
+              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
+              onClick={() => {
+                navigate('/recon')
+              }} color="primary">
               <Sync sx={{
                 marginBottom: "10%"
               }} />
@@ -586,6 +452,7 @@ handleViewMore(params.row)
               sx={{
                 marginBottom: '10%',
               }}
+              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
               onClick={
                 //@ts-ignore
                 (e) => {
@@ -597,46 +464,50 @@ handleViewMore(params.row)
             </Button>
           </div>
         </div>
-        {transactionType === 'inwards' ? (<DataGrid
-          rows={inboundTransaction?.length > 0 ? inboundTransaction : []}
-          //@ts-ignore
-          columns={inward_columns}
-          getRowId={(row) => row?.transactionNumberIw}
-          //@ts-ignore
-          pageSize={5}
-          rowsPerPageOptions={[5]}
-          disableSelectionOnClick
-          sx={{
-            '& .MuiDataGrid-root': {
-              border: '1 px solid blue',
-            },
-            '& .MuiDataGrid-cell': {
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            },
-          }}
-        />) : (<DataGrid
-          rows={outboundTransaction}
-          columns={columns_outward}
-          getRowId={(row) => row.id}
-          //@ts-ignore
-          pageSize={5}
-          rowsPerPageOptions={[5]}
-          disableSelectionOnClick
-          sx={{
-            '& .MuiDataGrid-root': {
-              border: '1 px solid blue',
-            },
-            '& .MuiDataGrid-cell': {
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            },
-          }}
-        />)
+
+        {transactionType === 'inwards' &&
+          helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_INWARD, 'canRead') && (<DataGrid
+            rows={inboundTransaction?.length > 0 ? inboundTransaction : []}
+            //@ts-ignore
+            columns={inward_columns}
+            getRowId={(row) => row?.transactionNumberIw}
+            //@ts-ignore
+            pageSize={5}
+            rowsPerPageOptions={[5]}
+            disableSelectionOnClick
+            sx={{
+              '& .MuiDataGrid-root': {
+                border: '1 px solid blue',
+              },
+              '& .MuiDataGrid-cell': {
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              },
+            }}
+          />)
         }
 
+        {transactionType === 'outwards' &&
+          helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canRead') && (<DataGrid
+            rows={outboundTransaction}
+            columns={columns_outward}
+            getRowId={(row: any) => row.id}
+            //@ts-ignore
+            pageSize={5}
+            rowsPerPageOptions={[5]}
+            disableSelectionOnClick
+            sx={{
+              '& .MuiDataGrid-root': {
+                border: '1 px solid blue',
+              },
+              '& .MuiDataGrid-cell': {
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              },
+            }}
+          />)}
       </Box>
 
       <Drawer
@@ -670,7 +541,6 @@ handleViewMore(params.row)
             </Typography>
 
             <Chip label={transactionDetails?.status} color="warning" sx={{ marginBottom: 2 }} />
-            <Divider sx={{ my: 2 }} />
 
             {/* Transaction Details Section */}
             <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>
@@ -715,7 +585,6 @@ handleViewMore(params.row)
                 <TextField label="Bank Code" variant="filled" fullWidth defaultValue={transactionDetails?.bankBicCode} size="small" disabled />
               </Grid>
 
-              
               <Grid item xs={12} md={6}>
                 <TextField
                   label="Account Holder Name"
@@ -729,7 +598,6 @@ handleViewMore(params.row)
             </Grid>
 
             <Divider sx={{ my: 2 }} />
-            <Divider sx={{ my: 2 }} />
             <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>
               Applicant Details
             </Typography>
@@ -740,7 +608,6 @@ handleViewMore(params.row)
               <Grid item xs={12} md={6}>
                 <TextField label="Applicant Name" variant="filled" fullWidth defaultValue={transactionDetails?.applicant?.firstName} size="small" disabled />
               </Grid>
-             
             </Grid>
             {
               (trxStatus == "DRAFT" || trxStatus == "PENDING") ? (<>

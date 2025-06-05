@@ -4,8 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Button, IconButton } from '@mui/material';
 import { BeneficiaryService } from '@/services/beneficiary.service';
+import HasPermission from '../permissionWrapper';
+import { LocalStorageService } from '@/helpers/local-storage-service';
+import { HelperService } from '@/helpers/helper';
 
 const beneficiary_service= new BeneficiaryService();
+const local_service = new LocalStorageService();
+const helper =  new HelperService();
+
 const BeneficiaryTable = ({ 
   //@ts-ignore
   beneficiary,deleteBeneficiary ,applicantId
@@ -99,9 +105,7 @@ const BeneficiaryTable = ({
   const rows = Array.isArray(beneficiary) ? beneficiary : [];
 
   return (
-    <>
-
-
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.BENEFICIARY}>
     <Button
           variant="outlined"
           onClick={() => navigate(`/add-beneficiary/${applicantId}`)}
@@ -109,6 +113,7 @@ const BeneficiaryTable = ({
     
             marginBottom:"3%"
           }}
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.BENEFICIARY, 'canCreate')}
         >
          ADD Beneficary
         </Button>
@@ -147,7 +152,7 @@ const BeneficiaryTable = ({
       ) : (
         <p>No beneficiaries found</p>
       )}
-    </>
+    </HasPermission>
   );
 };
 

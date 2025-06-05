@@ -1,22 +1,25 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Grid, TextField, Typography, Button, Switch, FormControlLabel, Dialog, DialogActions, DialogContent, DialogTitle, Tabs, Tab, Avatar, FormControl, Select, InputLabel, MenuItem } from '@mui/material';
+import { Box, Grid, TextField, Typography, Button, Dialog, DialogActions, DialogContent, DialogTitle, Tabs, Tab, Avatar, FormControl, Select, InputLabel, MenuItem } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import TransactionTable from '../transaction-table';
 import DocumentComponent from '../document-tab';
 import { ApplicantService } from '@/services/applicant.service';
 import BeneficiaryTable from '@/components/beneficiary-table';
 import { BeneficiaryService } from '@/services/beneficiary.service';
-import chuks from '../../assets/images/chuks.jpg'
 import { PieChart } from '@mui/x-charts/PieChart/PieChart';
 import { HelperService } from '@/helpers/helper';
+import { LocalStorageService } from '@/helpers/local-storage-service';
+import HasPermission from '@/components/permissionWrapper';
 
 const applicant_service = new ApplicantService();
 const beneficiary_service = new BeneficiaryService();
+const helper = new HelperService()
+const local_service = new LocalStorageService
 
 const ApplicantPage = () => {
 
-
   const navigate = useNavigate();
+  const { applicantId } = useParams();
 
   // Define separate states for each field
   const [firstName, setFirstName] = useState('');
@@ -25,9 +28,9 @@ const ApplicantPage = () => {
   const [applicantName, setApplicantName] = useState('');
   const [nationality, setNationality] = useState('');
   const [residenceCountry, setResidenceCountry] = useState('');
+
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-
   const [suburb, setSuburb] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
@@ -50,20 +53,13 @@ const ApplicantPage = () => {
   const [beneficiaries, setBeneficiaries] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
 
-
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [zipCode, setZipCode] = useState("");
-
-
-
-
   const [postalAddressLine1, setPostalAddressLine1] = useState('');
   const [postalAddressLine2, setPostalAddressLine2] = useState('');
   const [postalAddressLine3, setPostalAddressLine3] = useState('');
-
-
   const [postalselectedCountry, setPostalSelectedCountry] = useState("");
   const [postalselectedState, setPostalSelectedState] = useState("");
   const [postalselectedCity, setPostalSelectedCity] = useState("");
@@ -71,28 +67,6 @@ const ApplicantPage = () => {
   const [utilizedLimit, setutilizedLimit] = useState(0)
   const [availableLimit, setAvailableLimit] = useState(0)
   const [maxlimit, setMaxlimit] = useState(0)
-
-
-
-
-
-
-
-
-
-
-
-
-
-  //postal
-
-
-  // Address Fields (Physical)
-
-
-
-
-  // Handlers for Dropdowns
 
   const countries = [
     { code: "IN", name: "India" },
@@ -140,36 +114,33 @@ const ApplicantPage = () => {
     const utilized = Math.abs(utilizedLimit);
     const available = Math.abs(availableLimit);
 
-  return (
-    <Box>
-
-
-
-      <PieChart
-        series={[
-          {
-            data: [
-              {
-                id: 0,
-                value: utilized,
-                label: 'Utilized Limit',
-                color: '#FF6B6B',
-              },
-              {
-                id: 1,
-                value: available,
-                label: 'Available Limit',
-                color: '#4ECDC4',
-              },
-            ],
-            innerRadius: 35, // donut shape
-            outerRadius: 50,
-          },
-        ]}
-        width={400}
-        height={100}
-      />
-      {/* <Typography
+    return (
+      <Box>
+        <PieChart
+          series={[
+            {
+              data: [
+                {
+                  id: 0,
+                  value: utilized,
+                  label: 'Utilized Limit',
+                  color: '#FF6B6B',
+                },
+                {
+                  id: 1,
+                  value: available,
+                  label: 'Available Limit',
+                  color: '#4ECDC4',
+                },
+              ],
+              innerRadius: 35, // donut shape
+              outerRadius: 50,
+            },
+          ]}
+          width={400}
+          height={100}
+        />
+        {/* <Typography
         variant="subtitle2"
         sx={{
           position: 'absolute',
@@ -183,36 +154,13 @@ const ApplicantPage = () => {
           fontSize:"0.5em"
         }}
       >
-      
-
         Max Limit
         <br />
         {maxlimit.toLocaleString()}
-      
       </Typography> */}
       </Box>
     );
   }
-
-
-  useEffect(() => {
-    // Fetch compliance data with testing data appended
-    applicant_service.getCompliance(
-      applicantId,
-    ).then(comp_data => {
-      console.log("Compliance Data:", comp_data); // Log the compliance data
-
-      setutilizedLimit(comp_data?.utilizedLimit)
-      setAvailableLimit(comp_data?.availableLimit)
-      // setAvailableLimit(comp_data?.maxlimit)
-
-
-    })
-    fetchBeneficiaries();
-
-
-  }, [])
-
 
   const handleCountryChange = (event: any) => {
     setSelectedCountry(event.target.value);
@@ -246,16 +194,23 @@ const ApplicantPage = () => {
     setZipCode(zipCodes[city] || ""); // Auto-fill Zip Code
   };
 
-
-
   const handlePostalCityChange = (event: any) => {
     const city = event.target.value;
     setPostalSelectedCity(city);
     setPostalZipCode(zipCodes[city] || ""); // Auto-fill Zip Code
   };
 
+  useEffect(() => {
+    // Fetch compliance data with testing data appended
+    applicant_service.getCompliance(
+      applicantId,
+    ).then(comp_data => {
+      setutilizedLimit(comp_data?.utilizedLimit)
+      setAvailableLimit(comp_data?.availableLimit)
+    })
+    fetchBeneficiaries();
+  }, [])
 
-  const { applicantId } = useParams();
 
   useEffect(() => {
     const fetchApplicantData = async () => {
@@ -332,15 +287,12 @@ const ApplicantPage = () => {
     setApplicantName(fullName);
   };
 
-  let helper=new HelperService()
 
   const fetchBeneficiaries = useCallback(async () => {
     if (!applicantId) return;
 
     try {
       const data = await beneficiary_service.searchByApplicantId(applicantId);
-      console.log("data is coming")
-      console.log("data is here=>", data)
       const beneficiaryArray = Array.isArray(data) ? data : [data];
       console.log(beneficiaryArray)
       //@ts-ignore
@@ -353,11 +305,6 @@ const ApplicantPage = () => {
         bankBicCode: beneficiary?.bankBicCode,
         idType: beneficiary?.idType,
       }))
-
-
-      console.log(formattedData)
-
-
       setBeneficiaries(formattedData || []);
     } catch (error) {
       console.error('Error fetching beneficiaries:', error);
@@ -372,10 +319,8 @@ const ApplicantPage = () => {
 
       console.log("getting trx for applicant Id", applicantId)
       const data = await applicant_service.getTransactionsByApplicantId(applicantId);
-      const transactionArray = Array.isArray(data) ? data : [data];
-     
-      const formattedData = data?.map((transaction: any, index: number) => ({
 
+      const formattedData = data?.map((transaction: any, index: number) => ({
         ...transaction?.transactionOutward,
         ...transaction?.beneficiary,
         ...transaction?.transactionInwardList,
@@ -387,8 +332,6 @@ const ApplicantPage = () => {
         beneficiaryName: transaction?.beneficiary?.beneficiaryName,
         amount: transaction?.transactionOutward?.principalAmount,
         transactionStatus: transaction?.transactionOutward?.transactionStatus,
-
-     
         destination: transaction?.transactionOutward?.receiveCountry,
         value: transaction?.transactionOutward?.principalAmount,
         currency: transaction?.transactionOutward?.settlementCurrency,
@@ -402,16 +345,7 @@ const ApplicantPage = () => {
         applicant: transaction?.applicant,
         //@ts-ignore
         inid: transaction?.transactionInwardNumber
-      
-
-
-
       }));
-
-
-      
-      
-       
       setTransactions(formattedData || []);
       console.log(formattedData)
     } catch (error) {
@@ -447,15 +381,11 @@ const ApplicantPage = () => {
   const handleSaveConfirm = () => {
     setOpenSaveDialog(false);
     setIsEditable(false);
-    console.log("Saved applicant data");
-
-
   };
 
   const handleDiscardChanges = () => {
     setOpenConfirmationDialog(false);
     setIsEditable(false);
-    console.log("Changes discarded");
   };
 
   const handleCancelEdit = () => {
@@ -480,335 +410,213 @@ const ApplicantPage = () => {
   };
 
   return (
-    <Box sx={{ width: "50vw" }}>
-      <Box  display="flex" justifyContent="space-between" alignItems="center">
-      <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', }}>
-        Applicant Details
-      </Typography>
-      {/* <FormControlLabel
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.APPLICANT}>
+      <Box sx={{ width: "50vw" }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', }}>
+            Applicant Details
+          </Typography>
+          {/* <FormControlLabel
         control={<Switch  disabled  checked={isEditable} onChange={handleToggleChange} />}
-        label="Edit Mode"
-      /> */}
-    
-      </Box>
-      <Box mb={1} display="flex" justifyContent="space-between" alignItems="center">
-        <Typography
-          variant="body1" mb={1}
-          sx={{
-            backgroundColor: 'primary.main',
-            p: '0.5%',
-            color: 'white',
-            paddingBlock: 1,
-            paddingInline: 1
-          }}
-        >
-          Applicant Id - {applicantId}
-        </Typography>
+        label="Edit Mode"/>
+         */}
+        </Box>
 
-      </Box>
+        <Box mb={1} display="flex" justifyContent="space-between" alignItems="center">
+          <Typography
+            variant="body1" mb={1}
+            sx={{
+              backgroundColor: 'primary.main',
+              p: '0.5%',
+              color: 'white',
+              paddingBlock: 1,
+              paddingInline: 1
+            }}
+          >
+            Applicant Id - {applicantId}
+          </Typography>
 
-      {/* Applicant Information Form */}
-      <Box sx={{ width: '70vw' }}>
-        <Grid container spacing={2} mb={2} alignItems="flex-start" justifyContent="space-between">
-          <Grid item xs={12} sm={3} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
-            {/* <Typography mt={2}>Applicant Picture</Typography> */}
-            <Box
-              width={110}
-              height={110}
-              border="2px solid #000"
-              borderRadius="50%"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Avatar style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-              }}>{firstName[0] + "" + lastName[0]}</Avatar>
-            </Box>
+        </Box>
+
+        {/* Applicant Information Form */}
+        <Box sx={{ width: '70vw' }}>
+          <Grid container spacing={2} mb={2} alignItems="flex-start" justifyContent="space-between">
+            <Grid item xs={12} sm={3} display="flex" flexDirection="column"
+              alignItems="center" justifyContent="center">
+              {/* <Typography mt={2}>Applicant Picture</Typography> */}
+              <Box
+                width={110}
+                height={110}
+                border="2px solid #000"
+                borderRadius="50%"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Avatar style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}>{firstName[0] + "" + lastName[0]}</Avatar>
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={5}>
+              <Grid container spacing={2} marginBottom={1}>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    label="Applicant first Name"
+                    variant="filled"
+                    value={firstName}
+                    onChange={handleFieldChange(setFirstName)}
+                    fullWidth
+                    InputProps={{ readOnly: !isEditable }}
+                  />
+                </Grid>
+                {middleName && <Grid item xs={12} sm={4}>
+                  <TextField
+                    label="Applicant Middle Name"
+                    variant="filled"
+                    value={middleName}
+                    onChange={handleFieldChange(setMiddleName)}
+                    fullWidth
+                    InputProps={{ readOnly: !isEditable }}
+                  />
+                </Grid>}
+
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    label="Applicant Last Name"
+                    variant="filled"
+                    value={lastName}
+                    onChange={handleFieldChange(setLastName)}
+                    fullWidth
+                    InputProps={{ readOnly: !isEditable }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Nationality"
+                    variant="filled"
+                    value={nationality}
+                    onChange={handleFieldChange(setNationality)}
+                    fullWidth
+                    InputProps={{ readOnly: !isEditable }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Residence Country"
+                    variant="filled"
+                    value={residenceCountry}
+                    onChange={handleFieldChange(setResidenceCountry)}
+                    fullWidth
+                    InputProps={{ readOnly: !isEditable }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Phone"
+                    variant="filled"
+                    value={phone}
+                    onChange={handleFieldChange(setPhone)}
+                    fullWidth
+                    InputProps={{ readOnly: true }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Email"
+                    variant="filled"
+                    value={email}
+                    onChange={handleFieldChange(setEmail)}
+                    fullWidth
+                    InputProps={{ readOnly: !isEditable }}
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+
+            <Grid item xs={12} sm={4} sx={{ alignContent: "top" }}>
+              <LimitPieChart></LimitPieChart>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={5}>
-            <Grid container spacing={2} marginBottom={1}>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  label="Applicant first Name"
-                  variant="filled"
-                  value={firstName}
-                  onChange={handleFieldChange(setFirstName)}
-                  fullWidth
-                  InputProps={{ readOnly: !isEditable }}
-                />
-              </Grid>
-              {middleName && <Grid item xs={12} sm={4}>
-                <TextField
-                  label="Applicant Middle Name"
-                  variant="filled"
-                  value={middleName}
-                  onChange={handleFieldChange(setMiddleName)}
-                  fullWidth
-                  InputProps={{ readOnly: !isEditable }}
-                />
-              </Grid>}
+        </Box>
 
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  label="Applicant Last Name"
-                  variant="filled"
-                  value={lastName}
-                  onChange={handleFieldChange(setLastName)}
-                  fullWidth
-                  InputProps={{ readOnly: !isEditable }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Nationality"
-                  variant="filled"
-                  value={nationality}
-                  onChange={handleFieldChange(setNationality)}
-                  fullWidth
-                  InputProps={{ readOnly: !isEditable }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Residence Country"
-                  variant="filled"
-                  value={residenceCountry}
-                  onChange={handleFieldChange(setResidenceCountry)}
-                  fullWidth
-                  InputProps={{ readOnly: !isEditable }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Phone"
-                  variant="filled"
-                  value={phone}
-                  onChange={handleFieldChange(setPhone)}
-                  fullWidth
-                  InputProps={{ readOnly: true }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Email"
-                  variant="filled"
-                  value={email}
-                  onChange={handleFieldChange(setEmail)}
-                  fullWidth
-                  InputProps={{ readOnly: !isEditable }}
-                />
-              </Grid>
+        {/* Permanent Address Section */}
+        <Box sx={{ width: "80vw" }}>
+          <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}><strong>Postal Address</strong></Typography>
+          <Grid container spacing={2} marginBottom={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Address Line 1"
+                value={postalAddressLine1}
+                onChange={handleFieldChange(setPostalAddressLine1)}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Address Line 2"
+                value={postalAddressLine2}
+                onChange={handleFieldChange(setPostalAddressLine2)}
+                InputProps={{ readOnly: !isEditable }}
+              />
             </Grid>
           </Grid>
 
-
-          <Grid item xs={12} sm={4} sx={{ alignContent: "top" }}>
-            <LimitPieChart></LimitPieChart>
-          </Grid>
-        </Grid>
-      </Box>
-
-      {/* Permanent Address Section */}
-      <Box sx={{ width: "80vw" }}>
-        <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}><strong>Postal Address</strong></Typography>
-        <Grid container spacing={2} marginBottom={2}>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Address Line 1"
-              value={postalAddressLine1}
-              onChange={handleFieldChange(setPostalAddressLine1)}
-              InputProps={{ readOnly: !isEditable }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Address Line 2"
-              value={postalAddressLine2}
-              onChange={handleFieldChange(setPostalAddressLine2)}
-              InputProps={{ readOnly: !isEditable }}
-            />
-          </Grid>
-        </Grid>
-
-        <Grid container spacing={2} marginBottom={2}>
-          {/* <Grid item xs={12} sm={4}>
-            <TextField
-              fullWidth
-              label="Address Line 3"
-              value={postalAddressLine3}
-              onChange={handleFieldChange(setPostalAddressLine3)}
-              InputProps={{ readOnly: !isEditable }}
-            />
-          </Grid> */}
-          <Grid item xs={12} sm={2}>
-            <TextField
-              fullWidth
-              label="Suburb"
-              value={suburb}
-              //@ts-ignore
-              onChange={handleFieldChange(suburb)}
-              InputProps={{ readOnly: !isEditable }}
-            />
-          </Grid>
-
-          {/* City Dropdown */}
-          <Grid item xs={12} sm={2}>
-            {isEditable ? <>
-              <FormControl fullWidth disabled={!postalselectedState || !isEditable}>
-                <InputLabel>City</InputLabel>
-                <Select value={postalselectedCity} onChange={handlePostalCityChange}>
-                  {
-                    //@ts-ignore
-                    cities[postalselectedState]?.map((city) => (
-                      <MenuItem key={city} value={city}>
-                        {city}
-                      </MenuItem>
-                    ))}
-                </Select>
-              </FormControl>
-            </> : <>
+          <Grid container spacing={2} marginBottom={2}>
+            <Grid item xs={12} sm={2}>
               <TextField
                 fullWidth
-                label="city"
-                value={city}
-                contentEditable="false"
+                label="Suburb"
+                value={suburb}
                 //@ts-ignore
                 onChange={handleFieldChange(suburb)}
                 InputProps={{ readOnly: !isEditable }}
               />
-            </>}
-          </Grid>
+            </Grid>
 
-          {/* State Dropdown */}
-          <Grid item xs={12} sm={2}>
-            {isEditable ? (<>
-              <FormControl fullWidth disabled={!postalselectedCountry || !isEditable}>
-                <InputLabel>State/Province</InputLabel>
-                <Select value={postalselectedState} onChange={handlePostalStateChange}>
-                  {
-                    //@ts-ignore
-                    states[postalselectedCountry]?.map((state) => (
-                      <MenuItem key={state} value={state}>
-                        {state}
-                      </MenuItem>
-                    ))}
-                </Select>
-              </FormControl>
-            </>) : <>
-              <TextField
-                fullWidth
-                label="State"
-                value={state}
-                contentEditable="false"
-                //@ts-ignore
-                onChange={handleFieldChange(suburb)}
-                InputProps={{ readOnly: !isEditable }}
-              />
-            </>
-            }
-          </Grid>
-
-          <Grid item xs={12} sm={1.5}>
-            <TextField
-              fullWidth
-              label="Postal Code"
-              value={postalCode}
-              onChange={handleFieldChange(setPostalCode)}
-              InputProps={{ readOnly: !isEditable }}
-            />
-          </Grid>
-          {/* Country Dropdown */}
-          <Grid item xs={12} sm={2}>
-            {isEditable ? (<FormControl fullWidth>
-              <InputLabel>Country</InputLabel>
-              <Select value={postalselectedCountry} onChange={handlePostalCountryChange} disabled={!isEditable}>
-                {countries.map((country) => (
-                  <MenuItem key={country.code} value={country.code}>
-                    {country.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>) : (<>
-              <TextField
-                fullWidth
-                label="Country"
-                value={country}
-                contentEditable="false"
-                //@ts-ignore
-                onChange={handleFieldChange(suburb)}
-                InputProps={{ readOnly: !isEditable }}
-              />
-            </>)
-            }
-          </Grid>
-        </Grid>
-
-        {/* Physical Address Section */}
-        <Typography variant="subtitle1" sx={{ color: "grey", marginBottom: 1 }}>
-          <strong>Physical Address</strong>
-        </Typography>
-
-        <Grid container spacing={2} marginBottom={2}>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Address Line 1"
-              value={physicalAddressLine1}
-              onChange={(e) => setPhysicalAddressLine1(e.target.value)}
-              InputProps={{ readOnly: !isEditable }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Address Line 2"
-              value={physicalAddressLine2}
-              onChange={(e) => setPhysicalAddressLine2(e.target.value)}
-              InputProps={{ readOnly: !isEditable }}
-            />
-          </Grid>
-        </Grid>
-
-        <Grid container spacing={2} marginBottom={2}>
-          {/* <Grid item xs={12} sm={4}>
-          <TextField
-            fullWidth
-            label="Address Line 3"
-            value={physicalAddressLine3}
-            onChange={(e) => setPhysicalAddressLine3(e.target.value)}
-            InputProps={{ readOnly: !isEditable }}
-          />
-        </Grid> */}
-          <Grid item xs={12} sm={2}>
-            <TextField
-              fullWidth
-              label="Suburb"
-              value={suburb}
-              onChange={(e) => setSuburb(e.target.value)}
-              InputProps={{ readOnly: !isEditable }}
-            />
-          </Grid>
-
-          {/* City Dropdown */}
-          <Grid item xs={12} sm={2}>
-
-            {
-              isEditable ? (<>
-                <FormControl fullWidth disabled={!selectedState || !isEditable}>
+            {/* City Dropdown */}
+            <Grid item xs={12} sm={2}>
+              {isEditable ? <>
+                <FormControl fullWidth disabled={!postalselectedState || !isEditable}>
                   <InputLabel>City</InputLabel>
-                  <Select value={selectedCity} onChange={handleCityChange}>
-
-
+                  <Select value={postalselectedCity} onChange={handlePostalCityChange}>
                     {
                       //@ts-ignore
-                      cities[selectedState]?.map((city) => (
+                      cities[postalselectedState]?.map((city) => (
                         <MenuItem key={city} value={city}>
                           {city}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                </FormControl>
+              </> : <>
+                <TextField
+                  fullWidth
+                  label="city"
+                  value={city}
+                  contentEditable="false"
+                  //@ts-ignore
+                  onChange={handleFieldChange(suburb)}
+                  InputProps={{ readOnly: !isEditable }}
+                />
+              </>}
+            </Grid>
+
+            {/* State Dropdown */}
+            <Grid item xs={12} sm={2}>
+              {isEditable ? (<>
+                <FormControl fullWidth disabled={!postalselectedCountry || !isEditable}>
+                  <InputLabel>State/Province</InputLabel>
+                  <Select value={postalselectedState} onChange={handlePostalStateChange}>
+                    {
+                      //@ts-ignore
+                      states[postalselectedCountry]?.map((state) => (
+                        <MenuItem key={state} value={state}>
+                          {state}
                         </MenuItem>
                       ))}
                   </Select>
@@ -816,23 +624,123 @@ const ApplicantPage = () => {
               </>) : <>
                 <TextField
                   fullWidth
-                  label="City"
-                  value={residenceCity}
-                  onChange={(e) => (e.target.value)}
+                  label="State"
+                  value={state}
+                  contentEditable="false"
+                  //@ts-ignore
+                  onChange={handleFieldChange(suburb)}
                   InputProps={{ readOnly: !isEditable }}
                 />
               </>
-            }
+              }
+            </Grid>
 
+            <Grid item xs={12} sm={1.5}>
+              <TextField
+                fullWidth
+                label="Postal Code"
+                value={postalCode}
+                onChange={handleFieldChange(setPostalCode)}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+            {/* Country Dropdown */}
+            <Grid item xs={12} sm={2}>
+              {isEditable ? (<FormControl fullWidth>
+                <InputLabel>Country</InputLabel>
+                <Select value={postalselectedCountry} onChange={handlePostalCountryChange} disabled={!isEditable}>
+                  {countries.map((country) => (
+                    <MenuItem key={country.code} value={country.code}>
+                      {country.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>) : (<>
+                <TextField
+                  fullWidth
+                  label="Country"
+                  value={country}
+                  contentEditable="false"
+                  //@ts-ignore
+                  onChange={handleFieldChange(suburb)}
+                  InputProps={{ readOnly: !isEditable }}
+                />
+              </>)
+              }
+            </Grid>
           </Grid>
-          {/* State Dropdown */}
-          <Grid item xs={12} sm={2}>
 
-            {
+          {/* Physical Address Section */}
+          <Typography variant="subtitle1" sx={{ color: "grey", marginBottom: 1 }}>
+            <strong>Physical Address</strong>
+          </Typography>
 
-              isEditable ? <>
+          <Grid container spacing={2} marginBottom={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Address Line 1"
+                value={physicalAddressLine1}
+                onChange={(e) => setPhysicalAddressLine1(e.target.value)}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Address Line 2"
+                value={physicalAddressLine2}
+                onChange={(e) => setPhysicalAddressLine2(e.target.value)}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+          </Grid>
 
+          <Grid container spacing={2} marginBottom={2}>
 
+            <Grid item xs={12} sm={2}>
+              <TextField
+                fullWidth
+                label="Suburb"
+                value={suburb}
+                onChange={(e) => setSuburb(e.target.value)}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+
+            {/* City Dropdown */}
+            <Grid item xs={12} sm={2}>
+
+              {
+                isEditable ? (<>
+                  <FormControl fullWidth disabled={!selectedState || !isEditable}>
+                    <InputLabel>City</InputLabel>
+                    <Select value={selectedCity} onChange={handleCityChange}>
+                      {
+                        //@ts-ignore
+                        cities[selectedState]?.map((city) => (
+                          <MenuItem key={city} value={city}>
+                            {city}
+                          </MenuItem>
+                        ))}
+                    </Select>
+                  </FormControl>
+                </>) : <>
+                  <TextField
+                    fullWidth
+                    label="City"
+                    value={residenceCity}
+                    onChange={(e) => (e.target.value)}
+                    InputProps={{ readOnly: !isEditable }}
+                  />
+                </>
+              }
+
+            </Grid>
+            {/* State Dropdown */}
+            <Grid item xs={12} sm={2}>
+
+              {isEditable ? <>
                 <FormControl fullWidth disabled={!selectedCountry || !isEditable}>
                   <InputLabel>State/Province</InputLabel>
                   <Select value={selectedState} onChange={handleStateChange}>
@@ -848,8 +756,6 @@ const ApplicantPage = () => {
                 </FormControl>
 
               </> : <>
-
-
                 <TextField
                   fullWidth
                   label="State"
@@ -857,103 +763,102 @@ const ApplicantPage = () => {
                   onChange={(e) => (e.target.value)}
                   InputProps={{ readOnly: !isEditable }}
                 />
-
               </>
-            }
+              }
 
+            </Grid>
+
+            {/* Zip Code Auto-Filled */}
+            <Grid item xs={12} sm={2}>
+              <TextField fullWidth label="Zip Code" value={residencePostalCode} InputProps={{ readOnly: true }} />
+            </Grid>
+
+            {/* Country Dropdown */}
+
+            <Grid item xs={12} sm={2}>
+              {isEditable ? <>
+                <FormControl fullWidth>
+                  <InputLabel>Country</InputLabel>
+                  <Select value={selectedCountry} onChange={handleCountryChange} disabled={!isEditable}>
+                    {countries.map((country) => (
+                      <MenuItem key={country.code} value={country.code}>
+                        {country.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+              </> : <>
+                <TextField
+                  fullWidth
+                  label="Country"
+                  value={residenceCountry}
+                  onChange={(e) => (e.target.value)}
+                  InputProps={{ readOnly: !isEditable }}
+                />
+              </>
+              }
+
+            </Grid>
           </Grid>
+        </Box>
+        {/* Tab Component */}
+        <Tabs sx={{ marginBottom: '10px' }} value={selectedTab} onChange={handleTabChange} aria-label="Customer data tabs" >
+          {/* <Tab label="Documents" sx={{ marginRight: '2px' }} /> */}
+          <Tab label="Beneficiaries" sx={{ marginRight: '2px' }} />
+          <Tab label="Transactions" sx={{ marginRight: '2px' }} />
+        </Tabs>
 
-          {/* Zip Code Auto-Filled */}
-          <Grid item xs={12} sm={2}>
-            <TextField fullWidth label="Zip Code" value={residencePostalCode} InputProps={{ readOnly: true }} />
-          </Grid>
+        {/* Tab Content */}
+        {selectedTab === 0 && helper.checkUserHasPermission(local_service.get_modules()?.BENEFICIARY, 'canRead')&&<BeneficiaryTable beneficiary={beneficiaries}
+          deleteBeneficiary={beneficiaries} applicantId={applicantId} />}
+        {selectedTab === 1 && helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canRead')&&<TransactionTable
+          //@ts-ignore
+          applicantId={applicantId || ""}
+          //@ts-ignore
+          transaction={transactions} />}
 
-          {/* Country Dropdown */}
-
-          <Grid item xs={12} sm={2}>
-            {isEditable ? <>
-              <FormControl fullWidth>
-                <InputLabel>Country</InputLabel>
-                <Select value={selectedCountry} onChange={handleCountryChange} disabled={!isEditable}>
-                  {countries.map((country) => (
-                    <MenuItem key={country.code} value={country.code}>
-                      {country.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-            </> : <>
-              <TextField
-                fullWidth
-                label="Country"
-                value={residenceCountry}
-                onChange={(e) => (e.target.value)}
-                InputProps={{ readOnly: !isEditable }}
-              />
-            </>
-            }
-
-          </Grid>
-        </Grid>
-      </Box>
-      {/* Tab Component */}
-      <Tabs sx={{ marginBottom: '10px' }} value={selectedTab} onChange={handleTabChange} aria-label="Customer data tabs" >
-        {/* <Tab label="Documents" sx={{ marginRight: '2px' }} /> */}
-        <Tab label="Beneficiaries" sx={{ marginRight: '2px' }} />
-        <Tab label="Transactions" sx={{ marginRight: '2px' }} />
-      </Tabs>
-
-      {/* Tab Content */}
-      {/* {selectedTab === 0 && <DocumentComponent />} */}
-      {selectedTab === 0 && <BeneficiaryTable beneficiary={beneficiaries} deleteBeneficiary={beneficiaries} applicantId={applicantId} />}
-
-      {selectedTab === 1 && <TransactionTable
-        //@ts-ignore
-        applicantId={applicantId || ""}
-        //@ts-ignore
-        transaction={transactions} />}
-
-      {/* Action Buttons */}
-      <Grid container spacing={2} mt={1}>
-        <Grid item xs={12} sm={3}>
-          <Button variant="outlined" onClick={handleBack} fullWidth>
-            Back to List
-          </Button>
-        </Grid>
-        <Grid item xs={12} sm={3}>
-          {isEditable && (
-            <Button variant="contained" fullWidth onClick={handleSaveChanges}>
-              Save Changes
+        {/* Action Buttons */}
+        <Grid container spacing={2} mt={1}>
+          <Grid item xs={12} sm={3}>
+            <Button variant="outlined" onClick={handleBack} fullWidth>
+              Back to List
             </Button>
-          )}
+          </Grid>
+          <Grid item xs={12} sm={3}>
+            {isEditable && (
+              <Button variant="contained" fullWidth onClick={handleSaveChanges}>
+                Save Changes
+              </Button>
+            )}
+          </Grid>
+
         </Grid>
 
-      </Grid>
+        {/* Confirmation Dialogs */}
+        <Dialog open={openConfirmationDialog} onClose={handleCancelEdit}>
+          <DialogTitle>Confirm Discard</DialogTitle>
+          <DialogContent>
+            <Typography>Are you sure you want to discard your changes?</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDiscardChanges} color="primary">Yes</Button>
+            <Button onClick={handleCancelEdit} color="secondary">No</Button>
+          </DialogActions>
+        </Dialog>
 
-      {/* Confirmation Dialogs */}
-      <Dialog open={openConfirmationDialog} onClose={handleCancelEdit}>
-        <DialogTitle>Confirm Discard</DialogTitle>
-        <DialogContent>
-          <Typography>Are you sure you want to discard your changes?</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDiscardChanges} color="primary">Yes</Button>
-          <Button onClick={handleCancelEdit} color="secondary">No</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog open={openSaveDialog} onClose={() => setOpenSaveDialog(false)}>
-        <DialogTitle>Confirm Save</DialogTitle>
-        <DialogContent>
-          <Typography>Are you sure you want to save the changes?</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleSaveConfirm} color="primary">Yes</Button>
-          <Button onClick={() => setOpenSaveDialog(false)} color="secondary">No</Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+        <Dialog open={openSaveDialog} onClose={() => setOpenSaveDialog(false)}>
+          <DialogTitle>Confirm Save</DialogTitle>
+          <DialogContent>
+            <Typography>Are you sure you want to save the changes?</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleSaveConfirm} color="primary">Yes</Button>
+            <Button onClick={() => setOpenSaveDialog(false)} color="secondary">No</Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
+    </HasPermission>
   );
 };
 

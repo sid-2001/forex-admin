@@ -70,6 +70,46 @@ export interface Customer {
   token: string
 }
 
+export interface StaffResponse {
+  success: boolean
+  staff: Staff
+}
+
+export interface Staff {
+  staffId: string,
+  staffFirstName: string,
+  staffLastName: string,
+  staffCountry: string,
+  staffContactNumber: string,
+  staffIdType: string,
+  staffIdNumber: string,
+  staffAddressLine1: string,
+  staffAddressLine2: string,
+  staffSuburb: string,
+  staffCity: string,
+  staffPostalCode: string,
+  staffBranch: string,
+  email: string,
+  username: string,
+  password: string,
+  roleId: number,
+  roleDescription: string,
+  modules: [
+    {
+      moduleId: number,
+      moduleDescription: string,
+      moduleName:string
+      moduleLink:string
+      access: {
+        canCreate: boolean,
+        canRead: boolean,
+        canUpdate: boolean,
+        canDelete: boolean,
+        accessId: null
+      }
+    }]
+}
+
 export interface Address {
   address1: string
   address2: string

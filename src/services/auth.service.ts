@@ -1,6 +1,7 @@
 import { BaseService } from './base.service'
 import api1 from './apis/api1'
-import { BaseResponse, CustomerResponse, LoginResponse, Loginreq } from '@/types/auth.type'
+import { BaseResponse, CustomerResponse, LoginResponse, Loginreq, StaffResponse } from '@/types/auth.type'
+
 import { LocalStorageService } from '../helpers/local-storage-service'
 // import instance from "../services/apis/api1"
 import axios, { AxiosResponse } from 'axios'
@@ -19,7 +20,7 @@ class AuthService extends BaseService {
     let url = '/admin/login'
 
     try {
-     
+
       switch (role.split(' ').join('')) {
         case 'admin':
           url = `/admin/login`
@@ -66,7 +67,17 @@ class AuthService extends BaseService {
   async loginAdmin(payload: { username: String; password: String }): Promise<CustomerResponse> {
     let url = '/api/kyc/auth/login'
     try {
-      let {data}  = await api1.post(url, payload)
+      let { data } = await api1.post(url, payload)
+      return data
+    } catch (err) {
+      throw new Error("Can't Verify your Identiy")
+    }
+  }
+
+  async loginStaff(payload: { username: String; password: String }): Promise<StaffResponse> {
+    let url = '/api/staff/staff-details/login'
+    try {
+      let { data } = await api1.post(url, payload)
       return data
     } catch (err) {
       throw new Error("Can't Verify your Identiy")
@@ -166,7 +177,7 @@ class AuthService extends BaseService {
           throw new Error("Can't Verify your Identiy")
         }
       } else {
-        throw new Error('Not Authorized') 
+        throw new Error('Not Authorized')
       }
     } catch (err) {
       throw new Error("Can't Verify your Identiy")

@@ -1,4 +1,4 @@
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider } from '@mui/material/styles'
 import {
   Box,
   Typography,
@@ -22,6 +22,7 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
 import Person2Icon from '@mui/icons-material/Person2';
 // import { sidbarSelectionState, studentListState } from "../../states/state";
+import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
 
 // import { studentService } from "@/services/student.service";
 import { LocalStorageService } from '@/helpers/local-storage-service'
@@ -61,7 +62,7 @@ import { Tooltip } from '@mui/material'
 import SourceIcon from '@mui/icons-material/Source'
 import ShowChartIcon from '@mui/icons-material/ShowChart'
 // import { IconButton } from '@mui/material';
-
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import { Us, Sa, Za, In } from 'react-flags-select'
 import { TransactionService } from '@/services/transaction.service'
 // import LogoutModalProps from '../logout/logout.component'
@@ -117,6 +118,7 @@ const LoaderBackdrop = ({
 )
 
 let local_service: any = new LocalStorageService()
+
 const DashboardContainer = styled(Box)({
   display: 'flex',
 })
@@ -156,7 +158,6 @@ const DashboardLayout = () => {
     }
   }
 
-  // const [studentList, setstudentList] = useRecoilState(studentListState);
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
   //@ts-ignore
   const [selectedrole, setselectedrole] = useRecoilState(role)
@@ -165,11 +166,8 @@ const DashboardLayout = () => {
   const [type, settype] = useRecoilState(alertTypeState)
   const [selectedTab, setSelectedTab] = useRecoilState(sidbarSelectionState)
   const [balance, setBalance] = useRecoilState(availableBalanceState)
-
   const [droppopopen, setdropopoOpen] = useState(false)
-
   const [openloader, setopenloader] = useRecoilState(loaderStateNew)
-
   const [isDrawerOpen, setDrawerOpen] = useState(false)
 
   const toggleDrawer = () => {
@@ -187,7 +185,7 @@ const DashboardLayout = () => {
           sx={{
             //@ts-ignore
             color: theme.palette.secondary.light,
-            fontSize: '30px',
+            fontSize: '2vh',
             //@ts-ignore
 
             color: theme.palette.primary.light,
@@ -206,7 +204,7 @@ const DashboardLayout = () => {
           sx={{
             //@ts-ignore
             color: theme.palette.secondary.light,
-            fontSize: '30px',
+            fontSize: '2vh',
             //@ts-ignore
             color: theme.palette.primary.light,
             '&:hover': {
@@ -225,7 +223,7 @@ const DashboardLayout = () => {
           sx={{
             //@ts-ignore
             color: theme.palette.secondary.light,
-            fontSize: '30px',
+            fontSize: '2vh',
 
             //@ts-ignore
             color: theme.palette.primary.light,
@@ -261,7 +259,7 @@ const DashboardLayout = () => {
           sx={{
             //@ts-ignore
             color: theme.palette.secondary.light,
-            fontSize: '30px',
+            fontSize: '2vh',
 
             //@ts-ignore
             color: theme.palette.primary.light,
@@ -272,7 +270,7 @@ const DashboardLayout = () => {
           }}
         />
       ),
-      label: 'applicant',
+      label: 'Applicant',
     },
     //     {
     //       icon: (
@@ -316,14 +314,14 @@ const DashboardLayout = () => {
           <SourceIcon
             sx={{
               //@ts-ignore
-              fontSize: '30px',
+              fontSize: '2vh',
               //@ts-ignore
               color: theme.palette.primary.light, // Corrected theme usage
             }}
           />
         </>
       ),
-      label: 'bop-listing',
+      label: 'Bop',
     },
 
     {
@@ -332,14 +330,45 @@ const DashboardLayout = () => {
           <Person2Icon
             sx={{
               //@ts-ignore
-              fontSize: '30px',
+              fontSize: '2vh',
               //@ts-ignore
               color: theme.palette.primary.light, // Corrected theme usage
             }}
           />
         </>
       ),
-      label: 'profile',
+      label: 'Profile',
+    },
+     {
+      icon: (
+        <>
+          <ViewModuleIcon
+            sx={{
+              //@ts-ignore
+              fontSize: '2vh',
+              //@ts-ignore
+              color: theme.palette.primary.light, // Corrected theme usage
+            }}
+          />
+        </>
+      ),
+      label: 'Module',
+    },
+
+    {
+      icon: (
+        <>
+          <SupervisedUserCircleIcon
+            sx={{
+              //@ts-ignore
+              fontSize: '2vh',
+              //@ts-ignore
+              color: theme.palette.primary.light, // Corrected theme usage
+            }}
+          />
+        </>
+      ),
+      label: 'Role',
     },
   ]
 
@@ -347,24 +376,16 @@ const DashboardLayout = () => {
   // const [openbar, setopentBar] = useRecoilState(snackbarOpenState);
 
   const handleClose = () => {
-    // console.log("u are closed");
     setdropopoOpen(false)
     setdropopoOpen(false)
   }
   let [loader, setLoader] = useRecoilState(loaderState)
-
-  // let [cartitme,se]
-
   let trx_service = new TransactionService()
 
 
   useEffect(() => {
-
     trx_service.getBalanceEnquiry().then(data => {
-
-      console.log(data)
       setBalance(data as any)
-
     })
 
     setTimeout(() => {
@@ -447,7 +468,7 @@ const DashboardLayout = () => {
 
   const handleLogout = () => {
     navigate('/login')
-    local_service?.delete_eaccestoke()
+    localStorage.clear();
   }
 
   return (
@@ -470,7 +491,7 @@ const DashboardLayout = () => {
           <Box
             sx={{ marginRight: "23px" }}>
             <strong>Available Balance :</strong><br></br>
-            <text>₹{balance}</text>
+            <span>₹{balance}</span>
           </Box>
 
           <Box
@@ -488,8 +509,11 @@ const DashboardLayout = () => {
             }}
           >
             {selecteCountryState == "SA" ? <>
-              <Avatar>{<strong>{(local_service.get_user().firstName[0]) + (local_service.get_user().lastName[0])}</strong>
-              }</Avatar>
+              <Avatar>
+                {<strong>
+                  {(local_service?.get_staff_access().staffFirstName[0]) + (local_service?.get_staff_access().staffLastName[0])}
+                </strong>
+                }</Avatar>
 
               <Box ml={1}>
                 <Typography
@@ -500,7 +524,7 @@ const DashboardLayout = () => {
                     color: 'white',
                   }}
                 >
-                  <strong>{(local_service.get_user().firstName) + " " + (local_service.get_user().lastName)}</strong>
+                  <strong>{(local_service?.get_staff_access().staffFirstName) + " " + (local_service?.get_staff_access().staffLastName)}</strong>
                 </Typography>
 
                 <Stack direction="row">
@@ -512,7 +536,7 @@ const DashboardLayout = () => {
                       color: 'white',
                     }}
                   >
-                    <strong>{(local_service.get_user().applicantId)}</strong>
+                    <strong>{(local_service?.get_staff_access().staffId)}</strong>
 
                   </Typography>
 
@@ -528,7 +552,7 @@ const DashboardLayout = () => {
                 </Stack>
               </Box>
             </> : <>
-            {/* {local_service.get_user()?.firstName?(
+              {/* {local_service.get_user()?.firstName?(
 local_service.get_user()?.firstName[0]
 
 
@@ -544,7 +568,7 @@ local_service.get_user()?.firstName[0]
                     color: 'white',
                   }}
                 >
-                  <strong>{(local_service.get_user().firstName) + " " + (local_service.get_user().lastName)}</strong>
+                  <strong>{(local_service?.get_staff_access()?.staffFirstName) + " " + (local_service?.get_staff_access()?.staffLastName)}</strong>
                 </Typography>
 
                 <Stack direction="row">
@@ -556,7 +580,7 @@ local_service.get_user()?.firstName[0]
                       color: 'white',
                     }}
                   >
-                    <strong>{(local_service.get_user().applicantId)}</strong>
+                    <strong>{(local_service?.get_staff_access()?.staffId)}</strong>
                   </Typography>
 
                   <In
