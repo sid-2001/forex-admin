@@ -43,14 +43,46 @@ const UserAdd = () => {
     //@ts-ignore
     id, field) => {
     //@ts-ignore
-    setPermissions((prev) =>
-      prev.map((row) =>
-        //@ts-ignore
-        row.id === id ? { ...row, [field]: !row[field] } : row
-      )
-    );
 
-    console.log(permissions)
+    var new_permisson_data;
+  let full_data=JSON.parse(JSON.stringify(permissions));
+
+
+    let find_handels=full_data.filter( 
+      //@ts-ignore
+      e=>e.id===id)
+  
+    if(find_handels.length>0){
+
+    let changed_row=find_handels[0]
+
+    changed_row[field]=  !changed_row[field]
+
+let remaning_data=full_data.filter(
+   //@ts-ignore
+  e=>e.id!=id)
+  if(remaning_data.length>0){
+new_permisson_data=[ ...remaning_data,changed_row ]
+console.log(new_permisson_data,"new permissond ata")
+
+
+
+  }
+  else{
+
+new_permisson_data=[ changed_row ]
+
+  }
+setPermissions(
+  //@ts-ignore
+  new_permisson_data.sort(e=>e.id))
+
+
+    }
+
+
+
+
 
     let permisson_data = permissions.map((e: any) => ({
       //@ts-ignore
@@ -61,7 +93,7 @@ const UserAdd = () => {
         canCreate: e?.create,
         canRead: e?.read,
         canUpdate: e?.update,
-        canDelete: e?.view // Consider renaming this if 'view' is not truly 'delete'
+        canDelete: e?.delete // Consider renaming this if 'view' is not truly 'delete'
       }
     }));
 
@@ -129,19 +161,19 @@ const UserAdd = () => {
       const initialPermissions = response?.modules?.map(
         //@ts-ignore
         (res, index) => ({
-          id: res.moduleId,
-          responsibility: res.moduleDescription,
-          create: res.access.canCreate,
-          read: res.access.canRead,
-          update: res.access.canUpdate,
-          view: res.access.canRead,
+        id: res.moduleId,
+        responsibility: res.moduleDescription,
+        create: res.access.canCreate,
+        read: res.access.canRead,
+        update: res.access.canUpdate,
+      
 
           delete: res.access.canDelete
         }));
 
       setPermissions(
         //@ts-ignore
-        initialPermissions)
+        initialPermissions.sort(e=>e.id))
 
     } catch (error) {
       console.error("Error fetching staff data:", error);
@@ -341,47 +373,83 @@ const UserAdd = () => {
           </Grid>
         </Box>
 
-        <Grid container spacing={2}>
-          {/* Role Select */}
-          <Grid item xs={12} sm={4}>
-            <TextField
-              select
-              label="Select Role"
-              fullWidth
-              variant="filled"
-              value={selectedRole}
-              onChange={(e) => {
-                setSelectedRole(e.target.value)
-                user_service.getRole(e?.target?.value).then(data => {
-                  console.log("i m in the data", data)
-                  const initialPermissions = data?.modules?.map(
-                    //@ts-ignore
-                    (res, index) => ({
-                      id: res.moduleId,
-                      responsibility: res.moduleDescription,
-                      create: res.access.canCreate,
-                      read: res.access.canRead,
-                      update: res.access.canUpdate,
-                      view: res.access.canRead,
-                      delete: res.access.canDelete
-                    }));
-                  console.log(initialPermissions)
-                  setPermissions(initialPermissions)
-                })
-              }}
-              sx={{
-                '& .MuiFilledInput-root': {
-                  backgroundColor: 'white',
-                },
-              }}
-            >
-              {roles.map((role: any) => (
-                <MenuItem key={role.roleId} value={role.roleId}>
-                  {role.roleDescription}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
+      <Grid container spacing={2}>
+        {/* Role Select */}
+        <Grid item xs={12} sm={4}>
+          <TextField
+            select
+            label="Select Role"
+            fullWidth
+            variant="filled"
+            value={selectedRole}
+            onChange={(e) => {
+              
+              setSelectedRole(e.target.value)
+              console.log(e?.target?.value)
+
+user_service.getRole(e?.target?.value).then(data=>{
+
+
+  const initialPermissions = data?.modules?.map(
+    //@ts-ignore
+    (res, index) => ({
+    id: res.moduleId,
+    responsibility: res.moduleDescription,
+    create: res.access.canCreate,
+    read: res.access.canRead,
+    update: res.access.canUpdate,
+
+    delete:res.access.canDelete
+  }));
+
+     
+
+
+  console.log(initialPermissions)
+  setPermissions(initialPermissions.sort(
+    //@ts-ignore
+    e=>e.id))
+
+
+  let permisson_data=   initialPermissions.sort(
+     //@ts-ignore
+    e=>e.id).map((e:any) => ({
+  //@ts-ignore
+      moduleDescription: e?.responsibility,
+      moduleId: e?.id,
+      moduleStatus: true,
+      access: {
+        canCreate: e?.create,
+        canRead: e?.read,
+        canUpdate: e?.update,
+        canDelete: e?.delete // Consider renaming this if 'view' is not truly 'delete'
+      }
+    }));
+
+  
+   setStaffData({...staffData,
+      //@ts-ignore
+      
+      "specialAccessModules":permisson_data,"roleId": Number(selectedRole)});
+
+
+
+})
+
+            }}
+            sx={{
+              '& .MuiFilledInput-root': {
+                backgroundColor: 'white',
+              },
+            }}
+          >
+            {roles.map((role: any) => (
+              <MenuItem key={role.roleId} value={role.roleId}>
+                {role.roleDescription}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
 
           {/* Country Select */}
           <Grid item xs={12} sm={4}>
@@ -406,74 +474,103 @@ const UserAdd = () => {
             </TextField>
           </Grid>
 
-          {/* Flow Select */}
-          <Grid item xs={12} sm={4}>
-            <TextField
-              select
-              disabled
-              type='disabled'
-              label="Select Flow"
-              fullWidth
-              variant="filled"
-              defaultValue=""
-              sx={{
-                '& .MuiFilledInput-root': {
-                  backgroundColor: 'white',
-                },
-              }}
-            >
-              {flows.map((flow) => (
-                <MenuItem key={flow} value={flow}>
-                  {flow}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-          <Button
-            sx={{ mt: 2, ml: 2 }}
-            variant="contained"
-            onClick={() => {
-              if (staffId) {
-                user_service.editStaff(staffData, staffData?.staffId).then(data => {
-                  console.log(data)
-                  if (data) {
-                    settype('success')
-                    setText("Succesfully Updated Staff")
-                    setTimeout(() => {
-                      // window.location.reload();
-                    }, 1233);
-                    // window.location.reload()
-                  }
-                  else {
-                    setText(data?.message)
-                    settype("error")
-                    // settype('success')
-                  }
-                  setOpen(true)
-                })
-              }
-              else {
+        {/* Flow Select */}
+        <Grid item xs={12} sm={4}>
+          <TextField
+            select
+            disabled
+            type='disabled'
+            label="Select Flow"
+            fullWidth
+            variant="filled"
+            defaultValue=""
+            sx={{
+              '& .MuiFilledInput-root': {
+                backgroundColor: 'white',
+              },
+            }}
+          >
+            {flows.map((flow) => (
+              <MenuItem key={flow} value={flow}>
+                {flow}
+              </MenuItem>
+            ))}
+          </TextField>
+    
+    
+    
+        </Grid>
+        <Button 
+        sx={{
+          mt:2,
+          ml:2
+        }}
+    variant="contained"
+    onClick={()=>{
 
-                user_service.createStaff({
-                  ...staffData, "staffIdNumber": "14-5678-9012",
-                  "staffIdType": "Aadhar"
-                }).then(data => {
-                  if (data?.status == "true") {
-                    settype('success')
-                    setText("Succesfully created Staff")
-                    window.location.reload()
-                  }
-                  else {
-                    console.log("i m her eint eh success")
-                    setText(data?.message)
-                    settype("error")
+     
 
-                    // settype('success')
-                  }
-                  setOpen(true)
-                })
-              }
+      if(staffId){
+        user_service.editStaff(staffData,staffData?.staffId).then(data=>{
 
+console.log(data)
+
+
+        if(data){
+
+        
+          settype('success')
+          setText("Succesfully Updated Staff")
+      setTimeout(() => {
+        window.location.reload();
+      }, 1233);
+          window.location.reload()
+         
+        
+        }
+        else{
+          console.log("i m her eint eh success")
+          setText(data?.message)
+          settype("error")
+       
+          // settype('success')
+        }
+
+        setOpen(true)
+        
+      
+        })
+
+  
+      }
+      else{
+
+        user_service.createStaff( {...staffData, "staffIdNumber": "14-5678-9012",
+          "staffIdType": "Aadhar"}).then(data=>{
+
+
+
+        if(data?.status=="true"){
+
+        
+          settype('success')
+          setText("Succesfully created Staff")
+          window.location.reload()
+         
+        
+        }
+        else{
+      
+          setText(data?.message)
+          settype("error")
+       
+          // settype('success')
+        }
+        setOpen(true) 
+        })
+      }
+     
+  
 
             }}
           >{staffId ? <>UPDATE</> : "ADD"}</Button>

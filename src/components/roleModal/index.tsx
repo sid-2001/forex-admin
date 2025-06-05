@@ -212,11 +212,11 @@ const RoleModal = ({
     user_service.addRole(payload)
     }
     console.log(payload)
-setTimeout(()=>{
+// setTimeout(()=>{
 
-  window.location.reload()
-  setRoleId(null)
-},1200)
+//   window.location.reload()
+//   setRoleId(null)
+// },2200)
 
     // onSave(payload);
   };

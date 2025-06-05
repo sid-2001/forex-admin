@@ -228,7 +228,7 @@ export class UserService extends BaseService {
   }
 
   async getAllRolesData(): Promise<Roles> {
-    let url = '/api/staff/staff-roles'
+    let url = '/api/staff/staff-roles/getAll'
     try {
       let data = await api1.get(url)
       return data
