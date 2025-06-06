@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   Box, Button, Divider, Grid, Typography, Chip, TextField, Drawer,
   ToggleButton, ToggleButtonGroup, useTheme, IconButton, Dialog, DialogTitle, DialogContent,
-  DialogActions, Tooltip, Modal, List, ListItem, ListItemText
+  DialogActions, Tooltip, Modal
 } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { useNavigate } from 'react-router-dom'
@@ -22,6 +22,7 @@ import { HelperService } from '@/helpers/helper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { TransactionService } from '@/services/transaction.service'
 import { ApplicantService } from '@/services/applicant.service'
+import HasPermission from '@/components/permissionWrapper'
 
 const TransactionPage = () => {
 
@@ -44,19 +45,13 @@ const TransactionPage = () => {
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         const navigate = useNavigate();
-
         const nameOrId = params.value?.name || params.value?.applicantId || 'N/A';
-
         return (
           <Tooltip title={`Go to ${nameOrId}'s details`} arrow>
             <span
-              onClick={() => navigate(`/applicant-details/${params.value?.applicantId}`)}
+              onClick={() => handleNavigation(`/applicant-details/${params.value?.applicantId}`)}
               style={{ cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}
-            >
-              {nameOrId}
-            </span>
-          </Tooltip>
-        );
+            >{nameOrId}</span></Tooltip>)
       }
     },
     { field: 'forex', headerName: 'Exchange Rate', flex: 1, headerClassName: 'super-app-theme--header' },
@@ -68,8 +63,11 @@ const TransactionPage = () => {
       headerClassName: "super-app-theme--header",
       renderCell: (params: any) =>
         params.value ? (
-          <Chip label={params.value == "N" ? "No Error" : "Error"}
-            color={params.value == "N" ? "success" : "error"} />
+          <Chip label={params.value === "N" ? "No Error" : "Error"}
+            color={params.value === "N" ? "success" : "error"} onClick={() => {
+              if (params.value === "Y") setmodalOpen(true)
+              fetchStpErrorList(params?.row?.id)
+            }} />
         ) : (
           <Chip onClick={() => {
             setmodalOpen(true)
@@ -84,7 +82,7 @@ const TransactionPage = () => {
       renderCell: (params: any) => (
         <>
           <IconButton onClick={() => {
-            navigate(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`)
+            handleNavigation(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`)
             handleViewMore(params.row)
           }}>
             <PreviewOutlined />
@@ -155,13 +153,32 @@ const TransactionPage = () => {
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <IconButton onClick={() => {
-          navigate(`/bop-details/${params.row.owTransactionNumber}/${params.row.tran_bop_attempt}`)
+          handleNavigation(`/bop-details/${params.row.owTransactionNumber}/${params.row.tran_bop_attempt}`)
         }}>
           <PreviewOutlined />
         </IconButton>
       ),
     },
   ];
+
+  const StpColumns = [{
+    field: 'transactionNo',
+    headerName: 'Transaction No.',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+  },
+  {
+    field: 'fieldName',
+    headerName: 'Field',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+  },
+  {
+    field: 'errorMessage',
+    headerName: 'Error Message',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+  },]
 
   const [isDrawerOpen, setDrawerOpen] = useState(false)
   const [modalOpen, setmodalOpen] = useState(false)
@@ -170,10 +187,8 @@ const TransactionPage = () => {
   const [inboundTransaction, setInboundTransaction] = useState<Array<TransactionInward>>([])
   const [outboundTransaction, setOutboundTransaction] = useState<Array<TransactionOutward>>([])
   const [toolopen, setToolOpen] = useState(false)
-  const [errors, seterrors] = useState(["Invalid email", "Password too short", "Username required"])
   const [selectedCountryOption, setSelectedCountryOption] = useRecoilState(selectedCountryState)
   //@ts-ignore
-  const [applicant, setApplicant] = useState<Applicant>(null)
   const [trxStatus, settrxStatus] = useState('')
   const [transactionData, setTransactionData] = useState(inboundTransaction)
   const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
@@ -184,6 +199,7 @@ const TransactionPage = () => {
   const [open, setOpen] = useState(false);
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
+  const [stpErrors, setStpErrors] = useState<any>([])
 
   let applicant_service = new ApplicantService()
   let transaction_Service = new TransactionService()
@@ -191,6 +207,16 @@ const TransactionPage = () => {
   const local_service = new LocalStorageService()
   const theme = useTheme()
   const navigate = useNavigate()
+
+  const fetchStpErrorList = async (transactionId: string) => {
+    try {
+      const response = await transaction_Service.getStpRules(transactionId)
+      console.log(response, "==============");
+      setStpErrors(response?.data)
+    } catch (error) {
+      console.log("err", error)
+    }
+  }
 
   useEffect(() => {
     setcommonloader(true)
@@ -324,7 +350,6 @@ const TransactionPage = () => {
   }
 
   const handleViewMore = (row: any) => {
-    console.log(row)
     settrxStatus(row?.status)
     let d = {
       //@ts-ignore
@@ -385,6 +410,10 @@ const TransactionPage = () => {
     setOpen(false);
   };
 
+  const handleNavigation = (url: string) => {
+    navigate(url);
+  }
+
   return (
     <Box sx={{ width: '100%' }}>
       <Typography variant="h4" gutterBottom>
@@ -392,11 +421,13 @@ const TransactionPage = () => {
       </Typography>
       <ToggleButtonGroup value={transactionType} color='primary'
         exclusive onChange={handleToggleTransactionType} sx={{ mb: 2 }}>
-        <ToggleButton value="inwards">
+        <ToggleButton value="inwards"
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_INWARD, 'canRead')}>
           Inwards
         </ToggleButton>
 
-        <ToggleButton value="outwards">
+        <ToggleButton value="outwards"
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canRead')}>
           Outwards
         </ToggleButton>
       </ToggleButtonGroup>
@@ -428,20 +459,17 @@ const TransactionPage = () => {
               <SettingsAccessibilityRounded />
             </IconButton>
 
-            <IconButton onClick={() => {
-              navigate('/utilization')
-            }}
+            <IconButton onClick={() => { handleNavigation('/utilization') }}
               disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
               color="primary">
               <AssessmentIcon sx={{
                 marginBottom: "10%"
               }} />
             </IconButton>
+
             <IconButton
               disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
-              onClick={() => {
-                navigate('/recon')
-              }} color="primary">
+              onClick={() => { handleNavigation('/recon') }} color="primary">
               <Sync sx={{
                 marginBottom: "10%"
               }} />
@@ -449,24 +477,18 @@ const TransactionPage = () => {
 
             <Button
               variant="outlined"
-              sx={{
-                marginBottom: '10%',
-              }}
+              sx={{ marginBottom: '10%' }}
               disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
-              onClick={
-                //@ts-ignore
-                (e) => {
-                  // console.log()
-                  navigate('/sendmoney')
-                }}
+              onClick={() => { handleNavigation('/sendmoney') }}
             >
               + Transaction
             </Button>
           </div>
         </div>
 
-        {transactionType === 'inwards' &&
-          helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_INWARD, 'canRead') && (<DataGrid
+        {transactionType === 'inwards' && <HasPermission
+          permission={'canRead'} module={local_service.get_modules()?.TRANSACTION_INWARD}>
+          <DataGrid
             rows={inboundTransaction?.length > 0 ? inboundTransaction : []}
             //@ts-ignore
             columns={inward_columns}
@@ -485,11 +507,12 @@ const TransactionPage = () => {
                 textOverflow: 'ellipsis',
               },
             }}
-          />)
-        }
+          />
+        </HasPermission>}
 
-        {transactionType === 'outwards' &&
-          helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canRead') && (<DataGrid
+        {transactionType === 'outwards' && <HasPermission
+          permission={'canRead'} module={local_service.get_modules()?.TRANSACTION_OUTWARD}>
+          <DataGrid
             rows={outboundTransaction}
             columns={columns_outward}
             getRowId={(row: any) => row.id}
@@ -507,7 +530,8 @@ const TransactionPage = () => {
                 textOverflow: 'ellipsis',
               },
             }}
-          />)}
+          />
+        </HasPermission>}
       </Box>
 
       <Drawer
@@ -613,7 +637,6 @@ const TransactionPage = () => {
               (trxStatus == "DRAFT" || trxStatus == "PENDING") ? (<>
                 <Button disabled={zaphierlink?.length > 0 ? false : true} variant="outlined" onClick={() => {
                   closeDrawer()
-                  // window.location.href=zaphierlink;
                   openInNewTab(zaphierlink)
                   addpayment(creattrx)
                 }}>
@@ -684,7 +707,7 @@ const TransactionPage = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 400,
+            width: 1000,
             bgcolor: "background.paper",
             boxShadow: 24,
             p: 4,
@@ -692,16 +715,41 @@ const TransactionPage = () => {
           }}
         >
           <Typography variant="h6" gutterBottom>
-            Error List
+            STP Errors List
           </Typography>
-          <List>
-            {errors.map((error, index) => (
-              <ListItem key={index} divider>
-                <ListItemText primary={`• ${error}`} />
-              </ListItem>
-            ))}
-          </List>
-          <Button variant="contained" color="error" fullWidth onClick={() => setmodalOpen(false)} sx={{ mt: 2 }}>
+          <DataGrid
+            sx={{
+              width: '100%',
+              '& .MuiDataGrid-columnHeaders': {
+                '& .super-app-theme--header': {
+                  backgroundColor: '#005099',
+                  color: 'white',
+                },
+              },
+              '& .MuiDataGrid-columnHeaderTitle': {
+                fontWeight: 'bold',
+              },
+              '& .MuiDataGrid-cell': {
+                fontSize: '14px',
+              },
+              '& .MuiDataGrid-row:nth-of-type(even)': {
+                backgroundColor: '#f0f8ff',
+              },
+              '& .MuiDataGrid-row:nth-of-type(odd)': {
+                backgroundColor: '#ffffff',
+              },
+              '& .super-app-theme--header': {
+                fontSize: '16px',
+              },
+            }}
+            columns={StpColumns}
+            rows={stpErrors}
+            //@ts-ignore
+            pageSize={5}
+            rowsPerPageOptions={[5]}
+            getRowId={(row: any) => row.id} // Ensure proper row ID handling
+          />
+          <Button variant="outlined" onClick={() => setmodalOpen(false)} sx={{ mt: 2 }}>
             Close
           </Button>
         </Box>
