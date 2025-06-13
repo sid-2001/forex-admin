@@ -520,7 +520,7 @@ const KYCPage = () => {
                           }}
                         >
                           {/* <a href={proofType?.documentUrl}>View More</a> */}
-                          <a href={`http://64.227.139.142/files/${proofType?.documentUrl.split('/').pop()}`} target="_blank" rel="noopener noreferrer">
+                          <a href={`${proofType?.documentUrl.split('/').pop()}`} target="_blank" rel="noopener noreferrer">
                             View More
                           </a>
                           {/* view more */}

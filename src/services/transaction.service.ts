@@ -124,4 +124,39 @@ export class TransactionService extends BaseService {
       console.log(err)
     }
   }
+  async getReconTrx():Promise<any> {
+    let url = `/api/transactions/recon/reconList`
+    try {
+      let  data  = await api1.get(url)
+      return data
+    }
+    catch (err) {
+      console.log(err)
+    }
+  }
+
+    async getReconTrxId(id:number):Promise<any> {
+    let url = `/api/transactions/recon/reconId/${id}`
+    try {
+      let  {data}  = await api1.get(url)
+      return data
+    }
+    catch (err) {
+      console.log(err)
+    }
+  }
+
+   async updateReconTrxId(id:number,payload:any):Promise<any> {
+    let url = `/api/transactions/recon/updateRecon/reconId/${id}`
+    try {
+      let  {data}  = await api1.put(url,payload)
+      return data
+    }
+    catch (err) {
+      console.log(err)
+    }
+  }
+
+
+
 }
