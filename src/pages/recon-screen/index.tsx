@@ -130,7 +130,7 @@ export default function TransactionPage() {
 function getStatusColor(
   //@ts-ignore
   status) {
-  switch (status.toLowerCase()) {
+  switch (status?.toLowerCase()) {
     case 'error':
       return 'red';
     case 'processed':

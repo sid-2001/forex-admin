@@ -13,6 +13,7 @@ import {
   TransactionInwardCalclulated,
   TransactionOutward,
 } from '@/types/transaction.type'
+
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import { PreviewOutlined, SettingsAccessibilityRounded, Sync } from '@mui/icons-material'
 import { useRecoilState } from 'recoil'
@@ -22,6 +23,7 @@ import { HelperService } from '@/helpers/helper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { TransactionService } from '@/services/transaction.service'
 import { ApplicantService } from '@/services/applicant.service'
+import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
 
 const TransactionPage = () => {
 
@@ -427,6 +429,14 @@ const TransactionPage = () => {
             <IconButton onClick={() => setToolOpen(true)}>
               <SettingsAccessibilityRounded />
             </IconButton>
+     <IconButton onClick={() => {
+
+navigate('/recon-trx')
+
+
+     }}>
+              <CurrencyExchangeIcon />
+            </IconButton>
 
             <IconButton onClick={() => {
               navigate('/utilization')
@@ -446,6 +456,8 @@ const TransactionPage = () => {
                 marginBottom: "10%"
               }} />
             </IconButton>
+
+
 
             <Button
               variant="outlined"
