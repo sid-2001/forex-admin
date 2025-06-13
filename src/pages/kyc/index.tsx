@@ -589,7 +589,7 @@ const KYCPage = () => {
                                 setProoftype(proofType);
                                 // await unverifyProofType(proofType); // API call
                               }}
-                              disabled={proofType.verificationStatus === 'v' || helper_service.checkUserHasPermission(local_service.get_modules()?.KYC, 'canUpdate')}
+                              disabled={proofType.verificationStatus === 'v' || !helper_service.checkUserHasPermission(local_service.get_modules()?.KYC, 'canUpdate')}
                             >
                               <CloseIcon />
                             </IconButton>
@@ -603,7 +603,7 @@ const KYCPage = () => {
                                 setProoftype(proofType);
                                 // await verifyProofType(proofType); // API call
                               }}
-                              disabled={proofType.verificationStatus === 'va' || helper_service.checkUserHasPermission(local_service.get_modules()?.KYC, 'canUpdate')}
+                              disabled={proofType.verificationStatus === 'va' || !helper_service.checkUserHasPermission(local_service.get_modules()?.KYC, 'canUpdate')}
                             >
                               <CheckCircleOutlineIcon />
                             </IconButton>
