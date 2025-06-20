@@ -8,7 +8,7 @@ export class KycService extends BaseService{
 
 async verifyDocument(doccode:string,kycid:string){
 
-let url=`${VITE_APP_KYC}/api/kyc/documents/${kycid}/${doccode}/verify`
+let url=`/api/kyc/documents/${kycid}/${doccode}/verify`
     try{
         let payload= {
             "kycId": kycid,               // KYC ID for this document
@@ -16,7 +16,7 @@ let url=`${VITE_APP_KYC}/api/kyc/documents/${kycid}/${doccode}/verify`
               }
 // let {data}=await axios.post(url,payload)
 
-const { data } = await axios.post(url, payload);
+const { data } = await api1.post(url, payload);
 
 return data
     }
@@ -28,7 +28,7 @@ console.log(err)
 
 async unverifyDocument(doccode:string,kycid:string){
 
-    let url=`${VITE_APP_KYC}/api/kyc/documents/${kycid}/${doccode}/unVerify`
+    let url=`/api/kyc/documents/${kycid}/${doccode}/unVerify`
         try{
             let payload= {
                 "kycId": kycid,               // KYC ID for this document
@@ -36,7 +36,7 @@ async unverifyDocument(doccode:string,kycid:string){
                   }
     // let {data}=await axios.post(url,payload)
     
-    const { data } = await axios.post(url, payload);
+    const { data } = await api1.post(url, payload);
     
     return data
         }
@@ -69,12 +69,12 @@ async changeKycStatus(status:string,kycid:string){
 
 async createComment(payload:any){
 
-let url=`${VITE_APP_KYC}/api/comments`
+let url=`/api/kyc/comments`
 
     try{
 
     
-     let data= axios.post(url,payload)
+     let data= api1.post(url,payload)
      return data
     }
     catch(err){

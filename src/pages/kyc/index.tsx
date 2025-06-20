@@ -155,8 +155,9 @@ const KYCPage = () => {
 
     const payload = {
       commentText: newComment,
-      commentDate: new Date().toISOString(),
+  
       user: selectedKYC?.applicantName, // Replace with the actual user info
+      kycId:selectedKYC?.kycId,
     };
 
     setLoading(true);
@@ -179,6 +180,18 @@ const KYCPage = () => {
       } else {
 
       }
+      setNewComment("")
+ kycservice.getComment(selectedKYC?.kycId).then(data => {
+                          setComments(data.filter(e => e.kycId == (selectedKYC?.kycId)))
+                        })
+                        kycservice.getComment(selectedKYC?.kycId)
+
+
+    kycservice.getComment(row?.kycId).then(data => {
+      setComments(data.filter(e => e.kycId == row?.kycI))
+    })
+
+
     } catch (error) {
       console.error("Error while adding comment:", error);
     } finally {
