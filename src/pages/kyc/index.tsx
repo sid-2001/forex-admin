@@ -172,7 +172,7 @@ const KYCPage = () => {
         //@ts-ignore
         response.status === 200) {
         // Update the comments list with the new comment
-        setComments((prevComments) => [
+        setComments((prevComments:any) => [
           ...prevComments,
           { ...payload, commentId: `CMT${comments.length + 1}` },
         ]);
@@ -186,8 +186,10 @@ const KYCPage = () => {
                         })
                         kycservice.getComment(selectedKYC?.kycId)
 
-
+//@ts-ignore
     kycservice.getComment(row?.kycId).then(data => {
+
+//@ts-ignore
       setComments(data.filter(e => e.kycId == row?.kycI))
     })
 
