@@ -15,19 +15,32 @@ import {
   Menu,
   MenuItem,
   TextField,
+  Popover,
 } from '@mui/material'
 import { styled } from '@mui/system'
 import { Chuks, John, Logo, LogoWhite } from '@/assets/images'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
-import Person2Icon from '@mui/icons-material/Person2';
+import Person2Icon from '@mui/icons-material/Person2'
 // import { sidbarSelectionState, studentListState } from "../../states/state";
-import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
+import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
 
 // import { studentService } from "@/services/student.service";
 import { LocalStorageService } from '@/helpers/local-storage-service'
 
-import { alertState, alertTextState, alertTypeState, loaderState, role, sidbarSelectionState, selectedAppState, loaderStateNew, selectedCountryState, availableBalanceState } from '@/states/state'
+import {
+  alertState,
+  alertTextState,
+  alertTypeState,
+  loaderState,
+  role,
+  sidbarSelectionState,
+  selectedAppState,
+  loaderStateNew,
+  selectedCountryState,
+  availableBalanceState,
+  staticTableState,
+} from '@/states/state'
 import { useState } from 'react'
 import Fade from '@mui/material/Fade'
 import Backdrop from '@mui/material/Backdrop'
@@ -43,17 +56,14 @@ import CustomSnackbar from '../customsnackbar/snackbar'
 import { AddBox, ArrowDropDown, ErrorOutlineRounded } from '@mui/icons-material'
 import MenuIcon from '@mui/icons-material/Menu'
 import Stack from '@mui/material/Stack'
-import ReactCountryFlag from 'react-country-flag'
-import HomeIcon from '@mui/icons-material/Home'
-import DashboardIcon from '@mui/icons-material/Dashboard'
-import SettingsIcon from '@mui/icons-material/Settings'
-import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety'
+
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import WestIcon from '@mui/icons-material/West'
 import CircularProgress from '@mui/material/CircularProgress'
 import { useTheme } from '@emotion/react'
 import Paper from '@mui/material/Paper'
+import WaterfallChartIcon from '@mui/icons-material/WaterfallChart'
 import GridViewIcon from '@mui/icons-material/GridView'
 import AccountBoxIcon from '@mui/icons-material/AccountBox'
 import ContactEmergencyIcon from '@mui/icons-material/ContactEmergency'
@@ -62,11 +72,12 @@ import { Tooltip } from '@mui/material'
 import SourceIcon from '@mui/icons-material/Source'
 import ShowChartIcon from '@mui/icons-material/ShowChart'
 // import { IconButton } from '@mui/material';
-import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import ViewModuleIcon from '@mui/icons-material/ViewModule'
 import { Us, Sa, Za, In } from 'react-flags-select'
 import { TransactionService } from '@/services/transaction.service'
 // import LogoutModalProps from '../logout/logout.component'
 import ConfirmationModal from '../logout/logout.component'
+import static_list from '@/contants/static.data'
 
 const RotatingImage = (
   //@ts-ignore
@@ -149,7 +160,6 @@ const DashboardLayout = () => {
     setAnchorEl(event.currentTarget)
   }
 
-
   const handledropClose = (option?: string) => {
     setAnchorEl(null)
     if (option) {
@@ -169,13 +179,44 @@ const DashboardLayout = () => {
   const [droppopopen, setdropopoOpen] = useState(false)
   const [openloader, setopenloader] = useRecoilState(loaderStateNew)
   const [isDrawerOpen, setDrawerOpen] = useState(false)
+  //@ts-ignore
+  const [staticTable, setStaticTable] = useRecoilState<{
+    name: string
+    'primary-key': string
+    api: string
+    listname: string
+    updatePrimaryKey: String
+    //@ts-ignore
+  }>(staticTableState)
 
   const toggleDrawer = () => {
     setDrawerOpen(!isDrawerOpen)
   }
 
   const handleModalClose = () => {
-    setIsModalOpen(!isModalOpen);
+    setIsModalOpen(!isModalOpen)
+  }
+
+  const handleStaicClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleStaticClose = () => {
+    setAnchorEl(null)
+  }
+
+  const openStaticDataPop = Boolean(anchorEl)
+
+  //@ts-ignore
+  const handleTableClick = (table: (typeof tableList)[0]) => {
+    setStaticTable(table)
+
+    navigate('/static')
+    // Add navigation or API calls here
+    setTimeout(() => {
+      window.location.reload()
+    }, 500)
+    handleClose()
   }
 
   const menuItems = [
@@ -339,7 +380,7 @@ const DashboardLayout = () => {
       ),
       label: 'Profile',
     },
-     {
+    {
       icon: (
         <>
           <ViewModuleIcon
@@ -370,6 +411,79 @@ const DashboardLayout = () => {
       ),
       label: 'Role',
     },
+
+    {
+      icon: (
+        <>
+          <IconButton onClick={handleClick}>
+            <WaterfallChartIcon
+              sx={{
+                fontSize: '2vh',
+                //@ts-ignore
+                color: theme.palette.primary.light,
+              }}
+            />
+          </IconButton>
+
+          <Modal
+            open={openStaticDataPop}
+            onClose={handleStaticClose}
+            closeAfterTransition
+            slotProps={{
+              backdrop: {
+                sx: {
+                  backdropFilter: 'blur(5px)',
+                  backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                },
+              },
+            }}
+          >
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: 300,
+                maxHeight: 400,
+                bgcolor: 'background.paper',
+                borderRadius: 2,
+                boxShadow: 24,
+                p: 2,
+                overflowY: 'auto',
+              }}
+            >
+              <Typography textAlign="center" variant="h6" sx={{ mb: 1 }}>
+                <b>Selecte Table</b>
+              </Typography>
+              <List>
+                {static_list.map((table, index) => (
+                  <ListItem
+                    button
+                    key={index}
+                    onClick={() => {
+                      handleTableClick(table)
+                      handleStaticClose()
+                    }}
+                  >
+                    <ListItemText
+                      sx={{
+                        alignContent: 'center',
+                        textAlign: 'center',
+                      }}
+                      primary={table.listname}
+
+                      // secondary={`PK: ${table['primary-key']}`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+          </Modal>
+        </>
+      ),
+      label: 'Static',
+    },
   ]
 
   // const[alert]
@@ -382,9 +496,8 @@ const DashboardLayout = () => {
   let [loader, setLoader] = useRecoilState(loaderState)
   let trx_service = new TransactionService()
 
-
   useEffect(() => {
-    trx_service.getBalanceEnquiry().then(data => {
+    trx_service.getBalanceEnquiry().then((data) => {
       setBalance(data as any)
     })
 
@@ -460,7 +573,10 @@ const DashboardLayout = () => {
     // setselectedSidebar(text);
     console.log(selectedTab)
     setSelectedTab(text)
-    navigate(text.toLowerCase())
+    if (text.toLowerCase() != 'static') {
+      navigate(text.toLowerCase())
+    }
+
     setTimeout(() => {
       setopenloader(false)
     }, 2000)
@@ -468,7 +584,7 @@ const DashboardLayout = () => {
 
   const handleLogout = () => {
     navigate('/login')
-    localStorage.clear();
+    localStorage.clear()
   }
 
   return (
@@ -488,9 +604,9 @@ const DashboardLayout = () => {
             <img src={LogoWhite} alt="Logo" style={{ height: 60 }} />
           </Box>
 
-          <Box
-            sx={{ marginRight: "23px" }}>
-            <strong>Available Balance :</strong><br></br>
+          <Box sx={{ marginRight: '23px' }}>
+            <strong>Available Balance :</strong>
+            <br></br>
             <span>₹{balance}</span>
           </Box>
 
@@ -508,39 +624,37 @@ const DashboardLayout = () => {
               marginBottom: '6px',
             }}
           >
-            {selecteCountryState == "SA" ? <>
-              <Avatar>
-                {<strong>
-                  {(local_service?.get_staff_access().staffFirstName[0]) + (local_service?.get_staff_access().staffLastName[0])}
-                </strong>
-                }</Avatar>
+            {selecteCountryState == 'SA' ? (
+              <>
+                <Avatar>
+                  {<strong>{local_service?.get_staff_access().staffFirstName[0] + local_service?.get_staff_access().staffLastName[0]}</strong>}
+                </Avatar>
 
-              <Box ml={1}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{
-                    fontFamily: 'sans-serif',
-                    fontSize: '12px',
-                    color: 'white',
-                  }}
-                >
-                  <strong>{(local_service?.get_staff_access().staffFirstName) + " " + (local_service?.get_staff_access().staffLastName)}</strong>
-                </Typography>
-
-                <Stack direction="row">
+                <Box ml={1}>
                   <Typography
-                    variant="subtitle2"
+                    variant="subtitle1"
                     sx={{
                       fontFamily: 'sans-serif',
-                      fontSize: '11px',
+                      fontSize: '12px',
                       color: 'white',
                     }}
                   >
-                    <strong>{(local_service?.get_staff_access().staffId)}</strong>
-
+                    <strong>{local_service?.get_staff_access().staffFirstName + ' ' + local_service?.get_staff_access().staffLastName}</strong>
                   </Typography>
 
-{/*                   <Za
+                  <Stack direction="row">
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontFamily: 'sans-serif',
+                        fontSize: '11px',
+                        color: 'white',
+                      }}
+                    >
+                      <strong>{local_service?.get_staff_access().staffId}</strong>
+                    </Typography>
+
+                    {/*                   <Za
                     style={{
                       height: '20px',
                       width: '25px',
@@ -549,40 +663,42 @@ const DashboardLayout = () => {
                       borderRadius: '30%',
                     }}
                   /> */}
-                </Stack>
-              </Box>
-            </> : <>
-              {/* {local_service.get_user()?.firstName?(
+                  </Stack>
+                </Box>
+              </>
+            ) : (
+              <>
+                {/* {local_service.get_user()?.firstName?(
 local_service.get_user()?.firstName[0]
 
 
             ):(L)} */}
-              {/* <Avatar >{local_service.get_user()?.firstName[0] + " " + local_service.get_user()?.lastName[0]}</Avatar> */}
+                {/* <Avatar >{local_service.get_user()?.firstName[0] + " " + local_service.get_user()?.lastName[0]}</Avatar> */}
 
-              <Box ml={1}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{
-                    fontFamily: 'sans-serif',
-                    fontSize: '12px',
-                    color: 'white',
-                  }}
-                >
-                  <strong>{(local_service?.get_staff_access()?.staffFirstName) + " " + (local_service?.get_staff_access()?.staffLastName)}</strong>
-                </Typography>
-
-                <Stack direction="row">
+                <Box ml={1}>
                   <Typography
-                    variant="subtitle2"
+                    variant="subtitle1"
                     sx={{
                       fontFamily: 'sans-serif',
-                      fontSize: '11px',
+                      fontSize: '12px',
                       color: 'white',
                     }}
                   >
-                    <strong>{(local_service?.get_staff_access()?.staffId)}</strong>
+                    <strong>{local_service?.get_staff_access()?.staffFirstName + ' ' + local_service?.get_staff_access()?.staffLastName}</strong>
                   </Typography>
-{/* 
+
+                  <Stack direction="row">
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontFamily: 'sans-serif',
+                        fontSize: '11px',
+                        color: 'white',
+                      }}
+                    >
+                      <strong>{local_service?.get_staff_access()?.staffId}</strong>
+                    </Typography>
+                    {/* 
                   <In
                     style={{
                       height: '20px',
@@ -592,9 +708,10 @@ local_service.get_user()?.firstName[0]
                       borderRadius: '30%',
                     }}
                   /> */}
-                </Stack>
-              </Box>
-            </>}
+                  </Stack>
+                </Box>
+              </>
+            )}
           </Box>
         </Toolbar>
       </AppBar>
@@ -639,7 +756,10 @@ local_service.get_user()?.firstName[0]
                   }}
                   onClick={() => {
                     handleSidebarClick(item.label)
-                    navigate(item.label.toLocaleLowerCase())
+
+                    if (item.label.toLocaleLowerCase() != 'static') {
+                      navigate(item.label.toLocaleLowerCase())
+                    }
                   }}
                 >
                   <Stack>
@@ -680,7 +800,7 @@ local_service.get_user()?.firstName[0]
                   // Push this item to the end
                 }}
                 onClick={() => {
-                  setIsModalOpen(true);
+                  setIsModalOpen(true)
                 }}
               >
                 <Stack>
@@ -725,7 +845,7 @@ local_service.get_user()?.firstName[0]
                   // backgroundColor: 'pink',
                 }}
                 onClick={() => {
-                  setIsModalOpen(true);
+                  setIsModalOpen(true)
                 }}
               >
                 <Stack>
@@ -760,17 +880,22 @@ local_service.get_user()?.firstName[0]
               <Outlet />
             </MainContent>
 
-            {isModalOpen && <ConfirmationModal isOpen={isModalOpen}
-              message='Do you really want to logout?'
-              handleConfirm={() => { handleLogout() }}
-              handleClose={() => { handleModalClose() }}
-              confirmBtnText='Logout'
-              showIcon={true}
-            />}
+            {isModalOpen && (
+              <ConfirmationModal
+                isOpen={isModalOpen}
+                message="Do you really want to logout?"
+                handleConfirm={() => {
+                  handleLogout()
+                }}
+                handleClose={() => {
+                  handleModalClose()
+                }}
+                confirmBtnText="Logout"
+                showIcon={true}
+              />
+            )}
           </Box>
         </Box>
-
-
       </DashboardContainer>
     </ThemeProvider>
   )

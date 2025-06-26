@@ -2,6 +2,8 @@
   "semi": false,
   "printWidth": 150,
   "singleQuote": true,
+
+  
   "trailingComma": "all",
   "jsxSingleQuote": false,
   "tabWidth": 2,

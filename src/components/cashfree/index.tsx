@@ -24,6 +24,7 @@ const CashfreePayment = ({ amount, data }: { amount: number, data: any }) => {
       const response = await axios.post(`${VITE_APP_BACKEND}/api/create-order`, { amount });
       const { payment_session_id } = response.data;
 
+      console.log("initiate payment",data)
       let deal_data = await transaction_service.createDealcover({
         sourceCurrency: selectedCountryoption == "SA" ? "ZAR" : "INR",
         destinationCurrency: selectedCountryoption == 'SA' ? "INR" : "ZAR",
@@ -33,6 +34,8 @@ const CashfreePayment = ({ amount, data }: { amount: number, data: any }) => {
       })
 
       if (deal_data.dealNumber) {
+
+      console.log("creating payment",data)
         await transaction_service.createTransaction(data).then(res => {
           console.log(res)
         })

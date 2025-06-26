@@ -372,6 +372,7 @@ const SendMoneyPage = () => {
         amount: amount,
         applicant: selectedUser,
         forex: forexRate,
+        bopId:category,
         //@ts-ignore
         timecharge: selectedTime?.time,
         sourceCurrency: "ZAR",
@@ -467,6 +468,7 @@ const SendMoneyPage = () => {
         // totalpaybleamount: (Number(amount) + Number(selecteTimeChange) + Number(gatewayCharge))
         totalpaybleamount: (Number(amount) * Number(forexRate))
       }
+      console.log("getting payload",payload)
 
       await transaction_service.createDealcover({
         sourceCurrency: selectedCountryoption == "SA" ? "ZAR" : "INR",
@@ -480,7 +482,6 @@ const SendMoneyPage = () => {
         setCommonLoader(true)
 
         if (data) {
-
           settype('success')
           setText("Tnansaction created Succesfully")
         }
@@ -934,6 +935,8 @@ const SendMoneyPage = () => {
               <Grid container spacing={2}>
                 <Grid item xs={12} md={12}>
                   <BobCategoryDropdown amount={amount} setAmount={setAmount} remittanceList={remittanceList} category={category} setCategory={setCategory} ></BobCategoryDropdown>
+
+
                 </Grid>
               </Grid>
               <Box sx={{ textAlign: 'left', marginTop: 2 }}>
@@ -1272,7 +1275,8 @@ const SendMoneyPage = () => {
                     amount: amount,
                     applicant: selectedUser,
                     forex: forexRate,
-                    gatewayId: '13122',
+                    gatewayId: 'IMPGW002',
+                    bopId:category,
                     //@ts-ignore
                     timecharge: selectedTime?.time,
                     sourceCurrency: selectedCountryoption == "SA" ? "ZAR" : "INR",

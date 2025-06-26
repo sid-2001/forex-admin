@@ -51,6 +51,7 @@ import UserTable from './pages/users'
 import ModuleTable from './pages/module-list'
 import RoleManagement from './pages/roles-list'
 import ReconScreen from './pages/recon-screen'
+import StaticData from './pages/static-data/staticdata.page'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -134,6 +135,7 @@ function App() {
               <Route path="price" element={<CurrencyBarChart />} />
               <Route path="bop-details/:transactionId/:transaction_attempt" element={<BopScreen />} />
               <Route path="bop" element={<BopTable />} />
+                            <Route path="static" element={<StaticData />} />
               <Route path="logs" element={<LogsList />} />
               <Route path="logs/add" element={<NewLog />} />
               <Route path="recon-trx" element={<ReconScreen />} />
