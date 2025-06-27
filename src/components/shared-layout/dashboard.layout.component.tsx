@@ -454,7 +454,7 @@ const DashboardLayout = () => {
               }}
             >
               <Typography textAlign="center" variant="h6" sx={{ mb: 1 }}>
-                <b>Selecte Table</b>
+                <b>Select Table</b>
               </Typography>
               <List>
                 {static_list.map((table, index) => (

@@ -14,13 +14,13 @@ const static_list = [
     updatePrimaryKey: 'id',
   },
 
-  {
-    name: 'forex',
-    'primary-key': 'id',
-    api: '/api/forex/action',
-    listname: 'Forex',
-    updatePrimaryKey: 'id',
-  },
+  // {
+  //   name: 'forex',
+  //   'primary-key': 'id',
+  //   api: '/api/forex/action',
+  //   listname: 'Forex',
+  //   updatePrimaryKey: 'id',
+  // },
 
   {
     name: 'forex-gateway',

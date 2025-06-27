@@ -10,11 +10,14 @@ import { PieChart } from '@mui/x-charts/PieChart/PieChart';
 import { HelperService } from '@/helpers/helper';
 import { LocalStorageService } from '@/helpers/local-storage-service';
 import HasPermission from '@/components/permissionWrapper';
+import { KycService } from '@/services/kyc.service';
+import ReferralTransactions from '@/components/referralTransactionTable';
 
 const applicant_service = new ApplicantService();
 const beneficiary_service = new BeneficiaryService();
 const helper = new HelperService()
 const local_service = new LocalStorageService
+const kyc_service = new KycService();
 
 const ApplicantPage = () => {
 
@@ -67,6 +70,8 @@ const ApplicantPage = () => {
   const [utilizedLimit, setutilizedLimit] = useState(0)
   const [availableLimit, setAvailableLimit] = useState(0)
   const [maxlimit, setMaxlimit] = useState(0)
+  const [referralRedeemTransaction, setReferralRedeemTransaction] = useState<any>([])
+  const [referralCreditedTransaction, setReferralCreditedTransaction] = useState<any>([])
 
   const countries = [
     { code: "IN", name: "India" },
@@ -209,6 +214,8 @@ const ApplicantPage = () => {
       setAvailableLimit(comp_data?.availableLimit)
     })
     fetchBeneficiaries();
+    fetchReferralRedeemedTransactions();
+    fetchReferralCreditedTransactions();
   }, [])
 
 
@@ -352,6 +359,28 @@ const ApplicantPage = () => {
       console.error('Error fetching transactions:', error);
     }
   }, [applicantId]);
+
+  const fetchReferralRedeemedTransactions = useCallback(async () => {
+    if (!applicantId) return;
+
+    try {
+      const data = await kyc_service.getReferralRedeemedTransactions(applicantId);     
+      setReferralRedeemTransaction(data.data || []);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }, [applicantId])
+
+  const fetchReferralCreditedTransactions = useCallback(async () => {
+    if (!applicantId) return;
+    try {
+      const data = await kyc_service.getReferralCreditedTransactions(applicantId);
+      setReferralCreditedTransaction(data.data || []);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }, [applicantId])
+
 
   const handleFieldChange = (setter: React.Dispatch<React.SetStateAction<any>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setter(e.target.value);
@@ -807,22 +836,30 @@ const ApplicantPage = () => {
           {/* <Tab label="Documents" sx={{ marginRight: '2px' }} /> */}
           <Tab label="Beneficiaries" sx={{ marginRight: '2px' }} />
           <Tab label="Transactions" sx={{ marginRight: '2px' }} />
+          <Tab label="Referral Redeemed Transactions" sx={{ marginRight: '2px' }} />
+          <Tab label="Referral Credited Transactions" sx={{ marginRight: '2px' }} />
         </Tabs>
 
         {/* Tab Content */}
-        {selectedTab === 0 && helper.checkUserHasPermission(local_service.get_modules()?.BENEFICIARY, 'canRead')&&<BeneficiaryTable beneficiary={beneficiaries}
+        {selectedTab === 0 && helper.checkUserHasPermission(local_service.get_modules()?.BENEFICIARY, 'canRead') && <BeneficiaryTable beneficiary={beneficiaries}
           deleteBeneficiary={beneficiaries} applicantId={applicantId} />}
-        {selectedTab === 1 && helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canRead')&&<TransactionTable
+        {selectedTab === 1 && helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canRead') && <TransactionTable
           //@ts-ignore
           applicantId={applicantId || ""}
           //@ts-ignore
           transaction={transactions} />}
 
+        {selectedTab === 2 && <ReferralTransactions
+          referralRecords={referralRedeemTransaction || []} referralHeader={'Reward Redeemed'} />}
+        {selectedTab === 3 && <ReferralTransactions
+          referralRecords={referralCreditedTransaction || []}
+          referralHeader={'Reward Credited'} />}
+
         {/* Action Buttons */}
         <Grid container spacing={2} mt={1}>
           <Grid item xs={12} sm={3}>
             <Button variant="outlined" onClick={handleBack} fullWidth>
-              Back to List
+              Back to Applicant List
             </Button>
           </Grid>
           <Grid item xs={12} sm={3}>
