@@ -364,7 +364,7 @@ const ApplicantPage = () => {
     if (!applicantId) return;
 
     try {
-      const data = await kyc_service.getReferralRedeemedTransactions(applicantId);     
+      const data = await kyc_service.getReferralRedeemedTransactions(applicantId);
       setReferralRedeemTransaction(data.data || []);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -374,8 +374,8 @@ const ApplicantPage = () => {
   const fetchReferralCreditedTransactions = useCallback(async () => {
     if (!applicantId) return;
     try {
-      const data = await kyc_service.getReferralCreditedTransactions(applicantId);
-      setReferralCreditedTransaction(data.data || []);
+      const { data } = await kyc_service.getReferralCreditedTransactions(applicantId);
+      setReferralCreditedTransaction(data || []);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -850,10 +850,10 @@ const ApplicantPage = () => {
           transaction={transactions} />}
 
         {selectedTab === 2 && <ReferralTransactions
-          referralRecords={referralRedeemTransaction || []} referralHeader={'Reward Redeemed'} />}
+          referralRecords={referralRedeemTransaction || []} referralType={'Redeemed'} />}
         {selectedTab === 3 && <ReferralTransactions
           referralRecords={referralCreditedTransaction || []}
-          referralHeader={'Reward Credited'} />}
+          referralType={'Credited'} />}
 
         {/* Action Buttons */}
         <Grid container spacing={2} mt={1}>
