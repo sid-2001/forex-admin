@@ -8,7 +8,7 @@ import { useParams } from 'react-router-dom'
 import { HelperService } from '@/helpers/helper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import HasPermission from '../permissionWrapper'
-
+import ConfirmationModal from '../logout/logout.component'
 
 const countryCodes = {
   'India': 'IN',
@@ -37,6 +37,7 @@ const BopScreen: React.FC = () => {
   const [bopData, setBopData] = useState<any>({})
   const [bopCat, setbopCat] = useState<any>({})
   const [bopCategory, setBopCategory] = useState<any>([])
+  const [confirmReleaseModal,setConfirmReleaseModal] = useState<boolean>(false);
   // const [bopCategoryStaticData, setBopCategoryStaticData] = useState<any>([])
 
   const storedLocalData = localStorage.getItem('staff_access') || "";
@@ -282,7 +283,8 @@ const BopScreen: React.FC = () => {
     <Box style={{ width: '80vw', height: '80vh', overflowY: 'scroll', padding: '10px' }}>
       <Box sx={{ textAlign: 'right' }}>
         <Button variant="outlined" color="primary"
-          onClick={() => handleReleaseBopData()} disabled={formData.status === 'RELEASED' || !helper.checkUserHasPermission(local_service.get_modules()?.BOP,'canUpdate')}>
+          onClick={() => {setConfirmReleaseModal(!confirmReleaseModal)}} 
+          disabled={formData.status === 'RELEASED' || !helper.checkUserHasPermission(local_service.get_modules()?.BOP,'canUpdate')}>
           Release
         </Button>
         <Button
@@ -1101,6 +1103,13 @@ const BopScreen: React.FC = () => {
         </Button>
       </Box>
     </Box >
+
+    <ConfirmationModal message='You want to Release the transaction?' 
+    handleClose={()=>{setConfirmReleaseModal(!confirmReleaseModal)}} 
+    handleConfirm={()=>{handleReleaseBopData()}}
+    showIcon={false}
+    confirmBtnText={'Release'}
+     isOpen={confirmReleaseModal}/>
     </HasPermission>
   )
 }
