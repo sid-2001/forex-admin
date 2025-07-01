@@ -84,13 +84,13 @@ const Dashboard = () => {
   }
 
   return (
-    <Box sx={{ p: 1 }}>
+    <Box sx={{ width: '80vw' }}>
       <Typography variant="h4" gutterBottom>
         Dashboard Overview
       </Typography>
 
       {/* Summary Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Grid container spacing={2} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
           <Card sx={{ cursor: 'pointer', '&:hover': { boxShadow: 3 } }} onClick={() => setOpenModal(true)}>
             <CardContent>
