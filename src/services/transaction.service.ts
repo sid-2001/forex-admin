@@ -157,6 +157,16 @@ export class TransactionService extends BaseService {
     }
   }
 
+  async createOrder(payload: any) {
+    let url = `/api/create-order`
+    try {
+      let { data } = await api1.post(url, payload)
+      return data
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
 
 
 }

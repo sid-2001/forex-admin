@@ -1,8 +1,5 @@
 import { BaseService } from './base.service'
-import axios from 'axios'
-
 import api1 from './apis/api1'
-const { VITE_APP_BACKEND, VITE_APP_URL, VITE_APP_APPLICANT, VITE_APP_KYC, VITE_APP_STATIC } = import.meta.env
 
 export default class staticdataService extends BaseService {
   async staticData(
@@ -10,7 +7,6 @@ export default class staticdataService extends BaseService {
     payload: any,
   ): Promise<{
     data: any
-
     status: Boolean
     message: 'Created successfully'
   }> {
