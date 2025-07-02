@@ -207,7 +207,6 @@ const Dashboard = () => {
                 scrollSnapAlign: 'start',
               }}
             >
-              //@ts-ignore //@ts-ignore
               <BankCard
                 //@ts-ignore
                 description=""
