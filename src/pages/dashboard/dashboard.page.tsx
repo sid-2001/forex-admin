@@ -15,9 +15,14 @@ import {
   Divider,
   Avatar,
   Stack,
+  CardMedia,
+  Switch,
+  IconButton,
 } from '@mui/material'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { AttachMoney, People, AssignmentInd, TrendingUp, CalendarToday, DateRange } from '@mui/icons-material'
+import ArrowLeftIcon from '@mui/icons-material/ArrowLeft'
+import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
 const Dashboard = () => {
   // Sample dashboard data
@@ -76,6 +81,284 @@ const Dashboard = () => {
     { id: 3, name: 'Michael Brown', joinDate: '2020-11-22', purchases: 21 },
     { id: 4, name: 'Sarah Wilson', joinDate: '2023-02-05', purchases: 3 },
   ]
+
+  const cards = [
+    {
+      title: 'OZOW',
+      image_url:
+        'https://media.licdn.com/dms/image/v2/D4E0BAQHUsPmIf1k4pQ/company-logo_200_200/company-logo_200_200/0/1699544024463?e=1756944000&v=beta&t=hE-p5BDhrQR6Ll3UBcg_L9S8_54uAUNAaJwvD5osmBU',
+    },
+    {
+      title: 'Cashfree',
+      image_url:
+        'https://media.licdn.com/dms/image/v2/C560BAQF4u3uIRgM6Cg/company-logo_100_100/company-logo_100_100/0/1632367052546/cashfree_logo?e=1756944000&v=beta&t=hb2EwepUiLkgmWpX9LD0u9Q23gJ6dmrZNV2b-IiEu_Y',
+    },
+
+    {
+      title: 'OZOW',
+      image_url:
+        'https://media.licdn.com/dms/image/v2/D4E0BAQHUsPmIf1k4pQ/company-logo_200_200/company-logo_200_200/0/1699544024463?e=1756944000&v=beta&t=hE-p5BDhrQR6Ll3UBcg_L9S8_54uAUNAaJwvD5osmBU',
+    },
+    {
+      title: 'Cashfree',
+      image_url:
+        'https://media.licdn.com/dms/image/v2/C560BAQF4u3uIRgM6Cg/company-logo_100_100/company-logo_100_100/0/1632367052546/cashfree_logo?e=1756944000&v=beta&t=hb2EwepUiLkgmWpX9LD0u9Q23gJ6dmrZNV2b-IiEu_Y',
+    },
+    {
+      title: 'OZOW',
+      image_url:
+        'https://media.licdn.com/dms/image/v2/D4E0BAQHUsPmIf1k4pQ/company-logo_200_200/company-logo_200_200/0/1699544024463?e=1756944000&v=beta&t=hE-p5BDhrQR6Ll3UBcg_L9S8_54uAUNAaJwvD5osmBU',
+    },
+    {
+      title: 'Cashfree',
+      image_url:
+        'https://media.licdn.com/dms/image/v2/C560BAQF4u3uIRgM6Cg/company-logo_100_100/company-logo_100_100/0/1632367052546/cashfree_logo?e=1756944000&v=beta&t=hb2EwepUiLkgmWpX9LD0u9Q23gJ6dmrZNV2b-IiEu_Y',
+    },
+    // Add more cards as needed
+  ]
+
+  const bankAccounts = [
+    {
+      name: 'ICICI ',
+      balance: 35400.25,
+      image_url:
+        'https://media.licdn.com/dms/image/v2/C510BAQGqZH7vVbVzWw/company-logo_200_200/company-logo_200_200/0/1630606529683/hdfc_bank_logo?e=1756944000&v=beta&t=RoXmSn8fKd4SYGMdrAyOpeIuy5mFu6NRFNwOBl8szHg',
+    },
+    {
+      name: 'HDFC ',
+      balance: 18020.75,
+      image_url:
+        'https://media.licdn.com/dms/image/v2/C510BAQGqZH7vVbVzWw/company-logo_200_200/company-logo_200_200/0/1630606529683/hdfc_bank_logo?e=1756944000&v=beta&t=RoXmSn8fKd4SYGMdrAyOpeIuy5mFu6NRFNwOBl8szHg',
+    },
+    {
+      name: 'SBI ',
+      balance: 50400,
+      image_url:
+        'https://media.licdn.com/dms/image/v2/C4D0BAQHKjQFwtVCmSg/company-logo_200_200/company-logo_200_200/0/1660627573367/state_bank_of_india_logo?e=1756944000&v=beta&t=F_jA5pDKnBTp7RqEQk4odT2kQ0o3ciooaD4bnNzur0Y',
+    },
+    {
+      name: 'HSBC',
+      balance: 2500.9,
+      image_url:
+        'https://media.licdn.com/dms/image/v2/D4E0BAQGF7uhTJxFBvQ/img-crop_100/img-crop_100/0/1717419425342?e=1756944000&v=beta&t=hVuOkKTkoY_puNtx-0XR9P65wEW5WkvVt1dpi6GURQs',
+    },
+  ]
+
+  const BankBalanceCarousel = () => {
+    const scrollRef = React.useRef<HTMLDivElement>(null)
+
+    const scroll = (offset: number) => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' })
+      }
+    }
+
+    return (
+      <Box position="relative" width="100%" mt={1}>
+        {/* Scroll Buttons */}
+        <IconButton
+          onClick={() => scroll(-300)}
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: 0,
+            zIndex: 1,
+            backgroundColor: '#fff',
+          }}
+        >
+          <ArrowLeftIcon />
+        </IconButton>
+        <IconButton
+          onClick={() => scroll(300)}
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            right: 0,
+            zIndex: 1,
+            backgroundColor: '#fff',
+          }}
+        >
+          <ArrowRightIcon />
+        </IconButton>
+
+        {/* Scrollable Bank Cards */}
+        <Box
+          ref={scrollRef}
+          sx={{
+            display: 'flex',
+            overflowX: 'auto',
+            gap: 2,
+            py: 3,
+            px: 6,
+            scrollSnapType: 'x mandatory',
+            '&::-webkit-scrollbar': { display: 'none' },
+          }}
+        >
+          {bankAccounts.map((bank, index) => (
+            <Box
+              key={index}
+              sx={{
+                flex: '0 0 auto',
+                width: {
+                  xs: '82%',
+                  sm: '46%',
+                  md: '50%',
+                },
+                scrollSnapAlign: 'start',
+              }}
+            >
+              //@ts-ignore //@ts-ignore
+              <BankCard
+                //@ts-ignore
+                description=""
+                title={bank?.name}
+                balance={bank?.balance}
+                image_url={bank?.image_url}
+              ></BankCard>
+            </Box>
+          ))}
+        </Box>
+      </Box>
+    )
+  }
+
+  const HorizontalCard = ({
+    //@ts-ignore
+    image_url,
+    //@ts-ignore
+    title,
+    //@ts-ignore
+    description,
+  }) => {
+    const [enabled, setEnabled] = useState(true)
+
+    const handleToggle = () => {
+      setEnabled((prev) => !prev)
+    }
+
+    return (
+      <Card
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          p: 1,
+          borderRadius: 3,
+          boxShadow: 3,
+          opacity: enabled ? 1 : 0.5, // dim when disabled
+          pointerEvents: enabled ? 'auto' : 'none', // disable interactions
+        }}
+      >
+        <CardMedia component="img" image={image_url} alt={title} sx={{ width: '50vw', height: '7vh', borderRadius: 2 }} />
+        <CardContent sx={{ ml: 2, flexGrow: 1 }}>
+          <Typography variant="h6">{title}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            <Switch checked={enabled} onChange={handleToggle} />
+          </Typography>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const BankCard = ({
+    //@ts-ignore
+    image_url,
+    //@ts-ignore
+    title,
+    //@ts-ignore
+    description,
+    //@ts-ignore
+    balance,
+  }) => {
+    const [enabled, setEnabled] = useState(true)
+
+    const handleToggle = () => {
+      setEnabled((prev) => !prev)
+    }
+
+    return (
+      <Card
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          p: 1,
+          borderRadius: 3,
+          boxShadow: 3,
+          opacity: enabled ? 1 : 0.5, // dim when disabled
+          pointerEvents: enabled ? 'auto' : 'none', // disable interactions
+        }}
+      >
+        <CardMedia component="img" image={image_url} alt={title} sx={{ width: '50vw', height: '7vh', borderRadius: 2 }} />
+        <CardContent sx={{ ml: 2, flexGrow: 1 }}>
+          <Typography variant="h6">{title}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            ${balance}
+            {/* <Switch checked={enabled} onChange={handleToggle} /> */}
+          </Typography>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const HorizontalCardCarousel = () => {
+    const scrollRef = React.useRef<HTMLDivElement>(null)
+
+    const scroll = (offset: number) => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' })
+      }
+    }
+
+    return (
+      <Box position="relative" width="100%">
+        {/* Scroll Buttons */}
+        <IconButton onClick={() => scroll(-300)} sx={{ position: 'absolute', top: '50%', left: 0, zIndex: 1, backgroundColor: '#fff' }}>
+          <ArrowLeftIcon />
+        </IconButton>
+        <IconButton onClick={() => scroll(300)} sx={{ position: 'absolute', top: '50%', right: 0, zIndex: 1, backgroundColor: '#fff' }}>
+          <ArrowRightIcon />
+        </IconButton>
+
+        {/* Carousel Container */}
+        <Box
+          ref={scrollRef}
+          sx={{
+            display: 'flex',
+            overflowX: 'auto',
+            scrollSnapType: 'x mandatory',
+            gap: 2,
+            py: 3,
+            px: 6,
+            '&::-webkit-scrollbar': { display: 'none' },
+          }}
+        >
+          {cards.map((card, index) => (
+            <Box
+              key={index}
+              sx={{
+                flex: '0 0 auto',
+                width: {
+                  xs: '80%',
+                  sm: '45%',
+                  md: '40%',
+                },
+                scrollSnapAlign: 'start',
+              }}
+            >
+              <HorizontalCard title={card.title} description="" image_url={card.image_url} />
+            </Box>
+          ))}
+        </Box>
+      </Box>
+    )
+  }
+
+  const scrollRef = React.useRef<HTMLDivElement>(null)
+
+  const scroll = (offset: number) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' })
+    }
+  }
 
   const handleFilterApply = () => {
     // In a real app, you would fetch data based on filters here
@@ -169,6 +452,32 @@ const Dashboard = () => {
               </Stack>
             </CardContent>
           </Card>
+        </Grid>
+        {/* 
+        <Grid item xs={12} sm={6} md={2}>
+          <HorizontalCard
+            title={'OZOW'}
+            description={''}
+            image_url={
+              'https://media.licdn.com/dms/image/v2/D4E0BAQHUsPmIf1k4pQ/company-logo_200_200/company-logo_200_200/0/1699544024463?e=1756944000&v=beta&t=hE-p5BDhrQR6Ll3UBcg_L9S8_54uAUNAaJwvD5osmBU'
+            }
+          ></HorizontalCard>
+        </Grid>
+        <Grid item xs={12} sm={6} md={2}>
+          <HorizontalCard
+            title={'Cahfree'}
+            description={''}
+            image_url={
+              'https://media.licdn.com/dms/image/v2/C560BAQF4u3uIRgM6Cg/company-logo_100_100/company-logo_100_100/0/1632367052546/cashfree_logo?e=1756944000&v=beta&t=hb2EwepUiLkgmWpX9LD0u9Q23gJ6dmrZNV2b-IiEu_Y'
+            }
+          ></HorizontalCard>
+        </Grid> */}
+        <Grid item xs={12} sm={6} md={6}>
+          <BankBalanceCarousel></BankBalanceCarousel>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={6}>
+          <HorizontalCardCarousel></HorizontalCardCarousel>
         </Grid>
       </Grid>
 
