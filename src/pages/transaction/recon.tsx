@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'
 import {
   Box,
   Button,
@@ -12,30 +12,29 @@ import {
   MenuItem,
   IconButton,
   InputAdornment,
-} from '@mui/material';
+} from '@mui/material'
 //@ts-nocheck
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs, { Dayjs } from 'dayjs';
-import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import { TransactionService } from '@/services/transaction.service';
-import { isNull } from 'util';
-import { useRecoilState } from 'recoil';
-import { alertState, alertTextState, alertTypeState, loaderState, loaderStateNew } from '@/states/state';
-import { LocalDrink } from '@mui/icons-material';
+import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import dayjs, { Dayjs } from 'dayjs'
+import RestartAltIcon from '@mui/icons-material/RestartAlt'
+import { TransactionService } from '@/services/transaction.service'
+import { isNull } from 'util'
+import { useRecoilState } from 'recoil'
+import { alertState, alertTextState, alertTypeState, loaderState, loaderStateNew } from '@/states/state'
+import { LocalDrink } from '@mui/icons-material'
 
 const ReconPage = () => {
-  const [selectedRows, setSelectedRows] = useState<Record<string, string>>({});
-  const [globalTransactionId, setGlobalTransactionId] = useState('');
-  const [rows, setRows] = useState();
+  const [selectedRows, setSelectedRows] = useState<Record<string, string>>({})
+  const [globalTransactionId, setGlobalTransactionId] = useState('')
+  const [rows, setRows] = useState()
 
-
-  const [filteredRows, setFilteredRows] = useState([]);
-  const [startDate, setStartDate] = useState<Dayjs | null>(null);
-  const [endDate, setEndDate] = useState<Dayjs | null>(null);
-  const [selectAll, setSelectAll] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
+  const [filteredRows, setFilteredRows] = useState([])
+  const [startDate, setStartDate] = useState<Dayjs | null>(null)
+  const [endDate, setEndDate] = useState<Dayjs | null>(null)
+  const [selectAll, setSelectAll] = useState(false)
+  const [openModal, setOpenModal] = useState(false)
   const [allreconData, setallRecondData] = useState([])
   const [reconciliation, setReconciliation] = useState({
     reconId: '',
@@ -47,8 +46,7 @@ const ReconPage = () => {
     principalAmount: '',
     settlementAmount: '',
     UTR_Id: '',
-  });
-
+  })
 
   const [text, setText] = useRecoilState(alertTextState)
   const [type, setType] = useRecoilState(alertTypeState)
@@ -57,131 +55,112 @@ const ReconPage = () => {
 
   const [reconid, setReconID] = useState('')
 
-
   const handleCheckboxChange = (rowId: string, isChecked: boolean) => {
     setSelectedRows((prev) => {
-      const updated = { ...prev };
+      const updated = { ...prev }
       if (isChecked) {
-        updated[rowId] = ''; // Initialize with an empty string
+        updated[rowId] = '' // Initialize with an empty string
       } else {
-        delete updated[rowId];
+        delete updated[rowId]
       }
-      return updated;
-    });
-  };
-
+      return updated
+    })
+  }
 
   let transaction_service = new TransactionService()
 
-
   useEffect(() => {
     setcommonloader(true)
-    transaction_service.gettransactions().then(data => {
+    transaction_service.gettransactions().then((data) => {
       if (data && data.transactionDetailsList) {
-
         //@ts-ignore
 
         setallRecondData(data.transactionDetailsList)
 
-
-
         const all_data = data.transactionDetailsList
 
-
-
-          .map(e => {
-
-
-            if (!e?.transactionOutward?.reconId) {  // Check for undefined or null reconId
+          .map((e) => {
+            if (!e?.transactionOutward?.reconId) {
+              // Check for undefined or null reconId
               return {
-                id: e.transactionOutward?.transactionNumber || "",
-                destination: e.transactionOutward?.receiveCountry || "",
+                id: e.transactionOutward?.transactionNumber || '',
+                destination: e.transactionOutward?.receiveCountry || '',
                 value: e.transactionOutward?.principalAmount || 0,
-                currency: e.transactionOutward?.principalAmount && e.transactionOutward?.exchangeRates
-                  ? e.transactionOutward.principalAmount * e.transactionOutward.exchangeRates
-                  : "0", // Ensuring safe multiplication
+                currency:
+                  e.transactionOutward?.principalAmount && e.transactionOutward?.exchangeRates
+                    ? e.transactionOutward.principalAmount * e.transactionOutward.exchangeRates
+                    : '0', // Ensuring safe multiplication
                 settlement: e.transactionOutward?.owCreatedDate || new Date(),
-                destinationBank: e.transactionOutward?.destinationBankBicCode || "",
-                reconid: (e.transactionOutward?.reconId) ? (e.transactionOutward.reconId) : null
-
-              };
+                destinationBank: e.transactionOutward?.destinationBankBicCode || '',
+                reconid: e.transactionOutward?.reconId ? e.transactionOutward.reconId : null,
+              }
             }
-            return null; // This will be filtered out later
+            return null // This will be filtered out later
           })
-          .filter(Boolean); // Removes all null values from the array
-
+          .filter(Boolean) // Removes all null values from the array
 
         //@ts-ignore
-        setRows(all_data);
+        setRows(all_data)
         //@ts-ignore
         setFilteredRows(all_data)
         setcommonloader(false)
       }
-    });
-  }, []);
-
-
+    })
+  }, [])
 
   const handleTextFieldChange = (rowId: string, value: string) => {
     setSelectedRows((prev) => ({
       ...prev,
       [rowId]: value,
-    }));
-  };
+    }))
+  }
   const handleSelectAll = (isChecked: boolean) => {
-    setSelectAll(isChecked);
+    setSelectAll(isChecked)
     if (isChecked) {
       const allSelected = Object.fromEntries(
         //@ts-ignore
 
-        rows.map((row) => [row.id, ""]));
-      setSelectedRows(allSelected);
+        rows.map((row) => [row.id, '']),
+      )
+      setSelectedRows(allSelected)
     } else {
-      setSelectedRows({});
+      setSelectedRows({})
     }
-  };
-
+  }
 
   const handleCopyToAll = () => {
     if (globalTransactionId) {
       setSelectedRows((prev) => {
-        const updated = { ...prev };
+        const updated = { ...prev }
         Object.keys(updated).forEach((rowId) => {
-          updated[rowId] = globalTransactionId; // Assign the global value
-        });
-        return updated;
-      });
+          updated[rowId] = globalTransactionId // Assign the global value
+        })
+        return updated
+      })
     }
-  };
+  }
 
   const handleSave = () => {
-
-
     const payload = Object.keys(selectedRows).map((rowId) => ({
       transactionId: rowId,
       reconId: selectedRows[rowId],
-    }));
-    console.log('Payload:', payload);
-    transaction_service.createRecons(payload).then(response => {
+    }))
+    console.log('Payload:', payload)
+    transaction_service.createRecons(payload).then((response) => {
       console.log(response)
       if (response?.status == 200) {
-
         setcommonloader(true)
         setTimeout(() => {
           setcommonloader(false)
           window.location.reload()
-        }, 2000);
-
+        }, 2000)
       }
-
-
     })
     // Call your API here with the payload
-  };
+  }
 
   const handleDateFilter = () => {
     if (startDate && endDate) {
-
       //@ts-ignore
       const filtered = rows.filter((row: any) =>
         //@ts-ignore
@@ -189,37 +168,37 @@ const ReconPage = () => {
           startDate,
           endDate,
           'day',
-          '[]' // Inclusive of start and end date
-        )
-      );
-      setFilteredRows(filtered);
+          '[]', // Inclusive of start and end date
+        ),
+      )
+      setFilteredRows(filtered)
     } else {
       //@ts-ignore
-      setFilteredRows(rows); // Reset to original rows if no date range is selected
+      setFilteredRows(rows) // Reset to original rows if no date range is selected
     }
-  };
+  }
 
   const handleOpenModal = () => {
-    setOpenModal(true);
-  };
+    setOpenModal(true)
+  }
 
   const handleCloseModal = () => {
-    setOpenModal(false);
-  };
+    setOpenModal(false)
+  }
 
   const handleReconciliationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setReconciliation((prev) => ({
       ...prev,
       [name]: value,
-    }));
-  };
+    }))
+  }
 
   const handleReconciliationSubmit = () => {
-    console.log('Reconciliation Data:', reconciliation);
+    console.log('Reconciliation Data:', reconciliation)
     // Call API to save reconciliation data here
-    handleCloseModal();
-  };
+    handleCloseModal()
+  }
 
   const columns: GridColDef[] = [
     {
@@ -230,9 +209,7 @@ const ReconPage = () => {
         <Checkbox
           //@ts-ignore
           checked={selectedRows[params.row.id]}
-          onChange={(e) =>
-            handleCheckboxChange(params.row.id, e.target.checked)
-          }
+          onChange={(e) => handleCheckboxChange(params.row.id, e.target.checked)}
         />
       ),
     },
@@ -247,26 +224,21 @@ const ReconPage = () => {
       headerName: 'Recon Id',
       flex: 1,
       renderCell: (params) =>
-
-
         selectedRows[params.row.id] !== undefined ? (
-
           <TextField
-
             value={selectedRows[params.row.id]}
             onChange={(e) => {
-
               console.log()
 
               handleTextFieldChange(params.row.id, e.target.value)
-
-            }
-            }
+            }}
             size="small"
           />
-        ) : <>{params.row.reconid ? params.row.reconid : "-----"}</>,
+        ) : (
+          <>{params.row.reconid ? params.row.reconid : '-----'}</>
+        ),
     },
-  ];
+  ]
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -302,16 +274,17 @@ const ReconPage = () => {
             renderInput={(params) => <TextField {...params} />}
           />
 
+          <IconButton
+            onClick={() => {
+              setStartDate(null)
+              setEndDate(null)
 
-          <IconButton onClick={() => {
-
-            setStartDate(null)
-            setEndDate(null)
-
-            setFilteredRows(
-              //@ts-ignore
-              rows)
-          }}>
+              setFilteredRows(
+                //@ts-ignore
+                rows,
+              )
+            }}
+          >
             <RestartAltIcon></RestartAltIcon>
           </IconButton>
 
@@ -321,12 +294,7 @@ const ReconPage = () => {
           </Button>
 
           {/* Global Transaction ID Input */}
-          <TextField
-            label="Recon Id"
-            value={globalTransactionId}
-            onChange={(e) => setGlobalTransactionId(e.target.value)}
-            size="small"
-          />
+          <TextField label="Recon Id" value={globalTransactionId} onChange={(e) => setGlobalTransactionId(e.target.value)} size="small" />
 
           <TextField
             label="Recon ID"
@@ -335,68 +303,73 @@ const ReconPage = () => {
             onChange={(v) => {
               setReconID(v.target.value)
               console.log(v.target.value)
-              var all_data = allreconData.map((e: any) => {
-                if (
-                  //@ts-ignore
-                  e?.transactionOutward?.reconId == v.target.value) {  // Check for undefined or null reconId
-                  return {
+              var all_data = allreconData
+                .map((e: any) => {
+                  if (
                     //@ts-ignore
-                    id: e.transactionOutward?.transactionNumber || "",
-                    //@ts-ignore
-                    destination: e.transactionOutward?.receiveCountry || "",
-                    //@ts-ignore
-                    value: e.transactionOutward?.principalAmount || 0,
-                    //@ts-ignore
-                    currency: e.transactionOutward?.principalAmount && e.transactionOutward?.exchangeRates
-                      ? e.transactionOutward.principalAmount * e.transactionOutward.exchangeRates
-                      : "0", // Ensuring safe multiplication
-                    settlement: e.transactionOutward?.owCreatedDate || new Date(),
-                    destinationBank: e.transactionOutward?.destinationBankBicCode || "",
-                    reconid: (e.transactionOutward?.reconId) ? (e.transactionOutward.reconId) : null
-                  };
-                }
-                return null; // This will be filtered out later
-              })
-                .filter(Boolean);
+                    e?.transactionOutward?.reconId == v.target.value
+                  ) {
+                    // Check for undefined or null reconId
+                    return {
+                      //@ts-ignore
+                      id: e.transactionOutward?.transactionNumber || '',
+                      //@ts-ignore
+                      destination: e.transactionOutward?.receiveCountry || '',
+                      //@ts-ignore
+                      value: e.transactionOutward?.principalAmount || 0,
+                      //@ts-ignore
+                      currency:
+                        e.transactionOutward?.principalAmount && e.transactionOutward?.exchangeRates
+                          ? e.transactionOutward.principalAmount * e.transactionOutward.exchangeRates
+                          : '0', // Ensuring safe multiplication
+                      settlement: e.transactionOutward?.owCreatedDate || new Date(),
+                      destinationBank: e.transactionOutward?.destinationBankBicCode || '',
+                      reconid: e.transactionOutward?.reconId ? e.transactionOutward.reconId : null,
+                    }
+                  }
+                  return null // This will be filtered out later
+                })
+                .filter(Boolean)
               console.log(all_data)
               //@ts-ignore
-              setRows(all_data);
+              setRows(all_data)
               //@ts-ignore
               setFilteredRows(all_data)
-            }
-            }
+            }}
             fullWidth
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={() => {
-
-                    var all_data = allreconData.map((e: any) => {
-
-
-                      if (!e?.transactionOutward?.reconId) {  // Check for undefined or null reconId
-                        return {
-                          id: e.transactionOutward?.transactionNumber || "",
-                          destination: e.transactionOutward?.receiveCountry || "",
-                          value: e.transactionOutward?.principalAmount || 0,
-                          currency: e.transactionOutward?.principalAmount && e.transactionOutward?.exchangeRates
-                            ? e.transactionOutward.principalAmount * e.transactionOutward.exchangeRates
-                            : "0", // Ensuring safe multiplication
-                          settlement: e.transactionOutward?.owCreatedDate || new Date(),
-                          destinationBank: e.transactionOutward?.destinationBankBicCode || "",
-                          reconid: (e.transactionOutward?.reconId) ? (e.transactionOutward.reconId) : null
-                        };
-                      }
-                      return null; // This will be filtered out later
-                    })
-                      .filter(Boolean);
-                    console.log(all_data)
-                    //@ts-ignore
-                    setRows(all_data);
-                    //@ts-ignore
-                    setFilteredRows(all_data)
-
-                  }} edge="end">
+                  <IconButton
+                    onClick={() => {
+                      var all_data = allreconData
+                        .map((e: any) => {
+                          if (!e?.transactionOutward?.reconId) {
+                            // Check for undefined or null reconId
+                            return {
+                              id: e.transactionOutward?.transactionNumber || '',
+                              destination: e.transactionOutward?.receiveCountry || '',
+                              value: e.transactionOutward?.principalAmount || 0,
+                              currency:
+                                e.transactionOutward?.principalAmount && e.transactionOutward?.exchangeRates
+                                  ? e.transactionOutward.principalAmount * e.transactionOutward.exchangeRates
+                                  : '0', // Ensuring safe multiplication
+                              settlement: e.transactionOutward?.owCreatedDate || new Date(),
+                              destinationBank: e.transactionOutward?.destinationBankBicCode || '',
+                              reconid: e.transactionOutward?.reconId ? e.transactionOutward.reconId : null,
+                            }
+                          }
+                          return null // This will be filtered out later
+                        })
+                        .filter(Boolean)
+                      console.log(all_data)
+                      //@ts-ignore
+                      setRows(all_data)
+                      //@ts-ignore
+                      setFilteredRows(all_data)
+                    }}
+                    edge="end"
+                  >
                     <LocalDrink />
                   </IconButton>
                 </InputAdornment>
@@ -405,21 +378,12 @@ const ReconPage = () => {
           />
 
           {/* Copy to All Button */}
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleCopyToAll}
-            disabled={!globalTransactionId}
-          >
+          <Button variant="contained" color="primary" onClick={handleCopyToAll} disabled={!globalTransactionId}>
             Copy to All
           </Button>
 
           {/* Save Button */}
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleSave}
-          >
+          <Button variant="contained" color="secondary" onClick={handleSave}>
             Save
           </Button>
 
@@ -445,7 +409,6 @@ const ReconPage = () => {
             },
           }}
         >
-
           <DataGrid
             rows={filteredRows}
             columns={columns}
@@ -454,7 +417,6 @@ const ReconPage = () => {
             //@ts-ignore
             disableSelectionOnClick
           />
-
         </Box>
 
         {/* Add Reconciliation Modal */}
@@ -485,9 +447,7 @@ const ReconPage = () => {
             <DatePicker
               label="From Transaction Date"
               value={reconciliation.from_transactionDate}
-              onChange={(newDate) => setReconciliation(
-
-                (prev: any) => ({ ...prev, from_transactionDate: newDate }))}
+              onChange={(newDate) => setReconciliation((prev: any) => ({ ...prev, from_transactionDate: newDate }))}
               //@ts-ignore
               renderInput={(params) => <TextField {...params} fullWidth sx={{ marginBottom: 2 }} />}
             />
@@ -559,7 +519,7 @@ const ReconPage = () => {
         </Modal>
       </Box>
     </LocalizationProvider>
-  );
-};
+  )
+}
 
-export default ReconPage;
+export default ReconPage
