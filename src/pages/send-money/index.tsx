@@ -561,38 +561,34 @@ const SendMoneyPage = () => {
         return
       }
 
-      //       const htmlContent = `<!DOCTYPE html>
-      // <html lang="en">
-      // <head>
-      //     <meta charset="UTF-8">
-      //     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      //     <title>Cashfree Checkout</title>
-      //     <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
-      // </head>
-      // <body>
-      //     <script>
-      //         document.addEventListener("DOMContentLoaded", function () {
-      //             const cashfree = Cashfree({ mode: "sandbox" });
+      const htmlContent = `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Cashfree Checkout</title>
+          <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+      </head>
+      <body>
+          <script>
+              document.addEventListener("DOMContentLoaded", function () {
+                  const cashfree = Cashfree({ mode: "sandbox" });
 
-      //             let checkoutOptions = {
-      //                 paymentSessionId: "${payment_session_id}",
-      //                 redirectTarget: "_self",
-      //             };
+                  let checkoutOptions = {
+                      paymentSessionId: "${payment_session_id}",
+                      redirectTarget: "_self",
+                  };
 
-      //             // Automatically trigger checkout when page loads
-      //             cashfree.checkout(checkoutOptions);
-      //         });
-      //     </script>
-      // </body>
-      // </html>`
+                  // Automatically trigger checkout when page loads
+                  cashfree.checkout(checkoutOptions);
+              });
+          </script>
+      </body>
+      </html>`
 
-      // document.open()
-      // document.write(htmlContent)
-      // document.close()
-
-      // } else {
-      //   alert("Popup blocked! Please allow popups for this site.");
-      // }
+      document.open()
+      document.write(htmlContent)
+      document.close()
     } catch (error) {
       console.error('Payment initiation failed:', error)
       alert('Payment failed. Please try again.')
@@ -971,6 +967,12 @@ const SendMoneyPage = () => {
                     imgUrl="https://www.peachpayments.com/hubfs/peachpayments-logo.svg"
                     handleClick={() => handlePeachPaymentsClick()}
                   />
+                  <>
+                    <ConfirmAndPayButton
+                      imgUrl="https://media.licdn.com/dms/image/v2/C560BAQF4u3uIRgM6Cg/company-logo_200_200/company-logo_200_200/0/1632367052546/cashfree_logo?e=1749081600&v=beta&t=sL4clktovuYkc63HKbm9-vhHI0HYzzTPiFwSMGtu1iM"
+                      handleClick={() => handleCashfreePaymentClick()}
+                    />
+                  </>
                 </>
               ) : (
                 <>

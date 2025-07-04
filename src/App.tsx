@@ -52,6 +52,7 @@ import ModuleTable from './pages/module-list'
 import RoleManagement from './pages/roles-list'
 import ReconScreen from './pages/recon-screen'
 import StaticData from './pages/static-data/staticdata.page'
+import Dashboard from './pages/dashboard/dashboard.page'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -99,7 +100,7 @@ function App() {
       },
     },
     typography: {
-      fontFamily: "'Roboto', 'Arial', sans-serif"
+      fontFamily: "'Roboto', 'Arial', sans-serif",
     },
   })
 
@@ -110,8 +111,7 @@ function App() {
         <CustomSnackbar />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<ProtectedRoute {...defaultProtectedRouteProps}
-              outlet={<DashboardLayout />} />}>
+            <Route path="/" element={<ProtectedRoute {...defaultProtectedRouteProps} outlet={<DashboardLayout />} />}>
               <Route path="transaction" element={<NewTransactionPage />} />
               <Route path="sendmoney" element={<SendMoneyPage />} />
               <Route path="kyc" element={<KYCPage />} />
@@ -132,15 +132,15 @@ function App() {
               <Route path="configuration" element={<MainTabsPage />} />
               <Route path="driver" element={<DriverList />} />
               <Route path="users/add" element={<UserAdd />} />
-              <Route path="price" element={<CurrencyBarChart />} />
+              <Route path="dashboard" element={<Dashboard />} />
               <Route path="bop-details/:transactionId/:transaction_attempt" element={<BopScreen />} />
               <Route path="bop" element={<BopTable />} />
-                            <Route path="static" element={<StaticData />} />
+              <Route path="static" element={<StaticData />} />
               <Route path="logs" element={<LogsList />} />
               <Route path="logs/add" element={<NewLog />} />
               <Route path="recon-trx" element={<ReconScreen />} />
               <Route path="module" element={<ModuleTable />} />
-                 <Route path="role" element={<RoleManagement />} />
+              <Route path="role" element={<RoleManagement />} />
               <Route path="*" element={<IndexPage />} />
             </Route>
 

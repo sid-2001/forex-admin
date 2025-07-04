@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Box,
   Card,
@@ -23,9 +23,14 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { AttachMoney, People, AssignmentInd, TrendingUp, CalendarToday, DateRange } from '@mui/icons-material'
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+import { useTheme } from '@emotion/react'
+import ShowChartIcon from '@mui/icons-material/ShowChart'
+import { TransactionService } from '@/services/transaction.service'
+import { ApplicantService } from '@/services/applicant.service'
 
 const Dashboard = () => {
   // Sample dashboard data
+  const theme = useTheme()
   const dashboardData = {
     totalTransactions: 1245,
     totalActiveCustomers: 843,
@@ -36,12 +41,38 @@ const Dashboard = () => {
 
   // Modal state
   const [openModal, setOpenModal] = useState(false)
+  const [activeCustomer, setAvtiveCustomers] = useState(false)
+
+  const [recentTransaction, setrecentTransaction] = useState([])
   const [filterType, setFilterType] = useState('monthly')
   const [dateRange, setDateRange] = useState({
     start: '2023-01-01',
     end: '2023-06-30',
   })
+  const transaction_service = new TransactionService()
+  const applicant_service = new ApplicantService()
 
+  useEffect(() => {
+    transaction_service.getOutwardTransaction().then((data) => {
+      let trx_list = data.transactionDetailsList.map((e) => {
+        let obj = { id: 1, customer: 'John Doe', amount: 125.5, date: '2023-06-15', status: 'Completed' }
+        return {
+          id: e.transactionOutward.transactionNumber,
+          customer: `${e.applicant.firstName} ${e.applicant.lastName}`,
+          amount: e.transactionOutward.settlementAmount,
+          date: e.transactionOutward.owCreatedDate,
+          status: e.transactionOutward.reportingStatus,
+        }
+      })
+
+      setrecentTransaction(trx_list as any)
+    })
+    applicant_service.getApplicantDetalis().then((data) => {
+      let all_applicant = data.map((e: any) => {
+        return {}
+      })
+    })
+  }, [])
   // Sample transaction data for different time periods
   const transactionData = {
     yearly: [
@@ -154,16 +185,23 @@ const Dashboard = () => {
     }
 
     return (
-      <Box position="relative" width="100%" mt={1}>
+      <Box
+        position="relative"
+        width="100%"
+        sx={{
+          paddingTop: '-500px',
+        }}
+      >
         {/* Scroll Buttons */}
+
         <IconButton
           onClick={() => scroll(-300)}
           sx={{
             position: 'absolute',
-            top: '50%',
+            top: '30%',
             left: 0,
             zIndex: 1,
-            backgroundColor: '#fff',
+            backgroundColor: 'primary.light',
           }}
         >
           <ArrowLeftIcon />
@@ -172,24 +210,26 @@ const Dashboard = () => {
           onClick={() => scroll(300)}
           sx={{
             position: 'absolute',
-            top: '50%',
+            top: '30%',
             right: 0,
             zIndex: 1,
-            backgroundColor: '#fff',
+            backgroundColor: 'primary.light',
           }}
         >
           <ArrowRightIcon />
         </IconButton>
 
         {/* Scrollable Bank Cards */}
+
         <Box
           ref={scrollRef}
           sx={{
             display: 'flex',
             overflowX: 'auto',
             gap: 2,
-            py: 3,
+            py: 0,
             px: 6,
+            padding: '1%',
             scrollSnapType: 'x mandatory',
             '&::-webkit-scrollbar': { display: 'none' },
           }}
@@ -241,11 +281,15 @@ const Dashboard = () => {
           display: 'flex',
           alignItems: 'center',
           p: 1,
+          height: '70%',
           borderRadius: 3,
           boxShadow: 3,
           opacity: enabled ? 1 : 0.5, // dim when disabled
           pointerEvents: enabled ? 'auto' : 'none', // disable interactions
+          border: '1px solid',
+          borderColor: 'primary.light',
         }}
+        // sx={{ border: '1px solid', borderColor: 'primary.light' }}
       >
         <CardMedia component="img" image={image_url} alt={title} sx={{ width: '50vw', height: '7vh', borderRadius: 2 }} />
         <CardContent sx={{ ml: 2, flexGrow: 1 }}>
@@ -281,7 +325,10 @@ const Dashboard = () => {
           alignItems: 'center',
           p: 1,
           borderRadius: 3,
+          height: '80%',
           boxShadow: 3,
+          border: '1px solid',
+          borderColor: 'primary.light',
           opacity: enabled ? 1 : 0.5, // dim when disabled
           pointerEvents: enabled ? 'auto' : 'none', // disable interactions
         }}
@@ -308,12 +355,30 @@ const Dashboard = () => {
     }
 
     return (
-      <Box position="relative" width="100%">
+      <Box position="relative" width="100%" padding="0px" margin="0px">
         {/* Scroll Buttons */}
-        <IconButton onClick={() => scroll(-300)} sx={{ position: 'absolute', top: '50%', left: 0, zIndex: 1, backgroundColor: '#fff' }}>
+        <IconButton
+          onClick={() => scroll(-300)}
+          sx={{
+            position: 'absolute',
+            top: '30%',
+            left: 0,
+            zIndex: 1,
+            backgroundColor: 'primary.light',
+          }}
+        >
           <ArrowLeftIcon />
         </IconButton>
-        <IconButton onClick={() => scroll(300)} sx={{ position: 'absolute', top: '50%', right: 0, zIndex: 1, backgroundColor: '#fff' }}>
+        <IconButton
+          onClick={() => scroll(300)}
+          sx={{
+            position: 'absolute',
+            top: '30%',
+            right: 0,
+            zIndex: 1,
+            backgroundColor: 'primary.light',
+          }}
+        >
           <ArrowRightIcon />
         </IconButton>
 
@@ -325,8 +390,8 @@ const Dashboard = () => {
             overflowX: 'auto',
             scrollSnapType: 'x mandatory',
             gap: 2,
-            py: 3,
-            px: 6,
+            py: 0,
+            px: 0,
             '&::-webkit-scrollbar': { display: 'none' },
           }}
         >
@@ -368,13 +433,31 @@ const Dashboard = () => {
   return (
     <Box sx={{ width: '80vw' }}>
       <Typography variant="h4" gutterBottom>
-        Dashboard Overview
+        <b>Dashboard Overview</b>{' '}
+        <ShowChartIcon
+          sx={{
+            //@ts-ignore
+            color: theme.palette.primary,
+            fontSize: '5vh',
+            marginBottom: '0px',
+            //@ts-ignore
+
+            color: theme.palette.primary.light,
+            '&:hover': {
+              //@ts-ignore
+              color: theme.palette.primary.main, // Change the color to blue on hover
+            },
+          }}
+        />
       </Typography>
 
       {/* Summary Cards */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ cursor: 'pointer', '&:hover': { boxShadow: 3 } }} onClick={() => setOpenModal(true)}>
+          <Card
+            sx={{ cursor: 'pointer', '&:hover': { boxShadow: 3 }, border: '1px solid', borderColor: 'primary.light' }}
+            onClick={() => setOpenModal(true)}
+          >
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={2}>
                 <Avatar sx={{ bgcolor: 'primary.main' }}>
@@ -394,7 +477,7 @@ const Dashboard = () => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
+          <Card sx={{ border: '1px solid', borderColor: 'primary.light' }}>
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={2}>
                 <Avatar sx={{ bgcolor: 'success.main' }}>
@@ -413,45 +496,6 @@ const Dashboard = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <Avatar sx={{ bgcolor: 'warning.main' }}>
-                  <AssignmentInd />
-                </Avatar>
-                <Box>
-                  <Typography color="text.secondary" gutterBottom>
-                    Total Applicants
-                  </Typography>
-                  <Typography variant="h4" component="div">
-                    {dashboardData.totalApplicants.toLocaleString()}
-                  </Typography>
-                </Box>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <Avatar sx={{ bgcolor: 'info.main' }}>
-                  <TrendingUp />
-                </Avatar>
-                <Box>
-                  <Typography color="text.secondary" gutterBottom>
-                    Total Profit
-                  </Typography>
-                  <Typography variant="h4" component="div">
-                    ${dashboardData.totalProfit.toLocaleString()}
-                  </Typography>
-                </Box>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
         {/* 
         <Grid item xs={12} sm={6} md={2}>
           <HorizontalCard
@@ -471,8 +515,49 @@ const Dashboard = () => {
             }
           ></HorizontalCard>
         </Grid> */}
-        <Grid item xs={12} sm={6} md={6}>
+
+        <Grid item xs={12} sm={6} md={6} mt="0px" p="0px">
           <BankBalanceCarousel></BankBalanceCarousel>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={{ border: '1px solid', borderColor: 'primary.light' }}>
+            <CardContent>
+              <Stack direction="row" alignItems="center" spacing={2}>
+                <Avatar sx={{ bgcolor: 'warning.main' }}>
+                  <AssignmentInd />
+                </Avatar>
+                <Box>
+                  <Typography color="text.secondary" gutterBottom>
+                    Total Applicants
+                  </Typography>
+                  <Typography variant="h4" component="div">
+                    {dashboardData.totalApplicants.toLocaleString()}
+                  </Typography>
+                </Box>
+              </Stack>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={{ border: '1px solid', borderColor: 'primary.light' }}>
+            <CardContent>
+              <Stack direction="row" alignItems="center" spacing={2}>
+                <Avatar sx={{ bgcolor: 'info.main' }}>
+                  <TrendingUp />
+                </Avatar>
+                <Box>
+                  <Typography color="text.secondary" gutterBottom>
+                    Total Profit
+                  </Typography>
+                  <Typography variant="h4" component="div">
+                    ${dashboardData.totalProfit.toLocaleString()}
+                  </Typography>
+                </Box>
+              </Stack>
+            </CardContent>
+          </Card>
         </Grid>
 
         <Grid item xs={12} sm={6} md={6}>
@@ -585,14 +670,20 @@ const Dashboard = () => {
       <Grid container spacing={3}>
         {/* Recent Transactions */}
         <Grid item xs={12} md={6}>
-          <Card>
+          <Card sx={{ border: '1px solid', borderColor: 'primary.light' }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Recent Transactions
+              <Typography
+                variant="h6"
+                gutterBottom
+                sx={{
+                  backgroundColor: 'pimary.main',
+                }}
+              >
+                <b> Recent Transactions</b>
               </Typography>
               <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
-                {recentTransactions.map((transaction) => (
-                  <Box key={transaction.id} sx={{ mb: 2, p: 1, borderBottom: '1px solid #eee' }}>
+                {recentTransaction.map((transaction: any) => (
+                  <Box key={transaction.id} sx={{ mb: 2, p: 1, borderBottom: '1px solid ', borderColor: 'primary.light' }}>
                     <Stack direction="row" justifyContent="space-between">
                       <Typography fontWeight="bold">{transaction.customer}</Typography>
                       <Typography color="text.secondary">${transaction.amount}</Typography>
@@ -617,10 +708,10 @@ const Dashboard = () => {
 
         {/* Active Customers */}
         <Grid item xs={12} md={6}>
-          <Card>
+          <Card sx={{ border: '1px solid', borderColor: 'primary.light' }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Active Customers
+                <b> Active Customers</b>
               </Typography>
               <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
                 {activeCustomers.map((customer) => (

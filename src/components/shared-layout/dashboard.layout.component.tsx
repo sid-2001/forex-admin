@@ -237,7 +237,7 @@ const DashboardLayout = () => {
           }}
         />
       ),
-      label: 'Price',
+      label: 'Dashboard',
     },
     {
       icon: (
