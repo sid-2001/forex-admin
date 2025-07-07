@@ -67,11 +67,11 @@ const Dashboard = () => {
 
       setrecentTransaction(trx_list as any)
     })
-    applicant_service.getApplicantDetalis().then((data) => {
-      let all_applicant = data.map((e: any) => {
-        return {}
-      })
+    applicant_service.getApplicantDetalis().then((data: any) => {
+      console.log(data)
+      //@ts-ignore
     })
+    //@ts-ignore
   }, [])
   // Sample transaction data for different time periods
   const transactionData = {
