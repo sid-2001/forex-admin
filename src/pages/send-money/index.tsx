@@ -120,6 +120,7 @@ const SendMoneyPage = () => {
     }[]
   >([])
   const [selectedGateway, setSelectedGateway] = React.useState('')
+  const [gatewaysList, setGatewaysList] = useState([])
 
   console.log(selectedCountryoption, '==================sleected')
   const [url, seturl] = useState<string>('')
@@ -262,6 +263,7 @@ const SendMoneyPage = () => {
         setRemittanceList(data as any)
       })
     }
+    getGatewaysListByCountry()
   }, [])
 
   useEffect(() => {
@@ -331,6 +333,12 @@ const SendMoneyPage = () => {
       )
       setFilteredUsers(filtered)
     }
+  }
+
+  const getGatewaysListByCountry = async () => {
+    const gatewayslistResponse = await transaction_service.fetchGatewaysByCountry(selectedCountryoption)
+    console.log(gatewayslistResponse, '========kjhkjhkjgdkgdk')
+    setGatewaysList(gatewayslistResponse || [])
   }
 
   const transactionPayload = {
@@ -844,7 +852,7 @@ const SendMoneyPage = () => {
                   <BobCategoryDropdown
                     amount={amount}
                     setAmount={setAmount}
-                    remittanceList={remittanceList}
+                    remittanceList={remittanceList || []}
                     category={category}
                     setCategory={setCategory}
                   />
@@ -967,12 +975,6 @@ const SendMoneyPage = () => {
                     imgUrl="https://www.peachpayments.com/hubfs/peachpayments-logo.svg"
                     handleClick={() => handlePeachPaymentsClick()}
                   />
-                  <>
-                    <ConfirmAndPayButton
-                      imgUrl="https://media.licdn.com/dms/image/v2/C560BAQF4u3uIRgM6Cg/company-logo_200_200/company-logo_200_200/0/1632367052546/cashfree_logo?e=1749081600&v=beta&t=sL4clktovuYkc63HKbm9-vhHI0HYzzTPiFwSMGtu1iM"
-                      handleClick={() => handleCashfreePaymentClick()}
-                    />
-                  </>
                 </>
               ) : (
                 <>
