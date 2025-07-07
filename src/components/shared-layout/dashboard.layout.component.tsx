@@ -46,29 +46,16 @@ import Fade from '@mui/material/Fade'
 import Backdrop from '@mui/material/Backdrop'
 import LogoutIcon from '@mui/icons-material/Logout'
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline'
-import CameraFrontIcon from '@mui/icons-material/CameraFront'
-
-import LocalLibraryIcon from '@mui/icons-material/LocalLibrary'
-// import { snackbarOpenState } from "../../states/state";
-// import { Logo } from "@/assets/images";
 import { useEffect } from 'react'
-import CustomSnackbar from '../customsnackbar/snackbar'
-import { AddBox, ArrowDropDown, ErrorOutlineRounded } from '@mui/icons-material'
-import MenuIcon from '@mui/icons-material/Menu'
-import Stack from '@mui/material/Stack'
 
+import Stack from '@mui/material/Stack'
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows'
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
-import WestIcon from '@mui/icons-material/West'
+
 import CircularProgress from '@mui/material/CircularProgress'
 import { useTheme } from '@emotion/react'
 import Paper from '@mui/material/Paper'
 import WaterfallChartIcon from '@mui/icons-material/WaterfallChart'
-import GridViewIcon from '@mui/icons-material/GridView'
-import AccountBoxIcon from '@mui/icons-material/AccountBox'
 import ContactEmergencyIcon from '@mui/icons-material/ContactEmergency'
-import FlagSelector from '../flagselector'
-import { Tooltip } from '@mui/material'
 import SourceIcon from '@mui/icons-material/Source'
 import ShowChartIcon from '@mui/icons-material/ShowChart'
 // import { IconButton } from '@mui/material';

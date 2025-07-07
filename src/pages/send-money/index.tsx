@@ -969,7 +969,7 @@ const SendMoneyPage = () => {
                   />
                   <>
                     <ConfirmAndPayButton
-                      imgUrl="https://media.licdn.com/dms/image/v2/C560BAQF4u3uIRgM6Cg/company-logo_200_200/company-logo_200_200/0/1632367052546/cashfree_logo?e=1749081600&v=beta&t=sL4clktovuYkc63HKbm9-vhHI0HYzzTPiFwSMGtu1iM"
+                      imgUrl="https://media.licdn.com/dms/image/v2/C560BAQF4u3uIRgM6Cg/company-logo_200_200/company-logo_200_200/0/1632367052546/cashfree_logo?e=1756944000&v=beta&t=urRl401DrAHx-h90a-pEu36aAqo7-NhSM0IrLCF6GWI"
                       handleClick={() => handleCashfreePaymentClick()}
                     />
                   </>
