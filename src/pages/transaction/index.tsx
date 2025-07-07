@@ -25,7 +25,6 @@ import {
 import { DataGrid } from '@mui/x-data-grid'
 import { useNavigate } from 'react-router-dom'
 import { Applicant, TransactionDetailsResponse, TransactionInward, TransactionInwardCalclulated, TransactionOutward } from '@/types/transaction.type'
-
 import AssessmentIcon from '@mui/icons-material/Assessment'
 import { PreviewOutlined, SettingsAccessibilityRounded, Sync } from '@mui/icons-material'
 import { useRecoilState } from 'recoil'
@@ -36,6 +35,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { TransactionService } from '@/services/transaction.service'
 import { ApplicantService } from '@/services/applicant.service'
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
+import { statusColors } from '@/contants/utils'
 
 const TransactionPage = () => {
   const columns_outward = [
@@ -94,6 +94,41 @@ const TransactionPage = () => {
     },
     { field: 'forex', headerName: 'Exchange Rate', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'charges', headerName: 'Charges', flex: 1, headerClassName: 'super-app-theme--header' },
+
+    {
+      field: 'reporting',
+      headerName: 'Reporting Status',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => (params?.value?.reporting == 'Reported' ? params.value.status : params?.value?.status),
+    },
+    {
+      field: 'owCreatedDate',
+      headerName: 'Date',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return helper.convertDateAndTime(params.value?.owCreatedDate)
+      },
+    },
+    {
+      field: 'status',
+      headerName: 'Status',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return <div style={{ color: statusColors[params.row.status.toUpperCase()] }}>{params.row.status.toUpperCase()}</div>
+      },
+
+      // renderCell: (params: any) =>
+      //   params?.value?.status == 'Pending' ? (
+      //     <Tooltip title={params?.value?.status || 'Unknown Error'} arrow>
+      //       <Chip label="Pending" color="error" />
+      //     </Tooltip>
+      //   ) : (
+      //     params?.value?.status
+      //   ),
+    },
     {
       field: 'stpError',
       headerName: 'STP',
@@ -129,36 +164,6 @@ const TransactionPage = () => {
           </IconButton>
         </>
       ),
-    },
-    {
-      field: 'reporting',
-      headerName: 'Reporting Status',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => (params?.value?.reporting == 'Reported' ? params.value.status : params?.value?.status),
-    },
-    {
-      field: 'owCreatedDate',
-      headerName: 'Date',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return helper.convertDateAndTime(params.value?.owCreatedDate)
-      },
-    },
-    {
-      field: 'status',
-      headerName: 'Status',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) =>
-        params?.value?.status == 'Pending' ? (
-          <Tooltip title={params?.value?.status || 'Unknown Error'} arrow>
-            <Chip label="Pending" color="error" />
-          </Tooltip>
-        ) : (
-          params?.value?.status
-        ),
     },
   ]
 
@@ -430,92 +435,85 @@ const TransactionPage = () => {
       <Typography variant="h4" gutterBottom>
         <strong>Transactions</strong>
       </Typography>
-      <ToggleButtonGroup value={transactionType} color="primary" exclusive onChange={handleToggleTransactionType} sx={{ mb: 2 }}>
-        <ToggleButton value="inwards">Inwards</ToggleButton>
+      <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'} sx={{ width: '80vw' }}>
+        <Box>
+          <ToggleButtonGroup value={transactionType} color="primary" exclusive onChange={handleToggleTransactionType} sx={{ mb: 2 }}>
+            <ToggleButton value="inwards">Inwards</ToggleButton>
 
-        <ToggleButton value="outwards">Outwards</ToggleButton>
-      </ToggleButtonGroup>
+            <ToggleButton value="outwards">Outwards</ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
+
+        <Box>
+          <IconButton onClick={() => setToolOpen(true)}>
+            <SettingsAccessibilityRounded />
+          </IconButton>
+
+          <IconButton
+            onClick={() => {
+              navigate('/recon-trx')
+            }}
+          >
+            <CurrencyExchangeIcon />
+          </IconButton>
+
+          <IconButton
+            onClick={() => {
+              navigate('/utilization')
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
+            color="primary"
+          >
+            <AssessmentIcon
+              sx={{
+                marginBottom: '10%',
+              }}
+            />
+          </IconButton>
+
+          <IconButton
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
+            onClick={() => {
+              navigate('/recon')
+            }}
+            color="primary"
+          >
+            <Sync
+              sx={{
+                marginBottom: '10%',
+              }}
+            />
+          </IconButton>
+
+          <Button
+            variant="outlined"
+            sx={{
+              marginBottom: '3%',
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
+            onClick={
+              //@ts-ignore
+              (e) => {
+                // console.log()
+                navigate('/sendmoney')
+              }
+            }
+          >
+            + Transaction
+          </Button>
+        </Box>
+      </Box>
 
       <Box
-        marginTop={2}
         sx={{
           width: '80vw',
-          height: '80vh',
-
+          height: '65vh',
           '& .super-app-theme--header': {
             backgroundColor: '#005099',
             color: 'white',
           },
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <div
-            style={{
-              alignSelf: 'flex-end',
-            }}
-          >
-            <IconButton onClick={() => setToolOpen(true)}>
-              <SettingsAccessibilityRounded />
-            </IconButton>
-            <IconButton
-              onClick={() => {
-                navigate('/recon-trx')
-              }}
-            >
-              <CurrencyExchangeIcon />
-            </IconButton>
-
-            <IconButton
-              onClick={() => {
-                navigate('/utilization')
-              }}
-              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
-              color="primary"
-            >
-              <AssessmentIcon
-                sx={{
-                  marginBottom: '10%',
-                }}
-              />
-            </IconButton>
-            <IconButton
-              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
-              onClick={() => {
-                navigate('/recon')
-              }}
-              color="primary"
-            >
-              <Sync
-                sx={{
-                  marginBottom: '10%',
-                }}
-              />
-            </IconButton>
-
-            <Button
-              variant="outlined"
-              sx={{
-                marginBottom: '3%',
-              }}
-              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
-              onClick={
-                //@ts-ignore
-                (e) => {
-                  // console.log()
-                  navigate('/sendmoney')
-                }
-              }
-            >
-              + Transaction
-            </Button>
-          </div>
-        </div>
-
         {transactionType === 'inwards' && helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_INWARD, 'canRead') && (
           <DataGrid
             rows={inboundTransaction?.length > 0 ? inboundTransaction : []}

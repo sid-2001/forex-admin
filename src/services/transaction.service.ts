@@ -68,11 +68,11 @@ export class TransactionService extends BaseService {
   }
 
   async createDealcover(payload: {
-    "sourceCurrency": String,
-    "destinationCurrency": String,
-    "destinationCountry": String,
-    "applicantId": String,
-    "rate": Number
+    sourceCurrency: String
+    destinationCurrency: String
+    destinationCountry: String
+    applicantId: String
+    rate: Number
   }) {
     let url = `${VITE_APP_TRANSACTION}/api/transactions/deal/bookCover`
     try {
@@ -83,7 +83,7 @@ export class TransactionService extends BaseService {
     }
   }
 
-  async createZaphierTransaction(payload: { amount: any, currency: any }) {
+  async createZaphierTransaction(payload: { amount: any; currency: any }) {
     let url = `${VITE_APP_TRANSACTION}/api/zaphier/generate-uuid`
     try {
       let { data } = await axios.post(url, payload)
@@ -108,51 +108,48 @@ export class TransactionService extends BaseService {
     try {
       let data = await api1.post(url, payload)
       return data
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err)
     }
   }
 
   async getForexRate(country: any, country_state: any) {
-    let url = `https://data.fixer.io/api/latest?access_key=${VITE_FOREX_APP_CREDENTIALS}&base=${country_state == "IN" ? "INR" : "ZAR"}&symbols=${country}`
+    let url = `https://data.fixer.io/api/latest?access_key=${VITE_FOREX_APP_CREDENTIALS}&base=${
+      country_state == 'IN' ? 'INR' : 'ZAR'
+    }&symbols=${country}`
     try {
       let { data } = await axios.get(url)
       return data.rates[country]
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err)
     }
   }
-  async getReconTrx():Promise<any> {
+  async getReconTrx(): Promise<any> {
     let url = `/api/transactions/recon/reconList`
     try {
-      let  data  = await api1.get(url)
+      let data = await api1.get(url)
       return data
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err)
     }
   }
 
-    async getReconTrxId(id:number):Promise<any> {
+  async getReconTrxId(id: number): Promise<any> {
     let url = `/api/transactions/recon/reconId/${id}`
     try {
-      let  {data}  = await api1.get(url)
+      let { data } = await api1.get(url)
       return data
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err)
     }
   }
 
-   async updateReconTrxId(id:number,payload:any):Promise<any> {
+  async updateReconTrxId(id: number, payload: any): Promise<any> {
     let url = `/api/transactions/recon/updateRecon/reconId/${id}`
     try {
-      let  {data}  = await api1.put(url,payload)
+      let { data } = await api1.put(url, payload)
       return data
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err)
     }
   }
@@ -167,6 +164,13 @@ export class TransactionService extends BaseService {
     }
   }
 
-
-
+  async fetchGatewaysByCountry(countryCode: string): Promise<any> {
+    let url = `api/static-table/forex-gateway/by-country?countryCode=${countryCode}`
+    try {
+      let { data } = await api1.get(url)
+      return data
+    } catch (err) {
+      console.log(err)
+    }
+  }
 }

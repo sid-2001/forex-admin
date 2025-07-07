@@ -8,15 +8,14 @@ import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { statusColors } from '@/contants/utils'
 
-const { VITE_FOREX_NODE_APP_URL } = import.meta.env;
+const { VITE_FOREX_NODE_APP_URL } = import.meta.env
 const backendUrl = VITE_FOREX_NODE_APP_URL
 
 const BopTable: React.FC = () => {
   const [bopData, setBopData] = React.useState([])
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   const helper = new HelperService()
   const local_service = new LocalStorageService()
-
 
   useEffect(() => {
     fetchBopListingData()
@@ -25,13 +24,11 @@ const BopTable: React.FC = () => {
   const fetchBopListingData = async () => {
     try {
       const response = await fetch(`${backendUrl}/bop/getAll`)
-      const data = await response.json();
+      const data = await response.json()
       setBopData(data)
-    }
-    catch (error) {
+    } catch (error) {
       console.error('There was a problem with the fetch operation:', error)
     }
-
   }
 
   const columns = [
@@ -64,27 +61,27 @@ const BopTable: React.FC = () => {
       headerName: 'Status',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => { return <div style={{ color: statusColors[params.row.status.toUpperCase()] }}>{params.row.status.toUpperCase()}</div> }
+      renderCell: (params: any) => {
+        return <div style={{ color: statusColors[params.row.status.toUpperCase()] }}>{params.row.status.toUpperCase()}</div>
+      },
     },
     {
       field: 'sap_status',
       headerName: 'Sarb Status',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => { return <div>{params.row.sap_status.toUpperCase()}</div> }
-
+      renderCell: (params: any) => {
+        return <div>{params.row.sap_status.toUpperCase()}</div>
+      },
     },
     {
-      field: "created_at",
-      headerName: "Date",
+      field: 'created_at',
+      headerName: 'Date',
       flex: 1,
-      headerClassName: "super-app-theme--header",
-      renderCell: (
-        params: any
-
-      ) => {
-        return helper.convertDateAndTime(params.row.created_at);
-      }
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return helper.convertDateAndTime(params.row.created_at)
+      },
     },
     {
       field: 'id1',
@@ -92,12 +89,16 @@ const BopTable: React.FC = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
-        <IconButton onClick={() => {
-          navigate(`/bop-details/${params.row.transaction_number}/${params.row.transaction_attempt}`)
-        }}>
-          <VisibilityIcon style={{
-            cursor: 'pointer',
-          }} />
+        <IconButton
+          onClick={() => {
+            navigate(`/bop-details/${params.row.transaction_number}/${params.row.transaction_attempt}`)
+          }}
+        >
+          <VisibilityIcon
+            style={{
+              cursor: 'pointer',
+            }}
+          />
         </IconButton>
       ),
     },
@@ -105,7 +106,10 @@ const BopTable: React.FC = () => {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>
-      <Box sx={{ width: '85vw', height: '80vh' }}>
+      <Box sx={{ width: '80vw', height: '70vh' }}>
+        <Typography variant="h4" gutterBottom>
+          <strong>Bop Listing </strong>
+        </Typography>
         <DataGrid
           sx={{
             width: '100%',
@@ -140,7 +144,6 @@ const BopTable: React.FC = () => {
         />
       </Box>
     </HasPermission>
-
   )
 }
 
