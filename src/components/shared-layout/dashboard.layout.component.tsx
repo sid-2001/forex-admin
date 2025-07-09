@@ -756,7 +756,7 @@ local_service.get_user()?.firstName[0]
                           textAlign: 'center',
                           justifyContent: 'center',
                           //@ts-ignore
-                          color: selectedApp === item.label ? theme.palette.primary.light : 'inherit', // Change color if selected
+                          color: selectedApp === item.label ? theme.palette.primary.main : 'inherit', // Change color if selected
                         }}
                         onClick={() => {
                           navigate(item.label.toLocaleLowerCase())

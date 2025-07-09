@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
-import { Switch, Box, Typography, Button } from '@mui/material'
+import { Switch, Box, Typography, Button, useTheme } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { useNavigate } from 'react-router-dom'
 import { UserService } from '@/services/user.service'
@@ -37,6 +37,7 @@ const StyledDataGrid = styled(DataGrid)({
 const UserTable: React.FC = () => {
   const [staffList, setStaffList] = useState<any>([])
   const [open, setOpen] = useState(false)
+  const theme = useTheme()
 
   let navigate = useNavigate()
   const user_service = new UserService()
@@ -97,7 +98,7 @@ const UserTable: React.FC = () => {
       <Box sx={{ width: '80vw', height: '70vh' }}>
         <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'}>
           <Box>
-            <Typography variant="h4" gutterBottom>
+            <Typography variant="h4" gutterBottom color ={theme.palette.secondary.main} >
               <strong>All Users</strong>
             </Typography>
           </Box>

@@ -432,9 +432,10 @@ const TransactionPage = () => {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" gutterBottom color={theme.palette.secondary.main}>
         <strong>Transactions</strong>
       </Typography>
+      
       <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'} sx={{ width: '80vw' }}>
         <Box>
           <ToggleButtonGroup value={transactionType} color="primary" exclusive onChange={handleToggleTransactionType} sx={{ mb: 2 }}>
@@ -445,14 +446,15 @@ const TransactionPage = () => {
         </Box>
 
         <Box>
-          <IconButton onClick={() => setToolOpen(true)}>
+          <IconButton onClick={() => setToolOpen(true)} color ="primary">
             <SettingsAccessibilityRounded />
           </IconButton>
+          
 
           <IconButton
             onClick={() => {
               navigate('/recon-trx')
-            }}
+            }} color ="primary"
           >
             <CurrencyExchangeIcon />
           </IconButton>
@@ -512,6 +514,12 @@ const TransactionPage = () => {
             backgroundColor: '#005099',
             color: 'white',
           },
+          '& .MuiDataGrid-row:nth-of-type(even)': {
+                backgroundColor: '#e3f2fd',
+              },
+              '& .MuiDataGrid-row:nth-of-type(odd)': {
+            backgroundColor: '#ffffff',
+          },
         }}
       >
         {transactionType === 'inwards' && helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_INWARD, 'canRead') && (
@@ -533,6 +541,8 @@ const TransactionPage = () => {
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
               },
+
+              
             }}
           />
         )}

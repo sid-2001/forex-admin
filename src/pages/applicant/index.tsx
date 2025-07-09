@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Grid, TextField, Typography, Button, Dialog, DialogActions, DialogContent, DialogTitle, Tabs, Tab, Avatar, FormControl, Select, InputLabel, MenuItem } from '@mui/material';
+import { Box, Grid, TextField, Typography, Button, Dialog, DialogActions, DialogContent, DialogTitle, Tabs, Tab, Avatar, FormControl, Select, InputLabel, MenuItem, useTheme } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import TransactionTable from '../transaction-table';
 import DocumentComponent from '../document-tab';
@@ -12,6 +12,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service';
 import HasPermission from '@/components/permissionWrapper';
 import { KycService } from '@/services/kyc.service';
 import ReferralTransactions from '@/components/referralTransactionTable';
+import { DataGrid } from '@mui/x-data-grid';
 
 const applicant_service = new ApplicantService();
 const beneficiary_service = new BeneficiaryService();
@@ -35,6 +36,7 @@ const ApplicantPage = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [suburb, setSuburb] = useState('');
+  const theme = useTheme()
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [postalCode, setPostalCode] = useState('');
@@ -91,7 +93,7 @@ const ApplicantPage = () => {
     "Western Cape": ["Cape Town", "Stellenbosch", "Paarl"],
     "KwaZulu-Natal": ["Durban", "Pietermaritzburg", "Richards Bay"]
   };
-
+  
   const zipCodes: Record<string, string> = {
     Mumbai: "400001",
     Pune: "411001",
@@ -118,6 +120,16 @@ const ApplicantPage = () => {
 
     const utilized = Math.abs(utilizedLimit);
     const available = Math.abs(availableLimit);
+    
+    const applicantDataGridStyle = {
+  '& .MuiDataGrid-row:nth-of-type(even)': {
+    backgroundColor: '#e3f2fd',
+  },
+  '& .MuiDataGrid-row:hover': {
+    backgroundColor: '#bbdefb',
+  },
+};
+
 
     return (
       <Box>
@@ -439,10 +451,11 @@ const ApplicantPage = () => {
   };
 
   return (
+    
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.APPLICANT}>
       <Box sx={{ width: "50vw" }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', }}>
+          <Typography variant="h5" gutterBottom color={theme.palette.secondary.main} sx={{ fontWeight: 'bold', }}>
             Applicant Details
           </Typography>
           {/* <FormControlLabel
@@ -833,14 +846,14 @@ const ApplicantPage = () => {
         </Box>
         {/* Tab Component */}
         <Tabs sx={{ marginBottom: '10px' }} value={selectedTab} onChange={handleTabChange} aria-label="Customer data tabs" >
-          {/* <Tab label="Documents" sx={{ marginRight: '2px' }} /> */}
+           <Tab label="Documents" sx={{ marginRight: '2px' }} /> 
           <Tab label="Beneficiaries" sx={{ marginRight: '2px' }} />
           <Tab label="Transactions" sx={{ marginRight: '2px' }} />
           <Tab label="Referral Redeemed Transactions" sx={{ marginRight: '2px' }} />
           <Tab label="Referral Credited Transactions" sx={{ marginRight: '2px' }} />
         </Tabs>
 
-        {/* Tab Content */}
+        {/* { Tab Content */} 
         {selectedTab === 0 && helper.checkUserHasPermission(local_service.get_modules()?.BENEFICIARY, 'canRead') && <BeneficiaryTable beneficiary={beneficiaries}
           deleteBeneficiary={beneficiaries} applicantId={applicantId} />}
         {selectedTab === 1 && helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canRead') && <TransactionTable
@@ -853,7 +866,11 @@ const ApplicantPage = () => {
           referralRecords={referralRedeemTransaction || []} referralType={'Redeemed'} />}
         {selectedTab === 3 && <ReferralTransactions
           referralRecords={referralCreditedTransaction || []}
-          referralType={'Credited'} />}
+          referralType={'Credited'} />} 
+          
+  
+
+
 
         {/* Action Buttons */}
         <Grid container spacing={2} mt={1}>

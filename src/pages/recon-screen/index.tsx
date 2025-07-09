@@ -220,8 +220,8 @@ setRows(data)
 
      
    },[])
-
-
+  
+  // Sample data for the DataGrid
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'Transaction ID', flex: 1 , headerClassName: 'super-app-theme--header'},
     { field: 'gatewayUsed', headerName: 'Gateway/Channel', flex: 1 , headerClassName: 'super-app-theme--header'},
@@ -246,18 +246,53 @@ setRows(data)
   ];
 
   return (
-    <Box sx={{ height: 600, width: '80vw',  '& .super-app-theme--header': {
-            backgroundColor: '#005099',
-            color: 'white',
-          }, }}>
-      <Box>
+    // <Box sx={{ height: 600, width: '80vw',  '& .super-app-theme--header': {
+    //         backgroundColor: '#005099',
+    //         color: 'white',
+    //       }, }}>
+    //   <Box>
 
 
-      </Box>
+    //   </Box>
 
-      <DataGrid rows={rows} columns={columns}
+    //   <DataGrid rows={rows} columns={columns}
+    //   //@ts-ignore
+    //   pageSize={5} />
+    
+  <Box
+    sx={{
+      height: 600,
+      width: '80vw',
+      '& .super-app-theme--header': {
+        backgroundColor: '#005099',
+        color: 'white',
+      },
+      '& .MuiDataGrid-row:nth-of-type(even)': {
+  backgroundColor: '#e3f2fd',
+}
+
+    }}
+  >
+    {/* Heading */}
+    <Typography
+      variant="h4"
+      sx={{
+        mb: 2,
+        fontWeight: 'bold',
+        
+      }}
+    >
+      Reconciliation
+    </Typography>
+
+    {/* Data Grid */}
+    <DataGrid
+      rows={rows}
+      columns={columns}
       //@ts-ignore
-      pageSize={5} />
+      pageSize={5}
+    />
+
       <Drawer anchor="right" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
       
       

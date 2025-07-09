@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { DataGrid, renderActionsCell } from '@mui/x-data-grid'
-import { Box, Typography, IconButton } from '@mui/material'
+import { Box, Typography, IconButton, useTheme } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import { HelperService } from '@/helpers/helper'
@@ -15,6 +15,7 @@ const BopTable: React.FC = () => {
   const [bopData, setBopData] = React.useState([])
   const navigate = useNavigate()
   const helper = new HelperService()
+  const theme = useTheme()
   const local_service = new LocalStorageService()
 
   useEffect(() => {
@@ -107,7 +108,7 @@ const BopTable: React.FC = () => {
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>
       <Box sx={{ width: '80vw', height: '70vh' }}>
-        <Typography variant="h4" gutterBottom>
+        <Typography variant="h4" gutterBottom color={theme.palette.secondary.main}  >
           <strong>Bop Listing </strong>
         </Typography>
         <DataGrid

@@ -60,6 +60,7 @@ const KYCPage = () => {
   let applicant_service = new ApplicantService()
   let kycservice = new KycService()
   const helper_service = new HelperService()
+  
 
   const [comments, setComments] = useState([
     {
@@ -294,9 +295,10 @@ const KYCPage = () => {
   return (
     <Box padding={3}>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.KYC}>
-        <Typography variant="h4" gutterBottom>
-          <strong>Know-Your Customer</strong>
+        <Typography variant="h4" gutterBottom color={theme.palette.secondary.main}>
+          <strong>Know Your Customer</strong>
         </Typography>
+        
 
         <Box
           marginTop={2}
@@ -306,6 +308,12 @@ const KYCPage = () => {
             '& .super-app-theme--header': {
               backgroundColor: '#005099',
               color: 'white',
+            },
+            '& .MuiDataGrid-row:nth-of-type(even)': {
+              backgroundColor: '#e3f2fd', // Light blue alternate rows
+            },
+            '& .MuiDataGrid-row:nth-of-type(odd)': {
+              backgroundColor: '#ffffff',
             },
           }}
         >
@@ -341,7 +349,7 @@ const KYCPage = () => {
                   backgroundColor: theme.palette.primary.main,
                   p: '0.5%',
                   color: 'white',
-                  borderRadius: '10px',
+                  //borderRadius: '10px',
                   paddingLeft: '5%',
                   paddingRight: '5%',
                 }}
@@ -356,7 +364,7 @@ const KYCPage = () => {
             {/* Applicant Details Section */}
             <Grid container spacing={3}>
               <Grid item xs={8}>
-                <Typography variant="h6" gutterBottom>
+                <Typography variant="h6" gutterBottom color={theme.palette.secondary.main}>
                   <strong> Applicant Details</strong>
                 </Typography>
                 <Grid container spacing={2}>
@@ -516,7 +524,7 @@ const KYCPage = () => {
 
             {/* KYC Status Section */}
             <Box mt={4}>
-              <Typography variant="h6">
+              <Typography variant="h6" gutterBottom color={theme.palette.secondary.main}>
                 <strong>KYC Documents</strong>
               </Typography>
               {selectedKYC?.documents?.map(
@@ -702,42 +710,46 @@ const KYCPage = () => {
 
           {/* Comments List */}
           <List sx={{ maxHeight: '50vh', overflowY: 'auto' }}>
-            {comments.map((comment, index) => (
-              <Box key={comment.commentId} sx={{ position: 'relative', pl: 3 }}>
-                {/* Vertical Line Connector */}
-                {index !== comments.length - 1 && (
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: 12,
-                      height: '100%',
-                      width: 2,
-                      bgcolor: 'gray',
-                    }}
-                  />
-                )}
+  {comments.length === 0 ? (
+    <Typography variant="body2" align="center" color="text.secondary" sx={{ py: 2 }}>
+      No comments available
+    </Typography>
+  ) : (
+    comments.map((comment, index) => (
+      <Box key={comment.commentId} sx={{ position: 'relative', pl: 3 }}>
+        {index !== comments.length - 1 && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: 12,
+              height: '100%',
+              width: 2,
+              bgcolor: 'gray',
+            }}
+          />
+        )}
 
-                {/* Comment Item */}
-                <ListItem sx={{ alignItems: 'flex-start', gap: 1 }}>
-                  <Avatar sx={{ bgcolor: 'primary.main', width: 30, height: 30 }}>{comment.user.charAt(0).toUpperCase()}</Avatar>
-                  <ListItemText
-                    primary={comment.user}
-                    secondary={
-                      <>
-                        <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                          {comment.commentText}
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                          {new Date(comment.commentDate).toLocaleString()}
-                        </Typography>
-                      </>
-                    }
-                  />
-                </ListItem>
-              </Box>
-            ))}
-          </List>
+        <ListItem sx={{ alignItems: 'flex-start', gap: 1 }}>
+          <Avatar sx={{ bgcolor: 'primary.main', width: 30, height: 30 }}>{comment.user.charAt(0).toUpperCase()}</Avatar>
+          <ListItemText
+            primary={comment.user}
+            secondary={
+              <>
+                <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                  {comment.commentText}
+                </Typography>
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                  {new Date(comment.commentDate).toLocaleString()}
+                </Typography>
+              </>
+            }
+          />
+        </ListItem>
+      </Box>
+    ))
+  )}
+</List>
 
           <Divider sx={{ my: 2 }} />
 

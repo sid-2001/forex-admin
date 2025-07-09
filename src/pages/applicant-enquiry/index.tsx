@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Box, Typography } from '@mui/material'
+import { Box, Typography, useTheme } from '@mui/material'
 import ApplicantTable from '@/components/applicant-table' // Ensure this component is already set up
 import { useNavigate } from 'react-router-dom'
 import { ApplicantService } from '@/services/applicant.service' // Assuming you have this service
@@ -23,6 +23,7 @@ const ApplicantEnquiry = () => {
   const [availableLimit, setAvailableLimit] = useState(0)
   const [maxlimit, setMaxlimit] = useState(0)
   const [applicantList, setapplicantList] = useState([])
+  const theme = useTheme()
   const [selectedCountryoption, setselectedCountryoption] = useRecoilState(selectedCountryState)
   const [errors, setErrors] = useState({
     nationality: '',
@@ -30,6 +31,7 @@ const ApplicantEnquiry = () => {
   })
   const [showTable, setShowTable] = useState(false)
   const [filteredApplicants, setFilteredApplicants] = useState([])
+
 
   useEffect(() => {
     setViewApplicant(true)
@@ -138,10 +140,12 @@ const ApplicantEnquiry = () => {
     setApplicantId(value)
   }
 
+  
+
   return (
     <Box padding={2} sx={{ width: '80vw' }}>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.APPLICANT}>
-        <Typography variant="h4" gutterBottom>
+        <Typography variant="h4" gutterBottom color={theme.palette.secondary.main}>
           <strong>Applicant </strong>
         </Typography>
         <ApplicantDataGrid data={applicantList} />

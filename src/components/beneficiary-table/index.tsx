@@ -12,6 +12,7 @@ const beneficiary_service= new BeneficiaryService();
 const local_service = new LocalStorageService();
 const helper =  new HelperService();
 
+
 const BeneficiaryTable = ({ 
   //@ts-ignore
   beneficiary,deleteBeneficiary ,applicantId

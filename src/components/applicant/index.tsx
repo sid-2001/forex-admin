@@ -75,6 +75,9 @@ const ApplicantDataGrid: React.FC<Props> = ({ data }) => {
           backgroundColor: '#005099',
           color: 'white',
         },
+        '& .MuiDataGrid-row:nth-of-type(even)': {
+          backgroundColor: '#e3f2fd', // Light blue for alternate rows
+        },
       }}
     >
       <DataGrid
