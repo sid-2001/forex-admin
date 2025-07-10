@@ -48,7 +48,7 @@ const LoginPage = () => {
   const handleClose = (
     //@ts-ignore
     event: React.SyntheticEvent | Event,
-     //@ts-ignore
+    //@ts-ignore
     reason?: SnackbarCloseReason,
   ) => {
     if (reason === 'clickaway') {
@@ -59,7 +59,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (local_service.get_accesstoken()) {
-      navigate('/price')
+      navigate('/dashboard')
       setTimeout(() => {
         window.location.reload()
       }, 100)
@@ -103,7 +103,7 @@ const LoginPage = () => {
               )
               local_service.set_staff_access(data)
               local_service.set_role(data?.roleDescription)
-              navigate('/price')
+              navigate('/dashboard')
             }, 500)
           } else {
             setText(response?.message)
