@@ -14,7 +14,8 @@ import {
   Grid,
   Card,
   CardContent,
-  Typography
+  Typography,
+  useTheme
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { ApplicantService } from '@/services/applicant.service';
@@ -33,7 +34,7 @@ const UtilizationEnquiryForm: React.FC = () => {
   const [applicantData, setapplicantData] = useState<any>({})
   const [limitData, setLimitData] = useState<any>({})
   const [transactionData, setTranactiondata] = useState([])
-
+  const theme = useTheme()
   const appilicant_service = new ApplicantService()
   const helper = new HelperService();
   const local_service =  new LocalStorageService();
@@ -86,7 +87,7 @@ const UtilizationEnquiryForm: React.FC = () => {
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.COMPLIANCE_MONITOR}>
     <Box sx={{ flexGrow: 1, p: 1 }}>
-      <Typography variant="h4" gutterBottom fontWeight="bold" textAlign="left">
+      <Typography variant="h4" gutterBottom fontWeight="bold" textAlign="left" color = {theme.palette.secondary.main}>
         Limit Utilization Enquiry 
       </Typography>
         

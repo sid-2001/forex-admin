@@ -74,6 +74,7 @@ const ApplicantPage = () => {
   const [maxlimit, setMaxlimit] = useState(0)
   const [referralRedeemTransaction, setReferralRedeemTransaction] = useState<any>([])
   const [referralCreditedTransaction, setReferralCreditedTransaction] = useState<any>([])
+  const [applicantImage, setApplicantImage] = useState<string>("")
 
   const countries = [
     { code: "IN", name: "India" },
@@ -93,7 +94,7 @@ const ApplicantPage = () => {
     "Western Cape": ["Cape Town", "Stellenbosch", "Paarl"],
     "KwaZulu-Natal": ["Durban", "Pietermaritzburg", "Richards Bay"]
   };
-  
+
   const zipCodes: Record<string, string> = {
     Mumbai: "400001",
     Pune: "411001",
@@ -120,15 +121,15 @@ const ApplicantPage = () => {
 
     const utilized = Math.abs(utilizedLimit);
     const available = Math.abs(availableLimit);
-    
+
     const applicantDataGridStyle = {
-  '& .MuiDataGrid-row:nth-of-type(even)': {
-    backgroundColor: '#e3f2fd',
-  },
-  '& .MuiDataGrid-row:hover': {
-    backgroundColor: '#bbdefb',
-  },
-};
+      '& .MuiDataGrid-row:nth-of-type(even)': {
+        backgroundColor: '#e3f2fd',
+      },
+      '& .MuiDataGrid-row:hover': {
+        backgroundColor: '#bbdefb',
+      },
+    };
 
 
     return (
@@ -228,6 +229,7 @@ const ApplicantPage = () => {
     fetchBeneficiaries();
     fetchReferralRedeemedTransactions();
     fetchReferralCreditedTransactions();
+    getdocumentDataByApplicantId()
   }, [])
 
 
@@ -450,8 +452,23 @@ const ApplicantPage = () => {
     navigate('/applicant');
   };
 
+  const getdocumentDataByApplicantId = async () => {
+    if (!applicantId) return;
+
+    try {
+      const { data } = await applicant_service.getDocumentByApplicantId(applicantId);
+      if (data.length > 0) {
+        const record = data.find((doc: any) => doc.documentName === 'image')
+        setApplicantImage(record?.docUrl || "")
+      }
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+    }
+  }
+
+
   return (
-    
+
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.APPLICANT}>
       <Box sx={{ width: "50vw" }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -464,7 +481,7 @@ const ApplicantPage = () => {
          */}
         </Box>
 
-        <Box mb={1} display="flex" justifyContent="space-between" alignItems="center">
+        <Box mb={6} display="flex" justifyContent="space-between" alignItems="center">
           <Typography
             variant="body1" mb={1}
             sx={{
@@ -481,28 +498,29 @@ const ApplicantPage = () => {
         </Box>
 
         {/* Applicant Information Form */}
-        <Box sx={{ width: '70vw' }}>
+        <Box sx={{ width: '80vw' }}>
           <Grid container spacing={2} mb={2} alignItems="flex-start" justifyContent="space-between">
-            <Grid item xs={12} sm={3} display="flex" flexDirection="column"
+            <Grid item xs={12} sm={2} display="flex" flexDirection="column"
               alignItems="center" justifyContent="center">
               {/* <Typography mt={2}>Applicant Picture</Typography> */}
               <Box
-                width={110}
-                height={110}
-                border="2px solid #000"
+                width={150}
+                height={150}
+                border='4px solid green'
                 borderRadius="50%"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
               >
-                <Avatar style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                }}>{firstName[0] + "" + lastName[0]}</Avatar>
+                <Avatar src={applicantImage}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                  }}>{firstName[0] + "" + lastName[0]}</Avatar>
               </Box>
             </Grid>
-            <Grid item xs={12} sm={5}>
+            <Grid item xs={12} sm={7}>
               <Grid container spacing={2} marginBottom={1}>
                 <Grid item xs={12} sm={4}>
                   <TextField
@@ -578,7 +596,7 @@ const ApplicantPage = () => {
               </Grid>
             </Grid>
 
-            <Grid item xs={12} sm={4} sx={{ alignContent: "top" }}>
+            <Grid item xs={12} sm={3} sx={{ alignContent: "top" }}>
               <LimitPieChart></LimitPieChart>
             </Grid>
           </Grid>
@@ -846,14 +864,14 @@ const ApplicantPage = () => {
         </Box>
         {/* Tab Component */}
         <Tabs sx={{ marginBottom: '10px' }} value={selectedTab} onChange={handleTabChange} aria-label="Customer data tabs" >
-           <Tab label="Documents" sx={{ marginRight: '2px' }} /> 
+          <Tab label="Documents" sx={{ marginRight: '2px' }} />
           <Tab label="Beneficiaries" sx={{ marginRight: '2px' }} />
           <Tab label="Transactions" sx={{ marginRight: '2px' }} />
           <Tab label="Referral Redeemed Transactions" sx={{ marginRight: '2px' }} />
           <Tab label="Referral Credited Transactions" sx={{ marginRight: '2px' }} />
         </Tabs>
 
-        {/* { Tab Content */} 
+        {/* { Tab Content */}
         {selectedTab === 0 && helper.checkUserHasPermission(local_service.get_modules()?.BENEFICIARY, 'canRead') && <BeneficiaryTable beneficiary={beneficiaries}
           deleteBeneficiary={beneficiaries} applicantId={applicantId} />}
         {selectedTab === 1 && helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canRead') && <TransactionTable
@@ -866,9 +884,9 @@ const ApplicantPage = () => {
           referralRecords={referralRedeemTransaction || []} referralType={'Redeemed'} />}
         {selectedTab === 3 && <ReferralTransactions
           referralRecords={referralCreditedTransaction || []}
-          referralType={'Credited'} />} 
-          
-  
+          referralType={'Credited'} />}
+
+
 
 
 

@@ -133,6 +133,7 @@ const Header = styled(Box)({
   justifyContent: 'space-between',
   alignItems: 'center',
   paddingBottom: '1rem',
+
 })
 
 const DashboardLayout = () => {

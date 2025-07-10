@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { DataGrid, GridToolbarContainer, GridToolbarExport, GridActionsCellItem } from '@mui/x-data-grid'
-import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Box, FormControlLabel, Checkbox, Stack } from '@mui/material'
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Box, FormControlLabel, Checkbox, Stack, useTheme } from '@mui/material'
 import { Add, Edit, Delete } from '@mui/icons-material'
 import staticdataService from '@/services/staticdata.service'
 import { useRecoilState } from 'recoil'
@@ -26,7 +26,7 @@ const StaticDataGrid = ({
   const [open, setOpen] = useRecoilState(alertState)
 
   const [date, setDate] = useState(null)
-
+const theme = useTheme()
   const [staticTable, setStaticTable] = useRecoilState<{
     name: string
     'primary-key': string
@@ -275,6 +275,7 @@ const StaticDataGrid = ({
         disabled: column.field === primaryKey && editMode,
         sx: { mt: 2 },
       }
+      
 
       // Handle different field types
       switch (column.type) {
@@ -386,7 +387,7 @@ const StaticDataGrid = ({
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
         <b>
           {' '}
-          <h2>{title}</h2>
+          <h2 style={{color:theme.palette.secondary.main}}>{title}</h2>
         </b>
         <Button
           variant="contained"

@@ -135,5 +135,16 @@ class ApplicantService extends BaseService {
       throw new Error('Unable to fetch applicants by both criteria. Please try again.')
     }
   }
+
+  async getDocumentByApplicantId(applicantId: string): Promise<any> { 
+    let url = `/api/kyc/kyc/document-status/${applicantId}`
+    try {
+      let { data } = await api1.get(url)
+      return data
+    } catch (err) {
+      console.log('Error in service file:', err)
+      throw new Error('Unable to fetch documents by applicant ID. Please try again.')
+    }
+  }
 }
 export { ApplicantService }

@@ -85,7 +85,7 @@ const ApplicantDataGrid: React.FC<Props> = ({ data }) => {
         columns={columns}
         pageSizeOptions={[10]}
         initialState={{
-          pagination: { paginationModel: { pageSize: 10, page: 0 } },
+          pagination: { paginationModel: { pageSize: 20, page: 0 } },
         }}
       />
     </Box>

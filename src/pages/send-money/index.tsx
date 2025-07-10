@@ -48,6 +48,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
+import { useTheme } from '@emotion/react'
 const { VITE_APP_URL } = import.meta.env
 const local_service = new LocalStorageService()
 const helper = new HelperService()
@@ -608,7 +609,7 @@ const SendMoneyPage = () => {
     setSearchText(user.name) // Set selected user's name in TextField
     setFilteredUsers([])
   }
-
+  const theme:any = useTheme()
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.TRANSACTION_OUTWARD}>
       <Box
@@ -616,7 +617,7 @@ const SendMoneyPage = () => {
           width: '80vw',
         }}
       >
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h5" gutterBottom color={theme.palette.secondary.main} >
           <strong>Send Money </strong>
         </Typography>
 

@@ -13,6 +13,8 @@ import { StaffProfile } from '@/types/staff.type';
 import { alertState, alertTextState, alertTypeState } from '@/states/state';
 import { useRecoilState } from 'recoil';
 import { HelperService } from '@/helpers/helper';
+import { theme } from '@/contants/theme';
+import { useTheme } from '@emotion/react';
 
 //@ts-ignore
 function sortAscending(arr, key) {
@@ -57,6 +59,7 @@ const UserAdd = () => {
 
 
   const navigate = useNavigate()
+  const theme=useTheme()
 
   const handleToggleChangePermisson = (
     //@ts-ignore
@@ -237,9 +240,13 @@ const UserAdd = () => {
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.STAFF}>
       <Box sx={{ width: "50vw" }}>
-        <Typography mb={2} variant="h5" gutterBottom sx={{ fontWeight: 'bold', }}>
+        <Typography mb={2} variant="h5" gutterBottom sx={{ fontWeight: 'bold', color:
+          
+          //@ts-ignore
+          theme.palette.secondary.main }}>
           Staff Details
         </Typography>
+      
 
 
         <Box sx={{ width: '80vw' }}>
@@ -368,6 +375,7 @@ const UserAdd = () => {
                 Suburb
               </label>
               <TextField
+              fullWidth
                 name="staffSuburb"
                 value={staffData?.staffSuburb || ''}
                 onChange={handleChange}

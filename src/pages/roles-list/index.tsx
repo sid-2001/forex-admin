@@ -6,6 +6,7 @@ import { UserService } from '@/services/user.service'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { HelperService } from '@/helpers/helper'
+import { useTheme } from '@emotion/react'
 
 const RoleManagementPage = () => {
   const [roles, setRoles] = useState([])
@@ -20,6 +21,7 @@ const RoleManagementPage = () => {
       setRoles(data)
     })
   }
+  const theme:any = useTheme()
 
   useEffect(() => {
     fetchRoles()
@@ -41,7 +43,9 @@ const RoleManagementPage = () => {
     <HasPermission module={local_service.get_modules()?.ROLE} permission={'canRead'}>
       <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'} sx={{ width: '80vw' }}>
         <Box>
-          <Typography variant="h4" gutterBottom>
+          <Typography variant="h4" gutterBottom 
+          //@its-ignore
+          sx={{ color: theme.palette.secondary.main }}>
             <strong>Roles </strong>
           </Typography>
         </Box>

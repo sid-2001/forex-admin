@@ -9,6 +9,7 @@ import { HelperService } from '@/helpers/helper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import HasPermission from '../permissionWrapper'
 import ConfirmationModal from '../logout/logout.component'
+import { useTheme } from '@emotion/react'
 
 const countryCodes = {
   'India': 'IN',
@@ -38,6 +39,7 @@ const BopScreen: React.FC = () => {
   const [bopCat, setbopCat] = useState<any>({})
   const [bopCategory, setBopCategory] = useState<any>([])
   const [confirmReleaseModal,setConfirmReleaseModal] = useState<boolean>(false);
+  const theme = useTheme()
   // const [bopCategoryStaticData, setBopCategoryStaticData] = useState<any>([])
 
   const storedLocalData = localStorage.getItem('staff_access') || "";
@@ -298,7 +300,8 @@ const BopScreen: React.FC = () => {
         </Button>
       </Box>
       <Box>
-        <Typography variant="h5">Reporting Details</Typography>
+        <Typography variant="h5" gutterBottom color={'theme.palette.secondary.main'} >Reporting Details</Typography>
+        <Typography variant="h5" gutterBottom>Reporting Details</Typography>
       </Box>
 
       <Grid container spacing={2} mt={1}>

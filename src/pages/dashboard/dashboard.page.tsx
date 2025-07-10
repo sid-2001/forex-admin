@@ -432,7 +432,9 @@ const Dashboard = () => {
 
   return (
     <Box sx={{ width: '80vw' }}>
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" gutterBottom color={
+        //@ts-ignore
+        theme.palette.secondary.main}>
         <b>Dashboard Overview</b>{' '}
         <ShowChartIcon
           sx={{
@@ -450,6 +452,8 @@ const Dashboard = () => {
           }}
         />
       </Typography>
+      
+      
 
       {/* Summary Cards */}
       <Grid container spacing={2} sx={{ mb: 4 }}>

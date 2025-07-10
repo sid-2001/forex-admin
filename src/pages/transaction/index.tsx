@@ -682,7 +682,7 @@ const TransactionPage = () => {
             </Grid>
 
             <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>
+            <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 ,color: theme.palette.primary.main }}>
               Applicant Details
             </Typography>
             <Grid container spacing={2} mb={2}>

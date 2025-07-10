@@ -292,6 +292,12 @@ const KYCPage = () => {
     setIsDrawerOpen(false)
     setselectedVerifcationOpen(false)
   }
+
+  const renderUserImage = () => {
+   const record =  selectedKYC?.documents.find((doc: any) => doc?.document?.documentType === 'image')
+   return record?.documentUrl;
+  }
+
   return (
     <Box padding={3}>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.KYC}>
@@ -342,7 +348,7 @@ const KYCPage = () => {
         <Box>
           <Box p={3}>
             {/* Header */}
-            <Box mb={2} display="flex" justifyContent="space-between" alignItems="center">
+            <Box mb={6} display="flex" justifyContent="space-between" alignItems="center">
               <Typography
                 variant="h5"
                 sx={{
@@ -362,8 +368,33 @@ const KYCPage = () => {
             </Box>
 
             {/* Applicant Details Section */}
-            <Grid container spacing={3}>
-              <Grid item xs={8}>
+            <Grid container>
+              <Grid item xs={2}>
+                <Avatar
+                  src={renderUserImage()} // Replace with actual image URL
+                  sx={{
+                    width: 200,
+                    height: 200,
+                    margin:'0% 15% 0 15%',
+                    border: '4px solid green',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >                  
+                  {/* {' '}
+                  {selectedKYC?.applicantName?.split(' ').length > 0
+                    ? selectedKYC?.applicantName.split(' ')[0][0] +
+                      ' ' +
+                      (selectedKYC?.applicantName.split(' ')[1][0] ? selectedKYC?.applicantName.split(' ')[1][0] : '')
+                    : selectedKYC?.applicantName.split(' ')[0]}{' '} */}
+                </Avatar>
+                <Typography mt={2} color="green">
+                  {/* <strong>Matched with ID Proof </strong> */}
+                </Typography>
+              </Grid>
+              <Grid item xs={10}>
                 <Typography variant="h6" gutterBottom color={theme.palette.secondary.main}>
                   <strong> Applicant Details</strong>
                 </Typography>
@@ -382,6 +413,7 @@ const KYCPage = () => {
                     <TextField
                       label="Customer Name"
                       variant="filled"
+                      fullWidth
                       //@ts-ignore
                       defaultValue={selectedKYC?.applicantName}
                       disabled
@@ -392,13 +424,16 @@ const KYCPage = () => {
                       label="Nationality"
                       variant="filled"
                       defaultValue="Indian"
+                      fullWidth
                       //@ts-ignore
                       defaultValue={selectedKYC?.nationality}
                       disabled
                     />
                   </Grid>
                   <Grid item xs={3}>
-                    <TextField label="Residence Country" variant="filled" defaultValue={selectedKYC?.permanentAddressCountry} disabled />
+                    <TextField 
+                    fullWidth
+                    label="Residence Country" variant="filled" defaultValue={selectedKYC?.permanentAddressCountry} disabled />
                   </Grid>
 
                   <Grid item xs={12}>
@@ -496,30 +531,7 @@ const KYCPage = () => {
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item xs={4} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
-                <Avatar
-                  src="https://via.placeholder.com/100" // Replace with actual image URL
-                  sx={{
-                    width: 100,
-                    height: 100,
-                    border: '2px solid green',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  {' '}
-                  {selectedKYC?.applicantName?.split(' ').length > 0
-                    ? selectedKYC?.applicantName.split(' ')[0][0] +
-                      ' ' +
-                      (selectedKYC?.applicantName.split(' ')[1][0] ? selectedKYC?.applicantName.split(' ')[1][0] : '')
-                    : selectedKYC?.applicantName.split(' ')[0]}{' '}
-                </Avatar>
-                <Typography mt={2} color="green">
-                  {/* <strong>Matched with ID Proof </strong> */}
-                </Typography>
-              </Grid>
+              
             </Grid>
 
             {/* KYC Status Section */}
@@ -556,7 +568,7 @@ const KYCPage = () => {
                           }}
                         >
                           {/* <a href={proofType?.documentUrl}>View More</a> */}
-                          <a href={`${proofType?.documentUrl.split('/').pop()}`} target="_blank" rel="noopener noreferrer">
+                          <a href={`${proofType?.documentUrl}`} target="_blank" rel="noopener noreferrer">
                             View More
                           </a>
                           {/* view more */}
@@ -670,12 +682,9 @@ const KYCPage = () => {
             </Box>
 
             {/* Buttons */}
-            <Box mt={4} display="flex" justifyContent="flex-end">
-              {/* <Button variant="contained" color="primary" style={{ marginRight: 8 }} onClick={handleClose}>
-                Save
-              </Button> */}
+            <Box mt={4} >
               <Button variant="contained" color="success" onClick={handleClose}>
-                close
+                Close
               </Button>
             </Box>
           </Box>

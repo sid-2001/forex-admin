@@ -5,6 +5,7 @@ import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { UserService } from '@/services/user.service'
+import { useTheme } from '@emotion/react'
 
 const user_service = new UserService()
 const helper = new HelperService()
@@ -47,12 +48,12 @@ const AddUpdateModuleDialog: React.FC<any> = ({ action = 'Add', handleClose, han
       [name]: value,
     }))
   }
-
+  
   const handleCancelBtn = () => {
     handleClose()
     setModuleData({})
   }
-
+  
   return (
     <Modal
       open={isOpen}
@@ -198,13 +199,16 @@ const ModuleTable: React.FC = () => {
     setIsModalOpen(false)
     setSelectedModule({})
   }
+  const theme = useTheme()
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MODULE}>
       <Box sx={{ width: '80vw', height: '70vh' }}>
         <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'}>
           <Box>
-            <Typography variant="h4" gutterBottom>
+            <Typography variant="h4" gutterBottom 
+           // @ts-ignore
+            sx= {{ color: theme.palette.secondary.main}}>
               <strong>Modules</strong>
             </Typography>
           </Box>
