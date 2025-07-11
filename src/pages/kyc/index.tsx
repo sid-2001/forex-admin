@@ -60,7 +60,6 @@ const KYCPage = () => {
   let applicant_service = new ApplicantService()
   let kycservice = new KycService()
   const helper_service = new HelperService()
-  
 
   const [comments, setComments] = useState([
     {
@@ -156,7 +155,7 @@ const KYCPage = () => {
 
   useEffect(() => {
     setCommonLoader(true)
-    applicant_service.getApplicantKyc(selectedcountry == 'SA' ? 'ZA' : 'IN').then((data) => {
+    applicant_service.getApplicantKyc(selectedcountry).then((data) => {
       setMockData(data)
       //@ts-ignores
       setFilteredData(data)
@@ -222,7 +221,7 @@ const KYCPage = () => {
           console.log(err)
         })
 
-      applicant_service.getApplicantKyc(selectedcountry == 'SA' ? 'ZA' : 'IN').then((data) => {
+      applicant_service.getApplicantKyc(selectedcountry).then((data) => {
         setMockData(data)
         //@ts-ignores
         setFilteredData(data)
@@ -248,7 +247,7 @@ const KYCPage = () => {
         .unverifyDocument(proofType?.id?.documentCode, proofType?.id?.kycId)
         .then(() => {
           kycservice.changeKycStatus('p', proofType?.id?.kycId).then(() => {
-            applicant_service.getApplicantKyc(selectedcountry == 'SA' ? 'ZA' : 'IN').then((data) => {
+            applicant_service.getApplicantKyc(selectedcountry).then((data) => {
               setMockData(data)
               //@ts-ignores
               setFilteredData(data)
@@ -294,8 +293,8 @@ const KYCPage = () => {
   }
 
   const renderUserImage = () => {
-   const record =  selectedKYC?.documents.find((doc: any) => doc?.document?.documentType === 'image')
-   return record?.documentUrl;
+    const record = selectedKYC?.documents.find((doc: any) => doc?.document?.documentType === 'image')
+    return record?.documentUrl
   }
 
   return (
@@ -304,7 +303,6 @@ const KYCPage = () => {
         <Typography variant="h4" gutterBottom color={theme.palette.secondary.main}>
           <strong>Know Your Customer</strong>
         </Typography>
-        
 
         <Box
           marginTop={2}
@@ -375,14 +373,14 @@ const KYCPage = () => {
                   sx={{
                     width: 200,
                     height: 200,
-                    margin:'0% 15% 0 15%',
+                    margin: '0% 15% 0 15%',
                     border: '4px solid green',
                     borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
-                >                  
+                >
                   {/* {' '}
                   {selectedKYC?.applicantName?.split(' ').length > 0
                     ? selectedKYC?.applicantName.split(' ')[0][0] +
@@ -431,9 +429,7 @@ const KYCPage = () => {
                     />
                   </Grid>
                   <Grid item xs={3}>
-                    <TextField 
-                    fullWidth
-                    label="Residence Country" variant="filled" defaultValue={selectedKYC?.permanentAddressCountry} disabled />
+                    <TextField fullWidth label="Residence Country" variant="filled" defaultValue={selectedKYC?.permanentAddressCountry} disabled />
                   </Grid>
 
                   <Grid item xs={12}>
@@ -531,7 +527,6 @@ const KYCPage = () => {
                   </Grid>
                 </Grid>
               </Grid>
-              
             </Grid>
 
             {/* KYC Status Section */}
@@ -682,7 +677,7 @@ const KYCPage = () => {
             </Box>
 
             {/* Buttons */}
-            <Box mt={4} >
+            <Box mt={4}>
               <Button variant="contained" color="success" onClick={handleClose}>
                 Close
               </Button>
@@ -719,46 +714,46 @@ const KYCPage = () => {
 
           {/* Comments List */}
           <List sx={{ maxHeight: '50vh', overflowY: 'auto' }}>
-  {comments.length === 0 ? (
-    <Typography variant="body2" align="center" color="text.secondary" sx={{ py: 2 }}>
-      No comments available
-    </Typography>
-  ) : (
-    comments.map((comment, index) => (
-      <Box key={comment.commentId} sx={{ position: 'relative', pl: 3 }}>
-        {index !== comments.length - 1 && (
-          <Box
-            sx={{
-              position: 'absolute',
-              top: '50%',
-              left: 12,
-              height: '100%',
-              width: 2,
-              bgcolor: 'gray',
-            }}
-          />
-        )}
+            {comments.length === 0 ? (
+              <Typography variant="body2" align="center" color="text.secondary" sx={{ py: 2 }}>
+                No comments available
+              </Typography>
+            ) : (
+              comments.map((comment, index) => (
+                <Box key={comment.commentId} sx={{ position: 'relative', pl: 3 }}>
+                  {index !== comments.length - 1 && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: 12,
+                        height: '100%',
+                        width: 2,
+                        bgcolor: 'gray',
+                      }}
+                    />
+                  )}
 
-        <ListItem sx={{ alignItems: 'flex-start', gap: 1 }}>
-          <Avatar sx={{ bgcolor: 'primary.main', width: 30, height: 30 }}>{comment.user.charAt(0).toUpperCase()}</Avatar>
-          <ListItemText
-            primary={comment.user}
-            secondary={
-              <>
-                <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                  {comment.commentText}
-                </Typography>
-                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                  {new Date(comment.commentDate).toLocaleString()}
-                </Typography>
-              </>
-            }
-          />
-        </ListItem>
-      </Box>
-    ))
-  )}
-</List>
+                  <ListItem sx={{ alignItems: 'flex-start', gap: 1 }}>
+                    <Avatar sx={{ bgcolor: 'primary.main', width: 30, height: 30 }}>{comment.user.charAt(0).toUpperCase()}</Avatar>
+                    <ListItemText
+                      primary={comment.user}
+                      secondary={
+                        <>
+                          <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                            {comment.commentText}
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                            {new Date(comment.commentDate).toLocaleString()}
+                          </Typography>
+                        </>
+                      }
+                    />
+                  </ListItem>
+                </Box>
+              ))
+            )}
+          </List>
 
           <Divider sx={{ my: 2 }} />
 
