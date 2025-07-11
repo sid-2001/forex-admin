@@ -300,8 +300,10 @@ const BopScreen: React.FC = () => {
         </Button>
       </Box>
       <Box>
-        <Typography variant="h5" gutterBottom color={'theme.palette.secondary.main'} >Reporting Details</Typography>
-        <Typography variant="h5" gutterBottom>Reporting Details</Typography>
+        <Typography variant="h5" gutterBottom
+        //@ts-ignore
+        color={theme.palette.secondary.main} >Reporting Details</Typography>
+        
       </Box>
 
       <Grid container spacing={2} mt={1}>
@@ -336,7 +338,9 @@ const BopScreen: React.FC = () => {
       </Grid>
 
       <Box mt={3}>
-        <Typography variant="h5">
+        <Typography variant="h5" gutterBottom
+        // @its-ignore
+        color={theme.palette.secondary.main}>
           {userLoggedInCountry === 'IN' ? "Purpose Code Details" : "Bop Category Details"}
         </Typography>
       </Box>
@@ -589,7 +593,9 @@ const BopScreen: React.FC = () => {
       </Grid>
 
       <Box mt={3}>
-        <Typography variant="h5">Resident Details</Typography>
+        <Typography variant="h5" gutterBottom 
+        //@ts-ignore
+        color = {theme.palette.secondary.main}>Resident Details</Typography>
 
         <Grid container spacing={2} mt={1}>
           <Grid item xs={2.3}>
@@ -755,7 +761,9 @@ const BopScreen: React.FC = () => {
         </Grid>
 
         <Box mt={3}>
-          <Typography variant="h6">Physical Address</Typography>
+          <Typography variant="h6" gutterBottom 
+          //@its-ignore
+          color = {theme.palette.secondary.main}>Physical Address</Typography>
         </Box>
 
         <Grid container spacing={2} mt={1}>
@@ -868,7 +876,9 @@ const BopScreen: React.FC = () => {
         </Grid>
 
         <Box mt={3}>
-          <Typography variant="h6">Postal Address</Typography>
+          <Typography variant="h6" gutterBottom 
+          //@its-ignore
+          color = {theme.palette.secondary.main}>Postal Address</Typography>
         </Box>
 
         <Grid container spacing={2} mt={2}>
@@ -982,7 +992,9 @@ const BopScreen: React.FC = () => {
       </Box>
 
       <Box mt={3}>
-        <Typography variant="h5">Non Resident Details</Typography>
+        <Typography variant="h5" gutterBottom 
+        //@its-ignore 
+        color ={theme.palette.secondary.main}>Non Resident Details</Typography>
       </Box>
 
       <Grid container spacing={2} mt={1}>
