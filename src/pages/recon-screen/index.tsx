@@ -279,12 +279,12 @@ setRows(data)
       sx={{
         mb: 2,
         fontWeight: 'bold',
-        
+        color: theme.palette.secondary.main,
       }}
     >
       Reconciliation
     </Typography>
-
+    
     {/* Data Grid */}
     <DataGrid
       rows={rows}
