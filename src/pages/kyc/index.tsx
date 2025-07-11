@@ -371,10 +371,13 @@ const KYCPage = () => {
                 <Avatar
                   src={renderUserImage()} // Replace with actual image URL
                   sx={{
-                    width: 200,
-                    height: 200,
-                    margin: '0% 15% 0 15%',
+                    width: 150,
+                    height: 150,
+                    marginTop: '10%',
+                    marginRight: '10%',
+                    marginLeft: '10%',
                     border: '4px solid green',
+                    paddingTop: '1%',
                     borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
