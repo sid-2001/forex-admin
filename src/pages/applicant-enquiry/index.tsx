@@ -32,10 +32,9 @@ const ApplicantEnquiry = () => {
   const [showTable, setShowTable] = useState(false)
   const [filteredApplicants, setFilteredApplicants] = useState([])
 
-
   useEffect(() => {
     setViewApplicant(true)
-    applicant_service.getApplicantDetalisByCountry(selectedCountryoption == 'SA' ? 'ZA' : 'IN').then((data) => {
+    applicant_service.getApplicantDetalisByCountry(selectedCountryoption).then((data) => {
       //@ts-ignore
       setapplicantList(data)
     })
@@ -139,8 +138,6 @@ const ApplicantEnquiry = () => {
     const value = e.target.value.toUpperCase()
     setApplicantId(value)
   }
-
-  
 
   return (
     <Box padding={2} sx={{ width: '80vw' }}>
