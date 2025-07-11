@@ -269,7 +269,7 @@ const TransactionPage = () => {
 
   useEffect(() => {
     setcommonloader(true)
-    transaction_Service.getInwardTransaction(selectedCountryOption == 'IN' ? 'IN' : 'ZA').then((data) => {
+    transaction_Service.getInwardTransaction(selectedCountryOption === 'IN' ? 'IN' : 'ZA').then((data) => {
       setInboundTransaction(data)
     })
 
@@ -321,7 +321,7 @@ const TransactionPage = () => {
           ?.filter((transaction) => {
             if (selectedCountryOption === 'IN') {
               return transaction.destination?.toLowerCase() !== 'in'
-            } else if (selectedCountryOption === 'SA') {
+            } else if (selectedCountryOption === 'ZA') {
               return transaction.destination?.toLowerCase() !== 'za'
             }
 
@@ -392,9 +392,9 @@ const TransactionPage = () => {
       gatewayId: '13122',
       //@ts-ignore
       timecharge: row.charges,
-      sourceCurrency: selectedCountryoption == 'SA' ? 'ZAR' : 'INR',
-      sourceCountry: selectedCountryoption == 'SA' ? 'ZA' : 'IN',
-      destinationCurrency: selectedCountryoption == 'SA' ? 'INR' : 'ZAR',
+      sourceCurrency: selectedCountryoption === 'ZA' ? 'ZAR' : 'INR',
+      sourceCountry: selectedCountryoption === 'ZA' ? 'ZA' : 'IN',
+      destinationCurrency: selectedCountryoption === 'ZA' ? 'INR' : 'ZAR',
       bopId: row?.bobId,
       // totalpaybleamount: (Number(row.value) + Number(row.charges)),
       totalpaybleamount: Number(row.value) * Number(row.exchangeRates),
@@ -435,7 +435,7 @@ const TransactionPage = () => {
       <Typography variant="h4" gutterBottom color={theme.palette.secondary.main}>
         <strong>Transactions</strong>
       </Typography>
-      
+
       <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'} sx={{ width: '80vw' }}>
         <Box>
           <ToggleButtonGroup value={transactionType} color="primary" exclusive onChange={handleToggleTransactionType} sx={{ mb: 2 }}>
@@ -446,15 +446,15 @@ const TransactionPage = () => {
         </Box>
 
         <Box>
-          <IconButton onClick={() => setToolOpen(true)} color ="primary">
+          <IconButton onClick={() => setToolOpen(true)} color="primary">
             <SettingsAccessibilityRounded />
           </IconButton>
-          
 
           <IconButton
             onClick={() => {
               navigate('/recon-trx')
-            }} color ="primary"
+            }}
+            color="primary"
           >
             <CurrencyExchangeIcon />
           </IconButton>
@@ -515,9 +515,9 @@ const TransactionPage = () => {
             color: 'white',
           },
           '& .MuiDataGrid-row:nth-of-type(even)': {
-                backgroundColor: '#e3f2fd',
-              },
-              '& .MuiDataGrid-row:nth-of-type(odd)': {
+            backgroundColor: '#e3f2fd',
+          },
+          '& .MuiDataGrid-row:nth-of-type(odd)': {
             backgroundColor: '#ffffff',
           },
         }}
@@ -541,8 +541,6 @@ const TransactionPage = () => {
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
               },
-
-              
             }}
           />
         )}
@@ -682,7 +680,7 @@ const TransactionPage = () => {
             </Grid>
 
             <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 ,color: theme.palette.primary.main }}>
+            <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2, color: theme.palette.primary.main }}>
               Applicant Details
             </Typography>
             <Grid container spacing={2} mb={2}>
