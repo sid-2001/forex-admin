@@ -254,7 +254,6 @@ const TransactionPage = () => {
   const fetchStpErrorList = async (transactionId: string) => {
     try {
       const { data } = await transaction_Service.getStpRules(transactionId)
-      console.log(data, '==============')
       setStpErrors(data)
     } catch (error) {
       console.log('err', error)

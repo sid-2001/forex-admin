@@ -174,8 +174,8 @@ export class TransactionService extends BaseService {
     }
   }
 
-  async getStpRules(transactionId: string) {
-    let url = `${VITE_APP_TRANSACTION}/api/transactions/stp-error/transactionNo/${transactionId}`
+  async getStpRules(transactionId: any) {
+    let url = `/api/transactions/stp-error/transactionNo/${transactionId}`
     try {
       let data = await api1.get(url)
       return data
