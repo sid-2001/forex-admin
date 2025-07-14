@@ -24,8 +24,7 @@ const BopTable: React.FC = () => {
   const fetchBopListingData = async () => {
     try {
       const response = await bopService.getBopListing()
-      console.log(response, '===============')
-      // setBopData(data)
+      setBopData(response)
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error)
     }
