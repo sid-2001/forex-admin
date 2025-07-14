@@ -1,9 +1,8 @@
-import { Logger, ConsoleLogger } from "../helpers/logger";
+import { Logger, ConsoleLogger } from '../helpers/logger'
 
 class BaseService {
-  logger: Logger = new ConsoleLogger();
-
+  logger: Logger = new ConsoleLogger()
   constructor() {}
 }
 
-export { BaseService };
+export { BaseService }

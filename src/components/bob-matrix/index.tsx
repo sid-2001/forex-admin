@@ -40,7 +40,6 @@ const BobCategoryDropdown: React.FC<BobCategoryDropdownProps> = ({
 
   const handleCategoryChange = (event: React.ChangeEvent<{ value: unknown }>) => {
 
-console.log("Bop categfory")
     console.log(event)
     setCategory(event.target.value as string);
   };

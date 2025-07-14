@@ -6,9 +6,7 @@ import { AuthService } from '@/services/auth.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { Logo } from '@/assets/images' // Assuming the logo is properly imported
 import { useRecoilState } from 'recoil'
-import {
-  loaderState, selectedAppState, selectedCountryState
-} from '@/states/state'
+import { loaderState, selectedAppState, selectedCountryState } from '@/states/state'
 
 import LoaderBackdrop from '@/components/loader/loader'
 import CloseIcon from '@mui/icons-material/Close'
@@ -24,8 +22,7 @@ const LoginPage = () => {
   const [commonloader, setcommonloader] = useRecoilState(loaderState)
   const [selecteCountryState, setselectedCountryState] = useRecoilState(selectedCountryState)
   const [selectedTab, setSelectedTab] = useRecoilState(selectedAppState)
-  const [error, setError] = useState('');
-  const [openSnackbar, setOpenSnackBar] = useState(false)
+  const [error, setError] = useState('')
 
   const auth_service = new AuthService()
   const local_service = new LocalStorageService()
@@ -34,9 +31,9 @@ const LoginPage = () => {
   const theme = useTheme()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let input = e.target.value;
+    let input = e.target.value
     // Enforce lowercase only
-    input = input.toLowerCase();
+    input = input.toLowerCase()
     // const regex = /^[-z0-9]*$/; // Only lowercase letters and numbers
     // if (!regex.test(input)) {
     //   setError('Only lowercase letters and numbers are allowed.');
@@ -45,12 +42,15 @@ const LoginPage = () => {
     // } else {
     //   setError('');
     // }
-    setEmail(input);
-  };
+    setEmail(input)
+  }
 
   const handleClose = (
     //@ts-ignore
-    event: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) => {
+    event: React.SyntheticEvent | Event,
+    //@ts-ignore
+    reason?: SnackbarCloseReason,
+  ) => {
     if (reason === 'clickaway') {
       return
     }
@@ -59,11 +59,10 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (local_service.get_accesstoken()) {
-      navigate('/price')
+      navigate('/dashboard')
       setTimeout(() => {
         window.location.reload()
       }, 100)
-
     }
   }, [navigate, local_service])
 
@@ -73,9 +72,9 @@ const LoginPage = () => {
       if (response) {
         let moduleObj: any = {}
         response.forEach((item: any) => {
-          moduleObj[item.moduleName.replace(/\s+/g, '_').toUpperCase()] = item.moduleName;
+          moduleObj[item.moduleName.replace(/\s+/g, '_').toUpperCase()] = item.moduleName
         })
-        localStorage.setItem('modules', JSON.stringify(moduleObj));
+        localStorage.setItem('modules', JSON.stringify(moduleObj))
       }
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error)
@@ -84,45 +83,34 @@ const LoginPage = () => {
 
   const handleLogin = async () => {
     try {
-      setSelectedTab("Price")
+      setSelectedTab('Price')
       auth_service
         .loginStaff({
-          "username": email, "password": password
+          username: email,
+          password: password,
         })
-        .then((data: any) => {
-         if(data?.data){
-
-
-  
-          fetchAllModulesList()
-          setText('User SuccesFully Logged In')
-          setType('success')
-          setOpen(true)
-
-          // if(data?.)
-
-
-
-          if (data?.staffCountry) setselectedCountryState(data.staffCountry)
-          setTimeout(() => {
-            local_service.set_accesstoken('"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImVtYWlsIjoic2hpdmFuc2hAaW1wcm9uaWNzLmNvbSIsInVzZXJfaWQiOiJjYmMzZDg3OS1iMTM2LTQyYTAtODY3Yy1mYjg2YTQ4MmI3ODciLCJyb2xlIjoiYWRtaW4ifSwiZXhwIjoxNzM4NTk3ODk1LCJqdGkiOiIwZTMxMDA1OS02ZTIyLTQ1MjgtYTliYS04OTA3MTNhZDZiMmYiLCJyZWZyZXNoIjpmYWxzZX0.06XT7DA3cs13hOIDyqlXcHElSXpFzHFO2L0y507Z0YQ"')
-            local_service.set_staff_access(data.data)
-            local_service.set_role(data.roleDescription)
-            navigate('/price')
-          }, 500);
-
-
-                 }
-                 else{
-
-          setText(data?.message)
-          setType('error')
-          setOpen(true)
-
-
-                 }
+        .then((response: any) => {
+          if (response?.data) {
+            fetchAllModulesList()
+            setText('User SuccesFully Logged In')
+            setType('success')
+            setOpen(true)
+            const { data } = response
+            if (data?.staffCountry) setselectedCountryState(data?.staffCountry)
+            setTimeout(() => {
+              local_service.set_accesstoken(
+                '"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImVtYWlsIjoic2hpdmFuc2hAaW1wcm9uaWNzLmNvbSIsInVzZXJfaWQiOiJjYmMzZDg3OS1iMTM2LTQyYTAtODY3Yy1mYjg2YTQ4MmI3ODciLCJyb2xlIjoiYWRtaW4ifSwiZXhwIjoxNzM4NTk3ODk1LCJqdGkiOiIwZTMxMDA1OS02ZTIyLTQ1MjgtYTliYS04OTA3MTNhZDZiMmYiLCJyZWZyZXNoIjpmYWxzZX0.06XT7DA3cs13hOIDyqlXcHElSXpFzHFO2L0y507Z0YQ"',
+              )
+              local_service.set_staff_access(data)
+              local_service.set_role(data?.roleDescription)
+              navigate('/dashboard')
+            }, 500)
+          } else {
+            setText(response?.message)
+            setType('error')
+            setOpen(true)
+          }
         })
-
         .catch((err) => {
           console.error(err)
         })
@@ -162,7 +150,7 @@ const LoginPage = () => {
           backgroundColor: theme.palette.primary.main,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
         }}
       >
         <Grid
@@ -239,10 +227,14 @@ const LoginPage = () => {
                 }}
               />
 
-              <Button disabled={email.length > 0 && password.length > 0 ? false : true} variant="contained"
+              <Button
+                disabled={email.length > 0 && password.length > 0 ? false : true}
+                variant="contained"
                 color="primary"
-                fullWidth sx={{ mt: 3, padding: '10px 0' }}
-                onClick={handleLogin}>
+                fullWidth
+                sx={{ mt: 3, padding: '10px 0' }}
+                onClick={handleLogin}
+              >
                 Sign In
               </Button>
             </Box>

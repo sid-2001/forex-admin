@@ -27,7 +27,6 @@ export const sidbarSelectionState = atom({
   default: '',
 })
 
-
 export const availableBalanceState = atom({
   key: 'availableBalanceState',
   default: '0000000',
@@ -72,7 +71,7 @@ export const notificationState = atom({
 
 export const applicantView = atom({
   key: 'applicantView',
-  default:false,
+  default: false,
 })
 
 export const selectedAppState = atom({
@@ -85,4 +84,17 @@ export const selectedCountryState = atom({
   key: 'selectedCountryState',
   default: '',
   effects_UNSTABLE: [localStorageEffect('selectedCountryState')],
+})
+
+export const staticTableState = atom({
+  key: 'staticTableState',
+  default: {
+    name: 'verification-partner',
+    'primary-key': 'verificationPartnerId',
+    api: '/api/kyc/verification-partners/action',
+    listname: 'Verification Partner',
+
+    updatePrimaryKey: 'partnerId',
+  },
+  effects_UNSTABLE: [localStorageEffect('staticTableState')],
 })

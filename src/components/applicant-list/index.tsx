@@ -12,6 +12,8 @@ import {
   ListItemText,
   InputAdornment,
   Typography,
+  Dialog,
+  DialogTitle
 } from "@mui/material";
 
 //@ts-nocheck
@@ -187,7 +189,9 @@ export default function ApplicantList(
             p: 4,
           }}
         >
+          
           {/* Search Input */}
+          
           <TextField
             variant="filled"
             fullWidth
@@ -197,6 +201,7 @@ export default function ApplicantList(
               setSearchText(e.target.value);
               setShowList(true);
             }}
+            
             placeholder="Type a User name or ID..."
             InputProps={{
               startAdornment: selectedUser && (

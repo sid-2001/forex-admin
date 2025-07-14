@@ -5,7 +5,7 @@ import { LocalStorageService } from '../../helpers/local-storage-service'
 import { BaseError } from '../../types/error.type'
 import { logger } from '../../helpers/logger'
 
-const { VITE_APP_BACKEND, VITE_APP_URL, VITE_APP_APPLICANT } = import.meta.env
+const { VITE_APP_BACKEND } = import.meta.env
 
 interface AdaptAxiosRequestConfig extends AxiosRequestConfig {
   headers: AxiosRequestHeaders
@@ -27,12 +27,12 @@ instance.interceptors.request.use(
 
     if (token) {
       // config.headers['Authorization'] = 'Bearer ' + token
-        config.headers["ngrok-skip-browser-warning"] = "69420";
-        // "ngrok-skip-browser-warning": true;
-        config.headers['access-control-allow-credentials']="true"
+      config.headers['ngrok-skip-browser-warning'] = '69420'
+      // "ngrok-skip-browser-warning": true;
+      config.headers['access-control-allow-credentials'] = 'true'
 
-      config.headers ['access-control-allow-origin']="*"
-        config.headers["ngrok-skip-browser-warning"]="true"
+      config.headers['access-control-allow-origin'] = '*'
+      config.headers['ngrok-skip-browser-warning'] = 'true'
     }
     return config
   },
@@ -51,7 +51,6 @@ instance.interceptors.response.use(
       window.location.reload()
     }
     if (response.status == 403) {
-      // window.location.replace(`${VITE_APP_URL}/login`)
     }
     return response
   },
@@ -103,7 +102,6 @@ const init = () => {
   // instance.defaults.headers['Access-Control-Allow-Origin'] = '*'
   // instance.defaults.headers['ngrok-skip-browser-warning']="f434"
   // instance.defaults.withCredentials = true;
-
 }
 
 const get = async (url: string) => {
@@ -117,11 +115,11 @@ const get = async (url: string) => {
 
 const post = async (url: string, object: any) => {
   try {
-    const data = await instance.post(url, object,{
+    const data = await instance.post(url, object, {
       headers: {
         'Content-Type': 'application/json',
       },
-        })
+    })
 
     return data
   } catch (error) {

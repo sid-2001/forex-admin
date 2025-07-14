@@ -168,12 +168,17 @@ export default function ComplianceTool(
             left: "50%",
             transform: "translate(-50%, -50%)",
             width: 400,
-            height: 250,
+            height: 300,
             bgcolor: "background.paper",
             boxShadow: 24,
             p: 4,
           }}
         >
+          {/* Heading */}
+<Typography variant="h5" sx={{ mb: 1 , fontWeight: 'bold', textAlign: 'center'}}>
+  Limit
+</Typography>
+
           {/* Search Input */}
           <TextField
             variant="filled"
@@ -254,7 +259,7 @@ export default function ComplianceTool(
 
                  
 
-              <Box sx={{  textAlign: "center", color: "grey",height:"20vh" }}>
+              <Box sx={{  textAlign: "center", color: "grey",height:"20vh",padding: "2%" }}>
               <LimitPieChart></LimitPieChart>
               </Box>
         

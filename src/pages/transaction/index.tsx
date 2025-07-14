@@ -1,19 +1,28 @@
 import { useEffect, useState } from 'react'
 import {
-  Box, Button, Divider, Grid, Typography, Chip, TextField, Drawer,
-  ToggleButton, ToggleButtonGroup, useTheme, IconButton, Dialog, DialogTitle, DialogContent,
-  DialogActions, Tooltip, Modal
+  Box,
+  Button,
+  Divider,
+  Grid,
+  Typography,
+  Chip,
+  TextField,
+  Drawer,
+  ToggleButton,
+  ToggleButtonGroup,
+  useTheme,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Tooltip,
+  Modal,
 } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { useNavigate } from 'react-router-dom'
-import {
-  Applicant,
-  TransactionDetailsResponse,
-  TransactionInward,
-  TransactionInwardCalclulated,
-  TransactionOutward,
-} from '@/types/transaction.type'
-import AssessmentIcon from '@mui/icons-material/Assessment';
+import { Applicant, TransactionDetailsResponse, TransactionInward, TransactionInwardCalclulated, TransactionOutward } from '@/types/transaction.type'
+import AssessmentIcon from '@mui/icons-material/Assessment'
 import { PreviewOutlined, SettingsAccessibilityRounded, Sync } from '@mui/icons-material'
 import { useRecoilState } from 'recoil'
 import { loaderStateNew, selectedCountryState } from '@/states/state'
@@ -22,21 +31,41 @@ import { HelperService } from '@/helpers/helper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { TransactionService } from '@/services/transaction.service'
 import { ApplicantService } from '@/services/applicant.service'
-import HasPermission from '@/components/permissionWrapper'
+import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
+import { statusColors } from '@/contants/utils'
 
 const TransactionPage = () => {
-
   const columns_outward = [
     {
-      field: 'id', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header', renderCell: (params: any) => {
-        return (<a href="#" onClick={() => handleViewMore(params.row)}>{params?.value}</a>)
-      }
+      field: 'id',
+      headerName: 'Transaction ID',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <a href="#" onClick={() => handleViewMore(params.row)}>
+            {params?.value}
+          </a>
+        )
+      },
     },
     { field: 'transactionInwardNumber', headerName: 'Inward ID', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'destination', headerName: 'Destination', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'value', headerName: ' Principal Amount ', flex: 1, headerClassName: 'super-app-theme--header', renderCell: (params: any) => params?.value?.toFixed(2) },
+    {
+      field: 'value',
+      headerName: ' Principal Amount ',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => params?.value?.toFixed(2),
+    },
     { field: 'principalCurrency', headerName: ' Principal Currency ', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'settlementAmount', headerName: ' Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header', renderCell: (params: any) => params?.value?.toFixed(2) },
+    {
+      field: 'settlementAmount',
+      headerName: ' Settlement Amount',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => params?.value?.toFixed(2),
+    },
     { field: 'settlementCurrency', headerName: 'Settlement Currency  ', flex: 1, headerClassName: 'super-app-theme--header' },
     {
       field: 'applicant',
@@ -44,35 +73,73 @@ const TransactionPage = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        const navigate = useNavigate();
-        const nameOrId = params.value?.name || params.value?.applicantId || 'N/A';
+        const nameOrId = params.value?.name || params.value?.applicantId || 'N/A'
         return (
           <Tooltip title={`Go to ${nameOrId}'s details`} arrow>
             <span
               onClick={() => handleNavigation(`/applicant-details/${params.value?.applicantId}`)}
               style={{ cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}
-            >{nameOrId}</span></Tooltip>)
-      }
+            >
+              {nameOrId}
+            </span>
+          </Tooltip>
+        )
+      },
     },
     { field: 'forex', headerName: 'Exchange Rate', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'charges', headerName: 'Charges', flex: 1, headerClassName: 'super-app-theme--header' },
+
     {
-      field: "stpError",
-      headerName: "STP",
+      field: 'reporting',
+      headerName: 'Reporting Status',
       flex: 1,
-      headerClassName: "super-app-theme--header",
-      renderCell: (params: any) =>
-        params.value ? (
-          <Chip label={params.value === "N" ? "No Error" : "Error"}
-            color={params.value === "N" ? "success" : "error"} onClick={() => {
-              if (params.value === "Y") setmodalOpen(true)
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => (params?.value?.reporting == 'Reported' ? params.value.status : params?.value?.status),
+    },
+    {
+      field: 'owCreatedDate',
+      headerName: 'Date',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return helper.convertDateAndTime(params.value?.owCreatedDate)
+      },
+    },
+    {
+      field: 'status',
+      headerName: 'Status',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return <div style={{ color: statusColors[params.row.status.toUpperCase()] }}>{params.row.status.toUpperCase()}</div>
+      },
+
+      // renderCell: (params: any) =>
+      //   params?.value?.status == 'Pending' ? (
+      //     <Tooltip title={params?.value?.status || 'Unknown Error'} arrow>
+      //       <Chip label="Pending" color="error" />
+      //     </Tooltip>
+      //   ) : (
+      //     params?.value?.status
+      //   ),
+    },
+    {
+      field: 'stpError',
+      headerName: 'STP',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => (
+        <Chip
+          label={params.value === 'N' ? 'No Error' : 'Error'}
+          color={params.value === 'N' ? 'success' : 'error'}
+          onClick={() => {
+            if (params.value === 'Y') {
+              setmodalOpen(true)
               fetchStpErrorList(params?.row?.id)
-            }} />
-        ) : (
-          <Chip onClick={() => {
-            setmodalOpen(true)
-          }} label="Error" color="error" />
-        ),
+            }
+          }}
+        />
+      ),
     },
     {
       field: 'Bop action',
@@ -81,51 +148,16 @@ const TransactionPage = () => {
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <>
-          <IconButton onClick={() => {
-            handleNavigation(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`)
-            handleViewMore(params.row)
-          }}>
+          <IconButton
+            onClick={() => {
+              handleNavigation(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`)
+              handleViewMore(params.row)
+            }}
+          >
             <PreviewOutlined />
           </IconButton>
         </>
       ),
-    },
-    {
-      field: "reporting",
-      headerName: "Reporting Status",
-      flex: 1,
-      headerClassName: "super-app-theme--header",
-      renderCell: (params: any) =>
-        params?.value?.reporting == "Reported" ? (
-          params.value.status
-        ) : (
-          (
-            params?.value?.status
-          )
-        ),
-    },
-    {
-      field: "owCreatedDate",
-      headerName: "Date",
-      flex: 1,
-      headerClassName: "super-app-theme--header",
-      renderCell: (params: any) => {
-        return helper.convertDateAndTime((params.value?.owCreatedDate))
-      }
-    },
-    {
-      field: "status",
-      headerName: "Status",
-      flex: 1,
-      headerClassName: "super-app-theme--header",
-      renderCell: (params: any) =>
-        params?.value?.status == 'Pending' ? (
-          <Tooltip title={params?.value?.status || "Unknown Error"} arrow>
-            <Chip label="Pending" color="error" />
-          </Tooltip>
-        ) : (
-          params?.value?.status
-        ),
     },
   ]
 
@@ -135,16 +167,23 @@ const TransactionPage = () => {
     { field: 'sendingCountry', headerName: 'Sending Country', width: 130, headerClassName: 'super-app-theme--header' },
     { field: 'receivingCountry', headerName: 'Receiving Country', width: 130, headerClassName: 'super-app-theme--header' },
     { field: 'settlementCurrency', headerName: 'Settlement Currency', width: 150, headerClassName: 'super-app-theme--header' },
-    { field: 'settlementAmount', headerName: 'Settlement Amount', type: 'number', width: 150, headerClassName: 'super-app-theme--header', renderCell: (params: any) => params?.value?.toFixed(2) },
+    {
+      field: 'settlementAmount',
+      headerName: 'Settlement Amount',
+      type: 'number',
+      width: 150,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => params?.value?.toFixed(2),
+    },
     { field: 'reportingStatus', headerName: 'Reporting Status', width: 130, headerClassName: 'super-app-theme--header' },
     {
-      field: "inCreatedDate",
-      headerName: "Created Date",
+      field: 'inCreatedDate',
+      headerName: 'Created Date',
       flex: 1,
-      headerClassName: "super-app-theme--header",
+      headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        return helper.convertDateAndTime((params.row?.inCreatedDate))
-      }
+        return helper.convertDateAndTime(params.row?.inCreatedDate)
+      },
     },
     {
       field: 'action',
@@ -152,33 +191,37 @@ const TransactionPage = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
-        <IconButton onClick={() => {
-          handleNavigation(`/bop-details/${params.row.owTransactionNumber}/${params.row.tran_bop_attempt}`)
-        }}>
+        <IconButton
+          onClick={() => {
+            handleNavigation(`/bop-details/${params.row.owTransactionNumber}/${params.row.tran_bop_attempt}`)
+          }}
+        >
           <PreviewOutlined />
         </IconButton>
       ),
     },
-  ];
+  ]
 
-  const StpColumns = [{
-    field: 'transactionNo',
-    headerName: 'Transaction No.',
-    flex: 1,
-    headerClassName: 'super-app-theme--header',
-  },
-  {
-    field: 'fieldName',
-    headerName: 'Field',
-    flex: 1,
-    headerClassName: 'super-app-theme--header',
-  },
-  {
-    field: 'errorMessage',
-    headerName: 'Error Message',
-    flex: 1,
-    headerClassName: 'super-app-theme--header',
-  },]
+  const StpColumns = [
+    {
+      field: 'transactionNo',
+      headerName: 'Transaction No.',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'fieldName',
+      headerName: 'Field',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'errorMessage',
+      headerName: 'Error Message',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+  ]
 
   const [isDrawerOpen, setDrawerOpen] = useState(false)
   const [modalOpen, setmodalOpen] = useState(false)
@@ -196,9 +239,9 @@ const TransactionPage = () => {
   const [userList, setUserList] = useState([])
   const [creattrx, setCreatetrx] = useState('')
   const [zaphierlink, setZaphierLink] = useState('')
-  const [open, setOpen] = useState(false);
-  const [startDate, setStartDate] = useState<string | null>(null);
-  const [endDate, setEndDate] = useState<string | null>(null);
+  const [open, setOpen] = useState(false)
+  const [startDate, setStartDate] = useState<string | null>(null)
+  const [endDate, setEndDate] = useState<string | null>(null)
   const [stpErrors, setStpErrors] = useState<any>([])
 
   let applicant_service = new ApplicantService()
@@ -210,39 +253,38 @@ const TransactionPage = () => {
 
   const fetchStpErrorList = async (transactionId: string) => {
     try {
-      const response = await transaction_Service.getStpRules(transactionId)
-      console.log(response, "==============");
-      setStpErrors(response?.data)
+      const { data } = await transaction_Service.getStpRules(transactionId)
+      console.log(data, '==============')
+      setStpErrors(data)
     } catch (error) {
-      console.log("err", error)
+      console.log('err', error)
     }
   }
 
   useEffect(() => {
     setcommonloader(true)
-    applicant_service.getApplicantDetalis().then(data => {
+    applicant_service.getApplicantDetalis().then((data) => {
       let users = data.map((e) => {
         let benificiary_list = e.beneficiaryList.map((b) => {
-          return (
-            {
-              "benificaryId": b.beneficiaryId,
-              "name": b.beneficiaryName,
-              "accountHolderName": b.beneficiaryName,
-              "accountNumber": b.bankBicCode,
-              "bank": b.bankName,
-              "ifscCode": b.bankBicCode
-            })
+          return {
+            benificaryId: b.beneficiaryId,
+            name: b.beneficiaryName,
+            accountHolderName: b.beneficiaryName,
+            accountNumber: b.bankBicCode,
+            bank: b.bankName,
+            ifscCode: b.bankBicCode,
+          }
         })
 
-        return ({
-          "applicantId": e.applicant.applicantId,
+        return {
+          applicantId: e.applicant.applicantId,
           id: e.applicant.applicantId,
           //@ts-ignore
           name: e.applicant?.firstName,
           accountNumber: '**********789',
           profilePhoto: 'https://randomuser.me/api/portraits/women/4.jpg',
-          benificary: benificiary_list
-        })
+          benificary: benificiary_list,
+        }
       })
       setUserList(users as any)
       setcommonloader(false)
@@ -251,7 +293,7 @@ const TransactionPage = () => {
 
   useEffect(() => {
     setcommonloader(true)
-    transaction_Service.getInwardTransaction(selectedCountryOption == "IN" ? "IN" : "ZA").then(data => {
+    transaction_Service.getInwardTransaction(selectedCountryOption === 'IN' ? 'IN' : 'ZA').then((data) => {
       setInboundTransaction(data)
     })
 
@@ -260,7 +302,7 @@ const TransactionPage = () => {
       .then((data: TransactionDetailsResponse) => {
         let inbound: Array<TransactionInwardCalclulated>[] | any = data?.transactionDetailsList.map((e: any) => {
           //@ts-ignore
-          return ({
+          return {
             //@ts-ignore
             ...e.transactionInwardList,
             ...e.beneficiary,
@@ -270,12 +312,12 @@ const TransactionPage = () => {
             currency: e?.transactionInwardList?.settlementCurrency,
             settlement: helper.roundToTwoFixed(e?.transactionInwardList?.settlementAmount),
             destinationBank: e?.transactionInwardList?.destinationBankCode,
-            errorCause: " ",
+            errorCause: ' ',
             forex: e?.transactionOutward?.exchangeRates,
             date: e?.transactionOutward?.owCreatedDate,
             final_amount: e?.transactionOutward?.exchangeRates * e?.transactionOutward?.principalAmount,
-            applicant: e?.applicant
-          })
+            applicant: e?.applicant,
+          }
         })
 
         let outbound: Array<TransactionOutward> | any = data?.transactionDetailsList
@@ -297,22 +339,21 @@ const TransactionPage = () => {
               final_amount: helper.roundToTwoFixed(e?.transactionOutward?.exchangeRates * e?.transactionOutward?.principalAmount),
               applicant: e?.applicant,
               //@ts-ignore
-              inid: e?.transactionInwardNumber
-            };
+              inid: e?.transactionInwardNumber,
+            }
           })
           ?.filter((transaction) => {
-            if (selectedCountryOption === "IN") {
-              return (transaction.destination?.toLowerCase() !== "in");
-            }
-            else if ((selectedCountryOption === "SA")) {
-              return (transaction.destination?.toLowerCase() !== "za");
+            if (selectedCountryOption === 'IN') {
+              return transaction.destination?.toLowerCase() !== 'in'
+            } else if (selectedCountryOption === 'ZA') {
+              return transaction.destination?.toLowerCase() !== 'za'
             }
 
-            return true; // If selectedCountryOption is not "IN", include all destinations
-          });
+            return true // If selectedCountryOption is not "IN", include all destinations
+          })
         let user: Array<Applicant>[] | any = data?.transactionDetailsList.map((e) => {
           return {
-            ...e.applicant
+            ...e.applicant,
           }
         })
 
@@ -324,9 +365,9 @@ const TransactionPage = () => {
       .catch(
         //@ts-ignore
         (err: any) => {
-
-          console.log("err", err)
-        })
+          console.log('err', err)
+        },
+      )
   }, [])
 
   const openInNewTab = (url: any) => {
@@ -335,50 +376,52 @@ const TransactionPage = () => {
   }
 
   const addpayment = (create_trx: any) => {
-    if (trxStatus.toLocaleLowerCase() == "DRAFT" || trxStatus.toLocaleLowerCase() == "PENDING") {
-      transaction_Service.createTransaction(creattrx).then(data => {
+    if (trxStatus.toLocaleLowerCase() == 'DRAFT' || trxStatus.toLocaleLowerCase() == 'PENDING') {
+      transaction_Service.createTransaction(creattrx).then((data) => {
         console.log(data)
       })
     }
 
-    transaction_Service.createZaphierTransaction({
-      amount: (Number(create_trx?.totalpaybleamount)),
-      currency: "ZAR"
-    }).then(data => {
-      setZaphierLink(data?.redirectUrl)
-    })
+    transaction_Service
+      .createZaphierTransaction({
+        amount: Number(create_trx?.totalpaybleamount),
+        currency: 'ZAR',
+      })
+      .then((data) => {
+        setZaphierLink(data?.redirectUrl)
+      })
   }
 
   const handleViewMore = (row: any) => {
     settrxStatus(row?.status)
     let d = {
       //@ts-ignore
-      benificary: { "benificaryId": row?.beneficiaryId },
+      benificary: { benificaryId: row?.beneficiaryId },
       transferMethod: 'Bank Trannsfer',
       destinationCountry: row.destination,
       selectedTimeMethod: {
-        "id": 2,
-        "time": "8 hours",
-        "charges": 5,
-        "total": 200,
-        "segment": 2
+        id: 2,
+        time: '8 hours',
+        charges: 5,
+        total: 200,
+        segment: 2,
       },
       gatewayStatus: 'Success',
       amount: row?.settlementAmount,
       applicant: {
-        "applicantId": row.applicantId
+        applicantId: row.applicantId,
       },
       forex: row.exchangeRates,
       gatewayId: '13122',
       //@ts-ignore
       timecharge: row.charges,
-      sourceCurrency: selectedCountryoption == "SA" ? "ZAR" : "INR",
-      sourceCountry: selectedCountryoption == 'SA' ? "ZA" : "IN",
-      destinationCurrency: selectedCountryoption == 'SA' ? "INR" : "ZAR",
+      sourceCurrency: selectedCountryoption === 'ZA' ? 'ZAR' : 'INR',
+      sourceCountry: selectedCountryoption === 'ZA' ? 'ZA' : 'IN',
+      destinationCurrency: selectedCountryoption === 'ZA' ? 'INR' : 'ZAR',
       bopId: row?.bobId,
       // totalpaybleamount: (Number(row.value) + Number(row.charges)),
-      totalpaybleamount: (Number(row.value) * Number(row.exchangeRates)),
-      transactionId: row?.transactionNumber
+      totalpaybleamount: Number(row.value) * Number(row.exchangeRates),
+      transactionId: row?.transactionNumber,
     }
     setCreatetrx(d as any)
     // addpayment(d as any)
@@ -402,92 +445,107 @@ const TransactionPage = () => {
 
   // Close the dialog
   const handleClose = () => {
-    setOpen(false);
-  };
+    setOpen(false)
+  }
 
   // Handle applying filters
   const handleApply = () => {
-    setOpen(false);
-  };
+    setOpen(false)
+  }
 
   const handleNavigation = (url: string) => {
-    navigate(url);
+    navigate(url)
   }
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" gutterBottom color={theme.palette.secondary.main}>
         <strong>Transactions</strong>
       </Typography>
-      <ToggleButtonGroup value={transactionType} color='primary'
-        exclusive onChange={handleToggleTransactionType} sx={{ mb: 2 }}>
-        <ToggleButton value="inwards"
-          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_INWARD, 'canRead')}>
-          Inwards
-        </ToggleButton>
 
-        <ToggleButton value="outwards"
-          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canRead')}>
-          Outwards
-        </ToggleButton>
-      </ToggleButtonGroup>
+      <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'} sx={{ width: '80vw' }}>
+        <Box>
+          <ToggleButtonGroup value={transactionType} color="primary" exclusive onChange={handleToggleTransactionType} sx={{ mb: 2 }}>
+            <ToggleButton value="inwards">Inwards</ToggleButton>
+
+            <ToggleButton value="outwards">Outwards</ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
+
+        <Box>
+          <IconButton onClick={() => setToolOpen(true)} color="primary">
+            <SettingsAccessibilityRounded />
+          </IconButton>
+
+          <IconButton
+            onClick={() => {
+              handleNavigation('/recon-trx')
+            }}
+            color="primary"
+          >
+            <CurrencyExchangeIcon />
+          </IconButton>
+
+          <IconButton
+            onClick={() => {
+              handleNavigation('/utilization')
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
+            color="primary"
+          >
+            <AssessmentIcon
+              sx={{
+                marginBottom: '10%',
+              }}
+            />
+          </IconButton>
+
+          <IconButton
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
+            onClick={() => {
+              handleNavigation('/recon')
+            }}
+            color="primary"
+          >
+            <Sync
+              sx={{
+                marginBottom: '10%',
+              }}
+            />
+          </IconButton>
+
+          <Button
+            variant="outlined"
+            sx={{
+              marginBottom: '3%',
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
+            onClick={(e: any) => {
+              handleNavigation('/sendmoney')
+            }}
+          >
+            + Transaction
+          </Button>
+        </Box>
+      </Box>
 
       <Box
-        marginTop={2}
         sx={{
           width: '80vw',
-          height: '80vh',
-
+          height: '65vh',
           '& .super-app-theme--header': {
             backgroundColor: '#005099',
             color: 'white',
           },
+          '& .MuiDataGrid-row:nth-of-type(even)': {
+            backgroundColor: '#e3f2fd',
+          },
+          '& .MuiDataGrid-row:nth-of-type(odd)': {
+            backgroundColor: '#ffffff',
+          },
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <div
-            style={{
-              alignSelf: 'flex-end',
-            }}
-          >
-            <IconButton onClick={() => setToolOpen(true)}>
-              <SettingsAccessibilityRounded />
-            </IconButton>
-
-            <IconButton onClick={() => { handleNavigation('/utilization') }}
-              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
-              color="primary">
-              <AssessmentIcon sx={{
-                marginBottom: "10%"
-              }} />
-            </IconButton>
-
-            <IconButton
-              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
-              onClick={() => { handleNavigation('/recon') }} color="primary">
-              <Sync sx={{
-                marginBottom: "10%"
-              }} />
-            </IconButton>
-
-            <Button
-              variant="outlined"
-              sx={{ marginBottom: '10%' }}
-              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
-              onClick={() => { handleNavigation('/sendmoney') }}
-            >
-              + Transaction
-            </Button>
-          </div>
-        </div>
-
-        {transactionType === 'inwards' && <HasPermission
-          permission={'canRead'} module={local_service.get_modules()?.TRANSACTION_INWARD}>
+        {transactionType === 'inwards' && helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_INWARD, 'canRead') && (
           <DataGrid
             rows={inboundTransaction?.length > 0 ? inboundTransaction : []}
             //@ts-ignore
@@ -508,10 +566,9 @@ const TransactionPage = () => {
               },
             }}
           />
-        </HasPermission>}
+        )}
 
-        {transactionType === 'outwards' && <HasPermission
-          permission={'canRead'} module={local_service.get_modules()?.TRANSACTION_OUTWARD}>
+        {transactionType === 'outwards' && helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canRead') && (
           <DataGrid
             rows={outboundTransaction}
             columns={columns_outward}
@@ -531,7 +588,7 @@ const TransactionPage = () => {
               },
             }}
           />
-        </HasPermission>}
+        )}
       </Box>
 
       <Drawer
@@ -572,24 +629,48 @@ const TransactionPage = () => {
             </Typography>
             <Grid container spacing={2} mb={2}>
               <Grid item xs={12} md={6}>
-                <TextField label="Destination" variant="filled" fullWidth
+                <TextField
+                  label="Destination"
+                  variant="filled"
+                  fullWidth
                   //@ts-ignore
-                  defaultValue={transactionDetails.destination} size="small" disabled />
+                  defaultValue={transactionDetails.destination}
+                  size="small"
+                  disabled
+                />
               </Grid>
               <Grid item xs={12} md={6}>
-                <TextField label="Value" variant="filled" fullWidth
+                <TextField
+                  label="Value"
+                  variant="filled"
+                  fullWidth
                   //@ts-ignore
-                  defaultValue={transactionDetails.value?.toFixed(2)} size="small" disabled />
+                  defaultValue={transactionDetails.value?.toFixed(2)}
+                  size="small"
+                  disabled
+                />
               </Grid>
               <Grid item xs={12} md={6}>
-                <TextField label="Currency" variant="filled" fullWidth
+                <TextField
+                  label="Currency"
+                  variant="filled"
+                  fullWidth
                   //@ts-ignore
-                  defaultValue={transactionDetails?.principalCurrency} size="small" disabled />
+                  defaultValue={transactionDetails?.principalCurrency}
+                  size="small"
+                  disabled
+                />
               </Grid>
               <Grid item xs={12} md={6}>
-                <TextField label="Date" variant="filled" fullWidth
+                <TextField
+                  label="Date"
+                  variant="filled"
+                  fullWidth
                   //@ts-ignore
-                  defaultValue={helper.convertDateAndTime(transactionDetails.date)} size="small" disabled />
+                  defaultValue={helper.convertDateAndTime(transactionDetails.date)}
+                  size="small"
+                  disabled
+                />
               </Grid>
             </Grid>
 
@@ -622,24 +703,43 @@ const TransactionPage = () => {
             </Grid>
 
             <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>
+            <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2, color: theme.palette.primary.main }}>
               Applicant Details
             </Typography>
             <Grid container spacing={2} mb={2}>
               <Grid item xs={12} md={6}>
-                <TextField label="Applicant Id" variant="filled" fullWidth defaultValue={(transactionDetails?.applicant?.applicantId)} size="small" disabled />
+                <TextField
+                  label="Applicant Id"
+                  variant="filled"
+                  fullWidth
+                  defaultValue={transactionDetails?.applicant?.applicantId}
+                  size="small"
+                  disabled
+                />
               </Grid>
               <Grid item xs={12} md={6}>
-                <TextField label="Applicant Name" variant="filled" fullWidth defaultValue={transactionDetails?.applicant?.firstName} size="small" disabled />
+                <TextField
+                  label="Applicant Name"
+                  variant="filled"
+                  fullWidth
+                  defaultValue={transactionDetails?.applicant?.firstName}
+                  size="small"
+                  disabled
+                />
               </Grid>
             </Grid>
-            {
-              (trxStatus == "DRAFT" || trxStatus == "PENDING") ? (<>
-                <Button disabled={zaphierlink?.length > 0 ? false : true} variant="outlined" onClick={() => {
-                  closeDrawer()
-                  openInNewTab(zaphierlink)
-                  addpayment(creattrx)
-                }}>
+            {trxStatus == 'DRAFT' || trxStatus == 'PENDING' ? (
+              <>
+                <Button
+                  disabled={zaphierlink?.length > 0 ? false : true}
+                  variant="outlined"
+                  onClick={() => {
+                    closeDrawer()
+                    // window.location.href=zaphierlink;
+                    openInNewTab(zaphierlink)
+                    addpayment(creattrx)
+                  }}
+                >
                   <img
                     src="https://media.licdn.com/dms/image/v2/C560BAQEH3RSdlorC_g/company-logo_200_200/company-logo_200_200/0/1675795834026/zapier_logo?e=2147483647&v=beta&t=Hx-pHbieeJMPM-LUGcTe3O8iwYPYW7xUBc0W1uC2tBs"
                     alt="Zapier Logo"
@@ -647,8 +747,10 @@ const TransactionPage = () => {
                   />
                   Complete Payment
                 </Button>
-              </>) : (<></>)
-            }
+              </>
+            ) : (
+              <></>
+            )}
           </Box>
         )}
       </Drawer>
@@ -690,25 +792,25 @@ const TransactionPage = () => {
         </DialogActions>
       </Dialog>
 
-      < CompliancTool
+      <CompliancTool
         //@ts-ignore
         open={toolopen}
         //@ts-ignore
         setOpen={setToolOpen}
         //@ts-ignore
         userList={userList}
-        fetchUserDetails={() => { }}
+        fetchUserDetails={() => {}}
       />
 
       <Modal open={modalOpen} onClose={() => setmodalOpen(false)}>
         <Box
           sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
             width: 1000,
-            bgcolor: "background.paper",
+            bgcolor: 'background.paper',
             boxShadow: 24,
             p: 4,
             borderRadius: 2,
@@ -759,4 +861,3 @@ const TransactionPage = () => {
 }
 
 export default TransactionPage
-
