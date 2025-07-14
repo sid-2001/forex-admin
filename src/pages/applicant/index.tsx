@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Grid, TextField, Typography, Button, Dialog, DialogActions, DialogContent, DialogTitle, Tabs, Tab, Avatar, FormControl, Select, InputLabel, MenuItem, useTheme } from '@mui/material';
+import { Box, Grid, TextField, Typography, Button, Dialog, DialogActions, DialogContent, DialogTitle, Tabs, Tab, Avatar, FormControl, Select, InputLabel, MenuItem, useTheme, Paper } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import TransactionTable from '../transaction-table';
 import DocumentComponent from '../document-tab';
@@ -13,6 +13,16 @@ import HasPermission from '@/components/permissionWrapper';
 import { KycService } from '@/services/kyc.service';
 import ReferralTransactions from '@/components/referralTransactionTable';
 import { DataGrid } from '@mui/x-data-grid';
+import {Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,} from '@mui/material';
+
+import { IconButton } from '@mui/material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+
 
 const applicant_service = new ApplicantService();
 const beneficiary_service = new BeneficiaryService();
@@ -75,6 +85,7 @@ const ApplicantPage = () => {
   const [referralRedeemTransaction, setReferralRedeemTransaction] = useState<any>([])
   const [referralCreditedTransaction, setReferralCreditedTransaction] = useState<any>([])
   const [applicantImage, setApplicantImage] = useState<string>("")
+  const [applicantDocuments, setApplicantDocuments] = useState<any[]>([]);
 
   const countries = [
     { code: "IN", name: "India" },
@@ -116,6 +127,19 @@ const ApplicantPage = () => {
     "Richards Bay": "3900"
   };
 
+
+const [openDialog, setOpenDialog] = useState(false);
+const [selectedDocUrl, setSelectedDocUrl] = useState<string | null>(null);
+
+const handleViewDocument = (url: string) => {
+  setSelectedDocUrl(url);
+  setOpenDialog(true);
+};
+
+const handleCloseDialog = () => {
+  setOpenDialog(false);
+  setSelectedDocUrl(null);
+};
 
   function LimitPieChart() {
 
@@ -452,19 +476,35 @@ const ApplicantPage = () => {
     navigate('/applicant');
   };
 
-  const getdocumentDataByApplicantId = async () => {
-    if (!applicantId) return;
+  // const getdocumentDataByApplicantId = async () => {
+  //   if (!applicantId) return;
 
-    try {
-      const { data } = await applicant_service.getDocumentByApplicantId(applicantId);
-      if (data.length > 0) {
-        const record = data.find((doc: any) => doc.documentName === 'image')
-        setApplicantImage(record?.docUrl || "")
-      }
-    } catch (error) {
-      console.error('Error fetching documents:', error);
+  //   try {
+  //     const { data } = await applicant_service.getDocumentByApplicantId(applicantId);
+  //     if (data.length > 0) {
+  //       const record = data.find((doc: any) => doc.documentName === 'image')
+  //       setApplicantImage(record?.docUrl || "")
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching documents:', error);
+  //   }
+  // }
+  const getdocumentDataByApplicantId = async () => {
+  if (!applicantId) return;
+
+  try {
+    const { data } = await applicant_service.getDocumentByApplicantId(applicantId);
+    if (data.length > 0) {
+      const imageRecord = data.find((doc: any) => doc.documentName === 'image');
+      setApplicantImage(imageRecord?.docUrl || "");
+
+      setApplicantDocuments(data); // ✅ store all documents
     }
+  } catch (error) {
+    console.error('Error fetching documents:', error);
   }
+};
+
 
 
   return (
@@ -872,8 +912,173 @@ const ApplicantPage = () => {
         </Tabs>
 
         {/* { Tab Content */}
-        {selectedTab === 0 && helper.checkUserHasPermission(local_service.get_modules()?.BENEFICIARY, 'canRead') && <BeneficiaryTable beneficiary={beneficiaries}
-          deleteBeneficiary={beneficiaries} applicantId={applicantId} />}
+        
+         {/* {selectedTab === 0 && (
+  <>
+    <DocumentComponent 
+      //@ts-ignore
+      applicantId={applicantId} 
+    />
+          */}
+
+    {/* ✅ Applicant Documents Table */}
+    {/* <Box mt={4}>
+      <Typography variant="h6" gutterBottom color={theme.palette.secondary.main}>
+        <strong>Uploaded Documents</strong>
+      </Typography> */}
+
+      {/* {applicantDocuments.length > 0 ? (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead >
+              <TableRow>
+                <TableCell><strong>Document Name</strong></TableCell>
+                <TableCell><strong>Status</strong></TableCell>
+                <TableCell align="center"><strong>View</strong></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {applicantDocuments.map((doc, index) => (
+                <TableRow key={index}>
+                  <TableCell>{doc.documentName}</TableCell>
+                  <TableCell>Uploaded</TableCell>
+                  <TableCell align="center">
+                    <IconButton
+                      aria-label="view document"
+                      onClick={() => handleViewDocument(doc.docUrl)}
+                      color="primary"
+                    >
+                      <VisibilityIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      ) : (
+        <Typography variant="body2" mt={2}>No documents uploaded.</Typography>
+      )}
+    </Box> */}
+
+
+    {/* ✅ Document Viewer Modal
+    <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
+      <DialogTitle>Document Preview</DialogTitle>
+      <DialogContent>
+        {selectedDocUrl ? (
+          selectedDocUrl.endsWith('.pdf') ? (
+            <iframe
+              src={selectedDocUrl}
+              width="100%"
+              height="600px"
+              title="PDF Viewer"
+              style={{ border: 'none' }}
+            />
+          ) : (
+            <img
+              src={selectedDocUrl}
+              alt="Document"
+              style={{
+                width: '100%',
+                maxHeight: '600px',
+                objectFit: 'contain',
+                borderRadius: 8,
+              }}
+              onError={(e) => {
+                e.currentTarget.src = '';
+              }}
+            />
+          )
+        ) : (
+          <Typography>No document selected.</Typography>
+        )}
+      </DialogContent>
+    </Dialog>
+  </>
+)} */}
+{selectedTab === 0 && (
+      <>
+        {/* ✅ Uploaded Documents Section */}
+        <Box sx={{ width: '80vw', height: '30vh', mt: 4 }}>
+          <Typography variant="h6" gutterBottom color="primary">
+            <strong>Uploaded Documents</strong>
+          </Typography>
+          <DataGrid
+            rows={applicantDocuments}
+            columns={[
+              {
+                field: 'documentName',
+                headerName: 'Document Name',
+                flex: 1,
+                headerClassName: 'super-app-theme--header',
+              },
+              {
+                field: 'status',
+                headerName: 'Status',
+                flex: 1,
+                headerClassName: 'super-app-theme--header',
+                renderCell: () => <div style={{ color: 'green' }}>Uploaded</div>,
+              },
+              {
+                field: 'actions',
+                headerName: 'View',
+                flex: 0.5,
+                headerClassName: 'super-app-theme--header',
+                renderCell: (params: any) => (
+                  <IconButton onClick={() => handleViewDocument(params.row.docUrl)} color="primary">
+                    <VisibilityIcon />
+                  </IconButton>
+                ),
+              },
+            ]}
+            getRowId={(row) => row.id || row.documentName + Math.random()}
+           
+           
+            sx={{
+              backgroundColor: 'white',
+              '& .MuiDataGrid-columnHeaders': {
+                '& .super-app-theme--header': {
+                  backgroundColor: '#005099',
+                  color: 'white',
+                  fontWeight: 'bold',
+                },
+              },
+              '& .MuiDataGrid-row:nth-of-type(even)': {
+                backgroundColor: '#f9f9f9',
+              },
+            }}
+          />
+
+          {/* ✅ Document Viewer Modal */}
+          <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
+            <DialogTitle>Document Preview</DialogTitle>
+            <DialogContent>
+              {selectedDocUrl ? (
+                selectedDocUrl.endsWith('.pdf') ? (
+                  <iframe
+                    src={selectedDocUrl}
+                    width="100%"
+                    height="600px"
+                    title="PDF Viewer"
+                    style={{ border: 'none' }}
+                  />
+                ) : (
+                  <img
+                    src={selectedDocUrl}
+                    alt="Document"
+                    style={{ width: '100%', maxHeight: '600px', objectFit: 'contain' }}
+                    onError={(e) => (e.currentTarget.src = '')}
+                  />
+                )
+              ) : (
+                <Typography>No document selected.</Typography>
+              )}
+            </DialogContent>
+          </Dialog>
+        </Box>
+      </>
+    )}
         {selectedTab === 1 && helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canRead') && <TransactionTable
           //@ts-ignore
           applicantId={applicantId || ""}
