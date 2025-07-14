@@ -520,7 +520,7 @@ const TransactionPage = () => {
               marginBottom: '3%',
             }}
             disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
-            onClick={(e: any) => {
+            onClick={() => {
               handleNavigation('/sendmoney')
             }}
           >
