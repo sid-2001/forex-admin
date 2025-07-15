@@ -145,7 +145,6 @@ const ApplicantPage = () => {
     try {
       const data = await beneficiary_service.searchByApplicantId(applicantId)
       const beneficiaryArray = Array.isArray(data) ? data : [data]
-      console.log(beneficiaryArray)
       //@ts-ignore
       const formattedData = data?.map((beneficiary: any, index: number) => ({
         id: index + 1,
@@ -290,6 +289,10 @@ const ApplicantPage = () => {
     }
   }
 
+  const renderNameInitials = () => {
+    return applicantDetails?.firstName.charAt(0) + '' + applicantDetails?.lastName.charAt(0)
+  }
+
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.APPLICANT}>
       <Box sx={{ width: '50vw' }}>
@@ -319,7 +322,6 @@ const ApplicantPage = () => {
         <Box sx={{ width: '80vw' }}>
           <Grid container spacing={2} mb={2} alignItems="flex-start" justifyContent="space-between">
             <Grid item xs={12} sm={2} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
-              {/* <Typography mt={2}>Applicant Picture</Typography> */}
               <Box width={150} height={150} border="4px solid green" borderRadius="50%" display="flex" alignItems="center" justifyContent="center">
                 <Avatar
                   src={applicantImage}
@@ -329,7 +331,7 @@ const ApplicantPage = () => {
                     objectFit: 'cover',
                   }}
                 >
-                  {applicantDetails?.firstName + '' + applicantDetails?.lastName[0]}
+                  {applicantDetails && applicantDetails?.fistname && renderNameInitials()}
                 </Avatar>
               </Box>
             </Grid>
