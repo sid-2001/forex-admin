@@ -1,116 +1,94 @@
-import React from 'react';
-import { Box, Typography, Grid, Paper } from '@mui/material';
-import Passport from '../../assets/images/Passport_card.jpg';
+import { useState } from 'react'
+import { DataGrid } from '@mui/x-data-grid'
+import { Box, Typography, IconButton, Dialog, DialogTitle, DialogContent } from '@mui/material'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 
-const DocumentComponent = () => {
+const DocumentsListComponent = ({ documentRecords }: { documentRecords: any }) => {
+  const docColumns = [
+    {
+      field: 'documentName',
+      headerName: 'Document Name',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'status',
+      headerName: 'Status',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: () => <div style={{ color: 'green' }}>Uploaded</div>,
+    },
+    {
+      field: 'actions',
+      headerName: 'View',
+      flex: 0.5,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => (
+        <IconButton onClick={() => handleViewDocument(params.row.docUrl)} color="primary">
+          <VisibilityIcon />
+        </IconButton>
+      ),
+    },
+  ]
+  const [openDialog, setOpenDialog] = useState(false)
+  const [selectedDocUrl, setSelectedDocUrl] = useState<string | null>(null)
+
+  const handleViewDocument = (url: string) => {
+    setSelectedDocUrl(url)
+    setOpenDialog(true)
+  }
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false)
+    setSelectedDocUrl(null)
+  }
+
   return (
-    <Box sx={{ width: "80vw" }}>
-      <Grid container spacing={4}>
-        {/* Box 1: Image and ID Proof Information */}
-        <Grid item xs={12} sm={4} marginTop={1}>
-          <Paper sx={{ padding: 2, border: '2px dotted #0061B1', marginBottom: 4, display: 'flex', flexDirection: 'column' }}>
-           <Paper sx={{display:'flex'}}>
-  
-            <Typography variant="body1" sx={{  marginInline:1 }}>
-              <strong>ID Type:</strong>
-            </Typography>
-            <Typography variant="body1" sx={{ color:'blue',marginBottom: 2 }}>
-              Passport
-            </Typography>
-            </Paper>
-      
-            <img
-              src={Passport} 
-              alt="ID Proof"
-              style={{ maxWidth: '100%', height: 'auto', marginBottom: 2 }}
-            />
+    <Box sx={{ width: '80vw', height: '30vh', mt: 4 }}>
+      <Typography variant="h6" gutterBottom color="primary">
+        <strong>Uploaded Documents</strong>
+      </Typography>
+      <DataGrid
+        rows={documentRecords}
+        columns={docColumns}
+        getRowId={(row) => row.id || row.documentName + Math.random()}
+        sx={{
+          backgroundColor: 'white',
+          '& .MuiDataGrid-columnHeaders': {
+            '& .super-app-theme--header': {
+              backgroundColor: '#005099',
+              color: 'white',
+              fontWeight: 'bold',
+            },
+          },
+          '& .MuiDataGrid-row:nth-of-type(even)': {
+            backgroundColor: '#f9f9f9',
+          },
+        }}
+      />
 
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                  Passport Number:
-                </Typography>
-                <Typography variant="body1" sx={{ color: 'blue' }}>
-                  A12345678
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                  Expiry Date:
-                </Typography>
-                <Typography variant="body1" sx={{ color: 'blue' }}>
-                  12/12/2025
-                </Typography>
-              </Grid>
-            </Grid>
-
-            <Grid container sx={{ marginTop: 1 }}>
-              <Grid item xs={12}>
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                  Issuing Authority:
-                </Typography>
-                <Typography variant="body1" sx={{ color: 'blue' }}>
-                  Government of Country
-                </Typography>
-              </Grid>
-            </Grid>
-          </Paper>
-        </Grid>
-
-        {/* Box 2: Image and ID Proof Information */}
-        <Grid item xs={12} sm={4} marginTop={1}>
-          <Paper sx={{ padding: 2, border: '2px dotted #0061B1', marginBottom: 4, display: 'flex', flexDirection: 'column' }}>
-           <Paper sx={{display:'flex'}}>
-  
-            <Typography variant="body1" sx={{  marginInline:1 }}>
-              <strong>ID Type:</strong>
-            </Typography>
-            <Typography variant="body1" sx={{ color:'blue',marginBottom: 2 }}>
-              Passport
-            </Typography>
-            </Paper>
-      
-            <img
-              src={Passport} 
-              alt="ID Proof"
-              style={{ maxWidth: '100%', height: 'auto', marginBottom: 2 }}
-            />
-
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                  Passport Number:
-                </Typography>
-                <Typography variant="body1" sx={{ color: 'blue' }}>
-                  A12345678
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                  Expiry Date:
-                </Typography>
-                <Typography variant="body1" sx={{ color: 'blue' }}>
-                  12/12/2025
-                </Typography>
-              </Grid>
-            </Grid>
-
-            <Grid container sx={{ marginTop: 1 }}>
-              <Grid item xs={12}>
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                  Issuing Authority:
-                </Typography>
-                <Typography variant="body1" sx={{ color: 'blue' }}>
-                  Government of Country
-                </Typography>
-              </Grid>
-            </Grid>
-          </Paper>
-        </Grid>
-
-      </Grid>
+      {/* ✅ Document Viewer Modal */}
+      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
+        <DialogTitle>Document Preview</DialogTitle>
+        <DialogContent>
+          {selectedDocUrl ? (
+            selectedDocUrl.endsWith('.pdf') ? (
+              <iframe src={selectedDocUrl} width="100%" height="600px" title="PDF Viewer" style={{ border: 'none' }} />
+            ) : (
+              <img
+                src={selectedDocUrl}
+                alt="Document"
+                style={{ width: '100%', maxHeight: '600px', objectFit: 'contain' }}
+                onError={(e) => (e.currentTarget.src = '')}
+              />
+            )
+          ) : (
+            <Typography>No document selected.</Typography>
+          )}
+        </DialogContent>
+      </Dialog>
     </Box>
-  );
-};
+  )
+}
 
-export default DocumentComponent;
+export default DocumentsListComponent

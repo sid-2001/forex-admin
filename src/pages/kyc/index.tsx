@@ -137,7 +137,7 @@ const KYCPage = () => {
         if (params.value === '') color = 'warning'
         else if (params.value === 'Rejected') color = 'error'
 
-        return <Chip label={params.value == 'v' ? 'verified' : 'unverified'} color={params.value == 'v' ? 'success' : 'warning'} variant="outlined" />
+        return <Chip label={params.value == 'v' ? 'Verified' : 'Unverified'} color={params.value == 'v' ? 'success' : 'warning'} variant="outlined" />
       },
     },
     {
@@ -214,14 +214,10 @@ const KYCPage = () => {
       kycservice
         .verifyDocument(proofType?.id?.documentCode, proofType?.id?.kycId)
         .then((data) => {
-          console.log(data)
-          // window.location.reload()
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-
-      applicant_service.getApplicantKyc(selectedcountry).then((data) => {
+       
+console.log("KYC DATA:", data) // Log the compliance data
+                
+                applicant_service.getApplicantKyc(selectedcountry).then((data) => {
         setMockData(data)
         //@ts-ignores
         setFilteredData(data)
@@ -233,6 +229,12 @@ const KYCPage = () => {
           setCheckboxOpen(false)
         }
       })
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+
+
       // kycservice.verifyDocument(pro)
     } catch (error) {
       console.error('Error calling API:', error)
@@ -642,7 +644,7 @@ const KYCPage = () => {
                           </>
                         ) : (
                           <>
-                            Failed
+                            Pending
                             <IconButton
                               onClick={async () => {
                                 setCheckboxOpen(true)
