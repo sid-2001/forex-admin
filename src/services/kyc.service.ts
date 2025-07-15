@@ -15,6 +15,8 @@ export class KycService extends BaseService {
       console.log(err)
     }
   }
+  
+
 
   async unverifyDocument(doccode: string, kycid: string) {
     let url = `/api/kyc/documents/${kycid}/${doccode}/unVerify`
@@ -101,4 +103,15 @@ export class KycService extends BaseService {
       console.log(err)
     }
   }
+  async getKycById(kycId: string) {
+  const url = `/api/kyc/kyc/${kycId}`
+  try {
+    const { data } = await api1.get(url)
+    return data
+  } catch (err) {
+    console.error('Error fetching KYC by ID:', err)
+    return null
+  }
+}
+
 }

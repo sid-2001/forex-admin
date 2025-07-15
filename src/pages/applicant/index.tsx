@@ -913,94 +913,11 @@ const handleCloseDialog = () => {
 
         {/* { Tab Content */}
         
-         {/* {selectedTab === 0 && (
-  <>
-    <DocumentComponent 
-      //@ts-ignore
-      applicantId={applicantId} 
-    />
-          */}
-
-    {/* ✅ Applicant Documents Table */}
-    {/* <Box mt={4}>
-      <Typography variant="h6" gutterBottom color={theme.palette.secondary.main}>
-        <strong>Uploaded Documents</strong>
-      </Typography> */}
-
-      {/* {applicantDocuments.length > 0 ? (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead >
-              <TableRow>
-                <TableCell><strong>Document Name</strong></TableCell>
-                <TableCell><strong>Status</strong></TableCell>
-                <TableCell align="center"><strong>View</strong></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {applicantDocuments.map((doc, index) => (
-                <TableRow key={index}>
-                  <TableCell>{doc.documentName}</TableCell>
-                  <TableCell>Uploaded</TableCell>
-                  <TableCell align="center">
-                    <IconButton
-                      aria-label="view document"
-                      onClick={() => handleViewDocument(doc.docUrl)}
-                      color="primary"
-                    >
-                      <VisibilityIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      ) : (
-        <Typography variant="body2" mt={2}>No documents uploaded.</Typography>
-      )}
-    </Box> */}
-
-
-    {/* ✅ Document Viewer Modal
-    <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
-      <DialogTitle>Document Preview</DialogTitle>
-      <DialogContent>
-        {selectedDocUrl ? (
-          selectedDocUrl.endsWith('.pdf') ? (
-            <iframe
-              src={selectedDocUrl}
-              width="100%"
-              height="600px"
-              title="PDF Viewer"
-              style={{ border: 'none' }}
-            />
-          ) : (
-            <img
-              src={selectedDocUrl}
-              alt="Document"
-              style={{
-                width: '100%',
-                maxHeight: '600px',
-                objectFit: 'contain',
-                borderRadius: 8,
-              }}
-              onError={(e) => {
-                e.currentTarget.src = '';
-              }}
-            />
-          )
-        ) : (
-          <Typography>No document selected.</Typography>
-        )}
-      </DialogContent>
-    </Dialog>
-  </>
-)} */}
+         
 {selectedTab === 0 && (
       <>
         {/* ✅ Uploaded Documents Section */}
-        <Box sx={{ width: '80vw', height: '30vh', mt: 4 }}>
+        <Box sx={{ width: '80vw', height: '30vh', mt: 4 , paddingBottom:4}}>
           <Typography variant="h6" gutterBottom color="primary">
             <strong>Uploaded Documents</strong>
           </Typography>

@@ -215,20 +215,6 @@ const KYCPage = () => {
         .verifyDocument(proofType?.id?.documentCode, proofType?.id?.kycId)
         .then((data) => {
        
-console.log("KYC DATA:", data) // Log the compliance data
-                
-                applicant_service.getApplicantKyc(selectedcountry).then((data) => {
-        setMockData(data)
-        //@ts-ignores
-        setFilteredData(data)
-        setCommonLoader(false)
-        let selected_data = data.filter((e) => e.kycId == proofType?.id?.kycId)
-        if (selected_data.length > 0) {
-          setSelectedKYC(selected_data[0])
-          setKycStatus(selected_data[0]?.kycStatus)
-          setCheckboxOpen(false)
-        }
-      })
         })
         .catch((err) => {
           console.log(err)
@@ -546,11 +532,17 @@ console.log("KYC DATA:", data) // Log the compliance data
                     <Grid item xs={2}>
                       {/* {JSON.stringify(proofType?.document?.documentName)}
                        */}
-                      <TextField label="Document Name" fullWidth defaultValue={proofType?.document?.documentName} disabled />
+                      <TextField label="Document Name" fullWidth defaultValue={proofType?.document?.documentType} disabled />
                     </Grid>
                     <Grid item xs={2}>
-                      <TextField label="Verification Type" fullWidth defaultValue="Auto" disabled />
-                    </Grid>
+  <TextField
+    label="Verification Type"
+    fullWidth
+    defaultValue={proofType?.document?.complianceProcess === 'A' ? 'Auto' : 'Manual'}
+    disabled
+  />
+</Grid>
+
                     <Grid item xs={2}>
                       <TextField label="Document Status" fullWidth defaultValue="Uploaded" disabled />
                     </Grid>
@@ -704,6 +696,10 @@ console.log("KYC DATA:", data) // Log the compliance data
             boxShadow: 24,
             p: 3,
             borderRadius: 2,
+
+
+
+            
             overflowY: 'auto',
           }}
         >
