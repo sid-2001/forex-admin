@@ -18,7 +18,6 @@ class ApplicantService extends BaseService {
     let url = VITE_APP_KYC + '/api/kyc'
     try {
       let { data } = await axios.get(url)
-      // let response = await api1.post(url, payload)
       //@ts-ignore
       return data
     } catch (err) {
@@ -27,30 +26,20 @@ class ApplicantService extends BaseService {
     }
   }
   async getCompliance(id: any): Promise<any> {
-    let url = `/api/compliance/limits/check?applicantId=${id}`
-
-    // /compliance/limits/check?applicantId=APSIN2025040828909
+    const url = `/api/compliance/limits/check?applicantId=${id}`
     try {
-      // let { data } = await axios.get(url)
-      let { data } = await api1.get(url)
-      // let response = await api1.post(url, payload)
-      //@ts-ignore
-      console.log(data.data)
+      const { data } = await api1.get(url)
       return data
     } catch (err) {
       console.log('error in service file', err)
-      throw new Error('Unable to submit applicant form. Please try again.')
+      throw new Error('Please try again.')
     }
   }
 
   async getApplicantDetalis(): Promise<Array<ApplicantData>> {
     let url = `/api/applicant/applicant-all-details`
     try {
-      // let { data } = await axios.get(url)
       let { data } = await api1.get(url)
-      // let response = await api1.post(url, payload)
-      //@ts-ignore
-      console.log(data.data)
       return data
     } catch (err) {
       console.log('error in service file', err)
@@ -61,11 +50,7 @@ class ApplicantService extends BaseService {
   async getApplicantDetalisByCountry(country: any): Promise<Array<ApplicantData>> {
     let url = `/api/applicant/applicant-all-details/residenceCountry/${country}`
     try {
-      // let { data } = await axios.get(url)
       let { data } = await api1.get(url)
-      // let response = await api1.post(url, payload)
-      //@ts-ignore
-      console.log(data.data)
       return data
     } catch (err) {
       console.log('error in service file', err)
@@ -77,10 +62,6 @@ class ApplicantService extends BaseService {
     let url = `/api/transactions/transaction-details/applicant/id/${applicantId}`
     try {
       let data = await api1.get(url)
-      // let response = await api1.post(url, payload)
-      //@ts-ignore
-
-      console.log('data ios herererer=>', data)
       return data.transactionDetailsList
     } catch (err) {
       console.log('error in service file', err)
@@ -91,9 +72,7 @@ class ApplicantService extends BaseService {
   async getApplicantKyc(country: any): Promise<Array<KYCData>> {
     let url = `/api/kyc/kyc/kycCountry/${country}`
     try {
-      // let { data } = await axios.get(url)
       let data = await api1.get(url)
-      //@ts-ignore
       return data
     } catch (err) {
       console.log('error in service file', err)
@@ -102,11 +81,9 @@ class ApplicantService extends BaseService {
   }
 
   async searchByApplicantId(applicantId: string): Promise<ApplicantResponse> {
-    // let url = `/api/applicants/${applicantId}`;
     let url = `/api/applicant/applicant-all-details/applicantId/${applicantId}`
     try {
-      let data = await api1.get(url)
-      // let {data} = await axios.get(url)
+      const { data } = await api1.get(url)
       return data
     } catch (err) {
       console.log('Error in service file:', err)
@@ -136,7 +113,7 @@ class ApplicantService extends BaseService {
     }
   }
 
-  async getDocumentByApplicantId(applicantId: string): Promise<any> { 
+  async getDocumentByApplicantId(applicantId: string): Promise<any> {
     let url = `/api/kyc/kyc/document-status/${applicantId}`
     try {
       let { data } = await api1.get(url)
