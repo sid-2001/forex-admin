@@ -371,7 +371,10 @@ console.log("KYC DATA:", data) // Log the compliance data
             <Grid container>
               <Grid item xs={2}>
                 <Avatar
-                  src={renderUserImage()} // Replace with actual image URL
+                  src={renderUserImage()?.replace(
+  "http://64.227.139.142",
+  "https://api.impronics.com"
+)} // Replace with actual image URL
                   sx={{
                     width: 150,
                     height: 150,

@@ -24,7 +24,10 @@ const DocumentsListComponent = ({ documentRecords }: { documentRecords: any }) =
       flex: 0.5,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
-        <IconButton onClick={() => handleViewDocument(params.row.docUrl)} color="primary">
+        <IconButton onClick={() => handleViewDocument(params.row.docUrl?.replace(
+  "http://64.227.139.142",
+  "https://api.impronics.com"
+))} color="primary">
           <VisibilityIcon />
         </IconButton>
       ),

@@ -206,7 +206,11 @@ export default function ApplicantList(
             InputProps={{
               startAdornment: selectedUser && (
                 <InputAdornment position="start">
-                  <Avatar src={selectedUser.profilePhoto} alt={selectedUser.name} />
+                  <Avatar src={selectedUser.profilePhoto.replace(
+  "http://64.227.139.142",
+  "https://api.impronics.com"
+)  } alt={selectedUser.name} />
+
                 </InputAdornment>
               ),
             }}
@@ -224,7 +228,10 @@ export default function ApplicantList(
                     onClick={() => handleUserSelect(b)}
                   >
                     <ListItemAvatar>
-                      <Avatar src={b.profilePhoto} alt={b.name} />
+                      <Avatar src={b.profilePhoto.replace(
+  "http://64.227.139.142",
+  "https://api.impronics.com"
+) } alt={b.name} />
                     </ListItemAvatar>
                     <ListItemText
                       primary={b.name}
