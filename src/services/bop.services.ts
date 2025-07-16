@@ -6,7 +6,7 @@ export class BopService extends BaseService {
   async getBopListing(): Promise<any> {
     const url = '/api2/bob/bop/getAll'
     try {
-      const data = await api1.get(url)
+      const { data } = await api1.get(url)
       return data
     } catch (err) {
       console.log(err)
@@ -24,7 +24,7 @@ export class BopService extends BaseService {
   }
 
   async getBopCategoryDetailByTransactionId(transactionId: any, transaction_attempt: any): Promise<any> {
-    const url = `/api2/bob/bopCategory/${transactionId}/${transaction_attempt}`
+    const url = `/api2/bob/bop/bopCategory/${transactionId}/${transaction_attempt}`
     try {
       const { data } = await api1.get(url)
       return data
@@ -64,11 +64,9 @@ export class BopService extends BaseService {
   }
 
   async releaseBopData(payload: any): Promise<any> {
-    // const url = '/api2/bob/bop/release-bopdata'
+    const url = '/api2/bob/bop/release-bopdata'
     try {
-      const url = 'http://localhost:9000/bop/release-bopdata'
-      // const data = await api1.post(url, payload)
-      const data = await axios.post(url, payload)
+      const data = await api1.post(url, payload)
       return data
     } catch (err) {
       console.log(err)

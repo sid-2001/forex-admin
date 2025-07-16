@@ -105,8 +105,8 @@ const BopScreen: React.FC = () => {
       ...bopCat,
     }
     try {
-      const reponse = await bopService.releaseBopData(payload)
-      //  window.location.reload()
+      const response = await bopService.releaseBopData(payload)
+      window.location.reload()
     } catch (error) {
       console.error(error)
     }
@@ -219,7 +219,14 @@ const BopScreen: React.FC = () => {
             onClick={() => {
               setConfirmReleaseModal(!confirmReleaseModal)
             }}
-            disabled={formData.status === 'RELEASED' || !helper.checkUserHasPermission(local_service.get_modules()?.BOP, 'canUpdate')}
+            disabled={
+              !(
+                stpErrors.length === 0 &&
+                formData.transaction_status === 'RELEASED' &&
+                helper.checkUserHasPermission(local_service.get_modules()?.BOP, 'canUpdate') &&
+                formData.status == 'Pending'
+              )
+            }
           >
             Release
           </Button>
@@ -266,7 +273,7 @@ const BopScreen: React.FC = () => {
         </Box>
 
         <Grid container spacing={2} mt={1}>
-          <Grid item xs={3}>
+          <Grid item xs={2.3}>
             <TextField
               size="small"
               label="Transaction Number"
@@ -277,7 +284,7 @@ const BopScreen: React.FC = () => {
               fullWidth
             />
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={2.3}>
             <TextField
               size="small"
               label="Transaction Attempt"
@@ -288,10 +295,21 @@ const BopScreen: React.FC = () => {
               disabled
             />
           </Grid>
-          <Grid item xs={3}>
-            <TextField size="small" label="Status" disabled variant="outlined" name="status" value={formData.status || ''} fullWidth />
+          <Grid item xs={2.3}>
+            <TextField
+              size="small"
+              label="Transaction Status"
+              disabled
+              variant="outlined"
+              name="transaction_status"
+              value={formData.transaction_status || ''}
+              fullWidth
+            />
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={2.3}>
+            <TextField size="small" label="Bop Status" disabled variant="outlined" name="status" value={formData.status || ''} fullWidth />
+          </Grid>
+          <Grid item xs={2.3}>
             <TextField size="small" label="Sarb Status" disabled variant="outlined" name="sap_status" value={formData.sap_status || ''} fullWidth />
           </Grid>
         </Grid>
@@ -963,9 +981,9 @@ const BopScreen: React.FC = () => {
               size="small"
               label="Non Resident Account Identifier"
               variant="outlined"
-              name="non_resident_account_identifier"
+              name="non_resident_identifier"
               fullWidth
-              value={formData.non_resident_account_identifier || ''}
+              value={formData.non_resident_identifier || ''}
               disabled
             />
           </Grid>

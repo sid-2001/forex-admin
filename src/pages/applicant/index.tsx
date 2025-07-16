@@ -17,7 +17,6 @@ import {
 import { useNavigate, useParams } from 'react-router-dom'
 import TransactionTable from '../transaction-table'
 import { ApplicantService } from '@/services/applicant.service'
-import { BeneficiaryService } from '@/services/beneficiary.service'
 import { PieChart } from '@mui/x-charts/PieChart/PieChart'
 import { HelperService } from '@/helpers/helper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
@@ -25,13 +24,13 @@ import HasPermission from '@/components/permissionWrapper'
 import { KycService } from '@/services/kyc.service'
 import ReferralTransactions from '@/components/referralTransactionTable'
 import DocumentsListComponent from '../document-tab'
+import BeneficiaryTable from '@/components/beneficiary-table'
 
 const ApplicantPage = () => {
   const navigate = useNavigate()
   const theme = useTheme()
   const { applicantId } = useParams()
   const applicant_service = new ApplicantService()
-  const beneficiary_service = new BeneficiaryService()
   const helper = new HelperService()
   const local_service = new LocalStorageService()
   const kyc_service = new KycService()
@@ -41,7 +40,6 @@ const ApplicantPage = () => {
   const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false)
   const [openSaveDialog, setOpenSaveDialog] = useState(false)
   const [selectedTab, setSelectedTab] = useState(0)
-  const [beneficiaries, setBeneficiaries] = useState<any[]>([])
   const [transactions, setTransactions] = useState<any[]>([])
   const [utilizedLimit, setutilizedLimit] = useState(0)
   const [availableLimit, setAvailableLimit] = useState(0)
@@ -105,67 +103,52 @@ const ApplicantPage = () => {
   }
 
   useEffect(() => {
-    // Fetch compliance data with testing data appended
-    applicant_service.getCompliance(applicantId).then((comp_data) => {
-      setutilizedLimit(comp_data?.utilizedLimit)
-      setAvailableLimit(comp_data?.availableLimit)
-    })
-    fetchBeneficiaries()
+    fetchComplianceLimitData()
+    fetchApplicantData()
+    fetchTransactionsList()
     fetchReferralRedeemedTransactions()
     fetchReferralCreditedTransactions()
-    getdocumentDataByApplicantId()
+    getdocumentlistByApplicantId()
   }, [])
 
-  useEffect(() => {
-    const fetchApplicantData = async () => {
-      if (!applicantId) {
-        console.error('Applicant ID is missing in the URL')
-        return
-      }
-
-      try {
-        const response = await applicant_service.searchByApplicantId(applicantId)
-        const { applicant, applicantContactDetails }: any = response
-        setApplicantDetails({
-          ...applicant,
-          email: applicantContactDetails?.[1]?.contactDetails,
-          phone: applicantContactDetails?.[0]?.contactDetails,
-        })
-      } catch (error) {
-        console.error('Error fetching applicant data:', error)
-      }
+  const fetchComplianceLimitData = async () => {
+    if (!applicantId) {
+      return
     }
 
-    fetchApplicantData() // Fetch data when the component mounts or applicantId changes
-  }, [applicantId])
-
-  const fetchBeneficiaries = useCallback(async () => {
-    if (!applicantId) return
-
     try {
-      const data = await beneficiary_service.searchByApplicantId(applicantId)
-      const beneficiaryArray = Array.isArray(data) ? data : [data]
-      //@ts-ignore
-      const formattedData = data?.map((beneficiary: any, index: number) => ({
-        id: index + 1,
-        beneficiaryId: beneficiary?.beneficiaryId,
-        beneficiaryName: beneficiary?.beneficiaryName,
-        accountNumber: beneficiary?.accountNumber,
-        bankName: beneficiary?.bankName,
-        bankBicCode: beneficiary?.bankBicCode,
-        idType: beneficiary?.idType,
-      }))
-      setBeneficiaries(formattedData || [])
+      const response = await applicant_service.getCompliance(applicantId)
+      setutilizedLimit(response?.utilizedLimit)
+      setAvailableLimit(response?.availableLimit)
     } catch (error) {
-      console.error('Error fetching beneficiaries:', error)
+      console.error('Error fetching applicant data:', error)
     }
-  }, [applicantId])
+  }
 
-  const fetchTransactions = useCallback(async () => {
+  const fetchApplicantData = async () => {
+    if (!applicantId) {
+      console.error('Applicant ID is missing in the URL')
+      return
+    }
+
+    try {
+      const response = await applicant_service.searchByApplicantId(applicantId)
+      const { applicant, applicantContactDetails, beneficiaryList }: any = response
+      setApplicantDetails({
+        ...applicant,
+        email: applicantContactDetails?.[1]?.contactDetails,
+        phone: applicantContactDetails?.[0]?.contactDetails,
+        beneficiaryList,
+      })
+    } catch (error) {
+      console.error('Error fetching applicant data:', error)
+    }
+  }
+
+  const fetchTransactionsList = useCallback(async () => {
     if (!applicantId) return
 
     try {
-      console.log('getting trx for applicant Id', applicantId)
       const data = await applicant_service.getTransactionsByApplicantId(applicantId)
 
       const formattedData = data?.map((transaction: any, index: number) => ({
@@ -195,7 +178,6 @@ const ApplicantPage = () => {
         inid: transaction?.transactionInwardNumber,
       }))
       setTransactions(formattedData || [])
-      console.log(formattedData)
     } catch (error) {
       console.error('Error fetching transactions:', error)
     }
@@ -219,6 +201,20 @@ const ApplicantPage = () => {
       setReferralCreditedTransaction(data || [])
     } catch (error) {
       console.error('Error fetching data:', error)
+    }
+  }, [applicantId])
+
+  const getdocumentlistByApplicantId = useCallback(async () => {
+    if (!applicantId) return
+    try {
+      const { data } = await applicant_service.getDocumentByApplicantId(applicantId)
+      if (data.length > 0) {
+        const imageRecord = data.find((doc: any) => doc.documentName === 'image')
+        setApplicantImage(imageRecord?.docUrl || '')
+        setApplicantDocuments(data) // ✅ store all documents
+      }
+    } catch (error) {
+      console.error('Error fetching documents:', error)
     }
   }, [applicantId])
 
@@ -262,31 +258,10 @@ const ApplicantPage = () => {
     newValue: number,
   ) => {
     setSelectedTab(newValue)
-    if (newValue === 0) {
-      await fetchBeneficiaries()
-    } else if (newValue === 1) {
-      await fetchTransactions()
-    }
   }
 
   const handleBack = () => {
     navigate('/applicant')
-  }
-
-  const getdocumentDataByApplicantId = async () => {
-    if (!applicantId) return
-
-    try {
-      const { data } = await applicant_service.getDocumentByApplicantId(applicantId)
-      if (data.length > 0) {
-        const imageRecord = data.find((doc: any) => doc.documentName === 'image')
-        setApplicantImage(imageRecord?.docUrl || '')
-
-        setApplicantDocuments(data) // ✅ store all documents
-      }
-    } catch (error) {
-      console.error('Error fetching documents:', error)
-    }
   }
 
   const renderNameInitials = () => {
@@ -479,7 +454,8 @@ const ApplicantPage = () => {
 
         {/* ✅ Uploaded Documents Section */}
         {selectedTab === 0 && <DocumentsListComponent documentRecords={applicantDocuments || []} />}
-        {selectedTab === 1 && helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canRead') && (
+        {selectedTab === 1 && <BeneficiaryTable beneficiary={applicantDetails?.beneficiaryList || []} applicantId={applicantId} />}
+        {selectedTab === 2 && (
           <TransactionTable
             //@ts-ignore
             applicantId={applicantId || ''}
@@ -488,8 +464,8 @@ const ApplicantPage = () => {
           />
         )}
 
-        {selectedTab === 2 && <ReferralTransactions referralRecords={referralRedeemTransaction || []} referralType={'Redeemed'} />}
-        {selectedTab === 3 && <ReferralTransactions referralRecords={referralCreditedTransaction || []} referralType={'Credited'} />}
+        {selectedTab === 3 && <ReferralTransactions referralRecords={referralRedeemTransaction || []} referralType={'Redeemed'} />}
+        {selectedTab === 4 && <ReferralTransactions referralRecords={referralCreditedTransaction || []} referralType={'Credited'} />}
 
         {/* Action Buttons */}
         <Grid container spacing={2} mt={1}>
