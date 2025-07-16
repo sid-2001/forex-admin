@@ -89,13 +89,13 @@ const TransactionPage = () => {
     { field: 'forex', headerName: 'Exchange Rate', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'charges', headerName: 'Charges', flex: 1, headerClassName: 'super-app-theme--header' },
 
-    {
-      field: 'reporting',
-      headerName: 'Reporting Status',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => (params?.value?.reporting == 'Reported' ? params.value.status : params?.value?.status),
-    },
+    // {
+    //   field: 'reporting',
+    //   headerName: 'Reporting Status',
+    //   flex: 1,
+    //   headerClassName: 'super-app-theme--header',
+    //   renderCell: (params: any) => (params?.value?.reporting == 'Reported' ? params.value.status : params?.value?.status),
+    // },
     {
       field: 'owCreatedDate',
       headerName: 'Date',
@@ -130,8 +130,8 @@ const TransactionPage = () => {
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <Chip
-          label={params.value === 'N' ? 'No Error' : 'Error'}
-          color={params.value === 'N' ? 'success' : 'error'}
+          label={params.value === 'Y' ? 'Error' : 'No Error'}
+          color={params.value === 'Y' ? 'error' : 'success'}
           onClick={() => {
             if (params.value === 'Y') {
               setmodalOpen(true)
@@ -175,7 +175,7 @@ const TransactionPage = () => {
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => params?.value?.toFixed(2),
     },
-    { field: 'reportingStatus', headerName: 'Reporting Status', width: 130, headerClassName: 'super-app-theme--header' },
+    // { field: 'reportingStatus', headerName: 'Reporting Status', width: 130, headerClassName: 'super-app-theme--header' },
     {
       field: 'inCreatedDate',
       headerName: 'Created Date',
@@ -254,7 +254,6 @@ const TransactionPage = () => {
   const fetchStpErrorList = async (transactionId: string) => {
     try {
       const { data } = await transaction_Service.getStpRules(transactionId)
-      console.log(data, '==============')
       setStpErrors(data)
     } catch (error) {
       console.log('err', error)

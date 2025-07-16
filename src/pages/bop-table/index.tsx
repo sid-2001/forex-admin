@@ -56,12 +56,24 @@ const BopTable: React.FC = () => {
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'status',
-      headerName: 'Status',
+      field: 'transaction_status',
+      headerName: 'Transaction Status',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        return <div style={{ color: statusColors[params.row.status.toUpperCase()] }}>{params.row.status.toUpperCase()}</div>
+        return (
+          <div style={{ color: statusColors[params?.row?.transaction_status.toUpperCase()] }}>{params?.row?.transaction_status.toUpperCase()}</div>
+        )
+      },
+    },
+
+    {
+      field: 'status',
+      headerName: 'Bop Status',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return <div style={{ color: statusColors[params?.row?.status.toUpperCase()] }}>{params?.row?.status.toUpperCase()}</div>
       },
     },
     {
@@ -70,7 +82,7 @@ const BopTable: React.FC = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        return <div>{params.row.sap_status.toUpperCase()}</div>
+        return <div style={{ color: statusColors[params?.row?.status.toUpperCase()] }}>{params?.row?.sap_status.toUpperCase()}</div>
       },
     },
     {
