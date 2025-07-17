@@ -72,6 +72,24 @@ export class KycService extends BaseService {
       return null as any
     }
   }
+  async getKYCbyid(kyc_id: any): Promise<
+    Array<{
+      commentId: string
+      commentText: string
+      commentDate: string // ISO format
+      user: string
+      kycId: string
+    }>
+  > {
+    let url = `/api/kyc/kyc/${kyc_id}`
+    try {
+      let data = api1.get(url)
+      return data
+    } catch (err) {
+      console.log(err)
+      return null as any
+    }
+  }
 
   //@ts-ignore
   async getCharges(souceCountry, destinationCountry, amount, segment) {
@@ -103,15 +121,7 @@ export class KycService extends BaseService {
       console.log(err)
     }
   }
-  async getKycById(kycId: string) {
-  const url = `/api/kyc/kyc/${kycId}`
-  try {
-    const { data } = await api1.get(url)
-    return data
-  } catch (err) {
-    console.error('Error fetching KYC by ID:', err)
-    return null
-  }
-}
+  
+
 
 }

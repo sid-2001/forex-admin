@@ -115,6 +115,7 @@ function App() {
               <Route path="transaction" element={<NewTransactionPage />} />
               <Route path="sendmoney" element={<SendMoneyPage />} />
               <Route path="kyc" element={<KYCPage />} />
+              <Route path="kyc/:id" element={<KYCPage />} />
               <Route path="profile" element={<UserTable />} />
               <Route path="profile/add" element={<UserAdd />} />
               <Route path="profile/edit/:staffId" element={<UserAdd />} />

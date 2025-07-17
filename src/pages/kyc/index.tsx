@@ -27,11 +27,12 @@ import { Close, Comment, Send } from '@mui/icons-material'
 import { loaderStateNew, selectedCountryState } from '@/states/state'
 import { useRecoilState } from 'recoil'
 import CloseIcon from '@mui/icons-material/Close'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import ConfirmationModal from '@/components/logout/logout.component'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import HasPermission from '@/components/permissionWrapper'
 import { HelperService } from '@/helpers/helper'
+
 
 const KYCPage = () => {
   const [open, setOpen] = useState(false)
@@ -40,6 +41,7 @@ const KYCPage = () => {
     verificationStatus: '',
     country: '',
   })
+ 
   const [filteredData, setFilteredData] = useState<Array<Customer>>([])
   const [selectedKYC, setSelectedKYC] = useState<any>(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
@@ -53,6 +55,7 @@ const KYCPage = () => {
   const [newComment, setNewComment] = useState('')
   const [loading, setLoading] = useState(false)
   const [prooftype, setProoftype] = useState()
+  const { id: kycIdFromRoute } = useParams()
 
   const navigate = useNavigate()
   const theme = useTheme()
@@ -154,14 +157,21 @@ const KYCPage = () => {
   ]
 
   useEffect(() => {
-    setCommonLoader(true)
-    applicant_service.getApplicantKyc(selectedcountry).then((data) => {
-      setMockData(data)
-      //@ts-ignores
+  setCommonLoader(true)
+
+  applicant_service.getApplicantKyc(selectedcountry).then((data:any) => {
+    setMockData(data)
+    setCommonLoader(false)
+
+    if (kycIdFromRoute) {
+      const filtered:any = data.filter((item:any) => item.kycId === kycIdFromRoute)
+      setFilteredData(filtered)
+    } else {
       setFilteredData(data)
-      setCommonLoader(false)
-    })
-  }, [])
+    }
+  })
+}, [selectedcountry, kycIdFromRoute]) // include kycIdFromRoute in dependencies
+
 
   const handleAddComment = async () => {
     if (newComment.trim() === '') return
@@ -207,25 +217,51 @@ const KYCPage = () => {
     }
   }
 
-  const verifyProofType = async (proofType: any) => {
-    try {
-      // Your API call logic here
-      setCommonLoader(true)
-      kycservice
-        .verifyDocument(proofType?.id?.documentCode, proofType?.id?.kycId)
-        .then((data) => {
+  // const verifyProofType = async (proofType: any) => {
+  //   try {
+  //     // Your API call logic here
+  //     setCommonLoader(true)
+  //     kycservice
+  //       .verifyDocument(proofType?.id?.documentCode, proofType?.id?.kycId)
+  //       .then((data) => {
        
-        })
-        .catch((err) => {
-          console.log(err)
-        })
+  //       })
+  //       .catch((err) => {
+  //         console.log(err)
+  //       })
 
 
-      // kycservice.verifyDocument(pro)
-    } catch (error) {
-      console.error('Error calling API:', error)
+  //     // kycservice.verifyDocument(pro)
+  //   } catch (error) {
+  //     console.error('Error calling API:', error)
+  //   }
+  // }
+  const verifyProofType = async (proofType: any) => {
+  try {
+    setCommonLoader(true)
+    await kycservice.verifyDocument(proofType?.id?.documentCode, proofType?.id?.kycId)
+
+    await kycservice.changeKycStatus('v', proofType?.id?.kycId)
+
+    const data = await applicant_service.getApplicantKyc(selectedcountry)
+    setMockData(data)
+    //@ts-ignore
+    setFilteredData(data)
+    
+    let selected_data = data.filter((e) => e.kycId == proofType?.id?.kycId)
+    if (selected_data.length > 0) {
+      setSelectedKYC(selected_data[0])
+      setKycStatus(selected_data[0]?.kycStatus)
+      setCheckboxOpen(false)
     }
+
+    setCommonLoader(false)
+  } catch (error) {
+    console.error('Error calling API:', error)
+    setCommonLoader(false)
   }
+}
+
 
   const unverifyProofType = async (proofType: any) => {
     try {
@@ -261,15 +297,15 @@ const KYCPage = () => {
     }
   }
 
-  const openDrawer = (row: any) => {
-    setKycStatus(row?.kycStatus)
-    setSelectedKYC(row)
-    setIsDrawerOpen(true)
-    kycservice.getComment(row?.kycId).then((data) => {
-      setComments(data.filter((e) => e.kycId == row?.kycI))
-    })
-  }
-
+   const openDrawer = (row: any) => {
+     setKycStatus(row?.kycStatus)
+     setSelectedKYC(row)
+     setIsDrawerOpen(true)
+     kycservice.getKYCbyid(row?.kycId).then((data) => {
+       setComments(data.filter((e) => e.kycId == row?.kycI))
+     })
+   }
+  
   const closeDrawer = () => {
     setSelectedKYC(null)
     setIsDrawerOpen(false)
@@ -566,7 +602,6 @@ const KYCPage = () => {
                           {/* view more */}
                         </u>
                       </Typography>
-                      {/* <Button variant="outlined">Uploaded</Button> */}
                     </Grid>
 
                     <Grid item xs={2}>
@@ -658,11 +693,8 @@ const KYCPage = () => {
                       {/* <TextField label="Additional Comments" fullWidth defaultValue={proofType?.verificationStatusComments} disabled /> */}
                       <IconButton
                         onClick={() => {
-                          setOpen(true)
-                          kycservice.getComment(selectedKYC?.kycId).then((data) => {
-                            setComments(data.filter((e) => e.kycId == selectedKYC?.kycId))
-                          })
-                          kycservice.getComment(selectedKYC?.kycId)
+                          setOpen(true)                          
+                          kycservice.getKYCbyid(selectedKYC?.kycId)
                         }}
                       >
                         <Comment />
