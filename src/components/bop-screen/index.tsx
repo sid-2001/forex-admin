@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Typography, Grid, Box, TextField, Select, FormControl, InputLabel, MenuItem, Button, ListItem, List } from '@mui/material'
+import { Typography, Grid, Box, TextField, Select, FormControl, InputLabel, MenuItem, Button } from '@mui/material'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
@@ -572,7 +572,7 @@ const BopScreen: React.FC = () => {
                 />
               </LocalizationProvider>
             </Grid>
-            <Grid item xs={2.3}>
+            <Grid item xs={2}>
               <TextField
                 size="small"
                 label="Id Type"
@@ -586,7 +586,7 @@ const BopScreen: React.FC = () => {
                 disabled={bopData?.status === disableFormFieldsViaStatus}
               />
             </Grid>
-            <Grid item xs={2.3}>
+            <Grid item xs={2.5}>
               <TextField
                 size="small"
                 label="Id Details"
@@ -600,7 +600,7 @@ const BopScreen: React.FC = () => {
                 disabled={bopData?.status === disableFormFieldsViaStatus}
               />
             </Grid>
-            <Grid item xs={2.3}>
+            <Grid item xs={1.5}>
               <TextField
                 size="small"
                 label="Contact Type"
@@ -615,7 +615,7 @@ const BopScreen: React.FC = () => {
                 // required={true}
               />
             </Grid>
-            <Grid item xs={2.3}>
+            <Grid item xs={2}>
               <TextField
                 size="small"
                 label="Contact Details"
@@ -630,7 +630,10 @@ const BopScreen: React.FC = () => {
                 // required={true}
               />
             </Grid>
-            <Grid item xs={2.3}>
+            <Grid item xs={2}>
+              <TextField size="small" label="Email" variant="outlined" name="email" fullWidth value={formData.email || ''} disabled />
+            </Grid>
+            <Grid item xs={2}>
               <TextField
                 size="small"
                 label="Account Identifier"

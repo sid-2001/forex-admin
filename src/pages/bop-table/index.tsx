@@ -62,7 +62,7 @@ const BopTable: React.FC = () => {
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return (
-          <div style={{ color: statusColors[params?.row?.transaction_status.toUpperCase()] }}>{params?.row?.transaction_status.toUpperCase()}</div>
+          <div style={{ color: statusColors[params?.row?.transaction_status?.toUpperCase()] }}>{params?.row?.transaction_status?.toUpperCase()}</div>
         )
       },
     },
