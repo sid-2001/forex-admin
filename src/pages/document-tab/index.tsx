@@ -1,43 +1,97 @@
-// import React from 'react';
-// import { Box, Typography, Grid, Paper } from '@mui/material';
-// import Passport from '../../assets/images/Passport_card.jpg';
+import { useState } from 'react'
+import { DataGrid } from '@mui/x-data-grid'
+import { Box, Typography, IconButton, Dialog, DialogTitle, DialogContent } from '@mui/material'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 
-// type DocumentComponentProps = {
-//   applicantId: string;
-// };
-// //@ts-ignore
-// const DocumentComponent: React.FC<DocumentComponentProps> = ({ applicantId }) => {
-//   // your code
-// };
+const DocumentsListComponent = ({ documentRecords }: { documentRecords: any }) => {
+  const docColumns = [
+    {
+      field: 'documentName',
+      headerName: 'Document Name',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'status',
+      headerName: 'Status',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: () => <div style={{ color: 'green' }}>Uploaded</div>,
+    },
+    {
+      field: 'actions',
+      headerName: 'View',
+      flex: 0.5,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => (
+        <IconButton onClick={() => handleViewDocument(params.row.docUrl?.replace(
+  "http://64.227.139.142",
+  "https://api.impronics.com"
+))} color="primary">
+          <VisibilityIcon />
+        </IconButton>
+      ),
+    },
+  ]
+  const [openDialog, setOpenDialog] = useState(false)
+  const [selectedDocUrl, setSelectedDocUrl] = useState<string | null>(null)
 
+  const handleViewDocument = (url: string) => {
+    setSelectedDocUrl(url)
+    setOpenDialog(true)
+  }
 
+  const handleCloseDialog = () => {
+    setOpenDialog(false)
+    setSelectedDocUrl(null)
+  }
 
-// export default DocumentComponent;
-import React, { useEffect, useState } from 'react';
-import {
-  Box,
-  Typography,
-  Grid,
-  TextField,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button
-} from '@mui/material';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import { ApplicantService } from '@/services/applicant.service';
+  return (
+    <Box sx={{ width: '80vw', height: '30vh', mt: 4 }}>
+      <Typography variant="h6" gutterBottom color="primary">
+        <strong>Uploaded Documents</strong>
+      </Typography>
+      <DataGrid
+        rows={documentRecords}
+        columns={docColumns}
+        getRowId={(row) => row.id || row.documentName + Math.random()}
+        sx={{
+          backgroundColor: 'white',
+          '& .MuiDataGrid-columnHeaders': {
+            '& .super-app-theme--header': {
+              backgroundColor: '#005099',
+              color: 'white',
+              fontWeight: 'bold',
+            },
+          },
+          '& .MuiDataGrid-row:nth-of-type(even)': {
+            backgroundColor: '#f9f9f9',
+          },
+        }}
+      />
 
-const applicant_service = new ApplicantService();
+      {/* ✅ Document Viewer Modal */}
+      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
+        <DialogTitle>Document Preview</DialogTitle>
+        <DialogContent>
+          {selectedDocUrl ? (
+            selectedDocUrl.endsWith('.pdf') ? (
+              <iframe src={selectedDocUrl} width="100%" height="600px" title="PDF Viewer" style={{ border: 'none' }} />
+            ) : (
+              <img
+                src={selectedDocUrl}
+                alt="Document"
+                style={{ width: '100%', maxHeight: '600px', objectFit: 'contain' }}
+                onError={(e) => (e.currentTarget.src = '')}
+              />
+            )
+          ) : (
+            <Typography>No document selected.</Typography>
+          )}
+        </DialogContent>
+      </Dialog>
+    </Box>
+  )
+}
 
-const DocumentComponent = ({ applicantId }: { applicantId: string }) => {
-  return(
-    <>
-    
-    </>
-  );
-  
-};
-
-export default DocumentComponent;
+export default DocumentsListComponent

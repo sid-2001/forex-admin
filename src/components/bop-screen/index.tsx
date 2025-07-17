@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Typography, Grid, Box, TextField, Select, FormControl, InputLabel, MenuItem, Button } from '@mui/material'
+import { Typography, Grid, Box, TextField, Select, FormControl, InputLabel, MenuItem, Button, ListItem, List } from '@mui/material'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
@@ -10,6 +10,8 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import HasPermission from '../permissionWrapper'
 import ConfirmationModal from '../logout/logout.component'
 import { useTheme } from '@emotion/react'
+import { BopService } from '@/services/bop.services'
+import { TransactionService } from '@/services/transaction.service'
 
 const countryCodes = {
   India: 'IN',
@@ -17,18 +19,10 @@ const countryCodes = {
   IN: 'IN',
   ZA: 'ZA',
 }
-
-const { VITE_FOREX_NODE_APP_URL, VITE_APP_BACKEND } = import.meta.env
-
-const backendUrl = VITE_FOREX_NODE_APP_URL
-const baseUrl = VITE_APP_BACKEND
-const local_service = new LocalStorageService()
-
 const disableFormFieldsViaStatus = 'RELEASED'
 const genderArry = [
   { label: 'Male', value: 'Male' },
   { label: 'Female', value: 'Female' },
-  // {label: 'Other', value: 'Other'},
 ]
 
 const BopScreen: React.FC = () => {
@@ -39,12 +33,16 @@ const BopScreen: React.FC = () => {
   const [bopCat, setbopCat] = useState<any>({})
   const [bopCategory, setBopCategory] = useState<any>([])
   const [confirmReleaseModal, setConfirmReleaseModal] = useState<boolean>(false)
+  const [stpErrors, setStpErrors] = useState<any>([])
   const theme = useTheme()
-  // const [bopCategoryStaticData, setBopCategoryStaticData] = useState<any>([])
 
   const storedLocalData = localStorage.getItem('staff_access') || ''
   const parseData = JSON.parse(storedLocalData)
   const helper = new HelperService()
+  const bopService = new BopService()
+  const transaction_Service = new TransactionService()
+  const local_service = new LocalStorageService()
+
   //@ts-ignore
   const userLoggedInCountry = countryCodes[parseData?.staffCountry]
 
@@ -71,10 +69,8 @@ const BopScreen: React.FC = () => {
     // const isValid = validateForm();
     // console.log(isValid, "---------------", formData)
     // if (!isValid) return;
-    const myHeaders = new Headers()
-    myHeaders.append('Content-Type', 'application/json')
 
-    const resp = JSON.stringify({
+    const payload = {
       bopData: {
         ...formData,
         name: `${formData.first_name} ${formData.middle_name} ${formData.last_name}`,
@@ -85,21 +81,14 @@ const BopScreen: React.FC = () => {
         bop_description: bopCat.bop_description,
         id: bopCat.id,
       },
-    })
-
-    const requestOptions: any = {
-      method: 'PUT',
-      headers: myHeaders,
-      body: resp,
-      redirect: 'follow',
     }
 
-    fetch(`${backendUrl}/bop/${formData.id}`, requestOptions)
-      .then((response) => response.json())
-      .then(() => {
-        window.location.reload()
-      })
-      .catch((error) => console.error(error))
+    try {
+      const response = await bopService.updateBopData(payload, formData.id)
+      window.location.reload()
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: any; value: any }>) => {
@@ -109,121 +98,83 @@ const BopScreen: React.FC = () => {
       [name]: value,
     }))
   }
-
-  const handleReleaseBopData = () => {
-    const myHeaders = new Headers()
-    myHeaders.append('Content-Type', 'application/json')
-
-    const payload = JSON.stringify({
-      transaction_attempt: Number(transaction_attempt),
-      transaction_number: transactionId,
-    })
-
-    const requestOptions: any = {
-      method: 'POST',
-      headers: myHeaders,
-      body: payload,
-      redirect: 'follow',
+  // need to check zero stp rules and trx should be released means funds collected.
+  const handleReleaseBopData = async () => {
+    const payload = {
+      ...bopData,
+      ...bopCat,
     }
-
-    fetch(`${backendUrl}/bop/release-bopdata`, requestOptions)
-      .then((response) => response.json())
-      .then(() => window.location.reload())
-      .catch((error) => console.error(error))
+    try {
+      const response = await bopService.releaseBopData(payload)
+      window.location.reload()
+    } catch (error) {
+      console.error(error)
+    }
   }
-
-  const handleCancelReplaceBopFunc = () => {
-    const myHeaders = new Headers()
-    myHeaders.append('Content-Type', 'application/json')
-
+  // need to update this api
+  const handleCancelReplaceBopFunc = async () => {
     delete formData.id
     delete bopCat.id
-
-    const payload = JSON.stringify({
+    const payload = {
       newBopData: {
         ...formData,
         name: `${formData.first_name} ${formData.middle_name} ${formData.last_name}`,
         sap_status: 'Pending',
       },
       newbopCategoryData: { ...bopCat },
-    })
-
-    const requestOptions: any = {
-      method: 'POST',
-      headers: myHeaders,
-      body: payload,
-      redirect: 'follow',
     }
-
-    fetch(`${backendUrl}/bop/cancelReplaceTransaction`, requestOptions)
-      .then((response) => response.json())
-      .then(() => window.location.reload())
-      .catch((error) => console.error(error))
+    try {
+      const reponse = await bopService.cancelReplaceBop(payload)
+      window.location.reload()
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   const fetchBopBetailById = async () => {
-    fetch(`${backendUrl}/bop/${transactionId}/${transaction_attempt}`, {
-      method: 'GET', // The HTTP method (GET by default, so this is optional)
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        setBopData({ ...result.data })
-        const { data } = result
-        const userName = data?.name.replace(/\s+/g, ' ')
-        setFormData({
-          ...data,
-          first_name: userName.split(' ')[0],
-          middle_name: userName.split(' ').length === 3 ? userName.split(' ')[1] : '',
-          last_name: userName.split(' ').length === 3 ? userName.split(' ')[2] : userName.split(' ')[1],
-          dob: dayjs(data.dob).format('YYYY-MM-DD'),
-        })
+    try {
+      const data = await bopService.getBopDetailByTransactionId(transactionId, transaction_attempt)
+      setBopData(data)
+      const userName = data?.name.replace(/\s+/g, ' ')
+      setFormData({
+        ...data,
+        first_name: userName.split(' ')[0],
+        middle_name: userName.split(' ').length === 3 ? userName.split(' ')[1] : '',
+        last_name: userName.split(' ').length === 3 ? userName.split(' ')[2] : userName.split(' ')[1],
+        dob: dayjs(data.dob).format('YYYY-MM-DD'),
       })
-      .catch((error) => console.error(error))
+    } catch (error) {
+      console.error('There was a problem with the fetch operation:', error)
+    }
   }
 
   const fetchBopCategoryDataById = async () => {
-    const response = await fetch(`${backendUrl}/bopCategory/${transactionId}/${transaction_attempt}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`)
-    }
-    const { data } = await response.json()
+    try {
+      const response = await bopService.getBopCategoryDetailByTransactionId(transactionId, transaction_attempt)
+      setbopCat({
+        ...response,
+        principal_amount: helper.roundToTwoFixed(response?.principal_amount) || 0,
+        settlement_amount: helper.roundToTwoFixed(response?.settlement_amount) || 0,
+      })
 
-    setbopCat({
-      ...data,
-      principal_amount: helper.roundToTwoFixed(data.principal_amount),
-      settlement_amount: helper.roundToTwoFixed(data.settlement_amount),
-    })
-
-    if (data.bop_category) {
-      fetchStaticBopMapping(data.bop_category)
+      if (response?.bop_category) {
+        fetchStaticBopMapping(response.bop_category)
+      }
+    } catch (error) {
+      console.error('There was a problem with the fetch operation:', error)
     }
   }
 
   const fetchStaticBopMapping = async (bopCategoryValue: string) => {
     //@ts-ignore
     const countryCode = countryCodes[parseData?.staffCountry]
-    const url = `${baseUrl}/api/static-table/static-data/key1/Bop%20Mapping/countryCode/ZA`
     try {
-      const response = await fetch(url)
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`)
-      }
-
-      const data = await response.json()
+      const response = await bopService.getStaticTableBopData(countryCode)
       //Mapping of bop data
-      if (data.key2 === userLoggedInCountry && data.value1 === bopCategoryValue) {
+      if (response.key2 === userLoggedInCountry && response.value1 === bopCategoryValue) {
         setbopCat((prev: any) => ({
           ...prev,
-          bop_category: data.value2,
+          bop_category: response.value2,
         }))
       }
     } catch (error) {
@@ -231,65 +182,51 @@ const BopScreen: React.FC = () => {
     }
   }
 
-  // const fetchBopStaticData = async () => {
-  //   try {
-  //     const countryCode = parseData?.citizenship === 'India' ? 'IN' : 'ZA'
-  //     const response = await fetch(`${baseUrl}/api/static-table/forex-static-data/by-country?countryCode=${countryCode}`);
-
-  //     if (!response.ok) {
-  //       throw new Error(`HTTP error! Status: ${response.status}`);
-  //     }
-
-  //     const data = await response.json();
-  //     setBopCategoryStaticData(data);
-  //     const account_identifier_text = data.find((item: any) => item.moduleName === 'Account Identifier')
-  //     const non_resident_Acc_identifier_text = data.find((item: any) => item.moduleName === 'Non Resident Account Identifier')
-
-  //     setAccountIdentifierValue(account_identifier_text.keyValue)
-  //     setBeneficiaryAccountIdentifierValue(non_resident_Acc_identifier_text.keyValue)
-
-  //   } catch (error) {
-  //     console.error('Error fetching data:', error);
-  //   }
-  // }
-
   const fetchBopMatrixCategoriesListing = async () => {
-    const url = `${baseUrl}/api/static-table/forex-bop/by-country?country=${userLoggedInCountry}`
     try {
-      const response = await fetch(url)
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`)
-      }
-
-      const { data } = await response.json()
+      const { data } = await bopService.getBopMatrixCategoriesListing(userLoggedInCountry)
       setBopCategory(data)
     } catch (error) {
       console.error('Error fetching data:', error)
     }
   }
 
+  const fetchStpErrorList = async () => {
+    try {
+      const { data } = await transaction_Service.getStpRules(transactionId)
+      setStpErrors(data)
+    } catch (error) {
+      console.log('err', error)
+    }
+  }
+
   useEffect(() => {
     if (transactionId) {
-      console.log('hello here')
       fetchBopBetailById()
       fetchBopCategoryDataById()
       fetchBopMatrixCategoriesListing()
-      // fetchStaticBopMapping()
+      fetchStpErrorList()
     }
   }, [])
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>
       <Box style={{ width: '80vw', height: '80vh', overflowY: 'scroll', padding: '10px' }}>
-        <Box sx={{ textAlign: 'right' }}>
+        <Box sx={{ textAlign: 'right', marginBottom: '10px' }}>
           <Button
             variant="outlined"
             color="primary"
             onClick={() => {
               setConfirmReleaseModal(!confirmReleaseModal)
             }}
-            disabled={formData.status === 'RELEASED' || !helper.checkUserHasPermission(local_service.get_modules()?.BOP, 'canUpdate')}
+            disabled={
+              !(
+                stpErrors.length === 0 &&
+                formData.transaction_status === 'RELEASED' &&
+                helper.checkUserHasPermission(local_service.get_modules()?.BOP, 'canUpdate') &&
+                formData.status == 'Pending'
+              )
+            }
           >
             Release
           </Button>
@@ -303,6 +240,27 @@ const BopScreen: React.FC = () => {
             Cancel Replace
           </Button>
         </Box>
+
+        {stpErrors.length > 0 && (
+          <Box mb={2} border={'1px solid rgba(0, 0, 0, 0.26)'} borderRadius={2} padding={'6px'}>
+            <Typography
+              variant="h5"
+              gutterBottom
+              // @ts-ignore
+              color={theme.palette.secondary.main}
+            >
+              STP Errors
+            </Typography>
+            <Typography variant="body1" color={'red'}>
+              Note: These errors need to be fixed before releasing a transaction.
+            </Typography>
+            {stpErrors.map((item: any) => (
+              <Typography variant="body2" key={item.id}>
+                * Field[{item.fieldName}] : {item.errorMessage}
+              </Typography>
+            ))}
+          </Box>
+        )}
         <Box>
           <Typography
             variant="h5"
@@ -315,7 +273,7 @@ const BopScreen: React.FC = () => {
         </Box>
 
         <Grid container spacing={2} mt={1}>
-          <Grid item xs={3}>
+          <Grid item xs={2.3}>
             <TextField
               size="small"
               label="Transaction Number"
@@ -326,7 +284,7 @@ const BopScreen: React.FC = () => {
               fullWidth
             />
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={2.3}>
             <TextField
               size="small"
               label="Transaction Attempt"
@@ -337,10 +295,21 @@ const BopScreen: React.FC = () => {
               disabled
             />
           </Grid>
-          <Grid item xs={3}>
-            <TextField size="small" label="Status" disabled variant="outlined" name="status" value={formData.status || ''} fullWidth />
+          <Grid item xs={2.3}>
+            <TextField
+              size="small"
+              label="Transaction Status"
+              disabled
+              variant="outlined"
+              name="transaction_status"
+              value={formData.transaction_status || ''}
+              fullWidth
+            />
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={2.3}>
+            <TextField size="small" label="Bop Status" disabled variant="outlined" name="status" value={formData.status || ''} fullWidth />
+          </Grid>
+          <Grid item xs={2.3}>
             <TextField size="small" label="Sarb Status" disabled variant="outlined" name="sap_status" value={formData.sap_status || ''} fullWidth />
           </Grid>
         </Grid>
@@ -396,23 +365,6 @@ const BopScreen: React.FC = () => {
               disabled
               fullWidth
             />
-            {/* <FormControl fullWidth>
-            <InputLabel>Sub Category</InputLabel>
-            <Select
-              label="Sub Category"
-              variant="outlined"
-              name="bop_sub_category"
-              value={bopCat?.bop_sub_category || ''}
-              size="small"
-              disabled
-            >
-              {bopCategory.map((item: any, ind: any) => (
-                <MenuItem key={ind} value={item.bopSubCategoryCd}>
-                  {item.bopSubCategoryCd}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl> */}
           </Grid>
 
           <Grid item xs={6}>
@@ -425,23 +377,6 @@ const BopScreen: React.FC = () => {
               disabled
               fullWidth
             />
-            {/* <FormControl fullWidth>
-            <InputLabel>Category Description</InputLabel>
-            <Select
-              label="Category Description"
-              variant="outlined"
-              name="bop_description"
-              value={bopCat?.bop_description || ''}
-              size="small"
-              disabled
-            >
-              {bopCategory.map((item: any, ind: any) => (
-                <MenuItem key={ind} value={item.categoryDescription}>
-                  {item.categoryDescription}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl> */}
           </Grid>
 
           <Grid item xs={3}>
@@ -499,23 +434,6 @@ const BopScreen: React.FC = () => {
               disabled
               fullWidth
             />
-            {/* <FormControl fullWidth>
-            <InputLabel>Excon Ruling Indicator</InputLabel>
-            <Select
-              label="Excon Ruling Indicator"
-              variant="outlined"
-              name="excon_ruling_indicator"
-              disabled
-              value={bopCat?.excon_ruling_indicator || ''}
-              size="small"
-            >
-              {bopCategoryStaticData.filter((item: any) => item.moduleName === "Excon Ruling Indicator").map((mItem: any, ind: any) => (
-                <MenuItem key={ind} value={mItem.keyValue}>
-                  {mItem.keyValue}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl> */}
           </Grid>
           <Grid item xs={3}>
             <TextField
@@ -527,23 +445,6 @@ const BopScreen: React.FC = () => {
               disabled
               fullWidth
             />
-            {/* <FormControl fullWidth>
-            <InputLabel>Excon Ruling Section</InputLabel>
-            <Select
-              label="Excon Ruling Section"
-              variant="outlined"
-              name="excon_ruling_section"
-              value={bopCat?.excon_ruling_section || ''}
-              size="small"
-              disabled
-            >
-              {bopCategoryStaticData.filter((item: any) => item.moduleName === "Excon Ruling Section").map((mItem: any, ind: any) => (
-                <MenuItem key={ind} value={mItem.keyValue}>
-                  {mItem.keyValue}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl> */}
           </Grid>
           <Grid item xs={3}>
             <TextField
@@ -555,23 +456,6 @@ const BopScreen: React.FC = () => {
               disabled
               fullWidth
             />
-            {/* <FormControl fullWidth>
-            <InputLabel>Adhoc Subject</InputLabel>
-            <Select
-              label="Adhoc Subject"
-              variant="outlined"
-              name="adhoc_subject"
-              value={bopCat?.adhoc_subject || ''}
-              size="small"
-              disabled
-            >
-              {bopCategoryStaticData.filter((item: any) => item.moduleName === "Adhoc Subject").map((mItem: any, ind: any) => (
-                <MenuItem key={ind} value={mItem.keyValue}>
-                  {mItem.keyValue}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl> */}
           </Grid>
           <Grid item xs={3}>
             <TextField
@@ -583,23 +467,6 @@ const BopScreen: React.FC = () => {
               disabled
               fullWidth
             />
-            {/* <FormControl fullWidth>
-            <InputLabel>Subject Description</InputLabel>
-            <Select
-              label="Subject Description"
-              variant="outlined"
-              name="subject_description"
-              value={bopCat?.subject_description || ''}
-              size="small"
-              disabled
-            >
-              {bopCategoryStaticData.filter((item: any) => item.moduleName === "Subject Description").map((mItem: any, ind: any) => (
-                <MenuItem key={ind} value={mItem.keyValue}>
-                  {mItem.keyValue}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl> */}
           </Grid>
         </Grid>
 
@@ -902,7 +769,6 @@ const BopScreen: React.FC = () => {
               gutterBottom
               color={
                 //@ts-ignore
-
                 theme.palette.secondary.main
               }
             >
@@ -1065,28 +931,7 @@ const BopScreen: React.FC = () => {
               disabled
             />
           </Grid>
-          {/* <Grid item xs={3}>
-          <TextField
-            label="Address Line 3"
-            fullWidth
-            size="small"
-            name="benificiary_physical_address_line3"
-            variant="outlined"
-            value={formData.benificiary_physical_address_line3 || ''}
-            disabled
-          />
-        </Grid> */}
-          {/* <Grid item xs={2}>
-          <TextField
-            label="Suburb"
-            fullWidth
-            size="small"
-            name="benificiary_suburb"
-            variant="outlined"
-            value={formData.benificiary_suburb || ''}
-            disabled
-          />
-        </Grid> */}
+
           <Grid item xs={2.3}>
             <TextField
               label="City"
@@ -1136,9 +981,9 @@ const BopScreen: React.FC = () => {
               size="small"
               label="Non Resident Account Identifier"
               variant="outlined"
-              name="non_resident_account_identifier"
+              name="non_resident_identifier"
               fullWidth
-              value={formData.non_resident_account_identifier || ''}
+              value={formData.non_resident_identifier || ''}
               disabled
             />
           </Grid>

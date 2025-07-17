@@ -25,7 +25,8 @@ import { KycService } from '@/services/kyc.service'
 import ReferralTransactions from '@/components/referralTransactionTable'
 import DocumentsListComponent from '../document-tab'
 import BeneficiaryTable from '@/components/beneficiary-table'
- 
+import axios from 'axios'
+
 const ApplicantPage = () => {
   const navigate = useNavigate()
   const theme = useTheme()
@@ -34,7 +35,6 @@ const ApplicantPage = () => {
   const helper = new HelperService()
   const local_service = new LocalStorageService()
   const kyc_service = new KycService()
- 
   const [isEditable, setIsEditable] = useState(false)
   const [isChanged, setIsChanged] = useState(false)
   const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false)
@@ -49,11 +49,13 @@ const ApplicantPage = () => {
   const [applicantImage, setApplicantImage] = useState<string>('')
   const [applicantDocuments, setApplicantDocuments] = useState<any[]>([])
   const [applicantDetails, setApplicantDetails] = useState<any>({})
- 
+  const [kycId, setKycId] = useState<string | null>(null);
+    const { id: kycIdFromRoute } = useParams()
+
   function LimitPieChart() {
     const utilized = Math.abs(utilizedLimit)
     const available = Math.abs(availableLimit)
- 
+
     return (
       <Box>
         <PieChart
@@ -101,7 +103,6 @@ const ApplicantPage = () => {
       </Box>
     )
   }
- 
   useEffect(() => {
     fetchComplianceLimitData()
     fetchApplicantData()
@@ -109,13 +110,13 @@ const ApplicantPage = () => {
     fetchReferralRedeemedTransactions()
     fetchReferralCreditedTransactions()
     getdocumentlistByApplicantId()
+   // fetchKycId()
   }, [])
- 
+
   const fetchComplianceLimitData = async () => {
     if (!applicantId) {
       return
     }
- 
     try {
       const response = await applicant_service.getCompliance(applicantId)
       setutilizedLimit(response?.utilizedLimit)
@@ -124,13 +125,11 @@ const ApplicantPage = () => {
       console.error('Error fetching applicant data:', error)
     }
   }
- 
   const fetchApplicantData = async () => {
     if (!applicantId) {
       console.error('Applicant ID is missing in the URL')
       return
     }
- 
     try {
       const response = await applicant_service.searchByApplicantId(applicantId)
       const { applicant, applicantContactDetails, beneficiaryList }: any = response
@@ -144,13 +143,13 @@ const ApplicantPage = () => {
       console.error('Error fetching applicant data:', error)
     }
   }
- 
+
   const fetchTransactionsList = useCallback(async () => {
     if (!applicantId) return
- 
+
     try {
       const data = await applicant_service.getTransactionsByApplicantId(applicantId)
- 
+
       const formattedData = data?.map((transaction: any, index: number) => ({
         ...transaction?.transactionOutward,
         ...transaction?.beneficiary,
@@ -182,10 +181,10 @@ const ApplicantPage = () => {
       console.error('Error fetching transactions:', error)
     }
   }, [applicantId])
- 
+
   const fetchReferralRedeemedTransactions = useCallback(async () => {
     if (!applicantId) return
- 
+
     try {
       const data = await kyc_service.getReferralRedeemedTransactions(applicantId)
       setReferralRedeemTransaction(data.data || [])
@@ -203,7 +202,6 @@ const ApplicantPage = () => {
       console.error('Error fetching data:', error)
     }
   }, [applicantId])
- 
   const getdocumentlistByApplicantId = useCallback(async () => {
     if (!applicantId) return
     try {
@@ -217,7 +215,6 @@ const ApplicantPage = () => {
       console.error('Error fetching documents:', error)
     }
   }, [applicantId])
- 
   const handleToggleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       setIsEditable(true)
@@ -229,7 +226,6 @@ const ApplicantPage = () => {
       }
     }
   }
- 
   const handleSaveChanges = () => {
     if (isChanged) {
       setOpenSaveDialog(true) // Show save confirmation dialog
@@ -237,21 +233,21 @@ const ApplicantPage = () => {
       alert('No changes made to save!')
     }
   }
- 
+
   const handleSaveConfirm = () => {
     setOpenSaveDialog(false)
     setIsEditable(false)
   }
- 
+
   const handleDiscardChanges = () => {
     setOpenConfirmationDialog(false)
     setIsEditable(false)
   }
- 
+
   const handleCancelEdit = () => {
     setOpenConfirmationDialog(false)
   }
- 
+
   const handleTabChange = async (
     //@ts-ignore
     event: React.ChangeEvent<{}>,
@@ -259,15 +255,44 @@ const ApplicantPage = () => {
   ) => {
     setSelectedTab(newValue)
   }
- 
+
   const handleBack = () => {
     navigate('/applicant')
   }
- 
+
   const renderNameInitials = () => {
     return applicantDetails?.firstName.charAt(0) + '' + applicantDetails?.lastName.charAt(0)
   }
- 
+
+//   const fetchKycId = async () => {
+//   if (!applicantId) return;
+
+//   try {
+//     const response = await axios.get(`https://api.impronics.com/api/applicant/applicant-all-details/applicantId/${applicantId}`);
+//     console.log("KYC Response:", response.data); // Debug output
+
+//     const kyc = response.data?.data?.kycId; // ✅ Correct path
+//     if (kyc) {
+//       setKycId(kyc);
+//     } else {
+//       setKycId('Not Found');
+//     }
+//   } catch (error) {
+//     console.error("Error fetching KYC ID:", error);
+//     setKycId('Error');
+//   }
+// };
+useEffect(() => {
+  if (!applicantId) return;
+
+  applicant_service.getApplicantDetailsById(applicantId).then((data) => {
+    if (data?.kycId) {
+      setKycId(data.kycId);
+    }
+  });
+}, [applicantId]);
+
+
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.APPLICANT}>
       <Box sx={{ width: '50vw' }}>
@@ -277,12 +302,13 @@ const ApplicantPage = () => {
           </Typography>
         </Box>
  
-        <Box mb={6} display="flex" justifyContent="space-between" alignItems="center">
+        <Box mb={6} display="flex"  alignItems="center">
           <Typography
-            variant="body1"
-            mb={1}
+            variant="body1" mb={1}
+            
             sx={{
               backgroundColor: 'primary.main',
+            
               p: '0.5%',
               color: 'white',
               paddingBlock: 1,
@@ -290,6 +316,30 @@ const ApplicantPage = () => {
             }}
           >
             Applicant Id - {applicantId}
+          </Typography>
+          <Typography
+            variant="body1" 
+            mb={1}
+            onClick={() => {
+            if (kycId) {
+                navigate(`/kyc/${kycId}`) // ✅ This goes to /kyc/KYC12345
+                       }
+            }}
+            sx={{
+              backgroundColor: 'primary.main',
+              p: '0.5%',
+              color: 'white',
+              paddingBlock: 1,
+              paddingInline: 1,
+              cursor: 'pointer',
+              ml: 2,
+              '&:hover': {
+              backgroundColor: theme.palette.primary.dark,
+              textDecoration: 'underline',
+                         },
+            }}
+          >
+             {`KYC ID - ${kycId ?? 'Loading...'}`}
           </Typography>
         </Box>
  
@@ -332,7 +382,6 @@ const ApplicantPage = () => {
                     />
                   </Grid>
                 )}
- 
                 <Grid item xs={12} sm={4}>
                   <TextField
                     label="Applicant Last Name"
@@ -368,7 +417,6 @@ const ApplicantPage = () => {
                 </Grid>
               </Grid>
             </Grid>
- 
             <Grid item xs={12} sm={3} sx={{ alignContent: 'top' }}>
               <LimitPieChart></LimitPieChart>
             </Grid>
@@ -393,11 +441,11 @@ const ApplicantPage = () => {
             <Grid item xs={12} sm={2}>
               <TextField fullWidth label="Suburb" value={applicantDetails?.suburb || ''} InputProps={{ readOnly: true }} />
             </Grid>
- 
+
             <Grid item xs={12} sm={2}>
               <TextField fullWidth label="city" value={applicantDetails?.city || ''} InputProps={{ readOnly: true }} />
             </Grid>
- 
+
             <Grid item xs={12} sm={2}>
               <TextField fullWidth label="State" value={applicantDetails?.applicantState || ''} InputProps={{ readOnly: true }} />
             </Grid>
@@ -428,7 +476,6 @@ const ApplicantPage = () => {
             <Grid item xs={12} sm={2}>
               <TextField fullWidth label="Suburb" value={applicantDetails?.suburb || ''} InputProps={{ readOnly: true }} />
             </Grid>
- 
             <Grid item xs={12} sm={2}>
               <TextField fullWidth label="City" value={applicantDetails?.residenceCity || ''} InputProps={{ readOnly: true }} />
             </Grid>
@@ -451,7 +498,6 @@ const ApplicantPage = () => {
           <Tab label="Referral Redeemed Transactions" sx={{ marginRight: '2px' }} />
           <Tab label="Referral Credited Transactions" sx={{ marginRight: '2px' }} />
         </Tabs>
- 
         {/* ✅ Uploaded Documents Section */}
         {selectedTab === 0 && <DocumentsListComponent documentRecords={applicantDocuments || []} />}
         {selectedTab === 1 && <BeneficiaryTable beneficiary={applicantDetails?.beneficiaryList || []} applicantId={applicantId} />}
@@ -463,10 +509,10 @@ const ApplicantPage = () => {
             transaction={transactions}
           />
         )}
- 
+
         {selectedTab === 3 && <ReferralTransactions referralRecords={referralRedeemTransaction || []} referralType={'Redeemed'} />}
         {selectedTab === 4 && <ReferralTransactions referralRecords={referralCreditedTransaction || []} referralType={'Credited'} />}
- 
+
         {/* Action Buttons */}
         <Grid container spacing={2} mt={1}>
           <Grid item xs={12} sm={3}>
@@ -517,7 +563,5 @@ const ApplicantPage = () => {
     </HasPermission>
   )
 }
- 
+
 export default ApplicantPage
- 
- 

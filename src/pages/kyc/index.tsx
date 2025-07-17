@@ -393,7 +393,10 @@ const KYCPage = () => {
             <Grid container>
               <Grid item xs={2}>
                 <Avatar
-                  src={renderUserImage()} // Replace with actual image URL
+                  src={renderUserImage()?.replace(
+  "http://64.227.139.142",
+  "https://api.impronics.com"
+)} // Replace with actual image URL
                   sx={{
                     width: 150,
                     height: 150,
@@ -728,10 +731,6 @@ const KYCPage = () => {
             boxShadow: 24,
             p: 3,
             borderRadius: 2,
-
-
-
-            
             overflowY: 'auto',
           }}
         >
@@ -767,26 +766,60 @@ const KYCPage = () => {
                     />
                   )}
 
-                  <ListItem sx={{ alignItems: 'flex-start', gap: 1 }}>
-                    <Avatar sx={{ bgcolor: 'primary.main', width: 30, height: 30 }}>{comment.user.charAt(0).toUpperCase()}</Avatar>
-                    <ListItemText
-                      primary={comment.user}
-                      secondary={
-                        <>
-                          <Typography variant="body2" sx={{ color: 'text.primary' }}>
-                            {comment.commentText}
-                          </Typography>
-                          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                            {new Date(comment.commentDate).toLocaleString()}
-                          </Typography>
-                        </>
-                      }
-                    />
-                  </ListItem>
+                  
+                 <ListItem
+                      sx={{
+                      gap: 1,
+                      mt: -0.5,
+                      mb: 1,
+                      alignItems: 'flex-start',
+                     justifyContent: 'space-between',
+                     padding: 0,
+                         }}
+                >
+                <Avatar sx={{ bgcolor: 'primary.main', width: 35, height: 35 }}>
+                  {comment.user.charAt(0).toUpperCase()}
+                </Avatar>
+
+                 <Box sx={{ flex: 1 }}>
+                   {/* Top Row: Name + DateTime */}
+                   <Box
+                     sx={{
+                       display: 'flex',
+                       justifyContent: 'space-between',
+                       alignItems: 'center',
+                     }}
+                   >
+                     <Typography sx={{ fontWeight: 'bold' }}>{comment.user}</Typography>
+                     <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                       {new Date(comment.commentDate).toLocaleDateString('en-IN', {
+                         day: '2-digit',
+                         month: 'short',
+                         year: 'numeric',
+                       })}
+                       ,{' '}
+                       {new Date(comment.commentDate).toLocaleTimeString([], {
+                         hour: '2-digit',
+                         minute: '2-digit',
+                         hour12: false,
+                       })}
+                     </Typography>
+                   </Box>
+                
+                   {/* Comment Text */}
+                   <Typography variant="body2" sx={{ color: 'text.primary', mt: 0.5 }}>
+                     {comment.commentText}
+                   </Typography>
+                 </Box>
+          </ListItem>
+
+
                 </Box>
+                
               ))
             )}
           </List>
+
 
           <Divider sx={{ my: 2 }} />
 
