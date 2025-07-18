@@ -1,5 +1,6 @@
 import { BaseService } from './base.service'
 import api1 from './apis/api1'
+import { Customer } from '@/types/customer.type'
 
 export class KycService extends BaseService {
   async verifyDocument(doccode: string, kycid: string) {
@@ -16,8 +17,6 @@ export class KycService extends BaseService {
     }
   }
   
-
-
   async unverifyDocument(doccode: string, kycid: string) {
     let url = `/api/kyc/documents/${kycid}/${doccode}/unVerify`
     try {
@@ -45,7 +44,7 @@ export class KycService extends BaseService {
   async createComment(payload: any) {
     let url = `/api/kyc/comments`
     try {
-      let data = api1.post(url, payload)
+      const {data} = await api1.post(url, payload)
       return data
     } catch (err) {
       console.log(err)
@@ -72,24 +71,18 @@ export class KycService extends BaseService {
       return null as any
     }
   }
-  async getKYCbyid(kyc_id: any): Promise<
-    Array<{
-      commentId: string
-      commentText: string
-      commentDate: string // ISO format
-      user: string
-      kycId: string
-    }>
-  > {
-    let url = `/api/kyc/kyc/${kyc_id}`
-    try {
-      let data = api1.get(url)
-      return data
-    } catch (err) {
-      console.log(err)
-      return null as any
-    }
+  
+  async getKycById(kyc_id: string): Promise<Customer> {
+  const url = `/api/kyc/kyc/${kyc_id}`
+  try {
+    const  data  = await api1.get(url)
+    return data // Now returns a full Customer object
+  } catch (err) {
+    console.error('Error in getKYCbyid:', err)
+    throw err
   }
+}
+
 
   //@ts-ignore
   async getCharges(souceCountry, destinationCountry, amount, segment) {

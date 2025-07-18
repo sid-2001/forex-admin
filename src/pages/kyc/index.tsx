@@ -15,7 +15,7 @@ import {
   Modal,
   ListItem,
   List,
-  ListItemText,
+
 } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import VerifyDocumentModal from '@/components/verify-document'
@@ -32,16 +32,10 @@ import ConfirmationModal from '@/components/logout/logout.component'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import HasPermission from '@/components/permissionWrapper'
 import { HelperService } from '@/helpers/helper'
-
+import dayjs from 'dayjs'
 
 const KYCPage = () => {
   const [open, setOpen] = useState(false)
-  const [filterValues, setFilterValues] = useState({
-    kycId: '',
-    verificationStatus: '',
-    country: '',
-  })
- 
   const [filteredData, setFilteredData] = useState<Array<Customer>>([])
   const [selectedKYC, setSelectedKYC] = useState<any>(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
@@ -50,10 +44,10 @@ const KYCPage = () => {
   const [mockdata, setMockData] = useState<Array<any>>([])
   const [loader, setCommonLoader] = useRecoilState(loaderStateNew)
   const [checkboxOpen, setCheckboxOpen] = useState(false)
-  const [kycstatus, setKycStatus] = useState('p')
   const [selectedcountry, setselectedCountry] = useRecoilState(selectedCountryState)
   const [newComment, setNewComment] = useState('')
   const [loading, setLoading] = useState(false)
+  const [comments, setComments] = useState<any>([])
   const [prooftype, setProoftype] = useState()
   const { id: kycIdFromRoute } = useParams()
 
@@ -64,20 +58,23 @@ const KYCPage = () => {
   let kycservice = new KycService()
   const helper_service = new HelperService()
 
-  const [comments, setComments] = useState([
-    {
-      commentId: 'CMT1',
-      commentText: 'Document verification in progress.',
-      commentDate: '2025-01-06T10:00:00Z',
-      user: 'admin',
-    },
-    {
-      commentId: 'CMT2',
-      commentText: 'Document uploaded for verification.',
-      commentDate: '2025-01-05T12:30:00Z',
-      user: 'user1',
-    },
-  ])
+
+  //   commentDate
+  // : 
+  // "2025-07-18T13:36:57.294+00:00"
+  // commentId
+  // : 
+  // "24b95681-fe33-419a-accd-6f40353790d4"
+  // commentText
+  // : 
+  // "hi"
+  // kycId
+  // : 
+  // "KYC1752496183751"
+  // user
+  // : 
+  // "kp sharma"
+
 
   const KycColumns = [
     {
@@ -157,20 +154,20 @@ const KYCPage = () => {
   ]
 
   useEffect(() => {
-  setCommonLoader(true)
+    setCommonLoader(true)
 
-  applicant_service.getApplicantKyc(selectedcountry).then((data:any) => {
-    setMockData(data)
-    setCommonLoader(false)
+    applicant_service.getApplicantKyc(selectedcountry).then((data: any) => {
+      setMockData(data)
+      setCommonLoader(false)
 
-    if (kycIdFromRoute) {
-      const filtered:any = data.filter((item:any) => item.kycId === kycIdFromRoute)
-      setFilteredData(filtered)
-    } else {
-      setFilteredData(data)
-    }
-  })
-}, [selectedcountry, kycIdFromRoute]) // include kycIdFromRoute in dependencies
+      if (kycIdFromRoute) {
+        const filtered: any = data.filter((item: any) => item.kycId === kycIdFromRoute)
+        setFilteredData(filtered)
+      } else {
+        setFilteredData(data)
+      }
+    })
+  }, [selectedcountry, kycIdFromRoute]) // include kycIdFromRoute in dependencies
 
 
   const handleAddComment = async () => {
@@ -178,7 +175,6 @@ const KYCPage = () => {
 
     const payload = {
       commentText: newComment,
-
       user: selectedKYC?.applicantName, // Replace with the actual user info
       kycId: selectedKYC?.kycId,
     }
@@ -186,30 +182,9 @@ const KYCPage = () => {
     setLoading(true)
 
     try {
-      // API Call
-
       const response = await kycservice.createComment(payload)
-
-      if (
-        //@ts-ignore
-        response.status === 200
-      ) {
-        // Update the comments list with the new comment
-        setComments((prevComments: any) => [...prevComments, { ...payload, commentId: `CMT${comments.length + 1}` }])
-        setNewComment('') // Clear the input field
-      } else {
-      }
+      setComments((prevComments: any) => [...prevComments, { ...response }])
       setNewComment('')
-      kycservice.getComment(selectedKYC?.kycId).then((data) => {
-        setComments(data.filter((e) => e.kycId == selectedKYC?.kycId))
-      })
-      kycservice.getComment(selectedKYC?.kycId)
-
-      //@ts-ignore
-      kycservice.getComment(row?.kycId).then((data) => {
-        //@ts-ignore
-        setComments(data.filter((e) => e.kycId == row?.kycI))
-      })
     } catch (error) {
       console.error('Error while adding comment:', error)
     } finally {
@@ -217,95 +192,54 @@ const KYCPage = () => {
     }
   }
 
-  // const verifyProofType = async (proofType: any) => {
-  //   try {
-  //     // Your API call logic here
-  //     setCommonLoader(true)
-  //     kycservice
-  //       .verifyDocument(proofType?.id?.documentCode, proofType?.id?.kycId)
-  //       .then((data) => {
-       
-  //       })
-  //       .catch((err) => {
-  //         console.log(err)
-  //       })
-
-
-  //     // kycservice.verifyDocument(pro)
-  //   } catch (error) {
-  //     console.error('Error calling API:', error)
-  //   }
-  // }
-  const verifyProofType = async (proofType: any) => {
-  try {
-    setCommonLoader(true)
-    await kycservice.verifyDocument(proofType?.id?.documentCode, proofType?.id?.kycId)
-
-    await kycservice.changeKycStatus('v', proofType?.id?.kycId)
-
-    const data = await applicant_service.getApplicantKyc(selectedcountry)
-    setMockData(data)
-    //@ts-ignore
-    setFilteredData(data)
-    
-    let selected_data = data.filter((e) => e.kycId == proofType?.id?.kycId)
-    if (selected_data.length > 0) {
-      setSelectedKYC(selected_data[0])
-      setKycStatus(selected_data[0]?.kycStatus)
-      setCheckboxOpen(false)
+  const getKycDetailsById = async (kycId: string) => {
+    try {
+      const response = await kycservice.getKycById(kycId)
+      setSelectedKYC(response)
+      //@ts-ignore
+      setComments(response?.comments || [])
+      if (checkboxOpen) {
+        setCheckboxOpen(!checkboxOpen)
+      }
+      //  setComments(data.filter((e) => e.kycId == row?.kycId))
+    } catch (error) {
+      console.log(error)
     }
-
-    setCommonLoader(false)
-  } catch (error) {
-    console.error('Error calling API:', error)
-    setCommonLoader(false)
   }
-}
+
+  const verifyProofType = async (proofType: any) => {
+    try {
+      setCommonLoader(true)
+      await kycservice.verifyDocument(proofType?.documentCode, proofType?.kycId)
+      await kycservice.changeKycStatus('v', proofType?.kycId)
+      await getKycDetailsById(proofType?.kycId)
+      setCommonLoader(false)
+    } catch (error) {
+      console.error('Error calling API:', error)
+      setCommonLoader(false)
+    }
+  }
 
 
   const unverifyProofType = async (proofType: any) => {
     try {
-      // Your API call logic here
       setCommonLoader(true)
-      kycservice
-        .unverifyDocument(proofType?.id?.documentCode, proofType?.id?.kycId)
-        .then(() => {
-          kycservice.changeKycStatus('p', proofType?.id?.kycId).then(() => {
-            applicant_service.getApplicantKyc(selectedcountry).then((data) => {
-              setMockData(data)
-              //@ts-ignores
-              setFilteredData(data)
-              setCommonLoader(false)
-              let selected_data = data.filter((e) => e.kycId == proofType?.id?.kycId)
-              if (selected_data.length > 0) {
-                setSelectedKYC(selected_data[0])
-                setKycStatus(selected_data[0]?.kycStatus)
-                // setKycStatus(selected_data[0]?.kycstatus)
-                setCheckboxOpen(false)
-              }
-            })
-          })
-
-          // window.location.reload()
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-      // kycservice.verifyDocument(pro)
+      await kycservice
+        .unverifyDocument(proofType?.documentCode, proofType?.kycId)
+      await kycservice.changeKycStatus('p', proofType?.kycId)
+      await getKycDetailsById(proofType?.kycId)
+      setCommonLoader(false)
     } catch (error) {
       console.error('Error calling API:', error)
     }
   }
 
-   const openDrawer = (row: any) => {
-     setKycStatus(row?.kycStatus)
-     setSelectedKYC(row)
-     setIsDrawerOpen(true)
-     kycservice.getKYCbyid(row?.kycId).then((data) => {
-       setComments(data.filter((e) => e.kycId == row?.kycI))
-     })
-   }
-  
+  const openDrawer = (row: any) => {
+    setSelectedKYC(row)
+    setIsDrawerOpen(true)
+    getKycDetailsById(row?.kycId)
+  }
+
   const closeDrawer = () => {
     setSelectedKYC(null)
     setIsDrawerOpen(false)
@@ -369,7 +303,6 @@ const KYCPage = () => {
       >
         <Box>
           <Box p={3}>
-            {/* Header */}
             <Box mb={6} display="flex" justifyContent="space-between" alignItems="center">
               <Typography
                 variant="h5"
@@ -377,7 +310,6 @@ const KYCPage = () => {
                   backgroundColor: theme.palette.primary.main,
                   p: '0.5%',
                   color: 'white',
-                  //borderRadius: '10px',
                   paddingLeft: '5%',
                   paddingRight: '5%',
                 }}
@@ -385,7 +317,7 @@ const KYCPage = () => {
                 KYC ID - {selectedKYC?.kycId}
               </Typography>
               <Typography variant="subtitle1" style={{ backgroundColor: '#FFEEBA', padding: '4px 8px', borderRadius: '4px' }}>
-                {kycstatus == 'v' ? 'Verified' : 'Unverified'}
+                {selectedKYC?.kycStatus == 'v' ? 'Verified' : 'Unverified'}
               </Typography>
             </Box>
 
@@ -394,9 +326,9 @@ const KYCPage = () => {
               <Grid item xs={2}>
                 <Avatar
                   src={renderUserImage()?.replace(
-  "http://64.227.139.142",
-  "https://api.impronics.com"
-)} // Replace with actual image URL
+                    "http://64.227.139.142",
+                    "https://api.impronics.com"
+                  )} // Replace with actual image URL
                   sx={{
                     width: 150,
                     height: 150,
@@ -418,9 +350,6 @@ const KYCPage = () => {
                       (selectedKYC?.applicantName.split(' ')[1][0] ? selectedKYC?.applicantName.split(' ')[1][0] : '')
                     : selectedKYC?.applicantName.split(' ')[0]}{' '} */}
                 </Avatar>
-                <Typography mt={2} color="green">
-                  {/* <strong>Matched with ID Proof </strong> */}
-                </Typography>
               </Grid>
               <Grid item xs={10}>
                 <Typography variant="h6" gutterBottom color={theme.palette.secondary.main}>
@@ -569,18 +498,17 @@ const KYCPage = () => {
                 (proofType) => (
                   <Grid container spacing={2} alignItems="center" mt={1} key={proofType}>
                     <Grid item xs={2}>
-                      {/* {JSON.stringify(proofType?.document?.documentName)}
-                       */}
+
                       <TextField label="Document Name" fullWidth defaultValue={proofType?.document?.documentType} disabled />
                     </Grid>
                     <Grid item xs={2}>
-  <TextField
-    label="Verification Type"
-    fullWidth
-    defaultValue={proofType?.document?.complianceProcess === 'A' ? 'Auto' : 'Manual'}
-    disabled
-  />
-</Grid>
+                      <TextField
+                        label="Verification Type"
+                        fullWidth
+                        defaultValue={proofType?.document?.complianceProcess === 'A' ? 'Auto' : 'Manual'}
+                        disabled
+                      />
+                    </Grid>
 
                     <Grid item xs={2}>
                       <TextField label="Document Status" fullWidth defaultValue="Uploaded" disabled />
@@ -592,18 +520,9 @@ const KYCPage = () => {
                           textAlign: 'center',
                         }}
                       >
-                        <u
-                          onClick={() => {
-                            // setselectedVerifcationOpen(true)
-                            // setSelectedDocumentModel(proofType?.documentDetails)
-                          }}
-                        >
-                          {/* <a href={proofType?.documentUrl}>View More</a> */}
-                          <a href={`${proofType?.documentUrl}`} target="_blank" rel="noopener noreferrer">
-                            View More
-                          </a>
-                          {/* view more */}
-                        </u>
+                        <a href={`${proofType?.documentUrl}`} target="_blank" rel="noopener noreferrer">
+                          View More
+                        </a>
                       </Typography>
                     </Grid>
 
@@ -617,44 +536,7 @@ const KYCPage = () => {
                           justifyContent: 'space-between',
                           alignItems: 'center',
                           padding: '4px 8px',
-                        }}
-                      >
-                        {/* {(proofType.verificationStatus === 'va' ||kycstatus=='v')? (
-
-<>
-ƒ
-        Verified {kycstatus}
-        <IconButton
-        onClick={async () => {
-
-          setCheckboxOpen(true)
-
-          setProoftype(proofType)
-        
-          // await unverifyProofType(proofType); // API call
-        
-        }}
-        disabled={proofType.verificationStatus === 'v' }
-      >
-        <CloseIcon />
-      </IconButton>
-</>
-      ) : (
-        <>
-          Failed
-          <IconButton
-            onClick={async () => {
-            
-              await verifyProofType(proofType); // API call
-            
-            }}
-            disabled={proofType.verificationStatus === 'va' }
-          >
-            <CheckCircleOutlineIcon />
-          </IconButton>
-        </>
-      )} */}
-
+                        }}>
                         {proofType.verificationStatus === 'va' ? (
                           <>
                             Verified
@@ -662,13 +544,11 @@ const KYCPage = () => {
                               onClick={async () => {
                                 setCheckboxOpen(true)
                                 setProoftype(proofType)
-                                // await unverifyProofType(proofType); // API call
                               }}
                               disabled={
                                 proofType.verificationStatus === 'v' ||
                                 !helper_service.checkUserHasPermission(local_service.get_modules()?.KYC, 'canUpdate')
-                              }
-                            >
+                              }>
                               <CloseIcon />
                             </IconButton>
                           </>
@@ -679,13 +559,11 @@ const KYCPage = () => {
                               onClick={async () => {
                                 setCheckboxOpen(true)
                                 setProoftype(proofType)
-                                // await verifyProofType(proofType); // API call
                               }}
                               disabled={
                                 proofType.verificationStatus === 'va' ||
                                 !helper_service.checkUserHasPermission(local_service.get_modules()?.KYC, 'canUpdate')
-                              }
-                            >
+                              } >
                               <CheckCircleOutlineIcon />
                             </IconButton>
                           </>
@@ -693,11 +571,10 @@ const KYCPage = () => {
                       </Typography>
                     </Grid>
                     <Grid item xs={2}>
-                      {/* <TextField label="Additional Comments" fullWidth defaultValue={proofType?.verificationStatusComments} disabled /> */}
                       <IconButton
                         onClick={() => {
-                          setOpen(true)                          
-                          kycservice.getKYCbyid(selectedKYC?.kycId)
+                          setOpen(true)
+                          // getKycDetailsById(selectedKYC?.kycId)
                         }}
                       >
                         <Comment />
@@ -725,7 +602,7 @@ const KYCPage = () => {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 400,
+            width: 600,
             maxHeight: '80vh',
             bgcolor: 'background.paper',
             boxShadow: 24,
@@ -751,8 +628,8 @@ const KYCPage = () => {
                 No comments available
               </Typography>
             ) : (
-              comments.map((comment, index) => (
-                <Box key={comment.commentId} sx={{ position: 'relative', pl: 3 }}>
+              comments.map((comment:any, index:any) => (
+                <Box key={comment?.commentId} sx={{ position: 'relative', pl: 3 }}>
                   {index !== comments.length - 1 && (
                     <Box
                       sx={{
@@ -765,57 +642,44 @@ const KYCPage = () => {
                       }}
                     />
                   )}
-
-                  
-                 <ListItem
-                      sx={{
+                  <ListItem
+                    sx={{
                       gap: 1,
                       mt: -0.5,
                       mb: 1,
                       alignItems: 'flex-start',
-                     justifyContent: 'space-between',
-                     padding: 0,
-                         }}
-                >
-                <Avatar sx={{ bgcolor: 'primary.main', width: 35, height: 35 }}>
-                  {comment.user.charAt(0).toUpperCase()}
-                </Avatar>
+                      justifyContent: 'space-between',
+                      padding: 0,
+                    }}
+                  >
+                    <Avatar sx={{ bgcolor: 'primary.main', width: 35, height: 35 }}>
+                      {comment?.user?.charAt(0).toUpperCase()}
+                    </Avatar>
 
-                 <Box sx={{ flex: 1 }}>
-                   {/* Top Row: Name + DateTime */}
-                   <Box
-                     sx={{
-                       display: 'flex',
-                       justifyContent: 'space-between',
-                       alignItems: 'center',
-                     }}
-                   >
-                     <Typography sx={{ fontWeight: 'bold' }}>{comment.user}</Typography>
-                     <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                       {new Date(comment.commentDate).toLocaleDateString('en-IN', {
-                         day: '2-digit',
-                         month: 'short',
-                         year: 'numeric',
-                       })}
-                       ,{' '}
-                       {new Date(comment.commentDate).toLocaleTimeString([], {
-                         hour: '2-digit',
-                         minute: '2-digit',
-                         hour12: false,
-                       })}
-                     </Typography>
-                   </Box>
-                
-                   {/* Comment Text */}
-                   <Typography variant="body2" sx={{ color: 'text.primary', mt: 0.5 }}>
-                     {comment.commentText}
-                   </Typography>
-                 </Box>
-          </ListItem>
+                    <Box sx={{ flex: 1 }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Typography sx={{ fontWeight: 'bold' }}>{comment?.user}</Typography>
+                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                          {dayjs(comment?.commentDate).format('DD/MM/YYYY hh:mm')}
+                        </Typography>
+                      </Box>
+
+                      {/* Comment Text */}
+                      <Typography variant="body2" sx={{ color: 'text.primary', mt: 0.5 }}>
+                        {comment?.commentText}
+                      </Typography>
+                    </Box>
+                  </ListItem>
 
 
                 </Box>
-                
+
               ))
             )}
           </List>
