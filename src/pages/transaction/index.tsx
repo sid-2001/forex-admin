@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   Box,
   Button,
@@ -20,7 +20,7 @@ import {
   Modal,
 } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Applicant, TransactionDetailsResponse, TransactionInward, TransactionInwardCalclulated, TransactionOutward } from '@/types/transaction.type'
 import AssessmentIcon from '@mui/icons-material/Assessment'
 import { PreviewOutlined, SettingsAccessibilityRounded, Sync } from '@mui/icons-material'
@@ -226,7 +226,7 @@ const TransactionPage = () => {
   const [isDrawerOpen, setDrawerOpen] = useState(false)
   const [modalOpen, setmodalOpen] = useState(false)
   const [transactionDetails, setTransactionDetails] = useState<any>(null)
-  const [transactionType, setTransactionType] = useState('inwards') // Default to 'inwards'
+  const [transactionType, setTransactionType] = useState('')
   const [inboundTransaction, setInboundTransaction] = useState<Array<TransactionInward>>([])
   const [outboundTransaction, setOutboundTransaction] = useState<Array<TransactionOutward>>([])
   const [toolopen, setToolOpen] = useState(false)
@@ -250,6 +250,10 @@ const TransactionPage = () => {
   const local_service = new LocalStorageService()
   const theme = useTheme()
   const navigate = useNavigate()
+  const { search } = useLocation()
+  const queryParams = new URLSearchParams(search)
+
+  const flow = queryParams.get('flow')
 
   const fetchStpErrorList = async (transactionId: string) => {
     try {
@@ -260,11 +264,13 @@ const TransactionPage = () => {
     }
   }
 
-  useEffect(() => {
-    setcommonloader(true)
-    applicant_service.getApplicantDetalis().then((data) => {
-      let users = data.map((e) => {
-        let benificiary_list = e.beneficiaryList.map((b) => {
+  const getApplicantDetails = useCallback(async () => {
+    try {
+      setcommonloader(true)
+      const data = await applicant_service.getApplicantDetalis()
+
+      const users: any = data.map((e) => {
+        const benificiary_list = e.beneficiaryList.map((b) => {
           return {
             benificaryId: b.beneficiaryId,
             name: b.beneficiaryName,
@@ -285,88 +291,97 @@ const TransactionPage = () => {
           benificary: benificiary_list,
         }
       })
-      setUserList(users as any)
+      setUserList(users)
       setcommonloader(false)
-    })
+    } catch (error) {
+      console.log(error)
+    }
+  }, [])
+
+  const getInwardTransactionList = useCallback(async () => {
+    try {
+      setcommonloader(true)
+      const data = await transaction_Service.getInwardTransaction(selectedCountryOption === 'IN' ? 'IN' : 'ZA')
+      setInboundTransaction(data)
+      setcommonloader(false)
+    } catch (error) {
+      console.log(error)
+    }
+  }, [])
+
+  const getAllTransactions = useCallback(async () => {
+    try {
+      setcommonloader(true)
+      const data: any = await transaction_Service.gettransactions()
+
+      const inbound: Array<TransactionInwardCalclulated>[] | any = data?.transactionDetailsList.map((e: any) => {
+        //@ts-ignore
+        return {
+          //@ts-ignore
+          ...e.transactionInwardList,
+          ...e.beneficiary,
+          id: e?.transactionInwardList?.transactionNumberIw,
+          destination: e?.transactionInwardList?.receivingCountry,
+          value: e?.transactionInwardList?.settlementAmount,
+          currency: e?.transactionInwardList?.settlementCurrency,
+          settlement: helper.roundToTwoFixed(e?.transactionInwardList?.settlementAmount),
+          destinationBank: e?.transactionInwardList?.destinationBankCode,
+          errorCause: ' ',
+          forex: e?.transactionOutward?.exchangeRates,
+          date: e?.transactionOutward?.owCreatedDate,
+          final_amount: e?.transactionOutward?.exchangeRates * e?.transactionOutward?.principalAmount,
+          applicant: e?.applicant,
+        }
+      })
+
+      const outbound: Array<TransactionOutward> | any = data?.transactionDetailsList
+        ?.map((e: any) => {
+          return {
+            ...e.transactionOutward,
+            ...e.beneficiary,
+            ...e.applicant,
+            id: e?.transactionOutward?.transactionNumber,
+            destination: e?.transactionOutward?.receiveCountry,
+            value: e?.transactionOutward?.principalAmount,
+            currency: e?.transactionOutward?.settlementCurrency,
+            settlement: helper.roundToTwoFixed(e?.transactionOutward?.principalAmount * e?.transactionOutward?.exchangeRates),
+            destinationBank: e?.transactionOutward?.destinationBankBicCode,
+            forex: helper.roundToTwoFixed(e?.transactionOutward?.exchangeRates),
+            date: e?.transactionOutward?.owCreatedDate,
+            reporting: e?.transactionOutward?.reportingStatus,
+            status: e?.transactionOutward?.transactionStatus,
+            final_amount: helper.roundToTwoFixed(e?.transactionOutward?.exchangeRates * e?.transactionOutward?.principalAmount),
+            applicant: e?.applicant,
+            //@ts-ignore
+            inid: e?.transactionInwardNumber,
+          }
+        })
+        ?.filter((transaction: any) => {
+          if (selectedCountryOption === 'IN') {
+            return transaction.destination?.toLowerCase() !== 'in'
+          } else if (selectedCountryOption === 'ZA') {
+            return transaction.destination?.toLowerCase() !== 'za'
+          }
+          return true // If selectedCountryOption is not "IN", include all destinations
+        })
+
+      setTransactionData(inbound)
+      setOutboundTransaction(outbound)
+      setcommonloader(false)
+    } catch (error) {
+      console.log(error)
+    }
   }, [])
 
   useEffect(() => {
-    setcommonloader(true)
-    transaction_Service.getInwardTransaction(selectedCountryOption === 'IN' ? 'IN' : 'ZA').then((data) => {
-      setInboundTransaction(data)
-    })
-
-    transaction_Service
-      .gettransactions()
-      .then((data: TransactionDetailsResponse) => {
-        let inbound: Array<TransactionInwardCalclulated>[] | any = data?.transactionDetailsList.map((e: any) => {
-          //@ts-ignore
-          return {
-            //@ts-ignore
-            ...e.transactionInwardList,
-            ...e.beneficiary,
-            id: e?.transactionInwardList?.transactionNumberIw,
-            destination: e?.transactionInwardList?.receivingCountry,
-            value: e?.transactionInwardList?.settlementAmount,
-            currency: e?.transactionInwardList?.settlementCurrency,
-            settlement: helper.roundToTwoFixed(e?.transactionInwardList?.settlementAmount),
-            destinationBank: e?.transactionInwardList?.destinationBankCode,
-            errorCause: ' ',
-            forex: e?.transactionOutward?.exchangeRates,
-            date: e?.transactionOutward?.owCreatedDate,
-            final_amount: e?.transactionOutward?.exchangeRates * e?.transactionOutward?.principalAmount,
-            applicant: e?.applicant,
-          }
-        })
-
-        let outbound: Array<TransactionOutward> | any = data?.transactionDetailsList
-          ?.map((e) => {
-            return {
-              ...e.transactionOutward,
-              ...e.beneficiary,
-              ...e.applicant,
-              id: e?.transactionOutward?.transactionNumber,
-              destination: e?.transactionOutward?.receiveCountry,
-              value: e?.transactionOutward?.principalAmount,
-              currency: e?.transactionOutward?.settlementCurrency,
-              settlement: helper.roundToTwoFixed(e?.transactionOutward?.principalAmount * e?.transactionOutward?.exchangeRates),
-              destinationBank: e?.transactionOutward?.destinationBankBicCode,
-              forex: helper.roundToTwoFixed(e?.transactionOutward?.exchangeRates),
-              date: e?.transactionOutward?.owCreatedDate,
-              reporting: e?.transactionOutward?.reportingStatus,
-              status: e?.transactionOutward?.transactionStatus,
-              final_amount: helper.roundToTwoFixed(e?.transactionOutward?.exchangeRates * e?.transactionOutward?.principalAmount),
-              applicant: e?.applicant,
-              //@ts-ignore
-              inid: e?.transactionInwardNumber,
-            }
-          })
-          ?.filter((transaction) => {
-            if (selectedCountryOption === 'IN') {
-              return transaction.destination?.toLowerCase() !== 'in'
-            } else if (selectedCountryOption === 'ZA') {
-              return transaction.destination?.toLowerCase() !== 'za'
-            }
-
-            return true // If selectedCountryOption is not "IN", include all destinations
-          })
-        let user: Array<Applicant>[] | any = data?.transactionDetailsList.map((e) => {
-          return {
-            ...e.applicant,
-          }
-        })
-
-        // setInboundTransaction([])
-        setTransactionData(inbound)
-        setOutboundTransaction(outbound)
-        setcommonloader(false)
-      })
-      .catch(
-        //@ts-ignore
-        (err: any) => {
-          console.log('err', err)
-        },
-      )
+    if (!flow) {
+      setTransactionType('inwards')
+    } else {
+      setTransactionType(flow)
+    }
+    getApplicantDetails()
+    getInwardTransactionList()
+    getAllTransactions()
   }, [])
 
   const openInNewTab = (url: any) => {
@@ -433,6 +448,7 @@ const TransactionPage = () => {
       setTransactionType(newType)
       //@ts-ignore
       setTransactionData(newType === 'inwards' ? inboundTransaction : outboundTransaction)
+      navigate(`/transaction?flow=${newType}`)
     }
   }
 
