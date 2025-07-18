@@ -46,6 +46,14 @@ class ApplicantService extends BaseService {
       throw new Error('Unable to submit applicant form. Please try again.')
     }
   }
+  async getKycById(kycId: string) {
+  return axios
+    .get(`/api/kyc/kyc/${kycId}`)
+    .then((res) => res.data)
+    .catch((err) => {
+      console.error('Error fetching KYC by ID:', err)
+    })
+}
 
   async getApplicantDetalisByCountry(country: any): Promise<Array<ApplicantData>> {
     let url = `/api/applicant/applicant-all-details/residenceCountry/${country}`
