@@ -1,3 +1,4 @@
+import { CountryData } from '@/types/static.type'
 import { atom, DefaultValue } from 'recoil'
 
 const localStorageEffect =
@@ -73,6 +74,14 @@ export const applicantView = atom({
   key: 'applicantView',
   default: false,
 })
+
+export const countyState = atom<Array< CountryData>>({
+  key: 'countryList',
+  default: [],
+    effects_UNSTABLE: [localStorageEffect('countryList')],
+})
+
+
 
 export const selectedAppState = atom({
   key: 'selectedAppState',

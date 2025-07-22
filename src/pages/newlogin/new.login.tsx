@@ -6,11 +6,12 @@ import { AuthService } from '@/services/auth.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { Logo } from '@/assets/images' // Assuming the logo is properly imported
 import { useRecoilState } from 'recoil'
-import { loaderState, selectedAppState, selectedCountryState } from '@/states/state'
+import { countyState, loaderState, selectedAppState, selectedCountryState } from '@/states/state'
 
 import LoaderBackdrop from '@/components/loader/loader'
 import CloseIcon from '@mui/icons-material/Close'
 import { UserService } from '@/services/user.service'
+import staticdataService from '@/services/staticdata.service'
 
 const LoginPage = () => {
   const [email, setEmail] = useState('')
@@ -22,11 +23,13 @@ const LoginPage = () => {
   const [commonloader, setcommonloader] = useRecoilState(loaderState)
   const [selecteCountryState, setselectedCountryState] = useRecoilState(selectedCountryState)
   const [selectedTab, setSelectedTab] = useRecoilState(selectedAppState)
+  const [county, setCountry] = useRecoilState(countyState)
   const [error, setError] = useState('')
 
   const auth_service = new AuthService()
   const local_service = new LocalStorageService()
   const user_service = new UserService()
+  const static_service = new staticdataService()
   const navigate = useNavigate()
   const theme = useTheme()
 
@@ -43,6 +46,12 @@ const LoginPage = () => {
     //   setError('');
     // }
     setEmail(input)
+  }
+  const getCountryList = () => {
+    static_service.getCountryList().then((data) => {
+      console.log(data)
+      setCountry(data)
+    })
   }
 
   const handleClose = (
@@ -103,6 +112,8 @@ const LoginPage = () => {
               )
               local_service.set_staff_access(data)
               local_service.set_role(data?.roleDescription)
+              getCountryList()
+
               navigate('/dashboard')
             }, 500)
           } else {

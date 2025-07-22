@@ -43,7 +43,7 @@ import { KycService } from '@/services/kyc.service'
 import PaymentPopup from '@/components/payment-popup'
 import BobCategoryDropdown from '@/components/bob-matrix'
 import { useRecoilState } from 'recoil'
-import { alertState, alertTextState, alertTypeState, loaderStateNew, selectedCountryState } from '@/states/state'
+import { alertState, alertTextState, alertTypeState, countyState, loaderStateNew, selectedCountryState } from '@/states/state'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
@@ -55,10 +55,10 @@ const helper = new HelperService()
 
 // let cashfree
 
-const countries = [
-  { code: 'IN', name: 'India', currency: 'INR', forexRate: '4.57', flag: 'https://flagcdn.com/in.svg' },
-  // { code: 'ZA', name: 'South Africa', currency: 'ZAR', forexRate: '4.7', flag: 'https://flagcdn.com/za.svg' }, // Added South Africa
-]
+// const countries = [
+//   { code: 'IN', name: 'India', currency: 'INR', forexRate: '4.57', flag: 'https://flagcdn.com/in.svg' },
+//   // { code: 'ZA', name: 'South Africa', currency: 'ZAR', forexRate: '4.7', flag: 'https://flagcdn.com/za.svg' }, // Added South Africa
+// ]
 const countries_in = [
   { code: 'ZA', name: 'South Africa', currency: 'ZAR', forexRate: '4.7', flag: 'https://flagcdn.com/za.svg' }, // Added South Africa
 ]
@@ -108,6 +108,7 @@ const SendMoneyPage = () => {
   const [forexRate, setForexRate] = useState<string>('')
   const [amount, setAmount] = useState<number>(0)
   const [selectedTransferMethod, setSelectedTransferMethod] = useState('Bank Transfer')
+  const[countries,setCountries]=useRecoilState(countyState)
   const [remittanceList, setRemittanceList] = useState<
     {
       id: number
@@ -291,14 +292,20 @@ const SendMoneyPage = () => {
     // const selected = countries.find((country) => country.code === countryCode)
     console.log(countrySelected == 'IN' ? countries_in : countries)
 
-    const selected = (countrySelected == 'IN' ? countries_in : countries).find((country) => country.code === countryCode)
+    const selected = (countrySelected == 'IN' ? countries_in : countries).find((country) =>
+      //@ts-ignore
+      country?.code === countryCode)
 
     if (selected) {
-      transaction_service.getForexRate(selected?.currency, countrySelected).then((data) => {
+      transaction_service.getForexRate(
+        //@ts-ignore
+        selected?.currency, countrySelected).then((data) => {
         console.log(data)
         setForexRate(data)
       })
+      //@ts-ignore
       setCurrency(selected.currency)
+      //@ts-ignore
       setsendCountry(selected.code)
       setSourceCountry(countrySelected == 'IN' ? 'INR' : 'ZAR')
     }
@@ -722,11 +729,13 @@ const SendMoneyPage = () => {
                         onChange={handleCountryChange}
                         displayEmpty
                       >
-                        {(selectedCountryoption === 'IN' ? countries_in : countries).map((country) => (
-                          <MenuItem key={country.code} value={country.code}>
+                        {(selectedCountryoption === 'IN' ? countries : countries)?.map((country) => (
+                          <MenuItem 
+                          //@ts-ignore
+                          key={country?.countryCode} value={country.countryCode}>
                             <div style={{ display: 'flex', alignItems: 'center' }}>
-                              <Avatar src={country.flag} alt={country.name} sx={{ width: 24, height: 24, marginRight: '8px' }} />
-                              <Typography>{country.name}</Typography>
+                             
+                                         <Typography>{country?.countryName}</Typography>
                             </div>
                           </MenuItem>
                         ))}

@@ -27,6 +27,13 @@ import { useTheme } from '@emotion/react'
 import ShowChartIcon from '@mui/icons-material/ShowChart'
 import { TransactionService } from '@/services/transaction.service'
 import { ApplicantService } from '@/services/applicant.service'
+import { PaymentGateway } from '@/types/static.type'
+import staticdataService from '@/services/staticdata.service'
+import { useRecoilState } from 'recoil'
+import { selectedCountryState } from '@/states/state'
+import { LocalStorageService } from '@/helpers/local-storage-service'
+import { AnyAaaaRecord } from 'node:dns'
+import { Id } from 'react-flags-select'
 
 const Dashboard = () => {
   // Sample dashboard data
@@ -42,17 +49,29 @@ const Dashboard = () => {
   // Modal state
   const [openModal, setOpenModal] = useState(false)
   const [activeCustomer, setAvtiveCustomers] = useState(false)
+  const [userCountry, setuserCounty] = useRecoilState(selectedCountryState)
 
   const [recentTransaction, setrecentTransaction] = useState([])
   const [filterType, setFilterType] = useState('monthly')
+  const [cards, setCards] = useState<Array<PaymentGateway>>([])
   const [dateRange, setDateRange] = useState({
     start: '2023-01-01',
     end: '2023-06-30',
   })
   const transaction_service = new TransactionService()
   const applicant_service = new ApplicantService()
+  const static_service = new staticdataService()
+  const local_service=new LocalStorageService()
+
+  const getGatewayList = () => {
+    static_service.getStaticPaymentGateway(local_service?.get_staff_country()).then((data:any) => {
+
+      setCards(data?.data?.sort((e:any)=>e.costFee) );
+    })
+  }
 
   useEffect(() => {
+    getGatewayList()
     transaction_service.getOutwardTransaction().then((data) => {
       let trx_list = data.transactionDetailsList.map((e) => {
         let obj = { id: 1, customer: 'John Doe', amount: 125.5, date: '2023-06-15', status: 'Completed' }
@@ -113,40 +132,7 @@ const Dashboard = () => {
     { id: 4, name: 'Sarah Wilson', joinDate: '2023-02-05', purchases: 3 },
   ]
 
-  const cards = [
-    {
-      title: 'OZOW',
-      image_url:
-        'https://media.licdn.com/dms/image/v2/D4E0BAQHUsPmIf1k4pQ/company-logo_200_200/company-logo_200_200/0/1699544024463?e=1756944000&v=beta&t=hE-p5BDhrQR6Ll3UBcg_L9S8_54uAUNAaJwvD5osmBU',
-    },
-    {
-      title: 'Cashfree',
-      image_url:
-        'https://media.licdn.com/dms/image/v2/C560BAQF4u3uIRgM6Cg/company-logo_100_100/company-logo_100_100/0/1632367052546/cashfree_logo?e=1756944000&v=beta&t=hb2EwepUiLkgmWpX9LD0u9Q23gJ6dmrZNV2b-IiEu_Y',
-    },
 
-    {
-      title: 'OZOW',
-      image_url:
-        'https://media.licdn.com/dms/image/v2/D4E0BAQHUsPmIf1k4pQ/company-logo_200_200/company-logo_200_200/0/1699544024463?e=1756944000&v=beta&t=hE-p5BDhrQR6Ll3UBcg_L9S8_54uAUNAaJwvD5osmBU',
-    },
-    {
-      title: 'Cashfree',
-      image_url:
-        'https://media.licdn.com/dms/image/v2/C560BAQF4u3uIRgM6Cg/company-logo_100_100/company-logo_100_100/0/1632367052546/cashfree_logo?e=1756944000&v=beta&t=hb2EwepUiLkgmWpX9LD0u9Q23gJ6dmrZNV2b-IiEu_Y',
-    },
-    {
-      title: 'OZOW',
-      image_url:
-        'https://media.licdn.com/dms/image/v2/D4E0BAQHUsPmIf1k4pQ/company-logo_200_200/company-logo_200_200/0/1699544024463?e=1756944000&v=beta&t=hE-p5BDhrQR6Ll3UBcg_L9S8_54uAUNAaJwvD5osmBU',
-    },
-    {
-      title: 'Cashfree',
-      image_url:
-        'https://media.licdn.com/dms/image/v2/C560BAQF4u3uIRgM6Cg/company-logo_100_100/company-logo_100_100/0/1632367052546/cashfree_logo?e=1756944000&v=beta&t=hb2EwepUiLkgmWpX9LD0u9Q23gJ6dmrZNV2b-IiEu_Y',
-    },
-    // Add more cards as needed
-  ]
 
   const bankAccounts = [
     {
@@ -261,20 +247,31 @@ const Dashboard = () => {
     )
   }
 
+  const handleToggle = (id:String,status:boolean) => {
+  
+      static_service.paymentGatewayStatus(id,status).then(data=>{
+
+        console.log(data)
+        getGatewayList()
+      })
+
+      // setEnabled((prev) => !prev)
+    }
+
   const HorizontalCard = ({
     //@ts-ignore
     image_url,
     //@ts-ignore
+    id,
+    //@ts-ignore
     title,
+    //@ts-ignore
+    status,
     //@ts-ignore
     description,
   }) => {
-    const [enabled, setEnabled] = useState(true)
-
-    const handleToggle = () => {
-      setEnabled((prev) => !prev)
-    }
-
+   
+    
     return (
       <Card
         sx={{
@@ -284,18 +281,23 @@ const Dashboard = () => {
           height: '70%',
           borderRadius: 3,
           boxShadow: 3,
-          opacity: enabled ? 1 : 0.5, // dim when disabled
-          pointerEvents: enabled ? 'auto' : 'none', // disable interactions
+          opacity: status ? 1 : 0.5, // dim when disabled
+          pointerEvents: status ? 'auto' : 'auto', // disable interactions
           border: '1px solid',
           borderColor: 'primary.light',
         }}
         // sx={{ border: '1px solid', borderColor: 'primary.light' }}
       >
-        <CardMedia component="img" image={image_url} alt={title} sx={{ width: '50vw', height: '7vh', borderRadius: 2 }} />
+        <CardMedia component="img" image={image_url} alt={title} sx={{ width: '10vw', height: '3vh', borderRadius: 2 }} />
         <CardContent sx={{ ml: 2, flexGrow: 1 }}>
-          <Typography variant="h6">{title}</Typography>
+          {/* <Typography variant="h6">{title}</Typography> */}
           <Typography variant="body2" color="text.secondary">
-            <Switch checked={enabled} onChange={handleToggle} />
+          <Switch checked={status}  value={status}
+  onChange={(e:any)=>{
+    console.log(e)
+  handleToggle(id,!status)
+
+  }}  />
           </Typography>
         </CardContent>
       </Card>
@@ -408,7 +410,9 @@ const Dashboard = () => {
                 scrollSnapAlign: 'start',
               }}
             >
-              <HorizontalCard title={card.title} description="" image_url={card.image_url} />
+              <HorizontalCard  id= {card?.id} title={card?.company} description="" status={card?.activeStatus} image_url={card?.imageUrl}
+              //@ts-ignore
+              status={card?.activeStatus}/>
             </Box>
           ))}
         </Box>
@@ -432,9 +436,14 @@ const Dashboard = () => {
 
   return (
     <Box sx={{ width: '80vw' }}>
-      <Typography variant="h4" gutterBottom color={
-        //@ts-ignore
-        theme.palette.secondary.main}>
+      <Typography
+        variant="h4"
+        gutterBottom
+        color={
+          //@ts-ignore
+          theme.palette.secondary.main
+        }
+      >
         <b>Dashboard Overview</b>{' '}
         <ShowChartIcon
           sx={{
@@ -452,8 +461,6 @@ const Dashboard = () => {
           }}
         />
       </Typography>
-      
-      
 
       {/* Summary Cards */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
