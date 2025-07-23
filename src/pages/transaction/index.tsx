@@ -167,6 +167,7 @@ const TransactionPage = () => {
     { field: 'sendingCountry', headerName: 'Sending Country', width: 130, headerClassName: 'super-app-theme--header' },
     { field: 'receivingCountry', headerName: 'Receiving Country', width: 130, headerClassName: 'super-app-theme--header' },
     { field: 'settlementCurrency', headerName: 'Settlement Currency', width: 150, headerClassName: 'super-app-theme--header' },
+    {field: 'principalCurrency', headerName: 'PR', width: 100, headerClassName: 'super-app-theme--header' },
     {
       field: 'settlementAmount',
       headerName: 'Settlement Amount',

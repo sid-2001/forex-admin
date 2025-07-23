@@ -17,18 +17,25 @@ const CustomSnackbar = () => {
   };
 
   const getBackgroundColor = (type: string) => {
+    let color= "#333"; // Default color
     switch (type) {
       case "success":
-        return "#4caf50";
+        color= "#4caf50";
+        break;
       case "error":
-        return "#f44336";
+        color= "#f44336";
+        break;
       case "warning":
-        return "#ff9800";
+        color= "#ff9800";
+        break;
       case "info":
-        return "#2196f3";
+        color="#2196f3";
+        break;
       default:
-        return "#333";
+        color="#333";
+        break; // Default color for unknown types
     }
+    return color;
   };
 
   return (

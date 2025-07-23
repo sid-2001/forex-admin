@@ -54,12 +54,14 @@ const UserAdd = () => {
   const local_service = new LocalStorageService()
   const user_service = new UserService();
   const helper_service = new HelperService();
-
+  const [emailError, setEmailError] = useState("")
+  const [passwordError, setPasswordError] = useState("");
+  const [countryList, setCountryList] = useState([]);
+  const [branchList, setBranchList] = useState([]);
+  const [suburbList, setSuburbList] = useState<any[]>([]);
   const { staffId } = useParams();
-
-
   const navigate = useNavigate()
-  const theme=useTheme()
+  const theme = useTheme()
 
   const handleToggleChangePermisson = (
     //@ts-ignore
@@ -210,8 +212,48 @@ const UserAdd = () => {
     }
   }
 
+  const fetchCountries = async () => {
+    try {
+      const response = await user_service.getCountriesList();
+      const filtered = response?.filter((country: any) => country.status === 'A');
+      setCountryList(filtered || []);
+    } catch (err) {
+      console.error("Error fetching countries:", err);
+    }
+  };
+
+  const fetchSurbub = async () => {
+    try {
+      const response = await user_service.getSuburbList();
+      setSuburbList(response || []);
+    } catch (err) {
+      console.error("Error fetching countries:", err);
+    }
+  };
+
+  const fetchBranches = async () => {
+    try {
+      const response = await user_service.BranchList();
+      setBranchList(response || []);
+    } catch (err) {
+      console.error("Error fetching branches:", err);
+    }
+  };
+
+  const handleRegexChange = (e: any, regex: any) => {
+    const value = e.target.value;
+    if (regex.test(value)) {
+      return value;
+    }
+    return null; // Return null if the value doesn't match the regex
+  };
+
+
   useEffect(() => {
-    fetchRolesList()
+    fetchRolesList();
+    fetchCountries();
+    fetchBranches();
+    fetchSurbub();
   }, [])
 
   useEffect(() => {
@@ -219,6 +261,7 @@ const UserAdd = () => {
       fetchStaffDetailsByStaffId()
     }
   }, [staffId])
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: any; value: any }>) => {
     const { name, value } = e.target
@@ -228,37 +271,77 @@ const UserAdd = () => {
     }))
   }
 
-  const disableButton = () => {
-    if (staffId) {
-      return !helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canUpdate')
-    } else {
-      return !helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canCreate')
-    }
-  }
+  // const disableButton = () => {
+  //   if (staffId) {
+  //     return !helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canUpdate')
+  //   } else {
+  //     return !helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canCreate')
+  //   }
+  // }
+const disableButton = () => {
+  const requiredFields = [
+    staffData?.staffFirstName,
+    staffData?.staffLastName,
+    staffData?.staffContactNumber,
+    staffData?.staffCountry,
+    staffData?.staffBranch,
+    staffData?.staffCity,
+    staffData?.staffPostalCode,
+    staffData?.staffSuburb,
+    staffData?.staffAddressLine1,
+    staffData?.staffAddressLine2,
+    staffData?.email,
+    staffData?.username,
+    staffData?.password,
+    selectedRole,
+    // Add other required fields here if needed
+  ];
+
+  const isAnyFieldEmpty = requiredFields.some(
+    (field) => !field || field.toString().trim() === ''
+  );
+
+  const hasPermission = staffId
+    ? helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canUpdate')
+    : helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canCreate');
+
+  return !hasPermission || isAnyFieldEmpty;
+};
+
+
+
 
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.STAFF}>
       <Box sx={{ width: "50vw" }}>
-        <Typography mb={2} variant="h5" gutterBottom sx={{ fontWeight: 'bold', color:
-          
-          //@ts-ignore
-          theme.palette.secondary.main }}>
+        <Typography mb={2} variant="h5" gutterBottom sx={{
+          fontWeight: 'bold', color:
+
+            //@ts-ignore
+            theme.palette.secondary.main
+        }}>
           Staff Details
         </Typography>
-      
+
 
 
         <Box sx={{ width: '80vw' }}>
           <Grid container spacing={2} mb={2} >
-
             <Grid item xs={12} sm={4}>
               <label style={inputLabelStyle}>First Name</label>
               <TextField
-                value={staffData?.staffFirstName || ""}
-                onChange={handleChange}
-                fullWidth
                 name="staffFirstName"
+                fullWidth
+                value={staffData?.staffFirstName || ""}
+                onChange={(e) => {
+                  const value = handleRegexChange(e, /^[a-zA-Z]*$/);
+                  console.log(value)
+
+                  if (value !== null) {
+                    handleChange(e);
+                  }
+                }}
                 InputProps={{ readOnly: !isEditable }}
               />
             </Grid>
@@ -267,33 +350,76 @@ const UserAdd = () => {
               <label style={inputLabelStyle}>Last Name</label>
               <TextField
                 value={staffData?.staffLastName || ""}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const value = handleRegexChange(e, /^[a-zA-Z]*$/);
+                  console.log(value)
+
+                  if (value !== null) {
+                    handleChange(e);
+                  }
+                }}
                 name="staffLastName"
                 fullWidth
                 InputProps={{ readOnly: !isEditable }}
               />
             </Grid>
 
-            <Grid item xs={12} sm={4}>
+            {/* <Grid item xs={12} sm={2}>
               <label style={inputLabelStyle}>Branch</label>
               <TextField
+                select
+                fullWidth
+                name="staffBranch"
                 value={staffData?.staffBranch || ''}
                 onChange={handleChange}
-                name="staffBranch"
-                fullWidth
                 InputProps={{ readOnly: !isEditable }}
-              />
+                SelectProps={{ native: true }}
+              >
+                <option value="">-- Select Branch --</option>
+                {branchList.map((branch: any) => (
+                  <option key={branch.id} value={branch.cityName}>
+                    {branch.cityName}
+                  </option>
+                ))}
+              </TextField>
+            </Grid> */}
+            <Grid item xs={12} sm={2}>
+              <label style={inputLabelStyle}>Branch</label>
+              <TextField
+                select
+                fullWidth
+                name="staffBranch"
+                value={staffData?.staffBranch || ''}
+                onChange={handleChange}
+                InputProps={{ readOnly: !isEditable }}
+                SelectProps={{ native: true }}
+              >
+                <option value="">-- Select Branch --</option>
+                {branchList.map((branch: any) => (
+                  <option key={branch.id} value={branch.branchCode}>
+                    {branch.city} ({branch.branchCode})
+                  </option>
+                ))}
+              </TextField>
             </Grid>
+
+
 
             <Grid item xs={12} sm={3}>
               <label style={inputLabelStyle}>Phone</label>
               <TextField
                 value={staffData?.staffContactNumber || ""}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const value = handleRegexChange(e, /^\d{0,10}$/); // Allow only numbers and limit to 10 digits
+                  console.log(value)
+
+                  if (value !== null) {
+                    handleChange(e);
+                  }
+                }}
                 name="staffContactNumber"
                 fullWidth
-
-                type='number'
+                type="text" // Use text instead of number to enforce length
               />
             </Grid>
 
@@ -301,44 +427,67 @@ const UserAdd = () => {
               <label style={inputLabelStyle}>Email</label>
               <TextField
                 value={staffData?.email || ""}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const value = e.target.value
+                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+                  // Validate and update
+                  if (!emailRegex.test(value)) {
+                    setEmailError("Invalid email format")
+                  } else {
+                    setEmailError("")
+                  }
+                  handleChange(e) // Call your existing handler
+                }}
                 name="email"
-                type='email'
+                type="email"
                 fullWidth
                 InputProps={{ readOnly: !isEditable }}
+                error={!!emailError}
+                helperText={emailError}
               />
             </Grid>
 
             <Grid item xs={12} sm={3}>
-              <label style={inputLabelStyle}> <b>
-                Password
-              </b></label>
+              <label style={inputLabelStyle}><b>Password</b></label>
               <TextField
                 fullWidth
-                type='password'
+                type="password"
                 name="password"
-                value={
-                  //@ts-ignore
-                  staffData?.password || ""}
-                onChange={handleChange}
-
-                disabled={staffId ? true : false}
-              // InputProps={{ readOnly: !isEditable }}
+                value={staffData?.password || ""}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const isValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(value);
+                  if (!isValid && value !== "") {
+                    setPasswordError("Min 8 chars, include upper, lower, number & special char");
+                  } else {
+                    setPasswordError("");
+                  }
+                  handleChange(e);
+                }}
+                disabled={!!staffId} // shorthand for: staffId ? true : false
+                error={!!passwordError}
+                helperText={passwordError}
               />
             </Grid>
 
             <Grid item xs={12} sm={3}>
-              <label style={inputLabelStyle}>
-                Username
-              </label>
+              <label style={inputLabelStyle}>Username</label>
               <TextField
                 fullWidth
-                name='username'
+                name="username"
                 value={staffData?.username || ""}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const value = handleRegexChange(e, /^[a-zA-Z]*$/); // ALLOW ONLY UPPER AND LOWER CASE LETTERS
+                  console.log(value)
+                  if (value !== null) {
+                    handleChange(e);
+                  }
+                }}
                 InputProps={{ readOnly: !isEditable }}
               />
             </Grid>
+
           </Grid>
 
         </Box>
@@ -346,42 +495,69 @@ const UserAdd = () => {
         <Box sx={{ width: "80vw" }}>
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={12} sm={6}>
-              <label style={inputLabelStyle}>
-                Address Line 1
-              </label>
+              <label style={inputLabelStyle}>Address Line 1</label>
               <TextField
                 fullWidth
                 name="staffAddressLine1"
                 value={staffData?.staffAddressLine1 || ''}
-                onChange={handleChange}
-              // InputProps={{ readOnly: !isEditable }}
+                onChange={(e) => {
+                  const value = handleRegexChange(e, /^[a-zA-Z0-9\s,.\-]*$/);
+                  if (value !== null) {
+                    handleChange(e);
+                  }
+                }}
+
               />
             </Grid>
+
             <Grid item xs={12} sm={6}>
-              <label style={inputLabelStyle}>
-                Address Line 2
-              </label>
+              <label style={inputLabelStyle}>Address Line 2</label>
               <TextField
                 fullWidth
                 name="staffAddressLine2"
                 value={staffData?.staffAddressLine2 || ''}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const value = handleRegexChange(e, /^[a-zA-Z0-9\s,.\-]*$/);
+                  if (value !== null) {
+                    handleChange(e);
+                  }
+                }}
               // InputProps={{ readOnly: !isEditable }}
               />
             </Grid>
 
-            <Grid item xs={12} sm={2}>
-              <label style={inputLabelStyle}>
-                Suburb
-              </label>
+            {/* <Grid item xs={12} sm={2}>
+              <label style={inputLabelStyle}>Suburb</label>
               <TextField
-              fullWidth
+                select
+                fullWidth
+                name="staffSuburb"
+                value={staffData?.staffSuburb || ''}
+                onChange={handleChange}
+                InputProps={{ readOnly: !isEditable }}
+                SelectProps={{ native: true }}
+              >
+                <option value="">-- Select Suburb --</option>
+                {suburbList.map((item, index) => (
+                  <option key={index} value={item.state}>
+                    {item.state}
+                  </option>
+                ))}
+              </TextField>
+            </Grid> */}
+            <Grid item xs={12} sm={2}>
+              <label style={inputLabelStyle}>Suburb</label>
+              <TextField
+                fullWidth
                 name="staffSuburb"
                 value={staffData?.staffSuburb || ''}
                 onChange={handleChange}
                 InputProps={{ readOnly: !isEditable }}
               />
             </Grid>
+
+
+
 
             <Grid item xs={12} sm={2}>
               <label style={inputLabelStyle}>
@@ -397,29 +573,50 @@ const UserAdd = () => {
             </Grid>
 
             <Grid item xs={12} sm={2}>
-              <label style={inputLabelStyle}>
-                Postal Code
-              </label>
+              <label style={inputLabelStyle}>Postal Code</label>
               <TextField
                 fullWidth
                 name="staffPostalCode"
                 value={staffData?.staffPostalCode || ''}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  // Get the selected country from staffData
+                  const country = staffData?.staffCountry;
+
+                  // Decide max length based on country
+                  const maxLength =
+                    country === 'India'
+                      ? 6
+                      : country === 'South Africa'
+                        ? 4
+                        : 0; // default to 10 for other countries
+                  if (new RegExp(`^\\d{0,${maxLength}}$`).test(value)) {
+                    handleChange(e);
+                  }
+                }}
                 InputProps={{ readOnly: !isEditable }}
               />
             </Grid>
 
             <Grid item xs={12} sm={2}>
-              <label style={inputLabelStyle}>
-                Country
-              </label>
+              <label style={inputLabelStyle}>Country</label>
               <TextField
+                select
                 fullWidth
-                value={staffData?.staffCountry || ''}
                 name="staffCountry"
+                value={staffData?.staffCountry || ''}
                 onChange={handleChange}
                 InputProps={{ readOnly: !isEditable }}
-              />
+                SelectProps={{ native: true }}
+              >
+                <option value="">-- Select Country --</option>
+                {countryList.map((country: any) => (
+                  <option key={country.countryCode} value={country.countryName}>
+                    {country.countryName}
+                  </option>
+                ))}
+              </TextField>
             </Grid>
           </Grid>
         </Box>
@@ -585,8 +782,9 @@ const UserAdd = () => {
                   }
                   else {
 
+                     settype("error")
                     setText(data?.message)
-                    settype("error")
+                   
 
                     // settype('success')
                   }
@@ -606,7 +804,7 @@ const UserAdd = () => {
                   "staffIdType": "Aadhar", "roleId": selectedRole,
                 }).then(data => {
 
-                  if (data?.status == "true") {
+                  if (data.status) {
 
 
                     settype('success')
@@ -621,7 +819,7 @@ const UserAdd = () => {
                     setText(data?.message)
                     settype("error")
 
-                    settype('success')
+                    settype('error')
                   }
                   setOpen(true)
                 })
