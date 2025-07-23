@@ -397,7 +397,7 @@ const Dashboard = () => {
             '&::-webkit-scrollbar': { display: 'none' },
           }}
         >
-          {cards.map((card, index) => (
+          {cards?.map((card, index) => (
             <Box
               key={index}
               sx={{

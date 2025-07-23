@@ -29,6 +29,16 @@ export default class staticdataService extends BaseService {
     }
   }
 
+    async getCountryCurrency(country:any): Promise<String> {
+    let url = `/api/static-table/forex/country-currency/countryCode/${country}`
+    try {
+      let  data  = await api1.get(url)
+      return data as String
+    } catch (err) {
+      return err as any
+    }
+  }
+
 
    async paymentGatewayStatus(id:any,status:boolean): Promise<Array<any>> {
     let url = `/api/static-table/forex-gateway/disablePaymentGateway/id/${id}/status/${status}`

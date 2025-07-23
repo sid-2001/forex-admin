@@ -6,7 +6,7 @@ import { AuthService } from '@/services/auth.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { Logo } from '@/assets/images' // Assuming the logo is properly imported
 import { useRecoilState } from 'recoil'
-import { countyState, loaderState, selectedAppState, selectedCountryState } from '@/states/state'
+import { countyState, loaderState, selectedAppState, selectedCountryState, userCurrencyState } from '@/states/state'
 
 import LoaderBackdrop from '@/components/loader/loader'
 import CloseIcon from '@mui/icons-material/Close'
@@ -25,6 +25,7 @@ const LoginPage = () => {
   const [selectedTab, setSelectedTab] = useRecoilState(selectedAppState)
   const [county, setCountry] = useRecoilState(countyState)
   const [error, setError] = useState('')
+  const [userCurrency, setUserCurrency]=useRecoilState(userCurrencyState)
 
   const auth_service = new AuthService()
   const local_service = new LocalStorageService()
@@ -105,12 +106,17 @@ const LoginPage = () => {
             setType('success')
             setOpen(true)
             const { data } = response
-            if (data?.staffCountry) setselectedCountryState(data?.staffCountry)
+            if (data?.staffCountry){
+             setselectedCountryState(data?.staffCountry)}
             setTimeout(() => {
               local_service.set_accesstoken(
                 '"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImVtYWlsIjoic2hpdmFuc2hAaW1wcm9uaWNzLmNvbSIsInVzZXJfaWQiOiJjYmMzZDg3OS1iMTM2LTQyYTAtODY3Yy1mYjg2YTQ4MmI3ODciLCJyb2xlIjoiYWRtaW4ifSwiZXhwIjoxNzM4NTk3ODk1LCJqdGkiOiIwZTMxMDA1OS02ZTIyLTQ1MjgtYTliYS04OTA3MTNhZDZiMmYiLCJyZWZyZXNoIjpmYWxzZX0.06XT7DA3cs13hOIDyqlXcHElSXpFzHFO2L0y507Z0YQ"',
               )
               local_service.set_staff_access(data)
+              static_service.getCountryCurrency(data?.staffCountry).then(currency=>{
+
+               setUserCurrency(currency as any)
+              })
               local_service.set_role(data?.roleDescription)
               getCountryList()
 

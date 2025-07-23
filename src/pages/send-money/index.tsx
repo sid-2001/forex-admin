@@ -43,12 +43,13 @@ import { KycService } from '@/services/kyc.service'
 import PaymentPopup from '@/components/payment-popup'
 import BobCategoryDropdown from '@/components/bob-matrix'
 import { useRecoilState } from 'recoil'
-import { alertState, alertTextState, alertTypeState, countyState, loaderStateNew, selectedCountryState } from '@/states/state'
+import { alertState, alertTextState, alertTypeState, countyState, loaderStateNew, selectedCountryState, userCurrencyState } from '@/states/state'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useTheme } from '@emotion/react'
+import staticdataService from '@/services/staticdata.service'
 const { VITE_APP_URL } = import.meta.env
 const local_service = new LocalStorageService()
 const helper = new HelperService()
@@ -98,17 +99,19 @@ const SendMoneyPage = () => {
   const [gifsuccess, setGifSuccess] = useState(false)
   const [sendCountry, setsendCountry] = useState('')
   const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
-
+  const [userCurrency, setUserCurrency]=useRecoilState(userCurrencyState)
   const [selectedCountryoption, setSelectedCountryOption] = useRecoilState(selectedCountryState)
   const [selectedTimeChange, setSelectedTimeCharge] = useState<number | null>(null)
   const [selectedUser, setSelectedUser] = useState<{ name: string; accountNumber: string; profilePhoto: string; applicantId: string } | null>(null)
   const [category, setCategory] = useState<string>('')
   const [selectedCountry, setSelectedCountry] = useState<string>('')
+
   const [currency, setCurrency] = useState<string>('')
   const [forexRate, setForexRate] = useState<string>('')
   const [amount, setAmount] = useState<number>(0)
   const [selectedTransferMethod, setSelectedTransferMethod] = useState('Bank Transfer')
-  const[countries,setCountries]=useRecoilState(countyState)
+  const [countries, setCountries] = useRecoilState(countyState)
+
   const [remittanceList, setRemittanceList] = useState<
     {
       id: number
@@ -134,6 +137,8 @@ const SendMoneyPage = () => {
   const transaction_service = new TransactionService()
   const helper = new HelperService()
   const kyc_service = new KycService()
+  const static_service = new staticdataService()
+  const local_service = new LocalStorageService()
 
   const TimechargesRows: GridRowsProp = [
     { id: 1, time: '2 hours', charges: 10, total: 200 },
@@ -286,29 +291,39 @@ const SendMoneyPage = () => {
 
   const handleCountryChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const countryCode = event.target.value as string
+
     setSelectedCountry(countryCode)
 
     // Find the selected country
-    // const selected = countries.find((country) => country.code === countryCode)
-    console.log(countrySelected == 'IN' ? countries_in : countries)
+    const selected = countries.find((country) => country.countryCode == countryCode)
 
-    const selected = (countrySelected == 'IN' ? countries_in : countries).find((country) =>
+    console.log('selected===>', selected)
+
+    static_service.getCountryCurrency(selected?.countryCode).then((data) => {
       //@ts-ignore
-      country?.code === countryCode)
+      setCurrency(data)
 
-    if (selected) {
-      transaction_service.getForexRate(
-        //@ts-ignore
-        selected?.currency, countrySelected).then((data) => {
+      if (selected) {
+        console.log(selectedCountryState)
         console.log(data)
-        setForexRate(data)
-      })
-      //@ts-ignore
-      setCurrency(selected.currency)
-      //@ts-ignore
-      setsendCountry(selected.code)
-      setSourceCountry(countrySelected == 'IN' ? 'INR' : 'ZAR')
-    }
+        transaction_service
+          .getForexRate(
+            //@ts-ignore
+            
+            userCurrency,
+            data
+          )
+          .then((data) => {
+            console.log(data)
+            setForexRate(data)
+          })
+        //@ts-ignore
+        // setCurrency(selected.currency)
+        //@ts-ignore
+        setsendCountry(selected.code)
+        setSourceCountry(countrySelected == 'IN' ? 'INR' : 'ZAR')
+      }
+    })
   }
 
   const handleRadioChange = (row: any) => {
@@ -345,7 +360,6 @@ const SendMoneyPage = () => {
 
   const getGatewaysListByCountry = async () => {
     const gatewayslistResponse = await transaction_service.fetchGatewaysByCountry(selectedCountryoption)
-    console.log(gatewayslistResponse, '========kjhkjhkjgdkgdk')
     setGatewaysList(gatewayslistResponse || [])
   }
 
@@ -616,7 +630,7 @@ const SendMoneyPage = () => {
     setSearchText(user.name) // Set selected user's name in TextField
     setFilteredUsers([])
   }
-  const theme:any = useTheme()
+  const theme: any = useTheme()
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.TRANSACTION_OUTWARD}>
       <Box
@@ -624,7 +638,7 @@ const SendMoneyPage = () => {
           width: '80vw',
         }}
       >
-        <Typography variant="h5" gutterBottom color={theme.palette.secondary.main} >
+        <Typography variant="h5" gutterBottom color={theme.palette.secondary.main}>
           <strong>Send Money </strong>
         </Typography>
 
@@ -730,12 +744,13 @@ const SendMoneyPage = () => {
                         displayEmpty
                       >
                         {(selectedCountryoption === 'IN' ? countries : countries)?.map((country) => (
-                          <MenuItem 
-                          //@ts-ignore
-                          key={country?.countryCode} value={country.countryCode}>
+                          <MenuItem
+                            //@ts-ignore
+                            key={country?.countryCode}
+                            value={country.countryCode}
+                          >
                             <div style={{ display: 'flex', alignItems: 'center' }}>
-                             
-                                         <Typography>{country?.countryName}</Typography>
+                              <Typography>{country?.countryName}</Typography>
                             </div>
                           </MenuItem>
                         ))}
@@ -746,7 +761,7 @@ const SendMoneyPage = () => {
                   {/* Amount Input */}
                   <Grid item xs={12} md={3}>
                     <TextField
-                      label={`Amount ${selectedCountryoption == 'ZA' ? 'ZAR' : 'INR'}`}
+                      label={`Amount In   ${userCurrency != undefined ? userCurrency : ''} `}
                       variant="filled"
                       fullWidth
                       onChange={(e) => {
@@ -759,7 +774,7 @@ const SendMoneyPage = () => {
                   {/* Currency (Auto-populated and Disabled) */}
                   <Grid item xs={12} md={3}>
                     <TextField
-                      label="Destination Currency"
+                      label="Settlement Currency"
                       variant="filled"
                       value={currency}
                       InputProps={{
@@ -870,10 +885,10 @@ const SendMoneyPage = () => {
               </Grid>
               <Box sx={{ textAlign: 'left', marginTop: 2 }}>
                 <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                  Principal Amount: {helper.roundToTwoFixed(amount * Number(forexRate)) + ' ' + currency}
+                Settlement Amount: {helper.roundToTwoFixed(amount * Number(forexRate)) + ' ' + currency}
                 </Typography>
                 <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                  Settlement Amount: {Number(amount) + Number(selectedTimeChange) + ' ' + sourceCountry}
+                Principal Amount:     {Number(amount) + Number(selectedTimeChange) + ' ' + sourceCountry}
                 </Typography>
                 <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                   Base Amount: {amount + ' ' + sourceCountry}
