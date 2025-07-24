@@ -34,6 +34,7 @@ import { selectedCountryState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { AnyAaaaRecord } from 'node:dns'
 import { Id } from 'react-flags-select'
+import TransactionPanel from '@/components/transaction-panel'
 
 const Dashboard = () => {
   // Sample dashboard data
@@ -74,7 +75,7 @@ const Dashboard = () => {
     getGatewayList()
     transaction_service.getOutwardTransaction().then((data) => {
       let trx_list = data.transactionDetailsList.map((e) => {
-        let obj = { id: 1, customer: 'John Doe', amount: 125.5, date: '2023-06-15', status: 'Completed' }
+   
         return {
           id: e.transactionOutward.transactionNumber,
           customer: `${e.applicant.firstName} ${e.applicant.lastName}`,
@@ -479,7 +480,8 @@ const Dashboard = () => {
                     Total Transactions
                   </Typography>
                   <Typography variant="h4" component="div">
-                    {dashboardData.totalTransactions.toLocaleString()}
+                    {
+                    dashboardData.totalTransactions.toLocaleString()}
                   </Typography>
                 </Box>
               </Stack>
@@ -577,7 +579,7 @@ const Dashboard = () => {
       </Grid>
 
       {/* Transaction Filter Modal */}
-      <Modal open={openModal} onClose={() => setOpenModal(false)} aria-labelledby="transaction-filter-modal">
+      {/* <Modal open={openModal} onClose={() => setOpenModal(false)} aria-labelledby="transaction-filter-modal">
         <Box
           sx={{
             position: 'absolute',
@@ -675,7 +677,7 @@ const Dashboard = () => {
             </Grid>
           </Grid>
         </Box>
-      </Modal>
+      </Modal> */}
 
       {/* Additional Data Sections */}
       <Grid container spacing={3}>
@@ -741,6 +743,11 @@ const Dashboard = () => {
           </Card>
         </Grid>
       </Grid>
+
+         <TransactionPanel open={openModal} onClose={()=>{
+          setOpenModal(false)
+         }}/>
+   
     </Box>
   )
 }

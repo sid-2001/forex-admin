@@ -99,7 +99,7 @@ const SendMoneyPage = () => {
   const [gifsuccess, setGifSuccess] = useState(false)
   const [sendCountry, setsendCountry] = useState('')
   const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
-  const [userCurrency, setUserCurrency]=useRecoilState(userCurrencyState)
+  const [userCurrency, setUserCurrency] = useRecoilState(userCurrencyState)
   const [selectedCountryoption, setSelectedCountryOption] = useRecoilState(selectedCountryState)
   const [selectedTimeChange, setSelectedTimeCharge] = useState<number | null>(null)
   const [selectedUser, setSelectedUser] = useState<{ name: string; accountNumber: string; profilePhoto: string; applicantId: string } | null>(null)
@@ -190,13 +190,15 @@ const SendMoneyPage = () => {
   }
 
   const fetchApplicantData = async () => {
+    console.log(applicantId)
     if (!applicantId) {
       console.error('Applicant ID is missing in the URL')
       return
     }
 
     try {
-      const { data } = await applicant_service.searchByApplicantId(applicantId)
+      console.log('Selected user')
+      const data = await applicant_service.searchByApplicantId(applicantId)
       console.log(data, 'data found')
       setcommonloader(false)
 
@@ -226,6 +228,7 @@ const SendMoneyPage = () => {
       })
       //@ts-ignore
       setSearchText(data.applicant?.firstName) // Set selected user's name in TextField
+  fetchBopList()
       setFilteredUsers([]) // Clear th
 
       return
@@ -234,42 +237,59 @@ const SendMoneyPage = () => {
     }
   }
 
+  const fetchBopList=()=>{
+
+    try{
+           transaction_service.getBop().then((data) => {
+        setRemittanceList(data as any)
+      })  
+    }catch(err){
+
+      console.log(err)
+    }
+
+  }
+
   useEffect(() => {
     setcommonloader(true)
     if (applicantId) {
       fetchApplicantData()
     } else {
       applicant_service.getApplicantDetalis().then((data) => {
-        let users = data.map((e) => {
-          let benificiary_list = e.beneficiaryList.map((b) => {
+        let users
+
+        
+          users = data.map((e) => {
+            let benificiary_list = e.beneficiaryList.map((b) => {
+              return {
+                benificaryId: b.beneficiaryId,
+                name: b.beneficiaryName,
+                accountHolderName: b.beneficiaryName,
+                accountNumber: b.bankBicCode,
+                bank: b.bankName,
+                ifscCode: b.bankBicCode,
+              }
+            })
+
             return {
-              benificaryId: b.beneficiaryId,
-              name: b.beneficiaryName,
-              accountHolderName: b.beneficiaryName,
-              accountNumber: b.bankBicCode,
-              bank: b.bankName,
-              ifscCode: b.bankBicCode,
+              applicantId: e.applicant.applicantId,
+              id: e.applicant.applicantId,
+              //@ts-ignore
+              name: e.applicant?.firstName,
+              accountNumber: e.applicant.applicantId,
+              profilePhoto: 'https://randomuser.me/api/portraits/women/4.jpg',
+              benificary: benificiary_list,
             }
           })
+        
 
-          return {
-            applicantId: e.applicant.applicantId,
-            id: e.applicant.applicantId,
-            //@ts-ignore
-            name: e.applicant?.firstName,
-            accountNumber: e.applicant.applicantId,
-            profilePhoto: 'https://randomuser.me/api/portraits/women/4.jpg',
-            benificary: benificiary_list,
-          }
-        })
         setUserList(users as any)
         setcommonloader(false)
       })
 
-      transaction_service.getBop().then((data) => {
-        setRemittanceList(data as any)
-      })
+   
     }
+
     getGatewaysListByCountry()
   }, [])
 
@@ -309,9 +329,9 @@ const SendMoneyPage = () => {
         transaction_service
           .getForexRate(
             //@ts-ignore
-            
+
             userCurrency,
-            data
+            data,
           )
           .then((data) => {
             console.log(data)
@@ -885,10 +905,10 @@ const SendMoneyPage = () => {
               </Grid>
               <Box sx={{ textAlign: 'left', marginTop: 2 }}>
                 <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                Settlement Amount: {helper.roundToTwoFixed(amount * Number(forexRate)) + ' ' + currency}
+                  Principal Amount: {helper.roundToTwoFixed(amount * Number(forexRate)) + ' ' + currency}
                 </Typography>
                 <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                Principal Amount:     {Number(amount) + Number(selectedTimeChange) + ' ' + sourceCountry}
+                  Settlement Amount: {Number(amount) + Number(selectedTimeChange) + ' ' + sourceCountry}
                 </Typography>
                 <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                   Base Amount: {amount + ' ' + sourceCountry}

@@ -92,7 +92,7 @@ const BobCategoryDropdown: React.FC<BobCategoryDropdownProps> = ({
   >
     {remittanceList.map((item) => (
       <MenuItem key={item.id} value={item.id}>
-        {item.categoryDescription}
+        {item.categoryDescription} ({item.bopCategoryCd})
       </MenuItem>
     ))}
   </Select>
