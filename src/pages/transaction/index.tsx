@@ -90,7 +90,7 @@ const TransactionPage = () => {
     },
     { field: 'forex', headerName: 'Exchange Rate', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'charges', headerName: 'Charges', flex: 1, headerClassName: 'super-app-theme--header' },
-    // {field: 'principalCurrency', headerName: 'PR', width: 100, headerClassName: 'super-app-theme--header' },
+    {field: 'gateway_name', headerName: 'Gateway', width: 100, headerClassName: 'super-app-theme--header' },
 
     // {
     //   field: 'reporting',
@@ -247,6 +247,8 @@ const TransactionPage = () => {
   const [startDate, setStartDate] = useState<string | null>(null)
   const [endDate, setEndDate] = useState<string | null>(null)
   const [stpErrors, setStpErrors] = useState<any>([])
+  const [selecteCountryState, setselectedCountryState] = useRecoilState(selectedCountryState)
+ 
 
   let applicant_service = new ApplicantService()
   let transaction_Service = new TransactionService()
@@ -316,9 +318,9 @@ const TransactionPage = () => {
   const getAllTransactions = useCallback(async () => {
     try {
       setcommonloader(true)
-      const data: any = await transaction_Service.gettransactions()
-
-      const inbound: Array<TransactionInwardCalclulated>[] | any = data?.transactionDetailsList.map((e: any) => {
+      const data: any = await transaction_Service.getOutwardAllTransaction(selecteCountryState)
+ console.log(data)
+      const inbound: Array<TransactionInwardCalclulated>[] | any = data?.map((e: any) => {
         //@ts-ignore
         return {
           //@ts-ignore
@@ -338,26 +340,28 @@ const TransactionPage = () => {
         }
       })
 
-      const outbound: Array<TransactionOutward> | any = data?.transactionDetailsList
+      const outbound: Array<TransactionOutward> | any = data
         ?.map((e: any) => {
           return {
-            ...e.transactionOutward,
+            ...e.transactionGatewayDTO,
             ...e.beneficiary,
             ...e.applicant,
-            id: e?.transactionOutward?.transactionNumber,
-            destination: e?.transactionOutward?.receiveCountry,
-            value: e?.transactionOutward?.principalAmount,
-            currency: e?.transactionOutward?.settlementCurrency,
-            settlement: helper.roundToTwoFixed(e?.transactionOutward?.principalAmount * e?.transactionOutward?.exchangeRates),
-            destinationBank: e?.transactionOutward?.destinationBankBicCode,
-            forex: helper.roundToTwoFixed(e?.transactionOutward?.exchangeRates),
-            date: e?.transactionOutward?.owCreatedDate,
-            reporting: e?.transactionOutward?.reportingStatus,
-            status: e?.transactionOutward?.transactionStatus,
-            final_amount: helper.roundToTwoFixed(e?.transactionOutward?.exchangeRates * e?.transactionOutward?.principalAmount),
+            id: e?.transactionGatewayDTO?.transactionNumber,
+            destination: e?.transactionGatewayDTO?.receiveCountry,
+            value: e?.transactionGatewayDTO?.principalAmount,
+            currency: e?.transactionGatewayDTO?.settlementCurrency,
+            settlement: helper.roundToTwoFixed(e?.transactionGatewayDTO?.principalAmount * e?.transactionGatewayDTO?.exchangeRates),
+            destinationBank: e?.transactionGatewayDTO?.destinationBankBicCode,
+            forex: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates),
+            date: e?.transactionGatewayDTO?.owCreatedDate,
+            reporting: e?.transactionGatewayDTO?.reportingStatus,
+            status: e?.transactionGatewayDTO?.transactionStatus,
+            final_amount: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates * e?.transactionGatewayDTO?.principalAmount),
             applicant: e?.applicant,
+            gateway_name: e?.transactionGatewayDTO?.forexPaymentGateway?.company,
             //@ts-ignore
             inid: e?.transactionInwardNumber,
+
           }
         })
         ?.filter((transaction: any) => {
@@ -483,7 +487,7 @@ const TransactionPage = () => {
   }
 
   const getLoadingState = () => {
-    return transactionType === 'inwards' ? (inboundTransaction.length > 0 ? false : true) : outboundTransaction.length > 0 ? false : true
+    return transactionType === 'inwards' ? (inboundTransaction.length > 0 ? false : true) : outboundTransaction?.length > 0 ? false : true
   }
 
   return (
