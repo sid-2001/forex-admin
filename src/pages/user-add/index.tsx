@@ -360,6 +360,7 @@ const UserAdd = () => {
                 select
                 fullWidth
                 name="staffBranch"
+                label
                 value={staffData?.staffBranch || ''}
                 onChange={handleChange}
                 InputProps={{ readOnly: !isEditable }}
@@ -515,11 +516,11 @@ const UserAdd = () => {
                 name="staffPostalCode"
                 value={staffData?.staffPostalCode || ''}
                 onChange={(e) => {
-                  const value = e.target.value;
-                  const country = staffData?.staffCountry;
+                 // const value = e.target.value;
+                 // const country = staffData?.staffCountry;
                   // Get maxLength from map or default to 10
-                  const maxLength = postalCodeMaxLengthMap[country] || 0;
-                  if (new RegExp(`^\\d{0,${maxLength}}$`).test(value)) handleChange(e);
+                 // const maxLength = postalCodeMaxLengthMap[country] || 0;
+                  if (new RegExp(`^\\d{0,${postalCodeMaxLengthMap[staffData?.staffCountry]}}$`).test(e.target.value)) handleChange(e);
                 }}
                 InputProps={{ readOnly: !isEditable }}
               />
