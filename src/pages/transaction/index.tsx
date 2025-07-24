@@ -20,8 +20,9 @@ import {
   Modal,
 } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
+import { GridOverlay } from '@mui/x-data-grid'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Applicant, TransactionDetailsResponse, TransactionInward, TransactionInwardCalclulated, TransactionOutward } from '@/types/transaction.type'
+import { TransactionInward, TransactionInwardCalclulated, TransactionOutward } from '@/types/transaction.type'
 import AssessmentIcon from '@mui/icons-material/Assessment'
 import { PreviewOutlined, SettingsAccessibilityRounded, Sync } from '@mui/icons-material'
 import { useRecoilState } from 'recoil'
@@ -33,6 +34,7 @@ import { TransactionService } from '@/services/transaction.service'
 import { ApplicantService } from '@/services/applicant.service'
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
 import { statusColors } from '@/contants/utils'
+import LoaderUI from '@/components/loader/loader'
 
 const TransactionPage = () => {
   const columns_outward = [
@@ -99,10 +101,11 @@ const TransactionPage = () => {
     {
       field: 'owCreatedDate',
       headerName: 'Date',
+      type: 'Date',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        return helper.convertDateAndTime(params.value?.owCreatedDate)
+        return helper.convertDateAndTime(params?.row?.owCreatedDate)
       },
     },
     {
@@ -111,7 +114,7 @@ const TransactionPage = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        return <div style={{ color: statusColors[params.row.status.toUpperCase()] }}>{params.row.status.toUpperCase()}</div>
+        return <div style={{ color: statusColors[params?.row?.status?.toUpperCase()] }}>{params?.row?.status?.toUpperCase()}</div>
       },
 
       // renderCell: (params: any) =>
@@ -182,7 +185,7 @@ const TransactionPage = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        return helper.convertDateAndTime(params.row?.inCreatedDate)
+        return helper.convertDateAndTime(params?.row?.inCreatedDate)
       },
     },
     {
@@ -367,7 +370,9 @@ const TransactionPage = () => {
 
       setTransactionData(inbound)
       setOutboundTransaction(outbound)
-      setcommonloader(false)
+      setTimeout(() => {
+        setcommonloader(false)
+      }, 2000)
     } catch (error) {
       console.log(error)
     }
@@ -472,6 +477,14 @@ const TransactionPage = () => {
     navigate(url)
   }
 
+  const getTransactionPermission = () => {
+    return transactionType === 'inwards' ? local_service.get_modules()?.TRANSACTION_INWARD : local_service.get_modules()?.TRANSACTION_OUTWARD
+  }
+
+  const getLoadingState = () => {
+    return transactionType === 'inwards' ? (inboundTransaction.length > 0 ? false : true) : outboundTransaction.length > 0 ? false : true
+  }
+
   return (
     <Box sx={{ width: '100%' }}>
       <Typography variant="h4" gutterBottom color={theme.palette.secondary.main}>
@@ -560,38 +573,23 @@ const TransactionPage = () => {
           },
         }}
       >
-        {transactionType === 'inwards' && helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_INWARD, 'canRead') && (
+        {helper.checkUserHasPermission(getTransactionPermission(), 'canRead') && (
           <DataGrid
-            rows={inboundTransaction?.length > 0 ? inboundTransaction : []}
+            rows={transactionType === 'inwards' ? inboundTransaction : outboundTransaction || []}
             //@ts-ignore
-            columns={inward_columns}
-            getRowId={(row) => row?.transactionNumberIw}
-            //@ts-ignore
-            pageSize={5}
-            rowsPerPageOptions={[5]}
-            disableSelectionOnClick
-            sx={{
-              '& .MuiDataGrid-root': {
-                border: '1 px solid blue',
-              },
-              '& .MuiDataGrid-cell': {
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
+            columns={transactionType === 'inwards' ? inward_columns : columns_outward}
+            getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
+            pageSizeOptions={[10]}
+            initialState={{
+              pagination: {
+                paginationModel: { pageSize: 20, page: 0 },
               },
             }}
-          />
-        )}
-
-        {transactionType === 'outwards' && helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canRead') && (
-          <DataGrid
-            rows={outboundTransaction}
-            columns={columns_outward}
-            getRowId={(row: any) => row.id}
-            //@ts-ignore
-            pageSize={5}
-            rowsPerPageOptions={[5]}
-            disableSelectionOnClick
+            loading={getLoadingState()}
+            slots={{
+              loadingOverlay: LoaderUI.LoadingOverlay, // You can import a custom one
+            }}
+            disableRowSelectionOnClick
             sx={{
               '& .MuiDataGrid-root': {
                 border: '1 px solid blue',
@@ -807,15 +805,7 @@ const TransactionPage = () => {
         </DialogActions>
       </Dialog>
 
-      <CompliancTool
-        //@ts-ignore
-        open={toolopen}
-        //@ts-ignore
-        setOpen={setToolOpen}
-        //@ts-ignore
-        userList={userList}
-        fetchUserDetails={() => {}}
-      />
+      <CompliancTool open={toolopen} setOpen={setToolOpen} userList={userList} fetchUserDetails={() => {}} />
 
       <Modal open={modalOpen} onClose={() => setmodalOpen(false)}>
         <Box
@@ -861,9 +851,16 @@ const TransactionPage = () => {
             }}
             columns={StpColumns}
             rows={stpErrors}
-            //@ts-ignore
-            pageSize={5}
-            rowsPerPageOptions={[5]}
+            initialState={{
+              pagination: {
+                paginationModel: { pageSize: 20, page: 0 },
+              },
+            }}
+            loading={stpErrors.length > 0 ? false : true}
+            slots={{
+              loadingOverlay: LoaderUI.LoadingOverlay,
+            }}
+            pageSizeOptions={[10]}
             getRowId={(row: any) => row.id} // Ensure proper row ID handling
           />
           <Button variant="outlined" onClick={() => setmodalOpen(false)} sx={{ mt: 2 }}>

@@ -7,8 +7,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { Logo } from '@/assets/images' // Assuming the logo is properly imported
 import { useRecoilState } from 'recoil'
 import { countyState, loaderState, selectedAppState, selectedCountryState } from '@/states/state'
-
-import LoaderBackdrop from '@/components/loader/loader'
+import LoaderUI from '@/components/loader/loader'
 import CloseIcon from '@mui/icons-material/Close'
 import { UserService } from '@/services/user.service'
 import staticdataService from '@/services/staticdata.service'
@@ -153,7 +152,7 @@ const LoginPage = () => {
         backgroundColor: 'red',
       }}
     >
-      <LoaderBackdrop openloader={commonloader} />
+      <LoaderUI.LoaderBackdrop openloader={commonloader} />
       <Snackbar open={open} autoHideDuration={4000} onClose={handleClose} message={text} action={action} />
       <Box
         sx={{
