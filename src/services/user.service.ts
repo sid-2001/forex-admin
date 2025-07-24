@@ -337,8 +337,8 @@ export class UserService extends BaseService {
       throw new Error(e as any)
     }
   }
-  async BranchList() {
-    let url = '/api/static-table/forex-branch-code/listByCountryCode?countryCode=ZA'
+  async BranchList(countryCode: string) {
+    let url = `/api/static-table/forex-branch-code/listByCountryCode?countryCode=${countryCode}`;
     try {
       let data = await api1.get(url)
       return data
@@ -347,14 +347,14 @@ export class UserService extends BaseService {
     }
   }
   
-  async getSuburbList() {
-  const url = '/api/static-table/states/ZA';
-  try {
-    const { data } = await api1.get(url);
-    return data;
-  } catch (error) {
-    throw new Error(error as any);
-  }
-}
+//   async getSuburbList() {
+//   const url = '/api/static-table/states/ZA';
+//   try {
+//     const { data } = await api1.get(url);
+//     return data;
+//   } catch (error) {
+//     throw new Error(error as any);
+//   }
+// }
 
 }

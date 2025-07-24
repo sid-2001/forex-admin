@@ -58,10 +58,15 @@ const UserAdd = () => {
   const [passwordError, setPasswordError] = useState("");
   const [countryList, setCountryList] = useState([]);
   const [branchList, setBranchList] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState('ZA');
   const [suburbList, setSuburbList] = useState<any[]>([]);
   const { staffId } = useParams();
   const navigate = useNavigate()
   const theme = useTheme()
+  const postalCodeMaxLengthMap: { [key: string]: number } = {
+    'India': 6,
+    'South Africa': 4,
+  };
 
   const handleToggleChangePermisson = (
     //@ts-ignore
@@ -107,11 +112,6 @@ const UserAdd = () => {
         sortAscending(new_permisson_data, id)
       )
     }
-
-
-
-
-
 
     let permisson_data = new_permisson_data?.map((e: any) => ({
       //@ts-ignore
@@ -222,18 +222,19 @@ const UserAdd = () => {
     }
   };
 
-  const fetchSurbub = async () => {
-    try {
-      const response = await user_service.getSuburbList();
-      setSuburbList(response || []);
-    } catch (err) {
-      console.error("Error fetching countries:", err);
-    }
-  };
+  // const fetchSurbub = async () => {
+  //   try {
+  //       const response = await user_service.getSuburbList();
+  //     setSuburbList(response || []);
+  //   } catch (err) {
+  //     console.error("Error fetching countries:", err);
+  //   }
+  // };
 
   const fetchBranches = async () => {
     try {
-      const response = await user_service.BranchList();
+      const countryCode = selectedCountry || 'ZA'; // You can default if needed
+      const response = await user_service.BranchList(countryCode);
       setBranchList(response || []);
     } catch (err) {
       console.error("Error fetching branches:", err);
@@ -248,12 +249,13 @@ const UserAdd = () => {
     return null; // Return null if the value doesn't match the regex
   };
 
+  useEffect(() => {
+    fetchBranches();
+  }, [selectedCountry]);
 
   useEffect(() => {
     fetchRolesList();
     fetchCountries();
-    fetchBranches();
-    fetchSurbub();
   }, [])
 
   useEffect(() => {
@@ -278,39 +280,35 @@ const UserAdd = () => {
   //     return !helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canCreate')
   //   }
   // }
-const disableButton = () => {
-  const requiredFields = [
-    staffData?.staffFirstName,
-    staffData?.staffLastName,
-    staffData?.staffContactNumber,
-    staffData?.staffCountry,
-    staffData?.staffBranch,
-    staffData?.staffCity,
-    staffData?.staffPostalCode,
-    staffData?.staffSuburb,
-    staffData?.staffAddressLine1,
-    staffData?.staffAddressLine2,
-    staffData?.email,
-    staffData?.username,
-    staffData?.password,
-    selectedRole,
-    // Add other required fields here if needed
-  ];
+  const disableButton = () => {
+    const requiredFields = [
+      staffData?.staffFirstName,
+      staffData?.staffLastName,
+      staffData?.staffContactNumber,
+      staffData?.staffCountry,
+      staffData?.staffBranch,
+      staffData?.staffCity,
+      staffData?.staffPostalCode,
+      staffData?.staffSuburb,
+      staffData?.staffAddressLine1,
+      staffData?.staffAddressLine2,
+      staffData?.email,
+      staffData?.username,
+      staffData?.password,
+      selectedRole,
+      // Add other required fields here if needed
+    ];
 
-  const isAnyFieldEmpty = requiredFields.some(
-    (field) => !field || field.toString().trim() === ''
-  );
+    const isAnyFieldEmpty = requiredFields.some(
+      (field) => !field || field.toString().trim() === ''
+    );
 
-  const hasPermission = staffId
-    ? helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canUpdate')
-    : helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canCreate');
+    const hasPermission = staffId
+      ? helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canUpdate')
+      : helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canCreate');
 
-  return !hasPermission || isAnyFieldEmpty;
-};
-
-
-
-
+    return !hasPermission || isAnyFieldEmpty;
+  };
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.STAFF}>
@@ -324,8 +322,6 @@ const disableButton = () => {
           Staff Details
         </Typography>
 
-
-
         <Box sx={{ width: '80vw' }}>
           <Grid container spacing={2} mb={2} >
             <Grid item xs={12} sm={4}>
@@ -336,11 +332,8 @@ const disableButton = () => {
                 value={staffData?.staffFirstName || ""}
                 onChange={(e) => {
                   const value = handleRegexChange(e, /^[a-zA-Z]*$/);
-                  console.log(value)
+                  if (value !== null) handleChange(e);
 
-                  if (value !== null) {
-                    handleChange(e);
-                  }
                 }}
                 InputProps={{ readOnly: !isEditable }}
               />
@@ -352,11 +345,7 @@ const disableButton = () => {
                 value={staffData?.staffLastName || ""}
                 onChange={(e) => {
                   const value = handleRegexChange(e, /^[a-zA-Z]*$/);
-                  console.log(value)
-
-                  if (value !== null) {
-                    handleChange(e);
-                  }
+                  if (value !== null) handleChange(e);
                 }}
                 name="staffLastName"
                 fullWidth
@@ -364,25 +353,7 @@ const disableButton = () => {
               />
             </Grid>
 
-            {/* <Grid item xs={12} sm={2}>
-              <label style={inputLabelStyle}>Branch</label>
-              <TextField
-                select
-                fullWidth
-                name="staffBranch"
-                value={staffData?.staffBranch || ''}
-                onChange={handleChange}
-                InputProps={{ readOnly: !isEditable }}
-                SelectProps={{ native: true }}
-              >
-                <option value="">-- Select Branch --</option>
-                {branchList.map((branch: any) => (
-                  <option key={branch.id} value={branch.cityName}>
-                    {branch.cityName}
-                  </option>
-                ))}
-              </TextField>
-            </Grid> */}
+
             <Grid item xs={12} sm={2}>
               <label style={inputLabelStyle}>Branch</label>
               <TextField
@@ -403,19 +374,13 @@ const disableButton = () => {
               </TextField>
             </Grid>
 
-
-
             <Grid item xs={12} sm={3}>
               <label style={inputLabelStyle}>Phone</label>
               <TextField
                 value={staffData?.staffContactNumber || ""}
                 onChange={(e) => {
                   const value = handleRegexChange(e, /^\d{0,10}$/); // Allow only numbers and limit to 10 digits
-                  console.log(value)
-
-                  if (value !== null) {
-                    handleChange(e);
-                  }
+                  if (value !== null) handleChange(e);
                 }}
                 name="staffContactNumber"
                 fullWidth
@@ -479,10 +444,7 @@ const disableButton = () => {
                 value={staffData?.username || ""}
                 onChange={(e) => {
                   const value = handleRegexChange(e, /^[a-zA-Z]*$/); // ALLOW ONLY UPPER AND LOWER CASE LETTERS
-                  console.log(value)
-                  if (value !== null) {
-                    handleChange(e);
-                  }
+                  if (value !== null) handleChange(e);
                 }}
                 InputProps={{ readOnly: !isEditable }}
               />
@@ -502,9 +464,7 @@ const disableButton = () => {
                 value={staffData?.staffAddressLine1 || ''}
                 onChange={(e) => {
                   const value = handleRegexChange(e, /^[a-zA-Z0-9\s,.\-]*$/);
-                  if (value !== null) {
-                    handleChange(e);
-                  }
+                  if (value !== null) handleChange(e);
                 }}
 
               />
@@ -518,33 +478,12 @@ const disableButton = () => {
                 value={staffData?.staffAddressLine2 || ''}
                 onChange={(e) => {
                   const value = handleRegexChange(e, /^[a-zA-Z0-9\s,.\-]*$/);
-                  if (value !== null) {
-                    handleChange(e);
-                  }
+                  if (value !== null) handleChange(e);
                 }}
               // InputProps={{ readOnly: !isEditable }}
               />
             </Grid>
 
-            {/* <Grid item xs={12} sm={2}>
-              <label style={inputLabelStyle}>Suburb</label>
-              <TextField
-                select
-                fullWidth
-                name="staffSuburb"
-                value={staffData?.staffSuburb || ''}
-                onChange={handleChange}
-                InputProps={{ readOnly: !isEditable }}
-                SelectProps={{ native: true }}
-              >
-                <option value="">-- Select Suburb --</option>
-                {suburbList.map((item, index) => (
-                  <option key={index} value={item.state}>
-                    {item.state}
-                  </option>
-                ))}
-              </TextField>
-            </Grid> */}
             <Grid item xs={12} sm={2}>
               <label style={inputLabelStyle}>Suburb</label>
               <TextField
@@ -555,9 +494,6 @@ const disableButton = () => {
                 InputProps={{ readOnly: !isEditable }}
               />
             </Grid>
-
-
-
 
             <Grid item xs={12} sm={2}>
               <label style={inputLabelStyle}>
@@ -570,7 +506,7 @@ const disableButton = () => {
                 onChange={handleChange}
                 InputProps={{ readOnly: !isEditable }}
               />
-            </Grid>
+            </Grid>           
 
             <Grid item xs={12} sm={2}>
               <label style={inputLabelStyle}>Postal Code</label>
@@ -580,20 +516,10 @@ const disableButton = () => {
                 value={staffData?.staffPostalCode || ''}
                 onChange={(e) => {
                   const value = e.target.value;
-
-                  // Get the selected country from staffData
                   const country = staffData?.staffCountry;
-
-                  // Decide max length based on country
-                  const maxLength =
-                    country === 'India'
-                      ? 6
-                      : country === 'South Africa'
-                        ? 4
-                        : 0; // default to 10 for other countries
-                  if (new RegExp(`^\\d{0,${maxLength}}$`).test(value)) {
-                    handleChange(e);
-                  }
+                  // Get maxLength from map or default to 10
+                  const maxLength = postalCodeMaxLengthMap[country] || 0;
+                  if (new RegExp(`^\\d{0,${maxLength}}$`).test(value)) handleChange(e);
                 }}
                 InputProps={{ readOnly: !isEditable }}
               />
@@ -612,11 +538,15 @@ const disableButton = () => {
               >
                 <option value="">-- Select Country --</option>
                 {countryList.map((country: any) => (
-                  <option key={country.countryCode} value={country.countryName}>
+                  <option
+
+
+                    key={country.countryCode} value={country.countryName}>
                     {country.countryName}
                   </option>
                 ))}
               </TextField>
+
             </Grid>
           </Grid>
         </Box>
@@ -782,9 +712,9 @@ const disableButton = () => {
                   }
                   else {
 
-                     settype("error")
+                    settype("error")
                     setText(data?.message)
-                   
+
 
                     // settype('success')
                   }

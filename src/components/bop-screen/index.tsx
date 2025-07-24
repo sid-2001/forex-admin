@@ -276,7 +276,7 @@ const BopScreen: React.FC = () => {
           <Grid item xs={2.3}>
             <TextField
               size="small"
-              label="tion Number"
+              label="transaction Number"
               variant="outlined"
               name="transaction_number"
               value={formData.transaction_number || ''}
