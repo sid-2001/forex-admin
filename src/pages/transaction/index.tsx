@@ -90,6 +90,7 @@ const TransactionPage = () => {
     },
     { field: 'forex', headerName: 'Exchange Rate', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'charges', headerName: 'Charges', flex: 1, headerClassName: 'super-app-theme--header' },
+    // {field: 'principalCurrency', headerName: 'PR', width: 100, headerClassName: 'super-app-theme--header' },
 
     // {
     //   field: 'reporting',
