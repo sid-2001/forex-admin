@@ -11,7 +11,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { ThemeProvider } from '@emotion/react'
 import { createTheme } from '@mui/material/styles'
-import NewTransactionPage from './pages/transaction/index'
+import TransactionListing from './pages/transaction/index'
 import CustomSnackbar from './components/customsnackbar/snackbar'
 import KYCPage from './pages/kyc'
 import ApplicantPage from './pages/applicant'
@@ -24,8 +24,6 @@ import SendMoneyPage from './pages/send-money'
 import MainTabsPage from './pages/static-data/staticdata.page'
 import ReconPage from './pages/transaction/recon'
 import GifModal from './components/successModal'
-import ChargesDataGridTable from './pages/add-charges'
-import ListCharges from './pages/list-chages'
 import BopScreen from './components/bop-screen'
 import BopTable from './pages/bop-table'
 import UtilizationEnquiryForm from './pages/utilization'
@@ -65,7 +63,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<ProtectedRoute {...defaultProtectedRouteProps} outlet={<DashboardLayout />} />}>
-              <Route path="transaction" element={<NewTransactionPage />} />
+              <Route path="transaction" element={<TransactionListing />} />
               <Route path="sendmoney" element={<SendMoneyPage />} />
               <Route path="kyc" element={<KYCPage />} />
               <Route path="kyc/:id" element={<KYCPage />} />
@@ -78,8 +76,6 @@ function App() {
               <Route path="add-beneficiary/:id" element={<AddBeneficiary />} />
               <Route path="recon" element={<ReconPage />} />
               <Route path="utilization" element={<UtilizationEnquiryForm />} />
-              <Route path="charges/add" element={<ChargesDataGridTable />} />
-              <Route path="list-charges" element={<ListCharges />} />
               <Route path="beneficiary-details/:beneficiaryId" element={<BeneficiaryDetailPage />} />
               <Route path="beneficiary" element={<BeneficiaryEnquiry />} />
               <Route path="configuration" element={<MainTabsPage />} />

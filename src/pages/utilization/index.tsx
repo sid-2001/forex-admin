@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react'
 import {
   Box,
   Button,
@@ -15,36 +15,31 @@ import {
   Card,
   CardContent,
   Typography,
-  useTheme
-} from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { ApplicantService } from '@/services/applicant.service';
-import TransactionTable from '../transaction-table';
-import { HelperService } from '@/helpers/helper';
-import HasPermission from '@/components/permissionWrapper';
-import { LocalStorageService } from '@/helpers/local-storage-service';
+  useTheme,
+} from '@mui/material'
+import { ApplicantService } from '@/services/applicant.service'
+import TransactionTable from '../transaction-table'
+import { HelperService } from '@/helpers/helper'
+import HasPermission from '@/components/permissionWrapper'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
 const UtilizationEnquiryForm: React.FC = () => {
-  const [apiType, setApiType] = useState('');
-  const [enquiryType, setEnquiryType] = useState('');
-  const [searchBy, setSearchBy] = useState<'applicantId' | 'nationalId'>('applicantId');
-  const [applicantId, setApplicantId] = useState('');
-  const [nationalId, setNationalId] = useState('');
-  const [showResults, setShowResults] = useState(false);
+  const [apiType, setApiType] = useState('')
+  const [enquiryType, setEnquiryType] = useState('')
+  const [searchBy, setSearchBy] = useState<'applicantId' | 'nationalId'>('applicantId')
+  const [applicantId, setApplicantId] = useState('')
+  const [showResults, setShowResults] = useState(false)
   const [applicantData, setapplicantData] = useState<any>({})
   const [limitData, setLimitData] = useState<any>({})
   const [transactionData, setTranactiondata] = useState([])
   const theme = useTheme()
   const appilicant_service = new ApplicantService()
-  const helper = new HelperService();
-  const local_service =  new LocalStorageService();
+  const helper = new HelperService()
+  const local_service = new LocalStorageService()
 
   const handleSubmit = (e: React.FormEvent) => {
-
-    appilicant_service.getTransactionsByApplicantId(applicantId).then(data => {
-      appilicant_service.getCompliance(applicantId).then(data => {
-        console.log("I m in the Compliance data")
-        console.log(data)
+    appilicant_service.getTransactionsByApplicantId(applicantId).then((data) => {
+      appilicant_service.getCompliance(applicantId).then((data) => {
         setLimitData(data)
       })
       const formattedData: any = data?.map((transaction: any, index: number) => ({
@@ -71,155 +66,150 @@ const UtilizationEnquiryForm: React.FC = () => {
         final_amount: helper.roundToTwoFixed(transaction?.transactionOutward?.exchangeRates * transaction?.transactionOutward?.principalAmount),
         applicant: transaction?.applicant,
         //@ts-ignore
-        inid: transaction?.transactionInwardNumber
-      }));
-      setTranactiondata(formattedData || []);
-      // setapplicantData(data)
+        inid: transaction?.transactionInwardNumber,
+      }))
+      setTranactiondata(formattedData || [])
     })
     appilicant_service.searchByApplicantId(applicantId).then((data: any) => {
       setapplicantData(data?.data?.applicant)
     })
 
-    e.preventDefault();
-    setShowResults(true);
-  };
+    e.preventDefault()
+    setShowResults(true)
+  }
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.COMPLIANCE_MONITOR}>
-    <Box sx={{ flexGrow: 1, p: 1 }}>
-      <Typography variant="h4" gutterBottom fontWeight="bold" textAlign="left" color = {theme.palette.secondary.main}>
-        Limit Utilization Enquiry 
-      </Typography>
-        
-    <Grid container spacing={50}>
-  {/* LEFT SIDE — FORM */}
-
-  <Grid item xs={12} md={6} style={{
-    width:"100vw"
-  }}>
-    <form onSubmit={handleSubmit}>
-      <FormControl fullWidth margin="normal" >
-        <InputLabel id="enquiry-type-label">Enquiry Type</InputLabel>
-        <Select
-          labelId="enquiry-type-label"
-          value={enquiryType}
-          onChange={(e: SelectChangeEvent) => setEnquiryType(e.target.value)}
-        >
-          <MenuItem value="utilization">Utilization</MenuItem>
-          <MenuItem value="limit">Limit</MenuItem>
-        </Select>
-      </FormControl>
-
-      <FormControl fullWidth margin="normal">
-        <InputLabel id="api-type-label">API Type</InputLabel>
-        <Select
-          labelId="api-type-label"
-          value={apiType}
-          onChange={(e: SelectChangeEvent) => setApiType(e.target.value)}
-        >
-          <MenuItem value="type1">SDA</MenuItem>
-          <MenuItem value="type2">FIA</MenuItem>
-          <MenuItem value="type3">FN</MenuItem>
-        </Select>
-      </FormControl>
-
-      <FormControl component="fieldset" margin="normal">
-        <RadioGroup
-          row
-          value={searchBy}
-          onChange={(e) => setSearchBy(e.target.value as 'applicantId' | 'nationalId')}
-        >
-          <FormControlLabel value="applicantId" control={<Radio />} label="Applicant ID" />
-          <FormControlLabel value="nationalId" disabled control={<Radio />} label="National ID" />
-        </RadioGroup>
-      </FormControl>
-
-      <TextField
-  label="Applicant ID"
-  fullWidth
-  margin="normal"
-  value={applicantId}
-  onChange={(e) => {
-    const input = e.target.value;
-    const onlyAlphanumeric = input.replace(/[^a-zA-Z0-9]/g, ''); // removes special chars
-    setApplicantId(onlyAlphanumeric);
-  }}
-  inputProps={{
-    pattern: '[a-zA-Z0-9]*',
-    title: 'Only alphanumeric characters are allowed',
-  }}
-/>
-
-
-      <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
-        Submit
-      </Button>
-    </form>
-  </Grid>
-
-  {/* RIGHT SIDE — RESULTS OR NO DATA */}
-  <Grid item xs={12} md={6}>
-    {showResults ? (
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
-          <Card>
-            <CardContent sx={{ cursor: 'pointer', '&:hover': { boxShadow: 3 }, border: '1px solid', borderColor: 'primary.light' }} >
-              <Typography variant="h6"><b>Applicant Info</b></Typography>
-              <Typography>Name: {applicantData?.firstName ?? "No Data Found"}</Typography>
-              <Typography>Gender: {applicantData?.gender ?? "No Data Found"}</Typography>
-              <Typography>Country: {applicantData?.residenceCountry ?? "No Data Found"}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} sm={6}>
-          <Card>
-            <CardContent sx={{ cursor: 'pointer', '&:hover': { boxShadow: 3 }, border: '1px solid', borderColor: 'primary.light' }} >
-              <Typography variant="h6"><b>Limits</b></Typography>
-              <Typography>Max Limit: {limitData?.maxLimit ?? "No Data Found"}</Typography>
-              <Typography>Utilized Limit: {limitData?.utilizedLimit ?? "No Data Found"}</Typography>
-              <Typography>Available Limit: {limitData?.availableLimit ?? "No Data Found"}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12}>
-          <Typography variant="h6" sx={{ mt: 2 }}><b>Transactions</b></Typography>
-          <Box sx={{ height: "40vh", width: '100%' }}>
-            <TransactionTable
-              //@ts-ignore
-              transaction={transactionData}
-              applicantId={applicantId}
-              availabledata={!!applicantData?.firstName}
-            />
-          </Box>
-        </Grid>
-      </Grid>
-    ) : (
-      <Box
-        sx={{
-          height: '100%',
-          width: '100%',
-          border: '1px dashed grey',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: '#f8f8f8',
-          minHeight: '60vh',
-        }}
-      >
-        <Typography variant="h6" color="textSecondary">
-          No Records Found
+      <Box sx={{ flexGrow: 1, p: 1 }}>
+        <Typography variant="h4" gutterBottom fontWeight="bold" textAlign="left" color={theme.palette.secondary.main}>
+          Limit Utilization Enquiry
         </Typography>
+
+        <Grid container spacing={50}>
+          {/* LEFT SIDE — FORM */}
+
+          <Grid
+            item
+            xs={12}
+            md={6}
+            style={{
+              width: '100vw',
+            }}
+          >
+            <form onSubmit={handleSubmit}>
+              <FormControl fullWidth margin="normal">
+                <InputLabel id="enquiry-type-label">Enquiry Type</InputLabel>
+                <Select labelId="enquiry-type-label" value={enquiryType} onChange={(e: SelectChangeEvent) => setEnquiryType(e.target.value)}>
+                  <MenuItem value="utilization">Utilization</MenuItem>
+                  <MenuItem value="limit">Limit</MenuItem>
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth margin="normal">
+                <InputLabel id="api-type-label">API Type</InputLabel>
+                <Select labelId="api-type-label" value={apiType} onChange={(e: SelectChangeEvent) => setApiType(e.target.value)}>
+                  <MenuItem value="type1">SDA</MenuItem>
+                  <MenuItem value="type2">FIA</MenuItem>
+                  <MenuItem value="type3">FN</MenuItem>
+                </Select>
+              </FormControl>
+
+              <FormControl component="fieldset" margin="normal">
+                <RadioGroup row value={searchBy} onChange={(e) => setSearchBy(e.target.value as 'applicantId' | 'nationalId')}>
+                  <FormControlLabel value="applicantId" control={<Radio />} label="Applicant ID" />
+                  <FormControlLabel value="nationalId" disabled control={<Radio />} label="National ID" />
+                </RadioGroup>
+              </FormControl>
+
+              <TextField
+                label="Applicant ID"
+                fullWidth
+                margin="normal"
+                value={applicantId}
+                onChange={(e) => {
+                  const input = e.target.value
+                  const onlyAlphanumeric = input.replace(/[^a-zA-Z0-9]/g, '') // removes special chars
+                  setApplicantId(onlyAlphanumeric)
+                }}
+                inputProps={{
+                  pattern: '[a-zA-Z0-9]*',
+                  title: 'Only alphanumeric characters are allowed',
+                }}
+              />
+
+              <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
+                Submit
+              </Button>
+            </form>
+          </Grid>
+
+          {/* RIGHT SIDE — RESULTS OR NO DATA */}
+          <Grid item xs={12} md={6}>
+            {showResults ? (
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <Card>
+                    <CardContent sx={{ cursor: 'pointer', '&:hover': { boxShadow: 3 }, border: '1px solid', borderColor: 'primary.light' }}>
+                      <Typography variant="h6">
+                        <b>Applicant Info</b>
+                      </Typography>
+                      <Typography>Name: {applicantData?.firstName ?? 'No Data Found'}</Typography>
+                      <Typography>Gender: {applicantData?.gender ?? 'No Data Found'}</Typography>
+                      <Typography>Country: {applicantData?.residenceCountry ?? 'No Data Found'}</Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <Card>
+                    <CardContent sx={{ cursor: 'pointer', '&:hover': { boxShadow: 3 }, border: '1px solid', borderColor: 'primary.light' }}>
+                      <Typography variant="h6">
+                        <b>Limits</b>
+                      </Typography>
+                      <Typography>Max Limit: {limitData?.maxLimit ?? 'No Data Found'}</Typography>
+                      <Typography>Utilized Limit: {limitData?.utilizedLimit ?? 'No Data Found'}</Typography>
+                      <Typography>Available Limit: {limitData?.availableLimit ?? 'No Data Found'}</Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Typography variant="h6" sx={{ mt: 2 }}>
+                    <b>Transactions</b>
+                  </Typography>
+                  <Box sx={{ height: '40vh', width: '100%' }}>
+                    <TransactionTable
+                      //@ts-ignore
+                      transaction={transactionData}
+                      applicantId={applicantId}
+                      availabledata={!!applicantData?.firstName}
+                    />
+                  </Box>
+                </Grid>
+              </Grid>
+            ) : (
+              <Box
+                sx={{
+                  height: '100%',
+                  width: '100%',
+                  border: '1px dashed grey',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: '#f8f8f8',
+                  minHeight: '60vh',
+                }}
+              >
+                <Typography variant="h6" color="textSecondary">
+                  No Records Found
+                </Typography>
+              </Box>
+            )}
+          </Grid>
+        </Grid>
       </Box>
-    )}
-  </Grid>
-</Grid>
+    </HasPermission>
+  )
+}
 
-  
-    
-    </Box></HasPermission>
-  );
-};
-
-export default UtilizationEnquiryForm;
+export default UtilizationEnquiryForm

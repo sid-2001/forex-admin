@@ -20,7 +20,6 @@ import {
   Modal,
 } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
-import { GridOverlay } from '@mui/x-data-grid'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { TransactionInward, TransactionInwardCalclulated, TransactionOutward } from '@/types/transaction.type'
 import AssessmentIcon from '@mui/icons-material/Assessment'
@@ -36,7 +35,7 @@ import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
 import { statusColors } from '@/contants/utils'
 import LoaderUI from '@/components/loader/loader'
 
-const TransactionPage = () => {
+const TransactionListing = () => {
   const columns_outward = [
     {
       field: 'id',
@@ -90,7 +89,7 @@ const TransactionPage = () => {
     },
     { field: 'forex', headerName: 'Exchange Rate', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'charges', headerName: 'Charges', flex: 1, headerClassName: 'super-app-theme--header' },
-    {field: 'gateway_name', headerName: 'Gateway', width: 100, headerClassName: 'super-app-theme--header' },
+    { field: 'gateway_name', headerName: 'Gateway', width: 100, headerClassName: 'super-app-theme--header' },
 
     // {
     //   field: 'reporting',
@@ -248,7 +247,6 @@ const TransactionPage = () => {
   const [endDate, setEndDate] = useState<string | null>(null)
   const [stpErrors, setStpErrors] = useState<any>([])
   const [selecteCountryState, setselectedCountryState] = useRecoilState(selectedCountryState)
- 
 
   let applicant_service = new ApplicantService()
   let transaction_Service = new TransactionService()
@@ -319,7 +317,7 @@ const TransactionPage = () => {
     try {
       setcommonloader(true)
       const data: any = await transaction_Service.getOutwardAllTransaction(selecteCountryState)
- console.log(data)
+      console.log(data)
       const inbound: Array<TransactionInwardCalclulated>[] | any = data?.map((e: any) => {
         //@ts-ignore
         return {
@@ -361,7 +359,6 @@ const TransactionPage = () => {
             gateway_name: e?.transactionGatewayDTO?.forexPaymentGateway?.company,
             //@ts-ignore
             inid: e?.transactionInwardNumber,
-
           }
         })
         ?.filter((transaction: any) => {
@@ -877,4 +874,4 @@ const TransactionPage = () => {
   )
 }
 
-export default TransactionPage
+export default TransactionListing

@@ -29,11 +29,8 @@ import { TransactionService } from '@/services/transaction.service'
 import { ApplicantService } from '@/services/applicant.service'
 import { PaymentGateway } from '@/types/static.type'
 import staticdataService from '@/services/staticdata.service'
-import { useRecoilState } from 'recoil'
-import { selectedCountryState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-import { AnyAaaaRecord } from 'node:dns'
-import { Id } from 'react-flags-select'
+import { HelperService } from '@/helpers/helper'
 
 const Dashboard = () => {
   // Sample dashboard data
@@ -48,9 +45,6 @@ const Dashboard = () => {
 
   // Modal state
   const [openModal, setOpenModal] = useState(false)
-  const [activeCustomer, setAvtiveCustomers] = useState(false)
-  const [userCountry, setuserCounty] = useRecoilState(selectedCountryState)
-
   const [recentTransaction, setrecentTransaction] = useState([])
   const [filterType, setFilterType] = useState('monthly')
   const [cards, setCards] = useState<Array<PaymentGateway>>([])
@@ -61,12 +55,12 @@ const Dashboard = () => {
   const transaction_service = new TransactionService()
   const applicant_service = new ApplicantService()
   const static_service = new staticdataService()
-  const local_service=new LocalStorageService()
+  const local_service = new LocalStorageService()
+  const helper = new HelperService()
 
   const getGatewayList = () => {
-    static_service.getStaticPaymentGateway(local_service?.get_staff_country()).then((data:any) => {
-
-      setCards(data?.data?.sort((e:any)=>e.costFee) );
+    static_service.getStaticPaymentGateway(local_service?.get_staff_country()).then((data: any) => {
+      setCards(data?.data?.sort((e: any) => e.costFee))
     })
   }
 
@@ -74,7 +68,6 @@ const Dashboard = () => {
     getGatewayList()
     transaction_service.getOutwardTransaction().then((data) => {
       let trx_list = data.transactionDetailsList.map((e) => {
-        let obj = { id: 1, customer: 'John Doe', amount: 125.5, date: '2023-06-15', status: 'Completed' }
         return {
           id: e.transactionOutward.transactionNumber,
           customer: `${e.applicant.firstName} ${e.applicant.lastName}`,
@@ -116,14 +109,6 @@ const Dashboard = () => {
     ],
   }
 
-  // Sample recent transactions
-  const recentTransactions = [
-    { id: 1, customer: 'John Doe', amount: 125.5, date: '2023-06-15', status: 'Completed' },
-    { id: 2, customer: 'Jane Smith', amount: 89.99, date: '2023-06-14', status: 'Completed' },
-    { id: 3, customer: 'Robert Johnson', amount: 245.0, date: '2023-06-13', status: 'Pending' },
-    { id: 4, customer: 'Emily Davis', amount: 67.3, date: '2023-06-12', status: 'Failed' },
-  ]
-
   // Sample active customers
   const activeCustomers = [
     { id: 1, name: 'John Doe', joinDate: '2021-03-15', purchases: 12 },
@@ -131,8 +116,6 @@ const Dashboard = () => {
     { id: 3, name: 'Michael Brown', joinDate: '2020-11-22', purchases: 21 },
     { id: 4, name: 'Sarah Wilson', joinDate: '2023-02-05', purchases: 3 },
   ]
-
-
 
   const bankAccounts = [
     {
@@ -247,16 +230,14 @@ const Dashboard = () => {
     )
   }
 
-  const handleToggle = (id:String,status:boolean) => {
-  
-      static_service.paymentGatewayStatus(id,status).then(data=>{
+  const handleToggle = (id: String, status: boolean) => {
+    static_service.paymentGatewayStatus(id, status).then((data) => {
+      console.log(data)
+      getGatewayList()
+    })
 
-        console.log(data)
-        getGatewayList()
-      })
-
-      // setEnabled((prev) => !prev)
-    }
+    // setEnabled((prev) => !prev)
+  }
 
   const HorizontalCard = ({
     //@ts-ignore
@@ -270,8 +251,6 @@ const Dashboard = () => {
     //@ts-ignore
     description,
   }) => {
-   
-    
     return (
       <Card
         sx={{
@@ -292,12 +271,14 @@ const Dashboard = () => {
         <CardContent sx={{ ml: 2, flexGrow: 1 }}>
           {/* <Typography variant="h6">{title}</Typography> */}
           <Typography variant="body2" color="text.secondary">
-          <Switch checked={status}  value={status}
-  onChange={(e:any)=>{
-    console.log(e)
-  handleToggle(id,!status)
-
-  }}  />
+            <Switch
+              checked={status}
+              value={status}
+              onChange={(e: any) => {
+                console.log(e)
+                handleToggle(id, !status)
+              }}
+            />
           </Typography>
         </CardContent>
       </Card>
@@ -410,9 +391,15 @@ const Dashboard = () => {
                 scrollSnapAlign: 'start',
               }}
             >
-              <HorizontalCard  id= {card?.id} title={card?.company} description="" status={card?.activeStatus} image_url={card?.imageUrl}
-              //@ts-ignore
-              status={card?.activeStatus}/>
+              <HorizontalCard
+                id={card?.id}
+                title={card?.company}
+                description=""
+                status={card?.activeStatus}
+                image_url={card?.imageUrl}
+                //@ts-ignore
+                status={card?.activeStatus}
+              />
             </Box>
           ))}
         </Box>
@@ -701,7 +688,7 @@ const Dashboard = () => {
                     </Stack>
                     <Stack direction="row" justifyContent="space-between" mt={1}>
                       <Typography variant="body2" color="text.secondary">
-                        {transaction.date}
+                        {helper.convertDateAndTime(transaction.date)}
                       </Typography>
                       <Typography
                         variant="body2"
