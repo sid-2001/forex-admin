@@ -7,6 +7,7 @@ import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { HelperService } from '@/helpers/helper'
 import { useTheme } from '@emotion/react'
+import LoaderUI from '@/components/loader/loader'
 
 const RoleManagementPage = () => {
   const [roles, setRoles] = useState([])
@@ -21,7 +22,7 @@ const RoleManagementPage = () => {
       setRoles(data)
     })
   }
-  const theme:any = useTheme()
+  const theme: any = useTheme()
 
   useEffect(() => {
     fetchRoles()
@@ -43,9 +44,9 @@ const RoleManagementPage = () => {
     <HasPermission module={local_service.get_modules()?.ROLE} permission={'canRead'}>
       <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'} sx={{ width: '80vw' }}>
         <Box>
-          <Typography variant="h4" gutterBottom 
-          //@its-ignore
-          sx={{ color: theme.palette.secondary.main }}>
+          <Typography variant="h4" gutterBottom
+            //@its-ignore
+            sx={{ color: theme.palette.secondary.main }}>
             <strong>Roles </strong>
           </Typography>
         </Box>
@@ -72,8 +73,8 @@ const RoleManagementPage = () => {
             color: 'white',
           },
           '& .MuiDataGrid-row:nth-of-type(even)': {
-              backgroundColor: '#e3f2fd', // Light blue alternate rows
-            },
+            backgroundColor: '#e3f2fd', // Light blue alternate rows
+          },
           width: '80vw',
           height: '70vh',
         }}
@@ -88,6 +89,16 @@ const RoleManagementPage = () => {
           ]}
           //@ts-ignore//@ts-ignore
           getRowId={(row) => row?.roleId}
+          initialState={{
+            pagination: {
+              paginationModel: { pageSize: 20, page: 0 },
+            },
+          }}
+          pageSizeOptions={[10]}
+          loading={roles.length === 0}
+          slots={{
+            loadingOverlay: LoaderUI.LoadingOverlay, // Make sure LoaderUI is defined/imported
+          }}
           sx={{
             '& .MuiDataGrid-root': {
               border: '1 px solid blue',

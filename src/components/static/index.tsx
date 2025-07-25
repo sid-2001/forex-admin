@@ -5,7 +5,7 @@ import { Add, Edit, Delete } from '@mui/icons-material'
 import staticdataService from '@/services/staticdata.service'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState, staticTableState } from '@/states/state'
-
+import LoaderUI from '@/components/loader/loader'
 const StaticDataGrid = ({
   //@ts-ignore
   data,
@@ -404,10 +404,19 @@ const theme = useTheme()
         <DataGrid
           rows={rows}
           columns={columns}
+          initialState={{
+              pagination: {
+                paginationModel: { pageSize: 20, page: 0 },
+              },
+            }}
+            pageSizeOptions={[10]}
+            loading={ rows.length === 0}
+            slots={{
+              loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
+            }}
+          
+          disableRowSelectionOnClick
           //@ts-ignore
-          pageSize={10}
-          rowsPerPageOptions={[10]}
-          disableSelectionOnClick
           components={{
             Toolbar: CustomToolbar,
           }}

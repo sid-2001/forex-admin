@@ -101,7 +101,7 @@ const RoleModal = ({
 
     setPermissions(updatedPermissions);
   };
-
+  
   const handleToggle = (
     //@ts-ignore
     id, type) => {

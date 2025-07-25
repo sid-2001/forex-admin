@@ -8,6 +8,7 @@ import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { HelperService } from '@/helpers/helper'
 import RoleModal from '@/components/roles-tab'
+import LoaderUI from '@/components/loader/loader'
 
 const StyledDataGrid = styled(DataGrid)({
   '& .MuiDataGrid-columnHeaders': {
@@ -119,8 +120,16 @@ const UserTable: React.FC = () => {
         <StyledDataGrid
           rows={staffList || []}
           columns={columns}
-          //@ts-ignore
-          pageSize={5}
+          initialState={{
+              pagination: {
+                paginationModel: { pageSize: 20, page: 0 },
+              },
+            }}
+            pageSizeOptions={[10]}
+            loading={ staffList.length === 0}
+            slots={{
+              loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
+            }}
           disableRowSelectionOnClick
           getRowId={(row) => row.staffId}
         />
