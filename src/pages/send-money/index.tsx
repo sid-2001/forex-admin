@@ -291,6 +291,7 @@ const SendMoneyPage = () => {
     }
 
     getGatewaysListByCountry()
+    fetchBopList()
   }, [])
 
   useEffect(() => {

@@ -184,4 +184,17 @@ export class TransactionService extends BaseService {
       console.log(err)
     }
   }
+
+
+  async getTransactionSummary(country:any){
+let url=`/api/transactions/transaction-outward/transaction-summary?countryCode=${country}`
+    try{
+
+let data=await api1.get(url);
+return data
+    }catch(err){
+
+      console.log(err)
+    }
+  }
 }

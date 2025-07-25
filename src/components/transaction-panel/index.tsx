@@ -25,8 +25,6 @@ import { Close, ArrowBack } from '@mui/icons-material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import staticdataService from '@/services/staticdata.service';
 
-const BASE_URL = 'http://64.227.139.142:9091/api/transactions/transaction-outward/summary';
-
 const TransactionModal = ({ open, onClose }) => {
   const [year, setYear] = useState(2025);
   const [monthlyData, setMonthlyData] = useState([]);
@@ -62,7 +60,7 @@ const TransactionModal = ({ open, onClose }) => {
     }
   };
 
-  const fetchDailyData = async (month) => {
+  const fetchDailyData = async (month:string) => {
     setLoading(true);
     setError(null);
     try {
@@ -216,7 +214,7 @@ const TransactionModal = ({ open, onClose }) => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {monthlyData.map((month) => (
+                        {monthlyData.map((month:any) => (
                           <TableRow 
                             key={month.dayOrMonth}
                             hover
