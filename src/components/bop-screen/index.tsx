@@ -70,6 +70,30 @@ const BopScreen: React.FC = () => {
     // console.log(isValid, "---------------", formData)
     // if (!isValid) return;
 
+    const stp_validation_payload = {
+      transactionNumber: transactionId,
+      applicantName: formData?.name,
+      physicalAddressLine1: formData?.physical_address_line1,
+      physicalAddressLine2: formData?.physical_address_line2,
+      // suburb: formData?.suburb,
+      // city: formData?.city,
+      // postcode: formData?.postcode,
+      postalAddressLine1: formData?.postal_address_line1,
+      postalAddressLine2: formData?.postal_address_line1,
+      // postalSuburb: formData?.postal_suburb,
+      // postalCity: formData?.postal_city,
+      // postalPostcode: formData?.postal_postcode,
+      // postalCountry: formData?.postal_country,
+      // idType: formData?.id_type,
+      // idDetails: formData?.id_details,
+      contactType: formData?.contact_type,
+      contactDetails: formData?.contact_details,
+      // dob: formData?.dob,
+      // residenceCountry: formData?.residence_country,
+      // residenceState: formData?.residence_state,
+      // postalState: formData?.postal_state,
+    }
+
     const payload = {
       bopData: {
         ...formData,
@@ -84,6 +108,7 @@ const BopScreen: React.FC = () => {
     }
 
     try {
+      const stpResponse = await bopService.validateAndUpdateStpRules(stp_validation_payload)
       const response = await bopService.updateBopData(payload, formData.id)
       window.location.reload()
     } catch (error) {
@@ -199,6 +224,13 @@ const BopScreen: React.FC = () => {
       console.log('err', error)
     }
   }
+  const handleRegexValidation = (e: any, regex: any) => {
+    const value = e.target.value
+    if (regex.test(value)) {
+      return value
+    }
+    return null // Return null if the value doesn't match the regex
+  }
 
   useEffect(() => {
     if (transactionId) {
@@ -211,7 +243,7 @@ const BopScreen: React.FC = () => {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>
-      <Box style={{ width: '80vw', height: '80vh', overflowY: 'scroll', padding: '10px' }}>
+      <Box style={{ width: '80vw', height: '80vh', overflowY: 'scroll', padding: '10px 20px' }}>
         <Box sx={{ textAlign: 'right', marginBottom: '10px' }}>
           <Button
             variant="outlined"
@@ -489,7 +521,10 @@ const BopScreen: React.FC = () => {
                 name="first_name"
                 fullWidth
                 value={formData.first_name || ''}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const value = handleRegexValidation(e, /^[a-zA-Z]*$/)
+                  if (value !== null) handleChange(e)
+                }}
                 error={Boolean(errors.first_name)}
                 helperText={errors.first_name}
                 disabled={bopData?.status === disableFormFieldsViaStatus}
@@ -618,6 +653,7 @@ const BopScreen: React.FC = () => {
             <Grid item xs={2}>
               <TextField
                 size="small"
+                type="number"
                 label="Contact Details"
                 variant="outlined"
                 name="contact_details"

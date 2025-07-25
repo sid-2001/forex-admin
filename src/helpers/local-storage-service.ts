@@ -1,9 +1,7 @@
-import { Admin, User } from '@/types/auth.type'
-import { json } from 'react-router-dom'
-// import { json } from 'react-router-dom'
+import { User } from '@/types/auth.type'
 
 class LocalStorageService {
-  constructor() { }
+  constructor() {}
 
   get(key: string) {
     return localStorage.getItem(key)
@@ -14,25 +12,6 @@ class LocalStorageService {
   }
   set(key: string, value: any) {
     localStorage.setItem(key, JSON.stringify(value))
-  }
-
-  getbranchOwner(): {
-    name: string
-    id: string
-  } {
-    return JSON.parse(
-      //@ts-ignore
-      this.get('branch'),
-    ) as any
-  }
-  setbranchOwner(id: string, name: string) {
-    localStorage.setItem(
-      'branch',
-      JSON.stringify({
-        name: name,
-        id: id,
-      }),
-    )
   }
 
   get_accesstoken() {
@@ -59,7 +38,6 @@ class LocalStorageService {
     let staff_record: any = this.get('staff_access')
     return JSON.parse(staff_record)?.staffCountry
   }
-
 
   get_modules() {
     let modules_record: any = this.get('modules')
