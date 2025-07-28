@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Typography, Grid, Box, TextField, Select, FormControl, InputLabel, MenuItem, Button } from '@mui/material'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
@@ -25,47 +25,76 @@ const genderArry = [
   { label: 'Female', value: 'Female' },
 ]
 
+const fieldNamesMapping: any = {
+  first_name: 'name',
+  contact_details: 'phoneNumber',
+  email: 'email',
+  last_name: 'name',
+  middle_name: 'name',
+  physical_address_line1: 'address',
+  physical_address_line2: 'address',
+  postal_address_line1: 'address',
+  postal_address_line2: 'address',
+}
+
 const BopScreen: React.FC = () => {
   const { transactionId, transaction_attempt } = useParams()
   const [formData, setFormData] = useState<any>({})
-  const [errors, setErrors] = useState<any>({})
+  const [formErrors, setFormErrors] = useState<any>({})
   const [bopData, setBopData] = useState<any>({})
   const [bopCat, setbopCat] = useState<any>({})
   const [bopCategory, setBopCategory] = useState<any>([])
   const [confirmReleaseModal, setConfirmReleaseModal] = useState<boolean>(false)
   const [stpErrors, setStpErrors] = useState<any>([])
+  const [validationRules, setValidationRules] = useState<any>([])
   const theme = useTheme()
-
-  const storedLocalData = localStorage.getItem('staff_access') || ''
-  const parseData = JSON.parse(storedLocalData)
+  const local_service = new LocalStorageService()
   const helper = new HelperService()
   const bopService = new BopService()
   const transaction_Service = new TransactionService()
-  const local_service = new LocalStorageService()
+
+  const parseData = local_service.get_staff_access()
+
+  console.log(validationRules, '-------------------')
 
   //@ts-ignore
   const userLoggedInCountry = countryCodes[parseData?.staffCountry]
 
-  const validateForm = () => {
-    // const newErrors: any = {};
-    // let isValid = true;
-    // Object.keys(formData).forEach((field: any) => {
-    //   //@ts-ignore
-    //   if (!formData[field]) {
-    //     newErrors[field] = 'This field is required';
-    //     isValid = false;
-    //   }
-    // });
-    // Specific validation for email format
-    // if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-    //   newErrors.email = 'Please enter a valid email address';
-    //   isValid = false;
-    // }
-    // setErrors(newErrors);
-    // return isValid;
+  const validateForm = (formData: any) => {
+    const errors: any = {}
+
+    for (const [key, value] of Object.entries(formData)) {
+      // find eleemt in array
+      const validRule = validationRules.find((item: any) => {
+        return item.fieldName === fieldNamesMapping[key]
+      })
+      if (validRule) {
+        const pattern = validRule.specialCharacterList.slice(1, -1) // remove slashes
+        const regex = new RegExp(pattern)
+        //@ts-ignore
+        if (value.length < validRule.minLength || value.length > validRule.maxLength) {
+          errors[key] = `Must be between ${validRule.minLength} and ${validRule.maxLength} characters.`
+        }
+        //@ts-ignore
+        else if (!regex.test(value)) {
+          errors[key] = validRule.errorMessage
+        }
+      }
+    }
+    console.log(errors, '==============erros')
+    return errors // empty object if no errors
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: any) => {
+    console.log('form submitted')
+    e.preventDefault()
+    const errors = validateForm(formData)
+    setFormErrors(errors)
+
+    if (Object.keys(errors).length === 0) {
+      console.log('Submit data:', formData)
+    }
+    return
     // const isValid = validateForm();
     // console.log(isValid, "---------------", formData)
     // if (!isValid) return;
@@ -108,9 +137,9 @@ const BopScreen: React.FC = () => {
     }
 
     try {
-      const stpResponse = await bopService.validateAndUpdateStpRules(stp_validation_payload)
-      const response = await bopService.updateBopData(payload, formData.id)
-      window.location.reload()
+      // const stpResponse = await bopService.validateAndUpdateStpRules(stp_validation_payload)
+      // const response = await bopService.updateBopData(payload, formData.id)
+      // window.location.reload()
     } catch (error) {
       console.error(error)
     }
@@ -224,13 +253,10 @@ const BopScreen: React.FC = () => {
       console.log('err', error)
     }
   }
-  const handleRegexValidation = (e: any, regex: any) => {
-    const value = e.target.value
-    if (regex.test(value)) {
-      return value
-    }
-    return null // Return null if the value doesn't match the regex
-  }
+
+  const getLocalStorageData = useCallback(() => {
+    setValidationRules(local_service.get_validations() || [])
+  }, [])
 
   useEffect(() => {
     if (transactionId) {
@@ -238,6 +264,7 @@ const BopScreen: React.FC = () => {
       fetchBopCategoryDataById()
       fetchBopMatrixCategoriesListing()
       fetchStpErrorList()
+      getLocalStorageData()
     }
   }, [])
 
@@ -304,455 +331,685 @@ const BopScreen: React.FC = () => {
           </Typography>
         </Box>
 
-        <Grid container spacing={2} mt={1}>
-          <Grid item xs={2.3}>
-            <TextField
-              size="small"
-              label="Transaction Number"
-              variant="outlined"
-              name="transaction_number"
-              value={formData.transaction_number || ''}
-              disabled
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={2.3}>
-            <TextField
-              size="small"
-              label="Transaction Attempt"
-              variant="outlined"
-              name="transaction_attempt"
-              value={formData.transaction_attempt || 0}
-              fullWidth
-              disabled
-            />
-          </Grid>
-          <Grid item xs={2.3}>
-            <TextField
-              size="small"
-              label="Transaction Status"
-              disabled
-              variant="outlined"
-              name="transaction_status"
-              value={formData.transaction_status || ''}
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={2.3}>
-            <TextField size="small" label="Bop Status" disabled variant="outlined" name="status" value={formData.status || ''} fullWidth />
-          </Grid>
-          <Grid item xs={2.3}>
-            <TextField size="small" label="Sarb Status" disabled variant="outlined" name="sap_status" value={formData.sap_status || ''} fullWidth />
-          </Grid>
-        </Grid>
-
-        <Box mt={3}>
-          <Typography
-            variant="h5"
-            gutterBottom
-            // @ts-ignore
-            color={theme.palette.secondary.main}
-          >
-            {userLoggedInCountry === 'IN' ? 'Purpose Code Details' : 'Bop Category Details'}
-          </Typography>
-        </Box>
-
-        <Grid container spacing={2} mt={1}>
-          <Grid item xs={3}>
-            <FormControl fullWidth>
-              <InputLabel>{userLoggedInCountry === 'IN' ? 'Purpose Code' : 'Bop Category'}</InputLabel>
-              <Select
-                label={userLoggedInCountry === 'IN' ? 'Purpose Code' : 'Bop Category'}
-                variant="outlined"
-                name="bop_category"
-                value={bopCat?.bop_category || ''}
-                size="small"
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                onChange={(e) => {
-                  const { value } = e.target
-                  const bopItem = bopCategory.find((item: any) => item.bopCategoryCd === value)
-                  setbopCat((prev: any) => ({
-                    ...prev,
-                    bop_category: value,
-                    bop_sub_category: bopItem.bopSubCategoryCd,
-                    bop_description: bopItem.categoryDescription,
-                  }))
-                }}
-              >
-                {bopCategory.map((item: any, ind: any) => (
-                  <MenuItem key={ind} value={item.bopCategoryCd}>
-                    {item.bopCategoryCd}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={3}>
-            <TextField
-              size="small"
-              label="Sub Category"
-              variant="outlined"
-              name="bop_sub_category"
-              value={bopCat?.bop_sub_category || ''}
-              disabled
-              fullWidth
-            />
-          </Grid>
-
-          <Grid item xs={6}>
-            <TextField
-              size="small"
-              label="Category Description"
-              variant="outlined"
-              name="bop_description"
-              value={bopCat?.bop_description || ''}
-              disabled
-              fullWidth
-            />
-          </Grid>
-
-          <Grid item xs={3}>
-            <TextField
-              size="small"
-              label="Principal Amount"
-              variant="outlined"
-              name="principal_amount"
-              value={bopCat?.principal_amount || ''}
-              disabled
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={3}>
-            <TextField
-              size="small"
-              label="Principal Currency"
-              variant="outlined"
-              name="principal_currency"
-              value={bopCat?.principal_currency || ''}
-              disabled
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={3}>
-            <TextField
-              size="small"
-              label="Settlement Amount"
-              variant="outlined"
-              name="settlement_amount"
-              value={bopCat?.settlement_amount || ''}
-              disabled
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={3}>
-            <TextField
-              size="small"
-              label="Settlement Currency"
-              variant="outlined"
-              name="settlement_currency"
-              value={bopCat?.settlement_currency || ''}
-              disabled
-              fullWidth
-            />
-          </Grid>
-
-          <Grid item xs={3}>
-            <TextField
-              size="small"
-              label="Excon Ruling Indicator"
-              variant="outlined"
-              name="excon_ruling_indicator"
-              value={bopCat?.excon_ruling_indicator || ''}
-              disabled
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={3}>
-            <TextField
-              size="small"
-              label="Excon Ruling Section"
-              variant="outlined"
-              name="excon_ruling_section"
-              value={bopCat?.excon_ruling_section || ''}
-              disabled
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={3}>
-            <TextField
-              size="small"
-              label="Adhoc Subject"
-              variant="outlined"
-              name="adhoc_subject"
-              value={bopCat?.adhoc_subject || ''}
-              disabled
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={3}>
-            <TextField
-              size="small"
-              label="Subject Description"
-              variant="outlined"
-              name="subject_description"
-              value={bopCat?.subject_description || ''}
-              disabled
-              fullWidth
-            />
-          </Grid>
-        </Grid>
-
-        <Box mt={3}>
-          <Typography
-            variant="h5"
-            gutterBottom
-            //@ts-ignore
-            color={theme.palette.secondary.main}
-          >
-            Resident Details
-          </Typography>
-
+        <form onSubmit={handleSubmit} noValidate autoComplete="off">
           <Grid container spacing={2} mt={1}>
             <Grid item xs={2.3}>
               <TextField
                 size="small"
-                label="First Name"
+                label="Transaction Number"
                 variant="outlined"
-                name="first_name"
+                name="transaction_number"
+                value={formData.transaction_number || ''}
+                disabled
                 fullWidth
-                value={formData.first_name || ''}
-                onChange={(e) => {
-                  const value = handleRegexValidation(e, /^[a-zA-Z]*$/)
-                  if (value !== null) handleChange(e)
-                }}
-                error={Boolean(errors.first_name)}
-                helperText={errors.first_name}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                // required={true}
               />
             </Grid>
             <Grid item xs={2.3}>
               <TextField
                 size="small"
-                label="Middle Name"
+                label="Transaction Attempt"
                 variant="outlined"
-                name="middle_name"
+                name="transaction_attempt"
+                value={formData.transaction_attempt || 0}
                 fullWidth
-                value={formData.middle_name || ''}
-                onChange={handleChange}
-                error={Boolean(errors.middle_name)}
-                helperText={errors.middle_name}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                // required={true}
+                disabled
               />
             </Grid>
             <Grid item xs={2.3}>
               <TextField
                 size="small"
-                label="Last Name"
+                label="Transaction Status"
+                disabled
                 variant="outlined"
-                name="last_name"
+                name="transaction_status"
+                value={formData.transaction_status || ''}
                 fullWidth
-                value={formData.last_name || ''}
-                onChange={handleChange}
-                error={Boolean(errors.last_name)}
-                helperText={errors.last_name}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                // required={true}
               />
             </Grid>
             <Grid item xs={2.3}>
+              <TextField size="small" label="Bop Status" disabled variant="outlined" name="status" value={formData.status || ''} fullWidth />
+            </Grid>
+            <Grid item xs={2.3}>
+              <TextField size="small" label="Sarb Status" disabled variant="outlined" name="sap_status" value={formData.sap_status || ''} fullWidth />
+            </Grid>
+          </Grid>
+
+          <Box mt={3}>
+            <Typography
+              variant="h5"
+              gutterBottom
+              // @ts-ignore
+              color={theme.palette.secondary.main}
+            >
+              {userLoggedInCountry === 'IN' ? 'Purpose Code Details' : 'Bop Category Details'}
+            </Typography>
+          </Box>
+
+          <Grid container spacing={2} mt={1}>
+            <Grid item xs={3}>
               <FormControl fullWidth>
-                <InputLabel>Gender</InputLabel>
+                <InputLabel>{userLoggedInCountry === 'IN' ? 'Purpose Code' : 'Bop Category'}</InputLabel>
                 <Select
-                  label="Gender"
+                  label={userLoggedInCountry === 'IN' ? 'Purpose Code' : 'Bop Category'}
                   variant="outlined"
-                  name="gender"
-                  value={formData.gender || ''}
+                  name="bop_category"
+                  value={bopCat?.bop_category || ''}
                   size="small"
+                  disabled={bopData?.status === disableFormFieldsViaStatus}
                   onChange={(e) => {
-                    setFormData((prev: any) => ({
+                    const { value } = e.target
+                    const bopItem = bopCategory.find((item: any) => item.bopCategoryCd === value)
+                    setbopCat((prev: any) => ({
                       ...prev,
-                      gender: e.target.value,
+                      bop_category: value,
+                      bop_sub_category: bopItem.bopSubCategoryCd,
+                      bop_description: bopItem.categoryDescription,
                     }))
                   }}
-                  disabled={bopData?.status === disableFormFieldsViaStatus}
-                  // required={true}
                 >
-                  {genderArry.map((item, ind) => (
-                    <MenuItem key={ind} value={item.value}>
-                      {item.label}
+                  {bopCategory.map((item: any, ind: any) => (
+                    <MenuItem key={ind} value={item.bopCategoryCd}>
+                      {item.bopCategoryCd}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={2.3}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label="Date Of Birth"
-                  //@ts-ignore
-                  format="YYYY-MM-DD"
-                  value={formData.dob ? dayjs(formData.dob) : null}
-                  onChange={(newDate: any) => {
-                    setFormData((prev: any) => ({
-                      ...prev,
-                      dob: newDate.format('YYYY-MM-DD'),
-                    }))
-                  }}
-                  disabled={bopData?.status === disableFormFieldsViaStatus}
-                  slotProps={{ textField: { size: 'small' } }}
-                  //@ts-ignore
-                  renderInput={(params) => <TextField {...params} fullWidth variant="outlined" />}
-                />
-              </LocalizationProvider>
-            </Grid>
-            <Grid item xs={2}>
+            <Grid item xs={3}>
               <TextField
                 size="small"
-                label="Id Type"
+                label="Sub Category"
                 variant="outlined"
-                name="id_type"
-                fullWidth
-                value={formData.id_type || ''}
-                onChange={handleChange}
-                error={Boolean(errors.id_type)}
-                helperText={errors.id_type}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-              />
-            </Grid>
-            <Grid item xs={2.5}>
-              <TextField
-                size="small"
-                label="Id Details"
-                variant="outlined"
-                name="id_details"
-                fullWidth
-                value={formData.id_details || ''}
-                onChange={handleChange}
-                error={Boolean(errors.id_details)}
-                helperText={errors.id_details}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-              />
-            </Grid>
-            <Grid item xs={1.5}>
-              <TextField
-                size="small"
-                label="Contact Type"
-                variant="outlined"
-                name="contact_type"
-                fullWidth
-                value={formData.contact_type || ''}
-                onChange={handleChange}
-                error={Boolean(errors.contact_type)}
-                helperText={errors.contact_type}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                // required={true}
-              />
-            </Grid>
-            <Grid item xs={2}>
-              <TextField
-                size="small"
-                type="number"
-                label="Contact Details"
-                variant="outlined"
-                name="contact_details"
-                fullWidth
-                value={formData.contact_details || ''}
-                onChange={handleChange}
-                error={Boolean(errors.contact_details)}
-                helperText={errors.contact_details}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                // required={true}
-              />
-            </Grid>
-            <Grid item xs={2}>
-              <TextField size="small" label="Email" variant="outlined" name="email" fullWidth value={formData.email || ''} disabled />
-            </Grid>
-            <Grid item xs={2}>
-              <TextField
-                size="small"
-                label="Account Identifier"
-                variant="outlined"
-                name="account_identifier"
-                fullWidth
-                value={formData?.account_identifier || ''}
+                name="bop_sub_category"
+                value={bopCat?.bop_sub_category || ''}
                 disabled
+                fullWidth
+              />
+            </Grid>
+
+            <Grid item xs={6}>
+              <TextField
+                size="small"
+                label="Category Description"
+                variant="outlined"
+                name="bop_description"
+                value={bopCat?.bop_description || ''}
+                disabled
+                fullWidth
+              />
+            </Grid>
+
+            <Grid item xs={3}>
+              <TextField
+                size="small"
+                label="Principal Amount"
+                variant="outlined"
+                name="principal_amount"
+                value={bopCat?.principal_amount || ''}
+                disabled
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <TextField
+                size="small"
+                label="Principal Currency"
+                variant="outlined"
+                name="principal_currency"
+                value={bopCat?.principal_currency || ''}
+                disabled
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <TextField
+                size="small"
+                label="Settlement Amount"
+                variant="outlined"
+                name="settlement_amount"
+                value={bopCat?.settlement_amount || ''}
+                disabled
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <TextField
+                size="small"
+                label="Settlement Currency"
+                variant="outlined"
+                name="settlement_currency"
+                value={bopCat?.settlement_currency || ''}
+                disabled
+                fullWidth
+              />
+            </Grid>
+
+            <Grid item xs={3}>
+              <TextField
+                size="small"
+                label="Excon Ruling Indicator"
+                variant="outlined"
+                name="excon_ruling_indicator"
+                value={bopCat?.excon_ruling_indicator || ''}
+                disabled
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <TextField
+                size="small"
+                label="Excon Ruling Section"
+                variant="outlined"
+                name="excon_ruling_section"
+                value={bopCat?.excon_ruling_section || ''}
+                disabled
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <TextField
+                size="small"
+                label="Adhoc Subject"
+                variant="outlined"
+                name="adhoc_subject"
+                value={bopCat?.adhoc_subject || ''}
+                disabled
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <TextField
+                size="small"
+                label="Subject Description"
+                variant="outlined"
+                name="subject_description"
+                value={bopCat?.subject_description || ''}
+                disabled
+                fullWidth
               />
             </Grid>
           </Grid>
 
           <Box mt={3}>
             <Typography
-              variant="h6"
+              variant="h5"
               gutterBottom
               //@ts-ignore
               color={theme.palette.secondary.main}
             >
-              Physical Address
+              Resident Details
+            </Typography>
+
+            <Grid container spacing={2} mt={1}>
+              <Grid item xs={2.3}>
+                <FormControl fullWidth required>
+                  <TextField
+                    size="small"
+                    label="First Name"
+                    variant="outlined"
+                    name="first_name"
+                    value={formData.first_name || ''}
+                    onChange={handleChange}
+                    error={Boolean(formErrors.first_name)}
+                    helperText={formErrors.first_name}
+                    disabled={bopData?.status === disableFormFieldsViaStatus}
+                    required={true}
+                  />
+                </FormControl>
+              </Grid>
+              <Grid item xs={2.3}>
+                <FormControl fullWidth>
+                  <TextField
+                    size="small"
+                    label="Middle Name"
+                    variant="outlined"
+                    name="middle_name"
+                    value={formData.middle_name || ''}
+                    onChange={handleChange}
+                    error={Boolean(formErrors.middle_name)}
+                    helperText={formErrors.middle_name}
+                    disabled={bopData?.status === disableFormFieldsViaStatus}
+                  />
+                </FormControl>
+              </Grid>
+              <Grid item xs={2.3}>
+                <FormControl fullWidth>
+                  <TextField
+                    size="small"
+                    label="Last Name"
+                    variant="outlined"
+                    name="last_name"
+                    value={formData.last_name || ''}
+                    onChange={handleChange}
+                    error={Boolean(formErrors.last_name)}
+                    helperText={formErrors.last_name}
+                    disabled={bopData?.status === disableFormFieldsViaStatus}
+                    required={true}
+                  />
+                </FormControl>
+              </Grid>
+              <Grid item xs={2.3}>
+                <FormControl fullWidth>
+                  <InputLabel>Gender</InputLabel>
+                  <Select
+                    label="Gender"
+                    variant="outlined"
+                    name="gender"
+                    value={formData.gender || ''}
+                    size="small"
+                    onChange={(e) => {
+                      setFormData((prev: any) => ({
+                        ...prev,
+                        gender: e.target.value,
+                      }))
+                    }}
+                    disabled={bopData?.status === disableFormFieldsViaStatus}
+                  >
+                    {genderArry.map((item, ind) => (
+                      <MenuItem key={ind} value={item.value}>
+                        {item.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={2.3}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Date Of Birth"
+                    //@ts-ignore
+                    format="YYYY-MM-DD"
+                    value={formData.dob ? dayjs(formData.dob) : null}
+                    onChange={(newDate: any) => {
+                      setFormData((prev: any) => ({
+                        ...prev,
+                        dob: newDate.format('YYYY-MM-DD'),
+                      }))
+                    }}
+                    disabled={bopData?.status === disableFormFieldsViaStatus}
+                    slotProps={{ textField: { size: 'small' } }}
+                    //@ts-ignore
+                    renderInput={(params) => <TextField {...params} fullWidth variant="outlined" />}
+                  />
+                </LocalizationProvider>
+              </Grid>
+              <Grid item xs={2}>
+                <TextField
+                  size="small"
+                  label="Id Type"
+                  variant="outlined"
+                  name="id_type"
+                  fullWidth
+                  value={formData.id_type || ''}
+                  onChange={handleChange}
+                  error={Boolean(formErrors.id_type)}
+                  helperText={formErrors.id_type}
+                  disabled={bopData?.status === disableFormFieldsViaStatus}
+                />
+              </Grid>
+              <Grid item xs={2.5}>
+                <TextField
+                  size="small"
+                  label="Id Details"
+                  variant="outlined"
+                  name="id_details"
+                  fullWidth
+                  value={formData.id_details || ''}
+                  onChange={handleChange}
+                  error={Boolean(formErrors.id_details)}
+                  helperText={formErrors.id_details}
+                  disabled={bopData?.status === disableFormFieldsViaStatus}
+                />
+              </Grid>
+              <Grid item xs={1.5}>
+                <TextField
+                  size="small"
+                  label="Contact Type"
+                  variant="outlined"
+                  name="contact_type"
+                  fullWidth
+                  value={formData.contact_type || ''}
+                  onChange={handleChange}
+                  error={Boolean(formErrors.contact_type)}
+                  helperText={formErrors.contact_type}
+                  disabled={bopData?.status === disableFormFieldsViaStatus}
+                  // required={true}
+                />
+              </Grid>
+              <Grid item xs={2}>
+                <TextField
+                  size="small"
+                  type="number"
+                  label="Contact Details"
+                  variant="outlined"
+                  name="contact_details"
+                  fullWidth
+                  value={formData.contact_details || ''}
+                  onChange={handleChange}
+                  error={Boolean(formErrors.contact_details)}
+                  helperText={formErrors.contact_details}
+                  disabled={bopData?.status === disableFormFieldsViaStatus}
+                  required={true}
+                />
+              </Grid>
+              <Grid item xs={2}>
+                <TextField size="small" label="Email" variant="outlined" name="email" fullWidth value={formData.email || ''} disabled />
+              </Grid>
+              <Grid item xs={2}>
+                <TextField
+                  size="small"
+                  label="Account Identifier"
+                  variant="outlined"
+                  name="account_identifier"
+                  fullWidth
+                  value={formData?.account_identifier || ''}
+                  disabled
+                />
+              </Grid>
+            </Grid>
+
+            <Box mt={3}>
+              <Typography
+                variant="h6"
+                gutterBottom
+                //@ts-ignore
+                color={theme.palette.secondary.main}
+              >
+                Physical Address
+              </Typography>
+            </Box>
+
+            <Grid container spacing={2} mt={1}>
+              <Grid item xs={6}>
+                <FormControl fullWidth>
+                  <TextField
+                    label="Address Line 1"
+                    size="small"
+                    name="physical_address_line1"
+                    variant="outlined"
+                    value={formData.physical_address_line1 || ''}
+                    onChange={handleChange}
+                    error={Boolean(formErrors.physical_address_line1)}
+                    helperText={formErrors.physical_address_line1}
+                    disabled={bopData?.status === disableFormFieldsViaStatus}
+                    required={true}
+                  />
+                </FormControl>
+              </Grid>
+              <Grid item xs={6}>
+                <FormControl fullWidth>
+                  <TextField
+                    label="Address Line 2"
+                    size="small"
+                    name="physical_address_line2"
+                    variant="outlined"
+                    value={formData.physical_address_line2 || ''}
+                    onChange={handleChange}
+                    error={Boolean(formErrors.physical_address_line2)}
+                    helperText={formErrors.physical_address_line2}
+                    disabled={bopData?.status === disableFormFieldsViaStatus}
+                    required={true}
+                  />
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={2.3}>
+                <TextField
+                  label="Suburb"
+                  fullWidth
+                  size="small"
+                  name="suburb"
+                  variant="outlined"
+                  value={formData.suburb || ''}
+                  onChange={handleChange}
+                  error={Boolean(formErrors.suburb)}
+                  helperText={formErrors.suburb}
+                  disabled={bopData?.status === disableFormFieldsViaStatus}
+                  // required={true}
+                />
+              </Grid>
+              <Grid item xs={2.3}>
+                <TextField
+                  label="City"
+                  size="small"
+                  fullWidth
+                  name="city"
+                  variant="outlined"
+                  value={formData.city || ''}
+                  onChange={handleChange}
+                  error={Boolean(formErrors.city)}
+                  helperText={formErrors.city}
+                  disabled={bopData?.status === disableFormFieldsViaStatus}
+                  // required={true}
+                />
+              </Grid>
+              <Grid item xs={2.3}>
+                <TextField
+                  label="State/Province"
+                  fullWidth
+                  size="small"
+                  name="residence_state"
+                  variant="outlined"
+                  value={formData.residence_state || ''}
+                  onChange={handleChange}
+                  error={Boolean(formErrors.residence_state)}
+                  helperText={formErrors.residence_state}
+                  disabled={bopData?.status === disableFormFieldsViaStatus}
+                  // required={true}
+                />
+              </Grid>
+              <Grid item xs={2.3}>
+                <TextField
+                  label="Zipcode"
+                  size="small"
+                  fullWidth
+                  name="postcode"
+                  variant="outlined"
+                  value={formData.postcode || ''}
+                  onChange={handleChange}
+                  error={Boolean(formErrors.postcode)}
+                  helperText={formErrors.postcode}
+                  disabled={bopData?.status === disableFormFieldsViaStatus}
+                  // required={true}
+                />
+              </Grid>
+              <Grid item xs={2.3}>
+                <TextField
+                  label="Country"
+                  size="small"
+                  fullWidth
+                  name="residence_country"
+                  variant="outlined"
+                  value={formData.residence_country || ''}
+                  onChange={handleChange}
+                  error={Boolean(formErrors.residence_country)}
+                  disabled={bopData?.status === disableFormFieldsViaStatus}
+                  helperText={formErrors.residence_country}
+                  // required={true}
+                />
+              </Grid>
+            </Grid>
+
+            <Box mt={3}>
+              <Typography
+                variant="h6"
+                gutterBottom
+                color={
+                  //@ts-ignore
+                  theme.palette.secondary.main
+                }
+              >
+                Postal Address
+              </Typography>
+            </Box>
+
+            <Grid container spacing={2} mt={2}>
+              <Grid item xs={6}>
+                <FormControl fullWidth>
+                  <TextField
+                    size="small"
+                    label="Postal Address Line 1"
+                    name="postal_address_line1"
+                    variant="outlined"
+                    value={formData.postal_address_line1 || ''}
+                    onChange={handleChange}
+                    error={Boolean(formErrors.postal_address_line1)}
+                    helperText={formErrors.postal_address_line1}
+                    disabled={bopData?.status === disableFormFieldsViaStatus}
+                    required={true}
+                  />
+                </FormControl>
+              </Grid>
+              <Grid item xs={6}>
+                <FormControl fullWidth>
+                  <TextField
+                    label="Postal Address Line 2"
+                    size="small"
+                    name="postal_address_line2"
+                    variant="outlined"
+                    value={formData.postal_address_line2 || ''}
+                    onChange={handleChange}
+                    error={Boolean(formErrors.postal_address_line2)}
+                    helperText={formErrors.postal_address_line2}
+                    disabled={bopData?.status === disableFormFieldsViaStatus}
+                    required={true}
+                  />
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={2.3}>
+                <TextField
+                  label="Postal Suburb"
+                  fullWidth
+                  size="small"
+                  name="postal_suburb"
+                  variant="outlined"
+                  value={formData.postal_suburb || ''}
+                  onChange={handleChange}
+                  error={Boolean(formErrors.postal_suburb)}
+                  helperText={formErrors.postal_suburb}
+                  disabled={bopData?.status === disableFormFieldsViaStatus}
+                  // required={true}
+                />
+              </Grid>
+              <Grid item xs={2.3}>
+                <TextField
+                  label="Postal City"
+                  fullWidth
+                  size="small"
+                  name="postal_city"
+                  variant="outlined"
+                  value={formData.postal_city || ''}
+                  onChange={handleChange}
+                  error={Boolean(formErrors.postal_city)}
+                  helperText={formErrors.postal_city}
+                  disabled={bopData?.status === disableFormFieldsViaStatus}
+                  //required={true}
+                />
+              </Grid>
+              <Grid item xs={2.3}>
+                <TextField
+                  label="Postal State/Province"
+                  fullWidth
+                  size="small"
+                  name="postal_state"
+                  variant="outlined"
+                  value={formData.postal_state || ''}
+                  onChange={handleChange}
+                  error={Boolean(formErrors.postal_state)}
+                  helperText={formErrors.postal_state}
+                  disabled={bopData?.status === disableFormFieldsViaStatus}
+                  //required={true}
+                />
+              </Grid>
+              <Grid item xs={2.3}>
+                <TextField
+                  label="Postal Zipcode"
+                  fullWidth
+                  size="small"
+                  name="postal_postcode"
+                  variant="outlined"
+                  value={formData.postal_postcode || ''}
+                  onChange={handleChange}
+                  error={Boolean(formErrors.postal_postcode)}
+                  helperText={formErrors.postal_postcode}
+                  disabled={bopData?.status === disableFormFieldsViaStatus}
+                  // required={true}
+                />
+              </Grid>
+              <Grid item xs={2.3}>
+                <TextField
+                  label="Postal Country"
+                  fullWidth
+                  size="small"
+                  name="postal_country"
+                  variant="outlined"
+                  value={formData.postal_country || ''}
+                  onChange={handleChange}
+                  error={Boolean(formErrors.postal_country)}
+                  helperText={formErrors.postal_country}
+                  disabled={bopData?.status === disableFormFieldsViaStatus}
+                  //required={true}
+                />
+              </Grid>
+            </Grid>
+          </Box>
+
+          <Box mt={3}>
+            <Typography
+              variant="h5"
+              gutterBottom
+              //@ts-ignore
+              color={theme.palette.secondary.main}
+            >
+              Non Resident Details
             </Typography>
           </Box>
 
           <Grid container spacing={2} mt={1}>
-            <Grid item xs={6}>
+            <Grid item xs={4}>
+              <TextField
+                size="small"
+                label="Non Resident Name"
+                variant="outlined"
+                name="benificiary_name"
+                value={formData.benificiary_name || ''}
+                disabled
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={4}>
               <TextField
                 label="Address Line 1"
                 fullWidth
                 size="small"
-                name="physical_address_line1"
+                name="benificiary_physical_address_line1"
                 variant="outlined"
-                value={formData.physical_address_line1 || ''}
-                onChange={handleChange}
-                error={Boolean(errors.physical_address_line1)}
-                helperText={errors.physical_address_line1}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                // required={true}
+                value={formData.benificiary_physical_address_line1 || ''}
+                disabled
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={4}>
               <TextField
                 label="Address Line 2"
                 fullWidth
                 size="small"
-                name="physical_address_line2"
+                name="benificiary_physical_address_line2"
                 variant="outlined"
-                value={formData.physical_address_line2 || ''}
-                onChange={handleChange}
-                error={Boolean(errors.physical_address_line2)}
-                helperText={errors.physical_address_line2}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                // required={true}
+                value={formData.benificiary_physical_address_line2 || ''}
+                disabled
               />
             </Grid>
 
-            <Grid item xs={2.3}>
-              <TextField
-                label="Suburb"
-                fullWidth
-                size="small"
-                name="suburb"
-                variant="outlined"
-                value={formData.suburb || ''}
-                onChange={handleChange}
-                error={Boolean(errors.suburb)}
-                helperText={errors.suburb}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                // required={true}
-              />
-            </Grid>
             <Grid item xs={2.3}>
               <TextField
                 label="City"
                 size="small"
                 fullWidth
-                name="city"
+                name="benificiary_city"
                 variant="outlined"
-                value={formData.city || ''}
-                onChange={handleChange}
-                error={Boolean(errors.city)}
-                helperText={errors.city}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                // required={true}
+                value={formData.benificiary_city || ''}
+                disabled
               />
             </Grid>
             <Grid item xs={2.3}>
@@ -760,14 +1017,10 @@ const BopScreen: React.FC = () => {
                 label="State/Province"
                 fullWidth
                 size="small"
-                name="residence_state"
+                name="benificiary_state"
                 variant="outlined"
-                value={formData.residence_state || ''}
-                onChange={handleChange}
-                error={Boolean(errors.residence_state)}
-                helperText={errors.residence_state}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                // required={true}
+                value={formData.benificiary_state || ''}
+                disabled
               />
             </Grid>
             <Grid item xs={2.3}>
@@ -775,14 +1028,10 @@ const BopScreen: React.FC = () => {
                 label="Zipcode"
                 size="small"
                 fullWidth
-                name="postcode"
+                name="benificiary_post_code"
                 variant="outlined"
-                value={formData.postcode || ''}
-                onChange={handleChange}
-                error={Boolean(errors.postcode)}
-                helperText={errors.postcode}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                // required={true}
+                value={formData.benificiary_post_code || ''}
+                disabled
               />
             </Grid>
             <Grid item xs={2.3}>
@@ -790,254 +1039,37 @@ const BopScreen: React.FC = () => {
                 label="Country"
                 size="small"
                 fullWidth
-                name="residence_country"
+                name="benificiary_country"
                 variant="outlined"
-                value={formData.residence_country || ''}
-                onChange={handleChange}
-                error={Boolean(errors.residence_country)}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                helperText={errors.residence_country}
-                // required={true}
+                value={formData.benificiary_country || ''}
+                disabled
+              />
+            </Grid>
+            <Grid item xs={2.3}>
+              <TextField
+                size="small"
+                label="Non Resident Account Identifier"
+                variant="outlined"
+                name="non_resident_identifier"
+                fullWidth
+                value={formData.non_resident_identifier || ''}
+                disabled
               />
             </Grid>
           </Grid>
 
           <Box mt={3}>
-            <Typography
-              variant="h6"
-              gutterBottom
-              color={
-                //@ts-ignore
-                theme.palette.secondary.main
-              }
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              disabled={formData?.status === 'RELEASED' || !helper.checkUserHasPermission(local_service.get_modules()?.BOP, 'canUpdate')}
+              // onClick={handleSubmit}
             >
-              Postal Address
-            </Typography>
+              Save
+            </Button>
           </Box>
-
-          <Grid container spacing={2} mt={2}>
-            <Grid item xs={6}>
-              <TextField
-                size="small"
-                label="Postal Address Line 1"
-                fullWidth
-                name="postal_address_line1"
-                variant="outlined"
-                value={formData.postal_address_line1 || ''}
-                onChange={handleChange}
-                error={Boolean(errors.postal_address_line1)}
-                helperText={errors.postal_address_line1}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                //required={true}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                label="Postal Address Line 2"
-                fullWidth
-                size="small"
-                name="postal_address_line2"
-                variant="outlined"
-                value={formData.postal_address_line2 || ''}
-                onChange={handleChange}
-                error={Boolean(errors.postal_address_line2)}
-                helperText={errors.postal_address_line2}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                // required={true}
-              />
-            </Grid>
-
-            <Grid item xs={2.3}>
-              <TextField
-                label="Postal Suburb"
-                fullWidth
-                size="small"
-                name="postal_suburb"
-                variant="outlined"
-                value={formData.postal_suburb || ''}
-                onChange={handleChange}
-                error={Boolean(errors.postal_suburb)}
-                helperText={errors.postal_suburb}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                // required={true}
-              />
-            </Grid>
-            <Grid item xs={2.3}>
-              <TextField
-                label="Postal City"
-                fullWidth
-                size="small"
-                name="postal_city"
-                variant="outlined"
-                value={formData.postal_city || ''}
-                onChange={handleChange}
-                error={Boolean(errors.postal_city)}
-                helperText={errors.postal_city}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                //required={true}
-              />
-            </Grid>
-            <Grid item xs={2.3}>
-              <TextField
-                label="Postal State/Province"
-                fullWidth
-                size="small"
-                name="postal_state"
-                variant="outlined"
-                value={formData.postal_state || ''}
-                onChange={handleChange}
-                error={Boolean(errors.postal_state)}
-                helperText={errors.postal_state}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                //required={true}
-              />
-            </Grid>
-            <Grid item xs={2.3}>
-              <TextField
-                label="Postal Zipcode"
-                fullWidth
-                size="small"
-                name="postal_postcode"
-                variant="outlined"
-                value={formData.postal_postcode || ''}
-                onChange={handleChange}
-                error={Boolean(errors.postal_postcode)}
-                helperText={errors.postal_postcode}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                // required={true}
-              />
-            </Grid>
-            <Grid item xs={2.3}>
-              <TextField
-                label="Postal Country"
-                fullWidth
-                size="small"
-                name="postal_country"
-                variant="outlined"
-                value={formData.postal_country || ''}
-                onChange={handleChange}
-                error={Boolean(errors.postal_country)}
-                helperText={errors.postal_country}
-                disabled={bopData?.status === disableFormFieldsViaStatus}
-                //required={true}
-              />
-            </Grid>
-          </Grid>
-        </Box>
-
-        <Box mt={3}>
-          <Typography
-            variant="h5"
-            gutterBottom
-            //@ts-ignore
-            color={theme.palette.secondary.main}
-          >
-            Non Resident Details
-          </Typography>
-        </Box>
-
-        <Grid container spacing={2} mt={1}>
-          <Grid item xs={4}>
-            <TextField
-              size="small"
-              label="Non Resident Name"
-              variant="outlined"
-              name="benificiary_name"
-              value={formData.benificiary_name || ''}
-              disabled
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={4}>
-            <TextField
-              label="Address Line 1"
-              fullWidth
-              size="small"
-              name="benificiary_physical_address_line1"
-              variant="outlined"
-              value={formData.benificiary_physical_address_line1 || ''}
-              disabled
-            />
-          </Grid>
-          <Grid item xs={4}>
-            <TextField
-              label="Address Line 2"
-              fullWidth
-              size="small"
-              name="benificiary_physical_address_line2"
-              variant="outlined"
-              value={formData.benificiary_physical_address_line2 || ''}
-              disabled
-            />
-          </Grid>
-
-          <Grid item xs={2.3}>
-            <TextField
-              label="City"
-              size="small"
-              fullWidth
-              name="benificiary_city"
-              variant="outlined"
-              value={formData.benificiary_city || ''}
-              disabled
-            />
-          </Grid>
-          <Grid item xs={2.3}>
-            <TextField
-              label="State/Province"
-              fullWidth
-              size="small"
-              name="benificiary_state"
-              variant="outlined"
-              value={formData.benificiary_state || ''}
-              disabled
-            />
-          </Grid>
-          <Grid item xs={2.3}>
-            <TextField
-              label="Zipcode"
-              size="small"
-              fullWidth
-              name="benificiary_post_code"
-              variant="outlined"
-              value={formData.benificiary_post_code || ''}
-              disabled
-            />
-          </Grid>
-          <Grid item xs={2.3}>
-            <TextField
-              label="Country"
-              size="small"
-              fullWidth
-              name="benificiary_country"
-              variant="outlined"
-              value={formData.benificiary_country || ''}
-              disabled
-            />
-          </Grid>
-          <Grid item xs={2.3}>
-            <TextField
-              size="small"
-              label="Non Resident Account Identifier"
-              variant="outlined"
-              name="non_resident_identifier"
-              fullWidth
-              value={formData.non_resident_identifier || ''}
-              disabled
-            />
-          </Grid>
-        </Grid>
-
-        <Box mt={3}>
-          <Button
-            variant="contained"
-            color="primary"
-            disabled={formData?.status === 'RELEASED' || !helper.checkUserHasPermission(local_service.get_modules()?.BOP, 'canUpdate')}
-            onClick={handleSubmit}
-          >
-            Save
-          </Button>
-        </Box>
+        </form>
       </Box>
 
       <ConfirmationModal

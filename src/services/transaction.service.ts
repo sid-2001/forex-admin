@@ -15,9 +15,9 @@ export class TransactionService extends BaseService {
       throw new Error(e as any)
     }
   }
-  
-  async getOutwardAllTransaction(sendCountry:any): Promise<Array<TransactionInward>> {
-    let url = `/api/transactions/transaction-outward/sendCountry/${sendCountry}` 
+
+  async getOutwardAllTransaction(sendCountry: any): Promise<Array<TransactionInward>> {
+    let url = `/api/transactions/transaction-outward/sendCountry/${sendCountry}`
     try {
       let data = await api1.get(url)
       return data.data as any
@@ -124,9 +124,7 @@ export class TransactionService extends BaseService {
   }
 
   async getForexRate(base_currency: String, sourc_currency: String) {
-    let url = `https://data.fixer.io/api/latest?access_key=${VITE_FOREX_APP_CREDENTIALS}&base=${
-      base_currency 
-    }&symbols=${sourc_currency}`
+    let url = `https://data.fixer.io/api/latest?access_key=${VITE_FOREX_APP_CREDENTIALS}&base=${base_currency}&symbols=${sourc_currency}`
     try {
       let { data } = await axios.get(url)
       //@ts-ignore
@@ -195,15 +193,22 @@ export class TransactionService extends BaseService {
     }
   }
 
+  async getTransactionSummary(country: any) {
+    let url = `/api/transactions/transaction-outward/transaction-summary?countryCode=${country}`
+    try {
+      let data = await api1.get(url)
+      return data
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
-  async getTransactionSummary(country:any){
-let url=`/api/transactions/transaction-outward/transaction-summary?countryCode=${country}`
-    try{
-
-let data=await api1.get(url);
-return data
-    }catch(err){
-
+  async getAllValidationsList(country: any) {
+    let url = `api/transactions/field-validations/listOfFieldValidation/countryCode/${country}`
+    try {
+      let data = await api1.get(url)
+      return data
+    } catch (err) {
       console.log(err)
     }
   }

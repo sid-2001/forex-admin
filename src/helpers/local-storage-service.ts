@@ -44,6 +44,11 @@ class LocalStorageService {
     return JSON.parse(modules_record)
   }
 
+  get_validations() {
+    let validations_record: any = this.get('validations')
+    return JSON.parse(validations_record)
+  }
+
   set_staff_access(staff_data: any) {
     return this.set('staff_access', staff_data)
   }

@@ -30,9 +30,10 @@ import { ApplicantService } from '@/services/applicant.service'
 import { PaymentGateway } from '@/types/static.type'
 import staticdataService from '@/services/staticdata.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-import { AnyAaaaRecord } from 'node:dns'
-import { Id } from 'react-flags-select'
 import TransactionPanel from '@/components/transaction-panel'
+import { useRecoilState } from 'recoil'
+import { HelperService } from '@/helpers/helper'
+import { selectedCountryState } from '@/states/state'
 
 const Dashboard = () => {
   // Sample dashboard data
@@ -46,15 +47,17 @@ const Dashboard = () => {
   }
 
   // Modal state
-  const [openModal, setOpenModal] = useState(false)
+  const [openModal, setOpenModal] = useState<any>(false)
   const [activeCustomer, setAvtiveCustomers] = useState(false)
   const [userCountry, setuserCounty] = useRecoilState(selectedCountryState)
-  const[totalTransaction,setTotalTransaction]=useState('')
-  const[applicatnData,setapplicantData]=useState<Array<{
-applicantId:String,
-applicantName:String,
-numberOfTransactions:Number
-  }>>([])
+  const [totalTransaction, setTotalTransaction] = useState('')
+  const [applicatnData, setapplicantData] = useState<
+    Array<{
+      applicantId: String
+      applicantName: String
+      numberOfTransactions: Number
+    }>
+  >([])
 
   const [recentTransaction, setrecentTransaction] = useState([])
   const [filterType, setFilterType] = useState('monthly')
@@ -79,15 +82,13 @@ numberOfTransactions:Number
     getGatewayList()
     transaction_service.getOutwardTransaction().then((data) => {
       let trx_list = data.transactionDetailsList.map((e) => {
-   
         return {
           id: e.transactionOutward.transactionNumber,
           customer: `${e.applicant.firstName} ${e.applicant.lastName}`,
           amount: e.transactionOutward.settlementAmount,
           date: e.transactionOutward.owCreatedDate,
           status: e.transactionOutward.reportingStatus,
-          settlementCurrency:e.transactionOutward.settlementCurrency
-          
+          settlementCurrency: e.transactionOutward.settlementCurrency,
         }
       })
 
@@ -97,9 +98,8 @@ numberOfTransactions:Number
       console.log(data)
       //@ts-ignore
     })
-    transaction_service.getTransactionSummary(userCountry).then(data=>{
+    transaction_service.getTransactionSummary(userCountry).then((data) => {
       setapplicantData(data?.data)
-      
     })
     //@ts-ignore
   }, [])
@@ -114,15 +114,13 @@ numberOfTransactions:Number
   ]
 
   // Sample active customers
-  
+
   const activeCustomers = [
     { id: 1, name: 'John Doe', joinDate: '2021-03-15', purchases: 12 },
     { id: 2, name: 'Jane Smith', joinDate: '2022-01-10', purchases: 8 },
     { id: 3, name: 'Michael Brown', joinDate: '2020-11-22', purchases: 21 },
     { id: 4, name: 'Sarah Wilson', joinDate: '2023-02-05', purchases: 3 },
   ]
-
-
 
   const bankAccounts = [
     {
@@ -379,9 +377,9 @@ numberOfTransactions:Number
             display: 'flex',
             overflowX: 'auto',
             scrollSnapType: 'x mandatory',
-            padding:"1%",
+            padding: '1%',
             gap: 2,
-         paddingTop:"0.3%",
+            paddingTop: '0.3%',
             // px: 0,
             '&::-webkit-scrollbar': { display: 'none' },
           }}
@@ -395,7 +393,6 @@ numberOfTransactions:Number
                   xs: '80%',
                   sm: '45%',
                   md: '30%',
-                  
                 },
                 scrollSnapAlign: 'start',
               }}
@@ -475,10 +472,7 @@ numberOfTransactions:Number
                     Total Transactions
                   </Typography>
                   <Typography variant="h4" component="div">
-                    {
-
-                    
-             recentTransaction.length}
+                    {recentTransaction.length}
                   </Typography>
                 </Box>
               </Stack>
@@ -529,8 +523,6 @@ numberOfTransactions:Number
         <Grid item xs={12} sm={6} md={6} mt="0px" p="0px">
           <BankBalanceCarousel></BankBalanceCarousel>
         </Grid>
-
-     
 
         <Grid item xs={12} sm={6} md={3}>
           <Card sx={{ border: '1px solid', borderColor: 'primary.light' }}>
@@ -678,7 +670,9 @@ numberOfTransactions:Number
                   <Box key={transaction.id} sx={{ mb: 2, p: 1, borderBottom: '1px solid ', borderColor: 'primary.light' }}>
                     <Stack direction="row" justifyContent="space-between">
                       <Typography fontWeight="bold">{transaction.customer}</Typography>
-                      <Typography color="text.secondary">{transaction?.settlementCurrency} {transaction.amount}</Typography>
+                      <Typography color="text.secondary">
+                        {transaction?.settlementCurrency} {transaction.amount}
+                      </Typography>
                     </Stack>
                     <Stack direction="row" justifyContent="space-between" mt={1}>
                       <Typography variant="body2" color="text.secondary">
@@ -706,11 +700,11 @@ numberOfTransactions:Number
                 <b> Active Customers</b>
               </Typography>
               <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
-                {applicatnData.map((customer) => (
+                {applicatnData.map((customer: any) => (
                   <Box key={customer?.applicantId} sx={{ mb: 2, p: 1, borderBottom: '1px solid #eee' }}>
                     <Stack direction="row" justifyContent="space-between">
                       <Typography fontWeight="bold">{customer?.applicantName}</Typography>
-                      <Typography color="text.secondary">{ String(customer?.numberOfTransactions)} transaction</Typography>
+                      <Typography color="text.secondary">{String(customer?.numberOfTransactions)} transaction</Typography>
                     </Stack>
                     <Typography variant="body2" color="text.secondary" mt={1}>
                       Applicant Id: {customer?.applicantId}
@@ -723,11 +717,12 @@ numberOfTransactions:Number
         </Grid>
       </Grid>
 
-         <TransactionPanel open={openModal}  onClose={()=>{
+      <TransactionPanel
+        open={openModal}
+        onClose={() => {
           setOpenModal(false)
-          
-         }}/>
-   
+        }}
+      />
     </Box>
   )
 }

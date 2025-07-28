@@ -71,3 +71,7 @@ body {
   padding: 16px; /* Optional: Add padding if needed */
   background-color: #f0f0f0; /* Optional: Background color */
 }
+
+.MuiFormLabel-asterisk {
+  color: red;
+}
