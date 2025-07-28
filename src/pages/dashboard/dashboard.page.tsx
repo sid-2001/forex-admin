@@ -33,6 +33,9 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { AnyAaaaRecord } from 'node:dns'
 import { Id } from 'react-flags-select'
 import TransactionPanel from '@/components/transaction-panel'
+import { useRecoilState } from 'recoil'
+import { selectedCountryState } from '@/states/state'
+import { HelperService } from '@/helpers/helper'
 
 const Dashboard = () => {
   // Sample dashboard data
@@ -707,7 +710,9 @@ numberOfTransactions:Number
               </Typography>
               <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
                 {applicatnData.map((customer) => (
-                  <Box key={customer?.applicantId} sx={{ mb: 2, p: 1, borderBottom: '1px solid #eee' }}>
+                  <Box 
+                  //@ts-ignore
+                  key={customer?.applicantId} sx={{ mb: 2, p: 1, borderBottom: '1px solid #eee' }}>
                     <Stack direction="row" justifyContent="space-between">
                       <Typography fontWeight="bold">{customer?.applicantName}</Typography>
                       <Typography color="text.secondary">{ String(customer?.numberOfTransactions)} transaction</Typography>
@@ -723,7 +728,9 @@ numberOfTransactions:Number
         </Grid>
       </Grid>
 
-         <TransactionPanel open={openModal}  onClose={()=>{
+         <TransactionPanel
+         //@ts-ignore
+         open={openModal}  onClose={()=>{
           setOpenModal(false)
           
          }}/>
