@@ -25,7 +25,11 @@ import { Close, ArrowBack } from '@mui/icons-material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import staticdataService from '@/services/staticdata.service';
 
-const TransactionModal = ({ open, onClose }) => {
+const TransactionModal = ({ open, onClose }:{
+open:String,
+onClose:any
+
+}) => {
   const [year, setYear] = useState(2025);
   const [monthlyData, setMonthlyData] = useState([]);
   const [dailyData, setDailyData] = useState([]);
@@ -53,7 +57,7 @@ const TransactionModal = ({ open, onClose }) => {
     setMonthlyData(data?.data);
 })
   
-    } catch (err) {
+    } catch (err:any) {
       setError(err.message);
     } finally {
       setLoading(false);
@@ -67,10 +71,10 @@ const TransactionModal = ({ open, onClose }) => {
         static_service.getTransactionMonthlyData("ZA",month.toUpperCase(),year).then(data=>{
 
               setDailyData(data.data);
-        setSelectedMonth(month);
+        setSelectedMonth(month as any);
         })
     
-    } catch (err) {
+    } catch (err:any) {
       setError(err.message);
     } finally {
       setLoading(false);
@@ -83,33 +87,35 @@ const TransactionModal = ({ open, onClose }) => {
     setViewMode('table');
   };
 
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount:any) => {
     return new Intl.NumberFormat('en-ZA', {
       style: 'currency',
       currency: 'ZAR'
     }).format(amount);
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString:any) => {
     const options = { day: 'numeric', month: 'short', year: 'numeric' };
-    return new Date(dateString).toLocaleDateString('en-ZA', options);
+    return new Date(dateString).toLocaleDateString('en-ZA', options as any);
   };
 
   // Prepare chart data
-  const monthlyChartData = monthlyData.map(month => ({
+  const monthlyChartData = monthlyData.map((month :any) => ({
     name: month.dayOrMonth.slice(0, 3),
     transactions: month.totalCount,
     amount: month.totalAmount
   }));
 
-  const dailyChartData = dailyData.map(day => ({
+  const dailyChartData = dailyData.map((day:any) => ({
     name: new Date(day.date).getDate().toString(),
     transactions: day.transactionCount,
     amount: day.totalAmount
   }));
 
   return (
-    <Modal open={open} onClose={()=>{
+    <Modal 
+    //@ts-ignore
+    open={open} onClose={()=>{
 
         
     }}>
@@ -160,7 +166,9 @@ const TransactionModal = ({ open, onClose }) => {
 
             <Tabs 
               value={viewMode} 
-              onChange={(e, newValue) => setViewMode(newValue)}
+              onChange={
+                //@ts-ignore
+                (e, newValue) => setViewMode(newValue)}
               sx={{ mb: 2 }}
             >
               <Tab label="Table View" value="table" />
@@ -179,7 +187,7 @@ const TransactionModal = ({ open, onClose }) => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {dailyData.map((day) => (
+                      {dailyData.map((day:any) => (
                         <TableRow key={day.date}>
                           <TableCell>{formatDate(day.date)}</TableCell>
                           <TableCell align="right">{day.transactionCount}</TableCell>
@@ -196,7 +204,7 @@ const TransactionModal = ({ open, onClose }) => {
                     <Select
                       value={year}
                       label="Year"
-                      onChange={(e) => setYear(e.target.value)}
+                      onChange={(e) => setYear(e.target.value as any)}
                     >
                       <MenuItem value={2023}>2023</MenuItem>
                       <MenuItem value={2024}>2024</MenuItem>
