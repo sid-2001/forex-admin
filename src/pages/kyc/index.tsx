@@ -211,7 +211,6 @@ const KYCPage = () => {
     try {
       setCommonLoader(true)
       await kycservice.verifyDocument(proofType?.documentCode, proofType?.kycId)
-      await kycservice.changeKycStatus('v', proofType?.kycId)
       await getKycDetailsById(proofType?.kycId)
       setCommonLoader(false)
     } catch (error) {
@@ -219,7 +218,6 @@ const KYCPage = () => {
       setCommonLoader(false)
     }
   }
-
 
   const unverifyProofType = async (proofType: any) => {
     try {
