@@ -123,13 +123,14 @@ export class TransactionService extends BaseService {
     }
   }
 
-  async getForexRate(country: any, country_state: any) {
+  async getForexRate(base_currency: String, sourc_currency: String) {
     let url = `https://data.fixer.io/api/latest?access_key=${VITE_FOREX_APP_CREDENTIALS}&base=${
-      country_state == 'IN' ? 'INR' : 'ZAR'
-    }&symbols=${country}`
+      base_currency 
+    }&symbols=${sourc_currency}`
     try {
       let { data } = await axios.get(url)
-      return data.rates[country]
+      //@ts-ignore
+      return data.rates[sourc_currency]
     } catch (err) {
       console.log(err)
     }
@@ -190,6 +191,19 @@ export class TransactionService extends BaseService {
       let data = await api1.get(url)
       return data
     } catch (err) {
+      console.log(err)
+    }
+  }
+
+
+  async getTransactionSummary(country:any){
+let url=`/api/transactions/transaction-outward/transaction-summary?countryCode=${country}`
+    try{
+
+let data=await api1.get(url);
+return data
+    }catch(err){
+
       console.log(err)
     }
   }

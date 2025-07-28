@@ -30,7 +30,9 @@ import { ApplicantService } from '@/services/applicant.service'
 import { PaymentGateway } from '@/types/static.type'
 import staticdataService from '@/services/staticdata.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-import { HelperService } from '@/helpers/helper'
+import { AnyAaaaRecord } from 'node:dns'
+import { Id } from 'react-flags-select'
+import TransactionPanel from '@/components/transaction-panel'
 
 const Dashboard = () => {
   // Sample dashboard data
@@ -45,6 +47,15 @@ const Dashboard = () => {
 
   // Modal state
   const [openModal, setOpenModal] = useState(false)
+  const [activeCustomer, setAvtiveCustomers] = useState(false)
+  const [userCountry, setuserCounty] = useRecoilState(selectedCountryState)
+  const[totalTransaction,setTotalTransaction]=useState('')
+  const[applicatnData,setapplicantData]=useState<Array<{
+applicantId:String,
+applicantName:String,
+numberOfTransactions:Number
+  }>>([])
+
   const [recentTransaction, setrecentTransaction] = useState([])
   const [filterType, setFilterType] = useState('monthly')
   const [cards, setCards] = useState<Array<PaymentGateway>>([])
@@ -68,12 +79,15 @@ const Dashboard = () => {
     getGatewayList()
     transaction_service.getOutwardTransaction().then((data) => {
       let trx_list = data.transactionDetailsList.map((e) => {
+   
         return {
           id: e.transactionOutward.transactionNumber,
           customer: `${e.applicant.firstName} ${e.applicant.lastName}`,
           amount: e.transactionOutward.settlementAmount,
           date: e.transactionOutward.owCreatedDate,
           status: e.transactionOutward.reportingStatus,
+          settlementCurrency:e.transactionOutward.settlementCurrency
+          
         }
       })
 
@@ -83,39 +97,32 @@ const Dashboard = () => {
       console.log(data)
       //@ts-ignore
     })
+    transaction_service.getTransactionSummary(userCountry).then(data=>{
+      setapplicantData(data?.data)
+      
+    })
     //@ts-ignore
   }, [])
   // Sample transaction data for different time periods
-  const transactionData = {
-    yearly: [
-      { name: '2020', transactions: 1800 },
-      { name: '2021', transactions: 2400 },
-      { name: '2022', transactions: 3200 },
-      { name: '2023', transactions: 2100 },
-    ],
-    monthly: [
-      { name: 'Jan', transactions: 120 },
-      { name: 'Feb', transactions: 190 },
-      { name: 'Mar', transactions: 150 },
-      { name: 'Apr', transactions: 200 },
-      { name: 'May', transactions: 180 },
-      { name: 'Jun', transactions: 210 },
-    ],
-    weekly: [
-      { name: 'Week 1', transactions: 45 },
-      { name: 'Week 2', transactions: 60 },
-      { name: 'Week 3', transactions: 55 },
-      { name: 'Week 4', transactions: 70 },
-    ],
-  }
+
+  // Sample recent transactions
+  const recentTransactions = [
+    { id: 1, customer: 'John Doe', amount: 125.5, date: '2023-06-15', status: 'Completed' },
+    { id: 2, customer: 'Jane Smith', amount: 89.99, date: '2023-06-14', status: 'Completed' },
+    { id: 3, customer: 'Robert Johnson', amount: 245.0, date: '2023-06-13', status: 'Pending' },
+    { id: 4, customer: 'Emily Davis', amount: 67.3, date: '2023-06-12', status: 'Failed' },
+  ]
 
   // Sample active customers
+  
   const activeCustomers = [
     { id: 1, name: 'John Doe', joinDate: '2021-03-15', purchases: 12 },
     { id: 2, name: 'Jane Smith', joinDate: '2022-01-10', purchases: 8 },
     { id: 3, name: 'Michael Brown', joinDate: '2020-11-22', purchases: 21 },
     { id: 4, name: 'Sarah Wilson', joinDate: '2023-02-05', purchases: 3 },
   ]
+
+
 
   const bankAccounts = [
     {
@@ -257,7 +264,7 @@ const Dashboard = () => {
           display: 'flex',
           alignItems: 'center',
           p: 1,
-          height: '70%',
+          height: '90%',
           borderRadius: 3,
           boxShadow: 3,
           opacity: status ? 1 : 0.5, // dim when disabled
@@ -372,13 +379,14 @@ const Dashboard = () => {
             display: 'flex',
             overflowX: 'auto',
             scrollSnapType: 'x mandatory',
+            padding:"1%",
             gap: 2,
-            py: 0,
-            px: 0,
+         paddingTop:"0.3%",
+            // px: 0,
             '&::-webkit-scrollbar': { display: 'none' },
           }}
         >
-          {cards.map((card, index) => (
+          {cards?.map((card, index) => (
             <Box
               key={index}
               sx={{
@@ -386,7 +394,8 @@ const Dashboard = () => {
                 width: {
                   xs: '80%',
                   sm: '45%',
-                  md: '40%',
+                  md: '30%',
+                  
                 },
                 scrollSnapAlign: 'start',
               }}
@@ -466,7 +475,10 @@ const Dashboard = () => {
                     Total Transactions
                   </Typography>
                   <Typography variant="h4" component="div">
-                    {dashboardData.totalTransactions.toLocaleString()}
+                    {
+
+                    
+             recentTransaction.length}
                   </Typography>
                 </Box>
               </Stack>
@@ -486,7 +498,7 @@ const Dashboard = () => {
                     Active Customers
                   </Typography>
                   <Typography variant="h4" component="div">
-                    {dashboardData.totalActiveCustomers.toLocaleString()}
+                    {applicatnData.length}
                   </Typography>
                 </Box>
               </Stack>
@@ -518,25 +530,7 @@ const Dashboard = () => {
           <BankBalanceCarousel></BankBalanceCarousel>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ border: '1px solid', borderColor: 'primary.light' }}>
-            <CardContent>
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <Avatar sx={{ bgcolor: 'warning.main' }}>
-                  <AssignmentInd />
-                </Avatar>
-                <Box>
-                  <Typography color="text.secondary" gutterBottom>
-                    Total Applicants
-                  </Typography>
-                  <Typography variant="h4" component="div">
-                    {dashboardData.totalApplicants.toLocaleString()}
-                  </Typography>
-                </Box>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
+     
 
         <Grid item xs={12} sm={6} md={3}>
           <Card sx={{ border: '1px solid', borderColor: 'primary.light' }}>
@@ -558,13 +552,13 @@ const Dashboard = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={6}>
+        <Grid item xs={12} sm={6} md={9}>
           <HorizontalCardCarousel></HorizontalCardCarousel>
         </Grid>
       </Grid>
 
       {/* Transaction Filter Modal */}
-      <Modal open={openModal} onClose={() => setOpenModal(false)} aria-labelledby="transaction-filter-modal">
+      {/* <Modal open={openModal} onClose={() => setOpenModal(false)} aria-labelledby="transaction-filter-modal">
         <Box
           sx={{
             position: 'absolute',
@@ -662,7 +656,7 @@ const Dashboard = () => {
             </Grid>
           </Grid>
         </Box>
-      </Modal>
+      </Modal> */}
 
       {/* Additional Data Sections */}
       <Grid container spacing={3}>
@@ -684,7 +678,7 @@ const Dashboard = () => {
                   <Box key={transaction.id} sx={{ mb: 2, p: 1, borderBottom: '1px solid ', borderColor: 'primary.light' }}>
                     <Stack direction="row" justifyContent="space-between">
                       <Typography fontWeight="bold">{transaction.customer}</Typography>
-                      <Typography color="text.secondary">${transaction.amount}</Typography>
+                      <Typography color="text.secondary">{transaction?.settlementCurrency} {transaction.amount}</Typography>
                     </Stack>
                     <Stack direction="row" justifyContent="space-between" mt={1}>
                       <Typography variant="body2" color="text.secondary">
@@ -712,14 +706,14 @@ const Dashboard = () => {
                 <b> Active Customers</b>
               </Typography>
               <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
-                {activeCustomers.map((customer) => (
-                  <Box key={customer.id} sx={{ mb: 2, p: 1, borderBottom: '1px solid #eee' }}>
+                {applicatnData.map((customer) => (
+                  <Box key={customer?.applicantId} sx={{ mb: 2, p: 1, borderBottom: '1px solid #eee' }}>
                     <Stack direction="row" justifyContent="space-between">
-                      <Typography fontWeight="bold">{customer.name}</Typography>
-                      <Typography color="text.secondary">{customer.purchases} purchases</Typography>
+                      <Typography fontWeight="bold">{customer?.applicantName}</Typography>
+                      <Typography color="text.secondary">{ String(customer?.numberOfTransactions)} transaction</Typography>
                     </Stack>
                     <Typography variant="body2" color="text.secondary" mt={1}>
-                      Member since: {customer.joinDate}
+                      Applicant Id: {customer?.applicantId}
                     </Typography>
                   </Box>
                 ))}
@@ -728,6 +722,12 @@ const Dashboard = () => {
           </Card>
         </Grid>
       </Grid>
+
+         <TransactionPanel open={openModal}  onClose={()=>{
+          setOpenModal(false)
+          
+         }}/>
+   
     </Box>
   )
 }

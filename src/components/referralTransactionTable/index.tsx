@@ -136,6 +136,7 @@ const ReferralTransactions = ({
   ]
 
   const handleModalClose = () => {
+    
     setShowTransactionModal(!setShowTransactionModal)
   }
 
