@@ -6,6 +6,7 @@ import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { UserService } from '@/services/user.service'
 import { useTheme } from '@emotion/react'
+import LoaderUI from '@/components/loader/loader'
 
 const user_service = new UserService()
 const helper = new HelperService()
@@ -252,8 +253,16 @@ const ModuleTable: React.FC = () => {
           columns={MODULE_COLUMNS}
           rows={moduleData}
           //@ts-ignore
-          pageSize={5}
-          rowsPerPageOptions={[5]}
+          initialState={{
+              pagination: {
+                paginationModel: { pageSize: 20, page: 0 },
+              },
+            }}
+            pageSizeOptions={[10]}
+            loading={ moduleData.length === 0}
+            slots={{
+              loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
+            }}
           getRowId={(row: any) => row.moduleId} // Ensure proper row ID handling
           onRowClick={(params) => {
             setIsModalOpen(true)

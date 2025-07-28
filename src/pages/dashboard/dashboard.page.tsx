@@ -30,11 +30,13 @@ import { TransactionService } from '@/services/transaction.service'
 import { ApplicantService } from '@/services/applicant.service'
 import { PaymentGateway } from '@/types/static.type'
 import staticdataService from '@/services/staticdata.service'
-import { useRecoilState } from 'recoil'
-import { selectedCountryState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { AnyAaaaRecord } from 'node:dns'
 import { Id } from 'react-flags-select'
+import TransactionPanel from '@/components/transaction-panel'
+import { useRecoilState } from 'recoil'
+import { selectedCountryState } from '@/states/state'
+import { HelperService } from '@/helpers/helper'
 
 const Dashboard = () => {
   // Sample dashboard data
@@ -63,11 +65,11 @@ const Dashboard = () => {
   const applicant_service = new ApplicantService()
   const static_service = new staticdataService()
   const local_service = new LocalStorageService()
+  const helper = new HelperService()
 
   const getGatewayList = () => {
     static_service.getStaticPaymentGateway(local_service?.get_staff_country()).then((data: any) => {
-
-      setCards(data?.data?.sort((e: any) => e.costFee));
+      setCards(data?.data?.sort((e: any) => e.costFee))
     })
   }
 
@@ -128,6 +130,7 @@ const Dashboard = () => {
   ]
 
   // Sample active customers
+  
   const activeCustomers = [
     { id: 1, name: 'John Doe', joinDate: '2021-03-15', purchases: 12 },
     { id: 2, name: 'Jane Smith', joinDate: '2022-01-10', purchases: 8 },
@@ -251,9 +254,7 @@ const Dashboard = () => {
   }
 
   const handleToggle = (id: String, status: boolean) => {
-
-    static_service.paymentGatewayStatus(id, status).then(data => {
-
+    static_service.paymentGatewayStatus(id, status).then((data) => {
       console.log(data)
       getGatewayList()
     })
@@ -273,8 +274,6 @@ const Dashboard = () => {
     //@ts-ignore
     description,
   }) => {
-
-
     return (
       <Card
         sx={{
@@ -296,12 +295,14 @@ const Dashboard = () => {
         <CardContent sx={{ ml: 2, flexGrow: 1 }}>
           {/* <Typography variant="h6">{title}</Typography> */}
           <Typography variant="body2" color="text.secondary">
-            <Switch checked={status} value={status}
+            <Switch
+              checked={status}
+              value={status}
               onChange={(e: any) => {
                 console.log(e)
                 handleToggle(id, !status)
-
-              }} />
+              }}
+            />
           </Typography>
         </CardContent>
       </Card>
@@ -414,9 +415,15 @@ const Dashboard = () => {
                 scrollSnapAlign: 'start',
               }}
             >
-              <HorizontalCard id={card?.id} title={card?.company} description="" status={card?.activeStatus} image_url={card?.imageUrl}
+              <HorizontalCard
+                id={card?.id}
+                title={card?.company}
+                description=""
+                status={card?.activeStatus}
+                image_url={card?.imageUrl}
                 //@ts-ignore
-                status={card?.activeStatus} />
+                status={card?.activeStatus}
+              />
             </Box>
           ))}
         </Box>
@@ -739,7 +746,7 @@ const Dashboard = () => {
                     </Stack>
                     <Stack direction="row" justifyContent="space-between" mt={1}>
                       <Typography variant="body2" color="text.secondary">
-                        {transaction.date}
+                        {helper.convertDateAndTime(transaction.date)}
                       </Typography>
                       <Typography
                         variant="body2"
@@ -763,15 +770,10 @@ const Dashboard = () => {
                 <b> Active Customers</b>
               </Typography>
               <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
-                {isLoading ? (
-                  <>
-                    <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
-                    <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
-                    <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
-                  </>
-                ) : activeCustomers.length === 0 && <Typography>No active customers found.</Typography>}
-                {activeCustomers.map((customer) => (
-                  <Box key={customer.id} sx={{ mb: 2, p: 1, borderBottom: '1px solid #eee' }}>
+                {applicatnData.map((customer) => (
+                  <Box 
+                  //@ts-ignore
+                  key={customer?.applicantId} sx={{ mb: 2, p: 1, borderBottom: '1px solid #eee' }}>
                     <Stack direction="row" justifyContent="space-between">
                       <Typography fontWeight="bold">{customer.name}</Typography>
                       <Typography color="text.secondary">{customer.purchases} purchases</Typography>
@@ -819,6 +821,14 @@ const Dashboard = () => {
         </Grid>
 
       </Grid>
+
+         <TransactionPanel
+         //@ts-ignore
+         open={openModal}  onClose={()=>{
+          setOpenModal(false)
+          
+         }}/>
+   
     </Box>
   )
 }

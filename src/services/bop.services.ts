@@ -82,4 +82,14 @@ export class BopService extends BaseService {
       console.log(err)
     }
   }
+
+  async validateAndUpdateStpRules(payload: any): Promise<any> {
+    const url = '/api/transactions/transaction-outward/updateStpErrorStatus'
+    try {
+      const data = await api1.put(url, payload)
+      return data
+    } catch (err) {
+      console.log(err)
+    }
+  }
 }

@@ -33,6 +33,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import HasPermission from '@/components/permissionWrapper'
 import { HelperService } from '@/helpers/helper'
 import dayjs from 'dayjs'
+import LoaderUI from '@/components/loader/loader'
 
 const KYCPage = () => {
   const [open, setOpen] = useState(false)
@@ -253,6 +254,7 @@ const KYCPage = () => {
     return record?.documentUrl
   }
 
+
   return (
     <Box padding={3}>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.KYC}>
@@ -281,10 +283,17 @@ const KYCPage = () => {
             sx={{ width: '100%' }}
             rows={filteredData}
             getRowId={(row) => row.kycId}
-            columns={KycColumns || []}
-            //@ts-ignore
-            pageSize={5}
-            rowsPerPageOptions={[5]}
+            columns={KycColumns || []}    
+            initialState={{
+              pagination: {
+                paginationModel: { pageSize: 20, page: 0 },
+              },
+            }}
+            pageSizeOptions={[10]}
+            loading={ filteredData.length === 0}
+            slots={{
+              loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
+            }}
           />
         </Box>
       </HasPermission>
@@ -626,7 +635,7 @@ const KYCPage = () => {
                 No comments available
               </Typography>
             ) : (
-              comments.map((comment:any, index:any) => (
+              comments.map((comment: any, index: any) => (
                 <Box key={comment?.commentId} sx={{ position: 'relative', pl: 3 }}>
                   {index !== comments.length - 1 && (
                     <Box

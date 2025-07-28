@@ -25,7 +25,6 @@ const ApplicantEnquiry = () => {
   }, [])
 
   useEffect(() => {
-    console.log(selectedCountryoption, '=================')
     getApplicantListByCountry()
   }, [])
 

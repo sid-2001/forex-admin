@@ -1,24 +1,7 @@
 import { ThemeProvider } from '@mui/material/styles'
-import {
-  Box,
-  Typography,
-  Avatar,
-  List,
-  ListItem,
-  ListItemText,
-  IconButton,
-  Modal,
-  Button,
-  AppBar,
-  ListItemIcon,
-  Toolbar,
-  Menu,
-  MenuItem,
-  TextField,
-  Popover,
-} from '@mui/material'
+import { Box, Typography, Avatar, List, ListItem, ListItemText, IconButton, Modal, AppBar, ListItemIcon, Toolbar } from '@mui/material'
 import { styled } from '@mui/system'
-import { Chuks, John, Logo, LogoWhite } from '@/assets/images'
+import { Logo, LogoWhite } from '@/assets/images'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
 import Person2Icon from '@mui/icons-material/Person2'
@@ -133,7 +116,6 @@ const Header = styled(Box)({
   justifyContent: 'space-between',
   alignItems: 'center',
   paddingBottom: '1rem',
-
 })
 
 const DashboardLayout = () => {
@@ -146,14 +128,6 @@ const DashboardLayout = () => {
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
-  }
-
-  const handledropClose = (option?: string) => {
-    setAnchorEl(null)
-    if (option) {
-      console.log(`Selected: ${option}`)
-      // Add logic for each option
-    }
   }
 
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
@@ -265,23 +239,6 @@ const DashboardLayout = () => {
       ),
       label: 'kyc',
     },
-
-    // {
-    //   icon: (
-    //     <AccountBoxIcon
-    //       sx={{
-    //         color: theme.palette.secondary.light,
-    //         fontSize: '40px',
-
-    //         color: theme.palette.primary.light,
-    //         '&:hover': {
-    //           color: theme.palette.primary.main, // Change the color to blue on hover
-    //         },
-    //       }}
-    //     />
-    //   ),
-    //   label: 'users',
-    // },
     {
       icon: (
         <PeopleOutlineIcon
@@ -301,42 +258,6 @@ const DashboardLayout = () => {
       ),
       label: 'Applicant',
     },
-    //     {
-    //       icon: (
-    //         <CameraFrontIcon
-    //           sx={{
-    //             //@ts-ignore
-    //             color: theme.palette.secondary.light,
-    //             fontSize: '30px',
-    // //@ts-ignore
-    //             color: theme.palette.primary.light,
-    //             //@ts-ignore
-    //             '&:hover': {
-    //               //@ts-ignore
-    //               color: theme.palette.primary.main, // Change the color to blue on hover
-    //             },
-    //           }}
-    //         />
-    //       ),
-    //       label: 'beneficiary',
-    //     },
-
-    // {
-    //   icon: (
-    //     <>
-    //       <SourceIcon
-    //         sx={{
-    //           //@ts-ignore
-    //           fontSize: '30px',
-    //           //@ts-ignore
-    //           color: theme.palette.primary.light, // Corrected theme usage
-    //         }}
-    //       />
-    //     </>
-    //   ),
-    //   label: 'configuration',
-    // },
-
     {
       icon: (
         <>
@@ -352,7 +273,6 @@ const DashboardLayout = () => {
       ),
       label: 'Bop',
     },
-
     {
       icon: (
         <>
@@ -383,7 +303,6 @@ const DashboardLayout = () => {
       ),
       label: 'Module',
     },
-
     {
       icon: (
         <>
@@ -399,7 +318,6 @@ const DashboardLayout = () => {
       ),
       label: 'Role',
     },
-
     {
       icon: (
         <>
@@ -460,8 +378,6 @@ const DashboardLayout = () => {
                         textAlign: 'center',
                       }}
                       primary={table.listname}
-
-                      // secondary={`PK: ${table['primary-key']}`}
                     />
                   </ListItem>
                 ))}
@@ -473,9 +389,6 @@ const DashboardLayout = () => {
       label: 'Static',
     },
   ]
-
-  // const[alert]
-  // const [openbar, setopentBar] = useRecoilState(snackbarOpenState);
 
   const handleClose = () => {
     setdropopoOpen(false)
@@ -500,74 +413,8 @@ const DashboardLayout = () => {
     }, 2000)
   }, [open])
 
-  let navbar = ['Course']
-
-  switch (selectedrole) {
-    case 'admin':
-      switch (selectedApp) {
-        case 'LAI':
-          navbar = ['Course', 'Users', 'SOP']
-          break
-        case 'Health':
-          navbar = ['Dashboard']
-          break
-      }
-
-      break
-    case 'student':
-      navbar = ['Learning', 'Assessments', 'Courses', 'Queries']
-      break
-  }
-
-  // let student_service = new studentService();
-
-  const style = {
-    position: 'absolute' as 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
-  }
-
   const handleSidebarClick = (text: any) => {
-    console.log(text)
-    // setselectedSidebar(text);
     setSelectedApp(text)
-    // setopenloader(true);
-    // switch (text.toLowerCase()) {
-    //   case "students":
-    //     student_service.getStudentList().then((data) => {
-    //       setstudentList(data as any);
-    //       console.log(studentList);
-    //     });
-    //     break;
-    //   case "dashboards":
-    //     break;
-    //   case "default":
-    //     break;
-    // }
-    // navigate(text.toLowerCase());
-    // setTimeout(() => {
-    //   setopenloader(false);
-    // }, 2000);
-  }
-  const handleTabClick = (text: any) => {
-    setopenloader(true)
-
-    // setselectedSidebar(text);
-    console.log(selectedTab)
-    setSelectedTab(text)
-    if (text.toLowerCase() != 'static') {
-      navigate(text.toLowerCase())
-    }
-
-    setTimeout(() => {
-      setopenloader(false)
-    }, 2000)
   }
 
   const handleLogout = () => {
@@ -577,7 +424,6 @@ const DashboardLayout = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      {/* <CustomSnackbar></CustomSnackbar> */}
       <LoaderBackdrop openloader={openloader} imageSrc=".." />
       <AppBar
         position="sticky"
@@ -608,7 +454,6 @@ const DashboardLayout = () => {
               border: '1px solid #D1DDFC',
               padding: '7px',
               paddingRight: '10px',
-              // boxShadow: "5px 5px 5px #888888",
               marginBottom: '6px',
             }}
           >
@@ -641,28 +486,11 @@ const DashboardLayout = () => {
                     >
                       <strong>{local_service?.get_staff_access().staffId}</strong>
                     </Typography>
-
-                    {/*                   <Za
-                    style={{
-                      height: '20px',
-                      width: '25px',
-                      marginLeft: '5%',
-                      // padding: '10px',
-                      borderRadius: '30%',
-                    }}
-                  /> */}
                   </Stack>
                 </Box>
               </>
             ) : (
               <>
-                {/* {local_service.get_user()?.firstName?(
-local_service.get_user()?.firstName[0]
-
-
-            ):(L)} */}
-                {/* <Avatar >{local_service.get_user()?.firstName[0] + " " + local_service.get_user()?.lastName[0]}</Avatar> */}
-
                 <Box ml={1}>
                   <Typography
                     variant="subtitle1"
@@ -686,16 +514,6 @@ local_service.get_user()?.firstName[0]
                     >
                       <strong>{local_service?.get_staff_access()?.staffId}</strong>
                     </Typography>
-                    {/* 
-                  <In
-                    style={{
-                      height: '20px',
-                      width: '25px',
-                      marginLeft: '5%',
-                      // padding: '10px',
-                      borderRadius: '30%',
-                    }}
-                  /> */}
                   </Stack>
                 </Box>
               </>
@@ -728,7 +546,6 @@ local_service.get_user()?.firstName[0]
             <List
               sx={{
                 height: '100%',
-                // backgroundColor: 'red',
                 textAlign: 'center',
               }}
             >
@@ -784,7 +601,6 @@ local_service.get_user()?.firstName[0]
                 sx={{
                   textAlign: 'center',
                   alignItems: 'center',
-                  // marginTop: '50vh',
                   // Push this item to the end
                 }}
                 onClick={() => {
@@ -827,10 +643,8 @@ local_service.get_user()?.firstName[0]
                 button
                 key="logout"
                 sx={{
-                  // justifyContent: isDrawerOpen ? 'flex-start' : 'center',
                   textAlign: 'center',
                   alignItems: 'center',
-                  // backgroundColor: 'pink',
                 }}
                 onClick={() => {
                   setIsModalOpen(true)
