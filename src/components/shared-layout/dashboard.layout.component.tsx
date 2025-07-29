@@ -33,7 +33,7 @@ import { useEffect } from 'react'
 
 import Stack from '@mui/material/Stack'
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows'
-
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import CircularProgress from '@mui/material/CircularProgress'
 import { useTheme } from '@emotion/react'
 import Paper from '@mui/material/Paper'
@@ -318,6 +318,22 @@ const DashboardLayout = () => {
       ),
       label: 'Role',
     },
+    {
+      icon: (
+        <>
+          <AccountBalanceIcon
+            sx={{
+              //@ts-ignore
+              fontSize: '2vh',
+              //@ts-ignore
+              color: theme.palette.primary.light, // Corrected theme usage
+            }}
+          />
+        </>
+      ),
+      label: 'Cdi',
+    },
+
     {
       icon: (
         <>

@@ -291,7 +291,7 @@ const BopScreen: React.FC = () => {
             }}
             disabled={
               !(
-                stpErrors.length === 0 &&
+                stpErrors?.length === 0 &&
                 formData.transaction_status === 'RELEASED' &&
                 helper.checkUserHasPermission(local_service.get_modules()?.BOP, 'canUpdate') &&
                 formData.status == 'Pending'
@@ -311,7 +311,7 @@ const BopScreen: React.FC = () => {
           </Button>
         </Box>
 
-        {stpErrors.length > 0 && (
+        {stpErrors?.length > 0 && (
           <Box mb={2} border={'1px solid rgba(0, 0, 0, 0.26)'} borderRadius={2} padding={'6px'}>
             <Typography
               variant="h5"

@@ -6,6 +6,20 @@ import ProtectedRoute, { ProtectedRouteProps } from './helpers/protected-route'
 import IndexPage from './pages/defaultpage'
 import UserAdd from './pages/user-add'
 import Login from './pages/newlogin'
+import Cdiscreen from './pages/cdi'
+
+// import Login from './pages/login'
+// import Dashboard from './pages/dashboard'
+// import { RecoilRoot } from 'recoil'
+// import CreateDriver from './pages/add-driver'
+// import favicon from '../src/assets/images/new-logo.png'
+// import { Schedule } from '@mui/icons-material'
+// import Scheduler from './pages/scheduler'
+// import { getToken, onMessage } from 'firebase/messaging'
+// import Message from './components/message/index'
+// import LoaderBackdrop from './components/loader/loader'
+// import ApplicantPage from './pages/applicant'
+// import BeneficiaryTable from './components/beneficiary-table'
 
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -33,6 +47,7 @@ import RoleManagement from './pages/roles-list'
 import ReconScreen from './pages/recon-screen'
 import StaticData from './pages/static-data/staticdata.page'
 import Dashboard from './pages/dashboard/dashboard.page'
+import CdiScreen from './pages/cdi'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -67,6 +82,7 @@ function App() {
               <Route path="sendmoney" element={<SendMoneyPage />} />
               <Route path="kyc" element={<KYCPage />} />
               <Route path="kyc/:id" element={<KYCPage />} />
+              <Route path="cdi" element={<CdiScreen />} />
               <Route path="profile" element={<UserTable />} />
               <Route path="profile/add" element={<UserAdd />} />
               <Route path="profile/edit/:staffId" element={<UserAdd />} />

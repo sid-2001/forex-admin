@@ -238,7 +238,6 @@ const TransactionListing = () => {
   const [trxStatus, settrxStatus] = useState('')
   const [transactionData, setTransactionData] = useState(inboundTransaction)
   const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
-  const [selectedCountryoption, setselectedCountryoption] = useRecoilState(selectedCountryState)
   const [userList, setUserList] = useState([])
   const [creattrx, setCreatetrx] = useState('')
   const [zaphierlink, setZaphierLink] = useState('')
@@ -246,7 +245,6 @@ const TransactionListing = () => {
   const [startDate, setStartDate] = useState<string | null>(null)
   const [endDate, setEndDate] = useState<string | null>(null)
   const [stpErrors, setStpErrors] = useState<any>([])
-  const [selecteCountryState, setselectedCountryState] = useRecoilState(selectedCountryState)
 
   let applicant_service = new ApplicantService()
   let transaction_Service = new TransactionService()
@@ -316,7 +314,7 @@ const TransactionListing = () => {
   const getAllTransactions = useCallback(async () => {
     try {
       setcommonloader(true)
-      const data: any = await transaction_Service.getOutwardAllTransaction(selecteCountryState)
+      const data: any = await transaction_Service.getOutwardAllTransaction(selectedCountryOption === 'IN' ? 'IN' : 'ZA')
       console.log(data)
       const inbound: Array<TransactionInwardCalclulated>[] | any = data?.map((e: any) => {
         //@ts-ignore
@@ -436,9 +434,9 @@ const TransactionListing = () => {
       gatewayId: '13122',
       //@ts-ignore
       timecharge: row.charges,
-      sourceCurrency: selectedCountryoption === 'ZA' ? 'ZAR' : 'INR',
-      sourceCountry: selectedCountryoption === 'ZA' ? 'ZA' : 'IN',
-      destinationCurrency: selectedCountryoption === 'ZA' ? 'INR' : 'ZAR',
+      sourceCurrency: selectedCountryOption === 'ZA' ? 'ZAR' : 'INR',
+      sourceCountry: selectedCountryOption === 'ZA' ? 'ZA' : 'IN',
+      destinationCurrency: selectedCountryOption === 'ZA' ? 'INR' : 'ZAR',
       bopId: row?.bobId,
       // totalpaybleamount: (Number(row.value) + Number(row.charges)),
       totalpaybleamount: Number(row.value) * Number(row.exchangeRates),

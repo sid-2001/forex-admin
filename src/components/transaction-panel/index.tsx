@@ -25,6 +25,8 @@ import { Close, ArrowBack } from '@mui/icons-material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import staticdataService from '@/services/staticdata.service';
 
+
+
 const TransactionModal = ({ open, onClose }:{
 open:String,
 onClose:any

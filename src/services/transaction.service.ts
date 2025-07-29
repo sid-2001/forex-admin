@@ -5,6 +5,9 @@ import axios from 'axios'
 const { VITE_APP_TRANSACTION, VITE_FOREX_APP_CREDENTIALS } = import.meta.env
 
 export class TransactionService extends BaseService {
+  static cdiTransaction() {
+      throw new Error('Method not implemented.')
+  }
   async gettransactions(): Promise<TransactionDetailsResponse> {
     let url = '/api/transactions/transaction-details'
     try {
@@ -27,14 +30,27 @@ export class TransactionService extends BaseService {
   }
 
   async getInwardTransaction(receving_country: any): Promise<Array<TransactionInward>> {
-    let url = `/api/transactions/transaction-inward/receivingCountry/${receving_country}`
     try {
+      let url = `/api/transactions/transaction-inward/receivingCountry/${receving_country}`
       let data = await api1.get(url)
       return data?.transactionDetailList as any
     } catch (e) {
       throw new Error(e as any)
     }
   }
+
+  async cdiTransactions(): Promise<any[]> {
+    let url = '/api/transactions/transaction-details/unmatchedTransactionList'
+    try {
+      const response = await api1.get(url)
+      return response
+    } catch (error) {
+      console.error('API error:', error)
+      throw error
+    }
+  }
+
+
 
   async getBalanceEnquiry(): Promise<Array<TransactionInward>> {
     let url = `/api/transactions/transaction-details/balanceEnquiry`
