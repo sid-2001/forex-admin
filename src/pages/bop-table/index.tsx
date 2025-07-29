@@ -8,7 +8,7 @@ import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { statusColors } from '@/contants/utils'
 import { BopService } from '@/services/bop.services'
-
+import LoaderUI from '@/components/loader/loader'
 const BopTable: React.FC = () => {
   const [bopData, setBopData] = React.useState([])
   const navigate = useNavigate()
@@ -148,9 +148,16 @@ const BopTable: React.FC = () => {
           }}
           columns={columns}
           rows={bopData}
-          //@ts-ignore
-          pageSize={5}
-          rowsPerPageOptions={[5]}
+          initialState={{
+              pagination: {
+                paginationModel: { pageSize: 20, page: 0 },
+              },
+            }}
+            pageSizeOptions={[10]}
+            loading={bopData.length === 0}
+            slots={{
+              loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
+            }}
           getRowId={(row: any) => row.id}
         />
       </Box>

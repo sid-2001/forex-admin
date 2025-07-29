@@ -2,6 +2,7 @@ import React from 'react'
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
 import { useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
+import LoaderUI from '@/components/loader/loader'
 
 interface Applicant {
   applicantId: string
@@ -83,10 +84,16 @@ const ApplicantDataGrid: React.FC<Props> = ({ data }) => {
       <DataGrid
         rows={rows}
         columns={columns}
-        pageSizeOptions={[10]}
         initialState={{
-          pagination: { paginationModel: { pageSize: 20, page: 0 } },
-        }}
+              pagination: {
+                paginationModel: { pageSize: 20, page: 0 },
+              },
+            }}
+            pageSizeOptions={[10]}
+            loading={rows.length === 0}
+            slots={{
+              loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
+            }}
       />
     </Box>
   )

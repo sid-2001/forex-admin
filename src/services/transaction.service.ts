@@ -18,6 +18,16 @@ export class TransactionService extends BaseService {
       throw new Error(e as any)
     }
   }
+  
+  async getOutwardAllTransaction(sendCountry:any): Promise<Array<TransactionInward>> {
+    let url = `/api/transactions/transaction-outward/sendCountry/${sendCountry}` 
+    try {
+      let data = await api1.get(url)
+      return data.data as any
+    } catch (e) {
+      throw new Error(e as any)
+    }
+  }
 
   async getInwardTransaction(receving_country: any): Promise<Array<TransactionInward>> {
     try {

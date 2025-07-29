@@ -12,6 +12,7 @@ import LoaderBackdrop from '@/components/loader/loader'
 import CloseIcon from '@mui/icons-material/Close'
 import { UserService } from '@/services/user.service'
 import staticdataService from '@/services/staticdata.service'
+import LoaderUI from '@/components/loader/loader'
 
 const LoginPage = () => {
   const [email, setEmail] = useState('')
@@ -159,7 +160,8 @@ const LoginPage = () => {
         backgroundColor: 'red',
       }}
     >
-      <LoaderBackdrop openloader={commonloader} />
+  
+      <LoaderUI.LoaderBackdrop openloader={commonloader} />
       <Snackbar open={open} autoHideDuration={4000} onClose={handleClose} message={text} action={action} />
       <Box
         sx={{

@@ -3,15 +3,11 @@ import api1 from './apis/api1'
 import { BaseResponse, CustomerResponse, LoginResponse, Loginreq, StaffResponse } from '@/types/auth.type'
 
 import { LocalStorageService } from '../helpers/local-storage-service'
-// import instance from "../services/apis/api1"
 import axios, { AxiosResponse } from 'axios'
 
 import ENV from '../envioronments/environment.developement.json'
 import { AxiosInstance } from 'axios'
 import { BaseError } from '../types/error.type'
-//@ts-ignore
-import { useRecoilState } from 'recoil'
-// import { role } from '@/states/state'
 
 let local_service = new LocalStorageService()
 
@@ -43,10 +39,6 @@ class AuthService extends BaseService {
 
       if (data?.success == true) {
         local_service.set_accesstoken(data?.token)
-        if (data?.role == 'branch-owner') {
-          local_service.setbranchOwner(data?.user._id, data?.user.name)
-        }
-
         if (data?.user?._id) {
           data.user.id = data.user._id
         }
