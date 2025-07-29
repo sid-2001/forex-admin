@@ -291,7 +291,6 @@ const Dashboard = () => {
         }}
       // sx={{ border: '1px solid', borderColor: 'primary.light' }}
       >
-        
         <CardMedia component="img" image={image_url} alt={title} sx={{ width: '10vw', height: '3vh', borderRadius: 2 }} />
         <CardContent sx={{ ml: 2, flexGrow: 1 }}>
           {/* <Typography variant="h6">{title}</Typography> */}
@@ -624,7 +623,6 @@ const Dashboard = () => {
           <Typography id="transaction-filter-modal" variant="h6" component="h2" mb={2}>
             Transaction Filters
           </Typography>
-
           <Divider sx={{ mb: 3 }} />
 
           <Grid container spacing={3}>

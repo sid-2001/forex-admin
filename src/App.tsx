@@ -10,6 +10,8 @@ import UserAdd from './pages/user-add'
 import LogsList from './pages/log-list'
 import NewLog from './pages/add-log'
 import Login from './pages/newlogin'
+import Cdiscreen from './pages/cdi'
+
 // import Login from './pages/login'
 // import Dashboard from './pages/dashboard'
 // import { RecoilRoot } from 'recoil'
@@ -53,6 +55,7 @@ import RoleManagement from './pages/roles-list'
 import ReconScreen from './pages/recon-screen'
 import StaticData from './pages/static-data/staticdata.page'
 import Dashboard from './pages/dashboard/dashboard.page'
+import CdiScreen from './pages/cdi'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -116,6 +119,7 @@ function App() {
               <Route path="sendmoney" element={<SendMoneyPage />} />
               <Route path="kyc" element={<KYCPage />} />
               <Route path="kyc/:id" element={<KYCPage />} />
+              <Route path="cdi" element={<CdiScreen />} />
               <Route path="profile" element={<UserTable />} />
               <Route path="profile/add" element={<UserAdd />} />
               <Route path="profile/edit/:staffId" element={<UserAdd />} />
