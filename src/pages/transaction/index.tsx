@@ -622,16 +622,16 @@ const TransactionListing = () => {
               variant="h6"
               fontWeight="bold"
               sx={{
-                marginBottom: 2,
-                color: 'white',
-                textAlign: 'center',
                 backgroundColor: theme.palette.primary.main,
+                p: '0.5%',
+                color: 'white',
+                paddingLeft: '5%',
+                paddingRight: '5%',
+                marginBottom: 2,
                 width: '40%',
-                padding: '1%',
-                borderRadius: '3%',
               }}
             >
-              TRN ID- {transactionDetails.id}
+              TRANSACTION ID : {transactionDetails.id}
             </Typography>
 
             <Chip label={transactionDetails?.status} color="warning" sx={{ marginBottom: 2 }} />

@@ -15,7 +15,6 @@ import {
   Modal,
   ListItem,
   List,
-
 } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import VerifyDocumentModal from '@/components/verify-document'
@@ -59,23 +58,21 @@ const KYCPage = () => {
   let kycservice = new KycService()
   const helper_service = new HelperService()
 
-
   //   commentDate
-  // : 
+  // :
   // "2025-07-18T13:36:57.294+00:00"
   // commentId
-  // : 
+  // :
   // "24b95681-fe33-419a-accd-6f40353790d4"
   // commentText
-  // : 
+  // :
   // "hi"
   // kycId
-  // : 
+  // :
   // "KYC1752496183751"
   // user
-  // : 
+  // :
   // "kp sharma"
-
 
   const KycColumns = [
     {
@@ -157,7 +154,7 @@ const KYCPage = () => {
   useEffect(() => {
     setCommonLoader(true)
 
-    applicant_service.getApplicantKyc(selectedcountry).then((data: any) => {
+    applicant_service.getApplicantKyc(selectedcountry === 'IN' ? 'IN' : 'ZA').then((data: any) => {
       setMockData(data)
       setCommonLoader(false)
 
@@ -169,7 +166,6 @@ const KYCPage = () => {
       }
     })
   }, [selectedcountry, kycIdFromRoute]) // include kycIdFromRoute in dependencies
-
 
   const handleAddComment = async () => {
     if (newComment.trim() === '') return
@@ -223,8 +219,7 @@ const KYCPage = () => {
   const unverifyProofType = async (proofType: any) => {
     try {
       setCommonLoader(true)
-      await kycservice
-        .unverifyDocument(proofType?.documentCode, proofType?.kycId)
+      await kycservice.unverifyDocument(proofType?.documentCode, proofType?.kycId)
       await kycservice.changeKycStatus('p', proofType?.kycId)
       await getKycDetailsById(proofType?.kycId)
       setCommonLoader(false)
@@ -254,7 +249,6 @@ const KYCPage = () => {
     return record?.documentUrl
   }
 
-
   return (
     <Box padding={3}>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.KYC}>
@@ -283,14 +277,14 @@ const KYCPage = () => {
             sx={{ width: '100%' }}
             rows={filteredData}
             getRowId={(row) => row.kycId}
-            columns={KycColumns || []}    
+            columns={KycColumns || []}
             initialState={{
               pagination: {
                 paginationModel: { pageSize: 20, page: 0 },
               },
             }}
             pageSizeOptions={[10]}
-            loading={ filteredData.length === 0}
+            loading={filteredData.length === 0}
             slots={{
               loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
             }}
@@ -321,7 +315,7 @@ const KYCPage = () => {
                   paddingRight: '5%',
                 }}
               >
-                KYC ID - {selectedKYC?.kycId}
+                KYC ID : {selectedKYC?.kycId}
               </Typography>
               <Typography variant="subtitle1" style={{ backgroundColor: '#FFEEBA', padding: '4px 8px', borderRadius: '4px' }}>
                 {selectedKYC?.kycStatus == 'v' ? 'Verified' : 'Unverified'}
@@ -332,10 +326,7 @@ const KYCPage = () => {
             <Grid container>
               <Grid item xs={2}>
                 <Avatar
-                  src={renderUserImage()?.replace(
-                    "http://64.227.139.142",
-                    "https://api.impronics.com"
-                  )} // Replace with actual image URL
+                  src={renderUserImage()?.replace('http://64.227.139.142', 'https://api.impronics.com')} // Replace with actual image URL
                   sx={{
                     width: 150,
                     height: 150,
@@ -505,7 +496,6 @@ const KYCPage = () => {
                 (proofType) => (
                   <Grid container spacing={2} alignItems="center" mt={1} key={proofType}>
                     <Grid item xs={2}>
-
                       <TextField label="Document Name" fullWidth defaultValue={proofType?.document?.documentType} disabled />
                     </Grid>
                     <Grid item xs={2}>
@@ -543,7 +533,8 @@ const KYCPage = () => {
                           justifyContent: 'space-between',
                           alignItems: 'center',
                           padding: '4px 8px',
-                        }}>
+                        }}
+                      >
                         {proofType.verificationStatus === 'va' ? (
                           <>
                             Verified
@@ -555,7 +546,8 @@ const KYCPage = () => {
                               disabled={
                                 proofType.verificationStatus === 'v' ||
                                 !helper_service.checkUserHasPermission(local_service.get_modules()?.KYC, 'canUpdate')
-                              }>
+                              }
+                            >
                               <CloseIcon />
                             </IconButton>
                           </>
@@ -570,7 +562,8 @@ const KYCPage = () => {
                               disabled={
                                 proofType.verificationStatus === 'va' ||
                                 !helper_service.checkUserHasPermission(local_service.get_modules()?.KYC, 'canUpdate')
-                              } >
+                              }
+                            >
                               <CheckCircleOutlineIcon />
                             </IconButton>
                           </>
@@ -659,9 +652,7 @@ const KYCPage = () => {
                       padding: 0,
                     }}
                   >
-                    <Avatar sx={{ bgcolor: 'primary.main', width: 35, height: 35 }}>
-                      {comment?.user?.charAt(0).toUpperCase()}
-                    </Avatar>
+                    <Avatar sx={{ bgcolor: 'primary.main', width: 35, height: 35 }}>{comment?.user?.charAt(0).toUpperCase()}</Avatar>
 
                     <Box sx={{ flex: 1 }}>
                       <Box
@@ -683,14 +674,10 @@ const KYCPage = () => {
                       </Typography>
                     </Box>
                   </ListItem>
-
-
                 </Box>
-
               ))
             )}
           </List>
-
 
           <Divider sx={{ my: 2 }} />
 
