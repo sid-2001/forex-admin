@@ -18,6 +18,7 @@ import {
   CardMedia,
   Switch,
   IconButton,
+  Skeleton,
 } from '@mui/material'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { AttachMoney, People, AssignmentInd, TrendingUp, CalendarToday, DateRange } from '@mui/icons-material'
@@ -51,13 +52,13 @@ const Dashboard = () => {
   const [openModal, setOpenModal] = useState(false)
   const [activeCustomer, setAvtiveCustomers] = useState(false)
   const [userCountry, setuserCounty] = useRecoilState(selectedCountryState)
-  const[totalTransaction,setTotalTransaction]=useState('')
-  const[applicatnData,setapplicantData]=useState<Array<{
-applicantId:String,
-applicantName:String,
-numberOfTransactions:Number
+  const [totalTransaction, setTotalTransaction] = useState('')
+  const [applicatnData, setapplicantData] = useState<Array<{
+    applicantId: String,
+    applicantName: String,
+    numberOfTransactions: Number
   }>>([])
-
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [recentTransaction, setrecentTransaction] = useState([])
   const [filterType, setFilterType] = useState('monthly')
   const [cards, setCards] = useState<Array<PaymentGateway>>([])
@@ -68,40 +69,42 @@ numberOfTransactions:Number
   const transaction_service = new TransactionService()
   const applicant_service = new ApplicantService()
   const static_service = new staticdataService()
-  const local_service=new LocalStorageService()
+  const local_service = new LocalStorageService()
 
   const getGatewayList = () => {
-    static_service.getStaticPaymentGateway(local_service?.get_staff_country()).then((data:any) => {
+    static_service.getStaticPaymentGateway(local_service?.get_staff_country()).then((data: any) => {
 
-      setCards(data?.data?.sort((e:any)=>e.costFee) );
+      setCards(data?.data?.sort((e: any) => e.costFee));
     })
   }
 
   useEffect(() => {
     getGatewayList()
+    setIsLoading(true);
     transaction_service.getOutwardTransaction().then((data) => {
       let trx_list = data.transactionDetailsList.map((e) => {
-   
+
         return {
           id: e.transactionOutward.transactionNumber,
           customer: `${e.applicant.firstName} ${e.applicant.lastName}`,
           amount: e.transactionOutward.settlementAmount,
           date: e.transactionOutward.owCreatedDate,
           status: e.transactionOutward.reportingStatus,
-          settlementCurrency:e.transactionOutward.settlementCurrency
-          
+          settlementCurrency: e.transactionOutward.settlementCurrency
+
         }
       })
 
       setrecentTransaction(trx_list as any)
+      setIsLoading(false);
     })
     applicant_service.getApplicantDetalis().then((data: any) => {
       console.log(data)
       //@ts-ignore
     })
-    transaction_service.getTransactionSummary(userCountry).then(data=>{
+    transaction_service.getTransactionSummary(userCountry).then(data => {
       setapplicantData(data?.data)
-      
+
     })
     //@ts-ignore
   }, [])
@@ -232,16 +235,16 @@ numberOfTransactions:Number
     )
   }
 
-  const handleToggle = (id:String,status:boolean) => {
-  
-      static_service.paymentGatewayStatus(id,status).then(data=>{
+  const handleToggle = (id: String, status: boolean) => {
 
-        console.log(data)
-        getGatewayList()
-      })
+    static_service.paymentGatewayStatus(id, status).then(data => {
 
-      // setEnabled((prev) => !prev)
-    }
+      console.log(data)
+      getGatewayList()
+    })
+
+    // setEnabled((prev) => !prev)
+  }
 
   const HorizontalCard = ({
     //@ts-ignore
@@ -255,8 +258,8 @@ numberOfTransactions:Number
     //@ts-ignore
     description,
   }) => {
-   
-    
+
+
     return (
       <Card
         sx={{
@@ -271,18 +274,18 @@ numberOfTransactions:Number
           border: '1px solid',
           borderColor: 'primary.light',
         }}
-        // sx={{ border: '1px solid', borderColor: 'primary.light' }}
+      // sx={{ border: '1px solid', borderColor: 'primary.light' }}
       >
         <CardMedia component="img" image={image_url} alt={title} sx={{ width: '10vw', height: '3vh', borderRadius: 2 }} />
         <CardContent sx={{ ml: 2, flexGrow: 1 }}>
           {/* <Typography variant="h6">{title}</Typography> */}
           <Typography variant="body2" color="text.secondary">
-          <Switch checked={status}  value={status}
-  onChange={(e:any)=>{
-    console.log(e)
-  handleToggle(id,!status)
+            <Switch checked={status} value={status}
+              onChange={(e: any) => {
+                console.log(e)
+                handleToggle(id, !status)
 
-  }}  />
+              }} />
           </Typography>
         </CardContent>
       </Card>
@@ -376,9 +379,9 @@ numberOfTransactions:Number
             display: 'flex',
             overflowX: 'auto',
             scrollSnapType: 'x mandatory',
-            padding:"1%",
+            padding: "1%",
             gap: 2,
-         paddingTop:"0.3%",
+            paddingTop: "0.3%",
             // px: 0,
             '&::-webkit-scrollbar': { display: 'none' },
           }}
@@ -392,14 +395,14 @@ numberOfTransactions:Number
                   xs: '80%',
                   sm: '45%',
                   md: '30%',
-                  
+
                 },
                 scrollSnapAlign: 'start',
               }}
             >
-              <HorizontalCard  id= {card?.id} title={card?.company} description="" status={card?.activeStatus} image_url={card?.imageUrl}
-              //@ts-ignore
-              status={card?.activeStatus}/>
+              <HorizontalCard id={card?.id} title={card?.company} description="" status={card?.activeStatus} image_url={card?.imageUrl}
+                //@ts-ignore
+                status={card?.activeStatus} />
             </Box>
           ))}
         </Box>
@@ -465,12 +468,14 @@ numberOfTransactions:Number
                   <Typography color="text.secondary" gutterBottom>
                     Total Transactions
                   </Typography>
-                  <Typography variant="h4" component="div">
-                    {
-
-                    
-             recentTransaction.length}
-                  </Typography>
+                  {isLoading ? (
+                    <Skeleton variant="text" width={80} height={36} />
+                  ) : (
+                    <Typography variant="h4" component="div">
+                      {
+                        recentTransaction.length}
+                    </Typography>
+                  )}
                 </Box>
               </Stack>
             </CardContent>
@@ -488,9 +493,13 @@ numberOfTransactions:Number
                   <Typography color="text.secondary" gutterBottom>
                     Active Customers
                   </Typography>
-                  <Typography variant="h4" component="div">
-                    {applicatnData.length}
-                  </Typography>
+                  {isLoading ? (
+                    <Skeleton variant="text" width={80} height={36} />
+                  ) : (
+                    <Typography variant="h4" component="div">
+                      {applicatnData.length}
+                    </Typography>
+                  )}
                 </Box>
               </Stack>
             </CardContent>
@@ -521,7 +530,7 @@ numberOfTransactions:Number
           <BankBalanceCarousel></BankBalanceCarousel>
         </Grid>
 
-     
+
 
         <Grid item xs={12} sm={6} md={3}>
           <Card sx={{ border: '1px solid', borderColor: 'primary.light' }}>
@@ -534,9 +543,13 @@ numberOfTransactions:Number
                   <Typography color="text.secondary" gutterBottom>
                     Total Profit
                   </Typography>
-                  <Typography variant="h4" component="div">
-                    ${dashboardData.totalProfit.toLocaleString()}
-                  </Typography>
+                  {isLoading ? (
+                    <Skeleton variant="text" width={80} height={36} />
+                  ) : (
+                    <Typography variant="h4" component="div">
+                      ${dashboardData.totalProfit.toLocaleString()}
+                    </Typography>
+                  )}
                 </Box>
               </Stack>
             </CardContent>
@@ -659,35 +672,44 @@ numberOfTransactions:Number
                 variant="h6"
                 gutterBottom
                 sx={{
-                  backgroundColor: 'pimary.main',
+                  backgroundColor: 'pimary.main', // kept your original typo as per request
                 }}
               >
                 <b> Recent Transactions</b>
               </Typography>
               <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
-                {recentTransaction.map((transaction: any) => (
-                  <Box key={transaction.id} sx={{ mb: 2, p: 1, borderBottom: '1px solid ', borderColor: 'primary.light' }}>
-                    <Stack direction="row" justifyContent="space-between">
-                      <Typography fontWeight="bold">{transaction.customer}</Typography>
-                      <Typography color="text.secondary">{transaction?.settlementCurrency} {transaction.amount}</Typography>
-                    </Stack>
-                    <Stack direction="row" justifyContent="space-between" mt={1}>
-                      <Typography variant="body2" color="text.secondary">
-                        {transaction.date}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        color={transaction.status === 'Completed' ? 'success.main' : transaction.status === 'Pending' ? 'warning.main' : 'error.main'}
-                      >
-                        {transaction.status}
-                      </Typography>
-                    </Stack>
-                  </Box>
-                ))}
+                {isLoading ? (
+                  <>
+                    <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
+                    <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
+                    <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
+                  </>
+                ) : (
+                  recentTransaction.map((transaction: any) => (
+                    <Box key={transaction.id} sx={{ mb: 2, p: 1, borderBottom: '1px solid ', borderColor: 'primary.light' }}>
+                      <Stack direction="row" justifyContent="space-between">
+                        <Typography fontWeight="bold">{transaction.customer}</Typography>
+                        <Typography color="text.secondary">{transaction?.settlementCurrency} {transaction.amount}</Typography>
+                      </Stack>
+                      <Stack direction="row" justifyContent="space-between" mt={1}>
+                        <Typography variant="body2" color="text.secondary">
+                          {transaction.date}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color={transaction.status === 'Completed' ? 'success.main' : transaction.status === 'Pending' ? 'warning.main' : 'error.main'}
+                        >
+                          {transaction.status}
+                        </Typography>
+                      </Stack>
+                    </Box>
+                  ))
+                )}
               </Box>
             </CardContent>
           </Card>
         </Grid>
+
 
         {/* Active Customers */}
         <Grid item xs={12} md={6}>
@@ -697,32 +719,45 @@ numberOfTransactions:Number
                 <b> Active Customers</b>
               </Typography>
               <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
-                {applicatnData.map((customer) => (
-                  <Box
-                  //@ts-ignore
-                  key={customer?.applicantId} sx={{ mb: 2, p: 1, borderBottom: '1px solid #eee' }}>
-                    <Stack direction="row" justifyContent="space-between">
-                      <Typography fontWeight="bold">{customer?.applicantName}</Typography>
-                      <Typography color="text.secondary">{ String(customer?.numberOfTransactions)} transaction</Typography>
-                    </Stack>
-                    <Typography variant="body2" color="text.secondary" mt={1}>
-                      Applicant Id: {customer?.applicantId}
-                    </Typography>
-                  </Box>
-                ))}
+                {isLoading ? (
+                  <>
+                    <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
+                    <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
+                    <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
+                  </>
+                ) : (
+                  applicatnData.map((customer) => (
+                    <Box
+                      //@ts-ignore
+                      key={customer?.applicantId}
+                      sx={{ mb: 2, p: 1, borderBottom: '1px solid #eee' }}
+                    >
+                      <Stack direction="row" justifyContent="space-between">
+                        <Typography fontWeight="bold">{customer?.applicantName}</Typography>
+                        <Typography color="text.secondary">
+                          {String(customer?.numberOfTransactions)} transaction
+                        </Typography>
+                      </Stack>
+                      <Typography variant="body2" color="text.secondary" mt={1}>
+                        Applicant Id: {customer?.applicantId}
+                      </Typography>
+                    </Box>
+                  ))
+                )}
               </Box>
             </CardContent>
           </Card>
         </Grid>
+
       </Grid>
 
-         <TransactionPanel
-         //@ts-ignore
-         open={openModal}  onClose={()=>{
+      <TransactionPanel
+        //@ts-ignore
+        open={openModal} onClose={() => {
           setOpenModal(false)
-          
-         }}/>
-   
+
+        }} />
+
     </Box>
   )
 }
