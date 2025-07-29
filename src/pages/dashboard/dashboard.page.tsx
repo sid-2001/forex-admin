@@ -18,6 +18,7 @@ import {
   CardMedia,
   Switch,
   IconButton,
+  Skeleton,
 } from '@mui/material'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { AttachMoney, People, AssignmentInd, TrendingUp, CalendarToday, DateRange } from '@mui/icons-material'
@@ -48,9 +49,7 @@ const Dashboard = () => {
 
   // Modal state
   const [openModal, setOpenModal] = useState<any>(false)
-  const [activeCustomer, setAvtiveCustomers] = useState(false)
   const [userCountry, setuserCounty] = useRecoilState(selectedCountryState)
-  const [totalTransaction, setTotalTransaction] = useState('')
   const [applicatnData, setapplicantData] = useState<
     Array<{
       applicantId: String
@@ -59,6 +58,7 @@ const Dashboard = () => {
     }>
   >([])
 
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const [recentTransaction, setrecentTransaction] = useState([])
   const [filterType, setFilterType] = useState('monthly')
   const [cards, setCards] = useState<Array<PaymentGateway>>([])
@@ -80,6 +80,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     getGatewayList()
+    setIsLoading(true)
     transaction_service.getOutwardTransaction().then((data) => {
       let trx_list = data.transactionDetailsList.map((e) => {
         return {
@@ -93,6 +94,7 @@ const Dashboard = () => {
       })
 
       setrecentTransaction(trx_list as any)
+      setIsLoading(false)
     })
     applicant_service.getApplicantDetalis().then((data: any) => {
       console.log(data)
@@ -104,17 +106,30 @@ const Dashboard = () => {
     //@ts-ignore
   }, [])
   // Sample transaction data for different time periods
-
-  // Sample recent transactions
-  const recentTransactions = [
-    { id: 1, customer: 'John Doe', amount: 125.5, date: '2023-06-15', status: 'Completed' },
-    { id: 2, customer: 'Jane Smith', amount: 89.99, date: '2023-06-14', status: 'Completed' },
-    { id: 3, customer: 'Robert Johnson', amount: 245.0, date: '2023-06-13', status: 'Pending' },
-    { id: 4, customer: 'Emily Davis', amount: 67.3, date: '2023-06-12', status: 'Failed' },
-  ]
+  const transactionData = {
+    yearly: [
+      { name: '2020', transactions: 1800 },
+      { name: '2021', transactions: 2400 },
+      { name: '2022', transactions: 3200 },
+      { name: '2023', transactions: 2100 },
+    ],
+    monthly: [
+      { name: 'Jan', transactions: 120 },
+      { name: 'Feb', transactions: 190 },
+      { name: 'Mar', transactions: 150 },
+      { name: 'Apr', transactions: 200 },
+      { name: 'May', transactions: 180 },
+      { name: 'Jun', transactions: 210 },
+    ],
+    weekly: [
+      { name: 'Week 1', transactions: 45 },
+      { name: 'Week 2', transactions: 60 },
+      { name: 'Week 3', transactions: 55 },
+      { name: 'Week 4', transactions: 70 },
+    ],
+  }
 
   // Sample active customers
-
   const activeCustomers = [
     { id: 1, name: 'John Doe', joinDate: '2021-03-15', purchases: 12 },
     { id: 2, name: 'Jane Smith', joinDate: '2022-01-10', purchases: 8 },
@@ -262,7 +277,7 @@ const Dashboard = () => {
           display: 'flex',
           alignItems: 'center',
           p: 1,
-          height: '90%',
+          height: '70%',
           borderRadius: 3,
           boxShadow: 3,
           opacity: status ? 1 : 0.5, // dim when disabled
@@ -270,11 +285,9 @@ const Dashboard = () => {
           border: '1px solid',
           borderColor: 'primary.light',
         }}
-        // sx={{ border: '1px solid', borderColor: 'primary.light' }}
       >
         <CardMedia component="img" image={image_url} alt={title} sx={{ width: '10vw', height: '3vh', borderRadius: 2 }} />
         <CardContent sx={{ ml: 2, flexGrow: 1 }}>
-          {/* <Typography variant="h6">{title}</Typography> */}
           <Typography variant="body2" color="text.secondary">
             <Switch
               checked={status}
@@ -377,14 +390,13 @@ const Dashboard = () => {
             display: 'flex',
             overflowX: 'auto',
             scrollSnapType: 'x mandatory',
-            padding: '1%',
             gap: 2,
-            paddingTop: '0.3%',
-            // px: 0,
+            py: 0,
+            px: 0,
             '&::-webkit-scrollbar': { display: 'none' },
           }}
         >
-          {cards?.map((card, index) => (
+          {cards.map((card, index) => (
             <Box
               key={index}
               sx={{
@@ -392,7 +404,7 @@ const Dashboard = () => {
                 width: {
                   xs: '80%',
                   sm: '45%',
-                  md: '30%',
+                  md: '40%',
                 },
                 scrollSnapAlign: 'start',
               }}
@@ -459,7 +471,12 @@ const Dashboard = () => {
       <Grid container spacing={2} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
           <Card
-            sx={{ cursor: 'pointer', '&:hover': { boxShadow: 3 }, border: '1px solid', borderColor: 'primary.light' }}
+            sx={{
+              cursor: 'pointer',
+              '&:hover': { boxShadow: 3 },
+              border: '1px solid',
+              borderColor: 'primary.light',
+            }}
             onClick={() => setOpenModal(true)}
           >
             <CardContent>
@@ -471,9 +488,13 @@ const Dashboard = () => {
                   <Typography color="text.secondary" gutterBottom>
                     Total Transactions
                   </Typography>
-                  <Typography variant="h4" component="div">
-                    {recentTransaction.length}
-                  </Typography>
+                  {isLoading ? (
+                    <Skeleton variant="text" width={80} height={36} />
+                  ) : (
+                    <Typography variant="h4" component="div">
+                      {dashboardData?.totalTransactions?.toLocaleString() ?? '0'}
+                    </Typography>
+                  )}
                 </Box>
               </Stack>
             </CardContent>
@@ -491,9 +512,13 @@ const Dashboard = () => {
                   <Typography color="text.secondary" gutterBottom>
                     Active Customers
                   </Typography>
-                  <Typography variant="h4" component="div">
-                    {applicatnData.length}
-                  </Typography>
+                  {isLoading ? (
+                    <Skeleton variant="text" width={80} height={36} />
+                  ) : (
+                    <Typography variant="h4" component="div">
+                      {dashboardData.totalActiveCustomers.toLocaleString()}
+                    </Typography>
+                  )}
                 </Box>
               </Stack>
             </CardContent>
@@ -528,6 +553,30 @@ const Dashboard = () => {
           <Card sx={{ border: '1px solid', borderColor: 'primary.light' }}>
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={2}>
+                <Avatar sx={{ bgcolor: 'warning.main' }}>
+                  <AssignmentInd />
+                </Avatar>
+                <Box>
+                  <Typography color="text.secondary" gutterBottom>
+                    Total Applicants
+                  </Typography>
+                  {isLoading ? (
+                    <Skeleton variant="text" width={80} height={36} />
+                  ) : (
+                    <Typography variant="h4" component="div">
+                      {dashboardData.totalApplicants.toLocaleString()}
+                    </Typography>
+                  )}
+                </Box>
+              </Stack>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={{ border: '1px solid', borderColor: 'primary.light' }}>
+            <CardContent>
+              <Stack direction="row" alignItems="center" spacing={2}>
                 <Avatar sx={{ bgcolor: 'info.main' }}>
                   <TrendingUp />
                 </Avatar>
@@ -535,22 +584,26 @@ const Dashboard = () => {
                   <Typography color="text.secondary" gutterBottom>
                     Total Profit
                   </Typography>
-                  <Typography variant="h4" component="div">
-                    ${dashboardData.totalProfit.toLocaleString()}
-                  </Typography>
+                  {isLoading ? (
+                    <Skeleton variant="text" width={80} height={36} />
+                  ) : (
+                    <Typography variant="h4" component="div">
+                      ${dashboardData.totalProfit.toLocaleString()}
+                    </Typography>
+                  )}
                 </Box>
               </Stack>
             </CardContent>
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={9}>
+        <Grid item xs={12} sm={6} md={6}>
           <HorizontalCardCarousel></HorizontalCardCarousel>
         </Grid>
       </Grid>
 
       {/* Transaction Filter Modal */}
-      {/* <Modal open={openModal} onClose={() => setOpenModal(false)} aria-labelledby="transaction-filter-modal">
+      <Modal open={openModal} onClose={() => setOpenModal(false)} aria-labelledby="transaction-filter-modal">
         <Box
           sx={{
             position: 'absolute',
@@ -569,6 +622,7 @@ const Dashboard = () => {
           <Typography id="transaction-filter-modal" variant="h6" component="h2" mb={2}>
             Transaction Filters
           </Typography>
+
           <Divider sx={{ mb: 3 }} />
 
           <Grid container spacing={3}>
@@ -648,7 +702,7 @@ const Dashboard = () => {
             </Grid>
           </Grid>
         </Box>
-      </Modal> */}
+      </Modal>
 
       {/* Additional Data Sections */}
       <Grid container spacing={3}>
@@ -666,13 +720,20 @@ const Dashboard = () => {
                 <b> Recent Transactions</b>
               </Typography>
               <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
+                {isLoading ? (
+                  <>
+                    <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
+                    <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
+                    <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
+                  </>
+                ) : (
+                  recentTransaction.length === 0 && <Typography>No recent transactions found.</Typography>
+                )}
                 {recentTransaction.map((transaction: any) => (
                   <Box key={transaction.id} sx={{ mb: 2, p: 1, borderBottom: '1px solid ', borderColor: 'primary.light' }}>
                     <Stack direction="row" justifyContent="space-between">
                       <Typography fontWeight="bold">{transaction.customer}</Typography>
-                      <Typography color="text.secondary">
-                        {transaction?.settlementCurrency} {transaction.amount}
-                      </Typography>
+                      <Typography color="text.secondary">${transaction.amount}</Typography>
                     </Stack>
                     <Stack direction="row" justifyContent="space-between" mt={1}>
                       <Typography variant="body2" color="text.secondary">
@@ -693,24 +754,58 @@ const Dashboard = () => {
         </Grid>
 
         {/* Active Customers */}
-        <Grid item xs={12} md={6}>
+        {/* <Grid item xs={12} md={6}>
           <Card sx={{ border: '1px solid', borderColor: 'primary.light' }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 <b> Active Customers</b>
               </Typography>
               <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
-                {applicatnData.map((customer: any) => (
-                  <Box key={customer?.applicantId} sx={{ mb: 2, p: 1, borderBottom: '1px solid #eee' }}>
+                {applicatnData.map((customer) => (
+                  <Box 
+                  //@ts-ignore
+                  key={customer?.applicantId} sx={{ mb: 2, p: 1, borderBottom: '1px solid #eee' }}>
                     <Stack direction="row" justifyContent="space-between">
-                      <Typography fontWeight="bold">{customer?.applicantName}</Typography>
-                      <Typography color="text.secondary">{String(customer?.numberOfTransactions)} transaction</Typography>
+                      <Typography fontWeight="bold">{customer.name}</Typography>
+                      <Typography color="text.secondary">{customer.purchases} purchases</Typography>
                     </Stack>
                     <Typography variant="body2" color="text.secondary" mt={1}>
-                      Applicant Id: {customer?.applicantId}
+                      Member since: {customer.joinDate}
                     </Typography>
                   </Box>
                 ))}
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid> */}
+        <Grid item xs={12} md={6}>
+          <Card sx={{ border: '1px solid', borderColor: 'primary.light' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                <b>Active Customers</b>
+              </Typography>
+              <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
+                {isLoading ? (
+                  <>
+                    <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
+                    <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
+                    <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
+                  </>
+                ) : activeCustomers.length === 0 ? (
+                  <Typography>No active customers found.</Typography>
+                ) : (
+                  activeCustomers.map((customer) => (
+                    <Box key={customer.id} sx={{ mb: 2, p: 1, borderBottom: '1px solid #eee' }}>
+                      <Stack direction="row" justifyContent="space-between">
+                        <Typography fontWeight="bold">{customer.name}</Typography>
+                        <Typography color="text.secondary">{customer.purchases} purchases</Typography>
+                      </Stack>
+                      <Typography variant="body2" color="text.secondary" mt={1}>
+                        Member since: {customer.joinDate}
+                      </Typography>
+                    </Box>
+                  ))
+                )}
               </Box>
             </CardContent>
           </Card>
@@ -718,6 +813,7 @@ const Dashboard = () => {
       </Grid>
 
       <TransactionPanel
+        //@ts-ignore
         open={openModal}
         onClose={() => {
           setOpenModal(false)

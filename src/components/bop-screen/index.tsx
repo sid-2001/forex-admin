@@ -27,15 +27,26 @@ const genderArry = [
 
 const fieldNamesMapping: any = {
   first_name: 'name',
-  contact_details: 'phoneNumber',
-  email: 'email',
   last_name: 'name',
   middle_name: 'name',
+  contact_details: 'phoneNumber',
+  email: 'email',
   physical_address_line1: 'address',
   physical_address_line2: 'address',
   postal_address_line1: 'address',
   postal_address_line2: 'address',
 }
+
+const requiredFormFields = [
+  'first_name',
+  'last_name',
+  'email',
+  'physical_address_line1',
+  'physical_address_line2',
+  'postal_address_line1',
+  'postal_address_line2',
+  'contact_details',
+]
 
 const BopScreen: React.FC = () => {
   const { transactionId, transaction_attempt } = useParams()
@@ -55,8 +66,6 @@ const BopScreen: React.FC = () => {
 
   const parseData = local_service.get_staff_access()
 
-  console.log(validationRules, '-------------------')
-
   //@ts-ignore
   const userLoggedInCountry = countryCodes[parseData?.staffCountry]
 
@@ -71,77 +80,79 @@ const BopScreen: React.FC = () => {
       if (validRule) {
         const pattern = validRule.specialCharacterList.slice(1, -1) // remove slashes
         const regex = new RegExp(pattern)
+        // required fields check
+        if (requiredFormFields.includes(key) && value === '') {
+          errors[key] = `Field is required.`
+        }
         //@ts-ignore
-        if (value.length < validRule.minLength || value.length > validRule.maxLength) {
+        else if (value !== '' && (value.length < validRule.minLength || value.length > validRule.maxLength)) {
           errors[key] = `Must be between ${validRule.minLength} and ${validRule.maxLength} characters.`
         }
         //@ts-ignore
-        else if (!regex.test(value)) {
+        else if (value !== '' && !regex.test(value)) {
           errors[key] = validRule.errorMessage
         }
       }
     }
-    console.log(errors, '==============erros')
     return errors // empty object if no errors
   }
 
   const handleSubmit = async (e: any) => {
-    console.log('form submitted')
     e.preventDefault()
     const errors = validateForm(formData)
     setFormErrors(errors)
 
     if (Object.keys(errors).length === 0) {
-      console.log('Submit data:', formData)
-    }
-    return
-    // const isValid = validateForm();
-    // console.log(isValid, "---------------", formData)
-    // if (!isValid) return;
+      const stp_validation_payload = {
+        transactionNumber: transactionId,
+        applicantName: formData?.middle_name
+          ? `${formData.first_name} ${formData.middle_name} ${formData.last_name}`
+          : `${formData.first_name} ${formData.last_name}`,
+        physicalAddressLine1: formData?.physical_address_line1,
+        physicalAddressLine2: formData?.physical_address_line2,
+        // suburb: formData?.suburb,
+        // city: formData?.city,
+        // postcode: formData?.postcode,
+        postalAddressLine1: formData?.postal_address_line1,
+        postalAddressLine2: formData?.postal_address_line1,
+        // postalSuburb: formData?.postal_suburb,
+        // postalCity: formData?.postal_city,
+        // postalPostcode: formData?.postal_postcode,
+        // postalCountry: formData?.postal_country,
+        // idType: formData?.id_type,
+        // idDetails: formData?.id_details,
+        contactType: formData?.contact_type,
+        contactDetails: formData?.contact_details,
+        // dob: formData?.dob,
+        // residenceCountry: formData?.residence_country,
+        // residenceState: formData?.residence_state,
+        // postalState: formData?.postal_state,
+      }
 
-    const stp_validation_payload = {
-      transactionNumber: transactionId,
-      applicantName: formData?.name,
-      physicalAddressLine1: formData?.physical_address_line1,
-      physicalAddressLine2: formData?.physical_address_line2,
-      // suburb: formData?.suburb,
-      // city: formData?.city,
-      // postcode: formData?.postcode,
-      postalAddressLine1: formData?.postal_address_line1,
-      postalAddressLine2: formData?.postal_address_line1,
-      // postalSuburb: formData?.postal_suburb,
-      // postalCity: formData?.postal_city,
-      // postalPostcode: formData?.postal_postcode,
-      // postalCountry: formData?.postal_country,
-      // idType: formData?.id_type,
-      // idDetails: formData?.id_details,
-      contactType: formData?.contact_type,
-      contactDetails: formData?.contact_details,
-      // dob: formData?.dob,
-      // residenceCountry: formData?.residence_country,
-      // residenceState: formData?.residence_state,
-      // postalState: formData?.postal_state,
-    }
+      const payload = {
+        bopData: {
+          ...formData,
+          name: formData?.middle_name
+            ? `${formData.first_name} ${formData.middle_name} ${formData.last_name}`
+            : `${formData.first_name} ${formData.last_name}`,
+        },
+        bopCategoryData: {
+          bop_category: bopCat.bop_category,
+          bop_sub_category: bopCat.bop_sub_category,
+          bop_description: bopCat.bop_description,
+          id: bopCat.id,
+        },
+      }
 
-    const payload = {
-      bopData: {
-        ...formData,
-        name: `${formData.first_name} ${formData.middle_name} ${formData.last_name}`,
-      },
-      bopCategoryData: {
-        bop_category: bopCat.bop_category,
-        bop_sub_category: bopCat.bop_sub_category,
-        bop_description: bopCat.bop_description,
-        id: bopCat.id,
-      },
-    }
-
-    try {
-      // const stpResponse = await bopService.validateAndUpdateStpRules(stp_validation_payload)
-      // const response = await bopService.updateBopData(payload, formData.id)
-      // window.location.reload()
-    } catch (error) {
-      console.error(error)
+      try {
+        const stpResponse = await bopService.validateAndUpdateStpRules(stp_validation_payload)
+        const response = await bopService.updateBopData(payload, formData.id)
+        window.location.reload()
+      } catch (error) {
+        console.error(error)
+      }
+    } else {
+      return
     }
   }
 
@@ -542,7 +553,7 @@ const BopScreen: React.FC = () => {
 
             <Grid container spacing={2} mt={1}>
               <Grid item xs={2.3}>
-                <FormControl fullWidth required>
+                <FormControl fullWidth>
                   <TextField
                     size="small"
                     label="First Name"
