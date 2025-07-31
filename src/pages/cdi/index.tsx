@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Typography, useTheme, Drawer, Grid, TextField, Divider, Chip, IconButton } from '@mui/material'
+import { Box, Typography, useTheme, Drawer, Grid, TextField, Divider, Chip, IconButton, Button } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { styled } from '@mui/material/styles'
 import { PreviewOutlined } from '@mui/icons-material'
 import { TransactionService } from '@/services/transaction.service'
 import LoaderUI from '@/components/loader/loader'
+import { Outline } from 'react-pdf'
 
 const StyledDataGrid = styled(DataGrid)({
   '& .MuiDataGrid-columnHeaders': {
@@ -72,7 +73,7 @@ const CdiScreen = () => {
       renderCell: (params: any) => {
         const value = params?.row?.referenceMatchIndicator
         const color = value === 'Y' || value === true ? 'green' : 'red'
-        const displayText = value === 'Y' || value === true ? 'YES' : 'NO'
+        const displayText = value === 'Y' || value === true ? 'MAPPED' : 'NOT MAPPED'
 
         return <div style={{ color }}>{displayText}</div>
       },
@@ -123,7 +124,7 @@ const CdiScreen = () => {
         onClose={closeDrawer}
         sx={{
           '& .MuiDrawer-paper': {
-            width: '60%',
+            width: '30%',
             padding: 2,
             backgroundColor: 'white',
           },
@@ -148,7 +149,7 @@ const CdiScreen = () => {
             </Typography>
 
             <Chip
-              label={transactionDetails?.referenceMatchIndicator === 'Y' || transactionDetails?.referenceMatchIndicator === true ? 'YES' : 'NO'}
+              label={transactionDetails?.referenceMatchIndicator === 'Y' || transactionDetails?.referenceMatchIndicator === true ? 'MAPPED' : 'NOT MAPPED'}
               color={
                 transactionDetails?.referenceMatchIndicator === 'Y' || transactionDetails?.referenceMatchIndicator === true ? 'success' : 'error'
               }
@@ -156,42 +157,80 @@ const CdiScreen = () => {
             />
 
             <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>
-              Beneficiary Details
+              Transaction Details
             </Typography>
 
-            <Grid container spacing={2} mb={2}>
+            <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
-                <TextField label="Account Number" variant="filled" fullWidth defaultValue={transactionDetails?.accountNumber} size="small" disabled />
+                <TextField label="UTR Number" value={transactionDetails?.uniqueInstanceId || ''} fullWidth variant="outlined" size="small" disabled/>
               </Grid>
+
               <Grid item xs={12} md={6}>
-                <TextField label="Bank" variant="filled" fullWidth defaultValue={transactionDetails?.bankName} size="small" disabled />
+                <TextField label="Amount" value={transactionDetails?.transactionAmount || ''} fullWidth variant="outlined" size="small" disabled/>
               </Grid>
+
               <Grid item xs={12} md={6}>
-                <TextField label="Branch Code" variant="filled" fullWidth defaultValue={transactionDetails?.branchCode} size="small" disabled />
+                <TextField label="Date" value={transactionDetails?.transactionDate || ''} fullWidth  variant="outlined"  size="small" disabled/>
               </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField label="Time" value={transactionDetails?.transactionTime || ''} fullWidth variant="outlined" size="small" disabled/>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField label="Account Number" value={transactionDetails?.accountNumber || ''} fullWidth variant="outlined" size="small" disabled />
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField label="Reference Number" value={transactionDetails?.referenceNumber || ''} fullWidth variant="outlined" size="small" disabled/>
+              </Grid>
+
               <Grid item xs={12} md={6}>
                 <TextField
-                  label="Debit/Credit Indicator"
-                  variant="filled"
-                  fullWidth
-                  defaultValue={transactionDetails?.debitCreditIndicator}
-                  size="small"
-                  disabled
-                />
+                  label="Effective Date" value={transactionDetails?.effectiveDate || ''} fullWidth variant="outlined" size="small" disabled/>
               </Grid>
+
               <Grid item xs={12} md={6}>
-                <TextField
-                  label="Transaction Number"
-                  variant="filled"
-                  fullWidth
-                  defaultValue={transactionDetails?.transactionNumber}
-                  size="small"
-                  disabled
-                />
+                <TextField label="Bank Name" value={transactionDetails?.bankName || ''} fullWidth variant="outlined" size="small" disabled/>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField label="Branch Code" value={transactionDetails?.branchCode || ''} fullWidth variant="outlined" size="small" disabled/>
               </Grid>
             </Grid>
 
-            <Divider sx={{ my: 2 }} />
+            <Divider sx={{ my: 3, borderBottomWidth: '5px', }} />
+            <Box sx={{ mt: 3 }}>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 1 }}>
+                Transaction Number
+              </Typography>
+
+              <TextField
+                label="Enter Transaction Number"
+                variant="outlined"
+                size="small"
+                sx={{ width: '60%', marginBottom: 2 }} // You can adjust width as needed
+              />
+
+              <Button
+                variant="outlined"
+                color="primary"
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 'bold',
+                  border: 'Outline',
+                  width: '60%', // Match or change independently
+                }}
+                onClick={() => {
+                  console.log('Send for Release clicked');
+                }}
+              >
+                Send for Release
+              </Button>
+            </Box>
+
+
+
           </Box>
         )}
       </Drawer>
