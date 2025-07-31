@@ -561,8 +561,13 @@ const DashboardLayout = () => {
           >
             <List
               sx={{
-                height: '100%',
+                flexGrow: 1,
+                overflowY: 'auto',
                 textAlign: 'center',
+                height: '100%',
+                '@media (max-height: 700px)': {
+                  maxHeight: 'calc(100vh - 80px)', // Adjust based on AppBar height
+                },
               }}
             >
               {menuItems.map((item, index) => (
