@@ -46,7 +46,7 @@ const RoleManagementPage = () => {
         <Box>
           <Typography variant="h4" gutterBottom
             //@its-ignore
-            sx={{ color: theme.palette.secondary.main }}>
+            sx={{ color: theme.palette.text.primary }}>
             <strong>Roles </strong>
           </Typography>
         </Box>

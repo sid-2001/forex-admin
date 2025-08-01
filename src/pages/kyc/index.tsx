@@ -252,7 +252,7 @@ const KYCPage = () => {
   return (
     <Box padding={3}>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.KYC}>
-        <Typography variant="h4" gutterBottom color={theme.palette.secondary.main}>
+        <Typography variant="h4" gutterBottom color={theme.palette.text.primary}>
           <strong>Know Your Customer</strong>
         </Typography>
 
@@ -261,16 +261,16 @@ const KYCPage = () => {
           sx={{
             width: '80vw',
             height: '65vh',
-            '& .super-app-theme--header': {
-              backgroundColor: '#005099',
-              color: 'white',
-            },
-            '& .MuiDataGrid-row:nth-of-type(even)': {
-              backgroundColor: '#e3f2fd', // Light blue alternate rows
-            },
-            '& .MuiDataGrid-row:nth-of-type(odd)': {
-              backgroundColor: '#ffffff',
-            },
+            // '& .super-app-theme--header': {
+            //   backgroundColor: '#005099',
+            //   color: 'white',
+            // },
+            // '& .MuiDataGrid-row:nth-of-type(even)': {
+            //   backgroundColor: '#e3f2fd', // Light blue alternate rows
+            // },
+            // '& .MuiDataGrid-row:nth-of-type(odd)': {
+            //   backgroundColor: '#ffffff',
+            // },
           }}
         >
           <DataGrid

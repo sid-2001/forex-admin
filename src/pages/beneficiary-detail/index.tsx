@@ -6,7 +6,7 @@ import { BeneficiaryService } from '@/services/beneficiary.service';
 import HasPermission from '@/components/permissionWrapper';
 import { LocalStorageService } from '@/helpers/local-storage-service';
 import { HelperService } from '@/helpers/helper';
-
+import { useTheme } from '@mui/material';
 const beneficiary_service = new BeneficiaryService();
 const local_service = new LocalStorageService();
 const helper_service = new HelperService();

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState,useRef } from 'react'
 import { Box, Card, CardContent, Typography, Grid, Avatar, Stack, CardMedia, Switch, IconButton, Skeleton } from '@mui/material'
 import { AttachMoney, People, TrendingUp } from '@mui/icons-material'
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft'
@@ -59,7 +59,7 @@ const Dashboard = () => {
     setrecentTransaction(data?.transactionDetailsList)
     setIsLoading(false)
   }, [])
-
+ 
   useEffect(() => {
     getGatewayList()
     setIsLoading(true)
@@ -68,6 +68,10 @@ const Dashboard = () => {
       setapplicantData(data?.data)
     })
   }, [])
+  
+
+
+
 
   const bankAccounts = [
     {
@@ -99,6 +103,22 @@ const Dashboard = () => {
   const BankBalanceCarousel = () => {
     const scrollRef = React.useRef<HTMLDivElement>(null)
 
+    useEffect(() => {
+  const interval = setInterval(() => {
+    const el = scrollRef.current;
+    if (el) {
+      if (el.scrollLeft + el.clientWidth >= el.scrollWidth) {
+        el.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        el.scrollBy({ left: 1, behavior: 'smooth' });
+      }
+    }
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, []);
+
+
     const scroll = (offset: number) => {
       if (scrollRef.current) {
         scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' })
@@ -106,26 +126,24 @@ const Dashboard = () => {
     }
 
     return (
-      <Box
-        position="relative"
-        width="100%"
-        sx={{
-          paddingTop: '-500px',
-        }}
-      >
+     <Box
+  position="relative"
+  width="100%"
+>
         {/* Scroll Buttons */}
 
-        <IconButton
+        {/* <IconButton
           onClick={() => scroll(-300)}
           sx={{
             position: 'absolute',
             top: '30%',
             left: 0,
             zIndex: 1,
-            backgroundColor: 'primary.light',
+            backgroundColor: 'transparent',
           }}
         >
-          <ArrowLeftIcon />
+          <ArrowLeftIcon 
+          sx={{color:'black'}} />
         </IconButton>
         <IconButton
           onClick={() => scroll(300)}
@@ -138,7 +156,7 @@ const Dashboard = () => {
           }}
         >
           <ArrowRightIcon />
-        </IconButton>
+        </IconButton> */}
 
         {/* Scrollable Bank Cards */}
 
@@ -281,6 +299,21 @@ const Dashboard = () => {
   const HorizontalCardCarousel = () => {
     const scrollRef = React.useRef<HTMLDivElement>(null)
 
+    useEffect(() => {
+  const interval = setInterval(() => {
+    const el = scrollRef.current
+    if (el) {
+      if (el.scrollLeft + el.clientWidth >= el.scrollWidth) {
+        el.scrollTo({ left: 0, behavior: 'smooth' }) // Loop back to start
+      } else {
+        el.scrollBy({ left: 1, behavior: 'smooth' }) // Scroll forward
+      }
+    }
+  }, 1000) // Adjust speed (higher = slower)
+
+  return () => clearInterval(interval)
+}, [])
+
     const scroll = (offset: number) => {
       if (scrollRef.current) {
         scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' })
@@ -289,7 +322,7 @@ const Dashboard = () => {
 
     return (
       <Box position="relative" width="100%" padding="0px" margin="0px">
-        {/* Scroll Buttons */}
+        {/* Scroll Buttons
         <IconButton
           onClick={() => scroll(-300)}
           sx={{
@@ -313,7 +346,9 @@ const Dashboard = () => {
           }}
         >
           <ArrowRightIcon />
-        </IconButton>
+        </IconButton> */}
+      
+       
 
         {/* Carousel Container */}
         <Box
@@ -379,8 +414,7 @@ const Dashboard = () => {
         gutterBottom
         color={
           //@ts-ignore
-          theme.palette.secondary.main
-        }
+         theme.palette.text.primary       }
       >
         <b>Dashboard Overview</b>{' '}
         <ShowChartIcon

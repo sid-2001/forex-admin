@@ -118,7 +118,7 @@ const BopTable: React.FC = () => {
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>
       <Box sx={{ width: '80vw', height: '70vh' }}>
-        <Typography variant="h4" gutterBottom color={theme.palette.secondary.main}>
+        <Typography variant="h4" gutterBottom color={theme.palette.text.primary}>
           <strong>Bop Listing </strong>
         </Typography>
         <DataGrid
@@ -136,12 +136,12 @@ const BopTable: React.FC = () => {
             '& .MuiDataGrid-cell': {
               fontSize: '14px',
             },
-            '& .MuiDataGrid-row:nth-of-type(even)': {
-              backgroundColor: '#f0f8ff',
-            },
-            '& .MuiDataGrid-row:nth-of-type(odd)': {
-              backgroundColor: '#ffffff',
-            },
+            // '& .MuiDataGrid-row:nth-of-type(even)': {
+            //   backgroundColor: '#f0f8ff',
+            // },
+            // '& .MuiDataGrid-row:nth-of-type(odd)': {
+            //   backgroundColor: '#ffffff',
+           // },
             '& .super-app-theme--header': {
               fontSize: '16px',
             },

@@ -487,7 +487,7 @@ const TransactionListing = () => {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Typography variant="h4" gutterBottom color={theme.palette.secondary.main}>
+      <Typography variant="h4" gutterBottom color={theme.palette.text.primary}>
         <strong>Transactions</strong>
       </Typography>
 
@@ -565,12 +565,12 @@ const TransactionListing = () => {
             backgroundColor: '#005099',
             color: 'white',
           },
-          '& .MuiDataGrid-row:nth-of-type(even)': {
-            backgroundColor: '#e3f2fd',
-          },
-          '& .MuiDataGrid-row:nth-of-type(odd)': {
-            backgroundColor: '#ffffff',
-          },
+          // '& .MuiDataGrid-row:nth-of-type(even)': {
+          //   backgroundColor: '#e3f2fd',
+          // },
+          // '& .MuiDataGrid-row:nth-of-type(odd)': {
+          //   backgroundColor: '#ffffff',
+          // },
         }}
       >
         {helper.checkUserHasPermission(getTransactionPermission(), 'canRead') && (

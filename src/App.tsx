@@ -7,6 +7,8 @@ import IndexPage from './pages/defaultpage'
 import UserAdd from './pages/user-add'
 import Login from './pages/newlogin'
 import Cdiscreen from './pages/cdi'
+// src/mui-theme.d.ts
+import type {} from '@mui/x-data-grid/themeAugmentation'
 
 // import Login from './pages/login'
 // import Dashboard from './pages/dashboard'
@@ -69,10 +71,16 @@ function App() {
         main: '#0A1C2C',
         light: 'white',
       },
+      text: {
+  primary: mode === 'dark' ? '#ffffff' : '#0A1C2C',
+  secondary: mode === 'dark' ? '#B0BEC5' : '#455A64',
+    },
     },
     typography: {
       fontFamily: "'Roboto', 'Arial', sans-serif",
     },
+    
+
     components: {
       MuiCssBaseline: {
         styleOverrides: {
@@ -88,6 +96,22 @@ function App() {
           },
         },
       },
+      MuiDataGrid: {
+      styleOverrides: {
+        root: {
+          '& .super-app-theme--header': {
+            backgroundColor: '#005099',
+            color: '#fff',
+          },
+          '& .MuiDataGrid-row:nth-of-type(even)': {
+            backgroundColor: mode === 'dark' ? '#143752' : '#e3f2fd',
+          },
+          // '& .MuiDataGrid-row.Mui-selected': {
+          //   backgroundColor: mode === 'dark' ? '#fff' : '#BBDEFB',
+          // },
+        },
+      },
+    },
       MuiCard: {
         styleOverrides: {
           root: {
@@ -109,6 +133,10 @@ function App() {
 
       <ThemeProvider theme={theme}>
         <CssBaseline />
+        {/* <LoaderBackdrop /> */}
+        {/* <Message /> */}
+        {/* <Schedule /> */}
+        {/* <Scheduler /> */}
         <ToastContainer />
         <CustomSnackbar />
         <BrowserRouter>

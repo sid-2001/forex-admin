@@ -12,9 +12,9 @@ const StyledDataGrid = styled(DataGrid)({
     color: '#fff',
     fontWeight: 'bold',
   },
-  '& .MuiDataGrid-row:nth-of-type(even)': {
-    backgroundColor: '#e3f2fd',
-  },
+  // '& .MuiDataGrid-row:nth-of-type(even)': {
+  //   backgroundColor: '#e3f2fd',
+  // },
   '& .MuiDataGrid-cell': {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
@@ -94,7 +94,7 @@ const CdiScreen = () => {
   return (
     <Box sx={{ width: '80vw', height: '70vh', p: 2 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h4" color={theme.palette.secondary.main}>
+        <Typography variant="h4" color={theme.palette.text.primary}>
           <strong>CDI Transactions</strong>
         </Typography>
       </Box>

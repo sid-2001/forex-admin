@@ -449,8 +449,7 @@ const DashboardLayout = () => {
         sx={{
           //@ts-ignore
           widthh: '100%',
-          height: '8.7%',
-          backgroundColor: theme.palette.primary.main,
+          height: '7%',
           paddingBottom: 0,
         }}
       >
