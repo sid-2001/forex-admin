@@ -49,6 +49,24 @@ export class TransactionService extends BaseService {
       throw error
     }
   }
+ 
+async updateTransactionMapping(refNo: any, transactionNumber: any): Promise<void> {
+  const url = '/api/transactions/transaction-details/forex/unmatchedTransactionList'
+  try {
+    const response = await api1.put(url, {
+      referenceNumber: refNo,
+      transactionNumber: transactionNumber,
+    })
+    console.log('Mapping updated successfully:', response.data)
+  } catch (error: any) {
+    console.error('Failed to update mapping:', error?.response?.data || error.message)
+    throw error
+  }
+}
+
+
+
+
 
 
 

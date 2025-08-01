@@ -80,16 +80,18 @@ const CdiScreen = () => {
     { field: 'transactionAmount', headerName: 'Amount', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'accountNumber', headerName: 'Account Number', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'referenceNumber', headerName: 'Ref Number', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'referenceMatchIndicator',
+     {
+      field: 'referenceMatchIndicator',
       headerName: 'Status',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        const value = params?.row?.referenceMatchIndicator
-        const color = value === 'Y' || value === true ? 'green' : 'red'
-        const displayText = value === 'Y' || value === true ? 'MAPPED' : 'NOT MAPPED'
-
-        return <div style={{ color }}>{displayText}</div>
+        const rawValue = params?.row?.referenceMatchIndicator
+        const normalizedValue = String(rawValue).toUpperCase()
+        const isMapped = ['Y', 'YES', 'TRUE'].includes(normalizedValue)
+        const color = isMapped ? 'green' : 'red'
+        const displayText = isMapped ? 'MAPPED' : 'NOT MAPPED'
+        return <div style={{ color, fontWeight: 600 }}>{displayText}</div>
       },
     },
 
@@ -185,8 +187,6 @@ const CdiScreen = () => {
 </Stack>
 
 
-
-
       <StyledDataGrid
         rows={cdiRecords}
         columns={columns}
@@ -235,13 +235,24 @@ const CdiScreen = () => {
               TRANSACTION ID : {transactionDetails.referenceNumber}
             </Typography>
 
-            <Chip
-              label={transactionDetails?.referenceMatchIndicator === 'Y' || transactionDetails?.referenceMatchIndicator === true ? 'MAPPED' : 'NOT MAPPED'}
+             <Chip
+              label={
+                ['YES', 'Yes', 'Y', true].includes(
+                  String(transactionDetails?.referenceMatchIndicator).toUpperCase()
+                )
+                  ? 'MAPPED'
+                  : 'NOT MAPPED'
+              }
               color={
-                transactionDetails?.referenceMatchIndicator === 'Y' || transactionDetails?.referenceMatchIndicator === true ? 'success' : 'error'
+                ['YES', 'Yes', 'Y', true].includes(
+                  String(transactionDetails?.referenceMatchIndicator).toUpperCase()
+                )
+                  ? 'success'
+                  : 'error'
               }
               sx={{ marginBottom: 2 }}
             />
+
 
             <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>
               Transaction Details
