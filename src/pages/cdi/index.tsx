@@ -58,16 +58,15 @@ const CdiScreen = () => {
   }
 
   const columns: GridColDef[] = [
+    
     { field: 'transactionNumber', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'referenceNumber', headerName: 'Reference No.', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'accountNumber', headerName: 'Account No.', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'bankName', headerName: 'Bank', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'transactionAmount', headerName: 'Amount', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'transactionDate', headerName: 'Date', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'branchCode', headerName: 'Branch', flex: 1, headerClassName: 'super-app-theme--header' },
-    {
-      field: 'referenceMatchIndicator',
-      headerName: 'Reference Match',
+    { field: 'transactionTime', headerName: 'Time', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'transactionAmount', headerName: 'Amount', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'accountNumber', headerName: 'Account Number', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'referenceNumber', headerName: 'Ref Number', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'referenceMatchIndicator',
+      headerName: 'Status',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
