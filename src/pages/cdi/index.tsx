@@ -6,6 +6,10 @@ import { PreviewOutlined } from '@mui/icons-material'
 import { TransactionService } from '@/services/transaction.service'
 import LoaderUI from '@/components/loader/loader'
 import { Outline } from 'react-pdf'
+import { Card, CardContent, Stack, Avatar, Skeleton } from '@mui/material'
+import { AttachMoney } from '@mui/icons-material'
+
+
 
 const StyledDataGrid = styled(DataGrid)({
   '& .MuiDataGrid-columnHeaders': {
@@ -44,8 +48,15 @@ const CdiScreen = () => {
   }
 
   useEffect(() => {
-    fetchCdiApiCall()
-  }, [])
+  const loadData = async () => {
+    setIsLoading(true);
+    await fetchCdiApiCall();
+    setIsLoading(false);
+  };
+
+  loadData();
+}, []);
+
 
   const openDrawer = (data: any) => {
     setTransactionDetails(data)
@@ -56,6 +67,10 @@ const CdiScreen = () => {
     setIsDrawerOpen(false)
     setTransactionDetails(null)
   }
+  const [isLoading, setIsLoading] = useState(true);
+
+
+
 
   const columns: GridColDef[] = [
     
@@ -98,6 +113,79 @@ const CdiScreen = () => {
           <strong>CDI Transactions</strong>
         </Typography>
       </Box>
+    <Stack direction="row" spacing={2} mb={2} >
+  {/* Total Deposits */}
+  <Card
+    sx={{
+      width: 240,
+      height: 120,
+      background: 'linear-gradient(to right, #2196F3, #21CBF3)',
+      color: 'white',
+      borderRadius: 2,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  >
+    <CardContent sx={{ textAlign: 'center', p: 0 }}>
+      <Typography variant="body2" fontWeight={500}>
+        Total Deposits
+      </Typography>
+      <Typography variant="h6" fontWeight="bold">
+        R1,000,000
+      </Typography>
+    </CardContent>
+  </Card>
+
+  {/* Released */}
+  <Card
+    sx={{
+      width: 240,
+      height: 120,
+      background: 'linear-gradient(to right, #4CAF50, #81C784)',
+      color: 'white',
+      borderRadius: 2,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  >
+    <CardContent sx={{ textAlign: 'center', p: 0 }}>
+      <Typography variant="body2" fontWeight={500}>
+        Released
+      </Typography>
+      <Typography variant="h6" fontWeight="bold">
+        R988,899
+      </Typography>
+    </CardContent>
+  </Card>
+
+  {/* Un-mapped */}
+  <Card
+    sx={{
+      width: 240,
+      height: 120,
+      background: 'linear-gradient(to right, #ff416c, #ff4b2b)',
+      color: 'white',
+      borderRadius: 2,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  >
+    <CardContent sx={{ textAlign: 'center', p: 0 }}>
+      <Typography variant="body2" fontWeight={500}>
+        Un-mapped
+      </Typography>
+      <Typography variant="h6" fontWeight="bold">
+        R11,101
+      </Typography>
+    </CardContent>
+  </Card>
+</Stack>
+
+
+
 
       <StyledDataGrid
         rows={cdiRecords}
