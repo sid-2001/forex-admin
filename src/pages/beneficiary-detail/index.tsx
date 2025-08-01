@@ -1,102 +1,105 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Box, Grid, TextField, Typography, Button, Switch, FormControlLabel } from '@mui/material';
-import { useNavigate, useParams } from 'react-router-dom';
-import TransactionTable from '../transaction-table';
-import { BeneficiaryService } from '@/services/beneficiary.service';
-import HasPermission from '@/components/permissionWrapper';
-import { LocalStorageService } from '@/helpers/local-storage-service';
-import { HelperService } from '@/helpers/helper';
+import React, { useCallback, useEffect, useState } from 'react'
+import { Box, Grid, TextField, Typography, Button, Switch, FormControlLabel } from '@mui/material'
+import { useNavigate, useParams } from 'react-router-dom'
+import TransactionTable from '../transaction-table'
+import { BeneficiaryService } from '@/services/beneficiary.service'
+import HasPermission from '@/components/permissionWrapper'
+import { LocalStorageService } from '@/helpers/local-storage-service'
+import { HelperService } from '@/helpers/helper'
 
-const beneficiary_service = new BeneficiaryService();
-const local_service = new LocalStorageService();
-const helper_service = new HelperService();
+const beneficiary_service = new BeneficiaryService()
+const local_service = new LocalStorageService()
+const helper_service = new HelperService()
 
 const BeneficiaryDetailPage = () => {
-  const navigate = useNavigate();
-  const { beneficiaryId } = useParams();
+  const navigate = useNavigate()
+  const { beneficiaryId } = useParams()
 
-  const [formData, setFormData] = useState<any>([]);
-  const [isEditable, setIsEditable] = useState(false);
-  const [tempData, setTempData] = useState<any>([]);
-  const [isChanged, setIsChanged] = useState(false);
-  const [transactions, setTransactions] = useState<any[]>([]); // Ensure this is an array
-  const [showTransactionTable, setShowTransactionTable] = useState(false);
-  const [isSearchClicked, setIsSearchClicked] = useState(false);  // Track if search has been clicked
+  const [formData, setFormData] = useState<any>([])
+  const [isEditable, setIsEditable] = useState(false)
+  const [tempData, setTempData] = useState<any>([])
+  const [isChanged, setIsChanged] = useState(false)
+  const [transactions, setTransactions] = useState<any[]>([]) // Ensure this is an array
+  const [showTransactionTable, setShowTransactionTable] = useState(false)
+  const [isSearchClicked, setIsSearchClicked] = useState(false) // Track if search has been clicked
 
   useEffect(() => {
     const fetchBeneficiaryData = async () => {
       if (!beneficiaryId) {
-        console.error("Beneficiary Id is missing");
-        return;
+        console.error('Beneficiary Id is missing')
+        return
       }
       try {
-        const data = await beneficiary_service.searchByBeneficiaryId(beneficiaryId);
-        setFormData(data);
-        setTempData(data);
+        const data = await beneficiary_service.searchByBeneficiaryId(beneficiaryId)
+        setFormData(data)
+        setTempData(data)
       } catch (err) {
-        console.error("Error fetching data");
+        console.error('Error fetching data')
       }
-    };
-    fetchBeneficiaryData();
-  }, [beneficiaryId]);
+    }
+    fetchBeneficiaryData()
+  }, [beneficiaryId])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setTempData((
-      //@ts-ignore
-      prevData) => ({
+    const { name, value } = e.target
+    setTempData(
+      (
+        //@ts-ignore
+        prevData,
+      ) => ({
         ...prevData,
         [name]: value,
-      }));
-    setIsChanged(true);
-  };
+      }),
+    )
+    setIsChanged(true)
+  }
 
   const handleToggleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      setIsEditable(true);
-      setTempData(formData);
+      setIsEditable(true)
+      setTempData(formData)
     } else {
-      setIsEditable(false);
+      setIsEditable(false)
       if (isChanged) {
-        const confirmDiscardChanges = window.confirm('You have unsaved changes. Are you sure you want to discard them?');
+        const confirmDiscardChanges = window.confirm('You have unsaved changes. Are you sure you want to discard them?')
         if (confirmDiscardChanges) {
-          setTempData(formData);
-          setIsChanged(false);
-          console.log("Changes discarded");
+          setTempData(formData)
+          setIsChanged(false)
+          console.log('Changes discarded')
         }
       } else {
-        setTempData(formData);
-        console.log(formData);
+        setTempData(formData)
+        console.log(formData)
       }
     }
-  };
+  }
 
   const handleSaveChanges = async () => {
     if (isChanged) {
-      const confirmSave = window.confirm('Are you sure you want to save the changes?');
+      const confirmSave = window.confirm('Are you sure you want to save the changes?')
       if (confirmSave) {
         try {
-          const updatedData = { ...tempData }; // Collect the data to be updated
-          const response = await beneficiary_service.updateBeneficiaryForm(updatedData);
-          setFormData(updatedData);
-          setIsChanged(false);
-          setIsEditable(false);
-          alert('Changes saved successfully!');
+          const updatedData = { ...tempData } // Collect the data to be updated
+          const response = await beneficiary_service.updateBeneficiaryForm(updatedData)
+          setFormData(updatedData)
+          setIsChanged(false)
+          setIsEditable(false)
+          alert('Changes saved successfully!')
         } catch (error) {
-          alert('Failed to save changes. Please try again later.');
+          alert('Failed to save changes. Please try again later.')
         }
       }
     } else {
-      alert('No changes made to save!');
+      alert('No changes made to save!')
     }
-  };
+  }
 
   const fetchTransactions = useCallback(async () => {
-    if (!beneficiaryId) return;
+    if (!beneficiaryId) return
 
     try {
-      const data = await beneficiary_service.getTransactionsByBeneficiaryId(beneficiaryId);
-      const transactionArray = Array.isArray(data) ? data : [data];
+      const data = await beneficiary_service.getTransactionsByBeneficiaryId(beneficiaryId)
+      const transactionArray = Array.isArray(data) ? data : [data]
 
       const formattedData = transactionArray[0].transactionDetailsList?.map((transaction: any, index: number) => ({
         id: index + 1,
@@ -106,41 +109,38 @@ const BeneficiaryDetailPage = () => {
         beneficiaryName: transaction?.beneficiary?.beneficiaryName,
         amount: transaction?.transactionOutward?.principalAmount,
         transactionStatus: transaction?.transactionOutward?.transactionStatus,
-      }));
+      }))
 
-      setTransactions(formattedData || []);
-      setShowTransactionTable(true);
+      setTransactions(formattedData || [])
+      setShowTransactionTable(true)
     } catch (error) {
-      console.error('Error fetching transactions:', error);
+      console.error('Error fetching transactions:', error)
     }
-  }, [beneficiaryId]);
+  }, [beneficiaryId])
 
   const handleSearchTransaction = async () => {
-    setIsSearchClicked(true);  // Indicate search was clicked
-    setShowTransactionTable(true); // Show the table once button is clicked
+    setIsSearchClicked(true) // Indicate search was clicked
+    setShowTransactionTable(true) // Show the table once button is clicked
 
     try {
-      await fetchTransactions();  // Fetch the transactions
+      await fetchTransactions() // Fetch the transactions
     } catch (error) {
-      console.error("Error fetching transactions:", error);
+      console.error('Error fetching transactions:', error)
     }
-  };
+  }
 
   const handleBack = () => {
-    navigate('/beneficiary');
-  };
+    navigate('/beneficiary')
+  }
 
   return (
     <HasPermission module={local_service.get_modules()?.BENEFICIARY} permission={'canRead'}>
-      <Box sx={{ width: "50vw" }} >
+      <Box sx={{ width: '50vw' }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
             Beneficiary Details
           </Typography>
-          <FormControlLabel
-            control={<Switch disabled checked={isEditable} onChange={handleToggleChange} />}
-            label="Edit Mode"
-          />
+          <FormControlLabel control={<Switch disabled checked={isEditable} onChange={handleToggleChange} />} label="Edit Mode" />
           <Button
             variant="outlined"
             onClick={() => navigate(`/sendmoney?applicantId=${tempData.applicant}`)}
@@ -164,7 +164,7 @@ const BeneficiaryDetailPage = () => {
           </Typography>
         </Box>
         {/* Beneficiary Information Form */}
-        <Box >
+        <Box>
           <Grid container spacing={2} marginBottom={1}>
             <Grid item xs={12} sm={4}>
               <TextField
@@ -182,21 +182,46 @@ const BeneficiaryDetailPage = () => {
           </Grid>
 
           <Grid container spacing={2} marginBottom={1}>
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={12} sm={2.3}>
               <TextField
-                label="Beneficiary Name"
+                label="Beneficiary First Name"
                 variant="filled"
-                name="beneficiaryName"
+                name="beneficiaryFirstName"
                 fullWidth
-                value={tempData.beneficiaryName || ''}
+                value={tempData.beneficiaryFirstName || ''}
                 onChange={handleChange}
                 InputProps={{
                   readOnly: !isEditable,
                 }}
               />
             </Grid>
-            <Grid item xs={12} sm={4}>
-
+            <Grid item xs={12} sm={2.3}>
+              <TextField
+                label="Beneficiary Middle Name"
+                variant="filled"
+                name="beneficiaryMiddleName"
+                fullWidth
+                value={tempData.beneficiaryMiddleName || ''}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2.3}>
+              <TextField
+                label="Beneficiary Last Name"
+                variant="filled"
+                name="beneficiaryLastName"
+                fullWidth
+                value={tempData.beneficiaryLastName || ''}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: !isEditable,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2.3}>
               <TextField
                 label="Nationality"
                 variant="filled"
@@ -209,7 +234,7 @@ const BeneficiaryDetailPage = () => {
                 }}
               />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={12} sm={2.3}>
               <TextField
                 label="Resident Country"
                 variant="filled"
@@ -268,8 +293,10 @@ const BeneficiaryDetailPage = () => {
         </Box>
 
         {/* Address Section */}
-        <Box mb={3} sx={{ width: "80vw" }}>
-          <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}><strong>Address</strong></Typography>
+        <Box mb={3} sx={{ width: '80vw' }}>
+          <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}>
+            <strong>Address</strong>
+          </Typography>
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -310,13 +337,7 @@ const BeneficiaryDetailPage = () => {
             />
           </Grid> */}
             <Grid item xs={12} sm={2}>
-              <TextField
-                fullWidth
-                label="Suburb"
-                name="suburb"
-                value={tempData.suburb || ''}
-                onChange={handleChange}
-              />
+              <TextField fullWidth label="Suburb" name="suburb" value={tempData.suburb || ''} onChange={handleChange} />
             </Grid>
             <Grid item xs={12} sm={1.5}>
               <TextField
@@ -370,8 +391,10 @@ const BeneficiaryDetailPage = () => {
         </Box>
 
         {/* Bank Account Section */}
-        <Box sx={{ width: "80vw" }} mb={3}>
-          <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}><strong>Bank Details</strong></Typography>
+        <Box sx={{ width: '80vw' }} mb={3}>
+          <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}>
+            <strong>Bank Details</strong>
+          </Typography>
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={12} sm={2}>
               <TextField
@@ -420,7 +443,6 @@ const BeneficiaryDetailPage = () => {
                   readOnly: !isEditable,
                 }}
               />
-
             </Grid>
             <Grid item xs={12} sm={3}>
               <TextField
@@ -447,11 +469,15 @@ const BeneficiaryDetailPage = () => {
 
         {showTransactionTable && transactions.length > 0 && (
           <Box mb={3}>
-            <Typography variant="h6" sx={{ marginBottom: 1 }}><strong>Transactions</strong></Typography>
+            <Typography variant="h6" sx={{ marginBottom: 1 }}>
+              <strong>Transactions</strong>
+            </Typography>
 
             <TransactionTable
               //@ts-ignore
-              transaction={transactions} applicantId={tempData.applicant || ""} />
+              transaction={transactions}
+              applicantId={tempData.applicant || ''}
+            />
           </Box>
         )}
 
@@ -476,8 +502,9 @@ const BeneficiaryDetailPage = () => {
             )}
           </Grid>
         </Grid>
-      </Box></HasPermission>
-  );
-};
+      </Box>
+    </HasPermission>
+  )
+}
 
-export default BeneficiaryDetailPage;
+export default BeneficiaryDetailPage
