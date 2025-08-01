@@ -63,7 +63,16 @@ export const alertTypeState = atom({
   default: '',
 })
 
+export const themeModeState = atom<'light' | 'dark'>({
+  key: 'themeModeState',
+  default: 'light',
+    effects_UNSTABLE: [localStorageEffect('themeModeState')],
+
+})
+
+
 // <STUDENT>
+
 
 export const notificationState = atom({
   key: 'studentlist',

@@ -7,10 +7,11 @@ import { useRecoilState } from 'recoil'
 import Person2Icon from '@mui/icons-material/Person2'
 // import { sidbarSelectionState, studentListState } from "../../states/state";
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
-
+import { themeModeState } from '@/states/state'
 // import { studentService } from "@/services/student.service";
 import { LocalStorageService } from '@/helpers/local-storage-service'
-
+import { Brightness4, Brightness7 } from '@mui/icons-material'
+import { useContext } from 'react'
 import {
   alertState,
   alertTextState,
@@ -120,6 +121,8 @@ const Header = styled(Box)({
 
 const DashboardLayout = () => {
   let navigate = useNavigate()
+  const [mode, setMode] = useRecoilState(themeModeState)
+
   const theme = useTheme()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selecteCountryState, setselectedCountryState] = useRecoilState(selectedCountryState)
@@ -445,20 +448,38 @@ const DashboardLayout = () => {
         position="sticky"
         sx={{
           //@ts-ignore
+          widthh: '100%',
+          height: '8.7%',
           backgroundColor: theme.palette.primary.main,
           paddingBottom: 0,
         }}
       >
         <Toolbar>
-          <Box sx={{ flexGrow: 1, p: 1, color: 'white' }}>
-            <img src={LogoWhite} alt="Logo" style={{ height: 60 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', px: 2, py: 1 }}>
+            {/* Logo */}
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <img src={LogoWhite} alt="Logo" style={{ height: 60 }} />
+            </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, color: 'white' }}>
+              <Box sx={{ textAlign: 'right' }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                  Available Balance :
+                </Typography>
+                <Typography variant="body1">
+                  ₹{balance}
+                </Typography>
+              </Box>
+
+              <IconButton
+                onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
+                color="inherit"
+              >
+                {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
+              </IconButton>
+            </Box>
           </Box>
 
-          <Box sx={{ marginRight: '23px' }}>
-            <strong>Available Balance :</strong>
-            <br></br>
-            <span>₹{balance}</span>
-          </Box>
 
           <Box
             sx={{
@@ -470,6 +491,7 @@ const DashboardLayout = () => {
               border: '1px solid #D1DDFC',
               padding: '7px',
               paddingRight: '10px',
+              // boxShadow: "5px 5px 5px #888888",
               marginBottom: '6px',
             }}
           >
@@ -502,11 +524,28 @@ const DashboardLayout = () => {
                     >
                       <strong>{local_service?.get_staff_access().staffId}</strong>
                     </Typography>
+
+                    {/*                   <Za
+                    style={{
+                      height: '20px',
+                      width: '25px',
+                      marginLeft: '5%',
+                      // padding: '10px',
+                      borderRadius: '30%',
+                    }}
+                  /> */}
                   </Stack>
                 </Box>
               </>
             ) : (
               <>
+                {/* {local_service.get_user()?.firstName?(
+local_service.get_user()?.firstName[0]
+
+
+            ):(L)} */}
+                {/* <Avatar >{local_service.get_user()?.firstName[0] + " " + local_service.get_user()?.lastName[0]}</Avatar> */}
+
                 <Box ml={1}>
                   <Typography
                     variant="subtitle1"
@@ -530,6 +569,16 @@ const DashboardLayout = () => {
                     >
                       <strong>{local_service?.get_staff_access()?.staffId}</strong>
                     </Typography>
+                    {/* 
+                  <In
+                    style={{
+                      height: '20px',
+                      width: '25px',
+                      marginLeft: '5%',
+                      // padding: '10px',
+                      borderRadius: '30%',
+                    }}
+                  /> */}
                   </Stack>
                 </Box>
               </>
@@ -690,12 +739,13 @@ const DashboardLayout = () => {
           <Box
             sx={{
               flexGrow: 1,
+           
               padding: '2%',
               paddingLeft: '5%',
               marginLeft: 0, // Prevent the sidebar from affecting the content
             }}
           >
-            <MainContent>
+            <MainContent >
               <Header>
                 <Typography variant="h5"></Typography>
               </Header>

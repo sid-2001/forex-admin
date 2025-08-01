@@ -3,7 +3,7 @@ import { Box, Card, CardContent, Typography, Grid, Avatar, Stack, CardMedia, Swi
 import { AttachMoney, People, TrendingUp } from '@mui/icons-material'
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
-import { useTheme } from '@emotion/react'
+import { useTheme } from '@mui/material/styles'
 import ShowChartIcon from '@mui/icons-material/ShowChart'
 import { TransactionService } from '@/services/transaction.service'
 import { PaymentGateway } from '@/types/static.type'
@@ -373,7 +373,7 @@ const Dashboard = () => {
   }
 
   return (
-    <Box sx={{ width: '80vw' }}>
+    <Box sx={{ width: '80vw'   }}>
       <Typography
         variant="h4"
         gutterBottom
@@ -429,7 +429,7 @@ const Dashboard = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={12} sm={6} md={3} >
           <Card sx={{ border: '1px solid', borderColor: 'primary.light' }}>
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={2}>

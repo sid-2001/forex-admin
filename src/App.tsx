@@ -48,31 +48,67 @@ import ReconScreen from './pages/recon-screen'
 import StaticData from './pages/static-data/staticdata.page'
 import Dashboard from './pages/dashboard/dashboard.page'
 import CdiScreen from './pages/cdi'
+import { themeModeState } from '@/states/state'
+import { useRecoilState } from 'recoil'
+import { CssBaseline } from '@mui/material'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
     authenticationPath: '/login',
   }
 
+  const [mode, setMode] = useRecoilState(themeModeState)
   const theme = createTheme({
     palette: {
+      mode,
       primary: {
         main: '#0061B1',
         light: '#CDEDFF',
       },
       secondary: {
-        main: '#323232',
+        main: '#0A1C2C',
         light: 'white',
       },
     },
     typography: {
       fontFamily: "'Roboto', 'Arial', sans-serif",
     },
-  })
+    components: {
+      MuiCssBaseline: {
+        styleOverrides: {
+          body: {
+            backgroundColor: mode === 'dark' ? '#0B151D' : 'white',
+            color: mode === 'dark' ? '#fff' : '#000',
+            transition: 'all 0.3s ease',
+          },
+          '#root': {
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '100vh',
+          },
+        },
+      },
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            backgroundColor: mode === 'dark' ? '#0A1C2C' : '#ffffff',
+            transition: 'background-color 0.3s ease',
+          },
+        },
+      },
+    },
+  });
+
+  const toggleColorMode = () => {
+    setMode((prev: string) => (prev === 'light' ? 'dark' : 'light'));
+  };
+
 
   return (
     <>
+
       <ThemeProvider theme={theme}>
+        <CssBaseline />
         <ToastContainer />
         <CustomSnackbar />
         <BrowserRouter>
