@@ -49,25 +49,30 @@ export class TransactionService extends BaseService {
       throw error
     }
   }
+
+  async cdiCards(): Promise<any[]> {
+    let url = '/api/transactions/transaction-details/unmatchedTransactionList/overview'
+    try {
+      const response = await api1.get(url)
+      return response
+    } catch (error:any) {
+      console.error('API error:', error)
+       throw new Error(error?.response?.data?.message || 'API call failed');    }
+  }
  
-async updateTransactionMapping(refNo: any, transactionNumber: any): Promise<void> {
-  const url = '/api/transactions/transaction-details/forex/unmatchedTransactionList'
+ async updateTransactionMapping(referenceNumber: string, transactionNumber: string): Promise<any> {
+  const url = '/api/transactions/transaction-details/forex/unmatchedTransactionList';
   try {
-    const response = await api1.put(url, {
-      referenceNumber: refNo,
-      transactionNumber: transactionNumber,
-    })
-    console.log('Mapping updated successfully:', response.data)
+    const { data } = await api1.put(url, {
+      transactionNumber,
+      referenceNumber,
+    });
+    return data;
   } catch (error: any) {
-    console.error('Failed to update mapping:', error?.response?.data || error.message)
-    throw error
+    console.error('Mapping update failed:', error?.response?.data || error.message);
+    throw error;
   }
 }
-
-
-
-
-
 
 
   async getBalanceEnquiry(): Promise<Array<TransactionInward>> {

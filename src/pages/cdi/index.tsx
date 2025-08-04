@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Typography, useTheme, Drawer, Grid, TextField, Divider, Chip, IconButton, Button } from '@mui/material'
+import { Box, Typography, useTheme, Drawer, Grid, TextField, Divider, Chip, IconButton, Button} from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { styled } from '@mui/material/styles'
 import { PreviewOutlined } from '@mui/icons-material'
 import { TransactionService } from '@/services/transaction.service'
 import LoaderUI from '@/components/loader/loader'
-import { Outline } from 'react-pdf'
-import { Card, CardContent, Stack, Avatar, Skeleton } from '@mui/material'
-import { AttachMoney } from '@mui/icons-material'
-
+import { Card, CardContent, Stack, } from '@mui/material'
+import { useRecoilState } from 'recoil'
+import { alertState, alertTextState, alertTypeState } from '@/states/state'
 
 
 const StyledDataGrid = styled(DataGrid)({
@@ -37,25 +36,50 @@ const CdiScreen = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [transactionDetails, setTransactionDetails] = useState<any>(null)
   const service = new TransactionService()
+  const [isLoading, setIsLoading] = useState(true);
+  const [referenceInput, setReferenceInput] = useState('')
+  const [open, setOpen] = useRecoilState(alertState);
+  const [text, setText] = useRecoilState(alertTextState);
+  const [type, settype] = useRecoilState(alertTypeState);
+
+  const [dashboardData, setDashboardData] = useState({
+    totalDeposit: '0',
+    released: '0',
+    unMapped: '0',
+  });
+
 
   const fetchCdiApiCall = async () => {
     try {
       const data = await service.cdiTransactions()
       setCdiRecords(data)
+
+
     } catch (error) {
       console.error('Failed to fetch transactions:', error)
     }
   }
 
-  useEffect(() => {
-  const loadData = async () => {
-    setIsLoading(true);
-    await fetchCdiApiCall();
-    setIsLoading(false);
+  const fetchDashboardData = async () => {
+    try {
+      const data = await service.cdiCards()
+      setDashboardData(data as any)
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error);
+    }
   };
 
-  loadData();
-}, []);
+
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true);
+      await fetchCdiApiCall();
+      await fetchDashboardData();
+      setIsLoading(false);
+    };
+
+    loadData();
+  }, []);
 
 
   const openDrawer = (data: any) => {
@@ -67,20 +91,39 @@ const CdiScreen = () => {
     setIsDrawerOpen(false)
     setTransactionDetails(null)
   }
-  const [isLoading, setIsLoading] = useState(true);
+
+  // for reference update 
+  const handleUpdateReference = async () => {
+    if (!referenceInput.trim()) return;
+
+    try {
+      await service.updateTransactionMapping(referenceInput.trim(), transactionDetails.transactionNumber);
+      setReferenceInput('');
+      setText("Mapped Successfully")
+      setOpen(true)
+      settype("success")
+      closeDrawer();
+    } catch (error) {
+      setText("Error fetching your data ")
+      setOpen(true)
+      settype("error")
+      console.error('API error:', error);
+    }
+  };
+
 
 
 
 
   const columns: GridColDef[] = [
-    
+
     { field: 'transactionNumber', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'transactionDate', headerName: 'Date', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'transactionTime', headerName: 'Time', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'transactionAmount', headerName: 'Amount', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'accountNumber', headerName: 'Account Number', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'referenceNumber', headerName: 'Ref Number', flex: 1, headerClassName: 'super-app-theme--header' },
-     {
+    {
       field: 'referenceMatchIndicator',
       headerName: 'Status',
       flex: 1,
@@ -108,6 +151,8 @@ const CdiScreen = () => {
     },
   ]
 
+
+
   return (
     <Box sx={{ width: '80vw', height: '70vh', p: 2 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
@@ -115,76 +160,78 @@ const CdiScreen = () => {
           <strong>CDI Transactions</strong>
         </Typography>
       </Box>
-    <Stack direction="row" spacing={2} mb={2} >
-  {/* Total Deposits */}
-  <Card
-    sx={{
-      width: 240,
-      height: 120,
-      background: 'linear-gradient(to right, #2196F3, #21CBF3)',
-      color: 'white',
-      borderRadius: 2,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}
-  >
-    <CardContent sx={{ textAlign: 'center', p: 0 }}>
-      <Typography variant="body2" fontWeight={500}>
-        Total Deposits
-      </Typography>
-      <Typography variant="h6" fontWeight="bold">
-        R1,000,000
-      </Typography>
-    </CardContent>
-  </Card>
+      <Stack direction="row" spacing={2} mb={2} >
+        {/* Total Deposits */}
+        <Card
+          sx={{
+            width: 240,
+            height: 120,
+            background: 'linear-gradient(135deg, rgb(164, 216, 228), rgb(15, 98, 165))',
+            color: 'white',
+            borderRadius: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            p: 2,
+          }}
+        >
+          <Typography variant="body2" fontWeight={1000} fontSize={20}>
+            Total Deposits
+          </Typography>
 
-  {/* Released */}
-  <Card
-    sx={{
-      width: 240,
-      height: 120,
-      background: 'linear-gradient(to right, #4CAF50, #81C784)',
-      color: 'white',
-      borderRadius: 2,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}
-  >
-    <CardContent sx={{ textAlign: 'center', p: 0 }}>
-      <Typography variant="body2" fontWeight={500}>
-        Released
-      </Typography>
-      <Typography variant="h6" fontWeight="bold">
-        R988,899
-      </Typography>
-    </CardContent>
-  </Card>
+          <Typography variant="h6" fontWeight="bold" align="right">
+            {dashboardData.totalDeposit}
+          </Typography>
+        </Card>
 
-  {/* Un-mapped */}
-  <Card
-    sx={{
-      width: 240,
-      height: 120,
-      background: 'linear-gradient(to right, #ff416c, #ff4b2b)',
-      color: 'white',
-      borderRadius: 2,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}
-  >
-    <CardContent sx={{ textAlign: 'center', p: 0 }}>
-      <Typography variant="body2" fontWeight={500}>
-        Un-mapped
-      </Typography>
-      <Typography variant="h6" fontWeight="bold">
-        R11,101
-      </Typography>
-    </CardContent>
-  </Card>
-</Stack>
+        {/* Released */}
+        <Card
+          sx={{
+            width: 240,
+            height: 120,
+            background: 'linear-gradient(135deg, #21CBF3 , #4CAF50)',
+            color: 'white',
+            borderRadius: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            p: 2,
+          }}
+        >
+          <Typography variant="body2" fontWeight={1000} fontSize={20}>
+            Released
+          </Typography>
+
+          <Typography variant="h6" fontWeight="bold" align="right">
+            {dashboardData.released}
+          </Typography>
+        </Card>
+
+        {/* Un-mapped */}
+        <Card
+          sx={{
+            width: 240,
+            height: 120,
+            background: 'linear-gradient(135deg,rgb(93, 206, 231), #ff416c)',
+            color: 'white',
+            borderRadius: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            p: 2,
+          }}
+        >
+          <Typography variant="body2" fontWeight={1000} fontSize={20}>
+            Un-Mapped
+          </Typography>
+
+          <Typography variant="h6" fontWeight="bold" align="right">
+            {dashboardData.unMapped}
+          </Typography>
+        </Card>
+
+
+      </Stack>
 
 
       <StyledDataGrid
@@ -202,7 +249,7 @@ const CdiScreen = () => {
           loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
         }}
         disableRowSelectionOnClick
-        getRowId={(row) => row?.referenceNumber}
+        getRowId={(row) => row?.transactionNumber}
       />
 
       <Drawer
@@ -232,10 +279,10 @@ const CdiScreen = () => {
                 width: '40%',
               }}
             >
-              TRANSACTION ID : {transactionDetails.referenceNumber}
+              TRANSACTION ID : {transactionDetails.transactionNumber}
             </Typography>
 
-             <Chip
+            <Chip
               label={
                 ['YES', 'Yes', 'Y', true].includes(
                   String(transactionDetails?.referenceMatchIndicator).toUpperCase()
@@ -260,19 +307,19 @@ const CdiScreen = () => {
 
             <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
-                <TextField label="UTR Number" value={transactionDetails?.uniqueInstanceId || ''} fullWidth variant="outlined" size="small" disabled/>
+                <TextField label="UTR Number" value={transactionDetails?.uniqueInstanceId || ''} fullWidth variant="outlined" size="small" disabled />
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <TextField label="Amount" value={transactionDetails?.transactionAmount || ''} fullWidth variant="outlined" size="small" disabled/>
+                <TextField label="Amount" value={transactionDetails?.transactionAmount || ''} fullWidth variant="outlined" size="small" disabled />
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <TextField label="Date" value={transactionDetails?.transactionDate || ''} fullWidth  variant="outlined"  size="small" disabled/>
+                <TextField label="Date" value={transactionDetails?.transactionDate || ''} fullWidth variant="outlined" size="small" disabled />
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <TextField label="Time" value={transactionDetails?.transactionTime || ''} fullWidth variant="outlined" size="small" disabled/>
+                <TextField label="Time" value={transactionDetails?.transactionTime || ''} fullWidth variant="outlined" size="small" disabled />
               </Grid>
 
               <Grid item xs={12} md={6}>
@@ -280,55 +327,50 @@ const CdiScreen = () => {
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <TextField label="Reference Number" value={transactionDetails?.referenceNumber || ''} fullWidth variant="outlined" size="small" disabled/>
+                <TextField label="Reference Number" value={transactionDetails?.referenceNumber || ''} fullWidth variant="outlined" size="small" disabled />
               </Grid>
 
               <Grid item xs={12} md={6}>
                 <TextField
-                  label="Effective Date" value={transactionDetails?.effectiveDate || ''} fullWidth variant="outlined" size="small" disabled/>
+                  label="Effective Date" value={transactionDetails?.effectiveDate || ''} fullWidth variant="outlined" size="small" disabled />
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <TextField label="Bank Name" value={transactionDetails?.bankName || ''} fullWidth variant="outlined" size="small" disabled/>
+                <TextField label="Bank Name" value={transactionDetails?.bankName || ''} fullWidth variant="outlined" size="small" disabled />
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <TextField label="Branch Code" value={transactionDetails?.branchCode || ''} fullWidth variant="outlined" size="small" disabled/>
+                <TextField label="Branch Code" value={transactionDetails?.branchCode || ''} fullWidth variant="outlined" size="small" disabled />
               </Grid>
             </Grid>
 
-            <Divider sx={{ my: 3, borderBottomWidth: '5px', }} />
-            <Box sx={{ mt: 3 }}>
-              <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 1 }}>
-                Transaction Number
-              </Typography>
+            
+            {transactionDetails?.referenceMatchIndicator?.toUpperCase() !== 'YES' && (
+             <>
+              <Divider sx={{ my: 3, borderBottomWidth: '5px', }} />
+              <Box sx={{ mt: 3 }}>
+                <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 1 }}>
+                  Reference  Number
+                </Typography>
 
-              <TextField
-                label="Enter Transaction Number"
-                variant="outlined"
-                size="small"
-                sx={{ width: '60%', marginBottom: 2 }} // You can adjust width as needed
-              />
+                <TextField
+                  label="Enter Reference Number"
+                  value={referenceInput}
+                  onChange={(e) => setReferenceInput(e.target.value)}
+                  fullWidth
+                  sx={{ my: 2 }}
+                />
 
-              <Button
-                variant="outlined"
-                color="primary"
-                sx={{
-                  textTransform: 'none',
-                  fontWeight: 'bold',
-                  border: 'Outline',
-                  width: '60%', // Match or change independently
-                }}
-                onClick={() => {
-                  console.log('Send for Release clicked');
-                }}
-              >
-                Send for Release
-              </Button>
-            </Box>
-
-
-
+                <Button
+                  variant="contained"
+                  onClick={handleUpdateReference}
+                  disabled={!referenceInput}
+                >
+                  Send to Release
+                </Button>
+              </Box>
+              </>
+            )}
           </Box>
         )}
       </Drawer>
