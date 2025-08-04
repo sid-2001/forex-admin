@@ -978,18 +978,40 @@ const BopScreen: React.FC = () => {
           </Box>
 
           <Grid container spacing={2} mt={1}>
-            <Grid item xs={4}>
+            <Grid item xs={2.3}>
               <TextField
                 size="small"
-                label="Non Resident Name"
+                label="Non Resident first Name"
                 variant="outlined"
-                name="benificiary_name"
-                value={formData.benificiary_name || ''}
+                name="beneficiary_first_name"
+                value={formData.beneficiary_first_name || ''}
                 disabled
                 fullWidth
               />
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={2.3}>
+              <TextField
+                size="small"
+                label="Non Resident Middle Name"
+                variant="outlined"
+                name="beneficiary_middle_name"
+                value={formData.beneficiary_middle_name || ''}
+                disabled
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={2.3}>
+              <TextField
+                size="small"
+                label="Non Resident Last Name"
+                variant="outlined"
+                name="beneficiary_last_name"
+                value={formData.beneficiary_last_name || ''}
+                disabled
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={2.3}>
               <TextField
                 label="Address Line 1"
                 fullWidth
@@ -1000,7 +1022,7 @@ const BopScreen: React.FC = () => {
                 disabled
               />
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={2.3}>
               <TextField
                 label="Address Line 2"
                 fullWidth

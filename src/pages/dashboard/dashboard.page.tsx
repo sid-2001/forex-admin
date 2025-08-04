@@ -13,6 +13,7 @@ import { selectedCountryState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import TransactionPanel from '@/components/transaction-panel'
 import { HelperService } from '@/helpers/helper'
+import { useNavigate } from 'react-router-dom'
 
 const Dashboard = () => {
   // Sample dashboard data
@@ -47,6 +48,7 @@ const Dashboard = () => {
   const static_service = new staticdataService()
   const local_service = new LocalStorageService()
   const helper = new HelperService()
+  const navigate = useNavigate()
 
   const getGatewayList = () => {
     static_service.getStaticPaymentGateway(local_service?.get_staff_country()).then((data: any) => {
@@ -588,7 +590,10 @@ const Dashboard = () => {
                         <Typography color="text.secondary">{String(customer?.numberOfTransactions)} transaction</Typography>
                       </Stack>
                       <Typography variant="body2" color="text.secondary" mt={1}>
-                        Applicant Id: {customer?.applicantId}
+                        Applicant Id:{' '}
+                        <span style={{ color: '#1976d2', cursor: 'pointer' }} onClick={() => navigate(`/applicant-details/${customer?.applicantId}`)}>
+                          {customer?.applicantId}
+                        </span>
                       </Typography>
                     </Box>
                   ))
