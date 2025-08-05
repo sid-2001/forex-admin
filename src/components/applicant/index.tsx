@@ -25,7 +25,7 @@ interface Props {
 
 const ApplicantDataGrid: React.FC<Props> = ({ data }) => {
   const navigate = useNavigate()
-  const theme = useTheme()
+  const theme:any = useTheme()
   // Convert the input into DataGrid rows
   const rows = data.map((item) => ({
     id: item.applicant.applicantId,
@@ -40,7 +40,8 @@ const ApplicantDataGrid: React.FC<Props> = ({ data }) => {
       headerClassName: 'super-app-theme--header',
 
       renderCell: (params: GridRenderCellParams) => ( 
-        <span style={{ color:theme.palette.text.primary, cursor: 'pointer', textDecoration:"underline" }} onClick={() => navigate(`/applicant-details/${params.value}`)}>
+        <span style={{ 
+          color:theme.palette.text.primary, cursor: 'pointer', textDecoration:"underline" }} onClick={() => navigate(`/applicant-details/${params.value}`)}>
           {params.value}
         </span>
       ),
