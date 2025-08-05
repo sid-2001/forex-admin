@@ -28,7 +28,7 @@ import { staticTableState } from '@/states/state'
 import { useRecoilState } from 'recoil'
 import { Box } from '@mui/material'
 
-const StaticData = () => {
+const  StaticData = () => {
   //@ts-ignore
   const [staticTable, setStaticTable] = useRecoilState<{
     name: string

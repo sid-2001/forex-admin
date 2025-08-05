@@ -67,7 +67,7 @@ const UserTable: React.FC = () => {
       renderCell: (params: any) => {
         return (
           <a
-            style={{ cursor: 'pointer', color: 'rgb(25, 118, 210)' }}
+            style={{ cursor: 'pointer', color: theme.palette.text.primary , textDecoration:"underline" }}
             onClick={() => {
               navigate(`/profile/edit/${params.row.staffId}`)
             }}

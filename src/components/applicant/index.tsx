@@ -3,6 +3,9 @@ import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
 import { useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
 import LoaderUI from '@/components/loader/loader'
+import { theme } from '@/contants/theme'
+import { useTheme } from '@emotion/react'
+
 
 interface Applicant {
   applicantId: string
@@ -22,7 +25,7 @@ interface Props {
 
 const ApplicantDataGrid: React.FC<Props> = ({ data }) => {
   const navigate = useNavigate()
-
+  const theme = useTheme()
   // Convert the input into DataGrid rows
   const rows = data.map((item) => ({
     id: item.applicant.applicantId,
@@ -36,8 +39,8 @@ const ApplicantDataGrid: React.FC<Props> = ({ data }) => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
 
-      renderCell: (params: GridRenderCellParams) => (
-        <span style={{ color: '#1976d2', cursor: 'pointer' }} onClick={() => navigate(`/applicant-details/${params.value}`)}>
+      renderCell: (params: GridRenderCellParams) => ( 
+        <span style={{ color:theme.palette.text.primary, cursor: 'pointer', textDecoration:"underline" }} onClick={() => navigate(`/applicant-details/${params.value}`)}>
           {params.value}
         </span>
       ),
