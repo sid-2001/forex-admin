@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@mui/material/styles'
-import { Box, Typography, Avatar, List, ListItem, ListItemText, IconButton, Modal, AppBar, ListItemIcon, Toolbar } from '@mui/material'
+import { Box, Typography, Avatar, List, ListItem, ListItemText, IconButton, Modal, AppBar, ListItemIcon, Toolbar, Tooltip, Fade } from '@mui/material'
 import { styled } from '@mui/system'
 import { Logo, LogoWhite } from '@/assets/images'
 import { Outlet, useNavigate } from 'react-router-dom'
@@ -115,7 +115,9 @@ const Header = styled(Box)({
 const DashboardLayout = () => {
   let navigate = useNavigate()
   const [mode, setMode] = useRecoilState(themeModeState)
-
+  const [open, setOpen] = useRecoilState(alertState);
+  const [text, setText] = useRecoilState(alertTextState);
+  const [type, settype] = useRecoilState(alertTypeState)
   const theme = useTheme()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selecteCountryState, setselectedCountryState] = useRecoilState(selectedCountryState)
@@ -125,13 +127,9 @@ const DashboardLayout = () => {
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
   }
-
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
   //@ts-ignore
   const [selectedrole, setselectedrole] = useRecoilState(role)
-  const [open, setOpen] = useRecoilState(alertState)
-  const [text, setText] = useRecoilState(alertTextState)
-  const [type, settype] = useRecoilState(alertTypeState)
   const [selectedTab, setSelectedTab] = useRecoilState(sidbarSelectionState)
   const [balance, setBalance] = useRecoilState(availableBalanceState)
   const [droppopopen, setdropopoOpen] = useState(false)
@@ -415,8 +413,12 @@ const DashboardLayout = () => {
   }, [open])
 
   const handleSidebarClick = (text: any) => {
+    if (text.toLowerCase() !== 'static') {
+      setAnchorEl(null)  // <-- this closes the modal
+    }
     setSelectedApp(text)
   }
+
 
   const handleLogout = () => {
     navigate('/login')
@@ -450,12 +452,15 @@ const DashboardLayout = () => {
                 </Typography>
               </Box>
 
-              <IconButton
-                onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
-                color="inherit"
-              >
-                {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
-              </IconButton>
+              <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+                <IconButton
+                  onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
+                  color="inherit"
+                  sx={{ transition: 'transform 0.3s', '&:hover': { transform: 'rotate(180deg)' } }}
+                >
+                  {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
+                </IconButton>
+              </Tooltip>
             </Box>
           </Box>
 
@@ -591,7 +596,6 @@ const DashboardLayout = () => {
             >
               {menuItems.map((item, index) => (
                 <ListItem
-                  // color='red÷'
                   button
                   selected={selectedApp === item.label}
                   key={index}

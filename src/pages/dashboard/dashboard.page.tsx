@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState,useRef } from 'react'
+import React, { useCallback, useEffect, useState, useRef } from 'react'
 import { Box, Card, CardContent, Typography, Grid, Avatar, Stack, CardMedia, Switch, IconButton, Skeleton } from '@mui/material'
 import { AttachMoney, People, TrendingUp } from '@mui/icons-material'
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft'
@@ -9,7 +9,7 @@ import { TransactionService } from '@/services/transaction.service'
 import { PaymentGateway } from '@/types/static.type'
 import staticdataService from '@/services/staticdata.service'
 import { useRecoilState } from 'recoil'
-import { selectedCountryState } from '@/states/state'
+import { alertState, alertTextState, alertTypeState, selectedCountryState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import TransactionPanel from '@/components/transaction-panel'
 import { HelperService } from '@/helpers/helper'
@@ -49,7 +49,9 @@ const Dashboard = () => {
   const local_service = new LocalStorageService()
   const helper = new HelperService()
   const navigate = useNavigate()
-
+  const [open, setOpen] = useRecoilState(alertState);
+  const [text, setText] = useRecoilState(alertTextState);
+  const [type, settype] = useRecoilState(alertTypeState);
   const getGatewayList = () => {
     static_service.getStaticPaymentGateway(local_service?.get_staff_country()).then((data: any) => {
       setCards(data?.data?.sort((e: any) => e.costFee))
@@ -61,7 +63,7 @@ const Dashboard = () => {
     setrecentTransaction(data?.transactionDetailsList)
     setIsLoading(false)
   }, [])
- 
+
   useEffect(() => {
     getGatewayList()
     setIsLoading(true)
@@ -70,9 +72,6 @@ const Dashboard = () => {
       setapplicantData(data?.data)
     })
   }, [])
-  
-
-
 
 
   const bankAccounts = [
@@ -106,19 +105,19 @@ const Dashboard = () => {
     const scrollRef = React.useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-  const interval = setInterval(() => {
-    const el = scrollRef.current;
-    if (el) {
-      if (el.scrollLeft + el.clientWidth >= el.scrollWidth) {
-        el.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        el.scrollBy({ left: 1, behavior: 'smooth' });
-      }
-    }
-  }, 1000);
+      const interval = setInterval(() => {
+        const el = scrollRef.current;
+        if (el) {
+          if (el.scrollLeft + el.clientWidth >= el.scrollWidth) {
+            el.scrollTo({ left: 0, behavior: 'smooth' });
+          } else {
+            el.scrollBy({ left: 1, behavior: 'smooth' });
+          }
+        }
+      }, 1000);
 
-  return () => clearInterval(interval);
-}, []);
+      return () => clearInterval(interval);
+    }, []);
 
 
     const scroll = (offset: number) => {
@@ -128,10 +127,10 @@ const Dashboard = () => {
     }
 
     return (
-     <Box
-  position="relative"
-  width="100%"
->
+      <Box
+        position="relative"
+        width="100%"
+      >
         {/* Scroll Buttons */}
 
         {/* <IconButton
@@ -207,6 +206,9 @@ const Dashboard = () => {
       const data = await static_service.paymentGatewayStatus(id, status)
       getGatewayList()
     } catch (error) {
+      setText("Error fetching data ")
+      setOpen(true)
+      settype("error")
       console.log(error)
     }
   }
@@ -302,19 +304,19 @@ const Dashboard = () => {
     const scrollRef = React.useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-  const interval = setInterval(() => {
-    const el = scrollRef.current
-    if (el) {
-      if (el.scrollLeft + el.clientWidth >= el.scrollWidth) {
-        el.scrollTo({ left: 0, behavior: 'smooth' }) // Loop back to start
-      } else {
-        el.scrollBy({ left: 1, behavior: 'smooth' }) // Scroll forward
-      }
-    }
-  }, 1000) // Adjust speed (higher = slower)
+      const interval = setInterval(() => {
+        const el = scrollRef.current
+        if (el) {
+          if (el.scrollLeft + el.clientWidth >= el.scrollWidth) {
+            el.scrollTo({ left: 0, behavior: 'smooth' }) // Loop back to start
+          } else {
+            el.scrollBy({ left: 1, behavior: 'smooth' }) // Scroll forward
+          }
+        }
+      }, 1000) // Adjust speed (higher = slower)
 
-  return () => clearInterval(interval)
-}, [])
+      return () => clearInterval(interval)
+    }, [])
 
     const scroll = (offset: number) => {
       if (scrollRef.current) {
@@ -349,8 +351,8 @@ const Dashboard = () => {
         >
           <ArrowRightIcon />
         </IconButton> */}
-      
-       
+
+
 
         {/* Carousel Container */}
         <Box
@@ -410,13 +412,13 @@ const Dashboard = () => {
   }
 
   return (
-    <Box sx={{ width: '80vw'   }}>
+    <Box sx={{ width: '80vw' }}>
       <Typography
         variant="h4"
         gutterBottom
         color={
           //@ts-ignore
-         theme.palette.text.primary       }
+          theme.palette.text.primary}
       >
         <b>Dashboard Overview</b>{' '}
         <ShowChartIcon
@@ -564,6 +566,10 @@ const Dashboard = () => {
                     <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
                     <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
                   </>
+                ) : recentTransaction.length === 0 ? (
+                  <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                    No data found
+                  </Typography>
                 ) : (
                   recentTransaction.map((transaction: any) => (
                     <Box key={transaction.id} sx={{ mb: 2, p: 1, borderBottom: '1px solid ', borderColor: 'primary.light' }}>
@@ -583,8 +589,8 @@ const Dashboard = () => {
                             transaction?.transactionOutward?.reportingStatus === 'Completed'
                               ? 'success.main'
                               : transaction?.transactionOutward?.reportingStatus === 'Pending'
-                              ? 'warning.main'
-                              : 'error.main'
+                                ? 'warning.main'
+                                : 'error.main'
                           }
                         >
                           {transaction?.transactionOutward?.reportingStatus}
@@ -612,6 +618,10 @@ const Dashboard = () => {
                     <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
                     <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
                   </>
+                ) : recentTransaction.length === 0 ? (
+                  <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                    No data found
+                  </Typography>
                 ) : (
                   applicatnData.map((customer) => (
                     <Box

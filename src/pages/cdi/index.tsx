@@ -112,9 +112,6 @@ const CdiScreen = () => {
   };
 
 
-
-
-
   const columns: GridColDef[] = [
 
     { field: 'transactionNumber', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },

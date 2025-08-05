@@ -82,7 +82,7 @@ const KYCPage = () => {
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return (
-          <a style={{ cursor: 'pointer', color: 'rgb(25, 118, 210)' }} onClick={() => openDrawer(params.row)}>
+          <a style={{ cursor: 'pointer', color: theme.palette.text.primary , textDecoration:"underline"}} onClick={() => openDrawer(params.row)}>
             {params.row.kycId}
           </a>
         )
@@ -115,7 +115,7 @@ const KYCPage = () => {
       renderCell: (params: any) => {
         return (
           <a
-            style={{ cursor: 'pointer', color: 'rgb(25, 118, 210)' }}
+            style={{ cursor: 'pointer', color:theme.palette.text.primary , textDecoration:"underline" }}
             onClick={() => {
               navigate(`/applicant-details/${params.row.applicantId}`)
             }}
@@ -144,7 +144,7 @@ const KYCPage = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
-        <Button variant="outlined" onClick={() => openDrawer(params.row)}>
+        <Button variant="outlined"   style={{ color: theme.palette.text.primary }} onClick={() => openDrawer(params.row)}>
           View More
         </Button>
       ),
