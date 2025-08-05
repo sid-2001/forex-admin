@@ -260,7 +260,6 @@ const CdiScreen = () => {
           '& .MuiDrawer-paper': {
             width: '30%',
             padding: 2,
-            backgroundColor: 'white',
           },
         }}
       >
@@ -276,7 +275,7 @@ const CdiScreen = () => {
                 paddingLeft: '5%',
                 paddingRight: '5%',
                 marginBottom: 2,
-                width: '40%',
+                width: '70%',
               }}
             >
               TRANSACTION ID : {transactionDetails.transactionNumber}
