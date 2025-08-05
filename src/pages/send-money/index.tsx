@@ -228,7 +228,7 @@ const SendMoneyPage = () => {
       })
       //@ts-ignore
       setSearchText(data.applicant?.firstName) // Set selected user's name in TextField
-  fetchBopList()
+      fetchBopList()
       setFilteredUsers([]) // Clear th
 
       return
@@ -237,17 +237,14 @@ const SendMoneyPage = () => {
     }
   }
 
-  const fetchBopList=()=>{
-
-    try{
-           transaction_service.getBop().then((data) => {
+  const fetchBopList = () => {
+    try {
+      transaction_service.getBop().then((data) => {
         setRemittanceList(data as any)
-      })  
-    }catch(err){
-
+      })
+    } catch (err) {
       console.log(err)
     }
-
   }
 
   useEffect(() => {
@@ -258,36 +255,32 @@ const SendMoneyPage = () => {
       applicant_service.getApplicantDetalis().then((data) => {
         let users
 
-        
-          users = data.map((e) => {
-            let benificiary_list = e.beneficiaryList.map((b) => {
-              return {
-                benificaryId: b.beneficiaryId,
-                name: b.beneficiaryName,
-                accountHolderName: b.beneficiaryName,
-                accountNumber: b.bankBicCode,
-                bank: b.bankName,
-                ifscCode: b.bankBicCode,
-              }
-            })
-
+        users = data.map((e) => {
+          let benificiary_list = e.beneficiaryList.map((b) => {
             return {
-              applicantId: e.applicant.applicantId,
-              id: e.applicant.applicantId,
-              //@ts-ignore
-              name: e.applicant?.firstName,
-              accountNumber: e.applicant.applicantId,
-              profilePhoto: 'https://randomuser.me/api/portraits/women/4.jpg',
-              benificary: benificiary_list,
+              benificaryId: b.beneficiaryId,
+              name: b.beneficiaryName,
+              accountHolderName: b.beneficiaryName,
+              accountNumber: b.bankBicCode,
+              bank: b.bankName,
+              ifscCode: b.bankBicCode,
             }
           })
-        
+
+          return {
+            applicantId: e.applicant.applicantId,
+            id: e.applicant.applicantId,
+            //@ts-ignore
+            name: e.applicant?.firstName,
+            accountNumber: e.applicant.applicantId,
+            profilePhoto: 'https://randomuser.me/api/portraits/women/4.jpg',
+            benificary: benificiary_list,
+          }
+        })
 
         setUserList(users as any)
         setcommonloader(false)
       })
-
-   
     }
 
     getGatewaysListByCountry()
@@ -882,7 +875,6 @@ const SendMoneyPage = () => {
               </Typography>
 
               <BeneficiaryForm
-                selectedBenificary={selectedBenficary}
                 setselectedBenficiary={setSelectedBenificary}
                 //@ts-ignore
                 beneficiaries={selectedUser?.benificary}
