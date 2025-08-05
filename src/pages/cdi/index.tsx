@@ -270,7 +270,7 @@ const CdiScreen = () => {
               variant="h6"
               fontWeight="bold"
               sx={{
-                backgroundColor: theme.palette.secondary.main,
+                backgroundColor: theme.palette.primary.main,
                 p: '0.5%',
                 color: 'white',
                 paddingLeft: '5%',

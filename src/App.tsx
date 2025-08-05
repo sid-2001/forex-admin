@@ -6,17 +6,10 @@ import ProtectedRoute, { ProtectedRouteProps } from './helpers/protected-route'
 import IndexPage from './pages/defaultpage'
 import UserAdd from './pages/user-add'
 import Login from './pages/newlogin'
-import Cdiscreen from './pages/cdi'
-// src/mui-theme.d.ts
 import type {} from '@mui/x-data-grid/themeAugmentation'
 
 // import Login from './pages/login'
 // import Dashboard from './pages/dashboard'
-// import { RecoilRoot } from 'recoil'
-// import CreateDriver from './pages/add-driver'
-// import favicon from '../src/assets/images/new-logo.png'
-// import { Schedule } from '@mui/icons-material'
-// import Scheduler from './pages/scheduler'
 // import { getToken, onMessage } from 'firebase/messaging'
 // import Message from './components/message/index'
 // import LoaderBackdrop from './components/loader/loader'
@@ -123,11 +116,6 @@ function App() {
     },
   });
 
-  const toggleColorMode = () => {
-    setMode((prev: string) => (prev === 'light' ? 'dark' : 'light'));
-  };
-
-
   return (
     <>
 
@@ -135,8 +123,6 @@ function App() {
         <CssBaseline />
         {/* <LoaderBackdrop /> */}
         {/* <Message /> */}
-        {/* <Schedule /> */}
-        {/* <Scheduler /> */}
         <ToastContainer />
         <CustomSnackbar />
         <BrowserRouter>

@@ -5,13 +5,10 @@ import { Logo, LogoWhite } from '@/assets/images'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
 import Person2Icon from '@mui/icons-material/Person2'
-// import { sidbarSelectionState, studentListState } from "../../states/state";
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
 import { themeModeState } from '@/states/state'
-// import { studentService } from "@/services/student.service";
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { Brightness4, Brightness7 } from '@mui/icons-material'
-import { useContext } from 'react'
 import {
   alertState,
   alertTextState,
@@ -26,7 +23,6 @@ import {
   staticTableState,
 } from '@/states/state'
 import { useState } from 'react'
-import Fade from '@mui/material/Fade'
 import Backdrop from '@mui/material/Backdrop'
 import LogoutIcon from '@mui/icons-material/Logout'
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline'
@@ -42,11 +38,8 @@ import WaterfallChartIcon from '@mui/icons-material/WaterfallChart'
 import ContactEmergencyIcon from '@mui/icons-material/ContactEmergency'
 import SourceIcon from '@mui/icons-material/Source'
 import ShowChartIcon from '@mui/icons-material/ShowChart'
-// import { IconButton } from '@mui/material';
 import ViewModuleIcon from '@mui/icons-material/ViewModule'
-import { Us, Sa, Za, In } from 'react-flags-select'
 import { TransactionService } from '@/services/transaction.service'
-// import LogoutModalProps from '../logout/logout.component'
 import ConfirmationModal from '../logout/logout.component'
 import static_list from '@/contants/static.data'
 
@@ -154,16 +147,8 @@ const DashboardLayout = () => {
     //@ts-ignore
   }>(staticTableState)
 
-  const toggleDrawer = () => {
-    setDrawerOpen(!isDrawerOpen)
-  }
-
   const handleModalClose = () => {
     setIsModalOpen(!isModalOpen)
-  }
-
-  const handleStaicClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget)
   }
 
   const handleStaticClose = () => {
@@ -193,7 +178,6 @@ const DashboardLayout = () => {
             color: theme.palette.secondary.light,
             fontSize: '2vh',
             //@ts-ignore
-
             color: theme.palette.primary.light,
             '&:hover': {
               //@ts-ignore
@@ -230,7 +214,6 @@ const DashboardLayout = () => {
             //@ts-ignore
             color: theme.palette.secondary.light,
             fontSize: '2vh',
-
             //@ts-ignore
             color: theme.palette.primary.light,
             '&:hover': {
@@ -249,7 +232,6 @@ const DashboardLayout = () => {
             //@ts-ignore
             color: theme.palette.secondary.light,
             fontSize: '2vh',
-
             //@ts-ignore
             color: theme.palette.primary.light,
             '&:hover': {
@@ -448,7 +430,6 @@ const DashboardLayout = () => {
         position="sticky"
         sx={{
           //@ts-ignore
-
           paddingBottom: 0,
         }}
       >
@@ -493,7 +474,7 @@ const DashboardLayout = () => {
               marginBottom: '6px',
             }}
           >
-            {selecteCountryState == 'SA' ? (
+            {selecteCountryState == 'ZA' ? (
               <>
                 <Avatar>
                   {<strong>{local_service?.get_staff_access().staffFirstName[0] + local_service?.get_staff_access().staffLastName[0]}</strong>}
@@ -522,27 +503,11 @@ const DashboardLayout = () => {
                     >
                       <strong>{local_service?.get_staff_access().staffId}</strong>
                     </Typography>
-
-                    {/*                   <Za
-                    style={{
-                      height: '20px',
-                      width: '25px',
-                      marginLeft: '5%',
-                      // padding: '10px',
-                      borderRadius: '30%',
-                    }}
-                  /> */}
                   </Stack>
                 </Box>
               </>
             ) : (
               <>
-                {/* {local_service.get_user()?.firstName?(
-local_service.get_user()?.firstName[0]
-
-
-            ):(L)} */}
-                {/* <Avatar >{local_service.get_user()?.firstName[0] + " " + local_service.get_user()?.lastName[0]}</Avatar> */}
 
                 <Box ml={1}>
                   <Typography
@@ -567,16 +532,7 @@ local_service.get_user()?.firstName[0]
                     >
                       <strong>{local_service?.get_staff_access()?.staffId}</strong>
                     </Typography>
-                    {/* 
-                  <In
-                    style={{
-                      height: '20px',
-                      width: '25px',
-                      marginLeft: '5%',
-                      // padding: '10px',
-                      borderRadius: '30%',
-                    }}
-                  /> */}
+
                   </Stack>
                 </Box>
               </>
@@ -619,13 +575,16 @@ local_service.get_user()?.firstName[0]
                   width: '8px',
                 },
                 '&::-webkit-scrollbar-track': {
+                  //@ts-ignore
                   backgroundColor: theme.palette.secondary.main,
                 },
                 '&::-webkit-scrollbar-thumb': {
+                  //@ts-ignore
                   backgroundColor: theme.palette.secondary.main,
                   borderRadius: '8px',
                 },
                 '&::-webkit-scrollbar-thumb:hover': {
+                  //@ts-ignore
                   backgroundColor: theme.palette.secondary.dark,
                 },
               }}
