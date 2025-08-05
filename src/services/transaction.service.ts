@@ -2,17 +2,16 @@ import { TransactionDetailsResponse, TransactionInward } from '@/types/transacti
 import api1 from './apis/api1'
 import { BaseService } from './base.service'
 import axios from 'axios'
-const { VITE_APP_TRANSACTION, VITE_FOREX_APP_CREDENTIALS } = import.meta.env
+const { VITE_FOREX_APP_CREDENTIALS } = import.meta.env
 
 export class TransactionService extends BaseService {
   static cdiTransaction() {
-      throw new Error('Method not implemented.')
+    throw new Error('Method not implemented.')
   }
   async gettransactions(): Promise<TransactionDetailsResponse> {
-    let url = '/api/transactions/transaction-details'
+    const url = '/api/transactions/transaction-details'
     try {
-      // http://64.227.139.142:9091/api/applicant/applicant-all-details
-      let data = await api1.get(url)
+      const data = await api1.get(url)
       return data as any
     } catch (e) {
       throw new Error(e as any)
@@ -20,9 +19,9 @@ export class TransactionService extends BaseService {
   }
 
   async getOutwardAllTransaction(sendCountry: any): Promise<Array<TransactionInward>> {
-    let url = `/api/transactions/transaction-outward/sendCountry/${sendCountry}`
+    const url = `/api/transactions/transaction-outward/sendCountry/${sendCountry}`
     try {
-      let data = await api1.get(url)
+      const data = await api1.get(url)
       return data.data as any
     } catch (e) {
       throw new Error(e as any)
@@ -31,8 +30,8 @@ export class TransactionService extends BaseService {
 
   async getInwardTransaction(receving_country: any): Promise<Array<TransactionInward>> {
     try {
-      let url = `/api/transactions/transaction-inward/receivingCountry/${receving_country}`
-      let data = await api1.get(url)
+      const url = `/api/transactions/transaction-inward/receivingCountry/${receving_country}`
+      const data = await api1.get(url)
       return data?.transactionDetailList as any
     } catch (e) {
       throw new Error(e as any)
@@ -40,7 +39,7 @@ export class TransactionService extends BaseService {
   }
 
   async cdiTransactions(): Promise<any[]> {
-    let url = '/api/transactions/transaction-details/unmatchedTransactionList'
+    const url = '/api/transactions/transaction-details/unmatchedTransactionList'
     try {
       const response = await api1.get(url)
       return response
@@ -51,34 +50,34 @@ export class TransactionService extends BaseService {
   }
 
   async cdiCards(): Promise<any[]> {
-    let url = '/api/transactions/transaction-details/unmatchedTransactionList/overview'
+    const url = '/api/transactions/transaction-details/unmatchedTransactionList/overview'
     try {
       const response = await api1.get(url)
       return response
-    } catch (error:any) {
+    } catch (error: any) {
       console.error('API error:', error)
-       throw new Error(error?.response?.data?.message || 'API call failed');    }
+      throw new Error(error?.response?.data?.message || 'API call failed')
+    }
   }
- 
- async updateTransactionMapping(referenceNumber: string, transactionNumber: string): Promise<any> {
-  const url = '/api/transactions/transaction-details/forex/unmatchedTransactionList';
-  try {
-    const { data } = await api1.put(url, {
-      transactionNumber,
-      referenceNumber,
-    });
-    return data;
-  } catch (error: any) {
-    console.error('Mapping update failed:', error?.response?.data || error.message);
-    throw error;
-  }
-}
 
+  async updateTransactionMapping(referenceNumber: string, transactionNumber: string): Promise<any> {
+    const url = '/api/transactions/transaction-details/forex/unmatchedTransactionList'
+    try {
+      const { data } = await api1.put(url, {
+        transactionNumber,
+        referenceNumber,
+      })
+      return data
+    } catch (error: any) {
+      console.error('Mapping update failed:', error?.response?.data || error.message)
+      throw error
+    }
+  }
 
   async getBalanceEnquiry(): Promise<Array<TransactionInward>> {
-    let url = `/api/transactions/transaction-details/balanceEnquiry`
+    const url = `/api/transactions/transaction-details/balanceEnquiry`
     try {
-      let data = await api1.get(url)
+      const data = await api1.get(url)
       return data
     } catch (e) {
       throw new Error(e as any)
@@ -86,10 +85,9 @@ export class TransactionService extends BaseService {
   }
 
   async getOutwardTransaction(): Promise<TransactionDetailsResponse> {
-    let url = `/api/transactions/transaction-details`
+    const url = `/api/transactions/transaction-details`
     try {
-      // http://64.227.139.142:9091/api/applicant/applicant-all-details
-      let data = await api1.get(url)
+      const data = await api1.get(url)
       return data as any
     } catch (e) {
       throw new Error(e as any)
@@ -97,9 +95,9 @@ export class TransactionService extends BaseService {
   }
 
   async createTransaction(payload: any) {
-    let url = `${VITE_APP_TRANSACTION}/api/transactions/transaction-outward/create`
+    const url = `/api/transactions/transaction-outward/create`
     try {
-      let { data } = await axios.post(url, payload)
+      const { data } = await api1.post(url, payload)
       return data
     } catch (err) {
       console.log(err)
@@ -107,9 +105,9 @@ export class TransactionService extends BaseService {
   }
 
   async getBop() {
-    let url = `${VITE_APP_TRANSACTION}/api/static-table/forex-bop`
+    const url = `/api/static-table/forex-bop`
     try {
-      let { data } = await axios.get(url)
+      const { data } = await api1.get(url)
       return data
     } catch (err) {
       console.log(err)
@@ -123,9 +121,9 @@ export class TransactionService extends BaseService {
     applicantId: String
     rate: Number
   }) {
-    let url = `${VITE_APP_TRANSACTION}/api/transactions/deal/bookCover`
+    const url = `/api/transactions/deal/bookCover`
     try {
-      let { data } = await axios.post(url, payload)
+      const { data } = await api1.post(url, payload)
       return data
     } catch (err) {
       console.log(err)
@@ -133,9 +131,9 @@ export class TransactionService extends BaseService {
   }
 
   async createZaphierTransaction(payload: { amount: any; currency: any }) {
-    let url = `${VITE_APP_TRANSACTION}/api/zaphier/generate-uuid`
+    const url = `/api/zaphier/generate-uuid`
     try {
-      let { data } = await axios.post(url, payload)
+      const { data } = await api1.post(url, payload)
       return data
     } catch (err) {
       console.log(err)
@@ -143,9 +141,9 @@ export class TransactionService extends BaseService {
   }
 
   async createPayfastTransaction(transaction: any, amount: any) {
-    let url = `${VITE_APP_TRANSACTION}/api/transactions/transaction-outward/ozow?amount=${amount}&transactionId=${transaction}`
+    const url = `/api/transactions/transaction-outward/ozow?amount=${amount}&transactionId=${transaction}`
     try {
-      let data = await api1.get(url)
+      const data = await api1.get(url)
       return data
     } catch (err) {
       console.log(err)
@@ -153,9 +151,9 @@ export class TransactionService extends BaseService {
   }
 
   async createRecons(payload: any) {
-    let url = `/api/transactions/recon-transactions/create`
+    const url = `/api/transactions/recon-transactions/create`
     try {
-      let data = await api1.post(url, payload)
+      const data = await api1.post(url, payload)
       return data
     } catch (err) {
       console.log(err)
@@ -163,9 +161,9 @@ export class TransactionService extends BaseService {
   }
 
   async getForexRate(base_currency: String, sourc_currency: String) {
-    let url = `https://data.fixer.io/api/latest?access_key=${VITE_FOREX_APP_CREDENTIALS}&base=${base_currency}&symbols=${sourc_currency}`
+    const url = `https://data.fixer.io/api/latest?access_key=${VITE_FOREX_APP_CREDENTIALS}&base=${base_currency}&symbols=${sourc_currency}`
     try {
-      let { data } = await axios.get(url)
+      const { data } = await axios.get(url)
       //@ts-ignore
       return data.rates[sourc_currency]
     } catch (err) {
@@ -173,9 +171,9 @@ export class TransactionService extends BaseService {
     }
   }
   async getReconTrx(): Promise<any> {
-    let url = `/api/transactions/recon/reconList`
+    const url = `/api/transactions/recon/reconList`
     try {
-      let data = await api1.get(url)
+      const data = await api1.get(url)
       return data
     } catch (err) {
       console.log(err)
@@ -183,9 +181,9 @@ export class TransactionService extends BaseService {
   }
 
   async getReconTrxId(id: number): Promise<any> {
-    let url = `/api/transactions/recon/reconId/${id}`
+    const url = `/api/transactions/recon/reconId/${id}`
     try {
-      let { data } = await api1.get(url)
+      const { data } = await api1.get(url)
       return data
     } catch (err) {
       console.log(err)
@@ -193,9 +191,9 @@ export class TransactionService extends BaseService {
   }
 
   async updateReconTrxId(id: number, payload: any): Promise<any> {
-    let url = `/api/transactions/recon/updateRecon/reconId/${id}`
+    const url = `/api/transactions/recon/updateRecon/reconId/${id}`
     try {
-      let { data } = await api1.put(url, payload)
+      const { data } = await api1.put(url, payload)
       return data
     } catch (err) {
       console.log(err)
@@ -203,9 +201,9 @@ export class TransactionService extends BaseService {
   }
 
   async createOrder(payload: any) {
-    let url = `/api/create-order`
+    const url = `/api/create-order`
     try {
-      let { data } = await api1.post(url, payload)
+      const { data } = await api1.post(url, payload)
       return data
     } catch (err) {
       console.log(err)
@@ -213,9 +211,9 @@ export class TransactionService extends BaseService {
   }
 
   async fetchGatewaysByCountry(countryCode: string): Promise<any> {
-    let url = `api/static-table/forex-gateway/by-country?countryCode=${countryCode}`
+    const url = `api/static-table/forex-gateway/by-country?countryCode=${countryCode}`
     try {
-      let { data } = await api1.get(url)
+      const { data } = await api1.get(url)
       return data
     } catch (err) {
       console.log(err)
@@ -223,9 +221,9 @@ export class TransactionService extends BaseService {
   }
 
   async getStpRules(transactionId: any) {
-    let url = `/api/transactions/stp-error/transactionNo/${transactionId}`
+    const url = `/api/transactions/stp-error/transactionNo/${transactionId}`
     try {
-      let data = await api1.get(url)
+      const data = await api1.get(url)
       return data
     } catch (err) {
       console.log(err)
@@ -233,9 +231,9 @@ export class TransactionService extends BaseService {
   }
 
   async getTransactionSummary(country: any) {
-    let url = `/api/transactions/transaction-outward/transaction-summary?countryCode=${country}`
+    const url = `/api/transactions/transaction-outward/transaction-summary?countryCode=${country}`
     try {
-      let data = await api1.get(url)
+      const data = await api1.get(url)
       return data
     } catch (err) {
       console.log(err)
@@ -243,9 +241,9 @@ export class TransactionService extends BaseService {
   }
 
   async getAllValidationsList(country: any) {
-    let url = `api/transactions/field-validations/listOfFieldValidation/countryCode/${country}`
+    const url = `api/transactions/field-validations/listOfFieldValidation/countryCode/${country}`
     try {
-      let data = await api1.get(url)
+      const data = await api1.get(url)
       return data
     } catch (err) {
       console.log(err)

@@ -2,11 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { Modal, Box, Button } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 
-const { VITE_APP_BACKEND, VITE_APP_URL, VITE_APP_APPLICANT, VITE_APP_KYC,VITE_APP_STATIC } = import.meta.env
-const GifModal: React.FC = (
-  ) => {
+const { VITE_APP_URL } = import.meta.env
+const GifModal: React.FC = () => {
   const handleOpen = () => setOpen(true)
-  const[open,setOpen]=useState(true)
+  const [open, setOpen] = useState(true)
 
   let navigate = useNavigate()
   const handleClose = () => {
@@ -15,19 +14,14 @@ const GifModal: React.FC = (
     navigate('/transaction')
   }
 
-  useEffect(()=>{
-
+  useEffect(() => {
     setOpen(true)
-  },[])
+  }, [])
 
-
-
-  setTimeout(()=>{
-
-setOpen(false)
-window.location.replace(`${VITE_APP_URL}/transaction`)
-
-  },3000)
+  setTimeout(() => {
+    setOpen(false)
+    window.location.replace(`${VITE_APP_URL}/transaction`)
+  }, 3000)
 
   return (
     <>
@@ -57,7 +51,7 @@ window.location.replace(`${VITE_APP_URL}/transaction`)
           />
 
           {/* Close button */}
-          <Button onClick={handleClose} variant="contained" color="secondary" sx={{ mt: 2 }} >
+          <Button onClick={handleClose} variant="contained" color="secondary" sx={{ mt: 2 }}>
             Close
           </Button>
         </Box>
