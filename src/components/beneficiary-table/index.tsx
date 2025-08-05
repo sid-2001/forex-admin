@@ -18,6 +18,13 @@ const BeneficiaryTable = ({ beneficiary, applicantId }: { beneficiary: any; appl
     navigate(`/beneficiary-details/${beneficiaryId}`)
   }
 
+  const renderBeneficiaryFullName = (row: any) => {
+    const { beneficiaryFirstName, beneficiaryLastName } = row
+    return row?.beneficiaryMiddleName
+      ? `${beneficiaryFirstName} ${row?.beneficiaryMiddleName} ${beneficiaryLastName}`
+      : `${beneficiaryFirstName} ${beneficiaryLastName}`
+  }
+
   const columns = [
     {
       field: 'beneficiaryId',
@@ -44,6 +51,9 @@ const BeneficiaryTable = ({ beneficiary, applicantId }: { beneficiary: any; appl
       headerName: 'Beneficiary Name',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return <div>{renderBeneficiaryFullName(params?.row)}</div>
+      },
     },
     {
       field: 'bankName',

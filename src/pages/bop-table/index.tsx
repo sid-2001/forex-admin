@@ -29,6 +29,12 @@ const BopTable: React.FC = () => {
       console.error('There was a problem with the fetch operation:', error)
     }
   }
+  const renderBeneficiaryFullName = (row: any) => {
+    const { beneficiary_first_name, benificiary_last_name } = row
+    return row?.benificiary_middle_name
+      ? `${beneficiary_first_name} ${row?.benificiary_middle_name} ${benificiary_last_name}`
+      : `${beneficiary_first_name} ${benificiary_last_name}`
+  }
 
   const columns = [
     {
@@ -50,10 +56,13 @@ const BopTable: React.FC = () => {
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'benificiary_name',
+      field: 'beneficiary_name',
       headerName: 'Non Resident Name',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return <div>{renderBeneficiaryFullName(params?.row)}</div>
+      },
     },
     {
       field: 'transaction_status',
