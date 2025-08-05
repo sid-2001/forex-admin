@@ -5,12 +5,10 @@ import { Logo, LogoWhite } from '@/assets/images'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
 import Person2Icon from '@mui/icons-material/Person2'
-// import { sidbarSelectionState, studentListState } from "../../states/state";
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
-
-// import { studentService } from "@/services/student.service";
+import { themeModeState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-
+import { Brightness4, Brightness7 } from '@mui/icons-material'
 import {
   alertState,
   alertTextState,
@@ -25,7 +23,6 @@ import {
   staticTableState,
 } from '@/states/state'
 import { useState } from 'react'
-import Fade from '@mui/material/Fade'
 import Backdrop from '@mui/material/Backdrop'
 import LogoutIcon from '@mui/icons-material/Logout'
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline'
@@ -41,11 +38,8 @@ import WaterfallChartIcon from '@mui/icons-material/WaterfallChart'
 import ContactEmergencyIcon from '@mui/icons-material/ContactEmergency'
 import SourceIcon from '@mui/icons-material/Source'
 import ShowChartIcon from '@mui/icons-material/ShowChart'
-// import { IconButton } from '@mui/material';
 import ViewModuleIcon from '@mui/icons-material/ViewModule'
-import { Us, Sa, Za, In } from 'react-flags-select'
 import { TransactionService } from '@/services/transaction.service'
-// import LogoutModalProps from '../logout/logout.component'
 import ConfirmationModal from '../logout/logout.component'
 import static_list from '@/contants/static.data'
 
@@ -120,6 +114,8 @@ const Header = styled(Box)({
 
 const DashboardLayout = () => {
   let navigate = useNavigate()
+  const [mode, setMode] = useRecoilState(themeModeState)
+
   const theme = useTheme()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selecteCountryState, setselectedCountryState] = useRecoilState(selectedCountryState)
@@ -151,16 +147,8 @@ const DashboardLayout = () => {
     //@ts-ignore
   }>(staticTableState)
 
-  const toggleDrawer = () => {
-    setDrawerOpen(!isDrawerOpen)
-  }
-
   const handleModalClose = () => {
     setIsModalOpen(!isModalOpen)
-  }
-
-  const handleStaicClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget)
   }
 
   const handleStaticClose = () => {
@@ -190,7 +178,6 @@ const DashboardLayout = () => {
             color: theme.palette.secondary.light,
             fontSize: '2vh',
             //@ts-ignore
-
             color: theme.palette.primary.light,
             '&:hover': {
               //@ts-ignore
@@ -227,7 +214,6 @@ const DashboardLayout = () => {
             //@ts-ignore
             color: theme.palette.secondary.light,
             fontSize: '2vh',
-
             //@ts-ignore
             color: theme.palette.primary.light,
             '&:hover': {
@@ -246,7 +232,6 @@ const DashboardLayout = () => {
             //@ts-ignore
             color: theme.palette.secondary.light,
             fontSize: '2vh',
-
             //@ts-ignore
             color: theme.palette.primary.light,
             '&:hover': {
@@ -445,20 +430,35 @@ const DashboardLayout = () => {
         position="sticky"
         sx={{
           //@ts-ignore
-          backgroundColor: theme.palette.primary.main,
           paddingBottom: 0,
         }}
       >
         <Toolbar>
-          <Box sx={{ flexGrow: 1, p: 1, color: 'white' }}>
-            <img src={LogoWhite} alt="Logo" style={{ height: 60 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', px: 2, py: 1 }}>
+            {/* Logo */}
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <img src={LogoWhite} alt="Logo" style={{ height: 60 }} />
+            </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, color: 'white' }}>
+              <Box sx={{ textAlign: 'right' }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                  Available Balance :
+                </Typography>
+                <Typography variant="body1">
+                  ₹{balance}
+                </Typography>
+              </Box>
+
+              <IconButton
+                onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
+                color="inherit"
+              >
+                {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
+              </IconButton>
+            </Box>
           </Box>
 
-          <Box sx={{ marginRight: '23px' }}>
-            <strong>Available Balance :</strong>
-            <br></br>
-            <span>₹{balance}</span>
-          </Box>
 
           <Box
             sx={{
@@ -470,10 +470,11 @@ const DashboardLayout = () => {
               border: '1px solid #D1DDFC',
               padding: '7px',
               paddingRight: '10px',
+              // boxShadow: "5px 5px 5px #888888",
               marginBottom: '6px',
             }}
           >
-            {selecteCountryState == 'SA' ? (
+            {selecteCountryState == 'ZA' ? (
               <>
                 <Avatar>
                   {<strong>{local_service?.get_staff_access().staffFirstName[0] + local_service?.get_staff_access().staffLastName[0]}</strong>}
@@ -507,6 +508,7 @@ const DashboardLayout = () => {
               </>
             ) : (
               <>
+
                 <Box ml={1}>
                   <Typography
                     variant="subtitle1"
@@ -530,6 +532,7 @@ const DashboardLayout = () => {
                     >
                       <strong>{local_service?.get_staff_access()?.staffId}</strong>
                     </Typography>
+
                   </Stack>
                 </Box>
               </>
@@ -548,7 +551,7 @@ const DashboardLayout = () => {
               backgroundColor: theme.palette.secondary.main,
               height: '100vh',
               position: 'fixed', // Makes the sidebar stay fixed in place
-              top: 80, // Stick to the top of the viewport
+              top: 76.6, // Stick to the top of the viewport
               left: 0, // Stick to the left of the viewport
               overflow: 'hidden',
               boxShadow: '2px 0 5px rgba(0,0,0,0.3)',
@@ -568,10 +571,27 @@ const DashboardLayout = () => {
                 '@media (max-height: 700px)': {
                   maxHeight: 'calc(100vh - 80px)', // Adjust based on AppBar height
                 },
+                '&::-webkit-scrollbar': {
+                  width: '8px',
+                },
+                '&::-webkit-scrollbar-track': {
+                  //@ts-ignore
+                  backgroundColor: theme.palette.secondary.main,
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  //@ts-ignore
+                  backgroundColor: theme.palette.secondary.main,
+                  borderRadius: '8px',
+                },
+                '&::-webkit-scrollbar-thumb:hover': {
+                  //@ts-ignore
+                  backgroundColor: theme.palette.secondary.dark,
+                },
               }}
             >
               {menuItems.map((item, index) => (
                 <ListItem
+                  // color='red÷'
                   button
                   selected={selectedApp === item.label}
                   key={index}
@@ -579,6 +599,7 @@ const DashboardLayout = () => {
                     justifyContent: isDrawerOpen ? 'flex-start' : 'center',
                     textAlign: 'center',
                     alignItems: 'center',
+                    backgroundColor: "transparent"
                   }}
                   onClick={() => {
                     handleSidebarClick(item.label)
@@ -588,8 +609,8 @@ const DashboardLayout = () => {
                     }
                   }}
                 >
-                  <Stack>
-                    <Item>
+                  <Stack sx={{ backgroundColor: "inherit", padding: "1%" }}>
+                    <Item sx={{ backgroundColor: "transparent" }}>
                       <ListItemIcon
                         sx={{
                           textAlign: 'center',
@@ -690,12 +711,13 @@ const DashboardLayout = () => {
           <Box
             sx={{
               flexGrow: 1,
+
               padding: '2%',
               paddingLeft: '5%',
               marginLeft: 0, // Prevent the sidebar from affecting the content
             }}
           >
-            <MainContent>
+            <MainContent >
               <Header>
                 <Typography variant="h5"></Typography>
               </Header>

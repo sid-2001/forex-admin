@@ -1,15 +1,15 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { Box, Grid, TextField, Typography, Button, Switch, FormControlLabel } from '@mui/material'
-import { useNavigate, useParams } from 'react-router-dom'
-import TransactionTable from '../transaction-table'
-import { BeneficiaryService } from '@/services/beneficiary.service'
-import HasPermission from '@/components/permissionWrapper'
-import { LocalStorageService } from '@/helpers/local-storage-service'
-import { HelperService } from '@/helpers/helper'
-
-const beneficiary_service = new BeneficiaryService()
-const local_service = new LocalStorageService()
-const helper_service = new HelperService()
+import React, { useCallback, useEffect, useState } from 'react';
+import { Box, Grid, TextField, Typography, Button, Switch, FormControlLabel } from '@mui/material';
+import { useNavigate, useParams } from 'react-router-dom';
+import TransactionTable from '../transaction-table';
+import { BeneficiaryService } from '@/services/beneficiary.service';
+import HasPermission from '@/components/permissionWrapper';
+import { LocalStorageService } from '@/helpers/local-storage-service';
+import { HelperService } from '@/helpers/helper';
+import { useTheme } from '@mui/material';
+const beneficiary_service = new BeneficiaryService();
+const local_service = new LocalStorageService();
+const helper_service = new HelperService();
 
 const BeneficiaryDetailPage = () => {
   const navigate = useNavigate()

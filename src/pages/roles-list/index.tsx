@@ -46,7 +46,7 @@ const RoleManagementPage = () => {
         <Box>
           <Typography variant="h4" gutterBottom
             //@its-ignore
-            sx={{ color: theme.palette.secondary.main }}>
+            sx={{ color: theme.palette.text.primary }}>
             <strong>Roles </strong>
           </Typography>
         </Box>
@@ -68,13 +68,13 @@ const RoleManagementPage = () => {
 
       <Box
         sx={{
-          '& .super-app-theme--header': {
-            backgroundColor: '#005099',
-            color: 'white',
-          },
-          '& .MuiDataGrid-row:nth-of-type(even)': {
-            backgroundColor: '#e3f2fd', // Light blue alternate rows
-          },
+          // '& .super-app-theme--header': {
+          //   backgroundColor: '#005099',
+          //   color: 'white',
+          // },
+          // '& .MuiDataGrid-row:nth-of-type(even)': {
+          //   backgroundColor: '#e3f2fd', // Light blue alternate rows
+          // },
           width: '80vw',
           height: '70vh',
         }}

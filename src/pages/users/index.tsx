@@ -16,9 +16,9 @@ const StyledDataGrid = styled(DataGrid)({
     color: '#fff',
     fontWeight: 'bold',
   },
-  '& .MuiDataGrid-row:nth-of-type(even)': {
-    backgroundColor: '#e3f2fd', // Light blue alternate rows
-  },
+  // '& .MuiDataGrid-row:nth-of-type(even)': {
+  //   backgroundColor: '#e3f2fd', // Light blue alternate rows
+  // },
 
   '& .MuiDataGrid-root': {
     border: '1 px solid blue',
@@ -99,7 +99,7 @@ const UserTable: React.FC = () => {
       <Box sx={{ width: '80vw', height: '70vh' }}>
         <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'}>
           <Box>
-            <Typography variant="h4" gutterBottom color ={theme.palette.secondary.main} >
+            <Typography variant="h4" gutterBottom color ={theme.palette.text.primary} >
               <strong>All Users</strong>
             </Typography>
           </Box>

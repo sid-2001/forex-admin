@@ -6,15 +6,10 @@ import ProtectedRoute, { ProtectedRouteProps } from './helpers/protected-route'
 import IndexPage from './pages/defaultpage'
 import UserAdd from './pages/user-add'
 import Login from './pages/newlogin'
-import Cdiscreen from './pages/cdi'
+import type {} from '@mui/x-data-grid/themeAugmentation'
 
 // import Login from './pages/login'
 // import Dashboard from './pages/dashboard'
-// import { RecoilRoot } from 'recoil'
-// import CreateDriver from './pages/add-driver'
-// import favicon from '../src/assets/images/new-logo.png'
-// import { Schedule } from '@mui/icons-material'
-// import Scheduler from './pages/scheduler'
 // import { getToken, onMessage } from 'firebase/messaging'
 // import Message from './components/message/index'
 // import LoaderBackdrop from './components/loader/loader'
@@ -48,31 +43,86 @@ import ReconScreen from './pages/recon-screen'
 import StaticData from './pages/static-data/staticdata.page'
 import Dashboard from './pages/dashboard/dashboard.page'
 import CdiScreen from './pages/cdi'
+import { themeModeState } from '@/states/state'
+import { useRecoilState } from 'recoil'
+import { CssBaseline } from '@mui/material'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
     authenticationPath: '/login',
   }
 
+  const [mode, setMode] = useRecoilState(themeModeState)
   const theme = createTheme({
     palette: {
+      mode,
       primary: {
         main: '#0061B1',
         light: '#CDEDFF',
       },
       secondary: {
-        main: '#323232',
+        main: '#0A1C2C',
         light: 'white',
       },
+      text: {
+  primary: mode === 'dark' ? '#ffffff' : '#0A1C2C',
+  secondary: mode === 'dark' ? '#B0BEC5' : '#455A64',
+    },
     },
     typography: {
       fontFamily: "'Roboto', 'Arial', sans-serif",
     },
-  })
+    
+
+    components: {
+      MuiCssBaseline: {
+        styleOverrides: {
+          body: {
+            backgroundColor: mode === 'dark' ? '#0B151D' : 'white',
+            color: mode === 'dark' ? '#fff' : '#000',
+            transition: 'all 0.3s ease',
+          },
+          '#root': {
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '100vh',
+          },
+        },
+      },
+      MuiDataGrid: {
+      styleOverrides: {
+        root: {
+          '& .super-app-theme--header': {
+            backgroundColor: '#005099',
+            color: '#fff',
+          },
+          '& .MuiDataGrid-row:nth-of-type(even)': {
+            backgroundColor: mode === 'dark' ? '#143752' : '#e3f2fd',
+          },
+          // '& .MuiDataGrid-row.Mui-selected': {
+          //   backgroundColor: mode === 'dark' ? '#fff' : '#BBDEFB',
+          // },
+        },
+      },
+    },
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            backgroundColor: mode === 'dark' ? '#0A1C2C' : '#ffffff',
+            transition: 'background-color 0.3s ease',
+          },
+        },
+      },
+    },
+  });
 
   return (
     <>
+
       <ThemeProvider theme={theme}>
+        <CssBaseline />
+        {/* <LoaderBackdrop /> */}
+        {/* <Message /> */}
         <ToastContainer />
         <CustomSnackbar />
         <BrowserRouter>
