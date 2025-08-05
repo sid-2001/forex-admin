@@ -121,34 +121,30 @@ const BopTable: React.FC = () => {
         <Typography variant="h4" gutterBottom color={theme.palette.text.primary}>
           <strong>Bop Listing </strong>
         </Typography>
-        <DataGrid
-          sx={{
-            width: '100%',
-            '& .MuiDataGrid-columnHeaders': {
-              '& .super-app-theme--header': {
-                backgroundColor: '#005099',
-                color: 'white',
+        {bopData && (
+          <DataGrid
+            sx={{
+              width: '100%',
+              '& .MuiDataGrid-columnHeaders': {
+                '& .super-app-theme--header': {
+                  backgroundColor: '#005099',
+                  color: 'white',
+                },
               },
-            },
-            '& .MuiDataGrid-columnHeaderTitle': {
-              fontWeight: 'bold',
-            },
-            '& .MuiDataGrid-cell': {
-              fontSize: '14px',
-            },
-            // '& .MuiDataGrid-row:nth-of-type(even)': {
-            //   backgroundColor: '#f0f8ff',
-            // },
-            // '& .MuiDataGrid-row:nth-of-type(odd)': {
-            //   backgroundColor: '#ffffff',
-           // },
-            '& .super-app-theme--header': {
-              fontSize: '16px',
-            },
-          }}
-          columns={columns}
-          rows={bopData}
-          initialState={{
+              '& .MuiDataGrid-columnHeaderTitle': {
+                fontWeight: 'bold',
+              },
+              '& .MuiDataGrid-cell': {
+                fontSize: '14px',
+              },
+              
+              '& .super-app-theme--header': {
+                fontSize: '16px',
+              },
+            }}
+            columns={columns}
+            rows={bopData}
+            initialState={{
               pagination: {
                 paginationModel: { pageSize: 20, page: 0 },
               },
@@ -158,8 +154,9 @@ const BopTable: React.FC = () => {
             slots={{
               loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
             }}
-          getRowId={(row: any) => row.id}
-        />
+            getRowId={(row: any) => row.id}
+          />
+        )}
       </Box>
     </HasPermission>
   )

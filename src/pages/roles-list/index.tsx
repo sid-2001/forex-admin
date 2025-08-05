@@ -68,13 +68,13 @@ const RoleManagementPage = () => {
 
       <Box
         sx={{
-          '& .super-app-theme--header': {
-            backgroundColor: '#005099',
-            color: 'white',
-          },
-          '& .MuiDataGrid-row:nth-of-type(even)': {
-            backgroundColor: '#e3f2fd', // Light blue alternate rows
-          },
+          // '& .super-app-theme--header': {
+          //   backgroundColor: '#005099',
+          //   color: 'white',
+          // },
+          // '& .MuiDataGrid-row:nth-of-type(even)': {
+          //   backgroundColor: '#e3f2fd', // Light blue alternate rows
+          // },
           width: '80vw',
           height: '70vh',
         }}

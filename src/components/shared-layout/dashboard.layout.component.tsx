@@ -448,8 +448,7 @@ const DashboardLayout = () => {
         position="sticky"
         sx={{
           //@ts-ignore
-          widthh: '100%',
-          height: '7%',
+
           paddingBottom: 0,
         }}
       >
@@ -596,7 +595,7 @@ local_service.get_user()?.firstName[0]
               backgroundColor: theme.palette.secondary.main,
               height: '100vh',
               position: 'fixed', // Makes the sidebar stay fixed in place
-              top: 80, // Stick to the top of the viewport
+              top: 76.6, // Stick to the top of the viewport
               left: 0, // Stick to the left of the viewport
               overflow: 'hidden',
               boxShadow: '2px 0 5px rgba(0,0,0,0.3)',
@@ -616,10 +615,24 @@ local_service.get_user()?.firstName[0]
                 '@media (max-height: 700px)': {
                   maxHeight: 'calc(100vh - 80px)', // Adjust based on AppBar height
                 },
+                '&::-webkit-scrollbar': {
+                  width: '8px',
+                },
+                '&::-webkit-scrollbar-track': {
+                  backgroundColor: theme.palette.secondary.main,
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  backgroundColor: theme.palette.secondary.main,
+                  borderRadius: '8px',
+                },
+                '&::-webkit-scrollbar-thumb:hover': {
+                  backgroundColor: theme.palette.secondary.dark,
+                },
               }}
             >
               {menuItems.map((item, index) => (
                 <ListItem
+                  // color='red÷'
                   button
                   selected={selectedApp === item.label}
                   key={index}
@@ -627,6 +640,7 @@ local_service.get_user()?.firstName[0]
                     justifyContent: isDrawerOpen ? 'flex-start' : 'center',
                     textAlign: 'center',
                     alignItems: 'center',
+                    backgroundColor: "transparent"
                   }}
                   onClick={() => {
                     handleSidebarClick(item.label)
@@ -636,8 +650,8 @@ local_service.get_user()?.firstName[0]
                     }
                   }}
                 >
-                  <Stack>
-                    <Item>
+                  <Stack sx={{ backgroundColor: "inherit", padding: "1%" }}>
+                    <Item sx={{ backgroundColor: "transparent" }}>
                       <ListItemIcon
                         sx={{
                           textAlign: 'center',
@@ -738,7 +752,7 @@ local_service.get_user()?.firstName[0]
           <Box
             sx={{
               flexGrow: 1,
-           
+
               padding: '2%',
               paddingLeft: '5%',
               marginLeft: 0, // Prevent the sidebar from affecting the content
