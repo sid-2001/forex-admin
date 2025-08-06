@@ -32,13 +32,15 @@ function sortAscending(arr, key) {
   });
 }
 
-const inputLabelStyle = {
-  color: "black", textDecoration: "bold",
-  fontWeight: 800, fontStyle: "bold"
-}
+
 
 const UserAdd = () => {
+   const theme:any= useTheme(); // ✅ Move this INSIDE the component
 
+  const inputLabelStyle = {
+    color: theme.palette.text.primary,
+    fontWeight: 800
+  };
   //@ts-ignore
   const [staffData, setStaffData] = useState<StaffProfile>({ "staffIdNumber": "14-5678-9012", "staffIdType": "Aadhar" })
   const [countrieslist] = useState(['USA', 'Canada', 'India']);
@@ -62,11 +64,11 @@ const UserAdd = () => {
   const [suburbList, setSuburbList] = useState<any[]>([]);
   const { staffId } = useParams();
   const navigate = useNavigate()
-  const theme = useTheme()
   const postalCodeMaxLengthMap: { [key: string]: number } = {
-    'India': 6,
-    'South Africa': 4,
-  };
+  'IN': 6,
+  'ZA': 4,
+  'GR': 5, // Example for Greece
+};
 
   const handleToggleChangePermisson = (
     //@ts-ignore
@@ -317,7 +319,7 @@ const UserAdd = () => {
           fontWeight: 'bold', color:
 
             //@ts-ignore
-            theme.palette.secondary.main
+            theme.palette.text.primary
         }}>
           Staff Details
         </Typography>
@@ -542,7 +544,7 @@ const UserAdd = () => {
                   <option
 
 
-                    key={country.countryCode} value={country.countryName}>
+                    key={country.countryCode} value={country.countryCode}>
                     {country.countryName}
                   </option>
                 ))}
@@ -619,11 +621,7 @@ const UserAdd = () => {
                 })
 
               }}
-              sx={{
-                '& .MuiFilledInput-root': {
-                  backgroundColor: 'white',
-                },
-              }}
+              
             >
               {roles.map((role: any) => (
                 <MenuItem key={role.roleId} value={role.roleId}>
@@ -775,13 +773,6 @@ const UserAdd = () => {
                     : 'odd-row'
                 }
                 sx={{
-                  '& .even-row': {
-                    backgroundColor: '#e3f2fd', // Light blue
-                  },
-                  '& .odd-row': {
-                    backgroundColor: '#ffffff',
-                  },
-
                   '& .super-app-theme--header': {
                     backgroundColor: '#005099',
                     color: 'white',
