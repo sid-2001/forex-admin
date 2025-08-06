@@ -12,6 +12,7 @@ import { UserService } from '@/services/user.service'
 import staticdataService from '@/services/staticdata.service'
 import LoaderUI from '@/components/loader/loader'
 import { TransactionService } from '@/services/transaction.service'
+import { theme } from '@/contants/theme'
 
 const LoginPage = () => {
   const [email, setEmail] = useState('')
@@ -247,7 +248,7 @@ const LoginPage = () => {
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton onClick={handleTogglePasswordVisibility}>{showPassword ? <Visibility /> : <VisibilityOff />}</IconButton>
+                      <IconButton onClick={handleTogglePasswordVisibility} sx={{ color: 'grey' }}>{showPassword ? <Visibility /> : <VisibilityOff />}</IconButton>
                     </InputAdornment>
                   ),
                 }}
@@ -256,9 +257,17 @@ const LoginPage = () => {
               <Button
                 disabled={email.length > 0 && password.length > 0 ? false : true}
                 variant="contained"
-                color="primary"
+
+                // color="red"
                 fullWidth
-                sx={{ mt: 3, padding: '10px 0' }}
+                sx={{
+                  mt: 3,
+                  padding: '10px 0',
+                  '&:disabled': {
+                    backgroundColor: '#E4E4E4',
+                    color: '#B7B7B7', // optional: change text color when disabled
+                  },
+                }}
                 onClick={handleLogin}
               >
                 Sign In
