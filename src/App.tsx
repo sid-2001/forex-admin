@@ -77,8 +77,6 @@ function App() {
       h4: { color: 'text.primary' },
       h5: { color: 'text.primary' },
       h6: { color: 'text.primary' },
-      body1: { color: 'text.primary' },
-      body2: { color: 'text.secondary' },
     },
 
 
