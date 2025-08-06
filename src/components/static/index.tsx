@@ -24,9 +24,8 @@ const StaticDataGrid = ({
   const [text, setText] = useRecoilState(alertTextState)
   const [type, setType] = useRecoilState(alertTypeState)
   const [open, setOpen] = useRecoilState(alertState)
-
   const [date, setDate] = useState(null)
-const theme = useTheme()
+  const theme = useTheme()
   const [staticTable, setStaticTable] = useRecoilState<{
     name: string
     'primary-key': string

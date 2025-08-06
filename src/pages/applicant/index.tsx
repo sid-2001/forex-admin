@@ -515,7 +515,7 @@ useEffect(() => {
 
         {/* Action Buttons */}
         <Grid container spacing={2} mt={1}>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={3} mt={3}>
             <Button variant="outlined" onClick={handleBack} fullWidth>
               Back to Applicant List
             </Button>

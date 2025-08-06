@@ -312,12 +312,12 @@ const BopScreen: React.FC = () => {
         </Box>
 
         {stpErrors?.length > 0 && (
-          <Box mb={2} border={'1px solid rgba(0, 0, 0, 0.26)'} borderRadius={2} padding={'6px'}>
+          <Box mb={2} border={'1px solid'} borderRadius={2} padding={'6px'}>
             <Typography
               variant="h5"
               gutterBottom
               // @ts-ignore
-              color={theme.palette.secondary.main}
+              color={theme.palette.text.primary}
             >
               STP Errors
             </Typography>
@@ -336,7 +336,7 @@ const BopScreen: React.FC = () => {
             variant="h5"
             gutterBottom
             //@ts-ignore
-            color={theme.palette.secondary.main}
+            color={theme.palette.text.primary}
           >
             Reporting Details
           </Typography>
@@ -390,7 +390,7 @@ const BopScreen: React.FC = () => {
               variant="h5"
               gutterBottom
               // @ts-ignore
-              color={theme.palette.secondary.main}
+              color={theme.palette.text.primary}
             >
               {userLoggedInCountry === 'IN' ? 'Purpose Code Details' : 'Bop Category Details'}
             </Typography>
@@ -546,7 +546,7 @@ const BopScreen: React.FC = () => {
               variant="h5"
               gutterBottom
               //@ts-ignore
-              color={theme.palette.secondary.main}
+              color={theme.palette.text.primary}
             >
               Resident Details
             </Typography>
@@ -724,7 +724,7 @@ const BopScreen: React.FC = () => {
                 variant="h6"
                 gutterBottom
                 //@ts-ignore
-                color={theme.palette.secondary.main}
+                color={theme.palette.text.primary}
               >
                 Physical Address
               </Typography>
@@ -847,7 +847,7 @@ const BopScreen: React.FC = () => {
                 gutterBottom
                 color={
                   //@ts-ignore
-                  theme.palette.secondary.main
+                  theme.palette.text.primary
                 }
               >
                 Postal Address
@@ -971,7 +971,7 @@ const BopScreen: React.FC = () => {
               variant="h5"
               gutterBottom
               //@ts-ignore
-              color={theme.palette.secondary.main}
+              color={theme.palette.text.primary}
             >
               Non Resident Details
             </Typography>
