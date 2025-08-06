@@ -9,7 +9,7 @@ import { TransactionService } from '@/services/transaction.service'
 import { PaymentGateway } from '@/types/static.type'
 import staticdataService from '@/services/staticdata.service'
 import { useRecoilState } from 'recoil'
-import { alertState, alertTextState, alertTypeState, selectedCountryState } from '@/states/state'
+import { selectedAppState, alertState, alertTextState, alertTypeState, selectedCountryState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import TransactionPanel from '@/components/transaction-panel'
 import { HelperService } from '@/helpers/helper'
@@ -48,6 +48,8 @@ const Dashboard = () => {
   const static_service = new staticdataService()
   const local_service = new LocalStorageService()
   const helper = new HelperService()
+
+    const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
   const navigate = useNavigate()
   const [open, setOpen] = useRecoilState(alertState);
   const [text, setText] = useRecoilState(alertTextState);
@@ -68,6 +70,7 @@ const Dashboard = () => {
     getGatewayList()
     setIsLoading(true)
     getOutwardTransactionsList()
+    setSelectedApp("Dashboard")
     transaction_service.getTransactionSummary(userCountry).then((data) => {
       setapplicantData(data?.data)
     })

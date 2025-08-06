@@ -134,6 +134,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<ProtectedRoute {...defaultProtectedRouteProps} outlet={<DashboardLayout />} />}>
+              <Route index element={<Dashboard />}></Route> 
               <Route path="transaction" element={<TransactionListing />} />
               <Route path="sendmoney" element={<SendMoneyPage />} />
               <Route path="kyc" element={<KYCPage />} />
@@ -159,7 +160,7 @@ function App() {
               <Route path="recon-trx" element={<ReconScreen />} />
               <Route path="module" element={<ModuleTable />} />
               <Route path="role" element={<RoleManagement />} />
-              <Route path="*" element={<IndexPage />} />
+              <Route path="*" element={<Dashboard />} />
             </Route>
 
             <Route path="login" element={<Login />} />

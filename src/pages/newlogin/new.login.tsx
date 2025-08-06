@@ -26,7 +26,6 @@ const LoginPage = () => {
   const [county, setCountry] = useRecoilState(countyState)
   const [error, setError] = useState('')
   const [userCurrency, setUserCurrency] = useRecoilState(userCurrencyState)
-
   const auth_service = new AuthService()
   const local_service = new LocalStorageService()
   const user_service = new UserService()
@@ -157,7 +156,17 @@ const LoginPage = () => {
       }}
     >
       <LoaderUI.LoaderBackdrop openloader={commonloader} />
-      <Snackbar open={open} autoHideDuration={4000} onClose={handleClose} message={text} />
+      <Snackbar  
+    
+        anchorOrigin={{
+   
+    vertical: 'top',
+    horizontal: 'right',
+  }}
+   
+      open={open} autoHideDuration={4000} onClose={handleClose} message={text} 
+      //@ts-ignore
+      action={action} />
       <Box
         sx={{
           height: '100%',
