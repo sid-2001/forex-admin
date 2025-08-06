@@ -147,12 +147,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
               '& .MuiDataGrid-cell': {
                 fontSize: '14px',
               },
-              '& .MuiDataGrid-row:nth-of-type(even)': {
-                backgroundColor: '#f0f8ff',
-              },
-              '& .MuiDataGrid-row:nth-of-type(odd)': {
-                backgroundColor: '#ffffff',
-              },
               '& .super-app-theme--header': {
                 fontSize: '16px',
               },

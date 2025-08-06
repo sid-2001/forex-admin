@@ -149,18 +149,6 @@ const LoginPage = () => {
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword)
   }
-
-  const action = (
-    <React.Fragment>
-      <Button color="secondary" size="small" onClick={handleClose}>
-        UNDO
-      </Button>
-      <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose}>
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </React.Fragment>
-  )
-
   return (
     <div
       style={{
@@ -170,7 +158,7 @@ const LoginPage = () => {
       }}
     >
       <LoaderUI.LoaderBackdrop openloader={commonloader} />
-      <Snackbar open={open} autoHideDuration={4000} onClose={handleClose} message={text} action={action} />
+      <Snackbar open={open} autoHideDuration={4000} onClose={handleClose} message={text}  />
       <Box
         sx={{
           height: '100%',
@@ -219,7 +207,7 @@ const LoginPage = () => {
             }}
           >
             <Box sx={{ width: '100%' }}>
-              <Typography variant="h6" color={theme.palette.primary.main} textAlign="center" fontFamily="Inter">
+              <Typography variant="h6" textAlign="center" fontFamily="Inter">
                 User Name
               </Typography>
               <TextField
@@ -234,7 +222,7 @@ const LoginPage = () => {
                 helperText={error}
               />
 
-              <Typography variant="h6" color={theme.palette.primary.main} textAlign="center" fontFamily="Inter">
+              <Typography variant="h6" textAlign="center" fontFamily="Inter">
                 Password
               </Typography>
               <TextField

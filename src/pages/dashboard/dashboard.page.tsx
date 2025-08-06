@@ -416,15 +416,11 @@ const Dashboard = () => {
       <Typography
         variant="h4"
         gutterBottom
-        color={
-          //@ts-ignore
-          theme.palette.text.primary}
       >
         <b>Dashboard Overview</b>{' '}
         <ShowChartIcon
           sx={{
             //@ts-ignore
-            color: theme.palette.primary,
             fontSize: '5vh',
             marginBottom: '0px',
             //@ts-ignore

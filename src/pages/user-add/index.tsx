@@ -316,10 +316,7 @@ const UserAdd = () => {
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.STAFF}>
       <Box sx={{ width: "50vw" }}>
         <Typography mb={2} variant="h5" gutterBottom sx={{
-          fontWeight: 'bold', color:
-
-            //@ts-ignore
-            theme.palette.text.primary
+          fontWeight: 'bold'
         }}>
           Staff Details
         </Typography>

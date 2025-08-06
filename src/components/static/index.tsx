@@ -24,9 +24,8 @@ const StaticDataGrid = ({
   const [text, setText] = useRecoilState(alertTextState)
   const [type, setType] = useRecoilState(alertTypeState)
   const [open, setOpen] = useRecoilState(alertState)
-
   const [date, setDate] = useState(null)
-const theme = useTheme()
+  const theme = useTheme()
   const [staticTable, setStaticTable] = useRecoilState<{
     name: string
     'primary-key': string
@@ -387,7 +386,7 @@ const theme = useTheme()
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
         <b>
           {' '}
-          <h2 style={{color: theme.palette.text.primary,}}>{title}</h2>
+          <h2>{title}</h2>
         </b>
         <Button
           variant="contained"

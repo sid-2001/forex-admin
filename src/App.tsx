@@ -6,7 +6,7 @@ import ProtectedRoute, { ProtectedRouteProps } from './helpers/protected-route'
 import IndexPage from './pages/defaultpage'
 import UserAdd from './pages/user-add'
 import Login from './pages/newlogin'
-import type {} from '@mui/x-data-grid/themeAugmentation'
+import type { } from '@mui/x-data-grid/themeAugmentation'
 
 // import Login from './pages/login'
 // import Dashboard from './pages/dashboard'
@@ -65,14 +65,22 @@ function App() {
         light: 'white',
       },
       text: {
-  primary: mode === 'dark' ? '#ffffff' : '#0A1C2C',
-  secondary: mode === 'dark' ? '#B0BEC5' : '#455A64',
-    },
+        primary: mode === 'dark' ? '#ffffff' : '#0A1C2C',
+        secondary: mode === 'dark' ? '#B0BEC5' : '#455A64',
+      },
     },
     typography: {
       fontFamily: "'Roboto', 'Arial', sans-serif",
+      h1: { color: 'text.primary' },
+      h2: { color: 'text.primary' },
+      h3: { color: 'text.primary' },
+      h4: { color: 'text.primary' },
+      h5: { color: 'text.primary' },
+      h6: { color: 'text.primary' },
+      body1: { color: 'text.primary' },
+      body2: { color: 'text.secondary' },
     },
-    
+
 
     components: {
       MuiCssBaseline: {
@@ -90,21 +98,21 @@ function App() {
         },
       },
       MuiDataGrid: {
-      styleOverrides: {
-        root: {
-          '& .super-app-theme--header': {
-            backgroundColor: '#005099',
-            color: '#fff',
+        styleOverrides: {
+          root: {
+            '& .super-app-theme--header': {
+              backgroundColor: '#005099',
+              color: '#fff',
+            },
+            '& .MuiDataGrid-row:nth-of-type(even)': {
+              backgroundColor: mode === 'dark' ? '#143752' : '#e3f2fd',
+            },
+            // '& .MuiDataGrid-row.Mui-selected': {
+            //   backgroundColor: mode === 'dark' ? '#fff' : '#BBDEFB',
+            // },
           },
-          '& .MuiDataGrid-row:nth-of-type(even)': {
-            backgroundColor: mode === 'dark' ? '#143752' : '#e3f2fd',
-          },
-          // '& .MuiDataGrid-row.Mui-selected': {
-          //   backgroundColor: mode === 'dark' ? '#fff' : '#BBDEFB',
-          // },
         },
       },
-    },
       MuiCard: {
         styleOverrides: {
           root: {

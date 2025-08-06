@@ -127,7 +127,7 @@ const BopTable: React.FC = () => {
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>
       <Box sx={{ width: '80vw', height: '70vh' }}>
-        <Typography variant="h4" gutterBottom color={theme.palette.text.primary}>
+        <Typography variant="h4" gutterBottom >
           <strong>Bop Listing </strong>
         </Typography>
         {bopData && (

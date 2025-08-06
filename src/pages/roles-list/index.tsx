@@ -44,9 +44,7 @@ const RoleManagementPage = () => {
     <HasPermission module={local_service.get_modules()?.ROLE} permission={'canRead'}>
       <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'} sx={{ width: '80vw' }}>
         <Box>
-          <Typography variant="h4" gutterBottom
-            //@its-ignore
-            sx={{ color: theme.palette.text.primary }}>
+          <Typography variant="h4" gutterBottom>
             <strong>Roles </strong>
           </Typography>
         </Box>
@@ -68,13 +66,6 @@ const RoleManagementPage = () => {
 
       <Box
         sx={{
-          // '& .super-app-theme--header': {
-          //   backgroundColor: '#005099',
-          //   color: 'white',
-          // },
-          // '& .MuiDataGrid-row:nth-of-type(even)': {
-          //   backgroundColor: '#e3f2fd', // Light blue alternate rows
-          // },
           width: '80vw',
           height: '70vh',
         }}

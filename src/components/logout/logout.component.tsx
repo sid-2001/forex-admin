@@ -1,6 +1,7 @@
 import React from 'react'
 import { Box, Typography, Button, Modal } from '@mui/material'
 import LogoutIcon from '@mui/icons-material/Logout'
+import { useTheme } from '@emotion/react'
 
 interface ConfirmationModalProps {
   // style: React.CSSProperties
@@ -13,6 +14,7 @@ interface ConfirmationModalProps {
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ confirmBtnText = "", showIcon, message = '', handleClose, handleConfirm, isOpen }) => {
+   const theme:any= useTheme()
   return (<>
     <Modal open={isOpen} onClose={() => handleClose()}>
       <Box sx={{
@@ -46,6 +48,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ confirmBtnText = 
             variant="outlined"
             color="secondary"
             onClick={() => { handleClose() }}
+            sx={{color:theme.palette.text.primary , borderColor:theme.palette.text.primary}}
           >
             Cancel
           </Button>

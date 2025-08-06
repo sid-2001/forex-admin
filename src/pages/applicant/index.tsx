@@ -308,7 +308,6 @@ useEffect(() => {
             
             sx={{
               backgroundColor: 'primary.main',
-            
               p: '0.5%',
               color: 'white',
               paddingBlock: 1,
@@ -322,7 +321,7 @@ useEffect(() => {
             mb={1}
             onClick={() => {
             if (kycId) {
-                navigate(`/kyc/${kycId}`) // ✅ This goes to /kyc/KYC12345
+                navigate(`/kyc/${kycId}`)
                        }
             }}
             sx={{
@@ -515,7 +514,7 @@ useEffect(() => {
 
         {/* Action Buttons */}
         <Grid container spacing={2} mt={1}>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={3} mt={3}>
             <Button variant="outlined" onClick={handleBack} fullWidth>
               Back to Applicant List
             </Button>

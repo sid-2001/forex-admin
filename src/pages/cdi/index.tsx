@@ -153,7 +153,7 @@ const CdiScreen = () => {
   return (
     <Box sx={{ width: '80vw', height: '70vh', p: 2 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h4" color={theme.palette.text.primary}>
+        <Typography variant="h4" >
           <strong>CDI Transactions</strong>
         </Typography>
       </Box>

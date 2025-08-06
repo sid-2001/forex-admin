@@ -56,16 +56,12 @@ const DocumentsListComponent = ({ documentRecords }: { documentRecords: any }) =
         columns={docColumns}
         getRowId={(row) => row.id || row.documentName + Math.random()}
         sx={{
-          backgroundColor: 'white',
           '& .MuiDataGrid-columnHeaders': {
             '& .super-app-theme--header': {
               backgroundColor: '#005099',
               color: 'white',
               fontWeight: 'bold',
             },
-          },
-          '& .MuiDataGrid-row:nth-of-type(even)': {
-            backgroundColor: '#f9f9f9',
           },
         }}
       />
