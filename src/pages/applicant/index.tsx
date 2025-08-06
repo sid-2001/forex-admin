@@ -308,7 +308,6 @@ useEffect(() => {
             
             sx={{
               backgroundColor: 'primary.main',
-            
               p: '0.5%',
               color: 'white',
               paddingBlock: 1,
@@ -322,7 +321,7 @@ useEffect(() => {
             mb={1}
             onClick={() => {
             if (kycId) {
-                navigate(`/kyc/${kycId}`) // ✅ This goes to /kyc/KYC12345
+                navigate(`/kyc/${kycId}`)
                        }
             }}
             sx={{

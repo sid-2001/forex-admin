@@ -21,12 +21,6 @@ const ReferralDataGrid = ({ rows, columns, width }) => {
         '& .MuiDataGrid-cell': {
           fontSize: '14px',
         },
-        '& .MuiDataGrid-row:nth-of-type(even)': {
-          backgroundColor: '#f0f8ff',
-        },
-        '& .MuiDataGrid-row:nth-of-type(odd)': {
-          backgroundColor: '#ffffff',
-        },
         '& .super-app-theme--header': {
           fontSize: '16px',
         },
@@ -143,7 +137,8 @@ const ReferralTransactions = ({
   return (
     <Box>
       {referralRecords && referralRecords.length > 0 ? (
-        <ReferralDataGrid rows={referralRecords} columns={referralType === 'Credited' ? ReferralCreditedColumns : ReferralColumns} width={'70vw'} />
+        <ReferralDataGrid rows={referralRecords} columns={referralType === 'Credited' ? ReferralCreditedColumns : ReferralColumns} width={'70vw'} 
+        />
       ) : (
         <p>No Referral Found</p>
       )}
@@ -151,7 +146,7 @@ const ReferralTransactions = ({
       <Dialog open={showTransactionModal} onClose={handleModalClose} fullWidth maxWidth="md">
         <DialogTitle>All Transactions</DialogTitle>
         <DialogContent>
-          <div style={{ height: 400, width: '800', marginTop: 16 }}>
+          <div style={{ height: 400, width: '800', marginTop: 16 ,  }}>
             <ReferralDataGrid rows={transactionList} width={'600'} columns={ReferralColumns} />
           </div>
         </DialogContent>
