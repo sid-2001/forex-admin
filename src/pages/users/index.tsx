@@ -99,7 +99,7 @@ const UserTable: React.FC = () => {
       <Box sx={{ width: '80vw', height: '70vh' }}>
         <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'}>
           <Box>
-            <Typography variant="h4" gutterBottom color ={theme.palette.text.primary} >
+            <Typography variant="h4" gutterBottom >
               <strong>All Users</strong>
             </Typography>
           </Box>

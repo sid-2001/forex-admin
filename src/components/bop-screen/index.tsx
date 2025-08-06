@@ -317,7 +317,6 @@ const BopScreen: React.FC = () => {
               variant="h5"
               gutterBottom
               // @ts-ignore
-              color={theme.palette.text.primary}
             >
               STP Errors
             </Typography>
@@ -336,7 +335,6 @@ const BopScreen: React.FC = () => {
             variant="h5"
             gutterBottom
             //@ts-ignore
-            color={theme.palette.text.primary}
           >
             Reporting Details
           </Typography>
@@ -390,7 +388,6 @@ const BopScreen: React.FC = () => {
               variant="h5"
               gutterBottom
               // @ts-ignore
-              color={theme.palette.text.primary}
             >
               {userLoggedInCountry === 'IN' ? 'Purpose Code Details' : 'Bop Category Details'}
             </Typography>
@@ -546,8 +543,7 @@ const BopScreen: React.FC = () => {
               variant="h5"
               gutterBottom
               //@ts-ignore
-              color={theme.palette.text.primary}
-            >
+>
               Resident Details
             </Typography>
 
@@ -724,7 +720,6 @@ const BopScreen: React.FC = () => {
                 variant="h6"
                 gutterBottom
                 //@ts-ignore
-                color={theme.palette.text.primary}
               >
                 Physical Address
               </Typography>
@@ -845,10 +840,6 @@ const BopScreen: React.FC = () => {
               <Typography
                 variant="h6"
                 gutterBottom
-                color={
-                  //@ts-ignore
-                  theme.palette.text.primary
-                }
               >
                 Postal Address
               </Typography>
@@ -971,7 +962,6 @@ const BopScreen: React.FC = () => {
               variant="h5"
               gutterBottom
               //@ts-ignore
-              color={theme.palette.text.primary}
             >
               Non Resident Details
             </Typography>

@@ -252,7 +252,7 @@ const KYCPage = () => {
   return (
     <Box padding={3}>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.KYC}>
-        <Typography variant="h4" gutterBottom color={theme.palette.text.primary}>
+        <Typography variant="h4" gutterBottom >
           <strong>Know Your Customer</strong>
         </Typography>
 

@@ -386,7 +386,7 @@ const StaticDataGrid = ({
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
         <b>
           {' '}
-          <h2 style={{color: theme.palette.text.primary,}}>{title}</h2>
+          <h2>{title}</h2>
         </b>
         <Button
           variant="contained"

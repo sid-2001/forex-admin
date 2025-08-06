@@ -41,7 +41,7 @@ const ApplicantDataGrid: React.FC<Props> = ({ data }) => {
 
       renderCell: (params: GridRenderCellParams) => ( 
         <span style={{ 
-          color:theme.palette.text.primary, cursor: 'pointer', textDecoration:"underline" }} onClick={() => navigate(`/applicant-details/${params.value}`)}>
+           cursor: 'pointer', textDecoration:"underline" }} onClick={() => navigate(`/applicant-details/${params.value}`)}>
           {params.value}
         </span>
       ),
@@ -80,9 +80,9 @@ const ApplicantDataGrid: React.FC<Props> = ({ data }) => {
           backgroundColor: '#005099',
           color: 'white',
         },
-        '& .MuiDataGrid-row:nth-of-type(even)': {
-          backgroundColor: '#e3f2fd', // Light blue for alternate rows
-        },
+        // '& .MuiDataGrid-row:nth-of-type(even)': {
+        //   backgroundColor: '#e3f2fd', // Light blue for alternate rows
+        // },
       }}
     >
       <DataGrid

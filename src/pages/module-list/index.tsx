@@ -207,9 +207,7 @@ const ModuleTable: React.FC = () => {
       <Box sx={{ width: '80vw', height: '70vh' }}>
         <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'}>
           <Box>
-            <Typography variant="h4" gutterBottom 
-           // @ts-ignore
-            sx= {{ color: theme.palette.text.primary}}>
+            <Typography variant="h4" gutterBottom >
               <strong>Modules</strong>
             </Typography>
           </Box>

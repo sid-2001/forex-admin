@@ -489,7 +489,7 @@ const TransactionListing = () => {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Typography variant="h4" gutterBottom color={theme.palette.text.primary}>
+      <Typography variant="h4" gutterBottom >
         <strong>Transactions</strong>
       </Typography>
 
