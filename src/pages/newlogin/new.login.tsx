@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Grid, TextField, Button, Box, Typography, InputAdornment, IconButton, useTheme, Snackbar } from '@mui/material'
+import { Grid, TextField, Button, Box, Typography, InputAdornment, IconButton, Snackbar } from '@mui/material'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import { AuthService } from '@/services/auth.service'
@@ -33,7 +33,6 @@ const LoginPage = () => {
   const static_service = new staticdataService()
   const transaction_service = new TransactionService()
   const navigate = useNavigate()
-  const theme = useTheme()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let input = e.target.value
@@ -158,11 +157,11 @@ const LoginPage = () => {
       }}
     >
       <LoaderUI.LoaderBackdrop openloader={commonloader} />
-      <Snackbar open={open} autoHideDuration={4000} onClose={handleClose} message={text}  />
+      <Snackbar open={open} autoHideDuration={4000} onClose={handleClose} message={text} />
       <Box
         sx={{
           height: '100%',
-          backgroundColor: theme.palette.primary.main,
+          backgroundColor: '#0361B1',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -207,7 +206,7 @@ const LoginPage = () => {
             }}
           >
             <Box sx={{ width: '100%' }}>
-              <Typography variant="h6" textAlign="center" fontFamily="Inter">
+              <Typography variant="h6" textAlign="center" fontFamily="Inter" color="#0A1C2C">
                 User Name
               </Typography>
               <TextField
@@ -220,9 +219,15 @@ const LoginPage = () => {
                 inputProps={{ maxLength: 20 }}
                 error={!!error}
                 helperText={error}
+                sx={{
+                  input: { color: 'black' },
+                  '& .MuiInput-underline:before': {
+                    borderBottomColor: '#0A1C2C', // default underline
+                  },
+                }}
               />
 
-              <Typography variant="h6" textAlign="center" fontFamily="Inter">
+              <Typography variant="h6" textAlign="center" fontFamily="Inter" color="#0A1C2C">
                 Password
               </Typography>
               <TextField
@@ -233,6 +238,12 @@ const LoginPage = () => {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                sx={{
+                  input: { color: 'black' },
+                  '& .MuiInput-underline:before': {
+                    borderBottomColor: '#0A1C2C', // default underline
+                  },
+                }}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
