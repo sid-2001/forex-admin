@@ -27,9 +27,9 @@ import staticdataService from '@/services/staticdata.service';
 
 
 
-const TransactionModal = ({ open, onClose }:{
-open:String,
-onClose:any
+const TransactionModal = ({ open, onClose }: {
+  open: String,
+  onClose: any
 
 }) => {
   const [year, setYear] = useState(2025);
@@ -39,7 +39,7 @@ onClose:any
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'chart'
-  let static_service=new staticdataService()
+  let static_service = new staticdataService()
   // Fetch monthly data when year changes
   useEffect(() => {
     if (open) {
@@ -54,29 +54,29 @@ onClose:any
 
 
     try {
-  static_service.getTransactionYearlyData("ZA",year).then(data=>{
-  console.log(data)
-    setMonthlyData(data?.data);
-})
-  
-    } catch (err:any) {
+      static_service.getTransactionYearlyData("ZA", year).then(data => {
+        console.log(data)
+        setMonthlyData(data?.data);
+      })
+
+    } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchDailyData = async (month:string) => {
+  const fetchDailyData = async (month: string) => {
     setLoading(true);
     setError(null);
     try {
-        static_service.getTransactionMonthlyData("ZA",month.toUpperCase(),year).then(data=>{
+      static_service.getTransactionMonthlyData("ZA", month.toUpperCase(), year).then(data => {
 
-              setDailyData(data.data);
+        setDailyData(data.data);
         setSelectedMonth(month as any);
-        })
-    
-    } catch (err:any) {
+      })
+
+    } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
@@ -89,38 +89,38 @@ onClose:any
     setViewMode('table');
   };
 
-  const formatCurrency = (amount:any) => {
+  const formatCurrency = (amount: any) => {
     return new Intl.NumberFormat('en-ZA', {
       style: 'currency',
       currency: 'ZAR'
     }).format(amount);
   };
 
-  const formatDate = (dateString:any) => {
+  const formatDate = (dateString: any) => {
     const options = { day: 'numeric', month: 'short', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-ZA', options as any);
   };
 
   // Prepare chart data
-  const monthlyChartData = monthlyData.map((month :any) => ({
+  const monthlyChartData = monthlyData.map((month: any) => ({
     name: month.dayOrMonth.slice(0, 3),
     transactions: month.totalCount,
     amount: month.totalAmount
   }));
 
-  const dailyChartData = dailyData.map((day:any) => ({
+  const dailyChartData = dailyData.map((day: any) => ({
     name: new Date(day.date).getDate().toString(),
     transactions: day.transactionCount,
     amount: day.totalAmount
   }));
 
   return (
-    <Modal 
-    //@ts-ignore
-    open={open} onClose={()=>{
+    <Modal
+      //@ts-ignore
+      open={open} onClose={() => {
 
-        
-    }}>
+
+      }}>
       <Box sx={{
         position: 'absolute',
         top: '50%',
@@ -157,7 +157,7 @@ onClose:any
         ) : (
           <>
             {selectedMonth && (
-              <Button 
+              <Button
                 startIcon={<ArrowBack />}
                 onClick={handleBackToMonths}
                 sx={{ mb: 2 }}
@@ -166,8 +166,8 @@ onClose:any
               </Button>
             )}
 
-            <Tabs 
-              value={viewMode} 
+            <Tabs
+              value={viewMode}
               onChange={
                 //@ts-ignore
                 (e, newValue) => setViewMode(newValue)}
@@ -189,7 +189,7 @@ onClose:any
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {dailyData.map((day:any) => (
+                      {dailyData.map((day: any) => (
                         <TableRow key={day.date}>
                           <TableCell>{formatDate(day.date)}</TableCell>
                           <TableCell align="right">{day.transactionCount}</TableCell>
@@ -224,12 +224,12 @@ onClose:any
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {monthlyData.map((month:any) => (
-                          <TableRow 
+                        {monthlyData.map((month: any) => (
+                          <TableRow
                             key={month.dayOrMonth}
                             hover
                             onClick={() => fetchDailyData(month.dayOrMonth)}
-                            sx={{ 
+                            sx={{
                               cursor: 'pointer',
                               '&:hover': { backgroundColor: 'action.hover' }
                             }}
@@ -252,34 +252,37 @@ onClose:any
                     margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="name" 
-                      angle={-45} 
+                    <XAxis
+                      dataKey="name"
+                      angle={-45}
                       textAnchor="end"
                       height={70}
                       tick={{ fontSize: 12 }}
                     />
                     <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
                     <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
+                  
                     <Tooltip 
                       formatter={(value, name) => [
-                        name === 'transactions' ? value : formatCurrency(value),
-                        name === 'transactions' ? 'Transaction Count' : 'Total Amount'
+                        name === 'Total Transactions' ? value : formatCurrency(value),
+                        name 
                       ]}
                     />
+
+
                     <Legend />
-                    <Bar 
-                      yAxisId="left" 
-                      dataKey="transactions" 
-                      name="Transaction Count" 
-                      fill="#8884d8" 
+                    <Bar
+                      yAxisId="left"
+                      dataKey="transactions"
+                      name="Total Transactions"
+                      fill="#8884d8"
                       radius={[4, 4, 0, 0]}
                     />
-                    <Bar 
-                      yAxisId="right" 
-                      dataKey="amount" 
-                      name="Total Amount" 
-                      fill="#82ca9d" 
+                    <Bar
+                      yAxisId="right"
+                      dataKey="amount"
+                      name="Total Amount"
+                      fill="#82ca9d"
                       radius={[4, 4, 0, 0]}
                     />
                   </BarChart>

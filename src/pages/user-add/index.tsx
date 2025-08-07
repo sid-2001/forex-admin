@@ -507,25 +507,7 @@ const UserAdd = () => {
                 InputProps={{ readOnly: !isEditable }}
               />
             </Grid>           
-
-            <Grid item xs={12} sm={2}>
-              <label style={inputLabelStyle}>Postal Code</label>
-              <TextField
-                fullWidth
-                name="staffPostalCode"
-                value={staffData?.staffPostalCode || ''}
-                onChange={(e) => {
-                 // const value = e.target.value;
-                 // const country = staffData?.staffCountry;
-                  // Get maxLength from map or default to 10
-                 // const maxLength = postalCodeMaxLengthMap[country] || 0;
-                  if (new RegExp(`^\\d{0,${postalCodeMaxLengthMap[staffData?.staffCountry]}}$`).test(e.target.value)) handleChange(e);
-                }}
-                InputProps={{ readOnly: !isEditable }}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={2}>
+<Grid item xs={12} sm={2}>
               <label style={inputLabelStyle}>Country</label>
               <TextField
                 select
@@ -548,6 +530,24 @@ const UserAdd = () => {
               </TextField>
 
             </Grid>
+            <Grid item xs={12} sm={2}>
+              <label style={inputLabelStyle}>Postal Code</label>
+              <TextField
+                fullWidth
+                name="staffPostalCode"
+                value={staffData?.staffPostalCode || ''}
+                onChange={(e) => {
+                 // const value = e.target.value;
+                 // const country = staffData?.staffCountry;
+                  // Get maxLength from map or default to 10
+                 // const maxLength = postalCodeMaxLengthMap[country] || 0;
+                  if (new RegExp(`^\\d{0,${postalCodeMaxLengthMap[staffData?.staffCountry]}}$`).test(e.target.value)) handleChange(e);
+                }}
+                InputProps={{ readOnly: !isEditable }}
+              />
+            </Grid>
+
+            
           </Grid>
         </Box>
 

@@ -45,27 +45,45 @@ const StaticDataGrid = ({
     if (data && data.length > 0) {
       setRows(data)
       generateColumnsAndFormModel(data[0])
-    } else {
-    }
+    } 
   }, [data])
 
-  useEffect(() => {
-    console.log(apiEndpoint)
-    static_service
-      //@ts-ignore
-      .staticData(staticTable.api, {
-        action: 'READ_ALL',
-      })
-      .then((data) => {
-        console.log(data)
-        if (data?.data.length > 0) {
-          console.log(data?.data[0])
+  // useEffect(() => {
+  //   console.log(apiEndpoint)
+  //   static_service
+  //     //@ts-ignore
+  //     .staticData(staticTable.api, {
+  //       action: 'READ_ALL',
+  //     })
+  //     .then((data) => {
+  //       console.log(data)
+  //       if (data?.data.length > 0) {
+  //         console.log(data?.data[0])
 
-          setRows(data?.data)
-          generateColumnsAndFormModel(data?.data[0])
-        }
-      })
-  }, [])
+  //         setRows(data?.data)
+  //         generateColumnsAndFormModel(data?.data[0])
+  //       }
+  //     })
+  // }, [])
+  useEffect(() => {
+  if (!apiEndpoint) return
+
+  setRows([]) // clear previous data while loading new
+  static_service
+    .staticData(apiEndpoint, {
+      action: 'READ_ALL',
+    })
+    .then((data) => {
+      if (data?.data.length > 0) {
+        setRows(data.data)
+        generateColumnsAndFormModel(data.data[0])
+      }
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+}, [apiEndpoint]) // 🚨 KEY CHANGE HERE
+
 
   // Generate columns and form model based on first data item
   const generateColumnsAndFormModel = (sampleData: any) => {
@@ -162,7 +180,6 @@ const StaticDataGrid = ({
 
   const handleFormChange = (e: any) => {
     const { name, value } = e.target
-    console.log(e.target)
     setFormData((prev: any) => ({
       ...prev,
       [name]: value,
@@ -236,30 +253,18 @@ const StaticDataGrid = ({
       payload[updateprimaryKeyName] = payload?.data[primaryKey]
     }
     const response = await static_service.staticData(apiEndpoint, payload)
-
-    console.log('response', response)
     if (!response.status) {
-      console.log(response)
       setType('error')
-
       setText(`Error in Operating Data`)
       setOpen(true)
-
       throw new Error('Network response was not ok')
     }
-
     return response.data
   }
 
   const renderFormFields = () => {
-    console.log(columns)
     return columns.map((column: any) => {
-      console.log(column.type)
-
       if (column.field === 'actions') return null
-
-      console.log(formData[column.field])
-
       const fieldValue = formData[column.field] ?? ''
 
       const commonProps = {

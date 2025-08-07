@@ -1,7 +1,7 @@
 import { ThemeProvider } from '@mui/material/styles'
-import { Box, Typography, Avatar, List, ListItem, ListItemText, IconButton, Modal, AppBar, ListItemIcon, Toolbar, Tooltip, Fade } from '@mui/material'
+import { Box, Typography, Avatar, List, ListItem, IconButton, AppBar, ListItemIcon, Toolbar, Tooltip } from '@mui/material'
 import { styled } from '@mui/system'
-import { Logo, LogoWhite } from '@/assets/images'
+import { LogoWhite } from '@/assets/images'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
 import Person2Icon from '@mui/icons-material/Person2'
@@ -11,23 +11,16 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { Brightness4, Brightness7 } from '@mui/icons-material'
 import {
   alertState,
-  alertTextState,
-  alertTypeState,
   loaderState,
-  role,
-  sidbarSelectionState,
   selectedAppState,
   loaderStateNew,
   selectedCountryState,
   availableBalanceState,
-  staticTableState,
 } from '@/states/state'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Backdrop from '@mui/material/Backdrop'
 import LogoutIcon from '@mui/icons-material/Logout'
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline'
-import { useEffect } from 'react'
-
 import Stack from '@mui/material/Stack'
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows'
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
@@ -41,37 +34,6 @@ import ShowChartIcon from '@mui/icons-material/ShowChart'
 import ViewModuleIcon from '@mui/icons-material/ViewModule'
 import { TransactionService } from '@/services/transaction.service'
 import ConfirmationModal from '../logout/logout.component'
-import static_list from '@/contants/static.data'
-
-const RotatingImage = (
-  //@ts-ignore
-  { src, alt },
-) => (
-  //@ts-ignore
-  <Box
-    //@ts-ignore
-    // component="img"
-    autoPlay
-    component="img"
-    src={Logo}
-    alt="Impronics"
-    loop
-    sx={{
-      width: '130px', // Adjust size as needed
-      height: '100px', // Adjust size as needed
-      backgroundColor: 'transparent',
-      animation: 'spin 2s linear infinite',
-      '@keyframes spin': {
-        '0%': {
-          transform: 'rotate(0deg)',
-        },
-        '100%': {
-          transform: 'rotate(360deg)',
-        },
-      },
-    }}
-  />
-)
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
@@ -88,11 +50,10 @@ const LoaderBackdrop = ({
 }) => (
   <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={openloader}>
     <CircularProgress color="inherit" />
-    {/* <RotatingImage src={imageSrc} alt="Loading" /> */}
   </Backdrop>
 )
 
-let local_service: any = new LocalStorageService()
+const local_service: any = new LocalStorageService()
 
 const DashboardContainer = styled(Box)({
   display: 'flex',
@@ -113,58 +74,23 @@ const Header = styled(Box)({
 })
 
 const DashboardLayout = () => {
-  let navigate = useNavigate()
   const [mode, setMode] = useRecoilState(themeModeState)
   const [open, setOpen] = useRecoilState(alertState);
-  const [text, setText] = useRecoilState(alertTextState);
-  const [type, settype] = useRecoilState(alertTypeState)
-  const theme = useTheme()
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selecteCountryState, setselectedCountryState] = useRecoilState(selectedCountryState)
-  const opendropdown = Boolean(anchorEl)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
-  //@ts-ignore
-  const [selectedrole, setselectedrole] = useRecoilState(role)
-  const [selectedTab, setSelectedTab] = useRecoilState(sidbarSelectionState)
   const [balance, setBalance] = useRecoilState(availableBalanceState)
-  const [droppopopen, setdropopoOpen] = useState(false)
   const [openloader, setopenloader] = useRecoilState(loaderStateNew)
+  const [loader, setLoader] = useRecoilState(loaderState)
+
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDrawerOpen, setDrawerOpen] = useState(false)
-  //@ts-ignore
-  const [staticTable, setStaticTable] = useRecoilState<{
-    name: string
-    'primary-key': string
-    api: string
-    listname: string
-    updatePrimaryKey: String
-    //@ts-ignore
-  }>(staticTableState)
+
+  const trx_service = new TransactionService()
+  const navigate = useNavigate()
+  const theme = useTheme()
 
   const handleModalClose = () => {
     setIsModalOpen(!isModalOpen)
-  }
-
-  const handleStaticClose = () => {
-    setAnchorEl(null)
-  }
-
-  const openStaticDataPop = Boolean(anchorEl)
-
-  //@ts-ignore
-  const handleTableClick = (table: (typeof tableList)[0]) => {
-    setStaticTable(table)
-
-    navigate('/static')
-    // Add navigation or API calls here
-    setTimeout(() => {
-      window.location.reload()
-    }, 500)
-    handleClose()
   }
 
   const menuItems = [
@@ -320,7 +246,7 @@ const DashboardLayout = () => {
     {
       icon: (
         <>
-          <IconButton onClick={handleClick}>
+          <IconButton>
             <WaterfallChartIcon
               sx={{
                 fontSize: '2vh',
@@ -329,72 +255,11 @@ const DashboardLayout = () => {
               }}
             />
           </IconButton>
-
-          <Modal
-            open={openStaticDataPop}
-            onClose={handleStaticClose}
-            closeAfterTransition
-            slotProps={{
-              backdrop: {
-                sx: {
-                  backdropFilter: 'blur(5px)',
-                  backgroundColor: 'rgba(0, 0, 0, 0.4)',
-                },
-              },
-            }}
-          >
-            <Box
-              sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: 300,
-                maxHeight: 400,
-                bgcolor: 'background.paper',
-                borderRadius: 2,
-                boxShadow: 24,
-                p: 2,
-                overflowY: 'auto',
-              }}
-            >
-              <Typography textAlign="center" variant="h6" sx={{ mb: 1 }}>
-                <b>Select Table</b>
-              </Typography>
-              <List>
-                {static_list.map((table, index) => (
-                  <ListItem
-                    button
-                    key={index}
-                    onClick={() => {
-                      handleTableClick(table)
-                      handleStaticClose()
-                    }}
-                  >
-                    <ListItemText
-                      sx={{
-                        alignContent: 'center',
-                        textAlign: 'center',
-                      }}
-                      primary={table.listname}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
-          </Modal>
         </>
       ),
       label: 'Static',
     },
   ]
-
-  const handleClose = () => {
-    setdropopoOpen(false)
-    setdropopoOpen(false)
-  }
-  let [loader, setLoader] = useRecoilState(loaderState)
-  let trx_service = new TransactionService()
 
   useEffect(() => {
     trx_service.getBalanceEnquiry().then((data) => {
@@ -411,14 +276,6 @@ const DashboardLayout = () => {
       setOpen(false)
     }, 2000)
   }, [open])
-
-  const handleSidebarClick = (text: any) => {
-    if (text.toLowerCase() !== 'static') {
-      setAnchorEl(null)  // <-- this closes the modal
-    }
-    setSelectedApp(text)
-  }
-
 
   const handleLogout = () => {
     navigate('/login')
@@ -443,15 +300,6 @@ const DashboardLayout = () => {
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, color: 'white' }}>
-              <Box sx={{ textAlign: 'right' }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                  Available Balance :
-                </Typography>
-                <Typography variant="body1">
-                  ₹{balance}
-                </Typography>
-              </Box>
-
               <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
                 <IconButton
                   onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
@@ -461,9 +309,16 @@ const DashboardLayout = () => {
                   {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
                 </IconButton>
               </Tooltip>
+              <Box sx={{ textAlign: 'right' }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                  Available Balance :
+                </Typography>
+                <Typography variant="body1">
+                  ₹{balance}
+                </Typography>
+              </Box>
             </Box>
           </Box>
-
 
           <Box
             sx={{
@@ -475,7 +330,6 @@ const DashboardLayout = () => {
               border: '1px solid #D1DDFC',
               padding: '7px',
               paddingRight: '10px',
-              // boxShadow: "5px 5px 5px #888888",
               marginBottom: '6px',
             }}
           >
@@ -513,7 +367,6 @@ const DashboardLayout = () => {
               </>
             ) : (
               <>
-
                 <Box ml={1}>
                   <Typography
                     variant="subtitle1"
@@ -606,11 +459,8 @@ const DashboardLayout = () => {
                     backgroundColor: "transparent"
                   }}
                   onClick={() => {
-                    handleSidebarClick(item.label)
-
-                    if (item.label.toLocaleLowerCase() != 'static') {
+                    setSelectedApp(item.label)
                       navigate(item.label.toLocaleLowerCase())
-                    }
                   }}
                 >
                   <Stack sx={{ backgroundColor: "inherit", padding: "1%" }}>
@@ -647,7 +497,6 @@ const DashboardLayout = () => {
                 sx={{
                   textAlign: 'center',
                   alignItems: 'center',
-                  // Push this item to the end
                 }}
                 onClick={() => {
                   setIsModalOpen(true)
@@ -725,7 +574,6 @@ const DashboardLayout = () => {
               <Header>
                 <Typography variant="h5"></Typography>
               </Header>
-
               <Outlet />
             </MainContent>
 
