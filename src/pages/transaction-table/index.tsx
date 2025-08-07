@@ -167,7 +167,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
             '& .MuiDrawer-paper': {
               width: '60%',
               padding: 2,
-              backgroundColor: 'white',
             },
           }}
         >

@@ -34,7 +34,7 @@ import { ApplicantService } from '@/services/applicant.service'
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
 import { statusColors } from '@/contants/utils'
 import LoaderUI from '@/components/loader/loader'
-
+import DonutLargeIcon from '@mui/icons-material/DonutLarge';
 const TransactionListing = () => {
   const columns_outward = [
     {
@@ -503,46 +503,54 @@ const TransactionListing = () => {
         </Box>
 
         <Box>
-          <IconButton onClick={() => setToolOpen(true)} color="primary">
-            <SettingsAccessibilityRounded />
-          </IconButton>
+          <Tooltip title="Limit" arrow>
+            <IconButton onClick={() => setToolOpen(true)} color="primary">
+              <DonutLargeIcon />
+            </IconButton>
+          </Tooltip>
 
-          <IconButton
-            onClick={() => {
-              handleNavigation('/recon-trx')
-            }}
-            color="primary"
-          >
-            <CurrencyExchangeIcon />
-          </IconButton>
-
-          <IconButton
-            onClick={() => {
-              handleNavigation('/utilization')
-            }}
-            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
-            color="primary"
-          >
-            <AssessmentIcon
-              sx={{
-                marginBottom: '10%',
+          <Tooltip title="Reconciliation" arrow>
+            <IconButton
+              onClick={() => {
+                handleNavigation('/recon-trx')
               }}
-            />
-          </IconButton>
+              color="primary"
+            >
+              <CurrencyExchangeIcon />
+            </IconButton>
+          </Tooltip>
 
-          <IconButton
-            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
-            onClick={() => {
-              handleNavigation('/recon')
-            }}
-            color="primary"
-          >
-            <Sync
-              sx={{
-                marginBottom: '10%',
+          <Tooltip title="Limit utilization enquiry" arrow>
+            <IconButton
+              onClick={() => {
+                handleNavigation('/utilization')
               }}
-            />
-          </IconButton>
+              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
+              color="primary"
+            >
+              <AssessmentIcon
+                sx={{
+                  marginBottom: '10%',
+                }}
+              />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Recon" arrow>
+            <IconButton
+              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
+              onClick={() => {
+                handleNavigation('/recon')
+              }}
+              color="primary"
+            >
+              <Sync
+                sx={{
+                  marginBottom: '10%',
+                }}
+              />
+            </IconButton>
+          </Tooltip>
 
           <Button
             variant="outlined"
