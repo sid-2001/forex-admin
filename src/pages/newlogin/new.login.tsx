@@ -7,12 +7,10 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { Logo } from '@/assets/images' // Assuming the logo is properly imported
 import { useRecoilState } from 'recoil'
 import { countyState, loaderState, selectedAppState, selectedCountryState, userCurrencyState } from '@/states/state'
-import CloseIcon from '@mui/icons-material/Close'
 import { UserService } from '@/services/user.service'
 import staticdataService from '@/services/staticdata.service'
 import LoaderUI from '@/components/loader/loader'
 import { TransactionService } from '@/services/transaction.service'
-import { theme } from '@/contants/theme'
 
 const LoginPage = () => {
   const [email, setEmail] = useState('')
@@ -157,17 +155,16 @@ const LoginPage = () => {
       }}
     >
       <LoaderUI.LoaderBackdrop openloader={commonloader} />
-      <Snackbar  
-    
+      <Snackbar
         anchorOrigin={{
-   
-    vertical: 'top',
-    horizontal: 'right',
-  }}
-   
-      open={open} autoHideDuration={4000} onClose={handleClose} message={text} 
-      //@ts-ignore
-      action={action} />
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        open={open}
+        autoHideDuration={4000}
+        onClose={handleClose}
+        message={text}
+      />
       <Box
         sx={{
           height: '100%',
@@ -257,7 +254,9 @@ const LoginPage = () => {
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton onClick={handleTogglePasswordVisibility} sx={{ color: 'grey' }}>{showPassword ? <Visibility /> : <VisibilityOff />}</IconButton>
+                      <IconButton onClick={handleTogglePasswordVisibility} sx={{ color: 'grey' }}>
+                        {showPassword ? <Visibility /> : <VisibilityOff />}
+                      </IconButton>
                     </InputAdornment>
                   ),
                 }}
@@ -266,8 +265,6 @@ const LoginPage = () => {
               <Button
                 disabled={email.length > 0 && password.length > 0 ? false : true}
                 variant="contained"
-
-                // color="red"
                 fullWidth
                 sx={{
                   mt: 3,
