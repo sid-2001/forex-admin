@@ -117,7 +117,7 @@ class ApplicantService extends BaseService {
   getApplicantDetailsById(applicantId: string) {
     return api1
       .get(`/api/applicant/applicant-all-details/applicantId/${applicantId}`)
-      .then((res) => res.data?.data)
+      .then((res) => res.data)
       .catch((err) => {
         console.error('Error fetching applicant details:', err)
         return null

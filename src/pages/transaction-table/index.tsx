@@ -63,11 +63,22 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'transactionNumber',
-      headerName: 'Transaction No.',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
+    field: 'transactionNumber',
+    headerName: 'Transaction No.',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+    renderCell: (params: any) => (
+      <span
+        style={{
+          cursor: 'pointer',
+          textDecoration: 'underline',
+        }}
+        onClick={() => handleViewMore(params.row)}
+      >
+        {params.value}
+      </span>
+    ),
+  },
     {
       field: 'sendCountry',
       headerName: 'Send Country',
@@ -79,22 +90,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
       headerName: 'Receive Country',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-    },
-
-    {
-      field: 'action',
-      headerName: 'Action',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => (
-        <>
-          <IconButton onClick={() => {
-            handleViewMore(params.row)
-          }}>
-            <VisibilityIcon />
-          </IconButton>
-        </>
-      ),
     },
     {
       field: 'beneficiaryName',
@@ -126,38 +121,50 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
             const url = applicantId ? `/sendmoney?applicantId=${applicantId}` : '/sendmoney'
             navigate(url)
           }}
-          sx={{
-            marginBottom: "3%"
-          }}
-        >Add Transaction + </Button>
-        {transaction.length > 0 ?
+          sx={{ marginBottom: "3%" }}
+        >
+          Add Transaction +
+        </Button>
 
-          (<DataGrid
+        {transaction.length > 0 ? (
+          <Box
             sx={{
-              width: '100%',
-              '& .MuiDataGrid-columnHeaders': {
-                '& .super-app-theme--header': {
-                  backgroundColor: '#005099',
-                  color: 'white',
-                },
-              },
-              '& .MuiDataGrid-columnHeaderTitle': {
-                fontWeight: 'bold',
-              },
-              '& .MuiDataGrid-cell': {
-                fontSize: '14px',
-              },
-              '& .super-app-theme--header': {
-                fontSize: '16px',
-              },
+              width: '120%',
+              height: 400,
+              overflow: 'auto',
+              border: '1px solid #ccc',
+              borderRadius: '6px',
             }}
-            columns={columns}
-            rows={transaction}
-            //@ts-ignore
-            pageSize={5}
-            rowsPerPageOptions={[5]}
-            getRowId={(row: any) => row.id} // Ensure proper row ID handling
-          />) : (<p>No Transactions Found</p>)}
+          >
+            <DataGrid
+              sx={{
+                '& .MuiDataGrid-columnHeaders': {
+                  '& .super-app-theme--header': {
+                    backgroundColor: '#005099',
+                    color: 'white',
+                  },
+                },
+                '& .MuiDataGrid-columnHeaderTitle': {
+                  fontWeight: 'bold',
+                },
+                '& .MuiDataGrid-cell': {
+                  fontSize: '14px',
+                },
+                '& .super-app-theme--header': {
+                  fontSize: '16px',
+                },
+              }}
+              columns={columns}
+              rows={transaction}
+              //@ts-ignore
+              pageSize={5}
+              rowsPerPageOptions={[5]}
+              getRowId={(row: any) => row.id}
+            />
+          </Box>
+        ) : (
+          <p>No Transactions Found</p>
+        )}
 
         <Drawer
           anchor="right"
