@@ -12,7 +12,7 @@ export default class staticdataService extends BaseService {
     message: 'Created successfully'
   }> {
     try {
-      let { data } = await api1.post(url, payload)
+      const { data } = await api1.post(url, payload)
       return data as any
     } catch (err) {
       return err as any
@@ -20,9 +20,9 @@ export default class staticdataService extends BaseService {
   }
 
   async getCountryList(): Promise<Array<CountryData>> {
-    let url = '/api/static-table/forex/getAllCountry'
+    const url = '/api/static-table/forex/getAllCountry'
     try {
-      let data = await api1.get(url)
+      const data = await api1.get(url)
       return data as Array<CountryData>
     } catch (err) {
       return err as any
@@ -30,9 +30,9 @@ export default class staticdataService extends BaseService {
   }
 
   async getCountryCurrency(country: any): Promise<String> {
-    let url = `/api/static-table/forex/country-currency/countryCode/${country}`
+    const url = `/api/static-table/forex/country-currency/countryCode/${country}`
     try {
-      let data = await api1.get(url)
+      const data = await api1.get(url)
       return data as String
     } catch (err) {
       return err as any
@@ -40,9 +40,9 @@ export default class staticdataService extends BaseService {
   }
 
   async paymentGatewayStatus(id: any, status: boolean): Promise<Array<any>> {
-    let url = `/api/static-table/forex-gateway/disablePaymentGateway/id/${id}/status/${status}`
+    const url = `/api/static-table/forex-gateway/disablePaymentGateway/id/${id}/status/${status}`
     try {
-      let { data } = await api1.put(url, {})
+      const { data } = await api1.put(url, {})
       return data as Array<any>
     } catch (err) {
       return err as any
@@ -50,9 +50,9 @@ export default class staticdataService extends BaseService {
   }
 
   async getStaticPaymentGateway(country: any): Promise<Array<PaymentGateway>> {
-    let url = `/api/static-table/forex-gateway/by-country?countryCode=${country}`
+    const url = `/api/static-table/forex-gateway/by-country?countryCode=${country}`
     try {
-      let data = await api1.get(url)
+      const data = await api1.get(url)
       return data as Array<PaymentGateway>
     } catch (err) {
       return err as any
@@ -60,21 +60,19 @@ export default class staticdataService extends BaseService {
   }
 
   async getTransactionYearlyData(country: any, year: any) {
-    let url = `/api/transactions/transaction-outward/summary/month?countryCode=${country}&year=${year}`
+    const url = `/api/transactions/transaction-outward/summary/month?countryCode=${country}&year=${year}`
 
     try {
-      let data = await api1.get(url)
+      const data = await api1.get(url)
       return data
     } catch (err) {}
   }
   async getTransactionMonthlyData(country: any, month: any, year: any) {
-    let url = `/api/transactions/transaction-outward/summary/days?countryCode=${country}&year=${year}&month=${month}`
+    const url = `/api/transactions/transaction-outward/summary/days?countryCode=${country}&year=${year}&month=${month}`
 
     try {
-      let data = await api1.get(url)
+      const data = await api1.get(url)
       return data
     } catch (err) {}
   }
-
-
 }

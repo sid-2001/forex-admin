@@ -4,9 +4,9 @@ import { Customer } from '@/types/customer.type'
 
 export class KycService extends BaseService {
   async verifyDocument(doccode: string, kycid: string) {
-    let url = `/api/kyc/documents/${kycid}/${doccode}/verify`
+    const url = `/api/kyc/documents/${kycid}/${doccode}/verify`
     try {
-      let payload = {
+      const payload = {
         kycId: kycid, // KYC ID for this document
         documentCode: doccode, // Document Code
       }
@@ -16,11 +16,11 @@ export class KycService extends BaseService {
       console.log(err)
     }
   }
-  
+
   async unverifyDocument(doccode: string, kycid: string) {
-    let url = `/api/kyc/documents/${kycid}/${doccode}/unVerify`
+    const url = `/api/kyc/documents/${kycid}/${doccode}/unVerify`
     try {
-      let payload = {
+      const payload = {
         kycId: kycid, // KYC ID for this document
         documentCode: doccode, // Document Code
       }
@@ -32,7 +32,7 @@ export class KycService extends BaseService {
   }
 
   async changeKycStatus(status: string, kycid: string) {
-    let url = `/api/kyc/kyc/kycId/${kycid}/kycStatus/${status}`
+    const url = `/api/kyc/kyc/kycId/${kycid}/kycStatus/${status}`
     try {
       const { data } = await api1.post(url, {})
       return data
@@ -42,9 +42,9 @@ export class KycService extends BaseService {
   }
 
   async createComment(payload: any) {
-    let url = `/api/kyc/comments`
+    const url = `/api/kyc/comments`
     try {
-      const {data} = await api1.post(url, payload)
+      const { data } = await api1.post(url, payload)
       return data
     } catch (err) {
       console.log(err)
@@ -62,33 +62,32 @@ export class KycService extends BaseService {
       kycId: string
     }>
   > {
-    let url = `/api/kyc/comments`
+    const url = `/api/kyc/comments`
     try {
-      let data = api1.get(url)
+      const data = api1.get(url)
       return data
     } catch (err) {
       console.log(err)
       return null as any
     }
   }
-  
-  async getKycById(kyc_id: string): Promise<Customer> {
-  const url = `/api/kyc/kyc/${kyc_id}`
-  try {
-    const  data  = await api1.get(url)
-    return data // Now returns a full Customer object
-  } catch (err) {
-    console.error('Error in getKYCbyid:', err)
-    throw err
-  }
-}
 
+  async getKycById(kyc_id: string): Promise<Customer> {
+    const url = `/api/kyc/kyc/${kyc_id}`
+    try {
+      const data = await api1.get(url)
+      return data // Now returns a full Customer object
+    } catch (err) {
+      console.error('Error in getKYCbyid:', err)
+      throw err
+    }
+  }
 
   //@ts-ignore
   async getCharges(souceCountry, destinationCountry, amount, segment) {
-    let url = `/api/charges/service/filter?sendingCountry=SA&receivingCountry=${destinationCountry}&amount=${amount}&marketSegment=${segment}`
+    const url = `/api/charges/service/filter?sendingCountry=SA&receivingCountry=${destinationCountry}&amount=${amount}&marketSegment=${segment}`
     try {
-      let data = await api1.get(url)
+      const data = await api1.get(url)
       return data as any
     } catch (err) {
       console.log(err)
@@ -98,7 +97,7 @@ export class KycService extends BaseService {
   async getReferralCreditedTransactions(referrerApplicantId: string) {
     const url = `api/kyc/referral-transaction/transactions/${referrerApplicantId}`
     try {
-      let data = await api1.get(url)
+      const data = await api1.get(url)
       return data as any
     } catch (err) {
       console.log(err)
@@ -106,15 +105,12 @@ export class KycService extends BaseService {
   }
 
   async getReferralRedeemedTransactions(applicantId: string) {
-    let url = `/api/kyc/referral-transaction/redeemed/${applicantId}`
+    const url = `/api/kyc/referral-transaction/redeemed/${applicantId}`
     try {
-      let data = await api1.get(url)
+      const data = await api1.get(url)
       return data as any
     } catch (err) {
       console.log(err)
     }
   }
-  
-
-
 }
