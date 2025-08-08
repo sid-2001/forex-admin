@@ -214,7 +214,7 @@ const LoginPage = () => {
           >
             <Box sx={{ width: '100%' }}>
               <Typography variant="h6" textAlign="center" fontFamily="Inter" color="#0A1C2C">
-                Username. 
+                Username
               </Typography>
               <TextField
                 placeholder="Username"
