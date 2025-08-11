@@ -107,21 +107,6 @@ const Dashboard = () => {
   const BankBalanceCarousel = () => {
     const scrollRef = React.useRef<HTMLDivElement>(null)
 
-    useEffect(() => {
-      const interval = setInterval(() => {
-        const el = scrollRef.current;
-        if (el) {
-          if (el.scrollLeft + el.clientWidth >= el.scrollWidth) {
-            el.scrollTo({ left: 0, behavior: 'smooth' });
-          } else {
-            el.scrollBy({ left: 1, behavior: 'smooth' });
-          }
-        }
-      }, 1000);
-
-      return () => clearInterval(interval);
-    }, []);
-
 
     const scroll = (offset: number) => {
       if (scrollRef.current) {
@@ -136,7 +121,7 @@ const Dashboard = () => {
       >
         {/* Scroll Buttons */}
 
-        {/* <IconButton
+        <IconButton
           onClick={() => scroll(-300)}
           sx={{
             position: 'absolute',
@@ -156,11 +141,12 @@ const Dashboard = () => {
             top: '30%',
             right: 0,
             zIndex: 1,
-            backgroundColor: 'primary.light',
+           // backgroundColor: 'primary.light',
           }}
         >
-          <ArrowRightIcon />
-        </IconButton> */}
+          <ArrowRightIcon 
+            sx={{color:'black'}} />
+        </IconButton>
 
         {/* Scrollable Bank Cards */}
 
@@ -173,8 +159,6 @@ const Dashboard = () => {
             py: 0,
             px: 6,
             padding: '1%',
-            scrollSnapType: 'x mandatory',
-            '&::-webkit-scrollbar': { display: 'none' },
           }}
         >
           {bankAccounts.map((bank, index) => (
@@ -306,20 +290,7 @@ const Dashboard = () => {
   const HorizontalCardCarousel = () => {
     const scrollRef = React.useRef<HTMLDivElement>(null)
 
-    useEffect(() => {
-      const interval = setInterval(() => {
-        const el = scrollRef.current
-        if (el) {
-          if (el.scrollLeft + el.clientWidth >= el.scrollWidth) {
-            el.scrollTo({ left: 0, behavior: 'smooth' }) // Loop back to start
-          } else {
-            el.scrollBy({ left: 1, behavior: 'smooth' }) // Scroll forward
-          }
-        }
-      }, 1000) // Adjust speed (higher = slower)
 
-      return () => clearInterval(interval)
-    }, [])
 
     const scroll = (offset: number) => {
       if (scrollRef.current) {
@@ -329,7 +300,7 @@ const Dashboard = () => {
 
     return (
       <Box position="relative" width="100%" padding="0px" margin="0px">
-        {/* Scroll Buttons
+        Scroll Buttons
         <IconButton
           onClick={() => scroll(-300)}
           sx={{
@@ -337,10 +308,11 @@ const Dashboard = () => {
             top: '30%',
             left: 0,
             zIndex: 1,
-            backgroundColor: 'primary.light',
+           // backgroundColor: 'primary.light',
           }}
         >
-          <ArrowLeftIcon />
+          <ArrowLeftIcon 
+            sx={{color:'black'}} />
         </IconButton>
         <IconButton
           onClick={() => scroll(300)}
@@ -349,11 +321,12 @@ const Dashboard = () => {
             top: '30%',
             right: 0,
             zIndex: 1,
-            backgroundColor: 'primary.light',
+           // backgroundColor: 'primary.light',
           }}
         >
-          <ArrowRightIcon />
-        </IconButton> */}
+          <ArrowRightIcon 
+            sx={{color:'black'}} />
+        </IconButton>
 
 
 
@@ -368,7 +341,6 @@ const Dashboard = () => {
             gap: 2,
             paddingTop: '0.3%',
             // px: 0,
-            '&::-webkit-scrollbar': { display: 'none' },
           }}
         >
           {cards?.map((card, index) => (
@@ -408,11 +380,6 @@ const Dashboard = () => {
     }
   }
 
-  const handleFilterApply = () => {
-    // In a real app, you would fetch data based on filters here
-    console.log('Applying filters:', { filterType, dateRange })
-    setOpenModal(false)
-  }
 
   return (
     <Box sx={{ width: '80vw' }}>
