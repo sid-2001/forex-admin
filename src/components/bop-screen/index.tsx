@@ -19,7 +19,7 @@ const countryCodes = {
   IN: 'IN',
   ZA: 'ZA',
 }
-const disableFormFieldsViaStatus = 'RELEASED'
+
 const genderArry = [
   { label: 'Male', value: 'Male' },
   { label: 'Female', value: 'Female' },
@@ -65,6 +65,12 @@ const BopScreen: React.FC = () => {
   const transaction_Service = new TransactionService()
 
   const parseData = local_service.get_staff_access()
+  const disableFormFieldsViaStatus =
+    stpErrors?.length === 0 &&
+    formData.transaction_status === 'RELEASED' &&
+    helper.checkUserHasPermission(local_service.get_modules()?.BOP, 'canUpdate')
+  // &&
+  // formData.status === 'Pending'
 
   //@ts-ignore
   const userLoggedInCountry = countryCodes[parseData?.staffCountry]
@@ -294,7 +300,7 @@ const BopScreen: React.FC = () => {
                 stpErrors?.length === 0 &&
                 formData.transaction_status === 'RELEASED' &&
                 helper.checkUserHasPermission(local_service.get_modules()?.BOP, 'canUpdate') &&
-                formData.status == 'Pending'
+                formData.status === 'Pending'
               )
             }
           >
@@ -403,7 +409,7 @@ const BopScreen: React.FC = () => {
                   name="bop_category"
                   value={bopCat?.bop_category || ''}
                   size="small"
-                  disabled={bopData?.status === disableFormFieldsViaStatus}
+                  disabled={disableFormFieldsViaStatus}
                   onChange={(e) => {
                     const { value } = e.target
                     const bopItem = bopCategory.find((item: any) => item.bopCategoryCd === value)
@@ -543,7 +549,7 @@ const BopScreen: React.FC = () => {
               variant="h5"
               gutterBottom
               //@ts-ignore
->
+            >
               Resident Details
             </Typography>
 
@@ -559,7 +565,7 @@ const BopScreen: React.FC = () => {
                     onChange={handleChange}
                     error={Boolean(formErrors.first_name)}
                     helperText={formErrors.first_name}
-                    disabled={bopData?.status === disableFormFieldsViaStatus}
+                    disabled={disableFormFieldsViaStatus}
                     required={true}
                   />
                 </FormControl>
@@ -575,7 +581,7 @@ const BopScreen: React.FC = () => {
                     onChange={handleChange}
                     error={Boolean(formErrors.middle_name)}
                     helperText={formErrors.middle_name}
-                    disabled={bopData?.status === disableFormFieldsViaStatus}
+                    disabled={disableFormFieldsViaStatus}
                   />
                 </FormControl>
               </Grid>
@@ -590,7 +596,7 @@ const BopScreen: React.FC = () => {
                     onChange={handleChange}
                     error={Boolean(formErrors.last_name)}
                     helperText={formErrors.last_name}
-                    disabled={bopData?.status === disableFormFieldsViaStatus}
+                    disabled={disableFormFieldsViaStatus}
                     required={true}
                   />
                 </FormControl>
@@ -610,7 +616,7 @@ const BopScreen: React.FC = () => {
                         gender: e.target.value,
                       }))
                     }}
-                    disabled={bopData?.status === disableFormFieldsViaStatus}
+                    disabled={disableFormFieldsViaStatus}
                   >
                     {genderArry.map((item, ind) => (
                       <MenuItem key={ind} value={item.value}>
@@ -633,7 +639,7 @@ const BopScreen: React.FC = () => {
                         dob: newDate.format('YYYY-MM-DD'),
                       }))
                     }}
-                    disabled={bopData?.status === disableFormFieldsViaStatus}
+                    disabled={disableFormFieldsViaStatus}
                     slotProps={{ textField: { size: 'small' } }}
                     //@ts-ignore
                     renderInput={(params) => <TextField {...params} fullWidth variant="outlined" />}
@@ -651,7 +657,7 @@ const BopScreen: React.FC = () => {
                   onChange={handleChange}
                   error={Boolean(formErrors.id_type)}
                   helperText={formErrors.id_type}
-                  disabled={bopData?.status === disableFormFieldsViaStatus}
+                  disabled={disableFormFieldsViaStatus}
                 />
               </Grid>
               <Grid item xs={2.5}>
@@ -665,7 +671,7 @@ const BopScreen: React.FC = () => {
                   onChange={handleChange}
                   error={Boolean(formErrors.id_details)}
                   helperText={formErrors.id_details}
-                  disabled={bopData?.status === disableFormFieldsViaStatus}
+                  disabled={disableFormFieldsViaStatus}
                 />
               </Grid>
               <Grid item xs={1.5}>
@@ -679,8 +685,7 @@ const BopScreen: React.FC = () => {
                   onChange={handleChange}
                   error={Boolean(formErrors.contact_type)}
                   helperText={formErrors.contact_type}
-                  disabled={bopData?.status === disableFormFieldsViaStatus}
-                  // required={true}
+                  disabled={disableFormFieldsViaStatus}
                 />
               </Grid>
               <Grid item xs={2}>
@@ -695,7 +700,7 @@ const BopScreen: React.FC = () => {
                   onChange={handleChange}
                   error={Boolean(formErrors.contact_details)}
                   helperText={formErrors.contact_details}
-                  disabled={bopData?.status === disableFormFieldsViaStatus}
+                  disabled={disableFormFieldsViaStatus}
                   required={true}
                 />
               </Grid>
@@ -737,7 +742,7 @@ const BopScreen: React.FC = () => {
                     onChange={handleChange}
                     error={Boolean(formErrors.physical_address_line1)}
                     helperText={formErrors.physical_address_line1}
-                    disabled={bopData?.status === disableFormFieldsViaStatus}
+                    disabled={disableFormFieldsViaStatus}
                     required={true}
                   />
                 </FormControl>
@@ -753,7 +758,7 @@ const BopScreen: React.FC = () => {
                     onChange={handleChange}
                     error={Boolean(formErrors.physical_address_line2)}
                     helperText={formErrors.physical_address_line2}
-                    disabled={bopData?.status === disableFormFieldsViaStatus}
+                    disabled={disableFormFieldsViaStatus}
                     required={true}
                   />
                 </FormControl>
@@ -770,8 +775,7 @@ const BopScreen: React.FC = () => {
                   onChange={handleChange}
                   error={Boolean(formErrors.suburb)}
                   helperText={formErrors.suburb}
-                  disabled={bopData?.status === disableFormFieldsViaStatus}
-                  // required={true}
+                  disabled={disableFormFieldsViaStatus}
                 />
               </Grid>
               <Grid item xs={2.3}>
@@ -785,8 +789,7 @@ const BopScreen: React.FC = () => {
                   onChange={handleChange}
                   error={Boolean(formErrors.city)}
                   helperText={formErrors.city}
-                  disabled={bopData?.status === disableFormFieldsViaStatus}
-                  // required={true}
+                  disabled={disableFormFieldsViaStatus}
                 />
               </Grid>
               <Grid item xs={2.3}>
@@ -800,8 +803,7 @@ const BopScreen: React.FC = () => {
                   onChange={handleChange}
                   error={Boolean(formErrors.residence_state)}
                   helperText={formErrors.residence_state}
-                  disabled={bopData?.status === disableFormFieldsViaStatus}
-                  // required={true}
+                  disabled={disableFormFieldsViaStatus}
                 />
               </Grid>
               <Grid item xs={2.3}>
@@ -815,8 +817,7 @@ const BopScreen: React.FC = () => {
                   onChange={handleChange}
                   error={Boolean(formErrors.postcode)}
                   helperText={formErrors.postcode}
-                  disabled={bopData?.status === disableFormFieldsViaStatus}
-                  // required={true}
+                  disabled={disableFormFieldsViaStatus}
                 />
               </Grid>
               <Grid item xs={2.3}>
@@ -829,18 +830,14 @@ const BopScreen: React.FC = () => {
                   value={formData.residence_country || ''}
                   onChange={handleChange}
                   error={Boolean(formErrors.residence_country)}
-                  disabled={bopData?.status === disableFormFieldsViaStatus}
+                  disabled={disableFormFieldsViaStatus}
                   helperText={formErrors.residence_country}
-                  // required={true}
                 />
               </Grid>
             </Grid>
 
             <Box mt={3}>
-              <Typography
-                variant="h6"
-                gutterBottom
-              >
+              <Typography variant="h6" gutterBottom>
                 Postal Address
               </Typography>
             </Box>
@@ -857,7 +854,7 @@ const BopScreen: React.FC = () => {
                     onChange={handleChange}
                     error={Boolean(formErrors.postal_address_line1)}
                     helperText={formErrors.postal_address_line1}
-                    disabled={bopData?.status === disableFormFieldsViaStatus}
+                    disabled={disableFormFieldsViaStatus}
                     required={true}
                   />
                 </FormControl>
@@ -873,7 +870,7 @@ const BopScreen: React.FC = () => {
                     onChange={handleChange}
                     error={Boolean(formErrors.postal_address_line2)}
                     helperText={formErrors.postal_address_line2}
-                    disabled={bopData?.status === disableFormFieldsViaStatus}
+                    disabled={disableFormFieldsViaStatus}
                     required={true}
                   />
                 </FormControl>
@@ -890,8 +887,7 @@ const BopScreen: React.FC = () => {
                   onChange={handleChange}
                   error={Boolean(formErrors.postal_suburb)}
                   helperText={formErrors.postal_suburb}
-                  disabled={bopData?.status === disableFormFieldsViaStatus}
-                  // required={true}
+                  disabled={disableFormFieldsViaStatus}
                 />
               </Grid>
               <Grid item xs={2.3}>
@@ -905,8 +901,7 @@ const BopScreen: React.FC = () => {
                   onChange={handleChange}
                   error={Boolean(formErrors.postal_city)}
                   helperText={formErrors.postal_city}
-                  disabled={bopData?.status === disableFormFieldsViaStatus}
-                  //required={true}
+                  disabled={disableFormFieldsViaStatus}
                 />
               </Grid>
               <Grid item xs={2.3}>
@@ -920,8 +915,7 @@ const BopScreen: React.FC = () => {
                   onChange={handleChange}
                   error={Boolean(formErrors.postal_state)}
                   helperText={formErrors.postal_state}
-                  disabled={bopData?.status === disableFormFieldsViaStatus}
-                  //required={true}
+                  disabled={disableFormFieldsViaStatus}
                 />
               </Grid>
               <Grid item xs={2.3}>
@@ -935,8 +929,7 @@ const BopScreen: React.FC = () => {
                   onChange={handleChange}
                   error={Boolean(formErrors.postal_postcode)}
                   helperText={formErrors.postal_postcode}
-                  disabled={bopData?.status === disableFormFieldsViaStatus}
-                  // required={true}
+                  disabled={disableFormFieldsViaStatus}
                 />
               </Grid>
               <Grid item xs={2.3}>
@@ -950,8 +943,7 @@ const BopScreen: React.FC = () => {
                   onChange={handleChange}
                   error={Boolean(formErrors.postal_country)}
                   helperText={formErrors.postal_country}
-                  disabled={bopData?.status === disableFormFieldsViaStatus}
-                  //required={true}
+                  disabled={disableFormFieldsViaStatus}
                 />
               </Grid>
             </Grid>
@@ -1082,13 +1074,7 @@ const BopScreen: React.FC = () => {
           </Grid>
 
           <Box mt={3}>
-            <Button
-              variant="contained"
-              color="primary"
-              type="submit"
-              disabled={formData?.status === 'RELEASED' || !helper.checkUserHasPermission(local_service.get_modules()?.BOP, 'canUpdate')}
-              // onClick={handleSubmit}
-            >
+            <Button variant="contained" color="primary" type="submit" disabled={disableFormFieldsViaStatus}>
               Save
             </Button>
           </Box>
