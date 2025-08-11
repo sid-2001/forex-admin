@@ -9,21 +9,14 @@ import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
 import { themeModeState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { Brightness4, Brightness7 } from '@mui/icons-material'
-import {
-  alertState,
-  loaderState,
-  selectedAppState,
-  loaderStateNew,
-  selectedCountryState,
-  availableBalanceState,
-} from '@/states/state'
+import { alertState, loaderState, selectedAppState, loaderStateNew, selectedCountryState, availableBalanceState } from '@/states/state'
 import { useState, useEffect } from 'react'
 import Backdrop from '@mui/material/Backdrop'
 import LogoutIcon from '@mui/icons-material/Logout'
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline'
 import Stack from '@mui/material/Stack'
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows'
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
 import CircularProgress from '@mui/material/CircularProgress'
 import { useTheme } from '@emotion/react'
 import Paper from '@mui/material/Paper'
@@ -75,7 +68,7 @@ const Header = styled(Box)({
 
 const DashboardLayout = () => {
   const [mode, setMode] = useRecoilState(themeModeState)
-  const [open, setOpen] = useRecoilState(alertState);
+  const [open, setOpen] = useRecoilState(alertState)
   const [selecteCountryState, setselectedCountryState] = useRecoilState(selectedCountryState)
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
   const [balance, setBalance] = useRecoilState(availableBalanceState)
@@ -259,6 +252,21 @@ const DashboardLayout = () => {
       ),
       label: 'Static',
     },
+    {
+      icon: (
+        <>
+          <Person2Icon
+            sx={{
+              //@ts-ignore
+              fontSize: '2vh',
+              //@ts-ignore
+              color: theme.palette.primary.light, // Corrected theme usage
+            }}
+          />
+        </>
+      ),
+      label: 'Sarb-Errors',
+    },
   ]
 
   useEffect(() => {
@@ -313,9 +321,7 @@ const DashboardLayout = () => {
                 <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
                   Available Balance :
                 </Typography>
-                <Typography variant="body1">
-                  ₹{balance}
-                </Typography>
+                <Typography variant="body1">₹{balance}</Typography>
               </Box>
             </Box>
           </Box>
@@ -390,7 +396,6 @@ const DashboardLayout = () => {
                     >
                       <strong>{local_service?.get_staff_access()?.staffId}</strong>
                     </Typography>
-
                   </Stack>
                 </Box>
               </>
@@ -456,15 +461,15 @@ const DashboardLayout = () => {
                     justifyContent: isDrawerOpen ? 'flex-start' : 'center',
                     textAlign: 'center',
                     alignItems: 'center',
-                    backgroundColor: "transparent"
+                    backgroundColor: 'transparent',
                   }}
                   onClick={() => {
                     setSelectedApp(item.label)
-                      navigate(item.label.toLocaleLowerCase())
+                    navigate(item.label.toLocaleLowerCase())
                   }}
                 >
-                  <Stack sx={{ backgroundColor: "inherit", padding: "1%" }}>
-                    <Item sx={{ backgroundColor: "transparent" }}>
+                  <Stack sx={{ backgroundColor: 'inherit', padding: '1%' }}>
+                    <Item sx={{ backgroundColor: 'transparent' }}>
                       <ListItemIcon
                         sx={{
                           textAlign: 'center',
@@ -570,7 +575,7 @@ const DashboardLayout = () => {
               marginLeft: 0, // Prevent the sidebar from affecting the content
             }}
           >
-            <MainContent >
+            <MainContent>
               <Header>
                 <Typography variant="h5"></Typography>
               </Header>

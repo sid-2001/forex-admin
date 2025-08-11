@@ -6,7 +6,7 @@ import ProtectedRoute, { ProtectedRouteProps } from './helpers/protected-route'
 import IndexPage from './pages/defaultpage'
 import UserAdd from './pages/user-add'
 import Login from './pages/newlogin'
-import type { } from '@mui/x-data-grid/themeAugmentation'
+import type {} from '@mui/x-data-grid/themeAugmentation'
 
 // import Login from './pages/login'
 // import Dashboard from './pages/dashboard'
@@ -46,6 +46,7 @@ import CdiScreen from './pages/cdi'
 import { themeModeState } from '@/states/state'
 import { useRecoilState } from 'recoil'
 import { CssBaseline } from '@mui/material'
+import SarbErrorsListing from './pages/sarb-errors'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -78,7 +79,6 @@ function App() {
       h5: { color: 'text.primary' },
       h6: { color: 'text.primary' },
     },
-
 
     components: {
       MuiCssBaseline: {
@@ -120,11 +120,10 @@ function App() {
         },
       },
     },
-  });
+  })
 
   return (
     <>
-
       <ThemeProvider theme={theme}>
         <CssBaseline />
         {/* <LoaderBackdrop /> */}
@@ -134,7 +133,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<ProtectedRoute {...defaultProtectedRouteProps} outlet={<DashboardLayout />} />}>
-              <Route index element={<Dashboard />}></Route> 
+              <Route index element={<Dashboard />}></Route>
               <Route path="transaction" element={<TransactionListing />} />
               <Route path="sendmoney" element={<SendMoneyPage />} />
               <Route path="kyc" element={<KYCPage />} />
@@ -160,6 +159,7 @@ function App() {
               <Route path="recon-trx" element={<ReconScreen />} />
               <Route path="module" element={<ModuleTable />} />
               <Route path="role" element={<RoleManagement />} />
+              <Route path="sarb-errors" element={<SarbErrorsListing />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 
