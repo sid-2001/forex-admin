@@ -34,7 +34,7 @@ import { ApplicantService } from '@/services/applicant.service'
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
 import { statusColors } from '@/contants/utils'
 import LoaderUI from '@/components/loader/loader'
-import DonutLargeIcon from '@mui/icons-material/DonutLarge';
+
 const TransactionListing = () => {
   const columns_outward = [
     {
@@ -172,13 +172,19 @@ const TransactionListing = () => {
     { field: 'sendingCountry', headerName: 'Sending Country', width: 130, headerClassName: 'super-app-theme--header' },
     { field: 'receivingCountry', headerName: 'Receiving Country', width: 130, headerClassName: 'super-app-theme--header' },
     { field: 'settlementCurrency', headerName: 'Settlement Currency', width: 150, headerClassName: 'super-app-theme--header' },
+       { field: 'principalCurrency', headerName: 'Principal Currency', width: 150, headerClassName: 'super-app-theme--header' },
+
+       { field: 'gatewayId', headerName: 'Gateway', width: 100, headerClassName: 'super-app-theme--header' },
+   
+
+           { field: 'gatewayStatus', headerName: 'Gateway', width: 100, headerClassName: 'super-app-theme--header' },
     {
       field: 'settlementAmount',
       headerName: 'Settlement Amount',
       type: 'number',
       width: 150,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => params?.value?.toFixed(2),
+      // renderCell: (params: any) => params?.value?.toFixed(2),
     },
     // { field: 'reportingStatus', headerName: 'Reporting Status', width: 130, headerClassName: 'super-app-theme--header' },
     {
@@ -189,6 +195,56 @@ const TransactionListing = () => {
       renderCell: (params: any) => {
         return helper.convertDateAndTime(params?.row?.inCreatedDate)
       },
+    },
+        {
+      field: 'lcharges2',
+      headerName: 'Charges',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    
+    },
+
+
+      {
+      field: 'owCreatedDate',
+      headerName: 'Date',
+      type: 'Date',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return helper.convertDateAndTime(params?.row?.owCreatedDate)
+      },
+    },
+
+      {
+      field: 'transactionStatus',
+      headerName: 'Status',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return <div style={{ color: statusColors[params?.row?.status?.toUpperCase()] }}>{params?.row?.status?.toUpperCase()}</div>
+      },
+
+     
+    },
+    
+       {
+      field: 'stpError',
+      headerName: 'STP',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => (
+        <Chip
+          label={params.value === 'Y' ? 'Error' : 'No Error'}
+          color={params.value === 'Y' ? 'error' : 'success'}
+          onClick={() => {
+            if (params.value === 'Y') {
+              setmodalOpen(true)
+              fetchStpErrorList(params?.row?.id)
+            }
+          }}
+        />
+      ),
     },
     {
       field: 'action',
@@ -247,6 +303,7 @@ const TransactionListing = () => {
   const [startDate, setStartDate] = useState<string | null>(null)
   const [endDate, setEndDate] = useState<string | null>(null)
   const [stpErrors, setStpErrors] = useState<any>([])
+  const [givenTransaction,setGivenTransaction]=useState<any>(null)
 
   let applicant_service = new ApplicantService()
   let transaction_Service = new TransactionService()
@@ -317,7 +374,7 @@ const TransactionListing = () => {
     try {
       setcommonloader(true)
       const data: any = await transaction_Service.getOutwardAllTransaction(selectedCountryOption === 'IN' ? 'IN' : 'ZA')
-      console.log(data)
+         
       const inbound: Array<TransactionInwardCalclulated>[] | any = data?.map((e: any) => {
         //@ts-ignore
         return {
@@ -362,6 +419,14 @@ const TransactionListing = () => {
           }
         })
         ?.filter((transaction: any) => {
+         
+       
+               if( queryParams.get("id")!=null){
+          
+              return    transaction?.id== queryParams.get("id")
+
+               }
+
           if (selectedCountryOption === 'IN') {
             return transaction.destination?.toLowerCase() !== 'in'
           } else if (selectedCountryOption === 'ZA') {
@@ -389,6 +454,9 @@ const TransactionListing = () => {
     getApplicantDetails()
     getInwardTransactionList()
     getAllTransactions()
+   setGivenTransaction( queryParams.get("id"))
+   
+  
   }, [])
 
   const openInNewTab = (url: any) => {
@@ -455,7 +523,11 @@ const TransactionListing = () => {
       setTransactionType(newType)
       //@ts-ignore
       setTransactionData(newType === 'inwards' ? inboundTransaction : outboundTransaction)
-      navigate(`/transaction?flow=${newType}`)
+      if(givenTransaction!=null){
+
+            navigate(`/transaction?flow=${newType}&id=${givenTransaction}`)
+      }else{
+      navigate(`/transaction?flow=${newType}`)}
     }
   }
 
@@ -503,54 +575,46 @@ const TransactionListing = () => {
         </Box>
 
         <Box>
-          <Tooltip title="Limit" arrow>
-            <IconButton onClick={() => setToolOpen(true)} color="primary">
-              <DonutLargeIcon />
-            </IconButton>
-          </Tooltip>
+          <IconButton onClick={() => setToolOpen(true)} color="primary">
+            <SettingsAccessibilityRounded />
+          </IconButton>
 
-          <Tooltip title="Reconciliation" arrow>
-            <IconButton
-              onClick={() => {
-                handleNavigation('/recon-trx')
-              }}
-              color="primary"
-            >
-              <CurrencyExchangeIcon />
-            </IconButton>
-          </Tooltip>
+          <IconButton
+            onClick={() => {
+              handleNavigation('/recon-trx')
+            }}
+            color="primary"
+          >
+            <CurrencyExchangeIcon />
+          </IconButton>
 
-          <Tooltip title="Limit utilization enquiry" arrow>
-            <IconButton
-              onClick={() => {
-                handleNavigation('/utilization')
+          <IconButton
+            onClick={() => {
+              handleNavigation('/utilization')
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
+            color="primary"
+          >
+            <AssessmentIcon
+              sx={{
+                marginBottom: '10%',
               }}
-              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
-              color="primary"
-            >
-              <AssessmentIcon
-                sx={{
-                  marginBottom: '10%',
-                }}
-              />
-            </IconButton>
-          </Tooltip>
+            />
+          </IconButton>
 
-          <Tooltip title="Recon" arrow>
-            <IconButton
-              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
-              onClick={() => {
-                handleNavigation('/recon')
+          <IconButton
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
+            onClick={() => {
+              handleNavigation('/recon')
+            }}
+            color="primary"
+          >
+            <Sync
+              sx={{
+                marginBottom: '10%',
               }}
-              color="primary"
-            >
-              <Sync
-                sx={{
-                  marginBottom: '10%',
-                }}
-              />
-            </IconButton>
-          </Tooltip>
+            />
+          </IconButton>
 
           <Button
             variant="outlined"

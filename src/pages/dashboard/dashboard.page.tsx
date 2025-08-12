@@ -13,7 +13,7 @@ import { selectedAppState, alertState, alertTextState, alertTypeState, selectedC
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import TransactionPanel from '@/components/transaction-panel'
 import { HelperService } from '@/helpers/helper'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 const Dashboard = () => {
   // Sample dashboard data
@@ -61,8 +61,8 @@ const Dashboard = () => {
   }
 
   const getOutwardTransactionsList = useCallback(async () => {
-    const data = await transaction_service.getOutwardTransaction()
-    setrecentTransaction(data?.transactionDetailsList)
+    const data = await transaction_service.getOutwardAllTransaction(userCountry)
+    setrecentTransaction(data)
     setIsLoading(false)
   }, [])
 
@@ -541,11 +541,21 @@ const Dashboard = () => {
                     <Box key={transaction.id} sx={{ mb: 2, p: 1, borderBottom: '1px solid ', borderColor: 'primary.light' }}>
                       <Stack direction="row" justifyContent="space-between">
                         <Typography fontWeight="bold">{`${transaction?.applicant?.firstName} ${transaction?.applicant?.lastName}`}</Typography>
+                      
                         <Typography color="text.secondary">
                           {transaction?.transactionOutward?.settlementCurrency} {transaction?.transactionOutward?.settlementAmount}
                         </Typography>
                       </Stack>
                       <Stack direction="row" justifyContent="space-between" mt={1}>
+                        
+                      
+                      <Link
+    to={`/transaction?flow=outwards&id=${transaction?.transactionOutward?.transactionNumber}`}
+   
+  >
+
+   <Typography variant='caption'>{transaction?.transactionOutward?.transactionNumber}</Typography>
+  </Link>
                         <Typography variant="body2" color="text.secondary">
                           {helper.convertDateAndTime(transaction?.transactionOutward?.owCreatedDate)}
                         </Typography>
