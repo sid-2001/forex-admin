@@ -85,6 +85,14 @@ function App() {
             color: mode === 'dark' ? '#fff' : '#000',
             transition: 'all 0.3s ease',
           },
+           /* Hide scrollbar globally */
+          '&::-webkit-scrollbar': {
+            display: 'none', 
+          },
+          scrollbarWidth: 'none', 
+          msOverflowStyle: 'none', 
+ 
+
           '#root': {
             display: 'flex',
             flexDirection: 'column',

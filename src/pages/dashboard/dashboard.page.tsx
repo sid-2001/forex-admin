@@ -291,7 +291,7 @@ const Dashboard = () => {
 
     return (
       <Box position="relative" width="100%" padding="0px" margin="0px">
-        Scroll Buttons
+        {/* Scroll Buttons */}
         <IconButton
           onClick={() => scroll(-300)}
           sx={{
