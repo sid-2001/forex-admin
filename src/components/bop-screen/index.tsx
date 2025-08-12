@@ -436,7 +436,6 @@ const BopScreen: React.FC = () => {
                 variant="outlined"
                 name="bop_sub_category"
                 value={bopCat?.bop_sub_category || ''}
-                disabled
                 fullWidth
               />
             </Grid>

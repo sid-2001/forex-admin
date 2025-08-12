@@ -1,19 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import {
-  Box,
-  Grid,
-  TextField,
-  Typography,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Tabs,
-  Tab,
-  Avatar,
-  useTheme,
-} from '@mui/material'
+import { Box, Grid, TextField, Typography, Button, Tabs, Tab, Avatar, useTheme } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
 import TransactionTable from '../transaction-table'
 import { ApplicantService } from '@/services/applicant.service'
@@ -25,7 +11,6 @@ import { KycService } from '@/services/kyc.service'
 import ReferralTransactions from '@/components/referralTransactionTable'
 import DocumentsListComponent from '../document-tab'
 import BeneficiaryTable from '@/components/beneficiary-table'
-import axios from 'axios'
 
 const ApplicantPage = () => {
   const navigate = useNavigate()
@@ -35,22 +20,16 @@ const ApplicantPage = () => {
   const helper = new HelperService()
   const local_service = new LocalStorageService()
   const kyc_service = new KycService()
-  const [isEditable, setIsEditable] = useState(false)
-  const [isChanged, setIsChanged] = useState(false)
-  const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false)
-  const [openSaveDialog, setOpenSaveDialog] = useState(false)
   const [selectedTab, setSelectedTab] = useState(0)
   const [transactions, setTransactions] = useState<any[]>([])
   const [utilizedLimit, setutilizedLimit] = useState(0)
   const [availableLimit, setAvailableLimit] = useState(0)
-  const [maxlimit, setMaxlimit] = useState(0)
   const [referralRedeemTransaction, setReferralRedeemTransaction] = useState<any>([])
   const [referralCreditedTransaction, setReferralCreditedTransaction] = useState<any>([])
   const [applicantImage, setApplicantImage] = useState<string>('')
   const [applicantDocuments, setApplicantDocuments] = useState<any[]>([])
   const [applicantDetails, setApplicantDetails] = useState<any>({})
-  const [kycId, setKycId] = useState<string | null>(null);
-    const { id: kycIdFromRoute } = useParams()
+  const [kycId, setKycId] = useState<string | null>(null)
 
   function LimitPieChart() {
     const utilized = Math.abs(utilizedLimit)
@@ -82,24 +61,6 @@ const ApplicantPage = () => {
           width={400}
           height={100}
         />
-        {/* <Typography
-        variant="subtitle2"
-        sx={{
-          position: 'absolute',
-          top: '17.5%',
-          right:"-20.5%",
-          
-          // transform: 'translate(-50%, -50%)',
-          textAlign: 'center',
-          fontWeight: 'bold',
-          color:"pink",
-          fontSize:"0.5em"
-        }}
-      >
-        Max Limit
-        <br />
-        {maxlimit.toLocaleString()}
-      </Typography> */}
       </Box>
     )
   }
@@ -110,7 +71,6 @@ const ApplicantPage = () => {
     fetchReferralRedeemedTransactions()
     fetchReferralCreditedTransactions()
     getdocumentlistByApplicantId()
-   // fetchKycId()
   }, [])
 
   const fetchComplianceLimitData = async () => {
@@ -192,7 +152,7 @@ const ApplicantPage = () => {
       console.error('Error fetching data:', error)
     }
   }, [applicantId])
- 
+
   const fetchReferralCreditedTransactions = useCallback(async () => {
     if (!applicantId) return
     try {
@@ -215,38 +175,6 @@ const ApplicantPage = () => {
       console.error('Error fetching documents:', error)
     }
   }, [applicantId])
-  const handleToggleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      setIsEditable(true)
-    } else {
-      if (isChanged) {
-        setOpenConfirmationDialog(true)
-      } else {
-        setIsEditable(false)
-      }
-    }
-  }
-  const handleSaveChanges = () => {
-    if (isChanged) {
-      setOpenSaveDialog(true) // Show save confirmation dialog
-    } else {
-      alert('No changes made to save!')
-    }
-  }
-
-  const handleSaveConfirm = () => {
-    setOpenSaveDialog(false)
-    setIsEditable(false)
-  }
-
-  const handleDiscardChanges = () => {
-    setOpenConfirmationDialog(false)
-    setIsEditable(false)
-  }
-
-  const handleCancelEdit = () => {
-    setOpenConfirmationDialog(false)
-  }
 
   const handleTabChange = async (
     //@ts-ignore
@@ -264,48 +192,29 @@ const ApplicantPage = () => {
     return applicantDetails?.firstName.charAt(0) + '' + applicantDetails?.lastName.charAt(0)
   }
 
-//   const fetchKycId = async () => {
-//   if (!applicantId) return;
+  useEffect(() => {
+    if (!applicantId) return
 
-//   try {
-//     const response = await axios.get(`https://api.impronics.com/api/applicant/applicant-all-details/applicantId/${applicantId}`);
-//     console.log("KYC Response:", response.data); // Debug output
-
-//     const kyc = response.data?.data?.kycId; // ✅ Correct path
-//     if (kyc) {
-//       setKycId(kyc);
-//     } else {
-//       setKycId('Not Found');
-//     }
-//   } catch (error) {
-//     console.error("Error fetching KYC ID:", error);
-//     setKycId('Error');
-//   }
-// };
-useEffect(() => {
-  if (!applicantId) return;
-
-  applicant_service.getApplicantDetailsById(applicantId).then((data) => {
-    if (data?.kycId) {
-      setKycId(data.kycId);
-    }
-  });
-}, [applicantId]);
-
+    applicant_service.getApplicantDetailsById(applicantId).then((data) => {
+      if (data?.kycId) {
+        setKycId(data.kycId)
+      }
+    })
+  }, [applicantId])
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.APPLICANT}>
-      <Box sx={{ width: '50vw' }}>
+      <Box sx={{ width: '80vw' }}>
         <Box>
           <Typography variant="h5" gutterBottom color={theme.palette.secondary.main} sx={{ fontWeight: 'bold' }}>
             Applicant Details
           </Typography>
         </Box>
- 
-        <Box mb={6} display="flex"  alignItems="center">
+
+        <Box mb={6} display="flex" alignItems="center">
           <Typography
-            variant="body1" mb={1}
-            
+            variant="body1"
+            mb={1}
             sx={{
               backgroundColor: 'primary.main',
               p: '0.5%',
@@ -317,12 +226,12 @@ useEffect(() => {
             Applicant Id - {applicantId}
           </Typography>
           <Typography
-            variant="body1" 
+            variant="body1"
             mb={1}
             onClick={() => {
-            if (kycId) {
+              if (kycId) {
                 navigate(`/kyc/${kycId}`)
-                       }
+              }
             }}
             sx={{
               backgroundColor: 'primary.main',
@@ -333,17 +242,17 @@ useEffect(() => {
               cursor: 'pointer',
               ml: 2,
               '&:hover': {
-              backgroundColor: theme.palette.primary.dark,
-              textDecoration: 'underline',
-                         },
+                backgroundColor: theme.palette.primary.dark,
+                textDecoration: 'underline',
+              },
             }}
           >
-             {`KYC ID - ${kycId ?? 'Loading...'}`}
+            {`KYC ID - ${kycId ?? 'Loading...'}`}
           </Typography>
         </Box>
- 
+
         {/* Applicant Information Form */}
-        <Box sx={{ width: '80vw' }}>
+        <Box>
           <Grid container spacing={2} mb={2} alignItems="flex-start" justifyContent="space-between">
             <Grid item xs={12} sm={2} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
               <Box width={150} height={150} border="4px solid green" borderRadius="50%" display="flex" alignItems="center" justifyContent="center">
@@ -421,9 +330,9 @@ useEffect(() => {
             </Grid>
           </Grid>
         </Box>
- 
+
         {/* Permanent Address Section */}
-        <Box sx={{ width: '80vw' }}>
+        <Box>
           <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}>
             <strong>Postal Address</strong>
           </Typography>
@@ -435,33 +344,33 @@ useEffect(() => {
               <TextField fullWidth label="Address Line 2" value={applicantDetails?.postalAddressLine2 || ''} InputProps={{ readOnly: true }} />
             </Grid>
           </Grid>
- 
+
           <Grid container spacing={2} marginBottom={2}>
-            <Grid item xs={12} sm={2}>
+            <Grid item xs={12} sm={2.3}>
               <TextField fullWidth label="Suburb" value={applicantDetails?.suburb || ''} InputProps={{ readOnly: true }} />
             </Grid>
 
-            <Grid item xs={12} sm={2}>
+            <Grid item xs={12} sm={2.3}>
               <TextField fullWidth label="city" value={applicantDetails?.city || ''} InputProps={{ readOnly: true }} />
             </Grid>
 
-            <Grid item xs={12} sm={2}>
+            <Grid item xs={12} sm={2.3}>
               <TextField fullWidth label="State" value={applicantDetails?.applicantState || ''} InputProps={{ readOnly: true }} />
             </Grid>
- 
-            <Grid item xs={12} sm={1.5}>
+
+            <Grid item xs={12} sm={2.3}>
               <TextField fullWidth label="Postal Code" value={applicantDetails?.postalCode || ''} InputProps={{ readOnly: true }} />
             </Grid>
-            <Grid item xs={12} sm={2}>
+            <Grid item xs={12} sm={2.3}>
               <TextField fullWidth label="Country" value={applicantDetails?.country || ''} InputProps={{ readOnly: true }} />
             </Grid>
           </Grid>
- 
+
           {/* Physical Address Section */}
           <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}>
             <strong>Physical Address</strong>
           </Typography>
- 
+
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={12} sm={6}>
               <TextField fullWidth label="Address Line 1" value={applicantDetails?.physicalAddressLine1 || ''} InputProps={{ readOnly: true }} />
@@ -470,94 +379,55 @@ useEffect(() => {
               <TextField fullWidth label="Address Line 2" value={applicantDetails?.physicalAddressLine2 || ''} InputProps={{ readOnly: true }} />
             </Grid>
           </Grid>
- 
+
           <Grid container spacing={2} marginBottom={2}>
-            <Grid item xs={12} sm={2}>
+            <Grid item xs={12} sm={2.3}>
               <TextField fullWidth label="Suburb" value={applicantDetails?.suburb || ''} InputProps={{ readOnly: true }} />
             </Grid>
-            <Grid item xs={12} sm={2}>
+            <Grid item xs={12} sm={2.3}>
               <TextField fullWidth label="City" value={applicantDetails?.residenceCity || ''} InputProps={{ readOnly: true }} />
             </Grid>
-            <Grid item xs={12} sm={2}>
+            <Grid item xs={12} sm={2.3}>
               <TextField fullWidth label="State" value={applicantDetails?.residenceState || ''} InputProps={{ readOnly: true }} />
             </Grid>
-            <Grid item xs={12} sm={2}>
+            <Grid item xs={12} sm={2.3}>
               <TextField fullWidth label="Zip Code" value={applicantDetails?.residencePostalCode || ''} InputProps={{ readOnly: true }} />
             </Grid>
-            <Grid item xs={12} sm={2}>
+            <Grid item xs={12} sm={2.3}>
               <TextField fullWidth label="Country" value={applicantDetails?.residenceCountry || ''} InputProps={{ readOnly: true }} />
             </Grid>
           </Grid>
         </Box>
-        {/* Tab Component */}
-        <Tabs sx={{ marginBottom: '10px' }} value={selectedTab} onChange={handleTabChange} aria-label="Customer data tabs">
-          <Tab label="Documents" sx={{ marginRight: '2px' }} />
-          <Tab label="Beneficiaries" sx={{ marginRight: '2px' }} />
-          <Tab label="Transactions" sx={{ marginRight: '2px' }} />
-          <Tab label="Referral Redeemed Transactions" sx={{ marginRight: '2px' }} />
-          <Tab label="Referral Credited Transactions" sx={{ marginRight: '2px' }} />
-        </Tabs>
-        {/* ✅ Uploaded Documents Section */}
-        {selectedTab === 0 && <DocumentsListComponent documentRecords={applicantDocuments || []} />}
-        {selectedTab === 1 && <BeneficiaryTable beneficiary={applicantDetails?.beneficiaryList || []} applicantId={applicantId} />}
-        {selectedTab === 2 && (
-          <TransactionTable
-            //@ts-ignore
-            applicantId={applicantId || ''}
-            //@ts-ignore
-            transaction={transactions}
-          />
-        )}
 
-        {selectedTab === 3 && <ReferralTransactions referralRecords={referralRedeemTransaction || []} referralType={'Redeemed'} />}
-        {selectedTab === 4 && <ReferralTransactions referralRecords={referralCreditedTransaction || []} referralType={'Credited'} />}
+        <Box marginBottom={8}>
+          {/* Tab Component */}
+          <Tabs sx={{ marginBottom: '10px' }} value={selectedTab} onChange={handleTabChange} aria-label="Customer data tabs">
+            <Tab label="Documents" sx={{ marginRight: '2px' }} />
+            <Tab label="Beneficiaries" sx={{ marginRight: '2px' }} />
+            <Tab label="Transactions" sx={{ marginRight: '2px' }} />
+            <Tab label="Referral Redeemed Transactions" sx={{ marginRight: '2px' }} />
+            <Tab label="Referral Credited Transactions" sx={{ marginRight: '2px' }} />
+          </Tabs>
+          {/* ✅ Uploaded Documents Section */}
+          {selectedTab === 0 && <DocumentsListComponent documentRecords={applicantDocuments || []} />}
+          {selectedTab === 1 && <BeneficiaryTable beneficiary={applicantDetails?.beneficiaryList || []} />}
+          {selectedTab === 2 && (
+            <TransactionTable
+              //@ts-ignore
+              applicantId={applicantId || ''}
+              //@ts-ignore
+              transaction={transactions}
+            />
+          )}
 
-        {/* Action Buttons */}
-        <Grid container spacing={2} mt={1}>
-          <Grid item xs={12} sm={3} mt={3}>
-            <Button variant="outlined" onClick={handleBack} fullWidth>
-              Back to Applicant List
-            </Button>
-          </Grid>
-          {/* <Grid item xs={12} sm={3}>
-            {isEditable && (
-              <Button variant="contained" fullWidth onClick={handleSaveChanges}>
-                Save Changes
-              </Button>
-            )}
-          </Grid> */}
-        </Grid>
- 
-        {/* Confirmation Dialogs */}
-        <Dialog open={openConfirmationDialog} onClose={handleCancelEdit}>
-          <DialogTitle>Confirm Discard</DialogTitle>
-          <DialogContent>
-            <Typography>Are you sure you want to discard your changes?</Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleDiscardChanges} color="primary">
-              Yes
-            </Button>
-            <Button onClick={handleCancelEdit} color="secondary">
-              No
-            </Button>
-          </DialogActions>
-        </Dialog>
- 
-        <Dialog open={openSaveDialog} onClose={() => setOpenSaveDialog(false)}>
-          <DialogTitle>Confirm Save</DialogTitle>
-          <DialogContent>
-            <Typography>Are you sure you want to save the changes?</Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleSaveConfirm} color="primary">
-              Yes
-            </Button>
-            <Button onClick={() => setOpenSaveDialog(false)} color="secondary">
-              No
-            </Button>
-          </DialogActions>
-        </Dialog>
+          {selectedTab === 3 && <ReferralTransactions referralRecords={referralRedeemTransaction || []} referralType={'Redeemed'} />}
+          {selectedTab === 4 && <ReferralTransactions referralRecords={referralCreditedTransaction || []} referralType={'Credited'} />}
+        </Box>
+        <Box>
+          <Button variant="outlined" onClick={handleBack}>
+            Back to Applicant List
+          </Button>
+        </Box>
       </Box>
     </HasPermission>
   )
