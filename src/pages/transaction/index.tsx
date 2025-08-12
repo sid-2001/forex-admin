@@ -512,7 +512,10 @@ const TransactionListing = () => {
                 borderBottom: '1px solid black',
                 lineHeight: 1.5,
                 px: 0.5,
-                '&:hover': { borderBottomColor: 'primary.main' },
+                '&:hover': {
+                  borderBottomColor: 'primary.main',
+                  fontWeight: 'bold', // correct casing
+                },
               }}
               onClick={() => handleNavigation('/recon-trx')}
             >
@@ -526,7 +529,11 @@ const TransactionListing = () => {
                 borderBottom: '1px solid black',
                 lineHeight: 1.5,
                 px: 0.5,
-                '&:hover': { borderBottomColor: 'primary.main' },
+                '&:hover': {
+                  borderBottomColor: 'primary.main',
+                  fontWeight: 'bold',
+                },
+
               }}
               disabled={
                 !helper.checkUserHasPermission(
@@ -546,7 +553,10 @@ const TransactionListing = () => {
                 borderBottom: '1px solid black',
                 lineHeight: 1.5,
                 px: 0.5,
-                '&:hover': { borderBottomColor: 'primary.main' },
+                '&:hover': {
+                  borderBottomColor: 'primary.main',
+                  fontWeight: 'bold',
+                },
               }}
               disabled={
                 !helper.checkUserHasPermission(
@@ -584,12 +594,6 @@ const TransactionListing = () => {
             backgroundColor: '#005099',
             color: 'white',
           },
-          // '& .MuiDataGrid-row:nth-of-type(even)': {
-          //   backgroundColor: '#e3f2fd',
-          // },
-          // '& .MuiDataGrid-row:nth-of-type(odd)': {
-          //   backgroundColor: '#ffffff',
-          // },
         }}
       >
         {helper.checkUserHasPermission(getTransactionPermission(), 'canRead') && (
