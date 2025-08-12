@@ -502,65 +502,74 @@ const TransactionListing = () => {
           </ToggleButtonGroup>
         </Box>
 
-        <Box>
-          <Tooltip title="Limit" arrow>
-            <IconButton onClick={() => setToolOpen(true)} color="primary">
-              <DonutLargeIcon />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Reconciliation" arrow>
-            <IconButton
-              onClick={() => {
-                handleNavigation('/recon-trx')
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {/* Left group: three text links */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0, mr: 3 }}>
+            <Typography
+              variant="body2"
+              sx={{
+                cursor: 'pointer',
+                borderBottom: '1px solid black',
+                lineHeight: 1.5,
+                px: 0.5,
+                '&:hover': { borderBottomColor: 'primary.main' },
               }}
-              color="primary"
+              onClick={() => handleNavigation('/recon-trx')}
             >
-              <CurrencyExchangeIcon />
-            </IconButton>
-          </Tooltip>
+              Reconciliation
+            </Typography>
 
-          <Tooltip title="Limit utilization enquiry" arrow>
-            <IconButton
-              onClick={() => {
-                handleNavigation('/utilization')
+            <Typography
+              variant="body2"
+              sx={{
+                cursor: 'pointer',
+                borderBottom: '1px solid black',
+                lineHeight: 1.5,
+                px: 0.5,
+                '&:hover': { borderBottomColor: 'primary.main' },
               }}
-              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
-              color="primary"
+              disabled={
+                !helper.checkUserHasPermission(
+                  local_service.get_modules()?.COMPLIANCE_MONITOR,
+                  'canRead'
+                )
+              }
+              onClick={() => handleNavigation('/utilization')}
             >
-              <AssessmentIcon
-                sx={{
-                  marginBottom: '10%',
-                }}
-              />
-            </IconButton>
-          </Tooltip>
+              Utilization Limit
+            </Typography>
 
-          <Tooltip title="Recon" arrow>
-            <IconButton
-              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
-              onClick={() => {
-                handleNavigation('/recon')
+            <Typography
+              variant="body2"
+              sx={{
+                cursor: 'pointer',
+                borderBottom: '1px solid black',
+                lineHeight: 1.5,
+                px: 0.5,
+                '&:hover': { borderBottomColor: 'primary.main' },
               }}
-              color="primary"
+              disabled={
+                !helper.checkUserHasPermission(
+                  local_service.get_modules()?.RECONCILLATION,
+                  'canRead'
+                )
+              }
+              onClick={() => handleNavigation('/recon')}
             >
-              <Sync
-                sx={{
-                  marginBottom: '10%',
-                }}
-              />
-            </IconButton>
-          </Tooltip>
+              Settlement
+            </Typography>
+          </Box>
 
+          {/* Right: transaction button */}
           <Button
-            variant="outlined"
-            sx={{
-              marginBottom: '3%',
-            }}
-            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
-            onClick={() => {
-              handleNavigation('/sendmoney')
-            }}
+            variant="contained"
+            disabled={
+              !helper.checkUserHasPermission(
+                local_service.get_modules()?.TRANSACTION_OUTWARD,
+                'canCreate'
+              )
+            }
+            onClick={() => handleNavigation('/sendmoney')}
           >
             + Transaction
           </Button>
