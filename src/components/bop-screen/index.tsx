@@ -965,8 +965,8 @@ const BopScreen: React.FC = () => {
                 size="small"
                 label="Non Resident first Name"
                 variant="outlined"
-                name="beneficiary_first_name"
-                value={formData.beneficiary_first_name || ''}
+                name="benificiary_first_name"
+                value={formData.benificiary_first_name || ''}
                 disabled
                 fullWidth
               />
@@ -976,8 +976,8 @@ const BopScreen: React.FC = () => {
                 size="small"
                 label="Non Resident Middle Name"
                 variant="outlined"
-                name="beneficiary_middle_name"
-                value={formData.beneficiary_middle_name || ''}
+                name="benificiary_middle_name"
+                value={formData.benificiary_middle_name || ''}
                 disabled
                 fullWidth
               />
@@ -987,8 +987,8 @@ const BopScreen: React.FC = () => {
                 size="small"
                 label="Non Resident Last Name"
                 variant="outlined"
-                name="beneficiary_last_name"
-                value={formData.beneficiary_last_name || ''}
+                name="benificiary_last_name"
+                value={formData.benificiary_last_name || ''}
                 disabled
                 fullWidth
               />
