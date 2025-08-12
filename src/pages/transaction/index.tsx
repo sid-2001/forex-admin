@@ -34,7 +34,7 @@ import { ApplicantService } from '@/services/applicant.service'
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
 import { statusColors } from '@/contants/utils'
 import LoaderUI from '@/components/loader/loader'
-import DonutLargeIcon from '@mui/icons-material/DonutLarge';
+import DonutLargeIcon from '@mui/icons-material/DonutLarge'
 const TransactionListing = () => {
   const columns_outward = [
     {
@@ -44,9 +44,7 @@ const TransactionListing = () => {
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return (
-          <a href="#"
-            style={{ color: theme.palette.text.primary }}
-            onClick={() => handleViewMore(params.row)}>
+          <a href="#" style={{ color: theme.palette.text.primary }} onClick={() => handleViewMore(params.row)}>
             {params?.value}
           </a>
         )
@@ -489,7 +487,7 @@ const TransactionListing = () => {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Typography variant="h4" gutterBottom >
+      <Typography variant="h4" gutterBottom>
         <strong>Transactions</strong>
       </Typography>
 
@@ -528,12 +526,7 @@ const TransactionListing = () => {
                 px: 0.5,
                 '&:hover': { borderBottomColor: 'primary.main' },
               }}
-              disabled={
-                !helper.checkUserHasPermission(
-                  local_service.get_modules()?.COMPLIANCE_MONITOR,
-                  'canRead'
-                )
-              }
+              // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
               onClick={() => handleNavigation('/utilization')}
             >
               Utilization Limit
@@ -548,12 +541,7 @@ const TransactionListing = () => {
                 px: 0.5,
                 '&:hover': { borderBottomColor: 'primary.main' },
               }}
-              disabled={
-                !helper.checkUserHasPermission(
-                  local_service.get_modules()?.RECONCILLATION,
-                  'canRead'
-                )
-              }
+              // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
               onClick={() => handleNavigation('/recon')}
             >
               Settlement
@@ -563,12 +551,7 @@ const TransactionListing = () => {
           {/* Right: transaction button */}
           <Button
             variant="contained"
-            disabled={
-              !helper.checkUserHasPermission(
-                local_service.get_modules()?.TRANSACTION_OUTWARD,
-                'canCreate'
-              )
-            }
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
             onClick={() => handleNavigation('/sendmoney')}
           >
             + Transaction
@@ -824,7 +807,7 @@ const TransactionListing = () => {
         </DialogActions>
       </Dialog>
 
-      <CompliancTool open={toolopen} setOpen={setToolOpen} userList={userList} fetchUserDetails={() => { }} />
+      <CompliancTool open={toolopen} setOpen={setToolOpen} userList={userList} fetchUserDetails={() => {}} />
 
       <Modal open={modalOpen} onClose={() => setmodalOpen(false)}>
         <Box
