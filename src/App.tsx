@@ -3,7 +3,6 @@ import './App.css'
 import DashboardLayout from './components/shared-layout'
 import ResetPasswordPage from './pages/resetpassword'
 import ProtectedRoute, { ProtectedRouteProps } from './helpers/protected-route'
-import IndexPage from './pages/defaultpage'
 import UserAdd from './pages/user-add'
 import Login from './pages/newlogin'
 import type {} from '@mui/x-data-grid/themeAugmentation'
@@ -13,8 +12,6 @@ import type {} from '@mui/x-data-grid/themeAugmentation'
 // import { getToken, onMessage } from 'firebase/messaging'
 // import Message from './components/message/index'
 // import LoaderBackdrop from './components/loader/loader'
-// import ApplicantPage from './pages/applicant'
-// import BeneficiaryTable from './components/beneficiary-table'
 
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -26,9 +23,7 @@ import KYCPage from './pages/kyc'
 import ApplicantPage from './pages/applicant'
 import ApplicantEnquiry from './pages/applicant-enquiry'
 import AddApplicant from './pages/add-applicant'
-import AddBeneficiary from './pages/add-beneficiary'
 import BeneficiaryDetailPage from './pages/beneficiary-detail'
-import BeneficiaryEnquiry from './pages/beneficiary-enquiry'
 import SendMoneyPage from './pages/send-money'
 import MainTabsPage from './pages/static-data/staticdata.page'
 import ReconPage from './pages/transaction/recon'
@@ -88,6 +83,14 @@ function App() {
             color: mode === 'dark' ? '#fff' : '#000',
             transition: 'all 0.3s ease',
           },
+           /* Hide scrollbar globally */
+          '&::-webkit-scrollbar': {
+            display: 'none', 
+          },
+          scrollbarWidth: 'none', 
+          msOverflowStyle: 'none', 
+ 
+
           '#root': {
             display: 'flex',
             flexDirection: 'column',
@@ -145,11 +148,9 @@ function App() {
               <Route path="applicant-details/:applicantId" element={<ApplicantPage />} />
               <Route path="applicant" element={<ApplicantEnquiry />} />
               <Route path="add-applicant" element={<AddApplicant />} />
-              <Route path="add-beneficiary/:id" element={<AddBeneficiary />} />
               <Route path="recon" element={<ReconPage />} />
               <Route path="utilization" element={<UtilizationEnquiryForm />} />
               <Route path="beneficiary-details/:beneficiaryId" element={<BeneficiaryDetailPage />} />
-              <Route path="beneficiary" element={<BeneficiaryEnquiry />} />
               <Route path="configuration" element={<MainTabsPage />} />
               <Route path="users/add" element={<UserAdd />} />
               <Route path="dashboard" element={<Dashboard />} />

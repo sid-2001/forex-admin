@@ -30,10 +30,10 @@ const BopTable: React.FC = () => {
     }
   }
   const renderBeneficiaryFullName = (row: any) => {
-    const { beneficiary_first_name, benificiary_last_name } = row
+    const { benificiary_first_name, benificiary_last_name } = row
     return row?.benificiary_middle_name
-      ? `${beneficiary_first_name} ${row?.benificiary_middle_name} ${benificiary_last_name}`
-      : `${beneficiary_first_name} ${benificiary_last_name}`
+      ? `${benificiary_first_name} ${row?.benificiary_middle_name} ${benificiary_last_name}`
+      : `${benificiary_first_name} ${benificiary_last_name}`
   }
 
   const columns = [
@@ -127,7 +127,7 @@ const BopTable: React.FC = () => {
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>
       <Box sx={{ width: '80vw', height: '70vh' }}>
-        <Typography variant="h4" gutterBottom >
+        <Typography variant="h4" gutterBottom>
           <strong>Bop Listing </strong>
         </Typography>
         {bopData && (
@@ -146,7 +146,7 @@ const BopTable: React.FC = () => {
               '& .MuiDataGrid-cell': {
                 fontSize: '14px',
               },
-              
+
               '& .super-app-theme--header': {
                 fontSize: '16px',
               },

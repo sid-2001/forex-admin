@@ -1,26 +1,26 @@
-import React, { useState } from 'react';
-import { DataGrid } from '@mui/x-data-grid';
-import { Box, Button, Chip, Divider, Drawer, Grid, IconButton, TextField, Typography, useTheme } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react'
+import { DataGrid } from '@mui/x-data-grid'
+import { Box, Button, Chip, Divider, Drawer, Grid, IconButton, TextField, Typography, useTheme } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
 import VisibilityIcon from '@mui/icons-material/Visibility'
-import { TransactionService } from '@/services/transaction.service';
-import { HelperService } from '@/helpers/helper';
-import HasPermission from '@/components/permissionWrapper';
-import { LocalStorageService } from '@/helpers/local-storage-service';
+import { TransactionService } from '@/services/transaction.service'
+import { HelperService } from '@/helpers/helper'
+import HasPermission from '@/components/permissionWrapper'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
-const local_service = new LocalStorageService();
+const local_service = new LocalStorageService()
 
 interface Transaction {
-  id: number;
-  transactionNumber: string;
-  sendCountry: string;
-  receiveCountry: string;
-  amount: string;
-  transactionStatus: string;
+  id: number
+  transactionNumber: string
+  sendCountry: string
+  receiveCountry: string
+  amount: string
+  transactionStatus: string
 }
 
 interface TransactionTableProps {
-  transactions: Transaction[];
+  transactions: Transaction[]
 }
 //@ts-ignore
 const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applicantId, availabledata = true }) => {
@@ -32,7 +32,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
     console.log(row)
     setDrawerOpen(true)
     setTransactionDetails(row)
-
   }
 
   const [transactionDetails, setTransactionDetails] = useState<any>(null)
@@ -41,18 +40,24 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
   const [isDrawerOpen, setDrawerOpen] = useState(false)
 
   const closeDrawer = () => {
+    let trx_service = new TransactionService()
 
-    let trx_service = new TransactionService();
-
-    if (trxStatus == "DRAFT" || trxStatus == "PENDING") {
+    if (trxStatus == 'DRAFT' || trxStatus == 'PENDING') {
       //  trx_service.createTransaction(creattrx).then(data => {
-
       //    console.log(data)
       //  })
     }
     setDrawerOpen(false)
     //  setZaphierLink('')
     // window.location.href = zaphierlink;
+  }
+
+  const renderBeneficiaryFullName = (beneficiary: any) => {
+    console.log(beneficiary, '-----------------')
+    const { beneficiaryFirstName, beneficiaryLastName } = beneficiary
+    return beneficiary?.beneficiaryMiddleName
+      ? `${beneficiaryFirstName} ${beneficiary?.beneficiaryMiddleName} ${beneficiaryLastName}`
+      : `${beneficiaryFirstName} ${beneficiaryLastName}`
   }
 
   const columns = [
@@ -63,22 +68,22 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
       headerClassName: 'super-app-theme--header',
     },
     {
-    field: 'transactionNumber',
-    headerName: 'Transaction No.',
-    flex: 1,
-    headerClassName: 'super-app-theme--header',
-    renderCell: (params: any) => (
-      <span
-        style={{
-          cursor: 'pointer',
-          textDecoration: 'underline',
-        }}
-        onClick={() => handleViewMore(params.row)}
-      >
-        {params.value}
-      </span>
-    ),
-  },
+      field: 'transactionNumber',
+      headerName: 'Transaction No.',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => (
+        <span
+          style={{
+            cursor: 'pointer',
+            textDecoration: 'underline',
+          }}
+          onClick={() => handleViewMore(params.row)}
+        >
+          {params.value}
+        </span>
+      ),
+    },
     {
       field: 'sendCountry',
       headerName: 'Send Country',
@@ -96,6 +101,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
       headerName: 'Beneficiary Name',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => <div>{renderBeneficiaryFullName(params?.row)}</div>,
     },
     {
       field: 'amount',
@@ -109,11 +115,11 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
-  ];
+  ]
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.TRANSACTION_OUTWARD}>
-      <Box sx={{ width: '100%', height: "100%" }}>
+      <Box sx={{ width: '100%', height: '100%' }}>
         <Button
           disabled={!availabledata && !helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
           variant="outlined"
@@ -121,7 +127,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
             const url = applicantId ? `/sendmoney?applicantId=${applicantId}` : '/sendmoney'
             navigate(url)
           }}
-          sx={{ marginBottom: "3%" }}
+          sx={{ marginBottom: '3%' }}
         >
           Add Transaction +
         </Button>
@@ -204,24 +210,48 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
               </Typography>
               <Grid container spacing={2} mb={2}>
                 <Grid item xs={12} md={6}>
-                  <TextField label="Destination" variant="filled" fullWidth
+                  <TextField
+                    label="Destination"
+                    variant="filled"
+                    fullWidth
                     //@ts-ignore
-                    defaultValue={transactionDetails.destination} size="small" disabled />
+                    defaultValue={transactionDetails.destination}
+                    size="small"
+                    disabled
+                  />
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <TextField label="Value" variant="filled" fullWidth
+                  <TextField
+                    label="Value"
+                    variant="filled"
+                    fullWidth
                     //@ts-ignore
-                    defaultValue={transactionDetails.value?.toFixed(2)} size="small" disabled />
+                    defaultValue={transactionDetails.value?.toFixed(2)}
+                    size="small"
+                    disabled
+                  />
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <TextField label="Currency" variant="filled" fullWidth
+                  <TextField
+                    label="Currency"
+                    variant="filled"
+                    fullWidth
                     //@ts-ignore
-                    defaultValue={transactionDetails.currency} size="small" disabled />
+                    defaultValue={transactionDetails.currency}
+                    size="small"
+                    disabled
+                  />
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <TextField label="Date" variant="filled" fullWidth
+                  <TextField
+                    label="Date"
+                    variant="filled"
+                    fullWidth
                     //@ts-ignore
-                    defaultValue={helper.convertDateAndTime(transactionDetails.date)} size="small" disabled />
+                    defaultValue={helper.convertDateAndTime(transactionDetails.date)}
+                    size="small"
+                    disabled
+                  />
                 </Grid>
               </Grid>
 
@@ -232,7 +262,14 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
               </Typography>
               <Grid container spacing={2} mb={2}>
                 <Grid item xs={12} md={6}>
-                  <TextField label="Account Number" variant="filled" fullWidth defaultValue={transactionDetails?.accountNumber} size="small" disabled />
+                  <TextField
+                    label="Account Number"
+                    variant="filled"
+                    fullWidth
+                    defaultValue={transactionDetails?.accountNumber}
+                    size="small"
+                    disabled
+                  />
                 </Grid>
                 <Grid item xs={12} md={6}>
                   <TextField label="Bank" variant="filled" fullWidth defaultValue={transactionDetails?.bankName} size="small" disabled />
@@ -245,7 +282,11 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
                     label="Account Holder Name"
                     variant="filled"
                     fullWidth
-                    defaultValue={transactionDetails?.beneficiaryName}
+                    defaultValue={
+                      transactionDetails?.beneficiaryMiddleName
+                        ? `${transactionDetails.beneficiaryFirstName} ${transactionDetails?.beneficiaryMiddleName} ${transactionDetails.beneficiaryLastName}`
+                        : `${transactionDetails.beneficiaryFirstName} ${transactionDetails.beneficiaryLastName}`
+                    }
                     size="small"
                     disabled
                   />
@@ -259,19 +300,23 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
               </Typography>
               <Grid container spacing={2} mb={2}>
                 <Grid item xs={12} md={6}>
-                  <TextField label="Applicant Id" variant="filled" fullWidth defaultValue={(transactionDetails?.applicantId)} size="small" disabled />
+                  <TextField label="Applicant Id" variant="filled" fullWidth defaultValue={transactionDetails?.applicantId} size="small" disabled />
                 </Grid>
                 {/* <Grid item xs={12} md={6}>
                       <TextField label="Applicant Name" variant="filled" fullWidth defaultValue={transactionDetails?.applicant?.firstName} size="small" disabled />
                     </Grid> */}
               </Grid>
-              {
-                (trxStatus == "DRAFT" || trxStatus == "PENDING") ? (<>
-                  <Button disabled={zaphierlink.length > 0 ? false : true} variant="outlined" onClick={() => {
-                    closeDrawer()
-                    // window.location.href=zaphierlink;
-                    // openInNewTab(zaphierlink)
-                  }}>
+              {trxStatus == 'DRAFT' || trxStatus == 'PENDING' ? (
+                <>
+                  <Button
+                    disabled={zaphierlink.length > 0 ? false : true}
+                    variant="outlined"
+                    onClick={() => {
+                      closeDrawer()
+                      // window.location.href=zaphierlink;
+                      // openInNewTab(zaphierlink)
+                    }}
+                  >
                     <img
                       src="https://media.licdn.com/dms/image/v2/C560BAQEH3RSdlorC_g/company-logo_200_200/company-logo_200_200/0/1675795834026/zapier_logo?e=2147483647&v=beta&t=Hx-pHbieeJMPM-LUGcTe3O8iwYPYW7xUBc0W1uC2tBs"
                       alt="Zapier Logo"
@@ -279,13 +324,16 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
                     />
                     Complete Payment
                   </Button>
-                </>) : (<></>)
-              }
+                </>
+              ) : (
+                <></>
+              )}
             </Box>
           )}
         </Drawer>
-      </Box></HasPermission>
-  );
-};
+      </Box>
+    </HasPermission>
+  )
+}
 
-export default TransactionTable;
+export default TransactionTable

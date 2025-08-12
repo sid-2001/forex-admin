@@ -49,11 +49,11 @@ const Dashboard = () => {
   const local_service = new LocalStorageService()
   const helper = new HelperService()
 
-    const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
+  const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
   const navigate = useNavigate()
-  const [open, setOpen] = useRecoilState(alertState);
-  const [text, setText] = useRecoilState(alertTextState);
-  const [type, settype] = useRecoilState(alertTypeState);
+  const [open, setOpen] = useRecoilState(alertState)
+  const [text, setText] = useRecoilState(alertTextState)
+  const [type, settype] = useRecoilState(alertTypeState)
   const getGatewayList = () => {
     static_service.getStaticPaymentGateway(local_service?.get_staff_country()).then((data: any) => {
       setCards(data?.data?.sort((e: any) => e.costFee))
@@ -70,12 +70,11 @@ const Dashboard = () => {
     getGatewayList()
     setIsLoading(true)
     getOutwardTransactionsList()
-    setSelectedApp("Dashboard")
+    setSelectedApp('Dashboard')
     transaction_service.getTransactionSummary(userCountry).then((data) => {
       setapplicantData(data?.data)
     })
   }, [])
-
 
   const bankAccounts = [
     {
@@ -107,7 +106,6 @@ const Dashboard = () => {
   const BankBalanceCarousel = () => {
     const scrollRef = React.useRef<HTMLDivElement>(null)
 
-
     const scroll = (offset: number) => {
       if (scrollRef.current) {
         scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' })
@@ -115,10 +113,7 @@ const Dashboard = () => {
     }
 
     return (
-      <Box
-        position="relative"
-        width="100%"
-      >
+      <Box position="relative" width="100%">
         {/* Scroll Buttons */}
 
         <IconButton
@@ -131,8 +126,7 @@ const Dashboard = () => {
             backgroundColor: 'transparent',
           }}
         >
-          <ArrowLeftIcon 
-          sx={{color:'black'}} />
+          <ArrowLeftIcon sx={{ color: 'black' }} />
         </IconButton>
         <IconButton
           onClick={() => scroll(300)}
@@ -141,11 +135,10 @@ const Dashboard = () => {
             top: '30%',
             right: 0,
             zIndex: 1,
-           // backgroundColor: 'primary.light',
+            // backgroundColor: 'primary.light',
           }}
         >
-          <ArrowRightIcon 
-            sx={{color:'black'}} />
+          <ArrowRightIcon sx={{ color: 'black' }} />
         </IconButton>
 
         {/* Scrollable Bank Cards */}
@@ -193,9 +186,9 @@ const Dashboard = () => {
       const data = await static_service.paymentGatewayStatus(id, status)
       getGatewayList()
     } catch (error) {
-      setText("Error fetching data ")
+      setText('Error fetching data ')
       setOpen(true)
-      settype("error")
+      settype('error')
       console.log(error)
     }
   }
@@ -290,8 +283,6 @@ const Dashboard = () => {
   const HorizontalCardCarousel = () => {
     const scrollRef = React.useRef<HTMLDivElement>(null)
 
-
-
     const scroll = (offset: number) => {
       if (scrollRef.current) {
         scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' })
@@ -300,7 +291,7 @@ const Dashboard = () => {
 
     return (
       <Box position="relative" width="100%" padding="0px" margin="0px">
-        Scroll Buttons
+        {/* Scroll Buttons */}
         <IconButton
           onClick={() => scroll(-300)}
           sx={{
@@ -308,11 +299,10 @@ const Dashboard = () => {
             top: '30%',
             left: 0,
             zIndex: 1,
-           // backgroundColor: 'primary.light',
+            // backgroundColor: 'primary.light',
           }}
         >
-          <ArrowLeftIcon 
-            sx={{color:'black'}} />
+          <ArrowLeftIcon sx={{ color: 'black' }} />
         </IconButton>
         <IconButton
           onClick={() => scroll(300)}
@@ -321,15 +311,11 @@ const Dashboard = () => {
             top: '30%',
             right: 0,
             zIndex: 1,
-           // backgroundColor: 'primary.light',
+            // backgroundColor: 'primary.light',
           }}
         >
-          <ArrowRightIcon 
-            sx={{color:'black'}} />
+          <ArrowRightIcon sx={{ color: 'black' }} />
         </IconButton>
-
-
-
         {/* Carousel Container */}
         <Box
           ref={scrollRef}
@@ -380,13 +366,9 @@ const Dashboard = () => {
     }
   }
 
-
   return (
     <Box sx={{ width: '80vw' }}>
-      <Typography
-        variant="h4"
-        gutterBottom
-      >
+      <Typography variant="h4" gutterBottom>
         <b>Dashboard Overview</b>{' '}
         <ShowChartIcon
           sx={{
@@ -433,7 +415,7 @@ const Dashboard = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3} >
+        <Grid item xs={12} sm={6} md={3}>
           <Card sx={{ border: '1px solid', borderColor: 'primary.light' }}>
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={2}>
@@ -537,8 +519,8 @@ const Dashboard = () => {
                     No data found
                   </Typography>
                 ) : (
-                  recentTransaction.map((transaction: any) => (
-                    <Box key={transaction.id} sx={{ mb: 2, p: 1, borderBottom: '1px solid ', borderColor: 'primary.light' }}>
+                  recentTransaction.map((transaction: any, index: any) => (
+                    <Box key={index} sx={{ mb: 2, p: 1, borderBottom: '1px solid ', borderColor: 'primary.light' }}>
                       <Stack direction="row" justifyContent="space-between">
                         <Typography fontWeight="bold">{`${transaction?.applicant?.firstName} ${transaction?.applicant?.lastName}`}</Typography>
                       
@@ -565,8 +547,8 @@ const Dashboard = () => {
                             transaction?.transactionOutward?.reportingStatus === 'Completed'
                               ? 'success.main'
                               : transaction?.transactionOutward?.reportingStatus === 'Pending'
-                                ? 'warning.main'
-                                : 'error.main'
+                              ? 'warning.main'
+                              : 'error.main'
                           }
                         >
                           {transaction?.transactionOutward?.reportingStatus}

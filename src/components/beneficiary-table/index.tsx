@@ -8,7 +8,7 @@ import { HelperService } from '@/helpers/helper'
 const local_service = new LocalStorageService()
 const helper = new HelperService()
 
-const BeneficiaryTable = ({ beneficiary, applicantId }: { beneficiary: any; applicantId: any }) => {
+const BeneficiaryTable = ({ beneficiary }: { beneficiary: any }) => {
   const navigate = useNavigate()
 
   const handleBeneficiaryIdClick = (
@@ -84,16 +84,6 @@ const BeneficiaryTable = ({ beneficiary, applicantId }: { beneficiary: any; appl
   return (
     <>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.BENEFICIARY}>
-        <Button
-          variant="outlined"
-          onClick={() => navigate(`/add-beneficiary/${applicantId}`)}
-          sx={{
-            marginBottom: '3%',
-          }}
-          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.BENEFICIARY, 'canCreate')}
-        >
-          ADD Beneficary
-        </Button>
         {beneficiary.length > 0 ? (
           <DataGrid
             sx={{

@@ -34,7 +34,7 @@ import { ApplicantService } from '@/services/applicant.service'
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
 import { statusColors } from '@/contants/utils'
 import LoaderUI from '@/components/loader/loader'
-
+import DonutLargeIcon from '@mui/icons-material/DonutLarge'
 const TransactionListing = () => {
   const columns_outward = [
     {
@@ -44,9 +44,7 @@ const TransactionListing = () => {
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return (
-          <a href="#"
-            style={{ color: theme.palette.text.primary }}
-            onClick={() => handleViewMore(params.row)}>
+          <a href="#" style={{ color: theme.palette.text.primary }} onClick={() => handleViewMore(params.row)}>
             {params?.value}
           </a>
         )
@@ -561,7 +559,7 @@ const TransactionListing = () => {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Typography variant="h4" gutterBottom >
+      <Typography variant="h4" gutterBottom>
         <strong>Transactions</strong>
       </Typography>
 
@@ -574,57 +572,59 @@ const TransactionListing = () => {
           </ToggleButtonGroup>
         </Box>
 
-        <Box>
-          <IconButton onClick={() => setToolOpen(true)} color="primary">
-            <SettingsAccessibilityRounded />
-          </IconButton>
-
-          <IconButton
-            onClick={() => {
-              handleNavigation('/recon-trx')
-            }}
-            color="primary"
-          >
-            <CurrencyExchangeIcon />
-          </IconButton>
-
-          <IconButton
-            onClick={() => {
-              handleNavigation('/utilization')
-            }}
-            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
-            color="primary"
-          >
-            <AssessmentIcon
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {/* Left group: three text links */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0, mr: 3 }}>
+            <Typography
+              variant="body2"
               sx={{
-                marginBottom: '10%',
+                cursor: 'pointer',
+                borderBottom: '1px solid black',
+                lineHeight: 1.5,
+                px: 0.5,
+                '&:hover': { borderBottomColor: 'primary.main' },
               }}
-            />
-          </IconButton>
+              onClick={() => handleNavigation('/recon-trx')}
+            >
+              Reconciliation
+            </Typography>
 
-          <IconButton
-            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
-            onClick={() => {
-              handleNavigation('/recon')
-            }}
-            color="primary"
-          >
-            <Sync
+            <Typography
+              variant="body2"
               sx={{
-                marginBottom: '10%',
+                cursor: 'pointer',
+                borderBottom: '1px solid black',
+                lineHeight: 1.5,
+                px: 0.5,
+                '&:hover': { borderBottomColor: 'primary.main' },
               }}
-            />
-          </IconButton>
+              // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
+              onClick={() => handleNavigation('/utilization')}
+            >
+              Utilization Limit
+            </Typography>
 
+            <Typography
+              variant="body2"
+              sx={{
+                cursor: 'pointer',
+                borderBottom: '1px solid black',
+                lineHeight: 1.5,
+                px: 0.5,
+                '&:hover': { borderBottomColor: 'primary.main' },
+              }}
+              // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
+              onClick={() => handleNavigation('/recon')}
+            >
+              Settlement
+            </Typography>
+          </Box>
+
+          {/* Right: transaction button */}
           <Button
-            variant="outlined"
-            sx={{
-              marginBottom: '3%',
-            }}
+            variant="contained"
             disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
-            onClick={() => {
-              handleNavigation('/sendmoney')
-            }}
+            onClick={() => handleNavigation('/sendmoney')}
           >
             + Transaction
           </Button>
@@ -879,7 +879,7 @@ const TransactionListing = () => {
         </DialogActions>
       </Dialog>
 
-      <CompliancTool open={toolopen} setOpen={setToolOpen} userList={userList} fetchUserDetails={() => { }} />
+      <CompliancTool open={toolopen} setOpen={setToolOpen} userList={userList} fetchUserDetails={() => {}} />
 
       <Modal open={modalOpen} onClose={() => setmodalOpen(false)}>
         <Box
