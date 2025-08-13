@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Box, Typography } from '@mui/material'
 import { ApplicantService } from '@/services/applicant.service' // Assuming you have this service
-import { useRecoilValue } from 'recoil'
-import { selectedCountryState } from '@/states/state'
 import ApplicantDataGrid from '@/components/applicant'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
@@ -12,7 +10,7 @@ const local_service = new LocalStorageService()
 
 const ApplicantEnquiry = () => {
   const [applicantList, setapplicantList] = useState([])
-  const staffCountry = useRecoilValue(selectedCountryState)
+  const staffCountry = local_service?.get_staff_country()
 
   const getApplicantListByCountry = useCallback(async () => {
     try {

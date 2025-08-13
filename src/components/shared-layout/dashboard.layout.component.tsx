@@ -3,13 +3,13 @@ import { Box, Typography, Avatar, List, ListItem, IconButton, AppBar, ListItemIc
 import { styled } from '@mui/system'
 import { LogoWhite } from '@/assets/images'
 import { Outlet, useNavigate } from 'react-router-dom'
-import { useRecoilValue, useRecoilState } from 'recoil'
+import { useRecoilState } from 'recoil'
 import Person2Icon from '@mui/icons-material/Person2'
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
 import { themeModeState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { Brightness4, Brightness7 } from '@mui/icons-material'
-import { alertState, loaderState, selectedAppState, loaderStateNew, selectedCountryState, availableBalanceState } from '@/states/state'
+import { alertState, loaderState, selectedAppState, loaderStateNew, availableBalanceState } from '@/states/state'
 import { useState, useEffect } from 'react'
 import Backdrop from '@mui/material/Backdrop'
 import LogoutIcon from '@mui/icons-material/Logout'
@@ -69,7 +69,7 @@ const Header = styled(Box)({
 const DashboardLayout = () => {
   const [mode, setMode] = useRecoilState(themeModeState)
   const [open, setOpen] = useRecoilState(alertState)
-  const staffCountry = useRecoilValue(selectedCountryState)
+  const staffCountry = local_service?.get_staff_country()
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
   const [balance, setBalance] = useRecoilState(availableBalanceState)
   const [openloader, setopenloader] = useRecoilState(loaderStateNew)

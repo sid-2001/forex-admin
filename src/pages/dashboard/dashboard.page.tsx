@@ -8,8 +8,8 @@ import ShowChartIcon from '@mui/icons-material/ShowChart'
 import { TransactionService } from '@/services/transaction.service'
 import { PaymentGateway } from '@/types/static.type'
 import staticdataService from '@/services/staticdata.service'
-import { useRecoilValue, useRecoilState } from 'recoil'
-import { selectedAppState, alertState, alertTextState, alertTypeState, selectedCountryState } from '@/states/state'
+import { useRecoilState } from 'recoil'
+import { selectedAppState, alertState, alertTextState, alertTypeState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import TransactionPanel from '@/components/transaction-panel'
 import { HelperService } from '@/helpers/helper'
@@ -28,7 +28,7 @@ const Dashboard = () => {
 
   // Modal state
   const [openModal, setOpenModal] = useState<any>(false)
-  const userCountry = useRecoilValue(selectedCountryState)
+
   const [applicatnData, setapplicantData] = useState<
     Array<{
       applicantId: String
@@ -44,6 +44,7 @@ const Dashboard = () => {
   const static_service = new staticdataService()
   const local_service = new LocalStorageService()
   const helper = new HelperService()
+  const userCountry = local_service?.get_staff_country()
 
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
   const navigate = useNavigate()

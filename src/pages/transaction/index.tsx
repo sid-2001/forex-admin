@@ -25,7 +25,7 @@ import { TransactionInward, TransactionInwardCalclulated, TransactionOutward } f
 import AssessmentIcon from '@mui/icons-material/Assessment'
 import { PreviewOutlined, SettingsAccessibilityRounded, Sync } from '@mui/icons-material'
 import { useRecoilState } from 'recoil'
-import { loaderStateNew, selectedCountryState } from '@/states/state'
+import { loaderStateNew } from '@/states/state'
 import CompliancTool from '@/components/compliance-tool'
 import { HelperService } from '@/helpers/helper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
@@ -284,8 +284,6 @@ const TransactionListing = () => {
   const [inboundTransaction, setInboundTransaction] = useState<Array<TransactionInward>>([])
   const [outboundTransaction, setOutboundTransaction] = useState<Array<TransactionOutward>>([])
   const [toolopen, setToolOpen] = useState(false)
-  const [selectedCountryOption, setSelectedCountryOption] = useRecoilState(selectedCountryState)
-  //@ts-ignore
   const [trxStatus, settrxStatus] = useState('')
   const [transactionData, setTransactionData] = useState(inboundTransaction)
   const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
@@ -306,6 +304,7 @@ const TransactionListing = () => {
   const navigate = useNavigate()
   const { search } = useLocation()
   const queryParams = new URLSearchParams(search)
+  const userCountry = local_service?.get_staff_country()
 
   const flow = queryParams.get('flow')
 
@@ -355,7 +354,7 @@ const TransactionListing = () => {
   const getInwardTransactionList = useCallback(async () => {
     try {
       setcommonloader(true)
-      const data = await transaction_Service.getInwardTransaction(selectedCountryOption === 'IN' ? 'IN' : 'ZA')
+      const data = await transaction_Service.getInwardTransaction(userCountry)
       setInboundTransaction(data || [])
       setcommonloader(false)
     } catch (error) {
@@ -366,7 +365,7 @@ const TransactionListing = () => {
   const getAllTransactions = useCallback(async () => {
     try {
       setcommonloader(true)
-      const data: any = await transaction_Service.getOutwardAllTransaction(selectedCountryOption === 'IN' ? 'IN' : 'ZA')
+      const data: any = await transaction_Service.getOutwardAllTransaction(userCountry)
 
       const inbound: Array<TransactionInwardCalclulated>[] | any = data?.map((e: any) => {
         //@ts-ignore
@@ -416,12 +415,12 @@ const TransactionListing = () => {
             return transaction?.id == queryParams.get('id')
           }
 
-          if (selectedCountryOption === 'IN') {
+          if (userCountry === 'IN') {
             return transaction.destination?.toLowerCase() !== 'in'
-          } else if (selectedCountryOption === 'ZA') {
+          } else if (userCountry === 'ZA') {
             return transaction.destination?.toLowerCase() !== 'za'
           }
-          return true // If selectedCountryOption is not "IN", include all destinations
+          return true
         })
 
       setTransactionData(inbound)
@@ -491,9 +490,9 @@ const TransactionListing = () => {
       gatewayId: '13122',
       //@ts-ignore
       timecharge: row.charges,
-      sourceCurrency: selectedCountryOption === 'ZA' ? 'ZAR' : 'INR',
-      sourceCountry: selectedCountryOption === 'ZA' ? 'ZA' : 'IN',
-      destinationCurrency: selectedCountryOption === 'ZA' ? 'INR' : 'ZAR',
+      sourceCurrency: userCountry === 'ZA' ? 'ZAR' : 'INR',
+      sourceCountry: userCountry,
+      destinationCurrency: userCountry === 'ZA' ? 'INR' : 'ZAR',
       bopId: row?.bobId,
       // totalpaybleamount: (Number(row.value) + Number(row.charges)),
       totalpaybleamount: Number(row.value) * Number(row.exchangeRates),

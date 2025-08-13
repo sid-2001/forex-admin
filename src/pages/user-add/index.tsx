@@ -8,11 +8,10 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { Modules, UserService } from '@/services/user.service'
 import { StaffProfile } from '@/types/staff.type'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState } from 'recoil'
 import { HelperService } from '@/helpers/helper'
 import { theme } from '@/contants/theme'
 import { useTheme } from '@emotion/react'
-import { selectedCountryState } from '@/states/state'
 
 //@ts-ignore
 function sortAscending(arr, key) {
@@ -56,7 +55,8 @@ const UserAdd = () => {
   const [passwordError, setPasswordError] = useState('')
   const [countryList, setCountryList] = useState([])
   const [branchList, setBranchList] = useState([])
-  const userCountry = useRecoilValue(selectedCountryState)
+  const userCountry = local_service?.get_staff_country()
+
   const { staffId } = useParams()
   const navigate = useNavigate()
   const postalCodeMaxLengthMap: { [key: string]: number } = {

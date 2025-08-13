@@ -23,8 +23,8 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
 import { ApplicantService } from '@/services/applicant.service'
 import { KycService } from '@/services/kyc.service'
 import { Close, Comment, Send } from '@mui/icons-material'
-import { loaderStateNew, selectedCountryState } from '@/states/state'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { loaderStateNew } from '@/states/state'
+import { useRecoilState } from 'recoil'
 import CloseIcon from '@mui/icons-material/Close'
 import { useNavigate, useParams } from 'react-router-dom'
 import ConfirmationModal from '@/components/logout/logout.component'
@@ -44,7 +44,6 @@ const KYCPage = () => {
   const [mockdata, setMockData] = useState<Array<any>>([])
   const [loader, setCommonLoader] = useRecoilState(loaderStateNew)
   const [checkboxOpen, setCheckboxOpen] = useState(false)
-  const userCountry = useRecoilValue(selectedCountryState)
   const [newComment, setNewComment] = useState('')
   const [loading, setLoading] = useState(false)
   const [comments, setComments] = useState<any>([])
@@ -57,6 +56,7 @@ const KYCPage = () => {
   let applicant_service = new ApplicantService()
   let kycservice = new KycService()
   const helper_service = new HelperService()
+  const userCountry = local_service?.get_staff_country()
 
   const KycColumns = [
     {
