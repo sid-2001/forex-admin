@@ -78,7 +78,9 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
             cursor: 'pointer',
             textDecoration: 'underline',
           }}
-          onClick={() => handleViewMore(params.row)}
+          onClick={() =>
+            navigate(`/transaction?flow=outwards&id=${params?.row?.transactionNumber}`)
+          }
         >
           {params.value}
         </span>

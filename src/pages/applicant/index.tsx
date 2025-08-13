@@ -11,6 +11,8 @@ import { KycService } from '@/services/kyc.service'
 import ReferralTransactions from '@/components/referralTransactionTable'
 import DocumentsListComponent from '../document-tab'
 import BeneficiaryTable from '@/components/beneficiary-table'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
 
 const ApplicantPage = () => {
   const navigate = useNavigate()
@@ -205,10 +207,22 @@ const ApplicantPage = () => {
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.APPLICANT}>
       <Box sx={{ width: '80vw' }}>
-        <Box>
-          <Typography variant="h5" gutterBottom color={theme.palette.secondary.main} sx={{ fontWeight: 'bold' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography
+            variant="h5"
+            gutterBottom
+            sx={{ fontWeight: 'bold' }}
+          >
             Applicant Details
           </Typography>
+
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBackIcon />}
+            onClick={() => navigate(-1)}
+          >
+            Back
+          </Button>
         </Box>
 
         <Box mb={6} display="flex" alignItems="center">

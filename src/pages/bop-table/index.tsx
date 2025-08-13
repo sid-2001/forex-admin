@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
 import { Box, Typography, IconButton, useTheme } from '@mui/material'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
@@ -42,6 +42,17 @@ const BopTable: React.FC = () => {
       headerName: 'Transaction No.',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        const theme = useTheme();
+        return (
+          <Link
+            to={`/transaction?flow=outwards&id=${params?.row?.transaction_number}`}
+            style={{ color: theme.palette.text.primary }}
+          >
+            {params?.row?.transaction_number}
+          </Link>
+        );
+      },
     },
     {
       field: 'transaction_attempt',
