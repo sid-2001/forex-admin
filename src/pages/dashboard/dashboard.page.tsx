@@ -39,6 +39,7 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [recentTransaction, setrecentTransaction] = useState<any>([])
   const [cards, setCards] = useState<Array<PaymentGateway>>([])
+
   const transaction_service = new TransactionService()
   const static_service = new staticdataService()
   const local_service = new LocalStorageService()
@@ -49,7 +50,6 @@ const Dashboard = () => {
   const [open, setOpen] = useRecoilState(alertState)
   const [text, setText] = useRecoilState(alertTextState)
   const [type, settype] = useRecoilState(alertTypeState)
-
   const getGatewayList = () => {
     static_service.getStaticPaymentGateway(local_service?.get_staff_country()).then((data: any) => {
       setCards(data?.data?.sort((e: any) => e.costFee))
@@ -58,7 +58,7 @@ const Dashboard = () => {
 
   const getOutwardTransactionsList = useCallback(async () => {
     const data = await transaction_service.getOutwardAllTransaction(userCountry)
-    setrecentTransaction(data)
+    setrecentTransaction(data || [])
     setIsLoading(false)
   }, [])
 
@@ -402,7 +402,7 @@ const Dashboard = () => {
                     <Skeleton variant="text" width={80} height={36} />
                   ) : (
                     <Typography variant="h4" component="div">
-                      {recentTransaction.length}
+                      {recentTransaction?.length}
                     </Typography>
                   )}
                 </Box>
@@ -510,7 +510,7 @@ const Dashboard = () => {
                     <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
                     <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
                   </>
-                ) : recentTransaction.length === 0 ? (
+                ) : recentTransaction?.length === 0 ? (
                   <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
                     No data found
                   </Typography>
@@ -566,7 +566,7 @@ const Dashboard = () => {
                     <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
                     <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
                   </>
-                ) : recentTransaction.length === 0 ? (
+                ) : recentTransaction?.length === 0 ? (
                   <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
                     No data found
                   </Typography>

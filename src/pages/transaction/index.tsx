@@ -170,12 +170,11 @@ const TransactionListing = () => {
     { field: 'sendingCountry', headerName: 'Sending Country', width: 130, headerClassName: 'super-app-theme--header' },
     { field: 'receivingCountry', headerName: 'Receiving Country', width: 130, headerClassName: 'super-app-theme--header' },
     { field: 'settlementCurrency', headerName: 'Settlement Currency', width: 150, headerClassName: 'super-app-theme--header' },
-       { field: 'principalCurrency', headerName: 'Principal Currency', width: 150, headerClassName: 'super-app-theme--header' },
+    { field: 'principalCurrency', headerName: 'Principal Currency', width: 150, headerClassName: 'super-app-theme--header' },
 
-       { field: 'gatewayId', headerName: 'Gateway', width: 100, headerClassName: 'super-app-theme--header' },
-   
+    { field: 'gatewayId', headerName: 'Gateway', width: 100, headerClassName: 'super-app-theme--header' },
 
-           { field: 'gatewayStatus', headerName: 'Gateway', width: 100, headerClassName: 'super-app-theme--header' },
+    { field: 'gatewayStatus', headerName: 'Gateway', width: 100, headerClassName: 'super-app-theme--header' },
     {
       field: 'settlementAmount',
       headerName: 'Settlement Amount',
@@ -194,16 +193,14 @@ const TransactionListing = () => {
         return helper.convertDateAndTime(params?.row?.inCreatedDate)
       },
     },
-        {
+    {
       field: 'lcharges2',
       headerName: 'Charges',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-    
     },
 
-
-      {
+    {
       field: 'owCreatedDate',
       headerName: 'Date',
       type: 'Date',
@@ -214,7 +211,7 @@ const TransactionListing = () => {
       },
     },
 
-      {
+    {
       field: 'transactionStatus',
       headerName: 'Status',
       flex: 1,
@@ -222,11 +219,9 @@ const TransactionListing = () => {
       renderCell: (params: any) => {
         return <div style={{ color: statusColors[params?.row?.status?.toUpperCase()] }}>{params?.row?.status?.toUpperCase()}</div>
       },
-
-     
     },
-    
-       {
+
+    {
       field: 'stpError',
       headerName: 'STP',
       flex: 1,
@@ -301,7 +296,7 @@ const TransactionListing = () => {
   const [startDate, setStartDate] = useState<string | null>(null)
   const [endDate, setEndDate] = useState<string | null>(null)
   const [stpErrors, setStpErrors] = useState<any>([])
-  const [givenTransaction,setGivenTransaction]=useState<any>(null)
+  const [givenTransaction, setGivenTransaction] = useState<any>(null)
 
   let applicant_service = new ApplicantService()
   let transaction_Service = new TransactionService()
@@ -317,7 +312,7 @@ const TransactionListing = () => {
   const fetchStpErrorList = async (transactionId: string) => {
     try {
       const { data } = await transaction_Service.getStpRules(transactionId)
-      setStpErrors(data)
+      setStpErrors(data || [])
     } catch (error) {
       console.log('err', error)
     }
@@ -361,7 +356,7 @@ const TransactionListing = () => {
     try {
       setcommonloader(true)
       const data = await transaction_Service.getInwardTransaction(selectedCountryOption === 'IN' ? 'IN' : 'ZA')
-      setInboundTransaction(data)
+      setInboundTransaction(data || [])
       setcommonloader(false)
     } catch (error) {
       console.log(error)
@@ -372,7 +367,7 @@ const TransactionListing = () => {
     try {
       setcommonloader(true)
       const data: any = await transaction_Service.getOutwardAllTransaction(selectedCountryOption === 'IN' ? 'IN' : 'ZA')
-         
+
       const inbound: Array<TransactionInwardCalclulated>[] | any = data?.map((e: any) => {
         //@ts-ignore
         return {
@@ -417,13 +412,9 @@ const TransactionListing = () => {
           }
         })
         ?.filter((transaction: any) => {
-         
-       
-               if( queryParams.get("id")!=null){
-          
-              return    transaction?.id== queryParams.get("id")
-
-               }
+          if (queryParams.get('id') != null) {
+            return transaction?.id == queryParams.get('id')
+          }
 
           if (selectedCountryOption === 'IN') {
             return transaction.destination?.toLowerCase() !== 'in'
@@ -452,9 +443,7 @@ const TransactionListing = () => {
     getApplicantDetails()
     getInwardTransactionList()
     getAllTransactions()
-   setGivenTransaction( queryParams.get("id"))
-   
-  
+    setGivenTransaction(queryParams.get('id'))
   }, [])
 
   const openInNewTab = (url: any) => {
@@ -521,11 +510,11 @@ const TransactionListing = () => {
       setTransactionType(newType)
       //@ts-ignore
       setTransactionData(newType === 'inwards' ? inboundTransaction : outboundTransaction)
-      if(givenTransaction!=null){
-
-            navigate(`/transaction?flow=${newType}&id=${givenTransaction}`)
-      }else{
-      navigate(`/transaction?flow=${newType}`)}
+      if (givenTransaction != null) {
+        navigate(`/transaction?flow=${newType}&id=${givenTransaction}`)
+      } else {
+        navigate(`/transaction?flow=${newType}`)
+      }
     }
   }
 
@@ -554,7 +543,7 @@ const TransactionListing = () => {
   }
 
   const getLoadingState = () => {
-    return transactionType === 'inwards' ? (inboundTransaction.length > 0 ? false : true) : outboundTransaction?.length > 0 ? false : true
+    return transactionType === 'inwards' ? (inboundTransaction?.length > 0 ? false : true) : outboundTransaction?.length > 0 ? false : true
   }
 
   return (
@@ -603,7 +592,6 @@ const TransactionListing = () => {
                   borderBottomColor: 'primary.main',
                   fontWeight: 'bold',
                 },
-
               }}
               // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
               onClick={() => handleNavigation('/utilization')}
@@ -928,13 +916,13 @@ const TransactionListing = () => {
               },
             }}
             columns={StpColumns}
-            rows={stpErrors}
+            rows={stpErrors || []}
             initialState={{
               pagination: {
                 paginationModel: { pageSize: 20, page: 0 },
               },
             }}
-            loading={stpErrors.length > 0 ? false : true}
+            loading={stpErrors?.length > 0 ? false : true}
             slots={{
               loadingOverlay: LoaderUI.LoadingOverlay,
             }}

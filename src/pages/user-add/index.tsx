@@ -1,117 +1,108 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box, Grid, TextField, Typography, Button, Switch,
-  MenuItem
-} from '@mui/material';
-import { useNavigate, useParams } from 'react-router-dom';
-import { DataGrid } from '@mui/x-data-grid';
-import HasPermission from '@/components/permissionWrapper';
-import { LocalStorageService } from '@/helpers/local-storage-service';
+import React, { useState, useEffect } from 'react'
+import { Box, Grid, TextField, Typography, Button, Switch, MenuItem } from '@mui/material'
+import { useNavigate, useParams } from 'react-router-dom'
+import { DataGrid } from '@mui/x-data-grid'
+import HasPermission from '@/components/permissionWrapper'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
-import { Modules, UserService } from '@/services/user.service';
-import { StaffProfile } from '@/types/staff.type';
-import { alertState, alertTextState, alertTypeState } from '@/states/state';
-import { useRecoilState } from 'recoil';
-import { HelperService } from '@/helpers/helper';
-import { theme } from '@/contants/theme';
-import { useTheme } from '@emotion/react';
+import { Modules, UserService } from '@/services/user.service'
+import { StaffProfile } from '@/types/staff.type'
+import { alertState, alertTextState, alertTypeState } from '@/states/state'
+import { useRecoilState, useRecoilValue } from 'recoil'
+import { HelperService } from '@/helpers/helper'
+import { theme } from '@/contants/theme'
+import { useTheme } from '@emotion/react'
+import { selectedCountryState } from '@/states/state'
 
 //@ts-ignore
 function sortAscending(arr, key) {
   return [...arr].sort((a, b) => {
-    const valA = a[key];
-    const valB = b[key];
+    const valA = a[key]
+    const valB = b[key]
 
     // Handle numbers
-    if (typeof valA === "number" && typeof valB === "number") {
-      return valA - valB;
+    if (typeof valA === 'number' && typeof valB === 'number') {
+      return valA - valB
     }
 
     // Handle strings (case-insensitive)
-    return String(valA).localeCompare(String(valB), undefined, { sensitivity: 'base' });
-  });
+    return String(valA).localeCompare(String(valB), undefined, { sensitivity: 'base' })
+  })
 }
 
-
-
 const UserAdd = () => {
-   const theme:any= useTheme(); // ✅ Move this INSIDE the component
+  const theme: any = useTheme() // ✅ Move this INSIDE the component
 
   const inputLabelStyle = {
     color: theme.palette.text.primary,
-    fontWeight: 800
-  };
+    fontWeight: 800,
+  }
   //@ts-ignore
-  const [staffData, setStaffData] = useState<StaffProfile>({ "staffIdNumber": "14-5678-9012", "staffIdType": "Aadhar" })
-  const [countrieslist] = useState(['USA', 'Canada', 'India']);
-  const [flows] = useState(['Onboarding', 'Approval', 'Checkout']);
-  const [roles, setRoles] = useState<any>([]);
-  const [selectedRole, setSelectedRole] = useState('');
-  const [permissions, setPermissions] = useState([]);
+  const [staffData, setStaffData] = useState<StaffProfile>({ staffIdNumber: '14-5678-9012', staffIdType: 'Aadhar' })
+  const [countrieslist] = useState(['USA', 'Canada', 'India'])
+  const [flows] = useState(['Onboarding', 'Approval', 'Checkout'])
+  const [roles, setRoles] = useState<any>([])
+  const [selectedRole, setSelectedRole] = useState('')
+  const [permissions, setPermissions] = useState([])
   const [modulePermissons, setModulePermisson] = useState<Array<Modules>>([])
-  const [open, setOpen] = useRecoilState(alertState);
-  const [text, setText] = useRecoilState(alertTextState);
-  const [type, settype] = useRecoilState(alertTypeState);
-  const [isEditable, setIsEditable] = useState(true);
+  const [open, setOpen] = useRecoilState(alertState)
+  const [text, setText] = useRecoilState(alertTextState)
+  const [type, settype] = useRecoilState(alertTypeState)
+  const [isEditable, setIsEditable] = useState(true)
   const local_service = new LocalStorageService()
-  const user_service = new UserService();
-  const helper_service = new HelperService();
-  const [emailError, setEmailError] = useState("")
-  const [passwordError, setPasswordError] = useState("");
-  const [countryList, setCountryList] = useState([]);
-  const [branchList, setBranchList] = useState([]);
-  const [selectedCountry, setSelectedCountry] = useState('ZA');
-  const [suburbList, setSuburbList] = useState<any[]>([]);
-  const { staffId } = useParams();
+  const user_service = new UserService()
+  const helper_service = new HelperService()
+  const [emailError, setEmailError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const [countryList, setCountryList] = useState([])
+  const [branchList, setBranchList] = useState([])
+  const userCountry = useRecoilValue(selectedCountryState)
+  const { staffId } = useParams()
   const navigate = useNavigate()
   const postalCodeMaxLengthMap: { [key: string]: number } = {
-  'IN': 6,
-  'ZA': 4,
-  'GR': 5, // Example for Greece
-};
+    IN: 6,
+    ZA: 4,
+    GR: 5, // Example for Greece
+  }
 
   const handleToggleChangePermisson = (
     //@ts-ignore
-    id, field) => {
+    id,
+    //@ts-ignore
+    field,
+  ) => {
     //@ts-ignore
 
-    var new_permisson_data;
+    var new_permisson_data
     console.log(permissions)
-    let full_data = JSON.parse(JSON.stringify(permissions));
-
+    let full_data = JSON.parse(JSON.stringify(permissions))
 
     let find_handels = full_data.filter(
       //@ts-ignore
-      e => e.id === id)
+      (e) => e.id === id,
+    )
 
     if (find_handels.length > 0) {
-
       let changed_row = find_handels[0]
 
       changed_row[field] = !changed_row[field]
 
       let remaning_data = full_data.filter(
         //@ts-ignore
-        e => e.id != id)
+        (e) => e.id != id,
+      )
       if (remaning_data.length > 0) {
         new_permisson_data = [...remaning_data, changed_row]
-
-
-
-
-      }
-      else {
-
+      } else {
         new_permisson_data = [changed_row]
-
       }
 
-      let sorted = new_permisson_data.sort((a, b) => a.id - b.id);
+      let sorted = new_permisson_data.sort((a, b) => a.id - b.id)
       console.log(sorted)
 
       setPermissions(
         //@ts-ignore
-        sortAscending(new_permisson_data, id)
+        sortAscending(new_permisson_data, id),
       )
     }
 
@@ -124,27 +115,27 @@ const UserAdd = () => {
         canCreate: e?.create,
         canRead: e?.read,
         canUpdate: e?.update,
-        canDelete: e?.delete // Consider renaming this if 'view' is not truly 'delete'
-      }
-    }));
+        canDelete: e?.delete, // Consider renaming this if 'view' is not truly 'delete'
+      },
+    }))
 
     setModulePermisson(permisson_data as any)
     setStaffData({
       ...staffData,
-      "roleId": selectedRole,
+      roleId: selectedRole,
       //@ts-ignore
-
-      "specialAccessModules": permisson_data, "roleId": Number(selectedRole)
-    });
-  };
-
+      specialAccessModules: permisson_data,
+      //@ts-ignore
+      roleId: Number(selectedRole),
+    })
+  }
 
   const columns = [
     {
       field: 'responsibility',
-      headerClassName: 'super-app-theme--header'
-      ,
-      headerName: 'Modules', flex: 1
+      headerClassName: 'super-app-theme--header',
+      headerName: 'Modules',
+      flex: 1,
     },
     ...['create', 'read', 'update', 'delete'].map((field) => ({
       field,
@@ -156,40 +147,38 @@ const UserAdd = () => {
       renderCell: (params) => (
         <>
           {/* <span>{ params}</span> */}
-          <Switch
-            checked={params.row[field]}
-            onChange={() => handleToggleChangePermisson(params.row.id, field)}
-          />
+          <Switch checked={params.row[field]} onChange={() => handleToggleChangePermisson(params.row.id, field)} />
         </>
       ),
     })),
-  ];
+  ]
 
   const fetchRolesList = async () => {
     try {
       let response = await user_service.getAllRolesData()
-      setRoles(response);
-
+      setRoles(response)
     } catch (error) {
-      console.error("Error fetching roles data:", error);
+      console.error('Error fetching roles data:', error)
     }
   }
   const fetchStaffDetailsByStaffId = async () => {
     if (!staffId) {
-      console.error("Staff ID is missing in the URL");
-      return;
+      console.error('Staff ID is missing in the URL')
+      return
     }
     try {
       let response: StaffProfile = await user_service.getStaffDetailsById(staffId)
 
       setSelectedRole(
         //@ts-ignore
-        response?.roleId)
+        response?.roleId,
+      )
 
-      setStaffData(response);
+      setStaffData(response)
       setModulePermisson(
         //@ts-ignore
-        response?.modules)
+        response?.modules,
+      )
 
       const initialPermissions = response?.modules?.map(
         //@ts-ignore
@@ -201,63 +190,50 @@ const UserAdd = () => {
           read: res.access.canRead,
           update: res.access.canUpdate,
 
-
-          delete: res.access.canDelete
-        }));
+          delete: res.access.canDelete,
+        }),
+      )
 
       setPermissions(
         //@ts-ignore
-        initialPermissions.sort(e => e.id))
-
+        initialPermissions.sort((e) => e.id),
+      )
     } catch (error) {
-      console.error("Error fetching staff data:", error);
+      console.error('Error fetching staff data:', error)
     }
   }
 
   const fetchCountries = async () => {
     try {
-      const response = await user_service.getCountriesList();
-      const filtered = response?.filter((country: any) => country.status === 'A');
-      setCountryList(filtered || []);
+      const response = await user_service.getCountriesList()
+      const filtered = response?.filter((country: any) => country.status === 'A')
+      setCountryList(filtered || [])
     } catch (err) {
-      console.error("Error fetching countries:", err);
+      console.error('Error fetching countries:', err)
     }
-  };
-
-  // const fetchSurbub = async () => {
-  //   try {
-  //       const response = await user_service.getSuburbList();
-  //     setSuburbList(response || []);
-  //   } catch (err) {
-  //     console.error("Error fetching countries:", err);
-  //   }
-  // };
+  }
 
   const fetchBranches = async () => {
     try {
-      const countryCode = selectedCountry || 'ZA'; // You can default if needed
-      const response = await user_service.BranchList(countryCode);
-      setBranchList(response || []);
+      const response = await user_service.BranchList(userCountry)
+      setBranchList(response || [])
     } catch (err) {
-      console.error("Error fetching branches:", err);
+      console.error('Error fetching branches:', err)
     }
-  };
+  }
 
   const handleRegexChange = (e: any, regex: any) => {
-    const value = e.target.value;
+    const value = e.target.value
     if (regex.test(value)) {
-      return value;
+      return value
     }
-    return null; // Return null if the value doesn't match the regex
-  };
+    return null // Return null if the value doesn't match the regex
+  }
 
   useEffect(() => {
-    fetchBranches();
-  }, [selectedCountry]);
-
-  useEffect(() => {
-    fetchRolesList();
-    fetchCountries();
+    fetchRolesList()
+    fetchCountries()
+    fetchBranches()
   }, [])
 
   useEffect(() => {
@@ -265,7 +241,6 @@ const UserAdd = () => {
       fetchStaffDetailsByStaffId()
     }
   }, [staffId])
-
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: any; value: any }>) => {
     const { name, value } = e.target
@@ -282,6 +257,7 @@ const UserAdd = () => {
   //     return !helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canCreate')
   //   }
   // }
+
   const disableButton = () => {
     const requiredFields = [
       staffData?.staffFirstName,
@@ -299,40 +275,42 @@ const UserAdd = () => {
       staffData?.password,
       selectedRole,
       // Add other required fields here if needed
-    ];
+    ]
 
-    const isAnyFieldEmpty = requiredFields.some(
-      (field) => !field || field.toString().trim() === ''
-    );
+    const isAnyFieldEmpty = requiredFields.some((field) => !field || field.toString().trim() === '')
 
     const hasPermission = staffId
       ? helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canUpdate')
-      : helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canCreate');
+      : helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canCreate')
 
-    return !hasPermission || isAnyFieldEmpty;
-  };
+    return !hasPermission || isAnyFieldEmpty
+  }
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.STAFF}>
-      <Box sx={{ width: "50vw" }}>
-        <Typography mb={2} variant="h5" gutterBottom sx={{
-          fontWeight: 'bold'
-        }}>
+      <Box sx={{ width: '50vw' }}>
+        <Typography
+          mb={2}
+          variant="h5"
+          gutterBottom
+          sx={{
+            fontWeight: 'bold',
+          }}
+        >
           Staff Details
         </Typography>
 
         <Box sx={{ width: '80vw' }}>
-          <Grid container spacing={2} mb={2} >
+          <Grid container spacing={2} mb={2}>
             <Grid item xs={12} sm={4}>
               <label style={inputLabelStyle}>First Name</label>
               <TextField
                 name="staffFirstName"
                 fullWidth
-                value={staffData?.staffFirstName || ""}
+                value={staffData?.staffFirstName || ''}
                 onChange={(e) => {
-                  const value = handleRegexChange(e, /^[a-zA-Z]*$/);
-                  if (value !== null) handleChange(e);
-
+                  const value = handleRegexChange(e, /^[a-zA-Z]*$/)
+                  if (value !== null) handleChange(e)
                 }}
                 InputProps={{ readOnly: !isEditable }}
               />
@@ -341,17 +319,16 @@ const UserAdd = () => {
             <Grid item xs={12} sm={4}>
               <label style={inputLabelStyle}>Last Name</label>
               <TextField
-                value={staffData?.staffLastName || ""}
+                value={staffData?.staffLastName || ''}
                 onChange={(e) => {
-                  const value = handleRegexChange(e, /^[a-zA-Z]*$/);
-                  if (value !== null) handleChange(e);
+                  const value = handleRegexChange(e, /^[a-zA-Z]*$/)
+                  if (value !== null) handleChange(e)
                 }}
                 name="staffLastName"
                 fullWidth
                 InputProps={{ readOnly: !isEditable }}
               />
             </Grid>
-
 
             <Grid item xs={12} sm={2}>
               <label style={inputLabelStyle}>Branch</label>
@@ -377,10 +354,10 @@ const UserAdd = () => {
             <Grid item xs={12} sm={3}>
               <label style={inputLabelStyle}>Phone</label>
               <TextField
-                value={staffData?.staffContactNumber || ""}
+                value={staffData?.staffContactNumber || ''}
                 onChange={(e) => {
-                  const value = handleRegexChange(e, /^\d{0,10}$/); // Allow only numbers and limit to 10 digits
-                  if (value !== null) handleChange(e);
+                  const value = handleRegexChange(e, /^\d{0,10}$/) // Allow only numbers and limit to 10 digits
+                  if (value !== null) handleChange(e)
                 }}
                 name="staffContactNumber"
                 fullWidth
@@ -391,16 +368,16 @@ const UserAdd = () => {
             <Grid item xs={12} sm={3}>
               <label style={inputLabelStyle}>Email</label>
               <TextField
-                value={staffData?.email || ""}
+                value={staffData?.email || ''}
                 onChange={(e) => {
                   const value = e.target.value
                   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
                   // Validate and update
                   if (!emailRegex.test(value)) {
-                    setEmailError("Invalid email format")
+                    setEmailError('Invalid email format')
                   } else {
-                    setEmailError("")
+                    setEmailError('')
                   }
                   handleChange(e) // Call your existing handler
                 }}
@@ -414,21 +391,23 @@ const UserAdd = () => {
             </Grid>
 
             <Grid item xs={12} sm={3}>
-              <label style={inputLabelStyle}><b>Password</b></label>
+              <label style={inputLabelStyle}>
+                <b>Password</b>
+              </label>
               <TextField
                 fullWidth
                 type="password"
                 name="password"
-                value={staffData?.password || ""}
+                value={staffData?.password || ''}
                 onChange={(e) => {
-                  const value = e.target.value;
-                  const isValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(value);
-                  if (!isValid && value !== "") {
-                    setPasswordError("Min 8 chars, include upper, lower, number & special char");
+                  const value = e.target.value
+                  const isValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(value)
+                  if (!isValid && value !== '') {
+                    setPasswordError('Min 8 chars, include upper, lower, number & special char')
                   } else {
-                    setPasswordError("");
+                    setPasswordError('')
                   }
-                  handleChange(e);
+                  handleChange(e)
                 }}
                 disabled={!!staffId} // shorthand for: staffId ? true : false
                 error={!!passwordError}
@@ -441,20 +420,18 @@ const UserAdd = () => {
               <TextField
                 fullWidth
                 name="username"
-                value={staffData?.username || ""}
+                value={staffData?.username || ''}
                 onChange={(e) => {
-                  const value = handleRegexChange(e, /^[a-zA-Z]*$/); // ALLOW ONLY UPPER AND LOWER CASE LETTERS
-                  if (value !== null) handleChange(e);
+                  const value = handleRegexChange(e, /^[a-zA-Z]*$/) // ALLOW ONLY UPPER AND LOWER CASE LETTERS
+                  if (value !== null) handleChange(e)
                 }}
                 InputProps={{ readOnly: !isEditable }}
               />
             </Grid>
-
           </Grid>
-
         </Box>
 
-        <Box sx={{ width: "80vw" }}>
+        <Box sx={{ width: '80vw' }}>
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={12} sm={6}>
               <label style={inputLabelStyle}>Address Line 1</label>
@@ -463,10 +440,9 @@ const UserAdd = () => {
                 name="staffAddressLine1"
                 value={staffData?.staffAddressLine1 || ''}
                 onChange={(e) => {
-                  const value = handleRegexChange(e, /^[a-zA-Z0-9\s,.\-]*$/);
-                  if (value !== null) handleChange(e);
+                  const value = handleRegexChange(e, /^[a-zA-Z0-9\s,.\-]*$/)
+                  if (value !== null) handleChange(e)
                 }}
-
               />
             </Grid>
 
@@ -477,10 +453,10 @@ const UserAdd = () => {
                 name="staffAddressLine2"
                 value={staffData?.staffAddressLine2 || ''}
                 onChange={(e) => {
-                  const value = handleRegexChange(e, /^[a-zA-Z0-9\s,.\-]*$/);
-                  if (value !== null) handleChange(e);
+                  const value = handleRegexChange(e, /^[a-zA-Z0-9\s,.\-]*$/)
+                  if (value !== null) handleChange(e)
                 }}
-              // InputProps={{ readOnly: !isEditable }}
+                // InputProps={{ readOnly: !isEditable }}
               />
             </Grid>
 
@@ -496,9 +472,7 @@ const UserAdd = () => {
             </Grid>
 
             <Grid item xs={12} sm={2}>
-              <label style={inputLabelStyle}>
-                City
-              </label>
+              <label style={inputLabelStyle}>City</label>
               <TextField
                 fullWidth
                 name="staffCity"
@@ -506,8 +480,8 @@ const UserAdd = () => {
                 onChange={handleChange}
                 InputProps={{ readOnly: !isEditable }}
               />
-            </Grid>           
-<Grid item xs={12} sm={2}>
+            </Grid>
+            <Grid item xs={12} sm={2}>
               <label style={inputLabelStyle}>Country</label>
               <TextField
                 select
@@ -520,15 +494,11 @@ const UserAdd = () => {
               >
                 <option value="">-- Select Country --</option>
                 {countryList.map((country: any) => (
-                  <option
-
-
-                    key={country.countryCode} value={country.countryCode}>
+                  <option key={country.countryCode} value={country.countryCode}>
                     {country.countryName}
                   </option>
                 ))}
               </TextField>
-
             </Grid>
             <Grid item xs={12} sm={2}>
               <label style={inputLabelStyle}>Postal Code</label>
@@ -537,17 +507,15 @@ const UserAdd = () => {
                 name="staffPostalCode"
                 value={staffData?.staffPostalCode || ''}
                 onChange={(e) => {
-                 // const value = e.target.value;
-                 // const country = staffData?.staffCountry;
+                  // const value = e.target.value;
+                  // const country = staffData?.staffCountry;
                   // Get maxLength from map or default to 10
-                 // const maxLength = postalCodeMaxLengthMap[country] || 0;
-                  if (new RegExp(`^\\d{0,${postalCodeMaxLengthMap[staffData?.staffCountry]}}$`).test(e.target.value)) handleChange(e);
+                  // const maxLength = postalCodeMaxLengthMap[country] || 0;
+                  if (new RegExp(`^\\d{0,${postalCodeMaxLengthMap[staffData?.staffCountry]}}$`).test(e.target.value)) handleChange(e)
                 }}
                 InputProps={{ readOnly: !isEditable }}
               />
             </Grid>
-
-            
           </Grid>
         </Box>
 
@@ -561,12 +529,8 @@ const UserAdd = () => {
               variant="filled"
               value={selectedRole}
               onChange={(e) => {
-
                 setSelectedRole(e.target.value)
-
-
-                user_service.getRole(e?.target?.value).then(data => {
-
+                user_service.getRole(e?.target?.value).then((data) => {
                   console.log(data)
                   const initialPermissions = data?.modules?.map(
                     //@ts-ignore
@@ -577,22 +541,23 @@ const UserAdd = () => {
                       read: res.access.canRead,
                       update: res.access.canUpdate,
 
-                      delete: res.access.canDelete
-                    }));
-
-
-
+                      delete: res.access.canDelete,
+                    }),
+                  )
                   console.log(initialPermissions)
+                  setPermissions(
+                    initialPermissions.sort(
+                      //@ts-ignore
+                      (e) => e.id,
+                    ),
+                  )
 
-
-                  setPermissions(initialPermissions.sort(
-                    //@ts-ignore
-                    e => e.id))
-
-
-                  let permisson_data = initialPermissions.sort(
-                    //@ts-ignore
-                    e => e.id).map((e: any) => ({
+                  let permisson_data = initialPermissions
+                    .sort(
+                      //@ts-ignore
+                      (e) => e.id,
+                    )
+                    .map((e: any) => ({
                       //@ts-ignore
                       moduleDescription: e?.responsibility,
                       moduleId: e?.id,
@@ -601,24 +566,18 @@ const UserAdd = () => {
                         canCreate: e?.create,
                         canRead: e?.read,
                         canUpdate: e?.update,
-                        canDelete: e?.delete // Consider renaming this if 'view' is not truly 'delete'
-                      }
-                    }));
-
+                        canDelete: e?.delete, // Consider renaming this if 'view' is not truly 'delete'
+                      },
+                    }))
 
                   setStaffData({
                     ...staffData,
                     //@ts-ignore
-
-                    "specialAccessModules": permisson_data, "roleId": Number(selectedRole)
-                  });
-
-
-
+                    specialAccessModules: permisson_data,
+                    roleId: Number(selectedRole),
+                  })
                 })
-
               }}
-              
             >
               {roles.map((role: any) => (
                 <MenuItem key={role.roleId} value={role.roleId}>
@@ -628,131 +587,61 @@ const UserAdd = () => {
             </TextField>
           </Grid>
 
-          {/* Country Select */}
-          {/* <Grid item xs={12} sm={4}>
-            <TextField
-              select
-              disabled
-              label="Select Country"
-              fullWidth
-              sx={{
-                '& .MuiFilledInput-root': {
-                  backgroundColor: 'white',
-                },
-              }}
-              variant="filled"
-              defaultValue=""
-            >
-              {countrieslist.map((country) => (
-                <MenuItem key={country} value={country}>
-                  {country}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid> */}
-
-          {/* Flow Select */}
-          {/* <Grid item xs={12} sm={4}>
-          <TextField
-            select
-            disabled
-            type='disabled'
-            label="Select Flow"
-            fullWidth
-            variant="filled"
-            defaultValue=""
-            sx={{
-              '& .MuiFilledInput-root': {
-                backgroundColor: 'white',
-              },
-            }}
-          >
-            {flows.map((flow) => (
-              <MenuItem key={flow} value={flow}>
-                {flow}
-              </MenuItem>
-            ))}
-          </TextField>
-    
-    
-    
-        </Grid> */}
           <Button
             sx={{
               mt: 2,
-              ml: 2
+              ml: 2,
             }}
             variant="outlined"
             disabled={disableButton()}
             onClick={() => {
-
-
-
               if (staffId) {
-
                 //@ts-ignore
-                delete staffData?.password;
+                delete staffData?.password
 
-                user_service.editStaff({ ...staffData, "roleId": selectedRole }, staffData?.staffId).then(data => {
-
+                user_service.editStaff({ ...staffData, roleId: selectedRole }, staffData?.staffId).then((data) => {
                   console.log(data)
 
-
                   if (data) {
-
                     settype('success')
-                    setText("Succesfully Updated Staff")
-
-
-
-                  }
-                  else {
-
-                    settype("error")
+                    setText('Succesfully Updated Staff')
+                  } else {
+                    settype('error')
                     setText(data?.message)
-
-
-                    // settype('success')
                   }
                   setTimeout(() => {
-                    window.location.reload();
-                  }, 1233);
+                    window.location.reload()
+                  }, 1233)
 
                   setOpen(true)
-
-
                 })
+              } else {
+                user_service
+                  .createStaff({
+                    ...staffData,
+                    staffIdNumber: '14-5678-9012',
+                    staffIdType: 'Aadhar',
+                    roleId: selectedRole,
+                  })
+                  .then((data) => {
+                    if (data.status) {
+                      settype('success')
+                      setText('Succesfully created Staff')
+                      // window.location.reload()
+                      navigate('/profile')
+                    } else {
+                      setText(data?.message)
+                      settype('error')
+
+                      settype('error')
+                    }
+                    setOpen(true)
+                  })
               }
-              else {
-
-                user_service.createStaff({
-                  ...staffData, "staffIdNumber": "14-5678-9012",
-                  "staffIdType": "Aadhar", "roleId": selectedRole,
-                }).then(data => {
-
-                  if (data.status) {
-
-
-                    settype('success')
-                    setText("Succesfully created Staff")
-                    // window.location.reload()
-                    navigate("/profile")
-
-
-                  }
-                  else {
-
-                    setText(data?.message)
-                    settype("error")
-
-                    settype('error')
-                  }
-                  setOpen(true)
-                })
-              }
-
             }}
-          >{staffId ? <>   UPDATE</> : "ADD"}</Button>
+          >
+            {staffId ? <> UPDATE</> : 'ADD'}
+          </Button>
         </Grid>
 
         <Box p={2}>
@@ -764,11 +653,7 @@ const UserAdd = () => {
                 columns={columns}
                 disableRowSelectionOnClick
                 hideFooter
-                getRowClassName={(params) =>
-                  params.indexRelativeToCurrentPage % 2 === 0
-                    ? 'even-row'
-                    : 'odd-row'
-                }
+                getRowClassName={(params) => (params.indexRelativeToCurrentPage % 2 === 0 ? 'even-row' : 'odd-row')}
                 sx={{
                   '& .super-app-theme--header': {
                     backgroundColor: '#005099',
@@ -780,9 +665,8 @@ const UserAdd = () => {
           )}
         </Box>
       </Box>
-
     </HasPermission>
-  );
-};
+  )
+}
 
-export default UserAdd;
+export default UserAdd

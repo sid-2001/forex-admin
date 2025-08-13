@@ -135,10 +135,10 @@ const KYCPage = () => {
     },
   ]
 
-  useEffect(() => {
-    setCommonLoader(true)
-
-    applicant_service.getApplicantKyc(userCountry === 'IN' ? 'IN' : 'ZA').then((data: any) => {
+  const getApplicantKYCData = async () => {
+    try {
+      setCommonLoader(true)
+      const data: any = await applicant_service.getApplicantKyc(userCountry)
       setMockData(data)
       setCommonLoader(false)
 
@@ -148,7 +148,14 @@ const KYCPage = () => {
       } else {
         setFilteredData(data)
       }
-    })
+    } catch (err) {
+      setCommonLoader(false)
+      console.error('Error fetching countries:', err)
+    }
+  }
+
+  useEffect(() => {
+    getApplicantKYCData()
   }, [userCountry, kycIdFromRoute]) // include kycIdFromRoute in dependencies
 
   const handleAddComment = async () => {
@@ -248,7 +255,7 @@ const KYCPage = () => {
         >
           <DataGrid
             sx={{ width: '100%' }}
-            rows={filteredData}
+            rows={filteredData || []}
             getRowId={(row) => row.kycId}
             columns={KycColumns || []}
             initialState={{
@@ -257,7 +264,7 @@ const KYCPage = () => {
               },
             }}
             pageSizeOptions={[10]}
-            loading={filteredData.length === 0}
+            loading={filteredData?.length === 0}
             slots={{
               loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
             }}
