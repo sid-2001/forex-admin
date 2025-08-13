@@ -9,7 +9,7 @@ import { TransactionService } from '@/services/transaction.service'
 import { PaymentGateway } from '@/types/static.type'
 import staticdataService from '@/services/staticdata.service'
 import { useRecoilState } from 'recoil'
-import { selectedAppState, alertState, alertTextState, alertTypeState, selectedCountryState } from '@/states/state'
+import { selectedAppState, alertState, alertTextState, alertTypeState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import TransactionPanel from '@/components/transaction-panel'
 import { HelperService } from '@/helpers/helper'
@@ -28,7 +28,7 @@ const Dashboard = () => {
 
   // Modal state
   const [openModal, setOpenModal] = useState<any>(false)
-  const [userCountry, setuserCounty] = useRecoilState(selectedCountryState)
+
   const [applicatnData, setapplicantData] = useState<
     Array<{
       applicantId: String
@@ -38,16 +38,13 @@ const Dashboard = () => {
   >([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [recentTransaction, setrecentTransaction] = useState<any>([])
-  const [filterType, setFilterType] = useState('monthly')
   const [cards, setCards] = useState<Array<PaymentGateway>>([])
-  const [dateRange, setDateRange] = useState({
-    start: '2023-01-01',
-    end: '2023-06-30',
-  })
+
   const transaction_service = new TransactionService()
   const static_service = new staticdataService()
   const local_service = new LocalStorageService()
   const helper = new HelperService()
+  const userCountry = local_service?.get_staff_country()
 
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
   const navigate = useNavigate()
@@ -62,7 +59,7 @@ const Dashboard = () => {
 
   const getOutwardTransactionsList = useCallback(async () => {
     const data = await transaction_service.getOutwardAllTransaction(userCountry)
-    setrecentTransaction(data)
+    setrecentTransaction(data || [])
     setIsLoading(false)
   }, [])
 
@@ -406,7 +403,7 @@ const Dashboard = () => {
                     <Skeleton variant="text" width={80} height={36} />
                   ) : (
                     <Typography variant="h4" component="div">
-                      {recentTransaction.length}
+                      {recentTransaction?.length}
                     </Typography>
                   )}
                 </Box>
@@ -514,7 +511,7 @@ const Dashboard = () => {
                     <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
                     <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
                   </>
-                ) : recentTransaction.length === 0 ? (
+                ) : recentTransaction?.length === 0 ? (
                   <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
                     No data found
                   </Typography>
@@ -523,21 +520,15 @@ const Dashboard = () => {
                     <Box key={index} sx={{ mb: 2, p: 1, borderBottom: '1px solid ', borderColor: 'primary.light' }}>
                       <Stack direction="row" justifyContent="space-between">
                         <Typography fontWeight="bold">{`${transaction?.applicant?.firstName} ${transaction?.applicant?.lastName}`}</Typography>
-                      
+
                         <Typography color="text.secondary">
                           {transaction?.transactionOutward?.settlementCurrency} {transaction?.transactionOutward?.settlementAmount}
                         </Typography>
                       </Stack>
                       <Stack direction="row" justifyContent="space-between" mt={1}>
-                        
-                      
-                      <Link
-    to={`/transaction?flow=outwards&id=${transaction?.transactionOutward?.transactionNumber}`}
-   
-  >
-
-   <Typography variant='caption'>{transaction?.transactionOutward?.transactionNumber}</Typography>
-  </Link>
+                        <Link to={`/transaction?flow=outwards&id=${transaction?.transactionOutward?.transactionNumber}`}>
+                          <Typography variant="caption">{transaction?.transactionOutward?.transactionNumber}</Typography>
+                        </Link>
                         <Typography variant="body2" color="text.secondary">
                           {helper.convertDateAndTime(transaction?.transactionOutward?.owCreatedDate)}
                         </Typography>
@@ -576,7 +567,7 @@ const Dashboard = () => {
                     <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
                     <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
                   </>
-                ) : recentTransaction.length === 0 ? (
+                ) : recentTransaction?.length === 0 ? (
                   <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
                     No data found
                   </Typography>

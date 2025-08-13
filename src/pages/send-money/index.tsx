@@ -43,7 +43,7 @@ import { KycService } from '@/services/kyc.service'
 import PaymentPopup from '@/components/payment-popup'
 import BobCategoryDropdown from '@/components/bob-matrix'
 import { useRecoilState } from 'recoil'
-import { alertState, alertTextState, alertTypeState, countyState, loaderStateNew, selectedCountryState, userCurrencyState } from '@/states/state'
+import { alertState, alertTextState, alertTypeState, countyState, loaderStateNew, userCurrencyState } from '@/states/state'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
@@ -51,18 +51,13 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useTheme } from '@emotion/react'
 import staticdataService from '@/services/staticdata.service'
 const { VITE_APP_URL } = import.meta.env
-const local_service = new LocalStorageService()
+
 const helper = new HelperService()
-
-// let cashfree
-
-// const countries = [
-//   { code: 'IN', name: 'India', currency: 'INR', forexRate: '4.57', flag: 'https://flagcdn.com/in.svg' },
-//   // { code: 'ZA', name: 'South Africa', currency: 'ZAR', forexRate: '4.7', flag: 'https://flagcdn.com/za.svg' }, // Added South Africa
-// ]
-const countries_in = [
-  { code: 'ZA', name: 'South Africa', currency: 'ZAR', forexRate: '4.7', flag: 'https://flagcdn.com/za.svg' }, // Added South Africa
-]
+const local_service = new LocalStorageService()
+const applicant_service = new ApplicantService()
+const transaction_service = new TransactionService()
+const kyc_service = new KycService()
+const static_service = new staticdataService()
 
 const ConfirmAndPayButton = ({ handleClick = () => {}, imgUrl = '' }) => {
   return (
@@ -80,6 +75,7 @@ const ConfirmAndPayButton = ({ handleClick = () => {}, imgUrl = '' }) => {
 }
 
 const SendMoneyPage = () => {
+  const userCountry = local_service?.get_staff_country()
   const [open, setOpen] = useRecoilState(alertState)
   const [text, setText] = useRecoilState(alertTextState)
   const [type, settype] = useRecoilState(alertTypeState)
@@ -91,8 +87,7 @@ const SendMoneyPage = () => {
   const [selectedTime, setSelectedTime] = useState({})
   const [selectedTimeTableRow, setSelectedTimeTableRow] = useState<number | null>(null)
   const [finalamount, setFinalAmount] = useState(0)
-  const [countrySelected, setCountrySelected] = useRecoilState(selectedCountryState)
-  const [sourceCountry, setSourceCountry] = useState(countrySelected == 'IN' ? 'INR' : 'ZAR')
+  const [sourceCountry, setSourceCountry] = useState(userCountry === 'IN' ? 'INR' : 'ZAR')
   const [gatewayCharge, setGatewayCharge] = useState(0)
   const [selectedBenficary, setSelectedBenificary] = useState({})
   const [userlist, setUserList] = useState([])
@@ -100,7 +95,6 @@ const SendMoneyPage = () => {
   const [sendCountry, setsendCountry] = useState('')
   const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
   const [userCurrency, setUserCurrency] = useRecoilState(userCurrencyState)
-  const [selectedCountryoption, setSelectedCountryOption] = useRecoilState(selectedCountryState)
   const [selectedTimeChange, setSelectedTimeCharge] = useState<number | null>(null)
   const [selectedUser, setSelectedUser] = useState<{ name: string; accountNumber: string; profilePhoto: string; applicantId: string } | null>(null)
   const [category, setCategory] = useState<string>('')
@@ -127,18 +121,11 @@ const SendMoneyPage = () => {
   const [selectedGateway, setSelectedGateway] = React.useState('')
   const [gatewaysList, setGatewaysList] = useState([])
 
-  console.log(selectedCountryoption, '==================sleected')
   const [url, seturl] = useState<string>('')
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
 
   const applicantId = searchParams.get('applicantId')
-  const applicant_service = new ApplicantService()
-  const transaction_service = new TransactionService()
-  const helper = new HelperService()
-  const kyc_service = new KycService()
-  const static_service = new staticdataService()
-  const local_service = new LocalStorageService()
 
   const TimechargesRows: GridRowsProp = [
     { id: 1, time: '2 hours', charges: 10, total: 200 },
@@ -190,7 +177,6 @@ const SendMoneyPage = () => {
   }
 
   const fetchApplicantData = async () => {
-    console.log(applicantId)
     if (!applicantId) {
       console.error('Applicant ID is missing in the URL')
       return
@@ -311,15 +297,11 @@ const SendMoneyPage = () => {
     // Find the selected country
     const selected = countries.find((country) => country.countryCode == countryCode)
 
-    console.log('selected===>', selected)
-
     static_service.getCountryCurrency(selected?.countryCode).then((data) => {
       //@ts-ignore
       setCurrency(data)
 
       if (selected) {
-        console.log(selectedCountryState)
-        console.log(data)
         transaction_service
           .getForexRate(
             //@ts-ignore
@@ -335,7 +317,7 @@ const SendMoneyPage = () => {
         // setCurrency(selected.currency)
         //@ts-ignore
         setsendCountry(selected.code)
-        setSourceCountry(countrySelected == 'IN' ? 'INR' : 'ZAR')
+        setSourceCountry(userCountry === 'IN' ? 'INR' : 'ZAR')
       }
     })
   }
@@ -373,7 +355,7 @@ const SendMoneyPage = () => {
   }
 
   const getGatewaysListByCountry = async () => {
-    const gatewayslistResponse = await transaction_service.fetchGatewaysByCountry(selectedCountryoption)
+    const gatewayslistResponse = await transaction_service.fetchGatewaysByCountry(userCountry)
     setGatewaysList(gatewayslistResponse || [])
   }
 
@@ -388,7 +370,7 @@ const SendMoneyPage = () => {
     benificary: selectedBenficary,
     bopId: category,
     destinationCountry: selectedCountry,
-    destinationCurrency: selectedCountryoption == 'ZA' ? 'INR' : 'ZAR',
+    destinationCurrency: userCountry === 'ZA' ? 'INR' : 'ZAR',
     forex: forexRate,
     // hardcoded Values
     gateway: {
@@ -399,8 +381,8 @@ const SendMoneyPage = () => {
     gatewayId: 'IMPGW004',
     gatewayStatus: 'Success',
     selectedTimeMethod: selectedTime,
-    sourceCurrency: selectedCountryoption == 'ZA' ? 'ZAR' : 'INR',
-    sourceCountry: selectedCountryoption == 'ZA' ? 'ZA' : 'IN',
+    sourceCurrency: userCountry === 'ZA' ? 'ZAR' : 'INR',
+    sourceCountry: userCountry,
     //@ts-ignore
     timecharge: selectedTime?.time,
     totalpaybleamount: Number(amount) + Number(selectedTimeChange) + Number(gatewayCharge),
@@ -408,9 +390,9 @@ const SendMoneyPage = () => {
   }
 
   const dealCoverPayload = {
-    sourceCurrency: selectedCountryoption == 'ZA' ? 'ZAR' : 'INR',
-    destinationCurrency: selectedCountryoption == 'ZA' ? 'INR' : 'ZAR',
-    destinationCountry: selectedCountryoption == 'ZA' ? 'IN' : 'ZA',
+    sourceCurrency: userCountry === 'ZA' ? 'ZAR' : 'INR',
+    destinationCurrency: userCountry === 'ZA' ? 'INR' : 'ZAR',
+    destinationCountry: userCountry === 'ZA' ? 'IN' : 'ZA',
     applicantId: selectedUser?.applicantId as any,
     rate: Number(forexRate),
   }
@@ -757,7 +739,7 @@ const SendMoneyPage = () => {
                         onChange={handleCountryChange}
                         displayEmpty
                       >
-                        {(selectedCountryoption === 'IN' ? countries : countries)?.map((country) => (
+                        {(userCountry === 'IN' ? countries : countries)?.map((country) => (
                           <MenuItem
                             //@ts-ignore
                             key={country?.countryCode}
@@ -1003,7 +985,7 @@ const SendMoneyPage = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
-              {selectedCountryoption === 'ZA' ? (
+              {userCountry === 'ZA' ? (
                 <>
                   <ConfirmAndPayButton
                     imgUrl="https://cdn.prod.website-files.com/6282d4840afd19e1afa62e70/6491490c213c45a9d600d387_ozow_small_xs.png"

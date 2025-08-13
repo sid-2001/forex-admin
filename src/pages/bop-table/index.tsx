@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
-import { Box, Typography, IconButton, useTheme } from '@mui/material'
-import { Link, useNavigate } from 'react-router-dom'
+import { Box, Typography, IconButton } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
@@ -9,11 +9,12 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { statusColors } from '@/contants/utils'
 import { BopService } from '@/services/bop.services'
 import LoaderUI from '@/components/loader/loader'
+
 const BopTable: React.FC = () => {
-  const [bopData, setBopData] = React.useState([])
+  const [bopData, setBopData] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
   const helper = new HelperService()
-  const theme = useTheme()
   const local_service = new LocalStorageService()
   const bopService = new BopService()
 
@@ -23,8 +24,10 @@ const BopTable: React.FC = () => {
 
   const fetchBopListingData = async () => {
     try {
+      setIsLoading(true)
       const response = await bopService.getBopListing()
       setBopData(response)
+      setIsLoading(false)
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error)
     }
@@ -163,14 +166,14 @@ const BopTable: React.FC = () => {
               },
             }}
             columns={columns}
-            rows={bopData}
+            rows={bopData || []}
             initialState={{
               pagination: {
                 paginationModel: { pageSize: 20, page: 0 },
               },
             }}
             pageSizeOptions={[10]}
-            loading={bopData.length === 0}
+            loading={isLoading}
             slots={{
               loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
             }}

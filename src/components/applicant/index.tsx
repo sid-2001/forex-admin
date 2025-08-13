@@ -3,9 +3,6 @@ import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
 import { useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
 import LoaderUI from '@/components/loader/loader'
-import { theme } from '@/contants/theme'
-import { useTheme } from '@emotion/react'
-
 
 interface Applicant {
   applicantId: string
@@ -21,11 +18,11 @@ interface Props {
   data: {
     applicant: Applicant
   }[]
+  loading: boolean
 }
 
-const ApplicantDataGrid: React.FC<Props> = ({ data }) => {
+const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
   const navigate = useNavigate()
-  const theme:any = useTheme()
   // Convert the input into DataGrid rows
   const rows = data.map((item) => ({
     id: item.applicant.applicantId,
@@ -39,9 +36,14 @@ const ApplicantDataGrid: React.FC<Props> = ({ data }) => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
 
-      renderCell: (params: GridRenderCellParams) => ( 
-        <span style={{ 
-           cursor: 'pointer', textDecoration:"underline" }} onClick={() => navigate(`/applicant-details/${params.value}`)}>
+      renderCell: (params: GridRenderCellParams) => (
+        <span
+          style={{
+            cursor: 'pointer',
+            textDecoration: 'underline',
+          }}
+          onClick={() => navigate(`/applicant-details/${params.value}`)}
+        >
           {params.value}
         </span>
       ),
@@ -89,15 +91,15 @@ const ApplicantDataGrid: React.FC<Props> = ({ data }) => {
         rows={rows}
         columns={columns}
         initialState={{
-              pagination: {
-                paginationModel: { pageSize: 20, page: 0 },
-              },
-            }}
-            pageSizeOptions={[10]}
-            loading={rows.length === 0}
-            slots={{
-              loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
-            }}
+          pagination: {
+            paginationModel: { pageSize: 20, page: 0 },
+          },
+        }}
+        pageSizeOptions={[10]}
+        loading={loading}
+        slots={{
+          loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
+        }}
       />
     </Box>
   )

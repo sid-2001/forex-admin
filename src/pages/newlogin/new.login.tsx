@@ -46,11 +46,13 @@ const LoginPage = () => {
     // }
     setEmail(input)
   }
-  const getCountryList = () => {
-    static_service.getCountryList().then((data) => {
-      console.log(data)
+  const getCountryList = async () => {
+    try {
+      const data = await static_service.getCountryList()
       setCountry(data)
-    })
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   const handleClose = (
@@ -113,9 +115,9 @@ const LoginPage = () => {
             setType('success')
             setOpen(true)
             const { data } = response
-            if (data?.staffCountry) {
-              setselectedCountryState(data?.staffCountry)
-            }
+            // if (data?.staffCountry) {
+            //   setselectedCountryState(data?.staffCountry)
+            // }
             setTimeout(() => {
               local_service.set_accesstoken(
                 '"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImVtYWlsIjoic2hpdmFuc2hAaW1wcm9uaWNzLmNvbSIsInVzZXJfaWQiOiJjYmMzZDg3OS1iMTM2LTQyYTAtODY3Yy1mYjg2YTQ4MmI3ODciLCJyb2xlIjoiYWRtaW4ifSwiZXhwIjoxNzM4NTk3ODk1LCJqdGkiOiIwZTMxMDA1OS02ZTIyLTQ1MjgtYTliYS04OTA3MTNhZDZiMmYiLCJyZWZyZXNoIjpmYWxzZX0.06XT7DA3cs13hOIDyqlXcHElSXpFzHFO2L0y507Z0YQ"',
