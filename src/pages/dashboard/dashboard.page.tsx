@@ -210,8 +210,8 @@ const Dashboard = () => {
         sx={{
           display: 'flex',
           alignItems: 'center',
-          p: 1,
-          height: '90%',
+          p: 1.2,
+          height: '104%',
           borderRadius: 3,
           boxShadow: 3,
           opacity: status ? 1 : 0.5, // dim when disabled
@@ -258,9 +258,9 @@ const Dashboard = () => {
         sx={{
           display: 'flex',
           alignItems: 'center',
-          p: 1,
+          p: 1.2,
           borderRadius: 3,
-          height: '80%',
+          height: '90%',
           boxShadow: 3,
           border: '1px solid',
           borderColor: 'primary.light',
