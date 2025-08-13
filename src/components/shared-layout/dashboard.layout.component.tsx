@@ -3,7 +3,7 @@ import { Box, Typography, Avatar, List, ListItem, IconButton, AppBar, ListItemIc
 import { styled } from '@mui/system'
 import { LogoWhite } from '@/assets/images'
 import { Outlet, useNavigate } from 'react-router-dom'
-import { useRecoilState } from 'recoil'
+import { useRecoilValue, useRecoilState } from 'recoil'
 import Person2Icon from '@mui/icons-material/Person2'
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
 import { themeModeState } from '@/states/state'
@@ -69,7 +69,7 @@ const Header = styled(Box)({
 const DashboardLayout = () => {
   const [mode, setMode] = useRecoilState(themeModeState)
   const [open, setOpen] = useRecoilState(alertState)
-  const [selecteCountryState, setselectedCountryState] = useRecoilState(selectedCountryState)
+  const staffCountry = useRecoilValue(selectedCountryState)
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
   const [balance, setBalance] = useRecoilState(availableBalanceState)
   const [openloader, setopenloader] = useRecoilState(loaderStateNew)
@@ -339,7 +339,7 @@ const DashboardLayout = () => {
               marginBottom: '6px',
             }}
           >
-            {selecteCountryState == 'ZA' ? (
+            {staffCountry == 'ZA' ? (
               <>
                 <Avatar>
                   {<strong>{local_service?.get_staff_access().staffFirstName[0] + local_service?.get_staff_access().staffLastName[0]}</strong>}

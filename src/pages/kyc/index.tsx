@@ -24,7 +24,7 @@ import { ApplicantService } from '@/services/applicant.service'
 import { KycService } from '@/services/kyc.service'
 import { Close, Comment, Send } from '@mui/icons-material'
 import { loaderStateNew, selectedCountryState } from '@/states/state'
-import { useRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue } from 'recoil'
 import CloseIcon from '@mui/icons-material/Close'
 import { useNavigate, useParams } from 'react-router-dom'
 import ConfirmationModal from '@/components/logout/logout.component'
@@ -44,7 +44,7 @@ const KYCPage = () => {
   const [mockdata, setMockData] = useState<Array<any>>([])
   const [loader, setCommonLoader] = useRecoilState(loaderStateNew)
   const [checkboxOpen, setCheckboxOpen] = useState(false)
-  const [selectedcountry, setselectedCountry] = useRecoilState(selectedCountryState)
+  const userCountry = useRecoilValue(selectedCountryState)
   const [newComment, setNewComment] = useState('')
   const [loading, setLoading] = useState(false)
   const [comments, setComments] = useState<any>([])
@@ -58,22 +58,6 @@ const KYCPage = () => {
   let kycservice = new KycService()
   const helper_service = new HelperService()
 
-  //   commentDate
-  // :
-  // "2025-07-18T13:36:57.294+00:00"
-  // commentId
-  // :
-  // "24b95681-fe33-419a-accd-6f40353790d4"
-  // commentText
-  // :
-  // "hi"
-  // kycId
-  // :
-  // "KYC1752496183751"
-  // user
-  // :
-  // "kp sharma"
-
   const KycColumns = [
     {
       field: 'kycId',
@@ -82,7 +66,7 @@ const KYCPage = () => {
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return (
-          <a style={{ cursor: 'pointer', color: theme.palette.text.primary , textDecoration:"underline"}} onClick={() => openDrawer(params.row)}>
+          <a style={{ cursor: 'pointer', color: theme.palette.text.primary, textDecoration: 'underline' }} onClick={() => openDrawer(params.row)}>
             {params.row.kycId}
           </a>
         )
@@ -115,7 +99,7 @@ const KYCPage = () => {
       renderCell: (params: any) => {
         return (
           <a
-            style={{ cursor: 'pointer', color:theme.palette.text.primary , textDecoration:"underline" }}
+            style={{ cursor: 'pointer', color: theme.palette.text.primary, textDecoration: 'underline' }}
             onClick={() => {
               navigate(`/applicant-details/${params.row.applicantId}`)
             }}
@@ -144,7 +128,7 @@ const KYCPage = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
-        <Button variant="outlined"   style={{ color: theme.palette.text.primary }} onClick={() => openDrawer(params.row)}>
+        <Button variant="outlined" style={{ color: theme.palette.text.primary }} onClick={() => openDrawer(params.row)}>
           View More
         </Button>
       ),
@@ -154,7 +138,7 @@ const KYCPage = () => {
   useEffect(() => {
     setCommonLoader(true)
 
-    applicant_service.getApplicantKyc(selectedcountry === 'IN' ? 'IN' : 'ZA').then((data: any) => {
+    applicant_service.getApplicantKyc(userCountry === 'IN' ? 'IN' : 'ZA').then((data: any) => {
       setMockData(data)
       setCommonLoader(false)
 
@@ -165,7 +149,7 @@ const KYCPage = () => {
         setFilteredData(data)
       }
     })
-  }, [selectedcountry, kycIdFromRoute]) // include kycIdFromRoute in dependencies
+  }, [userCountry, kycIdFromRoute]) // include kycIdFromRoute in dependencies
 
   const handleAddComment = async () => {
     if (newComment.trim() === '') return
@@ -198,7 +182,6 @@ const KYCPage = () => {
       if (checkboxOpen) {
         setCheckboxOpen(!checkboxOpen)
       }
-      //  setComments(data.filter((e) => e.kycId == row?.kycId))
     } catch (error) {
       console.log(error)
     }
@@ -252,7 +235,7 @@ const KYCPage = () => {
   return (
     <Box padding={3}>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.KYC}>
-        <Typography variant="h4" gutterBottom >
+        <Typography variant="h4" gutterBottom>
           <strong>Know Your Customer</strong>
         </Typography>
 
@@ -261,16 +244,6 @@ const KYCPage = () => {
           sx={{
             width: '80vw',
             height: '65vh',
-            // '& .super-app-theme--header': {
-            //   backgroundColor: '#005099',
-            //   color: 'white',
-            // },
-            // '& .MuiDataGrid-row:nth-of-type(even)': {
-            //   backgroundColor: '#e3f2fd', // Light blue alternate rows
-            // },
-            // '& .MuiDataGrid-row:nth-of-type(odd)': {
-            //   backgroundColor: '#ffffff',
-            // },
           }}
         >
           <DataGrid

@@ -8,7 +8,7 @@ import ShowChartIcon from '@mui/icons-material/ShowChart'
 import { TransactionService } from '@/services/transaction.service'
 import { PaymentGateway } from '@/types/static.type'
 import staticdataService from '@/services/staticdata.service'
-import { useRecoilState } from 'recoil'
+import { useRecoilValue, useRecoilState } from 'recoil'
 import { selectedAppState, alertState, alertTextState, alertTypeState, selectedCountryState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import TransactionPanel from '@/components/transaction-panel'
@@ -28,7 +28,7 @@ const Dashboard = () => {
 
   // Modal state
   const [openModal, setOpenModal] = useState<any>(false)
-  const [userCountry, setuserCounty] = useRecoilState(selectedCountryState)
+  const userCountry = useRecoilValue(selectedCountryState)
   const [applicatnData, setapplicantData] = useState<
     Array<{
       applicantId: String
@@ -38,12 +38,7 @@ const Dashboard = () => {
   >([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [recentTransaction, setrecentTransaction] = useState<any>([])
-  const [filterType, setFilterType] = useState('monthly')
   const [cards, setCards] = useState<Array<PaymentGateway>>([])
-  const [dateRange, setDateRange] = useState({
-    start: '2023-01-01',
-    end: '2023-06-30',
-  })
   const transaction_service = new TransactionService()
   const static_service = new staticdataService()
   const local_service = new LocalStorageService()
@@ -54,6 +49,7 @@ const Dashboard = () => {
   const [open, setOpen] = useRecoilState(alertState)
   const [text, setText] = useRecoilState(alertTextState)
   const [type, settype] = useRecoilState(alertTypeState)
+
   const getGatewayList = () => {
     static_service.getStaticPaymentGateway(local_service?.get_staff_country()).then((data: any) => {
       setCards(data?.data?.sort((e: any) => e.costFee))
@@ -523,21 +519,15 @@ const Dashboard = () => {
                     <Box key={index} sx={{ mb: 2, p: 1, borderBottom: '1px solid ', borderColor: 'primary.light' }}>
                       <Stack direction="row" justifyContent="space-between">
                         <Typography fontWeight="bold">{`${transaction?.applicant?.firstName} ${transaction?.applicant?.lastName}`}</Typography>
-                      
+
                         <Typography color="text.secondary">
                           {transaction?.transactionOutward?.settlementCurrency} {transaction?.transactionOutward?.settlementAmount}
                         </Typography>
                       </Stack>
                       <Stack direction="row" justifyContent="space-between" mt={1}>
-                        
-                      
-                      <Link
-    to={`/transaction?flow=outwards&id=${transaction?.transactionOutward?.transactionNumber}`}
-   
-  >
-
-   <Typography variant='caption'>{transaction?.transactionOutward?.transactionNumber}</Typography>
-  </Link>
+                        <Link to={`/transaction?flow=outwards&id=${transaction?.transactionOutward?.transactionNumber}`}>
+                          <Typography variant="caption">{transaction?.transactionOutward?.transactionNumber}</Typography>
+                        </Link>
                         <Typography variant="body2" color="text.secondary">
                           {helper.convertDateAndTime(transaction?.transactionOutward?.owCreatedDate)}
                         </Typography>

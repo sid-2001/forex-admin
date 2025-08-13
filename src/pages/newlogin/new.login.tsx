@@ -48,7 +48,6 @@ const LoginPage = () => {
   }
   const getCountryList = () => {
     static_service.getCountryList().then((data) => {
-      console.log(data)
       setCountry(data)
     })
   }
