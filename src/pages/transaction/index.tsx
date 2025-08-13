@@ -22,8 +22,7 @@ import {
 import { DataGrid } from '@mui/x-data-grid'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { TransactionInward, TransactionInwardCalclulated, TransactionOutward } from '@/types/transaction.type'
-import AssessmentIcon from '@mui/icons-material/Assessment'
-import { PreviewOutlined, SettingsAccessibilityRounded, Sync } from '@mui/icons-material'
+import { PreviewOutlined } from '@mui/icons-material'
 import { useRecoilState } from 'recoil'
 import { loaderStateNew } from '@/states/state'
 import CompliancTool from '@/components/compliance-tool'
@@ -31,10 +30,14 @@ import { HelperService } from '@/helpers/helper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { TransactionService } from '@/services/transaction.service'
 import { ApplicantService } from '@/services/applicant.service'
-import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
 import { statusColors } from '@/contants/utils'
 import LoaderUI from '@/components/loader/loader'
-import DonutLargeIcon from '@mui/icons-material/DonutLarge'
+
+const applicant_service = new ApplicantService()
+const transaction_Service = new TransactionService()
+const helper = new HelperService()
+const local_service = new LocalStorageService()
+
 const TransactionListing = () => {
   const columns_outward = [
     {
@@ -296,30 +299,24 @@ const TransactionListing = () => {
   const [stpErrors, setStpErrors] = useState<any>([])
   const [givenTransaction, setGivenTransaction] = useState<any>(null)
 
-  let applicant_service = new ApplicantService()
-  let transaction_Service = new TransactionService()
-  const helper = new HelperService()
-  const local_service = new LocalStorageService()
   const theme = useTheme()
   const navigate = useNavigate()
   const { search } = useLocation()
   const queryParams = new URLSearchParams(search)
   const userCountry = local_service?.get_staff_country()
-
   const flow = queryParams.get('flow')
 
-  const fetchStpErrorList = async (transactionId: string) => {
+  const fetchStpErrorList = useCallback(async (transactionId: string) => {
     try {
       const { data } = await transaction_Service.getStpRules(transactionId)
       setStpErrors(data || [])
     } catch (error) {
       console.log('err', error)
     }
-  }
+  }, [])
 
   const getApplicantDetails = useCallback(async () => {
     try {
-      setcommonloader(true)
       const data = await applicant_service.getApplicantDetalis()
 
       const users: any = data.map((e) => {
@@ -345,7 +342,6 @@ const TransactionListing = () => {
         }
       })
       setUserList(users)
-      setcommonloader(false)
     } catch (error) {
       console.log(error)
     }
@@ -366,7 +362,6 @@ const TransactionListing = () => {
     try {
       setcommonloader(true)
       const data: any = await transaction_Service.getOutwardAllTransaction(userCountry)
-
       const inbound: Array<TransactionInwardCalclulated>[] | any = data?.map((e: any) => {
         //@ts-ignore
         return {
@@ -509,7 +504,7 @@ const TransactionListing = () => {
       setTransactionType(newType)
       //@ts-ignore
       setTransactionData(newType === 'inwards' ? inboundTransaction : outboundTransaction)
-      if (givenTransaction != null) {
+      if (givenTransaction !== null) {
         navigate(`/transaction?flow=${newType}&id=${givenTransaction}`)
       } else {
         navigate(`/transaction?flow=${newType}`)

@@ -264,7 +264,7 @@ const KYCPage = () => {
               },
             }}
             pageSizeOptions={[10]}
-            loading={filteredData?.length === 0}
+            loading={loader}
             slots={{
               loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
             }}

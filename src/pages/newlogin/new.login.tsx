@@ -46,10 +46,13 @@ const LoginPage = () => {
     // }
     setEmail(input)
   }
-  const getCountryList = () => {
-    static_service.getCountryList().then((data) => {
+  const getCountryList = async () => {
+    try {
+      const data = await static_service.getCountryList()
       setCountry(data)
-    })
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   const handleClose = (

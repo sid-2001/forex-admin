@@ -10,12 +10,16 @@ const local_service = new LocalStorageService()
 
 const ApplicantEnquiry = () => {
   const [applicantList, setapplicantList] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+
   const staffCountry = local_service?.get_staff_country()
 
   const getApplicantListByCountry = useCallback(async () => {
     try {
+      setIsLoading(true)
       const data: any = await applicant_service.getApplicantDetalisByCountry(staffCountry)
       setapplicantList(data)
+      setIsLoading(false)
     } catch (error) {
       console.log(error)
     }
@@ -31,7 +35,7 @@ const ApplicantEnquiry = () => {
         <Typography variant="h4" gutterBottom>
           <strong>Applicant </strong>
         </Typography>
-        <ApplicantDataGrid data={applicantList} />
+        <ApplicantDataGrid data={applicantList} loading={isLoading} />
       </HasPermission>
     </Box>
   )
