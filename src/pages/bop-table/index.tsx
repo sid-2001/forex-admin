@@ -45,6 +45,17 @@ const BopTable: React.FC = () => {
       headerName: 'Transaction No.',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        const theme = useTheme();
+        return (
+          <Link
+            to={`/transaction?flow=outwards&id=${params?.row?.transaction_number}`}
+            style={{ color: theme.palette.text.primary }}
+          >
+            {params?.row?.transaction_number}
+          </Link>
+        );
+      },
     },
     {
       field: 'transaction_attempt',

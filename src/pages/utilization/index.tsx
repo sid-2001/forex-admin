@@ -22,6 +22,8 @@ import TransactionTable from '../transaction-table'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useNavigate } from 'react-router-dom';
 
 const UtilizationEnquiryForm: React.FC = () => {
   const [apiType, setApiType] = useState('')
@@ -36,6 +38,8 @@ const UtilizationEnquiryForm: React.FC = () => {
   const appilicant_service = new ApplicantService()
   const helper = new HelperService()
   const local_service = new LocalStorageService()
+  const navigate = useNavigate();
+
 
   const handleSubmit = (e: React.FormEvent) => {
     appilicant_service.getTransactionsByApplicantId(applicantId).then((data) => {
@@ -81,9 +85,24 @@ const UtilizationEnquiryForm: React.FC = () => {
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.COMPLIANCE_MONITOR}>
       <Box sx={{ flexGrow: 1, p: 1 }}>
-        <Typography variant="h4" gutterBottom fontWeight="bold" textAlign="left" color={theme.palette.secondary.main}>
-          Limit Utilization Enquiry
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography
+            variant="h4"
+            gutterBottom
+            fontWeight="bold"
+            textAlign="left"
+          >
+            Limit Utilization Enquiry
+          </Typography>
+
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBackIcon />}
+            onClick={() => navigate(-1)} // Takes user back
+          >
+            Back
+          </Button>
+        </Box>
 
         <Grid container spacing={50}>
           {/* LEFT SIDE — FORM */}
@@ -196,7 +215,6 @@ const UtilizationEnquiryForm: React.FC = () => {
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  backgroundColor: '#f8f8f8',
                   minHeight: '60vh',
                 }}
               >
