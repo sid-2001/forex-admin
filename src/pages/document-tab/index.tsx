@@ -26,8 +26,10 @@ const DocumentsListComponent = ({ documentRecords }: { documentRecords: any }) =
       renderCell: (params: any) => (
         <IconButton onClick={() => handleViewDocument(params.row.docUrl?.replace(
   "http://164.90.252.179/",
-  "https://api.impronics.com/uat/files/"
+  "https://api.impronics.com/uat/"
 ))} color="primary">
+
+  
           <VisibilityIcon />
         </IconButton>
       ),
