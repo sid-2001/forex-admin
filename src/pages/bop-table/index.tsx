@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
 import { Box, Typography, IconButton } from '@mui/material'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
@@ -9,6 +9,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { statusColors } from '@/contants/utils'
 import { BopService } from '@/services/bop.services'
 import LoaderUI from '@/components/loader/loader'
+import { useTheme } from '@emotion/react'
 
 const BopTable: React.FC = () => {
   const [bopData, setBopData] = useState([])
@@ -46,15 +47,14 @@ const BopTable: React.FC = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        const theme = useTheme();
+        const theme = useTheme()
+
         return (
-          <Link
-            to={`/transaction?flow=outwards&id=${params?.row?.transaction_number}`}
-            style={{ color: theme.palette.text.primary }}
-          >
+          //@ts-ignore
+          <Link to={`/transaction?flow=outwards&id=${params?.row?.transaction_number}`} style={{ color: theme.palette.text.primary }}>
             {params?.row?.transaction_number}
           </Link>
-        );
+        )
       },
     },
     {
