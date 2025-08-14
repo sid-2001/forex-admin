@@ -50,6 +50,7 @@ import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useTheme } from '@emotion/react'
 import staticdataService from '@/services/staticdata.service'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 const { VITE_APP_URL } = import.meta.env
 
 const helper = new HelperService()
@@ -59,7 +60,7 @@ const transaction_service = new TransactionService()
 const kyc_service = new KycService()
 const static_service = new staticdataService()
 
-const ConfirmAndPayButton = ({ handleClick = () => {}, imgUrl = '' }) => {
+const ConfirmAndPayButton = ({ handleClick = () => { }, imgUrl = '' }) => {
   return (
     <Button
       variant="outlined"
@@ -634,9 +635,24 @@ const SendMoneyPage = () => {
           width: '80vw',
         }}
       >
-        <Typography variant="h5" gutterBottom color={theme.palette.secondary.main}>
-          <strong>Send Money </strong>
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography
+            variant="h5"
+            gutterBottom
+            color={theme.palette.secondary.main}
+            sx={{ fontWeight: 'bold' }}
+          >
+            Send Money
+          </Typography>
+
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBackIcon />}
+            onClick={() => navigate(-1)}
+          >
+            Back
+          </Button>
+        </Box>
 
         <LinearProgress variant="determinate" value={calculateProgress()} sx={{ marginBottom: 2 }} />
 
