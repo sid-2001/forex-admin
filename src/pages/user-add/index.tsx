@@ -37,7 +37,7 @@ const UserAdd = () => {
     fontWeight: 800,
   }
   //@ts-ignore
-  const [staffData, setStaffData] = useState<StaffProfile>({ staffIdNumber: '14-5678-9012', staffIdType: 'Aadhar' })
+  const [staffData, setStaffData] = useState<StaffProfile>({  staffIdType: 'Aadhar' })
   const [countrieslist] = useState(['USA', 'Canada', 'India'])
   const [flows] = useState(['Onboarding', 'Approval', 'Checkout'])
   const [roles, setRoles] = useState<any>([])
@@ -619,7 +619,7 @@ const UserAdd = () => {
                 user_service
                   .createStaff({
                     ...staffData,
-                    staffIdNumber: '14-5678-9012',
+                    // staffIdNumber: '14-5678-9012',
                     staffIdType: 'Aadhar',
                     roleId: selectedRole,
                   })

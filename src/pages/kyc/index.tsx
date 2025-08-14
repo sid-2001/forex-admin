@@ -48,6 +48,7 @@ const KYCPage = () => {
   const [loading, setLoading] = useState(false)
   const [comments, setComments] = useState<any>([])
   const [prooftype, setProoftype] = useState()
+const [imageUrl,setImageUrl]=useState('')
   const { id: kycIdFromRoute } = useParams()
 
   const navigate = useNavigate()
@@ -139,14 +140,15 @@ const KYCPage = () => {
     try {
       setCommonLoader(true)
       const data: any = await applicant_service.getApplicantKyc(userCountry)
-      setMockData(data)
+      console.log(data?.data)
+      setMockData(data?.data)
       setCommonLoader(false)
 
       if (kycIdFromRoute) {
         const filtered: any = data.filter((item: any) => item.kycId === kycIdFromRoute)
         setFilteredData(filtered)
       } else {
-        setFilteredData(data)
+        setFilteredData(data?.data)
       }
     } catch (err) {
       setCommonLoader(false)
@@ -189,6 +191,7 @@ const KYCPage = () => {
       if (checkboxOpen) {
         setCheckboxOpen(!checkboxOpen)
       }
+      renderUserImage()
     } catch (error) {
       console.log(error)
     }
@@ -236,7 +239,9 @@ const KYCPage = () => {
 
   const renderUserImage = () => {
     const record = selectedKYC?.documents.find((doc: any) => doc?.document?.documentType === 'image')
-    return record?.documentUrl
+    console.log(record?.documentUrl)
+    setImageUrl(record?.documentUrl)
+    // return record?.documentUrl
   }
 
   return (
@@ -306,7 +311,9 @@ const KYCPage = () => {
             <Grid container>
               <Grid item xs={2}>
                 <Avatar
-                  src={renderUserImage()?.replace('http://64.227.139.142', 'https://api.impronics.com')} // Replace with actual image URL
+                  src={imageUrl} // Replace with actual image URL
+                 
+                 
                   sx={{
                     width: 150,
                     height: 150,

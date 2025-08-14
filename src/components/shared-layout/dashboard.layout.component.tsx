@@ -335,6 +335,7 @@ const DashboardLayout = () => {
               backgroundColor: 'primary',
               border: '1px solid #D1DDFC',
               padding: '7px',
+            width:"10%",
               paddingRight: '10px',
               marginBottom: '6px',
             }}
