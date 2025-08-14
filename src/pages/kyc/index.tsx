@@ -185,13 +185,18 @@ const [imageUrl,setImageUrl]=useState('')
   const getKycDetailsById = async (kycId: string) => {
     try {
       const response = await kycservice.getKycById(kycId)
-      setSelectedKYC(response)
+      //@ts-ignore
+     let image= response?.documents.find((doc: any) => doc?.documentType === 'image')?.documentUrl
+    
+     setImageUrl(image)
+     
+     setSelectedKYC(response)
       //@ts-ignore
       setComments(response?.comments || [])
       if (checkboxOpen) {
         setCheckboxOpen(!checkboxOpen)
       }
-      renderUserImage()
+     
     } catch (error) {
       console.log(error)
     }
@@ -307,11 +312,11 @@ const [imageUrl,setImageUrl]=useState('')
               </Typography>
             </Box>
 
-            {/* Applicant Details Section */}
+           {/* Applicant Details Section */}
             <Grid container>
               <Grid item xs={2}>
                 <Avatar
-                  src={imageUrl} // Replace with actual image URL
+                  src={imageUrl.replace("http://164.90.252.179/", "https://api.impronics.com/uat/")} // Replace with actual image URL
                  
                  
                   sx={{
@@ -328,6 +333,7 @@ const [imageUrl,setImageUrl]=useState('')
                     justifyContent: 'center',
                   }}
                 >
+                 
                   {/* {' '}
                   {selectedKYC?.applicantName?.split(' ').length > 0
                     ? selectedKYC?.applicantName.split(' ')[0][0] +
