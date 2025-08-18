@@ -15,7 +15,8 @@ import HasPermission from '../permissionWrapper';
 
 const RoleModal = ({
   //@ts-ignore
-  open,
+  open, setSelectedRole,
+ 
   //@ts-ignore
   onClose, initialData, onSave }
   //@ts-ignore
@@ -166,25 +167,7 @@ const RoleModal = ({
 
 
   const handleSave = () => {
-    // const payload = {
-    //   roleId,
-    //   roleDescription: roleName,
-    //   roleStatus: true,
-    //   modules: selectedModules.map((id) => {
-    //     const mod = allModules.find((m) => m.moduleId === id);
-    //     return {
-    //       staffModuleId: id,
-    //       staffModuleDescription: `${mod.moduleName} Screen`,
-    //       access: {
-    //         accessId: 1,
-    //         canCreate: permissions[id]?.create || false,
-    //         canRead: permissions[id]?.read || false,
-    //         canUpdate: permissions[id]?.update || false,
-    //         canDelete: permissions[id]?.delete || false,
-    //       },
-    //     };
-    //   }),
-    // };
+    
     var payload
 
     if (roleId) {
@@ -232,18 +215,19 @@ const RoleModal = ({
 
       user_service.addRole(payload)
     }
-    console.log(payload)
+   
 
 
     settype('success')
     setText("Succesfully Updated Staff")
+    setOpen(false)
+setSelectedRole(null)
 
+    setTimeout(() => {
 
-    // setTimeout(() => {
-
-    //   window.location.reload()
-    //   setRoleId(null)
-    // }, 1200)
+      window.location.reload()
+      setRoleId(null)
+    }, 1200)
 
     // onSave(payload);
   };

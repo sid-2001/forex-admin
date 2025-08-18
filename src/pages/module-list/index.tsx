@@ -62,6 +62,7 @@ const AddUpdateModuleDialog: React.FC<any> = ({ action = 'Add', handleClose, han
         handleClose()
       }}
     >
+    
       <Box
         sx={{
           position: 'absolute',
@@ -75,13 +76,16 @@ const AddUpdateModuleDialog: React.FC<any> = ({ action = 'Add', handleClose, han
           borderRadius: 2,
         }}
       >
+       
         <Typography variant="h4" gutterBottom>
-          {action} Module
+       
+       
+          {action}gfdfdss  { JSON.stringify(isOpen)} Module
         </Typography>
         <Box mt={4}>
           <Grid container spacing={2} mb={2}>
             <Grid item xs={12} sm={12}>
-              <label style={inputLabelStyle}>Module Name</label>
+              <label style={inputLabelStyle}>Modulecvcxz Name</label>
               <TextField value={moduleData?.moduleName || ''} onChange={handleChange} fullWidth name="moduleName" />
             </Grid>
             <Grid item xs={12} sm={12}>
