@@ -140,7 +140,7 @@ export class UserService extends BaseService {
       throw new Error(err as any)
     }
   }
-
+  
   async getRolesList(): Promise<any> {
     let url = `/api/staff/staff-roles/getAll`
     try {
@@ -152,14 +152,17 @@ export class UserService extends BaseService {
   }
 
   async editRoles(roleId: string, payload: any): Promise<any> {
-    let url = `/api/staff/staff-roles/update/${roleId}`
-    try {
-      let data = await api1.post(url, payload)
-      return data
-    } catch (err) {
-      throw new Error(err as any)
+  const url = `/api/staff/staff-roles/update/${roleId}`;
+  try {
+    const { data } = await api1.post(url, payload);
+    return data; // This will contain { status: true, message: "...", data: "..."}
+  } catch (err: any) {
+    if (err.response && err.response.data) {
+      throw err.response.data; // Pass API error response forward
     }
+    throw err; // Fallback generic error
   }
+}
 
   async getCountriesList() {
     let url = '/api/static-table/forex/getAllCountry'

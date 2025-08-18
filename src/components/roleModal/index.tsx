@@ -13,6 +13,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service';
 import HasPermission from '../permissionWrapper';
 
 
+
 const RoleModal = ({
   //@ts-ignore
   open, setSelectedRole,
@@ -32,7 +33,7 @@ const RoleModal = ({
   const [allModules, setAllModules] = useState<any>([])
   const user_service = new UserService();
   const local_service = new LocalStorageService();
-
+  
   const helper_service = new HelperService();
 
 
@@ -190,7 +191,7 @@ const RoleModal = ({
           };
         }),
       };
-      user_service.editRoles(roleId, payload)
+      res = await user_service.editRoles(roleId, payload);
 
     } else {
       payload = {
@@ -230,8 +231,7 @@ setSelectedRole(null)
     }, 1200)
 
     // onSave(payload);
-  };
-
+  
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle> {roleId ? "Edit Role" : "Add Role"}  </DialogTitle>
