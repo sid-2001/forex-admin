@@ -316,7 +316,7 @@ const [imageUrl,setImageUrl]=useState('')
             <Grid container>
               <Grid item xs={2}>
                 <Avatar
-                  src={imageUrl.replace("http://164.90.252.179/", "https://api.impronics.com/uat/")} // Replace with actual image URL
+                  src={imageUrl?.replace("http://164.90.252.179/", "https://api.impronics.com/uat/")} // Replace with actual image URL
                  
                  
                   sx={{

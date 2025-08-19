@@ -167,7 +167,7 @@ const RoleModal = ({
   ];
 
 
-  const handleSave = () => {
+  const handleSave =async () => {
     
     var payload
 
@@ -191,7 +191,7 @@ const RoleModal = ({
           };
         }),
       };
-      res = await user_service.editRoles(roleId, payload);
+      const res = await user_service.editRoles(roleId, payload);
 
     } else {
       payload = {
@@ -295,6 +295,6 @@ setSelectedRole(null)
       </>
     </Dialog>
   );
-};
+};}
 
 export default RoleModal;

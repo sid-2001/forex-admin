@@ -41,7 +41,7 @@ export class UserService extends BaseService {
     }
   }
 
-  async getAllStaffList(): Promise<Staff> {
+  async getAllStaffList(): Promise<Array<Staff>> {
     let url = '/api/staff/staff-details/getAllStaff'
     try {
       let data = await api1.get(url)

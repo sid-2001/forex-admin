@@ -48,7 +48,11 @@ const UserTable: React.FC = () => {
   const fetchAllStaffList = async () => {
     try {
       const response = await user_service.getAllStaffList()
-      setStaffList(response)
+      const staffId=await  local_service.get_staff_access()?.staffId
+
+      setStaffList(  response.filter(
+    (e) => e?.staffId != staffId
+))
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error)
     }
