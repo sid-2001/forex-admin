@@ -5,6 +5,9 @@ import axios from 'axios'
 const { VITE_FOREX_APP_CREDENTIALS } = import.meta.env
 
 export class TransactionService extends BaseService {
+  static getBankAccounts() {
+    throw new Error('Method not implemented.')
+  }
   static cdiTransaction() {
     throw new Error('Method not implemented.')
   }
