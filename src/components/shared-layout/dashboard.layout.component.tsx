@@ -27,7 +27,7 @@ import ShowChartIcon from '@mui/icons-material/ShowChart'
 import ViewModuleIcon from '@mui/icons-material/ViewModule'
 import { TransactionService } from '@/services/transaction.service'
 import ConfirmationModal from '../logout/logout.component'
-
+import LoyaltyIcon from '@mui/icons-material/Loyalty';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
@@ -267,6 +267,22 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Sarb Errors',
+    },
+
+     {
+      icon: (
+        <>
+          <LoyaltyIcon
+            sx={{
+              //@ts-ignore
+              fontSize: '2vh',
+              //@ts-ignore
+              color: theme.palette.primary.light, // Corrected theme usage
+            }}
+          />
+        </>
+      ),
+      label: 'Loyality',
     },
   ]
 

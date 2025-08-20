@@ -42,6 +42,7 @@ import { themeModeState } from '@/states/state'
 import { useRecoilState } from 'recoil'
 import { CssBaseline } from '@mui/material'
 import SarbErrorsListing from './pages/sarb-errors'
+import Loyality from './pages/loyality'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -142,6 +143,7 @@ function App() {
               <Route path="kyc" element={<KYCPage />} />
               <Route path="kyc/:id" element={<KYCPage />} />
               <Route path="cdi" element={<CdiScreen />} />
+                <Route path="loyality" element={<Loyality />} />
               <Route path="profile" element={<UserTable />} />
               <Route path="profile/add" element={<UserAdd />} />
               <Route path="profile/edit/:staffId" element={<UserAdd />} />
