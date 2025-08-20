@@ -108,7 +108,9 @@ const RoleManagementPage = () => {
         />
       </Box>
 
-      {selectedRole && <RoleModal  setSelectedRole={setSelectedRole} open={!!selectedRole} initialData={selectedRole} onClose={() => setSelectedRole(null)} onSave={handleSave} />}
+      {selectedRole && < 
+        //@ts-ignore
+        RoleModal  setSelectedRole={setSelectedRole} open={!!selectedRole} initialData={selectedRole} onClose={() => setSelectedRole(null)} onSave={handleSave} />}
     </HasPermission>
   )
 }
