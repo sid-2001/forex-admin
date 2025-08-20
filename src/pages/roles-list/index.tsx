@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
-import RoleModal from '../../components/roleModal'
+import RoleModal  from '../../components/roleModal'
 import { Box, Button, Typography } from '@mui/material'
 import { UserService } from '@/services/user.service'
 import HasPermission from '@/components/permissionWrapper'

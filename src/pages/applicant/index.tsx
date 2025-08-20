@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { Box, Grid, TextField, Typography, Button, Tabs, Tab, Avatar, useTheme } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
 import TransactionTable from '../transaction-table'
@@ -31,6 +31,7 @@ const ApplicantPage = () => {
   const [applicantImage, setApplicantImage] = useState<string>('')
   const [applicantDocuments, setApplicantDocuments] = useState<any[]>([])
   const [applicantDetails, setApplicantDetails] = useState<any>({})
+
   const [kycId, setKycId] = useState<string | null>(null)
 
   function LimitPieChart() {
@@ -66,6 +67,15 @@ const ApplicantPage = () => {
       </Box>
     )
   }
+
+const MemoizedPieChart = useMemo(() => {
+  return (
+    <LimitPieChart
+   
+    />
+  )
+}, [utilizedLimit, availableLimit])
+
   useEffect(() => {
     fetchComplianceLimitData()
     fetchApplicantData()
@@ -342,7 +352,8 @@ const ApplicantPage = () => {
               </Grid>
             </Grid>
             <Grid item xs={12} sm={3} sx={{ alignContent: 'top' }}>
-              <LimitPieChart></LimitPieChart>
+              {/* <LimitPieChart></LimitPieChart> */}
+              {MemoizedPieChart}
             </Grid>
           </Grid>
         </Box>

@@ -167,7 +167,7 @@ const RoleModal = ({
   ];
 
 
-  const handleSave = async() => {
+  const handleSave =async () => {
     
     var payload
 
@@ -295,6 +295,6 @@ setSelectedRole(null)
       </>
     </Dialog>
   );
-}};
+};}
 
 export default RoleModal;

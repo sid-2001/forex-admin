@@ -328,7 +328,7 @@ export default function TransactionPage() {
             <Box flex={0.1} sx={{
               backgroundColor: getStatusColor(transactionDetails?.reconStatus),
               color: "white",
-              borderRadius: "10%",
+            
               textAlign: "center",
               fontWeight: "900",
               alignContent: "center",
@@ -432,7 +432,7 @@ export default function TransactionPage() {
 
                 }}>
 
-                  {(transactionDetails?.senderCtryTransId) ? (transactionDetails?.senderCtryTransId) : "ZAOWRM250402IN7838"}
+                  {(transactionDetails?.senderCtryTransId) ? (transactionDetails?.senderCtryTransId) : "NOT DATA AVAILABLE"}
 
                 </span>
                 <span style={{
@@ -485,7 +485,7 @@ export default function TransactionPage() {
 
                 }}>
 
-                  {(transactionDetails?.senderCtryTransId) ? (transactionDetails?.senderCtryTransId) : "ZAOWRM250402IN7838"}
+                  {(transactionDetails?.rcvCtryTransId) ? (transactionDetails?.rcvCtryTransId) : "NO DATA AVAILABLE"}
                 </span>
                 <span style={{
                   marginLeft: "4%"
@@ -535,13 +535,13 @@ export default function TransactionPage() {
                 <b> Settlement Transaction ID</b> <span style={{
                   backgroundColor: theme.palette.primary.main,
                   padding: '1%',
-                  borderRadius: "10%",
+               
                   color: "white"
 
 
                 }}>
 
-                  {(transactionDetails?.senderCtryTransId) ? (transactionDetails?.senderCtryTransId) : "ZAOWRM250402IN7838"}
+                  {(transactionDetails?.utrFinalTrn) ? (transactionDetails?.utrFinalTrn) : "NO DATA AVAILABLE"}
 
                 </span>
                 <span style={{
@@ -580,7 +580,7 @@ export default function TransactionPage() {
               </Grid>
 
 
-              <Box>
+              <Box mt={4}>
 
                 <Button variant='outlined' onClick={handleSave}>Save</Button>
               </Box>
