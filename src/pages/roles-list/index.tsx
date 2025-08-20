@@ -29,7 +29,11 @@ const RoleManagementPage = () => {
   }, [])
 
   const handleSave = (updatedRole: any) => {
+   
     api_service.addRole(updatedRole)
+    setSelectedRole(null)
+    window.location.reload()
+  
 
     // axios.put(`/api/roles/${updatedRole.roleId}`, updatedRole) // 🔁 Replace with your PUT API
     //   .then(() => {
@@ -104,7 +108,7 @@ const RoleManagementPage = () => {
         />
       </Box>
 
-      {selectedRole && <RoleModal open={!!selectedRole} initialData={selectedRole} onClose={() => setSelectedRole(null)} onSave={handleSave} />}
+      {selectedRole && <RoleModal  setSelectedRole={setSelectedRole} open={!!selectedRole} initialData={selectedRole} onClose={() => setSelectedRole(null)} onSave={handleSave} />}
     </HasPermission>
   )
 }

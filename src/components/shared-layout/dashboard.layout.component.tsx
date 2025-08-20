@@ -2,7 +2,7 @@ import { ThemeProvider } from '@mui/material/styles'
 import { Box, Typography, Avatar, List, ListItem, IconButton, AppBar, ListItemIcon, Toolbar, Tooltip } from '@mui/material'
 import { styled } from '@mui/system'
 import { LogoWhite } from '@/assets/images'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
 import Person2Icon from '@mui/icons-material/Person2'
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
@@ -27,6 +27,7 @@ import ShowChartIcon from '@mui/icons-material/ShowChart'
 import ViewModuleIcon from '@mui/icons-material/ViewModule'
 import { TransactionService } from '@/services/transaction.service'
 import ConfirmationModal from '../logout/logout.component'
+
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
@@ -140,7 +141,7 @@ const DashboardLayout = () => {
           }}
         />
       ),
-      label: 'kyc',
+      label: 'Kyc',
     },
     {
       icon: (
@@ -265,7 +266,7 @@ const DashboardLayout = () => {
           />
         </>
       ),
-      label: 'Sarb-Errors',
+      label: 'Sarb Errors',
     },
   ]
 
@@ -304,7 +305,11 @@ const DashboardLayout = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', px: 2, py: 1 }}>
             {/* Logo */}
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <img src={LogoWhite} alt="Logo" style={{ height: 60 }} />
+              <Link to='/dashboard' >
+                 <img src={LogoWhite} alt="Logo" style={{ height: 60 }} />
+              </Link>
+        
+           
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, color: 'white' }}>
@@ -335,6 +340,7 @@ const DashboardLayout = () => {
               backgroundColor: 'primary',
               border: '1px solid #D1DDFC',
               padding: '7px',
+            width:"20%",
               paddingRight: '10px',
               marginBottom: '6px',
             }}

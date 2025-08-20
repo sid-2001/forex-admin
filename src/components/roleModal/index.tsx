@@ -16,7 +16,8 @@ import HasPermission from '../permissionWrapper';
 
 const RoleModal = ({
   //@ts-ignore
-  open,
+  open, setSelectedRole,
+ 
   //@ts-ignore
   onClose, initialData, onSave }
   //@ts-ignore
@@ -166,30 +167,9 @@ const RoleModal = ({
   ];
 
 
-  const handleSave = async () => {
-
-   
-    //   roleId,
-    //   roleDescription: roleName,
-    //   roleStatus: true,
-    //   modules: selectedModules.map((id) => {
-    //     const mod = allModules.find((m) => m.moduleId === id);
-    //     return {
-    //       staffModuleId: id,
-    //       staffModuleDescription: `${mod.moduleName} Screen`,
-    //       access: {
-    //         accessId: 1,
-    //         canCreate: permissions[id]?.create || false,
-    //         canRead: permissions[id]?.read || false,
-    //         canUpdate: permissions[id]?.update || false,
-    //         canDelete: permissions[id]?.delete || false,
-    //       },
-    //     };
-    //   }),
-    // };
-   let payload;
-     try {
-    let res;
+  const handleSave = () => {
+    
+    var payload
 
     if (roleId) {
       payload = {
@@ -234,25 +214,21 @@ const RoleModal = ({
         }),
       };
 
-      res = await user_service.addRole(payload);
+      user_service.addRole(payload)
     }
-    
-    settype(res.status === true ? 'success' : 'error');
-    setText(res.message);
-    setOpen(true);
+   
 
-  } catch (err: any) {
-    settype('error');
-    setText(err.message || 'Something went wrong');
-    setOpen(true);
-  }
-};
 
-    // setTimeout(() => {
+    settype('success')
+    setText("Succesfully Updated Staff")
+    setOpen(false)
+setSelectedRole(null)
 
-    //   window.location.reload()
-    //   setRoleId(null)
-    // }, 1200)
+    setTimeout(() => {
+
+      window.location.reload()
+      setRoleId(null)
+    }, 1200)
 
     // onSave(payload);
   
