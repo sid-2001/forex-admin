@@ -143,7 +143,7 @@ function App() {
               <Route path="kyc" element={<KYCPage />} />
               <Route path="kyc/:id" element={<KYCPage />} />
               <Route path="cdi" element={<CdiScreen />} />
-                <Route path="loyality" element={<Loyality />} />
+                <Route path="loyalty" element={<Loyality />} />
               <Route path="profile" element={<UserTable />} />
               <Route path="profile/add" element={<UserAdd />} />
               <Route path="profile/edit/:staffId" element={<UserAdd />} />
@@ -162,7 +162,7 @@ function App() {
               <Route path="recon-trx" element={<ReconScreen />} />
               <Route path="module" element={<ModuleTable />} />
               <Route path="role" element={<RoleManagement />} />
-              <Route path="sarb-errors" element={<SarbErrorsListing />} />
+              <Route path="sarberrors" element={<SarbErrorsListing />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 

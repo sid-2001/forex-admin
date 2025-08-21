@@ -28,6 +28,7 @@ import ViewModuleIcon from '@mui/icons-material/ViewModule'
 import { TransactionService } from '@/services/transaction.service'
 import ConfirmationModal from '../logout/logout.component'
 import LoyaltyIcon from '@mui/icons-material/Loyalty';
+import ErrorIcon from '@mui/icons-material/Error';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
@@ -105,6 +106,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Dashboard',
+      name:"Dashboard"
     },
     {
       icon: (
@@ -123,6 +125,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Transaction',
+       name:"Transactions"
     },
 
     {
@@ -142,6 +145,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Kyc',
+        name:"KYC"
     },
     {
       icon: (
@@ -160,6 +164,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Applicant',
+      name:"Applicant Details"
     },
     {
       icon: (
@@ -175,6 +180,7 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Bop',
+         name:"BOP"
     },
     {
       icon: (
@@ -190,6 +196,7 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Profile',
+        name:"Users"
     },
     {
       icon: (
@@ -205,6 +212,7 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Module',
+        name: 'Modules',
     },
     {
       icon: (
@@ -220,6 +228,7 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Role',
+        name: 'Roles',
     },
     {
       icon: (
@@ -235,6 +244,7 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Cdi',
+      name: 'CDI',
     },
 
     {
@@ -252,11 +262,12 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Static',
+       name: 'Static Data',
     },
     {
       icon: (
         <>
-          <Person2Icon
+          <ErrorIcon
             sx={{
               //@ts-ignore
               fontSize: '2vh',
@@ -266,7 +277,8 @@ const DashboardLayout = () => {
           />
         </>
       ),
-      label: 'Sarb Errors',
+      label: 'SarbErrors',
+        name: 'Error Codes',
     },
 
      {
@@ -282,7 +294,8 @@ const DashboardLayout = () => {
           />
         </>
       ),
-      label: 'Loyality',
+      label: 'Loyalty',
+      name:"Loyalty"
     },
   ]
 
@@ -512,7 +525,7 @@ const DashboardLayout = () => {
                         padding: '1%',
                       }}
                     >
-                      {item.label}
+                      { item.name}
                     </Item>
                   </Stack>
                 </ListItem>
