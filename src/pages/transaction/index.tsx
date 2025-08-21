@@ -130,6 +130,29 @@ const TransactionListing = () => {
       //   ),
     },
     {
+      field: 'payment_status',
+      headerName: 'Settlement Status',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <div>
+            <span
+              style={{
+                backgroundColor: statusColors[params?.row?.paymentStatus?.toUpperCase()],
+                color: 'white',
+                borderRadius: '20px',
+                padding: '12px 12px',
+                fontSize: '13px',
+              }}
+            >
+              {params?.row?.paymentStatus?.toUpperCase()}
+            </span>
+          </div>
+        )
+      },
+    },
+    {
       field: 'stpError',
       headerName: 'STP',
       flex: 1,
