@@ -16,8 +16,6 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import TransactionPanel from '@/components/transaction-panel'
 import { HelperService } from '@/helpers/helper'
 import { Link, useNavigate } from 'react-router-dom'
-import { createRoot } from "react-dom/client";
-import { AgCharts } from "ag-charts-react";
 import { AgChartOptions } from "ag-charts-community";
 import TransactionModal from '@/components/transaction-panel'
 import { DataGrid } from '@mui/x-data-grid'
@@ -156,6 +154,35 @@ const Dashboard = () => {
   });
 
 
+  // 🔝 Put this at the top of your file (before the component)
+  const RECENT_TRANSACTIONS_COLUMNS = [
+    { field: 'sno', headerName: 'Sno.', flex: 0.5 },
+    { field: 'transactionId', headerName: 'Transaction ID', flex: 1 },
+    { field: 'sentFrom', headerName: 'Sent From', flex: 1 },
+    { field: 'receivedIn', headerName: 'Received In', flex: 1 },
+    {
+      field: 'amount',
+      headerName: 'Amount',
+      flex: 1,
+      renderCell: (params: any) => (
+        <Typography sx={{ color: 'green', fontWeight: 'bold' }}>{params.value}</Typography>
+      ),
+    },
+    { field: 'reported', headerName: 'Reported', flex: 0.8 },
+    { field: 'date', headerName: 'Date & Time', flex: 1 },
+    {
+      field: 'action',
+      headerName: 'Action',
+      flex: 1,
+      renderCell: (params: any) => (
+        <Link to={`/transaction?flow=outwards&id=${params.value}`}>
+          <Typography sx={{ textDecoration: 'underline', cursor: 'pointer' }}>
+            View more
+          </Typography>
+        </Link>
+      ),
+    },
+  ];
 
   const BankBalanceCarousel = () => {
     const scrollRef = React.useRef<HTMLDivElement>(null)
@@ -335,11 +362,7 @@ const Dashboard = () => {
     )
   }
 
-  interface BankCardsProps {
-    image_url: string
-    title: string
-  }
-
+  //@ts-ignore
   const BankCards: React.FC<BankCardsProps> = ({ image_url, title }) => {
     return (
       <Card
@@ -395,7 +418,6 @@ const Dashboard = () => {
             top: '30%',
             right: 0,
             zIndex: 1,
-            // backgroundColor: 'primary.light',
           }}
         >
           <ArrowRightIcon sx={{ color: 'black' }} />
@@ -410,7 +432,6 @@ const Dashboard = () => {
             padding: '1%',
             gap: 2,
             paddingTop: '0.3%',
-            // px: 0,
           }}
         >
           {cards?.map((card, index) => (
@@ -443,7 +464,6 @@ const Dashboard = () => {
   }
 
   const scrollRef = React.useRef<HTMLDivElement>(null)
-
   const scroll = (offset: number) => {
     if (scrollRef.current) {
       scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' })
@@ -554,7 +574,7 @@ const Dashboard = () => {
 
             {/* Volume */}
             <Grid item xs={12} md={7}>
-              <Card sx={{ border: '2px solid', borderColor: '#79CBF0', height: '100%' }}>
+              <Card sx={{ border: '2px solid', borderColor: '#79CBF0', height: '100%'}}>
                 <CardContent>
                   <Typography variant="subtitle1" fontWeight={700} gutterBottom>
                     Volume
@@ -588,7 +608,7 @@ const Dashboard = () => {
                 ) : (
                   <DataGrid
                     rows={recentTransaction.map((transaction: any, index: number) => ({
-                      id: index + 1, // required unique id
+                      id: index + 1,
                       sno: index + 1,
                       transactionId: transaction?.transactionOutward?.transactionNumber,
                       sentFrom: `${transaction?.transactionOutward?.originCountry} | ${transaction?.transactionOutward?.originCurrency}`,
@@ -602,58 +622,20 @@ const Dashboard = () => {
                       action: transaction?.transactionOutward?.transactionNumber,
                       status: transaction?.transactionOutward?.reportingStatus,
                     }))}
-                    columns={[
-                      { field: 'sno', headerName: 'Sno.', flex: 0.5 },
-                      { field: 'transactionId', headerName: 'Transaction ID', flex: 1 },
-                      { field: 'sentFrom', headerName: 'Sent From', flex: 1 },
-                      { field: 'receivedIn', headerName: 'Received In', flex: 1 },
-                      {
-                        field: 'amount',
-                        headerName: 'Amount',
-                        flex: 1,
-                        renderCell: (params) => (
-                          <Typography sx={{ color: 'green', fontWeight: 'bold' }}>{params.value}</Typography>
-                        ),
-                      },
-                      { field: 'reported', headerName: 'Reported', flex: 0.8 },
-                      { field: 'date', headerName: 'Date & Time', flex: 1 },
-                      {
-                        field: 'action',
-                        headerName: 'Action',
-                        flex: 1,
-                        renderCell: (params) => (
-                          <Link to={`/transaction?flow=outwards&id=${params.value}`}>
-                            <Typography sx={{ textDecoration: 'underline', cursor: 'pointer' }}>
-                              View more
-                            </Typography>
-                          </Link>
-                        ),
-                      },
-                    ]}
+                    columns={RECENT_TRANSACTIONS_COLUMNS} 
                     pageSizeOptions={[5, 10]}
                     disableRowSelectionOnClick
                     sx={{
-                      '& .MuiDataGrid-row:hover': {
-                        backgroundColor: '#e6f2ff',
-                      },
-                      '& .MuiDataGrid-cell': {
-                        borderBottom: '1px solid #e0e0e0',
-                      },
-                      '& .MuiDataGrid-columnHeaders': {
-                        fontWeight: 'bold',
-                        borderBottom: '2px solid #1976d2',
-                      },
+                      '& .MuiDataGrid-cell': { borderBottom: '1px solid #e0e0e0' },
+                      '& .MuiDataGrid-columnHeaders': { fontWeight: 'bold', borderBottom: '2px solid #1976d2' },
                     }}
                     getRowClassName={(params) =>
                       params.row.status === 'Error' ? 'error-row' : ''
                     }
-                  />
-                )}
+                  />)}
               </Box>
             </Box>
           </Grid>
-
-
         </Grid>
 
 
