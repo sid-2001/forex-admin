@@ -633,9 +633,6 @@ const Dashboard = () => {
                     pageSizeOptions={[5, 10]}
                     disableRowSelectionOnClick
                     sx={{
-                      '& .MuiDataGrid-row:nth-of-type(odd)': {
-                        backgroundColor: '#f5faff',
-                      },
                       '& .MuiDataGrid-row:hover': {
                         backgroundColor: '#e6f2ff',
                       },
