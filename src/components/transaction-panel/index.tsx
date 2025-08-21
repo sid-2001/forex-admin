@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { Box, Grid, Button, CircularProgress, Alert } from "@mui/material";
 import { AgCharts } from "ag-charts-react";
 import staticdataService from "@/services/staticdata.service";
+import { useTheme } from "@mui/material/styles";
+
 
 const TransactionPanel = () => {
   const [year, setYear] = useState(2025);
@@ -13,6 +15,8 @@ const TransactionPanel = () => {
   const [error, setError] = useState<string | null>(null);
   const [yearsData, setYearsData] = useState<any[]>([]);
   let static_service = new staticdataService();
+  const theme = useTheme(); 
+
 
   useEffect(() => {
     fetchMonthlyData(year);
@@ -109,28 +113,51 @@ const TransactionPanel = () => {
   }, []);
 
   const barOptions = {
-    title: { text: "Yearly Transactions" },
+    background: { fill: "transparent" }, 
+    title: { text: "Yearly Transactions", color: theme.palette.text.primary },
     data: yearsData,
     series: [
       { type: "bar", xKey: "year", yKey: "totalCount", yName: "Transactions" },
       { type: "bar", xKey: "year", yKey: "totalAmount", yName: "Amount" },
     ],
     axes: [
-      { type: "category", position: "bottom" },
-      { type: "number", position: "left" },
+      {
+        type: "category",
+        position: "bottom",
+        label: { color: theme.palette.text.primary }, 
+      },
+      {
+        type: "number",
+        position: "left",
+        label: { color: theme.palette.text.primary },
+      },
     ],
   };
 
   const lineOptions = {
+    background: { fill: "transparent" },
     title: {
       text: selectedMonth
         ? `${selectedMonth} Daily Trends`
         : `${year} Monthly Trends`,
+      color: theme.palette.text.primary,
     },
     data: chartData,
     series: [
       { type: "line", xKey: "name", yKey: "transactions", yName: "Transactions" },
       { type: "line", xKey: "name", yKey: "amount", yName: "Amount" },
+    ],
+    axes: [
+      {
+        type: "category",
+        position: "bottom",
+        label: { color: theme.palette.text.primary },
+      },
+      {
+        type: "number",
+        position: "left",
+        label: { color: theme.palette.text.primary },
+      },
     ],
   };
 
@@ -156,7 +183,7 @@ const TransactionPanel = () => {
 
       <Grid container spacing={2}>
         <Grid item xs={12} md={6}>
-          <Box sx={{ height: 250, cursor: "pointer" }}>
+          <Box sx={{ height: 250, cursor: "pointer"  }}>
             <AgCharts
               options={{
                 ...barOptions,
