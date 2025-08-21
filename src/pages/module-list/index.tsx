@@ -80,12 +80,12 @@ const AddUpdateModuleDialog: React.FC<any> = ({ action = 'Add', handleClose, han
         <Typography variant="h4" gutterBottom>
        
        
-          {action}gfdfdss  { JSON.stringify(isOpen)} Module
+          {action}  Module
         </Typography>
         <Box mt={4}>
           <Grid container spacing={2} mb={2}>
             <Grid item xs={12} sm={12}>
-              <label style={inputLabelStyle}>Modulecvcxz Name</label>
+              <label style={inputLabelStyle}>Module Name</label>
               <TextField value={moduleData?.moduleName || ''} onChange={handleChange} fullWidth name="moduleName" />
             </Grid>
             <Grid item xs={12} sm={12}>
@@ -278,7 +278,7 @@ const ModuleTable: React.FC = () => {
               setIsModalOpen(false)
               setSelectedModule({})
             }}
-            action={selectedModule?.moduleId ? 'Edit' : 'Add'}
+            action={selectedModule?.moduleId ? 'Update' : 'Add'}
             selectedModuleData={selectedModule?.moduleId ? selectedModule : {}}
             handleSubmit={(response: any) => {
               handleSavedModule(response)

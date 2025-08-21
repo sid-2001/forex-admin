@@ -231,7 +231,7 @@ setSelectedRole(null)
     }, 1200)
 
     // onSave(payload);
-  
+  }
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle> {roleId ? "Edit Role" : "Add Role"}  </DialogTitle>
@@ -295,6 +295,6 @@ setSelectedRole(null)
       </>
     </Dialog>
   );
-};}
+}
 
 export default RoleModal;
