@@ -1,14 +1,32 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Typography, useTheme, Drawer, Grid, TextField, Divider, Chip, IconButton, Button} from '@mui/material'
+import { 
+  Box, 
+  Typography, 
+  useTheme, 
+  Drawer, 
+  Grid, 
+  TextField, 
+  Divider, 
+  Chip, 
+  IconButton, 
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Card,
+  CardContent,
+  Stack,
+  Switch,
+  FormControlLabel
+} from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { styled } from '@mui/material/styles'
-import { PreviewOutlined } from '@mui/icons-material'
+import { PreviewOutlined, Add, Edit } from '@mui/icons-material'
 import { TransactionService } from '@/services/transaction.service'
 import LoaderUI from '@/components/loader/loader'
-import { Card, CardContent, Stack, } from '@mui/material'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
-
 
 const StyledDataGrid = styled(DataGrid)({
   '& .MuiDataGrid-columnHeaders': {
@@ -16,9 +34,6 @@ const StyledDataGrid = styled(DataGrid)({
     color: '#fff',
     fontWeight: 'bold',
   },
-  // '& .MuiDataGrid-row:nth-of-type(even)': {
-  //   backgroundColor: '#e3f2fd',
-  // },
   '& .MuiDataGrid-cell': {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
@@ -32,223 +47,204 @@ const StyledDataGrid = styled(DataGrid)({
 
 const Loyality = () => {
   const theme = useTheme()
-  const [cdiRecords, setCdiRecords] = useState<any[]>([])
+  const [loyaltyRecords, setLoyaltyRecords] = useState<any[]>([])
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-  const [transactionDetails, setTransactionDetails] = useState<any>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [selectedRecord, setSelectedRecord] = useState<any>(null)
+  const [isEditMode, setIsEditMode] = useState(false)
   const service = new TransactionService()
-  const [isLoading, setIsLoading] = useState(true);
-  const [referenceInput, setReferenceInput] = useState('')
-  const [open, setOpen] = useRecoilState(alertState);
-  const [text, setText] = useRecoilState(alertTextState);
-  const [type, settype] = useRecoilState(alertTypeState);
+  const [isLoading, setIsLoading] = useState(true)
+  const [open, setOpen] = useRecoilState(alertState)
+  const [text, setText] = useRecoilState(alertTextState)
+  const [type, settype] = useRecoilState(alertTypeState)
 
-  const [dashboardData, setDashboardData] = useState({
-    totalDeposit: '0',
-    released: '0',
-    unMapped: '0',
-  });
+  // Form state
+  const [formData, setFormData] = useState({
+    id: 0,
+    userTier: '',
+    discountPercentage: 0,
+    totalTransactionsRequired: 0,
+    totalAmountRequired: 0,
+    tierRetentionTransactions: 0,
+    tierRetentionAmount: 0,
+    timePeriodDays: 0,
+    status: true,
+    countryCode: 'IN'
+  })
 
-
-  const fetchCdiApiCall = async () => {
+  const fetchLoyaltyData = async () => {
     try {
-      const data = await service.cdiTransactions()
-      setCdiRecords(data)
-
-
+      const data = await service.getLoyaltyMasterData()
+      setLoyaltyRecords(data)
     } catch (error) {
-      console.error('Failed to fetch transactions:', error)
+      console.error('Failed to fetch loyalty data:', error)
+      setText("Error fetching loyalty data")
+      setOpen(true)
+      settype("error")
     }
   }
 
-  const fetchDashboardData = async () => {
-    try {
-      const data = await service.cdiCards()
-      setDashboardData(data as any)
-    } catch (error) {
-      console.error('Failed to load dashboard data:', error);
-    }
-  };
-
-
   useEffect(() => {
     const loadData = async () => {
-      setIsLoading(true);
-      await fetchCdiApiCall();
-      await fetchDashboardData();
-      setIsLoading(false);
-    };
+      setIsLoading(true)
+      await fetchLoyaltyData()
+      setIsLoading(false)
+    }
 
-    loadData();
-  }, []);
-
+    loadData()
+  }, [])
 
   const openDrawer = (data: any) => {
-    setTransactionDetails(data)
+    setSelectedRecord(data)
     setIsDrawerOpen(true)
   }
 
   const closeDrawer = () => {
     setIsDrawerOpen(false)
-    setTransactionDetails(null)
+    setSelectedRecord(null)
   }
 
-  // for reference update 
-  const handleUpdateReference = async () => {
-    if (!referenceInput.trim()) return;
+  const openDialog = (record:any = null) => {
+    if (record as any) {
+      // Edit mode
+      setFormData({
+        id: record.id,
+        userTier: record.userTier,
+        discountPercentage: record.discountPercentage,
+        totalTransactionsRequired: record.totalTransactionsRequired,
+        totalAmountRequired: record.totalAmountRequired,
+        tierRetentionTransactions: record.tierRetentionTransactions,
+        tierRetentionAmount: record.tierRetentionAmount,
+        timePeriodDays: record.timePeriodDays,
+        status: record.status,
+        countryCode: record.countryCode
+      })
+      setIsEditMode(true)
+    } else {
+      // Add mode
+      setFormData({
+        id: 0,
+        userTier: '',
+        discountPercentage: 0,
+        totalTransactionsRequired: 0,
+        totalAmountRequired: 0,
+        tierRetentionTransactions: 0,
+        tierRetentionAmount: 0,
+        timePeriodDays: 0,
+        status: true,
+        countryCode: 'IN'
+      })
+      setIsEditMode(false)
+    }
+    setIsDialogOpen(true)
+  }
 
+  const closeDialog = () => {
+    setIsDialogOpen(false)
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }))
+  }
+
+  const handleSubmit = async () => {
     try {
-      await service.updateTransactionMapping(referenceInput.trim(), transactionDetails.transactionNumber);
-      setReferenceInput('');
-      setText("Mapped Successfully")
+      if (isEditMode) {
+        await service.updateLoyaltyTier(formData.id, formData)
+        setText("Loyalty tier updated successfully")
+      } else {
+        await service.createLoyaltyTier(formData)
+        setText("Loyalty tier created successfully")
+      }
       setOpen(true)
       settype("success")
-      closeDrawer();
+      closeDialog()
+      fetchLoyaltyData() // Refresh the data
     } catch (error) {
-      setText("Error fetching your data ")
+      console.error('Failed to save loyalty tier:', error)
+      setText("Error saving loyalty tier")
       setOpen(true)
       settype("error")
-      console.error('API error:', error);
     }
-  };
-
+  }
 
   const columns: GridColDef[] = [
-
-    { field: 'transactionNumber', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'transactionDate', headerName: 'Date', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'transactionTime', headerName: 'Time', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'transactionAmount', headerName: 'Amount', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'accountNumber', headerName: 'Account Number', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'referenceNumber', headerName: 'Ref Number', flex: 1, headerClassName: 'super-app-theme--header' },
-    {
-      field: 'referenceMatchIndicator',
-      headerName: 'Status',
-      flex: 1,
+    { field: 'id', headerName: 'ID', flex: 0.5, headerClassName: 'super-app-theme--header' },
+    { field: 'userTier', headerName: 'User Tier', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'discountPercentage', headerName: 'Discount %', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'totalTransactionsRequired', headerName: 'Transactions Required', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'totalAmountRequired', headerName: 'Amount Required', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'tierRetentionTransactions', headerName: 'Retention Transactions', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'tierRetentionAmount', headerName: 'Retention Amount', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'timePeriodDays', headerName: 'Time Period (Days)', flex: 1, headerClassName: 'super-app-theme--header' },
+    { 
+      field: 'status', 
+      headerName: 'Status', 
+      flex: 1, 
       headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        const rawValue = params?.row?.referenceMatchIndicator
-        const normalizedValue = String(rawValue).toUpperCase()
-        const isMapped = ['Y', 'YES', 'TRUE'].includes(normalizedValue)
-        const color = isMapped ? 'green' : 'red'
-        const displayText = isMapped ? 'MAPPED' : 'NOT MAPPED'
-        return <div style={{ color, fontWeight: 600 }}>{displayText}</div>
-      },
+      renderCell: (params: any) => (
+        <Chip 
+          label={params.value ? 'Active' : 'Inactive'} 
+          color={params.value ? 'success' : 'error'} 
+        />
+      )
     },
-
+    { field: 'countryCode', headerName: 'Country Code', flex: 1, headerClassName: 'super-app-theme--header' },
     {
-      field: 'action',
-      headerName: 'Action',
+      field: 'actions',
+      headerName: 'Actions',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
-        <IconButton onClick={() => openDrawer(params.row)}>
-          <PreviewOutlined />
-        </IconButton>
+        <Box>
+          <IconButton onClick={() => openDrawer(params.row)} size="small">
+            <PreviewOutlined />
+          </IconButton>
+          {/* <IconButton onClick={() => openDialog(params.row)} size="small">
+            <Edit />
+          </IconButton> */}
+        </Box>
       ),
     },
   ]
 
-
-
   return (
     <Box sx={{ width: '80vw', height: '70vh', p: 2 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h4" >
-          <strong>Loyality</strong>
+        <Typography variant="h4">
+          <strong>Loyalty Tiers</strong>
         </Typography>
+        <Button 
+          variant="contained" 
+          startIcon={<Add />}
+          onClick={() => openDialog()}
+        >
+          Add Tier
+        </Button>
       </Box>
-      <Stack direction="row" spacing={2} mb={2} >
-        {/* Total Deposits */}
-        <Card
-          sx={{
-            width: 240,
-            height: 120,
-            background: 'linear-gradient(135deg, rgb(164, 216, 228), rgb(15, 98, 165))',
-            color: 'white',
-            borderRadius: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            p: 2,
-          }}
-        >
-          <Typography variant="body2" fontWeight={1000} fontSize={20}>
-            Total Deposits
-          </Typography>
-
-          <Typography variant="h6" fontWeight="bold" align="right">
-            {dashboardData.totalDeposit}
-          </Typography>
-        </Card>
-
-        {/* Released */}
-        <Card
-          sx={{
-            width: 240,
-            height: 120,
-            background: 'linear-gradient(135deg, #21CBF3 , #4CAF50)',
-            color: 'white',
-            borderRadius: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            p: 2,
-          }}
-        >
-          <Typography variant="body2" fontWeight={1000} fontSize={20}>
-            Released
-          </Typography>
-
-          <Typography variant="h6" fontWeight="bold" align="right">
-            {dashboardData.released}
-          </Typography>
-        </Card>
-
-        {/* Un-mapped */}
-        <Card
-          sx={{
-            width: 240,
-            height: 120,
-            background: 'linear-gradient(135deg,rgb(93, 206, 231), #ff416c)',
-            color: 'white',
-            borderRadius: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            p: 2,
-          }}
-        >
-          <Typography variant="body2" fontWeight={1000} fontSize={20}>
-            Un-Mapped
-          </Typography>
-
-          <Typography variant="h6" fontWeight="bold" align="right">
-            {dashboardData.unMapped}
-          </Typography>
-        </Card>
-
-
-      </Stack>
-
 
       <StyledDataGrid
-        rows={cdiRecords}
+        rows={loyaltyRecords}
         columns={columns}
-        //@ts-ignore
         initialState={{
           pagination: {
             paginationModel: { pageSize: 20, page: 0 },
           },
         }}
         pageSizeOptions={[10]}
-        loading={cdiRecords.length === 0}
+        loading={isLoading}
         slots={{
-          loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
+          loadingOverlay: LoaderUI.LoadingOverlay,
         }}
         disableRowSelectionOnClick
-        getRowId={(row) => row?.transactionNumber}
+        getRowId={(row) => row.id}
       />
 
+      {/* Detail Drawer */}
       <Drawer
         anchor="right"
         open={isDrawerOpen}
@@ -260,7 +256,7 @@ const Loyality = () => {
           },
         }}
       >
-        {transactionDetails && (
+        {selectedRecord && (
           <Box>
             <Typography
               variant="h6"
@@ -275,101 +271,196 @@ const Loyality = () => {
                 width: '70%',
               }}
             >
-              TRANSACTION ID : {transactionDetails.transactionNumber}
+              TIER: {selectedRecord.userTier}
             </Typography>
 
             <Chip
-              label={
-                ['YES', 'Yes', 'Y', true].includes(
-                  String(transactionDetails?.referenceMatchIndicator).toUpperCase()
-                )
-                  ? 'MAPPED'
-                  : 'NOT MAPPED'
-              }
-              color={
-                ['YES', 'Yes', 'Y', true].includes(
-                  String(transactionDetails?.referenceMatchIndicator).toUpperCase()
-                )
-                  ? 'success'
-                  : 'error'
-              }
+              label={selectedRecord.status ? 'ACTIVE' : 'INACTIVE'}
+              color={selectedRecord.status ? 'success' : 'error'}
               sx={{ marginBottom: 2 }}
             />
 
-
             <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>
-              Transaction Details
+              Tier Details
             </Typography>
 
             <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
-                <TextField label="UTR Number" value={transactionDetails?.uniqueInstanceId || ''} fullWidth variant="outlined" size="small" disabled />
+                <TextField label="ID" value={selectedRecord.id} fullWidth variant="outlined" size="small" disabled />
               </Grid>
-
               <Grid item xs={12} md={6}>
-                <TextField label="Amount" value={transactionDetails?.transactionAmount || ''} fullWidth variant="outlined" size="small" disabled />
+                <TextField label="User Tier" value={selectedRecord.userTier} fullWidth variant="outlined" size="small" disabled />
               </Grid>
-
               <Grid item xs={12} md={6}>
-                <TextField label="Date" value={transactionDetails?.transactionDate || ''} fullWidth variant="outlined" size="small" disabled />
+                <TextField label="Discount Percentage" value={selectedRecord.discountPercentage} fullWidth variant="outlined" size="small" disabled />
               </Grid>
-
               <Grid item xs={12} md={6}>
-                <TextField label="Time" value={transactionDetails?.transactionTime || ''} fullWidth variant="outlined" size="small" disabled />
+                <TextField label="Transactions Required" value={selectedRecord.totalTransactionsRequired} fullWidth variant="outlined" size="small" disabled />
               </Grid>
-
               <Grid item xs={12} md={6}>
-                <TextField label="Account Number" value={transactionDetails?.accountNumber || ''} fullWidth variant="outlined" size="small" disabled />
+                <TextField label="Amount Required" value={selectedRecord.totalAmountRequired} fullWidth variant="outlined" size="small" disabled />
               </Grid>
-
               <Grid item xs={12} md={6}>
-                <TextField label="Reference Number" value={transactionDetails?.referenceNumber || ''} fullWidth variant="outlined" size="small" disabled />
+                <TextField label="Retention Transactions" value={selectedRecord.tierRetentionTransactions} fullWidth variant="outlined" size="small" disabled />
               </Grid>
-
               <Grid item xs={12} md={6}>
-                <TextField
-                  label="Effective Date" value={transactionDetails?.effectiveDate || ''} fullWidth variant="outlined" size="small" disabled />
+                <TextField label="Retention Amount" value={selectedRecord.tierRetentionAmount} fullWidth variant="outlined" size="small" disabled />
               </Grid>
-
               <Grid item xs={12} md={6}>
-                <TextField label="Bank Name" value={transactionDetails?.bankName || ''} fullWidth variant="outlined" size="small" disabled />
+                <TextField label="Time Period (Days)" value={selectedRecord.timePeriodDays} fullWidth variant="outlined" size="small" disabled />
               </Grid>
-
               <Grid item xs={12} md={6}>
-                <TextField label="Branch Code" value={transactionDetails?.branchCode || ''} fullWidth variant="outlined" size="small" disabled />
+                <TextField label="Country Code" value={selectedRecord.countryCode} fullWidth variant="outlined" size="small" disabled />
               </Grid>
             </Grid>
 
-            
-            {transactionDetails?.referenceMatchIndicator?.toUpperCase() !== 'YES' && (
-             <>
-              <Divider sx={{ my: 3, borderBottomWidth: '5px', }} />
-              <Box sx={{ mt: 3 }}>
-                <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 1 }}>
-                  Reference  Number
-                </Typography>
-
-                <TextField
-                  label="Enter Reference Number"
-                  value={referenceInput}
-                  onChange={(e) => setReferenceInput(e.target.value)}
-                  fullWidth
-                  sx={{ my: 2 }}
-                />
-
-                <Button
-                  variant="contained"
-                  onClick={handleUpdateReference}
-                  disabled={!referenceInput}
-                >
-                  Send to Release
-                </Button>
-              </Box>
-              </>
-            )}
+            <Box sx={{ mt: 3 }}>
+              <Button 
+                variant="outlined" 
+                startIcon={<Edit />}
+                onClick={() => {
+                  closeDrawer()
+                  openDialog(selectedRecord)
+                }}
+                fullWidth
+              >
+                Edit Tier
+              </Button>
+            </Box>
           </Box>
         )}
       </Drawer>
+
+      {/* Add/Edit Tier Dialog */}
+      <Dialog open={isDialogOpen} onClose={closeDialog} maxWidth="md" fullWidth>
+        <DialogTitle><b>
+       {isEditMode ? 'Update Loyalty Tier' : 'Add New Loyalty Tier'}    </b> </DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            {isEditMode && (
+              <Grid item xs={12} md={6}>
+                <TextField
+                  name="id"
+                  label="ID"
+                  value={formData.id}
+                  fullWidth
+                  disabled
+                />
+              </Grid>
+            )}
+            <Grid item xs={12} md={isEditMode ? 6 : 12}>
+              <TextField
+                name="userTier"
+                label="User Tier"
+                value={formData.userTier}
+                onChange={handleInputChange}
+                fullWidth
+                required
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                name="discountPercentage"
+                label="Discount Percentage"
+                type="number"
+                value={formData.discountPercentage}
+                onChange={handleInputChange}
+                fullWidth
+                required
+                inputProps={{ min: 0, max: 100 }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                name="totalTransactionsRequired"
+                label="Transactions Required"
+                type="number"
+                value={formData.totalTransactionsRequired}
+                onChange={handleInputChange}
+                fullWidth
+                required
+                inputProps={{ min: 0 }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                name="totalAmountRequired"
+                label="Amount Required"
+                type="number"
+                value={formData.totalAmountRequired}
+                onChange={handleInputChange}
+                fullWidth
+                required
+                inputProps={{ min: 0 }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                name="tierRetentionTransactions"
+                label="Retention Transactions"
+                type="number"
+                value={formData.tierRetentionTransactions}
+                onChange={handleInputChange}
+                fullWidth
+                required
+                inputProps={{ min: 0 }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                name="tierRetentionAmount"
+                label="Retention Amount"
+                type="number"
+                value={formData.tierRetentionAmount}
+                onChange={handleInputChange}
+                fullWidth
+                required
+                inputProps={{ min: 0 }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                name="timePeriodDays"
+                label="Time Period (Days)"
+                type="number"
+                value={formData.timePeriodDays}
+                onChange={handleInputChange}
+                fullWidth
+                required
+                inputProps={{ min: 0 }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                name="countryCode"
+                label="Country Code"
+                value={formData.countryCode}
+                onChange={handleInputChange}
+                fullWidth
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    name="status"
+                    checked={formData.status}
+                    onChange={handleInputChange}
+                  />
+                }
+                label="Active"
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDialog}>Cancel</Button>
+          <Button onClick={handleSubmit} variant="contained">
+            {isEditMode ? 'Update Tier' : 'Create Tier'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }

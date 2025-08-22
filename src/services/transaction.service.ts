@@ -40,6 +40,32 @@ export class TransactionService extends BaseService {
       throw new Error(e as any)
     }
   }
+  async getLoyaltyMasterData(): Promise<any> {
+const url='/api/transactions/loyalty-master'
+    try{
+ const response = await api1.get(url);
+ return response
+    }catch(err){
+throw new Error(err as any)
+
+    }
+ 
+}
+
+async createLoyaltyTier(data: any): Promise<any> {
+  const url='/api/transactions/loyalty-master'
+  try{
+
+
+  
+  const response = await api1.post(url, data);
+  return response
+}catch(err ){
+throw new Error(err as any)
+
+}
+ 
+}
 
   async cdiTransactions(): Promise<any[]> {
     const url = '/api/transactions/transaction-details/unmatchedTransactionList'
@@ -116,7 +142,18 @@ export class TransactionService extends BaseService {
       console.log(err)
     }
   }
+async updateLoyaltyTier(id: number, data: any): Promise<any> {
+  const url=`/api/transactions/loyalty-master/${id}`
+  try{
+  const response = await api1.put(url, data);
+  
+  
+  return response as any
+}catch(err){
 
+  console.log(err)
+}
+}
   async createDealcover(payload: {
     sourceCurrency: String
     destinationCurrency: String
