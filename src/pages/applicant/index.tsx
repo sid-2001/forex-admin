@@ -451,9 +451,6 @@ const MemoizedPieChart = useMemo(() => {
           {selectedTab === 4 && <ReferralTransactions referralRecords={referralCreditedTransaction || []} referralType={'Credited'} />}
         </Box>
         <Box>
-          <Button variant="outlined" onClick={handleBack}>
-            Back to Applicant List
-          </Button>
         </Box>
       </Box>
     </HasPermission>

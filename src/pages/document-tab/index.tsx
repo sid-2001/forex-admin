@@ -49,10 +49,7 @@ const DocumentsListComponent = ({ documentRecords }: { documentRecords: any }) =
   }
 
   return (
-    <Box sx={{ width: '80vw', height: '30vh', mt: 4 }}>
-      <Typography variant="h6" gutterBottom color="primary">
-        <strong>Uploaded Documents</strong>
-      </Typography>
+    <Box sx={{ width: '70vw', height: '30vh' }}>
       <DataGrid
         rows={documentRecords}
         columns={docColumns}
@@ -63,6 +60,7 @@ const DocumentsListComponent = ({ documentRecords }: { documentRecords: any }) =
               backgroundColor: '#005099',
               color: 'white',
               fontWeight: 'bold',
+              
             },
           },
         }}

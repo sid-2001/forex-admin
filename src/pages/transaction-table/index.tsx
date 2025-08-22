@@ -121,26 +121,13 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.TRANSACTION_OUTWARD}>
-      <Box sx={{ width: '100%', height: '100%' }}>
-        <Button
-          disabled={!availabledata && !helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
-          variant="outlined"
-          onClick={() => {
-            const url = applicantId ? `/sendmoney?applicantId=${applicantId}` : '/sendmoney'
-            navigate(url)
-          }}
-          sx={{ marginBottom: '3%' }}
-        >
-          Add Transaction +
-        </Button>
-
+      <Box sx={{ width: '58vw'}}>
         {transaction.length > 0 ? (
           <Box
             sx={{
               width: '120%',
-              height: 400,
+              height: '30vh',
               overflow: 'auto',
-              border: '1px solid #ccc',
               borderRadius: '6px',
             }}
           >

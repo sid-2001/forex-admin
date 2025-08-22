@@ -24,6 +24,7 @@ import { isNull } from 'util'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState, loaderState, loaderStateNew } from '@/states/state'
 import { LocalDrink } from '@mui/icons-material'
+import { theme } from '@/contants/theme'
 
 const ReconPage = () => {
   const [selectedRows, setSelectedRows] = useState<Record<string, string>>({})
@@ -205,6 +206,7 @@ const ReconPage = () => {
       field: 'checkbox',
       headerName: '',
       width: 50,
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Checkbox
           //@ts-ignore
@@ -213,16 +215,17 @@ const ReconPage = () => {
         />
       ),
     },
-    { field: 'id', headerName: 'Transaction ID', flex: 1 },
-    { field: 'destination', headerName: 'Destination', flex: 1 },
-    { field: 'value', headerName: ' Principal Amount', flex: 1 },
-    { field: 'currency', headerName: 'Settlement Amount', flex: 1 },
+    { field: 'id', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'destination', headerName: 'Destination', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'value', headerName: ' Principal Amount', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'currency', headerName: 'Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' },
     // { field: 'settlement', headerName: 'Settlement', flex: 1 },
-    { field: 'destinationBank', headerName: 'Destination Bank', flex: 1 },
+    { field: 'destinationBank', headerName: 'Destination Bank', flex: 1, headerClassName: 'super-app-theme--header' },
     {
       field: 'textField',
       headerName: 'Recon Id',
       flex: 1,
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) =>
         selectedRows[params.row.id] !== undefined ? (
           <TextField
@@ -383,7 +386,7 @@ const ReconPage = () => {
           </Button>
 
           {/* Save Button */}
-          <Button variant="contained" color="secondary" onClick={handleSave}>
+          <Button variant="contained" onClick={handleSave}>
             Save
           </Button>
 
@@ -401,27 +404,26 @@ const ReconPage = () => {
           marginTop={2}
           sx={{
             width: '80vw',
-            height: '80vh',
-
-            '& .super-app-theme--header': {
-              backgroundColor: '#005099',
-              color: 'white',
-            },
+            height: '60vh', // fixed height for the table
           }}
         >
           <DataGrid
             rows={filteredRows}
             columns={columns}
-            autoHeight
             checkboxSelection={false}
             //@ts-ignore
             disableSelectionOnClick
+            sx={{
+              width: '100%',
+              height: '100%',  // fills parent Box
+            }}
           />
         </Box>
 
+
         {/* Add Reconciliation Modal */}
         <Modal open={openModal} onClose={handleCloseModal}>
-          <Box sx={{ padding: 4, maxWidth: 400, margin: 'auto', backgroundColor: 'white', borderRadius: 2 }}>
+          <Box sx={{ padding: 4, maxWidth: 400, margin: 'auto', borderRadius: 2 }}>
             <Typography variant="h6" gutterBottom>
               Add Reconciliation
             </Typography>

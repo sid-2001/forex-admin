@@ -11,7 +11,7 @@ import { TransactionService } from '@/services/transaction.service'
 import { PaymentGateway } from '@/types/static.type'
 import staticdataService from '@/services/staticdata.service'
 import { useRecoilState } from 'recoil'
-import { selectedAppState, alertState, alertTextState, alertTypeState } from '@/states/state'
+import { selectedAppState, alertState, alertTextState, alertTypeState, loaderState, availableBalanceState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import TransactionPanel from '@/components/transaction-panel'
 import { HelperService } from '@/helpers/helper'
@@ -44,12 +44,16 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [recentTransaction, setrecentTransaction] = useState<any>([])
   const [cards, setCards] = useState<Array<PaymentGateway>>([])
+  const [balance, setBalance] = useRecoilState(availableBalanceState)
+  const [loader, setLoader] = useRecoilState(loaderState)
+const [enabled, setEnabled] = useState(true)
 
   const transaction_service = new TransactionService()
   const static_service = new staticdataService()
   const local_service = new LocalStorageService()
   const helper = new HelperService()
   const userCountry = local_service?.get_staff_country()
+  const trx_service = new TransactionService()
 
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
   const navigate = useNavigate()
@@ -82,7 +86,7 @@ const Dashboard = () => {
   const bankAccounts = [
     {
       name: 'ICICI ',
-      balance: 35400.25,
+      balance,
       image_url:
         'https://media.licdn.com/dms/image/v2/C510BAQGqZH7vVbVzWw/company-logo_200_200/company-logo_200_200/0/1630606529683/hdfc_bank_logo?e=1756944000&v=beta&t=RoXmSn8fKd4SYGMdrAyOpeIuy5mFu6NRFNwOBl8szHg',
       country: 'India',
@@ -110,7 +114,16 @@ const Dashboard = () => {
     },
   ]
 
+  useEffect(() => {
+    trx_service.getBalanceEnquiry().then((data) => {
+      setBalance(data as any)
+    })
 
+    setTimeout(() => {
+      setLoader(false)
+    }, 2000)
+  }, [loader])
+ 
   const [barOptions] = useState<AgChartOptions>({
     title: { text: "Monthly Volume" },
     data: [
@@ -255,6 +268,8 @@ const Dashboard = () => {
                 title={bank?.name}
                 balance={bank?.balance}
                 image_url={bank?.image_url}
+                enabled={bank?.name.trim() === "ICICI"} // 👈 only ICICI enabled
+
               ></BankCard>
             </Box>
           ))}
@@ -263,17 +278,21 @@ const Dashboard = () => {
     )
   }
 
-  const handleToggle = async (id: String, status: boolean) => {
-    try {
-      const data = await static_service.paymentGatewayStatus(id, status)
-      getGatewayList()
-    } catch (error) {
-      setText('Error fetching data ')
-      setOpen(true)
-      settype('error')
-      console.log(error)
-    }
-  }
+ const handleToggle = (id: string, newStatus: boolean) => {
+  setCards((prevCards) =>
+    prevCards.map((card) =>
+      card.id === id ? { ...card, activeStatus: newStatus } : card
+    )
+  );
+  static_service.paymentGatewayStatus(id, newStatus).catch(() => {
+    setCards((prevCards) =>
+      prevCards.map((card) =>
+        card.id === id ? { ...card, activeStatus: !newStatus } : card
+      )
+    );
+  });
+};
+
 
   const HorizontalCard = ({
     //@ts-ignore
@@ -328,8 +347,8 @@ const Dashboard = () => {
     description,
     //@ts-ignore
     balance,
+    enabled, 
   }) => {
-    const [enabled, setEnabled] = useState(true)
 
     const handleToggle = () => {
       setEnabled((prev) => !prev)
@@ -547,21 +566,21 @@ const Dashboard = () => {
                   </Typography>
                   <Grid container spacing={2}>
                     <Grid item xs={4}>
-                      <Box sx={{ background: '#FFEB99', borderRadius: 2, p: 2, textAlign: 'center' }}>
+                      <Box sx={{ background: '#FFEB99', borderRadius: 2, p: 2, textAlign: 'center' , color:'black'}}>
                         <Typography variant="h6" fontWeight={700}>1,000,000</Typography>
                         <Typography variant="body2">users</Typography>
                         <Typography variant="caption" fontWeight="bold">Sign-ups</Typography>
                       </Box>
                     </Grid>
                     <Grid item xs={4}>
-                      <Box sx={{ background: 'linear-gradient(to bottom, #64B5F6, #2196F3)', borderRadius: 2, p: 2, textAlign: 'center', color: 'white' }}>
+                      <Box sx={{ background: 'linear-gradient(to bottom, #64B5F6, #2196F3)', borderRadius: 2, p: 2, textAlign: 'center',color:'black'}}>
                         <Typography variant="h6" fontWeight={700}>123,999</Typography>
                         <Typography variant="body2">users</Typography>
                         <Typography variant="caption" fontWeight="bold">KYC Verified</Typography>
                       </Box>
                     </Grid>
                     <Grid item xs={4}>
-                      <Box sx={{ background: 'linear-gradient(to bottom, #81C784, #388E3C)', borderRadius: 2, p: 2, textAlign: 'center', color: 'white' }}>
+                      <Box sx={{ background: 'linear-gradient(to bottom, #81C784, #388E3C)', borderRadius: 2, p: 2, textAlign: 'center',color:'black' }}>
                         <Typography variant="h6" fontWeight={700}>25,980</Typography>
                         <Typography variant="body2">users</Typography>
                         <Typography variant="caption" fontWeight="bold">Active</Typography>
@@ -611,8 +630,8 @@ const Dashboard = () => {
                       id: index + 1,
                       sno: index + 1,
                       transactionId: transaction?.transactionOutward?.transactionNumber,
-                      sentFrom: `${transaction?.transactionOutward?.originCountry} | ${transaction?.transactionOutward?.originCurrency}`,
-                      receivedIn: `${transaction?.transactionOutward?.settlementCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
+                      sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
+                      receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
                       amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
                       reported:
                         transaction?.transactionOutward?.reportingStatus === 'Completed'
@@ -798,30 +817,32 @@ const Dashboard = () => {
               Payment Gateway
             </Typography>
 
-            <Grid container spacing={1} sx={{ mb: 2 }}>
-              {cards.map((card, index) => (
-                <Grid item xs={6} key={card?.id || index}>
-                  <Box
-                    sx={{
-                      border: `1px solid ${card?.activeStatus ? 'green' : 'red'}`,
-                      borderRadius: 2,
-                      p: 1,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <img src={card?.imageUrl} alt={card?.company} width={80} />
-                    <Switch
-                      checked={card?.activeStatus}
-                      onChange={() => handleToggle(card?.id, !card?.activeStatus)}
-                      sx={{ mt: 1 }}
-                    />
-                  </Box>
-                </Grid>
-              ))}
-            </Grid>
+          <Grid container spacing={1} sx={{ mb: 2 }}>
+  {cards.map((card) => (
+    <Grid item xs={6} key={card.id}>
+      <Box
+        sx={{
+          border: `1px solid ${card.activeStatus ? 'green' : 'red'}`,
+          borderRadius: 2,
+          p: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: 120, // keeps height fixed
+        }}
+      >
+        <img src={card.imageUrl} alt={card.company} width={80} />
+        <Switch
+          checked={card.activeStatus}
+          onChange={() => handleToggle(card.id, !card.activeStatus)}
+          sx={{ mt: 1 }}
+        />
+      </Box>
+    </Grid>
+  ))}
+</Grid>
+
 
 
             {/* Banking Partners Section */}

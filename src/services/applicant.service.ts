@@ -9,6 +9,9 @@ import api1 from './apis/api1'
 import { BaseService } from './base.service'
 
 class ApplicantService extends BaseService {
+  static getAllApplicants() {
+    throw new Error("Method not implemented.")
+  }
   async submitApplicantForm(): Promise<ApplicantResponse> {
     try {
       const { data } = await api1.get('/api/kyc')

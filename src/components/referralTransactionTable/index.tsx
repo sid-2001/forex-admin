@@ -8,7 +8,8 @@ const ReferralDataGrid = ({ rows, columns, width }) => {
   return (
     <DataGrid
       sx={{
-        width: width,
+        width: '70vw',
+        height: '30vh',
         '& .MuiDataGrid-columnHeaders': {
           '& .super-app-theme--header': {
             backgroundColor: '#005099',

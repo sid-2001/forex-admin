@@ -73,14 +73,9 @@ const DashboardLayout = () => {
   const [open, setOpen] = useRecoilState(alertState)
   const staffCountry = local_service?.get_staff_country()
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
-  const [balance, setBalance] = useRecoilState(availableBalanceState)
   const [openloader, setopenloader] = useRecoilState(loaderStateNew)
-  const [loader, setLoader] = useRecoilState(loaderState)
-
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDrawerOpen, setDrawerOpen] = useState(false)
-
-  const trx_service = new TransactionService()
   const navigate = useNavigate()
   const theme = useTheme()
 
@@ -106,7 +101,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Dashboard',
-      name:"Dashboard"
+      name: "Dashboard"
     },
     {
       icon: (
@@ -125,7 +120,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Transaction',
-       name:"Transactions"
+      name: "Transactions"
     },
 
     {
@@ -145,7 +140,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Kyc',
-        name:"KYC"
+      name: "KYC"
     },
     {
       icon: (
@@ -164,7 +159,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Applicant',
-      name:"Applicant Details"
+      name: "Applicant Details"
     },
     {
       icon: (
@@ -180,7 +175,7 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Bop',
-         name:"BOP"
+      name: "BOP"
     },
     {
       icon: (
@@ -196,7 +191,7 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Profile',
-        name:"Users"
+      name: "Users"
     },
     {
       icon: (
@@ -212,7 +207,7 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Module',
-        name: 'Modules',
+      name: 'Modules',
     },
     {
       icon: (
@@ -228,7 +223,7 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Role',
-        name: 'Roles',
+      name: 'Roles',
     },
     {
       icon: (
@@ -262,7 +257,7 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Static',
-       name: 'Static Data',
+      name: 'Static Data',
     },
     {
       icon: (
@@ -278,10 +273,10 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'SarbErrors',
-        name: 'Error Codes',
+      name: 'Error Codes',
     },
 
-     {
+    {
       icon: (
         <>
           <LoyaltyIcon
@@ -295,19 +290,10 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Loyalty',
-      name:"Loyalty"
+      name: "Loyalty"
     },
   ]
 
-  useEffect(() => {
-    trx_service.getBalanceEnquiry().then((data) => {
-      setBalance(data as any)
-    })
-
-    setTimeout(() => {
-      setLoader(false)
-    }, 2000)
-  }, [loader])
 
   useEffect(() => {
     setTimeout(() => {
@@ -335,10 +321,10 @@ const DashboardLayout = () => {
             {/* Logo */}
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Link to='/dashboard' >
-                 <img src={LogoWhite} alt="Logo" style={{ height: 60 }} />
+                <img src={LogoWhite} alt="Logo" style={{ height: 60 }} />
               </Link>
-        
-           
+
+
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, color: 'white' }}>
@@ -351,12 +337,6 @@ const DashboardLayout = () => {
                   {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
                 </IconButton>
               </Tooltip>
-              <Box sx={{ textAlign: 'right' }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                  Available Balance :
-                </Typography>
-                <Typography variant="body1">₹{balance}</Typography>
-              </Box>
             </Box>
           </Box>
 
@@ -369,7 +349,9 @@ const DashboardLayout = () => {
               backgroundColor: 'primary',
               border: '1px solid #D1DDFC',
               padding: '7px',
-            width:"20%",
+              width: "fit-content",
+              minWidth: "auto",
+              maxWidth: "100%",
               paddingRight: '10px',
               marginBottom: '6px',
             }}
@@ -525,7 +507,7 @@ const DashboardLayout = () => {
                         padding: '1%',
                       }}
                     >
-                      { item.name}
+                      {item.name}
                     </Item>
                   </Stack>
                 </ListItem>

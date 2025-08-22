@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { Box, Grid, TextField, Typography, Button, Switch, MenuItem } from '@mui/material'
+import { Box, Grid, TextField, Typography, Button, Switch, MenuItem, CircularProgress } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
 import { DataGrid } from '@mui/x-data-grid'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-
 import { Modules, UserService } from '@/services/user.service'
 import { StaffProfile } from '@/types/staff.type'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
@@ -56,6 +55,7 @@ const UserAdd = () => {
   const [countryList, setCountryList] = useState([])
   const [branchList, setBranchList] = useState([])
   const userCountry = local_service?.get_staff_country()
+  const [loading, setLoading] = useState(true) // ✅ loader state
 
   const { staffId } = useParams()
   const navigate = useNavigate()
@@ -153,6 +153,26 @@ const UserAdd = () => {
     })),
   ]
 
+
+    const fetchAllData = async () => {
+      setLoading(true)
+    try {
+      await Promise.all([
+        fetchRolesList(),
+        fetchCountries(),
+        fetchBranches(),
+        staffId ? fetchStaffDetailsByStaffId() : Promise.resolve(),
+      ])
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false) 
+    }
+  }
+  useEffect(() => {
+    fetchAllData()
+  }, [staffId])
+  
   const fetchRolesList = async () => {
     try {
       let response = await user_service.getAllRolesData()
@@ -230,17 +250,17 @@ const UserAdd = () => {
     return null // Return null if the value doesn't match the regex
   }
 
-  useEffect(() => {
-    fetchRolesList()
-    fetchCountries()
-    fetchBranches()
-  }, [])
+  // useEffect(() => {
+  //   fetchRolesList()
+  //   fetchCountries()
+  //   fetchBranches()
+  // }, [])
 
-  useEffect(() => {
-    if (staffId) {
-      fetchStaffDetailsByStaffId()
-    }
-  }, [staffId])
+  // useEffect(() => {
+  //   if (staffId) {
+  //     fetchStaffDetailsByStaffId()
+  //   }
+  // }, [staffId])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: any; value: any }>) => {
     const { name, value } = e.target
@@ -285,6 +305,22 @@ const UserAdd = () => {
 
     return !hasPermission || isAnyFieldEmpty
   }
+if (loading) {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '70vh', 
+        width: '80vw',  
+      }}
+    >
+      <CircularProgress size={70} color="primary" />
+    </Box>
+  )
+}
+
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.STAFF}>
