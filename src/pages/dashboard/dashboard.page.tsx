@@ -268,8 +268,6 @@ const [enabled, setEnabled] = useState(true)
                 title={bank?.name}
                 balance={bank?.balance}
                 image_url={bank?.image_url}
-                enabled={bank?.name.trim() === "ICICI"} // 👈 only ICICI enabled
-
               ></BankCard>
             </Box>
           ))}
@@ -347,7 +345,6 @@ const [enabled, setEnabled] = useState(true)
     description,
     //@ts-ignore
     balance,
-    enabled, 
   }) => {
 
     const handleToggle = () => {
