@@ -46,7 +46,7 @@ const Dashboard = () => {
   const [cards, setCards] = useState<Array<PaymentGateway>>([])
   const [balance, setBalance] = useRecoilState(availableBalanceState)
   const [loader, setLoader] = useRecoilState(loaderState)
-const [enabled, setEnabled] = useState(true)
+  const [enabled, setEnabled] = useState(true)
 
   const transaction_service = new TransactionService()
   const static_service = new staticdataService()
@@ -123,7 +123,7 @@ const [enabled, setEnabled] = useState(true)
       setLoader(false)
     }, 2000)
   }, [loader])
- 
+
   const [barOptions] = useState<AgChartOptions>({
     title: { text: "Monthly Volume" },
     data: [
@@ -236,31 +236,10 @@ const [enabled, setEnabled] = useState(true)
           <ArrowRightIcon sx={{ color: 'black' }} />
         </IconButton>
 
-        {/* Scrollable Bank Cards */}
-
-        <Box
-          ref={scrollRef}
-          sx={{
-            display: 'flex',
-            overflowX: 'auto',
-            gap: 2,
-            py: 0,
-            px: 6,
-            padding: '1%',
-          }}
-        >
+        <Box>
           {bankAccounts.map((bank, index) => (
             <Box
               key={index}
-              sx={{
-                flex: '0 0 auto',
-                width: {
-                  xs: '82%',
-                  sm: '46%',
-                  md: '50%',
-                },
-                scrollSnapAlign: 'start',
-              }}
             >
               <BankCard
                 //@ts-ignore
@@ -276,20 +255,20 @@ const [enabled, setEnabled] = useState(true)
     )
   }
 
- const handleToggle = (id: string, newStatus: boolean) => {
-  setCards((prevCards) =>
-    prevCards.map((card) =>
-      card.id === id ? { ...card, activeStatus: newStatus } : card
-    )
-  );
-  static_service.paymentGatewayStatus(id, newStatus).catch(() => {
+  const handleToggle = (id: string, newStatus: boolean) => {
     setCards((prevCards) =>
       prevCards.map((card) =>
-        card.id === id ? { ...card, activeStatus: !newStatus } : card
+        card.id === id ? { ...card, activeStatus: newStatus } : card
       )
     );
-  });
-};
+    static_service.paymentGatewayStatus(id, newStatus).catch(() => {
+      setCards((prevCards) =>
+        prevCards.map((card) =>
+          card.id === id ? { ...card, activeStatus: !newStatus } : card
+        )
+      );
+    });
+  };
 
 
   const HorizontalCard = ({
@@ -486,7 +465,7 @@ const [enabled, setEnabled] = useState(true)
     }
   }
   return (
-    <Box sx={{ width: '85vw', overflowX: 'hidden' }}>
+    <Box sx={{ width: '85vw', overflowX: 'hidden' ,height: '85vh'}}>
       <Typography
         variant="h4"
         gutterBottom
@@ -511,6 +490,7 @@ const [enabled, setEnabled] = useState(true)
                     {bankAccounts.map((bank, index) => {
                       const colors = ['green', 'red', 'goldenrod']; // cycle
                       const borderColor = colors[index % colors.length];
+                      const isActive = bank.name.toLowerCase().includes("icici");
 
                       return (
                         <Grid item xs={6} key={index} sx={{ px: 1 }}>
@@ -519,11 +499,12 @@ const [enabled, setEnabled] = useState(true)
                               border: `3px solid ${borderColor}`,
                               borderRadius: 2,
                               p: 2,
-                              mb: 0, // no vertical gaps
+                              mb: 0,
                               display: 'flex',
                               justifyContent: 'space-between',
                               alignItems: 'center',
-
+                              opacity: isActive ? 1 : 0.5,          
+                              pointerEvents: isActive ? "auto" : "none", 
                             }}
                           >
                             {/* Left side: Country + Bank */}
@@ -539,7 +520,6 @@ const [enabled, setEnabled] = useState(true)
                                 {bank.name}
                               </Typography>
                             </Box>
-
                             {/* Right side: Balance */}
                             <Typography fontWeight="bold" variant="body1">
                               {bank.balance.toLocaleString('en-IN')}
@@ -552,9 +532,6 @@ const [enabled, setEnabled] = useState(true)
                 </CardContent>
               </Card>
 
-
-
-
               {/* Consumers */}
               <Card sx={{ border: '2px solid', borderColor: '#79CBF0' }}>
                 <CardContent>
@@ -563,21 +540,21 @@ const [enabled, setEnabled] = useState(true)
                   </Typography>
                   <Grid container spacing={2}>
                     <Grid item xs={4}>
-                      <Box sx={{ background: '#FFEB99', borderRadius: 2, p: 2, textAlign: 'center' , color:'black'}}>
+                      <Box sx={{ background:'linear-gradient(to bottom,#FFEB99,rgb(172, 169, 65))', borderRadius: 2, p: 2, textAlign: 'center', color: 'black' }}>
                         <Typography variant="h6" fontWeight={700}>1,000,000</Typography>
                         <Typography variant="body2">users</Typography>
                         <Typography variant="caption" fontWeight="bold">Sign-ups</Typography>
                       </Box>
                     </Grid>
                     <Grid item xs={4}>
-                      <Box sx={{ background: 'linear-gradient(to bottom, #64B5F6, #2196F3)', borderRadius: 2, p: 2, textAlign: 'center',color:'black'}}>
+                      <Box sx={{ background: 'linear-gradient(to bottom, #64B5F6,rgb(21, 103, 171))', borderRadius: 2, p: 2, textAlign: 'center', color: 'black' }}>
                         <Typography variant="h6" fontWeight={700}>123,999</Typography>
                         <Typography variant="body2">users</Typography>
                         <Typography variant="caption" fontWeight="bold">KYC Verified</Typography>
                       </Box>
                     </Grid>
                     <Grid item xs={4}>
-                      <Box sx={{ background: 'linear-gradient(to bottom, #81C784, #388E3C)', borderRadius: 2, p: 2, textAlign: 'center',color:'black' }}>
+                      <Box sx={{ background: 'linear-gradient(to bottom, #81C784,rgb(40, 124, 44))', borderRadius: 2, p: 2, textAlign: 'center', color: 'black' }}>
                         <Typography variant="h6" fontWeight={700}>25,980</Typography>
                         <Typography variant="body2">users</Typography>
                         <Typography variant="caption" fontWeight="bold">Active</Typography>
@@ -590,7 +567,7 @@ const [enabled, setEnabled] = useState(true)
 
             {/* Volume */}
             <Grid item xs={12} md={7}>
-              <Card sx={{ border: '2px solid', borderColor: '#79CBF0', height: '100%'}}>
+              <Card sx={{ border: '2px solid', borderColor: '#79CBF0', height: '100%' }}>
                 <CardContent>
                   <Typography variant="subtitle1" fontWeight={700} gutterBottom>
                     Volume
@@ -638,7 +615,7 @@ const [enabled, setEnabled] = useState(true)
                       action: transaction?.transactionOutward?.transactionNumber,
                       status: transaction?.transactionOutward?.reportingStatus,
                     }))}
-                    columns={RECENT_TRANSACTIONS_COLUMNS} 
+                    columns={RECENT_TRANSACTIONS_COLUMNS}
                     pageSizeOptions={[5, 10]}
                     disableRowSelectionOnClick
                     sx={{
@@ -814,31 +791,31 @@ const [enabled, setEnabled] = useState(true)
               Payment Gateway
             </Typography>
 
-          <Grid container spacing={1} sx={{ mb: 2 }}>
-  {cards.map((card) => (
-    <Grid item xs={6} key={card.id}>
-      <Box
-        sx={{
-          border: `1px solid ${card.activeStatus ? 'green' : 'red'}`,
-          borderRadius: 2,
-          p: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: 120, // keeps height fixed
-        }}
-      >
-        <img src={card.imageUrl} alt={card.company} width={80} />
-        <Switch
-          checked={card.activeStatus}
-          onChange={() => handleToggle(card.id, !card.activeStatus)}
-          sx={{ mt: 1 }}
-        />
-      </Box>
-    </Grid>
-  ))}
-</Grid>
+            <Grid container spacing={1} sx={{ mb: 2 }}>
+              {cards.map((card) => (
+                <Grid item xs={6} key={card.id}>
+                  <Box
+                    sx={{
+                      border: `1px solid ${card.activeStatus ? 'green' : 'red'}`,
+                      borderRadius: 2,
+                      p: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minHeight: 120, // keeps height fixed
+                    }}
+                  >
+                    <img src={card.imageUrl} alt={card.company} width={80} />
+                    <Switch
+                      checked={card.activeStatus}
+                      onChange={() => handleToggle(card.id, !card.activeStatus)}
+                      sx={{ mt: 1 }}
+                    />
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
 
 
 
