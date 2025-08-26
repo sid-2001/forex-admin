@@ -159,7 +159,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Applicant',
-      name: "Applicant Details"
+      name: "Applicants"
     },
     {
       icon: (
@@ -354,6 +354,8 @@ const DashboardLayout = () => {
               maxWidth: "100%",
               paddingRight: '10px',
               marginBottom: '6px',
+              height: '65%',
+              lineHeight: 1,
             }}
           >
             {staffCountry == 'ZA' ? (
@@ -369,6 +371,7 @@ const DashboardLayout = () => {
                       fontFamily: 'sans-serif',
                       fontSize: '12px',
                       color: 'white',
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     <strong>{local_service?.get_staff_access().staffFirstName + ' ' + local_service?.get_staff_access().staffLastName}</strong>

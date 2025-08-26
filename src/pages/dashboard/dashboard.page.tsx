@@ -19,6 +19,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { AgChartOptions } from "ag-charts-community";
 import TransactionModal from '@/components/transaction-panel'
 import { DataGrid } from '@mui/x-data-grid'
+import { ApplicantService } from '@/services/applicant.service'
 
 const Dashboard = () => {
   // Sample dashboard data
@@ -47,6 +48,7 @@ const Dashboard = () => {
   const [balance, setBalance] = useRecoilState(availableBalanceState)
   const [loader, setLoader] = useRecoilState(loaderState)
   const [enabled, setEnabled] = useState(true)
+  const [consumersData, setConsumersData] = useState<any>(null)
 
   const transaction_service = new TransactionService()
   const static_service = new staticdataService()
@@ -73,8 +75,18 @@ const Dashboard = () => {
     setIsLoading(false)
   }, [])
 
+  const fetchConsumersData = async () => {
+    try {
+      const data = await new ApplicantService().getConsumersData()
+      setConsumersData(data)
+    } catch (error) {
+      console.error('Failed to load consumers data:', error)
+    }
+  }
+
   useEffect(() => {
     getGatewayList()
+    fetchConsumersData()
     setIsLoading(true)
     getOutwardTransactionsList()
     setSelectedApp('Dashboard')
@@ -465,7 +477,7 @@ const Dashboard = () => {
     }
   }
   return (
-    <Box sx={{ width: '85vw', overflowX: 'hidden' ,height: '85vh'}}>
+    <Box sx={{ width: '85vw', overflowX: 'hidden', height: '85vh' }}>
       <Typography
         variant="h4"
         gutterBottom
@@ -503,8 +515,8 @@ const Dashboard = () => {
                               display: 'flex',
                               justifyContent: 'space-between',
                               alignItems: 'center',
-                              opacity: isActive ? 1 : 0.5,          
-                              pointerEvents: isActive ? "auto" : "none", 
+                              opacity: isActive ? 1 : 0.5,
+                              pointerEvents: isActive ? "auto" : "none",
                             }}
                           >
                             {/* Left side: Country + Bank */}
@@ -540,22 +552,28 @@ const Dashboard = () => {
                   </Typography>
                   <Grid container spacing={2}>
                     <Grid item xs={4}>
-                      <Box sx={{ background:'linear-gradient(to bottom,#FFEB99,rgb(172, 169, 65))', borderRadius: 2, p: 2, textAlign: 'center', color: 'black' }}>
-                        <Typography variant="h6" fontWeight={700}>1,000,000</Typography>
+                      <Box sx={{ background: 'linear-gradient(to bottom,#FFEB99,rgb(172, 169, 65))', borderRadius: 2, p: 2, textAlign: 'center', color: 'black' }}>
+                        <Typography variant="h6" fontWeight={700}>
+                          {consumersData?.signup ?? 0}
+                        </Typography>
                         <Typography variant="body2">users</Typography>
                         <Typography variant="caption" fontWeight="bold">Sign-ups</Typography>
                       </Box>
                     </Grid>
                     <Grid item xs={4}>
                       <Box sx={{ background: 'linear-gradient(to bottom, #64B5F6,rgb(21, 103, 171))', borderRadius: 2, p: 2, textAlign: 'center', color: 'black' }}>
-                        <Typography variant="h6" fontWeight={700}>123,999</Typography>
+                        <Typography variant="h6" fontWeight={700}>
+                          {consumersData?.kycVerified ?? 0}
+                        </Typography>
                         <Typography variant="body2">users</Typography>
                         <Typography variant="caption" fontWeight="bold">KYC Verified</Typography>
                       </Box>
                     </Grid>
                     <Grid item xs={4}>
                       <Box sx={{ background: 'linear-gradient(to bottom, #81C784,rgb(40, 124, 44))', borderRadius: 2, p: 2, textAlign: 'center', color: 'black' }}>
-                        <Typography variant="h6" fontWeight={700}>25,980</Typography>
+                        <Typography variant="h6" fontWeight={700}>
+                          {consumersData?.active ?? 0}
+                        </Typography>
                         <Typography variant="body2">users</Typography>
                         <Typography variant="caption" fontWeight="bold">Active</Typography>
                       </Box>
@@ -563,6 +581,7 @@ const Dashboard = () => {
                   </Grid>
                 </CardContent>
               </Card>
+
             </Grid>
 
             {/* Volume */}
@@ -682,9 +701,11 @@ const Dashboard = () => {
                   justifyContent: "space-between",
                   p: 1,
                   mb: 1,
-                  border: "1px solid #79CBF0",
+                  border: "1px dashed grey",
                   borderRadius: 2,
                   boxShadow: 1,
+                  opacity: 0.5,
+
                 }}
               >
                 <Box sx={{ width: "90px" }}>

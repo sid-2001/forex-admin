@@ -1,4 +1,5 @@
 interface ApplicantFormData {
+  applicant: any;
   applicantName: string;
   city: string;
   country: string;

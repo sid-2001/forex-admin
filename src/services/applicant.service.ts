@@ -9,9 +9,7 @@ import api1 from './apis/api1'
 import { BaseService } from './base.service'
 
 class ApplicantService extends BaseService {
-  static getAllApplicants() {
-    throw new Error("Method not implemented.")
-  }
+ 
   async submitApplicantForm(): Promise<ApplicantResponse> {
     try {
       const { data } = await api1.get('/api/kyc')
@@ -117,6 +115,17 @@ class ApplicantService extends BaseService {
       throw new Error('Unable to fetch documents by applicant ID. Please try again.')
     }
   }
+
+  async getConsumersData(): Promise<any> {
+    const url = '/api/applicant/applicant/overview'
+    try {
+      const response = await api1.get(url)
+      return response
+    } catch (err) {
+      throw new Error(err as any)
+    }
+  }
+
   getApplicantDetailsById(applicantId: string) {
     return api1
       .get(`/api/applicant/applicant-all-details/applicantId/${applicantId}`)

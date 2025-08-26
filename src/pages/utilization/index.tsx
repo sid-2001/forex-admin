@@ -196,7 +196,7 @@ const UtilizationEnquiryForm: React.FC = () => {
                   <Typography variant="h6" sx={{ mt: 2 }}>
                     <b>Transactions</b>
                   </Typography>
-                  <Box sx={{ height: '40vh', width: '100%' }}>
+                  <Box sx={{ height: '40vh', width: '20vw' }}>
                     <TransactionTable
                       //@ts-ignore
                       transaction={transactionData}
