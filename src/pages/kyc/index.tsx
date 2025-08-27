@@ -250,17 +250,17 @@ const [imageUrl,setImageUrl]=useState('')
   }
 
   return (
-    <Box padding={3}>
+    <Box>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.KYC}>
         <Typography variant="h4" gutterBottom>
           <strong>Know Your Customer</strong>
         </Typography>
 
         <Box
-          marginTop={2}
+          
           sx={{
             width: '80vw',
-            height: '65vh',
+            height: '70vh',
           }}
         >
           <DataGrid
