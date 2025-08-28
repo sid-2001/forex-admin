@@ -49,7 +49,7 @@ const Dashboard = () => {
   const [loader, setLoader] = useRecoilState(loaderState)
   const [enabled, setEnabled] = useState(true)
   const [consumersData, setConsumersData] = useState<any>(null)
-
+  const applicant_service = new ApplicantService()
   const transaction_service = new TransactionService()
   const static_service = new staticdataService()
   const local_service = new LocalStorageService()
@@ -77,12 +77,12 @@ const Dashboard = () => {
 
   const fetchConsumersData = async () => {
     try {
-      const data = await new ApplicantService().getConsumersData()
+      const data = await applicant_service.getConsumersData()
       setConsumersData(data)
     } catch (error) {
-      console.error('Failed to load consumers data:', error)
+      console.error('Failed to load dashboard data:', error);
     }
-  }
+  };
 
   useEffect(() => {
     getGatewayList()
@@ -498,7 +498,7 @@ const Dashboard = () => {
                     Available Balances
                   </Typography>
 
-                  <Grid container spacing={0}>
+                  <Grid container spacing={2}>
                     {bankAccounts.map((bank, index) => {
                       const colors = ['green', 'red', 'goldenrod']; // cycle
                       const borderColor = colors[index % colors.length];
