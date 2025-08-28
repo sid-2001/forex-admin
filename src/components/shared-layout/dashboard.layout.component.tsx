@@ -314,14 +314,15 @@ const DashboardLayout = () => {
         sx={{
           //@ts-ignore
           paddingBottom: 0,
+          
         }}
       >
         <Toolbar>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', px: 2, py: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', px: 2, py: 1,  }}>
             {/* Logo */}
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Link to='/dashboard' >
-                <img src={LogoWhite} alt="Logo" style={{ height: 60 }} />
+                <img src={LogoWhite} alt="Logo" style={{ height: 55 }} />
               </Link>
 
 
@@ -434,7 +435,7 @@ const DashboardLayout = () => {
               backgroundColor: theme.palette.secondary.main,
               height: '100vh',
               position: 'fixed', // Makes the sidebar stay fixed in place
-              top: 76.6, // Stick to the top of the viewport
+              top: 76, // Stick to the top of the viewport
               left: 0, // Stick to the left of the viewport
               overflow: 'hidden',
               boxShadow: '2px 0 5px rgba(0,0,0,0.3)',
