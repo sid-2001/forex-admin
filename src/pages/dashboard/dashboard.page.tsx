@@ -49,7 +49,7 @@ const Dashboard = () => {
   const [loader, setLoader] = useRecoilState(loaderState)
   const [enabled, setEnabled] = useState(true)
   const [consumersData, setConsumersData] = useState<any>(null)
-  const Service = new ApplicantService()
+  const applicant_service = new ApplicantService()
   const transaction_service = new TransactionService()
   const static_service = new staticdataService()
   const local_service = new LocalStorageService()
@@ -77,7 +77,7 @@ const Dashboard = () => {
 
   const fetchConsumersData = async () => {
     try {
-      const data = await Service.getConsumersData()
+      const data = await applicant_service.getConsumersData()
       setConsumersData(data)
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
