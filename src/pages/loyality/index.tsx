@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { 
-  Box, 
-  Typography, 
-  useTheme, 
-  Drawer, 
-  Grid, 
-  TextField, 
-  Divider, 
-  Chip, 
-  IconButton, 
+import {
+  Box,
+  Typography,
+  useTheme,
+  Drawer,
+  Grid,
+  TextField,
+  Divider,
+  Chip,
+  IconButton,
   Button,
   Dialog,
   DialogTitle,
@@ -104,7 +104,7 @@ const Loyality = () => {
     setSelectedRecord(null)
   }
 
-  const openDialog = (record:any = null) => {
+  const openDialog = (record: any = null) => {
     if (record as any) {
       // Edit mode
       setFormData({
@@ -181,15 +181,15 @@ const Loyality = () => {
     { field: 'tierRetentionTransactions', headerName: 'Retention Transactions', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'tierRetentionAmount', headerName: 'Retention Amount', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'timePeriodDays', headerName: 'Time Period (Days)', flex: 1, headerClassName: 'super-app-theme--header' },
-    { 
-      field: 'status', 
-      headerName: 'Status', 
-      flex: 1, 
+    {
+      field: 'status',
+      headerName: 'Status',
+      flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
-        <Chip 
-          label={params.value ? 'Active' : 'Inactive'} 
-          color={params.value ? 'success' : 'error'} 
+        <Chip
+          label={params.value ? 'Active' : 'Inactive'}
+          color={params.value ? 'success' : 'error'}
         />
       )
     },
@@ -218,8 +218,8 @@ const Loyality = () => {
         <Typography variant="h4">
           <strong>Loyalty Tiers</strong>
         </Typography>
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           startIcon={<Add />}
           onClick={() => openDialog()}
         >
@@ -315,8 +315,8 @@ const Loyality = () => {
             </Grid>
 
             <Box sx={{ mt: 3 }}>
-              <Button 
-                variant="outlined" 
+              <Button
+                variant="outlined"
                 startIcon={<Edit />}
                 onClick={() => {
                   closeDrawer()
@@ -334,7 +334,7 @@ const Loyality = () => {
       {/* Add/Edit Tier Dialog */}
       <Dialog open={isDialogOpen} onClose={closeDialog} maxWidth="md" fullWidth>
         <DialogTitle><b>
-       {isEditMode ? 'Update Loyalty Tier' : 'Add New Loyalty Tier'}    </b> </DialogTitle>
+          {isEditMode ? 'Update Loyalty Tier' : 'Add New Loyalty Tier'}    </b> </DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             {isEditMode && (

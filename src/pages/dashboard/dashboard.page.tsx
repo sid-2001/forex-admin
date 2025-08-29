@@ -95,6 +95,7 @@ const Dashboard = () => {
     })
   }, [])
 
+
   const bankAccounts = [
     {
       name: 'ICICI ',
@@ -190,7 +191,9 @@ const Dashboard = () => {
       headerName: 'Amount',
       flex: 1,
       renderCell: (params: any) => (
-        <Typography sx={{ color: 'green', fontWeight: 'bold' }}>{params.value}</Typography>
+        <span style={{ color: "green", fontWeight: "bold" }}>
+          {params.value}
+        </span>
       ),
     },
     { field: 'reported', headerName: 'Reported', flex: 0.8 },
@@ -201,13 +204,15 @@ const Dashboard = () => {
       flex: 1,
       renderCell: (params: any) => (
         <Link to={`/transaction?flow=outwards&id=${params.value}`}>
-          <Typography sx={{ textDecoration: 'underline', cursor: 'pointer' }}>
+          <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>
             View more
-          </Typography>
+          </span>
         </Link>
       ),
     },
+
   ];
+
 
   const BankBalanceCarousel = () => {
     const scrollRef = React.useRef<HTMLDivElement>(null)
@@ -222,31 +227,6 @@ const Dashboard = () => {
     return (
       <Box position="relative" width="100%">
         {/* Scroll Buttons */}
-
-        <IconButton
-          onClick={() => scroll(-300)}
-          sx={{
-            position: 'absolute',
-            top: '30%',
-            left: 0,
-            zIndex: 1,
-            backgroundColor: 'transparent',
-          }}
-        >
-          <ArrowLeftIcon sx={{ color: 'black' }} />
-        </IconButton>
-        <IconButton
-          onClick={() => scroll(300)}
-          sx={{
-            position: 'absolute',
-            top: '30%',
-            right: 0,
-            zIndex: 1,
-            // backgroundColor: 'primary.light',
-          }}
-        >
-          <ArrowRightIcon sx={{ color: 'black' }} />
-        </IconButton>
 
         <Box>
           {bankAccounts.map((bank, index) => (
@@ -405,30 +385,6 @@ const Dashboard = () => {
 
     return (
       <Box position="relative" width="100%" padding="0px" margin="0px">
-        {/* Scroll Buttons */}
-        <IconButton
-          onClick={() => scroll(-300)}
-          sx={{
-            position: 'absolute',
-            top: '30%',
-            left: 0,
-            zIndex: 1,
-            // backgroundColor: 'primary.light',
-          }}
-        >
-          <ArrowLeftIcon sx={{ color: 'black' }} />
-        </IconButton>
-        <IconButton
-          onClick={() => scroll(300)}
-          sx={{
-            position: 'absolute',
-            top: '30%',
-            right: 0,
-            zIndex: 1,
-          }}
-        >
-          <ArrowRightIcon sx={{ color: 'black' }} />
-        </IconButton>
         {/* Carousel Container */}
         <Box
           ref={scrollRef}
@@ -470,6 +426,7 @@ const Dashboard = () => {
     )
   }
 
+
   const scrollRef = React.useRef<HTMLDivElement>(null)
   const scroll = (offset: number) => {
     if (scrollRef.current) {
@@ -498,7 +455,7 @@ const Dashboard = () => {
                     Available Balances
                   </Typography>
 
-                  <Grid container spacing={2}>
+                  <Grid container spacing={0}>
                     {bankAccounts.map((bank, index) => {
                       const colors = ['green', 'red', 'goldenrod']; // cycle
                       const borderColor = colors[index % colors.length];
@@ -640,6 +597,10 @@ const Dashboard = () => {
                     sx={{
                       '& .MuiDataGrid-cell': { borderBottom: '1px solid #e0e0e0' },
                       '& .MuiDataGrid-columnHeaders': { fontWeight: 'bold', borderBottom: '2px solid #1976d2' },
+                      '& .MuiDataGrid-columnHeaderTitle': {
+                        fontWeight: 'bold',
+                        fontSize: '1.2rem',
+                      },
                     }}
                     getRowClassName={(params) =>
                       params.row.status === 'Error' ? 'error-row' : ''
@@ -793,8 +754,8 @@ const Dashboard = () => {
             </Typography>
 
             {/* KYC Section */}
-            <Typography variant="body1" sx={{ mt: 1, fontWeight: 'bold' }}>KYC</Typography>
-            <Grid container spacing={1} sx={{ mb: 2 }}>
+            <Typography variant="body1" sx={{ mt: 1, mb: 1, fontWeight: 'bold' }}>KYC</Typography>
+            <Grid container spacing={2} sx={{ paddingtop: 1, mb: 2 }}>
               <Grid item xs={6}>
                 <Box sx={{ border: '1px solid green', borderRadius: 2, p: 1, display: 'flex', justifyContent: 'center' }}>
                   <img src="data:image/png;base64,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" alt="Sybrin" width={60} />
@@ -808,7 +769,7 @@ const Dashboard = () => {
             </Grid>
 
             {/* Payment Gateway Section */}
-            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+            <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 1 }}>
               Payment Gateway
             </Typography>
 
@@ -819,15 +780,15 @@ const Dashboard = () => {
                     sx={{
                       border: `1px solid ${card.activeStatus ? 'green' : 'red'}`,
                       borderRadius: 2,
-                      p: 1,
+                      p: 0.1,
                       display: 'flex',
-                      flexDirection: 'column',
+                      flexDirection: 'row',
                       alignItems: 'center',
                       justifyContent: 'center',
                       minHeight: 120, // keeps height fixed
                     }}
                   >
-                    <img src={card.imageUrl} alt={card.company} width={80} />
+                    <img src={card.imageUrl} alt={card.company} width={90} />
                     <Switch
                       checked={card.activeStatus}
                       onChange={() => handleToggle(card.id, !card.activeStatus)}
@@ -841,7 +802,7 @@ const Dashboard = () => {
 
 
             {/* Banking Partners Section */}
-            <Typography variant="body1" sx={{ fontWeight: 'bold', mt: 2 }}>
+            <Typography variant="body1" sx={{ fontWeight: 'bold', mt: 2, mb: 1 }}>
               Banking Partners
             </Typography>
 

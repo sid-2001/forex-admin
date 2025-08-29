@@ -564,7 +564,7 @@ const TransactionListing = () => {
   }
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{  width: '80vw', height: '70vh' }}>
       <Typography variant="h4" gutterBottom>
         <strong>Transactions</strong>
       </Typography>

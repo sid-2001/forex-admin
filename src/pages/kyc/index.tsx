@@ -250,7 +250,7 @@ const [imageUrl,setImageUrl]=useState('')
   }
 
   return (
-    <Box>
+    <Box sx={{ width: '80vw', height: '70vh' }}>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.KYC}>
         <Typography variant="h4" gutterBottom>
           <strong>Know Your Customer</strong>
