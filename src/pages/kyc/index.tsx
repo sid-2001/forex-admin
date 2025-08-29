@@ -48,7 +48,7 @@ const KYCPage = () => {
   const [loading, setLoading] = useState(false)
   const [comments, setComments] = useState<any>([])
   const [prooftype, setProoftype] = useState()
-const [imageUrl,setImageUrl]=useState('')
+  const [imageUrl, setImageUrl] = useState('')
   const { id: kycIdFromRoute } = useParams()
 
   const navigate = useNavigate()
@@ -186,17 +186,16 @@ const [imageUrl,setImageUrl]=useState('')
     try {
       const response = await kycservice.getKycById(kycId)
       //@ts-ignore
-     let image= response?.documents.find((doc: any) => doc?.documentType === 'image')?.documentUrl
-    
-     setImageUrl(image)
-     
-     setSelectedKYC(response)
+      let image = response?.documents.find((doc: any) => doc?.documentType === 'image')?.documentUrl
+
+      setImageUrl(image)
+
+      setSelectedKYC(response)
       //@ts-ignore
       setComments(response?.comments || [])
       if (checkboxOpen) {
         setCheckboxOpen(!checkboxOpen)
       }
-     
     } catch (error) {
       console.log(error)
     }
@@ -257,7 +256,6 @@ const [imageUrl,setImageUrl]=useState('')
         </Typography>
 
         <Box
-          
           sx={{
             width: '80vw',
             height: '70vh',
@@ -312,13 +310,11 @@ const [imageUrl,setImageUrl]=useState('')
               </Typography>
             </Box>
 
-           {/* Applicant Details Section */}
+            {/* Applicant Details Section */}
             <Grid container>
               <Grid item xs={2}>
                 <Avatar
-                  src={imageUrl?.replace("http://164.90.252.179/", "https://api.impronics.com/uat/")} // Replace with actual image URL
-                 
-                 
+                  src={imageUrl?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')} // Replace with actual image URL
                   sx={{
                     width: 150,
                     height: 150,
@@ -333,7 +329,6 @@ const [imageUrl,setImageUrl]=useState('')
                     justifyContent: 'center',
                   }}
                 >
-                 
                   {/* {' '}
                   {selectedKYC?.applicantName?.split(' ').length > 0
                     ? selectedKYC?.applicantName.split(' ')[0][0] +
@@ -379,7 +374,7 @@ const [imageUrl,setImageUrl]=useState('')
                     />
                   </Grid>
                   <Grid item xs={3}>
-                    <TextField fullWidth label="Residence Country" variant="filled" defaultValue={selectedKYC?.permanentAddressCountry} disabled />
+                    <TextField fullWidth label="Residence Country" variant="filled" defaultValue={selectedKYC?.residentialAddressCountry} disabled />
                   </Grid>
 
                   <Grid item xs={12}>
@@ -389,25 +384,31 @@ const [imageUrl,setImageUrl]=useState('')
 
                     <Grid container spacing={2}>
                       <Grid item xs={6}>
-                        <TextField label="Address Line 1" variant="filled" fullWidth defaultValue={selectedKYC?.permanentAddressLine1} disabled />
+                        <TextField label="Address Line 1" variant="filled" fullWidth defaultValue={selectedKYC?.residentialAddressLine1} disabled />
                       </Grid>
                       <Grid item xs={6}>
-                        <TextField label="Address Line 2" variant="filled" fullWidth defaultValue={selectedKYC?.permanentAddressLine2} disabled />
+                        <TextField label="Address Line 2" variant="filled" fullWidth defaultValue={selectedKYC?.residentialAddressLine2} disabled />
                       </Grid>
                       <Grid item xs={2.3}>
-                        <TextField label="Suburb" variant="filled" fullWidth defaultValue={selectedKYC?.permanentAddressSuburb} disabled />
+                        <TextField label="Suburb" variant="filled" fullWidth defaultValue={selectedKYC?.residentialAddressSuburb} disabled />
                       </Grid>
                       <Grid item xs={2.3}>
-                        <TextField label="City" variant="filled" fullWidth defaultValue={selectedKYC?.permanentAddressCity} disabled />
+                        <TextField label="City" variant="filled" fullWidth defaultValue={selectedKYC?.residentialAddressCity} disabled />
                       </Grid>
                       <Grid item xs={2.3}>
-                        <TextField label="State" variant="filled" fullWidth defaultValue={selectedKYC?.permanentAddressState} disabled />
+                        <TextField
+                          label="State/Province"
+                          variant="filled"
+                          fullWidth
+                          defaultValue={selectedKYC?.residentialAddressStateProvince}
+                          disabled
+                        />
                       </Grid>
                       <Grid item xs={2.3}>
-                        <TextField label="Zip Code" variant="filled" fullWidth defaultValue={selectedKYC?.permanentAddressZip} disabled />
+                        <TextField label="Postal Code" variant="filled" fullWidth defaultValue={selectedKYC?.residentialAddressPostalCode} disabled />
                       </Grid>
                       <Grid item xs={2.3}>
-                        <TextField label="Country" variant="filled" fullWidth defaultValue={selectedKYC?.permanentAddressCountry} disabled />
+                        <TextField label="Country" variant="filled" fullWidth defaultValue={selectedKYC?.residentialAddressCountry} disabled />
                       </Grid>
                     </Grid>
                   </Grid>
@@ -423,43 +424,37 @@ const [imageUrl,setImageUrl]=useState('')
 
                     <Grid container spacing={2}>
                       <Grid item xs={6}>
-                        <TextField label="Address Line 1" disabled fullWidth defaultValue={selectedKYC?.currentAddressLine1} variant="filled" />
+                        <TextField label="Address Line 1" disabled fullWidth defaultValue={selectedKYC?.postalAddressLine1} variant="filled" />
                       </Grid>
                       <Grid item xs={6}>
-                        <TextField
-                          label="Address Line 2"
-                          disabled
-                          fullWidth
-                          defaultValue={selectedKYC?.currentAddressLine1 + selectedKYC?.currentAddressLine2}
-                          variant="filled"
-                        />
+                        <TextField label="Address Line 2" disabled fullWidth defaultValue={selectedKYC?.postalAddressLine2} variant="filled" />
                       </Grid>
                       <Grid item xs={2.3}>
-                        <TextField label="Suburb" variant="filled" fullWidth defaultValue={selectedKYC?.currentAddressSuburb} disabled />
+                        <TextField label="Suburb" variant="filled" fullWidth defaultValue={selectedKYC?.postalAddressSuburb} disabled />
                       </Grid>
                       <Grid item xs={2.3}>
-                        <TextField label="City" fullWidth defaultValue={selectedKYC?.currentAddressCity} variant="filled" disabled />
+                        <TextField label="City" fullWidth defaultValue={selectedKYC?.postalAddressCity} variant="filled" disabled />
                       </Grid>
                       <Grid item xs={2.3}>
                         <TextField
-                          label="State"
+                          label="State/Province"
                           fullWidth
                           defaultValue="South Africa"
                           variant="filled"
                           disabled
                           //@ts-ignore
-                          defaultValue={selectedKYC?.currentAddressState}
+                          defaultValue={selectedKYC?.postalAddressStateProvince}
                         />
                       </Grid>
                       <Grid item xs={2.3}>
                         <TextField
-                          label="Zip Code"
+                          label="Postal Code"
                           fullWidth
                           defaultValue="South Africa"
                           variant="filled"
                           disabled
                           //@ts-ignore
-                          defaultValue={selectedKYC?.currentAddressZip}
+                          defaultValue={selectedKYC?.postalAddressPostalCode}
                         />
                       </Grid>
                       <Grid item xs={2.3}>
@@ -470,7 +465,7 @@ const [imageUrl,setImageUrl]=useState('')
                           variant="filled"
                           disabled
                           //@ts-ignore
-                          defaultValue={selectedKYC?.currentAddressCountry}
+                          defaultValue={selectedKYC?.postalAddressCountry}
                         />
                       </Grid>
                     </Grid>
