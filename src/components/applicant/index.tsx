@@ -66,7 +66,7 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'residenceCountry',
+      field: 'residentialAddressCountry',
       headerName: 'Residence Country',
       flex: 1,
       headerClassName: 'super-app-theme--header',
