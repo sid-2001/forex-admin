@@ -362,7 +362,7 @@ const DashboardLayout = () => {
             {staffCountry == 'ZA' ? (
               <>
                 <Avatar>
-                  {<strong>{local_service?.get_staff_access().staffFirstName[0] + local_service?.get_staff_access().staffLastName[0]}</strong>}
+                  {<strong>{local_service?.get_staff_access().staffFirstName[0].toUpperCase() + local_service?.get_staff_access().staffLastName[0].toUpperCase()}</strong>}
                 </Avatar>
 
                 <Box ml={1}>

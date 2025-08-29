@@ -78,14 +78,14 @@ const StaticData = () => {
 
   return (
     
-    <Box sx={{ padding: '10px' }}>
+    <Box sx={{  width: '80vw', height: '70vh' }}>
         {staticTable?.listname && (
-      <Typography variant="h5" fontWeight={600} gutterBottom>
+      <Typography variant="h4" fontWeight={600} gutterBottom>
         {staticTable.listname}
       </Typography>
         )}
       {/* Dropdown */}
-      <FormControl sx={{ mb:-5  ,width: '20%' , marginTop:'2%'}} >
+      <FormControl sx={{ mb:-5  ,width: '20%' , marginTop:'1%'}} >
         <InputLabel>Select Table</InputLabel>
         <Select
           value={staticTable?.name || ''}
