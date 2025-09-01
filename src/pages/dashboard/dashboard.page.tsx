@@ -99,7 +99,7 @@ const Dashboard = () => {
       name: 'ICICI ',
       balance,
       image_url:
-        'https://media.licdn.com/dms/image/v2/C510BAQGqZH7vVbVzWw/company-logo_200_200/company-logo_200_200/0/1630606529683/hdfc_bank_logo?e=1756944000&v=beta&t=RoXmSn8fKd4SYGMdrAyOpeIuy5mFu6NRFNwOBl8szHg',
+        'https://pbs.twimg.com/profile_images/1477924435969462272/ZQADGPv5_400x400.png  ',
       country: 'India',
     },
     {
