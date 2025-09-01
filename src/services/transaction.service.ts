@@ -21,8 +21,8 @@ export class TransactionService extends BaseService {
     }
   }
 
-  async getOutwardAllTransaction(sendCountry: any): Promise<Array<TransactionInward>> {
-    const url = `/api/transactions/transaction-outward/sendCountry/${sendCountry}`
+  async getOutwardAllTransaction(sendCountry: any,page:any,size:any): Promise<Array<TransactionInward>> {
+    const url = `/api/transactions/transaction-outward/sendCountry/${sendCountry}?page=${page}&size=${size}`
     try {
       const data = await api1.get(url)
       return data.data as any

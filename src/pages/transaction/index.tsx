@@ -32,6 +32,13 @@ import { TransactionService } from '@/services/transaction.service'
 import { ApplicantService } from '@/services/applicant.service'
 import { statusColors } from '@/contants/utils'
 import LoaderUI from '@/components/loader/loader'
+import React from 'react'
+import {
+  GridColDef,
+  GridToolbar,
+  GridPaginationModel,
+  GridFilterModel,
+} from "@mui/x-data-grid";
 
 const applicant_service = new ApplicantService()
 const transaction_Service = new TransactionService()
@@ -94,13 +101,6 @@ const TransactionListing = () => {
     { field: 'charges', headerName: 'Charges', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'gateway_name', headerName: 'Gateway', width: 100, headerClassName: 'super-app-theme--header' },
 
-    // {
-    //   field: 'reporting',
-    //   headerName: 'Reporting Status',
-    //   flex: 1,
-    //   headerClassName: 'super-app-theme--header',
-    //   renderCell: (params: any) => (params?.value?.reporting == 'Reported' ? params.value.status : params?.value?.status),
-    // },
     {
       field: 'owCreatedDate',
       headerName: 'Date',
@@ -119,15 +119,6 @@ const TransactionListing = () => {
       renderCell: (params: any) => {
         return <div style={{ color: statusColors[params?.row?.status?.toUpperCase()] }}>{params?.row?.status?.toUpperCase()}</div>
       },
-
-      // renderCell: (params: any) =>
-      //   params?.value?.status == 'Pending' ? (
-      //     <Tooltip title={params?.value?.status || 'Unknown Error'} arrow>
-      //       <Chip label="Pending" color="error" />
-      //     </Tooltip>
-      //   ) : (
-      //     params?.value?.status
-      //   ),
     },
     {
       field: 'payment_status',
@@ -207,9 +198,7 @@ const TransactionListing = () => {
       type: 'number',
       width: 150,
       headerClassName: 'super-app-theme--header',
-      // renderCell: (params: any) => params?.value?.toFixed(2),
     },
-    // { field: 'reportingStatus', headerName: 'Reporting Status', width: 130, headerClassName: 'super-app-theme--header' },
     {
       field: 'inCreatedDate',
       headerName: 'Created Date',
@@ -321,6 +310,9 @@ const TransactionListing = () => {
   const [endDate, setEndDate] = useState<string | null>(null)
   const [stpErrors, setStpErrors] = useState<any>([])
   const [givenTransaction, setGivenTransaction] = useState<any>(null)
+  
+  // Add state for row count
+  const [rowCount, setRowCount] = useState(0);
 
   const theme = useTheme()
   const navigate = useNavigate()
@@ -328,6 +320,53 @@ const TransactionListing = () => {
   const queryParams = new URLSearchParams(search)
   const userCountry = local_service?.get_staff_country()
   const flow = queryParams.get('flow')
+
+  // pagination state
+  const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
+    page: 0,
+    pageSize: 20,
+  });
+
+  // filter state
+  const [filterModel, setFilterModel] = React.useState<GridFilterModel>({
+    items: [],
+  });
+
+  // Fetch API whenever pagination or filter changes
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { page, pageSize } = paginationModel;
+
+        // build filter query (basic example: single filter only)
+        let filterQuery = "";
+        if (filterModel.items.length > 0) {
+          const f = filterModel.items[0];
+          if (f.value) {
+            filterQuery = `&filterField=${f.field}&filterValue=${f.value}`;
+          }
+        }
+        getAllTransactions(page, pageSize, filterQuery)
+
+      } catch (err) {
+        console.error("Failed to fetch transactions", err);
+      } finally {
+        // setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [paginationModel, filterModel]);
+
+  // handle page or pageSize change
+  const handlePaginationChange = (newModel: GridPaginationModel) => {
+    setPaginationModel(newModel);
+  };
+
+  // handle filter changes
+  const handleFilterChange = (newFilterModel: GridFilterModel) => {
+    setFilterModel(newFilterModel);
+  };
 
   const fetchStpErrorList = useCallback(async (transactionId: string) => {
     try {
@@ -381,11 +420,16 @@ const TransactionListing = () => {
     }
   }, [])
 
-  const getAllTransactions = useCallback(async () => {
+  const getAllTransactions = useCallback(async (page: number, size: number,
+    //@ts-ignore
+    filterQuery: string = "") => {
     try {
       setcommonloader(true)
-      const data: any = await transaction_Service.getOutwardAllTransaction(userCountry)
-      const inbound: Array<TransactionInwardCalclulated>[] | any = data?.map((e: any) => {
+      const data: any = await transaction_Service.getOutwardAllTransaction(userCountry, page, size)
+      console.log(data)
+      // Assuming your API response has a structure like:
+      // { content: [], totalElements: 100, totalPages: 5 }
+      const inbound: Array<TransactionInwardCalclulated>[] | any = data?.content?.map((e: any) => {
         //@ts-ignore
         return {
           //@ts-ignore
@@ -441,15 +485,22 @@ const TransactionListing = () => {
           return true
         })
 
-      setTransactionData(inbound)
-      setOutboundTransaction(outbound)
-      setTimeout(() => {
-        setcommonloader(false)
-      }, 2000)
+      // Set the appropriate data based on transaction type
+      if (transactionType === 'inwards') {
+        setTransactionData(inbound);
+      } else {
+        setOutboundTransaction(outbound);
+      }
+      
+      // Set the total row count for pagination
+      setRowCount(data?.totalElements || 0);
+      
+      setcommonloader(false);
     } catch (error) {
       console.log(error)
+      setcommonloader(false);
     }
-  }, [])
+  }, [transactionType, userCountry])
 
   useEffect(() => {
     if (!flow) {
@@ -459,7 +510,7 @@ const TransactionListing = () => {
     }
     getApplicantDetails()
     getInwardTransactionList()
-    getAllTransactions()
+    getAllTransactions(0, 20)
     setGivenTransaction(queryParams.get('id'))
   }, [])
 
@@ -560,7 +611,7 @@ const TransactionListing = () => {
   }
 
   const getLoadingState = () => {
-    return transactionType === 'inwards' ? (inboundTransaction?.length > 0 ? false : true) : outboundTransaction?.length > 0 ? false : true
+    return commonloader;
   }
 
   return (
@@ -659,18 +710,21 @@ const TransactionListing = () => {
         {helper.checkUserHasPermission(getTransactionPermission(), 'canRead') && (
           <DataGrid
             rows={transactionType === 'inwards' ? inboundTransaction : outboundTransaction || []}
-            //@ts-ignore
+           //@ts-ignore
             columns={transactionType === 'inwards' ? inward_columns : columns_outward}
             getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
-            pageSizeOptions={[10]}
-            initialState={{
-              pagination: {
-                paginationModel: { pageSize: 20, page: 0 },
-              },
-            }}
+            pageSizeOptions={[10, 20, 50]}
+            paginationMode="server"
+            filterMode="server"
+            paginationModel={paginationModel}
+            onPaginationModelChange={handlePaginationChange}
+            filterModel={filterModel}
+            onFilterModelChange={handleFilterChange}
+            rowCount={1000}
             loading={getLoadingState()}
             slots={{
-              loadingOverlay: LoaderUI.LoadingOverlay, // You can import a custom one
+              loadingOverlay: LoaderUI.LoadingOverlay,
+              toolbar: GridToolbar,
             }}
             disableRowSelectionOnClick
             sx={{
@@ -879,7 +933,7 @@ const TransactionListing = () => {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="secondary">
+          <Button onClick={handleClose} color="secondary" >
             Cancel
           </Button>
           <Button onClick={handleApply} variant="contained" color="primary">

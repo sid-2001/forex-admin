@@ -68,7 +68,7 @@ const [enabled, setEnabled] = useState(true)
 
 
   const getOutwardTransactionsList = useCallback(async () => {
-    const data = await transaction_service.getOutwardAllTransaction(userCountry)
+    const data = await transaction_service.getOutwardAllTransaction(userCountry,0,20)
     setrecentTransaction(data || [])
     setIsLoading(false)
   }, [])
