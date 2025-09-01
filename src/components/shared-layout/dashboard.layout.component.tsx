@@ -159,7 +159,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Applicant',
-      name: "Applicant Details"
+      name: "Applicants"
     },
     {
       icon: (
@@ -314,14 +314,15 @@ const DashboardLayout = () => {
         sx={{
           //@ts-ignore
           paddingBottom: 0,
+          
         }}
       >
         <Toolbar>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', px: 2, py: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', px: 2, py: 1,  }}>
             {/* Logo */}
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Link to='/dashboard' >
-                <img src={LogoWhite} alt="Logo" style={{ height: 60 }} />
+                <img src={LogoWhite} alt="Logo" style={{ height: 55 }} />
               </Link>
 
 
@@ -354,12 +355,14 @@ const DashboardLayout = () => {
               maxWidth: "100%",
               paddingRight: '10px',
               marginBottom: '6px',
+              height: '65%',
+              lineHeight: 1,
             }}
           >
             {staffCountry == 'ZA' ? (
               <>
                 <Avatar>
-                  {<strong>{local_service?.get_staff_access().staffFirstName[0] + local_service?.get_staff_access().staffLastName[0]}</strong>}
+                  {<strong>{local_service?.get_staff_access().staffFirstName[0].toUpperCase() + local_service?.get_staff_access().staffLastName[0].toUpperCase()}</strong>}
                 </Avatar>
 
                 <Box ml={1}>
@@ -369,6 +372,7 @@ const DashboardLayout = () => {
                       fontFamily: 'sans-serif',
                       fontSize: '12px',
                       color: 'white',
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     <strong>{local_service?.get_staff_access().staffFirstName + ' ' + local_service?.get_staff_access().staffLastName}</strong>
@@ -431,7 +435,7 @@ const DashboardLayout = () => {
               backgroundColor: theme.palette.secondary.main,
               height: '100vh',
               position: 'fixed', // Makes the sidebar stay fixed in place
-              top: 82.5, // Stick to the top of the viewport
+              top: 76, // Stick to the top of the viewport
               left: 0, // Stick to the left of the viewport
               overflow: 'hidden',
               boxShadow: '2px 0 5px rgba(0,0,0,0.3)',

@@ -36,9 +36,7 @@ const UserAdd = () => {
     fontWeight: 800,
   }
   //@ts-ignore
-  const [staffData, setStaffData] = useState<StaffProfile>({  staffIdType: 'Aadhar' })
-  const [countrieslist] = useState(['USA', 'Canada', 'India'])
-  const [flows] = useState(['Onboarding', 'Approval', 'Checkout'])
+  const [staffData, setStaffData] = useState<StaffProfile>({ staffIdType: 'Aadhar' })
   const [roles, setRoles] = useState<any>([])
   const [selectedRole, setSelectedRole] = useState('')
   const [permissions, setPermissions] = useState([])
@@ -153,26 +151,20 @@ const UserAdd = () => {
     })),
   ]
 
-
-    const fetchAllData = async () => {
-      setLoading(true)
+  const fetchAllData = async () => {
+    setLoading(true)
     try {
-      await Promise.all([
-        fetchRolesList(),
-        fetchCountries(),
-        fetchBranches(),
-        staffId ? fetchStaffDetailsByStaffId() : Promise.resolve(),
-      ])
+      await Promise.all([fetchRolesList(), fetchCountries(), fetchBranches(), staffId ? fetchStaffDetailsByStaffId() : Promise.resolve()])
     } catch (err) {
       console.error(err)
     } finally {
-      setLoading(false) 
+      setLoading(false)
     }
   }
   useEffect(() => {
     fetchAllData()
   }, [staffId])
-  
+
   const fetchRolesList = async () => {
     try {
       let response = await user_service.getAllRolesData()
@@ -305,22 +297,21 @@ const UserAdd = () => {
 
     return !hasPermission || isAnyFieldEmpty
   }
-if (loading) {
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '70vh', 
-        width: '80vw',  
-      }}
-    >
-      <CircularProgress size={70} color="primary" />
-    </Box>
-  )
-}
-
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '70vh',
+          width: '80vw',
+        }}
+      >
+        <CircularProgress size={70} color="primary" />
+      </Box>
+    )
+  }
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.STAFF}>
@@ -527,6 +518,7 @@ if (loading) {
                 onChange={handleChange}
                 InputProps={{ readOnly: !isEditable }}
                 SelectProps={{ native: true }}
+                disabled={!!staffId}
               >
                 <option value="">-- Select Country --</option>
                 {countryList.map((country: any) => (

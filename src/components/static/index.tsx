@@ -13,6 +13,7 @@ const StaticDataGrid = ({
   //@ts-ignore
   apiEndpoint,
   primaryKey = 'id',
+  //@ts-ignore
   title = 'Data Grid',
 }) => {
   const [rows, setRows] = useState([])
@@ -389,16 +390,15 @@ const StaticDataGrid = ({
       }}
     >
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-        <b>
+        <b >
           {' '}
-          <h2>{title}</h2>
         </b>
         <Button
           variant="contained"
           color="primary"
           startIcon={<Add />}
           onClick={handleAddClick}
-          //   sx={{ height: '40px' }}
+            sx={{ height: '40px' }}
         >
           Add Data
         </Button>

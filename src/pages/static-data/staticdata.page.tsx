@@ -28,7 +28,7 @@
 import StaticDataGrid from '@/components/static'
 import { staticTableState } from '@/states/state'
 import { useRecoilState } from 'recoil'
-import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material'
+import { Box, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material'
 import static_list from '@/contants/static.data'
 
 // const  StaticData = () => {
@@ -77,9 +77,15 @@ const StaticData = () => {
   }
 
   return (
-    <Box sx={{ padding: '20px' }}>
+    
+    <Box sx={{  width: '80vw', height: '70vh' }}>
+        {staticTable?.listname && (
+      <Typography variant="h4" fontWeight={600} gutterBottom>
+        {staticTable.listname}
+      </Typography>
+        )}
       {/* Dropdown */}
-      <FormControl sx={{ mb: 3  ,width: '20%'}}>
+      <FormControl sx={{ mb:-5  ,width: '20%' , marginTop:'1%'}} >
         <InputLabel>Select Table</InputLabel>
         <Select
           value={staticTable?.name || ''}

@@ -11,8 +11,7 @@ import { KycService } from '@/services/kyc.service'
 import ReferralTransactions from '@/components/referralTransactionTable'
 import DocumentsListComponent from '../document-tab'
 import BeneficiaryTable from '@/components/beneficiary-table'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 
 const ApplicantPage = () => {
   const navigate = useNavigate()
@@ -68,13 +67,9 @@ const ApplicantPage = () => {
     )
   }
 
-const MemoizedPieChart = useMemo(() => {
-  return (
-    <LimitPieChart
-   
-    />
-  )
-}, [utilizedLimit, availableLimit])
+  const MemoizedPieChart = useMemo(() => {
+    return <LimitPieChart />
+  }, [utilizedLimit, availableLimit])
 
   useEffect(() => {
     fetchComplianceLimitData()
@@ -218,19 +213,11 @@ const MemoizedPieChart = useMemo(() => {
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.APPLICANT}>
       <Box sx={{ width: '80vw' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography
-            variant="h5"
-            gutterBottom
-            sx={{ fontWeight: 'bold' }}
-          >
+          <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
             Applicant Details
           </Typography>
 
-          <Button
-            variant="outlined"
-            startIcon={<ArrowBackIcon />}
-            onClick={() => navigate(-1)}
-          >
+          <Button variant="outlined" startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)}>
             Back
           </Button>
         </Box>
@@ -279,9 +266,7 @@ const MemoizedPieChart = useMemo(() => {
         <Box>
           <Grid container spacing={2} mb={2} alignItems="flex-start" justifyContent="space-between">
             <Grid item xs={12} sm={2} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
-          
               <Box width={150} height={150} border="4px solid green" borderRadius="50%" display="flex" alignItems="center" justifyContent="center">
-          
                 <Avatar
                   src={applicantImage.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')}
                   style={{
@@ -302,7 +287,7 @@ const MemoizedPieChart = useMemo(() => {
                     variant="filled"
                     value={applicantDetails?.firstName || ''}
                     fullWidth
-                    InputProps={{ readOnly: true }}
+                    InputProps={{ readOnly: true, sx: { color: 'grey' } }}
                   />
                 </Grid>
                 {applicantDetails?.middleName && (
@@ -312,7 +297,7 @@ const MemoizedPieChart = useMemo(() => {
                       variant="filled"
                       value={applicantDetails?.middleName || ''}
                       fullWidth
-                      InputProps={{ readOnly: true }}
+                      InputProps={{ readOnly: true, sx: { color: 'grey' } }}
                     />
                   </Grid>
                 )}
@@ -322,7 +307,7 @@ const MemoizedPieChart = useMemo(() => {
                     variant="filled"
                     value={applicantDetails?.lastName || ''}
                     fullWidth
-                    InputProps={{ readOnly: true }}
+                    InputProps={{ readOnly: true, sx: { color: 'grey' } }}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -331,23 +316,35 @@ const MemoizedPieChart = useMemo(() => {
                     variant="filled"
                     value={applicantDetails?.nationality || ''}
                     fullWidth
-                    InputProps={{ readOnly: true }}
+                    InputProps={{ readOnly: true, sx: { color: 'grey' } }}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
                     label="Residence Country"
                     variant="filled"
-                    value={applicantDetails?.residenceCountry || ''}
+                    value={applicantDetails?.residentialAddressCountry || ''}
                     fullWidth
-                    InputProps={{ readOnly: true }}
+                    InputProps={{ readOnly: true, sx: { color: 'grey' } }}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <TextField label="Phone" variant="filled" value={applicantDetails?.phone || ''} fullWidth InputProps={{ readOnly: true }} />
+                  <TextField
+                    label="Phone"
+                    variant="filled"
+                    value={applicantDetails?.phone || ''}
+                    fullWidth
+                    InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+                  />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <TextField label="Email" variant="filled" value={applicantDetails?.email || ''} fullWidth InputProps={{ readOnly: true }} />
+                  <TextField
+                    label="Email"
+                    variant="filled"
+                    value={applicantDetails?.email || ''}
+                    fullWidth
+                    InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+                  />
                 </Grid>
               </Grid>
             </Grid>
@@ -365,63 +362,147 @@ const MemoizedPieChart = useMemo(() => {
           </Typography>
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={12} sm={6}>
-              <TextField fullWidth label="Address Line 1" value={applicantDetails?.postalAddressLine1 || ''} InputProps={{ readOnly: true }} />
+              <TextField
+                variant="filled"
+                fullWidth
+                label="Address Line 1"
+                value={applicantDetails?.postalAddressLine1 || ''}
+                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+              />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField fullWidth label="Address Line 2" value={applicantDetails?.postalAddressLine2 || ''} InputProps={{ readOnly: true }} />
+              <TextField
+                variant="filled"
+                fullWidth
+                label="Address Line 2"
+                value={applicantDetails?.postalAddressLine2 || ''}
+                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+              />
             </Grid>
           </Grid>
 
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={12} sm={2.3}>
-              <TextField fullWidth label="Suburb" value={applicantDetails?.suburb || ''} InputProps={{ readOnly: true }} />
+              <TextField
+                variant="filled"
+                fullWidth
+                label="Suburb"
+                value={applicantDetails?.postalAddressSuburb || ''}
+                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+              />
             </Grid>
 
             <Grid item xs={12} sm={2.3}>
-              <TextField fullWidth label="city" value={applicantDetails?.city || ''} InputProps={{ readOnly: true }} />
+              <TextField
+                variant="filled"
+                fullWidth
+                label="city"
+                value={applicantDetails?.postalAddressCity || ''}
+                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+              />
             </Grid>
 
             <Grid item xs={12} sm={2.3}>
-              <TextField fullWidth label="State" value={applicantDetails?.applicantState || ''} InputProps={{ readOnly: true }} />
+              <TextField
+                variant="filled"
+                fullWidth
+                label="State"
+                value={applicantDetails?.postalAddressStateProvince || ''}
+                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+              />
             </Grid>
 
             <Grid item xs={12} sm={2.3}>
-              <TextField fullWidth label="Postal Code" value={applicantDetails?.postalCode || ''} InputProps={{ readOnly: true }} />
+              <TextField
+                variant="filled"
+                fullWidth
+                label="Postal Code"
+                value={applicantDetails?.postalAddressPostalCode || ''}
+                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+              />
             </Grid>
             <Grid item xs={12} sm={2.3}>
-              <TextField fullWidth label="Country" value={applicantDetails?.country || ''} InputProps={{ readOnly: true }} />
+              <TextField
+                variant="filled"
+                fullWidth
+                label="Country"
+                value={applicantDetails?.postalAddressCountry || ''}
+                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+              />
             </Grid>
           </Grid>
 
           {/* Physical Address Section */}
           <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}>
-            <strong>Physical Address</strong>
+            <strong>Residential Address</strong>
           </Typography>
 
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={12} sm={6}>
-              <TextField fullWidth label="Address Line 1" value={applicantDetails?.physicalAddressLine1 || ''} InputProps={{ readOnly: true }} />
+              <TextField
+                variant="filled"
+                fullWidth
+                label="Address Line 1"
+                value={applicantDetails?.residentialAddressLine1 || ''}
+                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+              />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField fullWidth label="Address Line 2" value={applicantDetails?.physicalAddressLine2 || ''} InputProps={{ readOnly: true }} />
+              <TextField
+                variant="filled"
+                fullWidth
+                label="Address Line 2"
+                value={applicantDetails?.residentialAddressLine2 || ''}
+                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+              />
             </Grid>
           </Grid>
 
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={12} sm={2.3}>
-              <TextField fullWidth label="Suburb" value={applicantDetails?.suburb || ''} InputProps={{ readOnly: true }} />
+              <TextField
+                variant="filled"
+                fullWidth
+                label="Suburb"
+                value={applicantDetails?.residentialAddressSuburb || ''}
+                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+              />
             </Grid>
             <Grid item xs={12} sm={2.3}>
-              <TextField fullWidth label="City" value={applicantDetails?.residenceCity || ''} InputProps={{ readOnly: true }} />
+              <TextField
+                variant="filled"
+                fullWidth
+                label="City"
+                value={applicantDetails?.residentialAddressCity || ''}
+                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+              />
             </Grid>
             <Grid item xs={12} sm={2.3}>
-              <TextField fullWidth label="State" value={applicantDetails?.residenceState || ''} InputProps={{ readOnly: true }} />
+              <TextField
+                variant="filled"
+                fullWidth
+                label="State"
+                value={applicantDetails?.residentialAddressStateProvince || ''}
+                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+              />
             </Grid>
             <Grid item xs={12} sm={2.3}>
-              <TextField fullWidth label="Zip Code" value={applicantDetails?.residencePostalCode || ''} InputProps={{ readOnly: true }} />
+              <TextField
+                variant="filled"
+                fullWidth
+                label="Zip Code"
+                value={applicantDetails?.residentialAddressPostalCode || ''}
+                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+              />
             </Grid>
             <Grid item xs={12} sm={2.3}>
-              <TextField fullWidth label="Country" value={applicantDetails?.residenceCountry || ''} InputProps={{ readOnly: true }} />
+              <TextField
+                variant="filled"
+                fullWidth
+                label="Country"
+                value={applicantDetails?.residentialAddressCountry || ''}
+                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+              />
             </Grid>
           </Grid>
         </Box>
@@ -450,8 +531,7 @@ const MemoizedPieChart = useMemo(() => {
           {selectedTab === 3 && <ReferralTransactions referralRecords={referralRedeemTransaction || []} referralType={'Redeemed'} />}
           {selectedTab === 4 && <ReferralTransactions referralRecords={referralCreditedTransaction || []} referralType={'Credited'} />}
         </Box>
-        <Box>
-        </Box>
+        <Box></Box>
       </Box>
     </HasPermission>
   )
