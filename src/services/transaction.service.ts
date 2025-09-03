@@ -21,7 +21,7 @@ export class TransactionService extends BaseService {
     }
   }
 
-  async getOutwardAllTransaction(sendCountry: any,page:any,size:any): Promise<Array<TransactionInward>> {
+  async getOutwardAllTransaction(sendCountry: any, page: any, size: any): Promise<Array<TransactionInward>> {
     const url = `/api/transactions/transaction-outward/sendCountry/${sendCountry}?page=${page}&size=${size}`
     try {
       const data = await api1.get(url)
@@ -41,31 +41,24 @@ export class TransactionService extends BaseService {
     }
   }
   async getLoyaltyMasterData(): Promise<any> {
-const url='/api/transactions/loyalty-master'
-    try{
- const response = await api1.get(url);
- return response
-    }catch(err){
-throw new Error(err as any)
-
+    const url = '/api/transactions/loyalty-master'
+    try {
+      const response = await api1.get(url)
+      return response
+    } catch (err) {
+      throw new Error(err as any)
     }
- 
-}
+  }
 
-async createLoyaltyTier(data: any): Promise<any> {
-  const url='/api/transactions/loyalty-master'
-  try{
-
-
-  
-  const response = await api1.post(url, data);
-  return response
-}catch(err ){
-throw new Error(err as any)
-
-}
- 
-}
+  async createLoyaltyTier(data: any): Promise<any> {
+    const url = '/api/transactions/loyalty-master'
+    try {
+      const response = await api1.post(url, data)
+      return response
+    } catch (err) {
+      throw new Error(err as any)
+    }
+  }
 
   async cdiTransactions(): Promise<any[]> {
     const url = '/api/transactions/transaction-details/unmatchedTransactionList'
@@ -136,24 +129,22 @@ throw new Error(err as any)
   async getBop() {
     const url = `/api/static-table/forex-bop`
     try {
-      const { data } = await api1.get(url)
+      const data = await api1.get(url)
       return data
     } catch (err) {
       console.log(err)
     }
   }
-async updateLoyaltyTier(id: number, data: any): Promise<any> {
-  const url=`/api/transactions/loyalty-master/${id}`
-  try{
-  const response = await api1.put(url, data);
-  
-  
-  return response as any
-}catch(err){
+  async updateLoyaltyTier(id: number, data: any): Promise<any> {
+    const url = `/api/transactions/loyalty-master/${id}`
+    try {
+      const response = await api1.put(url, data)
 
-  console.log(err)
-}
-}
+      return response as any
+    } catch (err) {
+      console.log(err)
+    }
+  }
   async createDealcover(payload: {
     sourceCurrency: String
     destinationCurrency: String
