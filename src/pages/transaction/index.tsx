@@ -32,18 +32,13 @@ import { TransactionService } from '@/services/transaction.service'
 import { ApplicantService } from '@/services/applicant.service'
 import { statusColors } from '@/contants/utils'
 import LoaderUI from '@/components/loader/loader'
-import { GridToolbarContainer } from '@mui/x-data-grid';
-import DownloadIcon from '@mui/icons-material/Download';
+import { GridToolbarContainer } from '@mui/x-data-grid'
+import DownloadIcon from '@mui/icons-material/Download'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
 import React from 'react'
-import {
-  GridColDef,
-  GridToolbar,
-  GridPaginationModel,
-  GridFilterModel,
-} from "@mui/x-data-grid";
+import { GridColDef, GridToolbar, GridPaginationModel, GridFilterModel } from '@mui/x-data-grid'
 
 const applicant_service = new ApplicantService()
 const transaction_Service = new TransactionService()
@@ -51,8 +46,7 @@ const helper = new HelperService()
 const local_service = new LocalStorageService()
 
 const TransactionListing = () => {
-  const [columnVisibilityModel, setColumnVisibilityModel] =
-    useState<GridColumnVisibilityModel>({})
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState<GridColumnVisibilityModel>({})
   const columns_outward = [
     {
       field: 'id',
@@ -60,11 +54,7 @@ const TransactionListing = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
-        <a
-          href="#"
-          style={{ color: theme.palette.text.primary }}
-          onClick={() => handleViewMore(params.row)}
-        >
+        <a href="#" style={{ color: theme.palette.text.primary }} onClick={() => handleViewMore(params.row)}>
           {params?.value}
         </a>
       ),
@@ -113,14 +103,11 @@ const TransactionListing = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        const nameOrId =
-          params.value?.name || params.value?.applicantId || 'N/A'
+        const nameOrId = params.value?.name || params.value?.applicantId || 'N/A'
         return (
           <Tooltip title={`Go to ${nameOrId}'s details`} arrow>
             <span
-              onClick={() =>
-                handleNavigation(`/applicant-details/${params.value?.applicantId}`)
-              }
+              onClick={() => handleNavigation(`/applicant-details/${params.value?.applicantId}`)}
               style={{
                 cursor: 'pointer',
                 color: theme.palette.text.primary,
@@ -157,8 +144,7 @@ const TransactionListing = () => {
       type: 'Date',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) =>
-        helper.convertDateAndTime(params?.row?.owCreatedDate),
+      renderCell: (params: any) => helper.convertDateAndTime(params?.row?.owCreatedDate),
     },
     {
       field: 'status',
@@ -232,9 +218,7 @@ const TransactionListing = () => {
       renderCell: (params: any) => (
         <IconButton
           onClick={() => {
-            handleNavigation(
-              `/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`,
-            )
+            handleNavigation(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`)
             handleViewMore(params.row)
           }}
         >
@@ -254,13 +238,13 @@ const TransactionListing = () => {
   // Build headers + rows from current tab
   const rowsForExport = () => {
     const isInwards = transactionType === 'inwards'
-    const rows = isInwards ? (inboundTransaction || []) : (outboundTransaction || [])
+    const rows = isInwards ? inboundTransaction || [] : outboundTransaction || []
     const allCols: GridColDef[] = (isInwards ? inward_columns : columns_outward) as any
 
     // keep order from the grid; visible if not explicitly false
-    const visibleCols = allCols.filter(col => (columnVisibilityModel[col.field] ?? true))
+    const visibleCols = allCols.filter((col) => columnVisibilityModel[col.field] ?? true)
 
-    const headers = visibleCols.map(c => c.headerName ?? c.field)
+    const headers = visibleCols.map((c) => c.headerName ?? c.field)
 
     const valueFor = (r: any, field: string) => {
       const v = r?.[field]
@@ -273,21 +257,22 @@ const TransactionListing = () => {
       return v ?? ''
     }
 
-    const body = rows.map(r => visibleCols.map(c => valueFor(r, c.field)))
+    const body = rows.map((r) => visibleCols.map((c) => valueFor(r, c.field)))
     return { headers, body, title: isInwards ? 'inwards' : 'outwards' }
   }
-
 
   const downloadCSV = () => {
     const { headers, body, title } = rowsForExport()
     if (!body.length) return
-    const csv = [headers.map(esc).join(','), ...body.map(r => r.map(esc).join(','))].join('\n')
-    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csv], { type: 'text/csv;charset=utf-8' })
+    const csv = [headers.map(esc).join(','), ...body.map((r) => r.map(esc).join(','))].join('\n')
+    const blob = new Blob([new Uint8Array([0xef, 0xbb, 0xbf]), csv], { type: 'text/csv;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
     a.download = `transactions_${title}_${new Date().toISOString().slice(0, 10)}.csv`
-    document.body.appendChild(a); a.click(); document.body.removeChild(a)
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
     URL.revokeObjectURL(url)
   }
 
@@ -295,8 +280,10 @@ const TransactionListing = () => {
     const { headers, body, title } = rowsForExport()
     if (!body.length) return
     const doc = new jsPDF({ unit: 'pt' })
-    doc.setFontSize(14); doc.text(`Transactions (${title})`, 40, 40)
-    doc.setFontSize(10); doc.text(`Generated: ${new Date().toLocaleString()}`, 40, 56)
+    doc.setFontSize(14)
+    doc.text(`Transactions (${title})`, 40, 40)
+    doc.setFontSize(10)
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 40, 56)
 
     autoTable(doc, {
       head: [headers],
@@ -306,14 +293,15 @@ const TransactionListing = () => {
       styles: { fontSize: 9, cellPadding: 6, overflow: 'linebreak' },
       headStyles: { fillColor: [0, 80, 153], textColor: 255 },
       didDrawPage: () => {
-        const w = doc.internal.pageSize.getWidth(), h = doc.internal.pageSize.getHeight()
-        doc.setFontSize(9); doc.text(`Page ${doc.getNumberOfPages()}`, w - 60, h - 20)
+        const w = doc.internal.pageSize.getWidth(),
+          h = doc.internal.pageSize.getHeight()
+        doc.setFontSize(9)
+        doc.text(`Page ${doc.getNumberOfPages()}`, w - 60, h - 20)
       },
     })
 
     doc.save(`transactions_${title}_${new Date().toISOString().slice(0, 10)}.pdf`)
   }
-
 
   const inward_columns = [
     { field: 'transactionNumberIw', headerName: 'Transaction Number IW', flex: 1, headerClassName: 'super-app-theme--header' },
@@ -446,7 +434,7 @@ const TransactionListing = () => {
   const [givenTransaction, setGivenTransaction] = useState<any>(null)
 
   // Add state for row count
-  const [rowCount, setRowCount] = useState(0);
+  const [rowCount, setRowCount] = useState(0)
 
   const theme = useTheme()
   const navigate = useNavigate()
@@ -459,67 +447,70 @@ const TransactionListing = () => {
   const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
     page: 0,
     pageSize: 20,
-  });
+  })
 
   // filter state
   const [filterModel, setFilterModel] = React.useState<GridFilterModel>({
     items: [],
-  });
+  })
 
   // Fetch API whenever pagination or filter changes
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const { page, pageSize } = paginationModel;
+        const { page, pageSize } = paginationModel
 
         // build filter query (basic example: single filter only)
-        let filterQuery = "";
+        let filterQuery = ''
         if (filterModel.items.length > 0) {
-          const f = filterModel.items[0];
+          const f = filterModel.items[0]
           if (f.value) {
-            filterQuery = `&filterField=${f.field}&filterValue=${f.value}`;
+            filterQuery = `&filterField=${f.field}&filterValue=${f.value}`
           }
         }
         getAllTransactions(page, pageSize, filterQuery)
-
       } catch (err) {
-        console.error("Failed to fetch transactions", err);
+        console.error('Failed to fetch transactions', err)
       } finally {
         // setLoading(false);
       }
-    };
+    }
 
-    fetchData();
-  }, [paginationModel, filterModel]);
+    fetchData()
+  }, [paginationModel, filterModel])
 
   // handle page or pageSize change
   const handlePaginationChange = (newModel: GridPaginationModel) => {
-    setPaginationModel(newModel);
-  };
+    setPaginationModel(newModel)
+  }
 
   // handle filter changes
   const handleFilterChange = (newFilterModel: GridFilterModel) => {
-    setFilterModel(newFilterModel);
-  };
+    setFilterModel(newFilterModel)
+  }
 
   interface CustomToolbarProps {
-    downloadCSV: () => void;
-    downloadPDF: () => void;
+    downloadCSV: () => void
+    downloadPDF: () => void
   }
   const CustomToolbar: React.FC<CustomToolbarProps> = ({ downloadCSV, downloadPDF }) => (
     <GridToolbarContainer sx={{ display: 'flex', justifyContent: 'flex-start', gap: 1, p: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
       <GridToolbarColumnsButton />
       <GridToolbarFilterButton />
-      <Button variant="outlined" startIcon={<DownloadIcon />} onClick={downloadCSV} size="small" sx={{ ml: 1, textTransform: 'none', fontWeight: 500 }}>
+      <Button
+        variant="outlined"
+        startIcon={<DownloadIcon />}
+        onClick={downloadCSV}
+        size="small"
+        sx={{ ml: 1, textTransform: 'none', fontWeight: 500 }}
+      >
         CSV
       </Button>
       <Button variant="outlined" startIcon={<PictureAsPdfIcon />} onClick={downloadPDF} size="small" sx={{ textTransform: 'none', fontWeight: 500 }}>
         PDF
       </Button>
-
     </GridToolbarContainer>
   )
-
 
   const fetchStpErrorList = useCallback(async (transactionId: string) => {
     try {
@@ -538,8 +529,12 @@ const TransactionListing = () => {
         const benificiary_list = e.beneficiaryList.map((b) => {
           return {
             benificaryId: b.beneficiaryId,
-            name: b.beneficiaryName,
-            accountHolderName: b.beneficiaryName,
+            name: b?.beneficiaryMiddleName
+              ? `${b.beneficiaryFirstName} ${b.beneficiaryMiddleName} ${b.beneficiaryLastName}`
+              : `${b.beneficiaryFirstName} ${b.beneficiaryLastName}`,
+            accountHolderName: b?.beneficiaryMiddleName
+              ? `${b.beneficiaryFirstName} ${b.beneficiaryMiddleName} ${b.beneficiaryLastName}`
+              : `${b.beneficiaryFirstName} ${b.beneficiaryLastName}`,
             accountNumber: b.bankBicCode,
             bank: b.bankName,
             ifscCode: b.bankBicCode,
@@ -573,87 +568,93 @@ const TransactionListing = () => {
     }
   }, [])
 
-  const getAllTransactions = useCallback(async (page: number, size: number,
-    //@ts-ignore
-    filterQuery: string = "") => {
-    try {
-      // setcommonloader(true)
-      const data: any = await transaction_Service.getOutwardAllTransaction(userCountry, page, size)
-      console.log(data)
-      // Assuming your API response has a structure like:
-      // { content: [], totalElements: 100, totalPages: 5 }
-      const inbound: Array<TransactionInwardCalclulated>[] | any = data?.content?.map((e: any) => {
-        //@ts-ignore
-        return {
+  const getAllTransactions = useCallback(
+    async (
+      page: number,
+      size: number,
+      //@ts-ignore
+      filterQuery: string = '',
+    ) => {
+      try {
+        // setcommonloader(true)
+        const data: any = await transaction_Service.getOutwardAllTransaction(userCountry, page, size)
+        console.log(data)
+        // Assuming your API response has a structure like:
+        // { content: [], totalElements: 100, totalPages: 5 }
+        const inbound: Array<TransactionInwardCalclulated>[] | any = data?.content?.map((e: any) => {
           //@ts-ignore
-          ...e.transactionInwardList,
-          ...e.beneficiary,
-          id: e?.transactionInwardList?.transactionNumberIw,
-          destination: e?.transactionInwardList?.receivingCountry,
-          value: e?.transactionInwardList?.settlementAmount,
-          currency: e?.transactionInwardList?.settlementCurrency,
-          settlement: helper.roundToTwoFixed(e?.transactionInwardList?.settlementAmount),
-          destinationBank: e?.transactionInwardList?.destinationBankCode,
-          errorCause: ' ',
-          forex: e?.transactionOutward?.exchangeRates,
-          date: e?.transactionOutward?.owCreatedDate,
-          final_amount: e?.transactionOutward?.exchangeRates * e?.transactionOutward?.principalAmount,
-          applicant: e?.applicant,
-        }
-      })
-
-      const outbound: Array<TransactionOutward> | any = data
-        ?.map((e: any) => {
           return {
-            ...e.transactionGatewayDTO,
-            ...e.beneficiary,
-            ...e.applicant,
-            id: e?.transactionGatewayDTO?.transactionNumber,
-            destination: e?.transactionGatewayDTO?.receiveCountry,
-            value: e?.transactionGatewayDTO?.principalAmount,
-            currency: e?.transactionGatewayDTO?.settlementCurrency,
-            settlement: helper.roundToTwoFixed(e?.transactionGatewayDTO?.principalAmount * e?.transactionGatewayDTO?.exchangeRates),
-            destinationBank: e?.transactionGatewayDTO?.destinationBankBicCode,
-            forex: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates),
-            date: e?.transactionGatewayDTO?.owCreatedDate,
-            reporting: e?.transactionGatewayDTO?.reportingStatus,
-            status: e?.transactionGatewayDTO?.transactionStatus,
-            final_amount: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates * e?.transactionGatewayDTO?.principalAmount),
-            applicant: e?.applicant,
-            gateway_name: e?.transactionGatewayDTO?.forexPaymentGateway?.company,
             //@ts-ignore
-            inid: e?.transactionInwardNumber,
+            ...e.transactionInwardList,
+            ...e.beneficiary,
+            id: e?.transactionInwardList?.transactionNumberIw,
+            destination: e?.transactionInwardList?.receivingCountry,
+            value: e?.transactionInwardList?.settlementAmount,
+            currency: e?.transactionInwardList?.settlementCurrency,
+            settlement: helper.roundToTwoFixed(e?.transactionInwardList?.settlementAmount),
+            destinationBank: e?.transactionInwardList?.destinationBankCode,
+            errorCause: ' ',
+            forex: e?.transactionOutward?.exchangeRates,
+            date: e?.transactionOutward?.owCreatedDate,
+            final_amount: e?.transactionOutward?.exchangeRates * e?.transactionOutward?.principalAmount,
+            applicant: e?.applicant,
           }
         })
-        ?.filter((transaction: any) => {
-          if (queryParams.get('id') != null) {
-            return transaction?.id == queryParams.get('id')
-          }
 
-          if (userCountry === 'IN') {
-            return transaction.destination?.toLowerCase() !== 'in'
-          } else if (userCountry === 'ZA') {
-            return transaction.destination?.toLowerCase() !== 'za'
-          }
-          return true
-        })
+        const outbound: Array<TransactionOutward> | any = data
+          ?.map((e: any) => {
+            return {
+              ...e.transactionGatewayDTO,
+              ...e.beneficiary,
+              ...e.applicant,
+              id: e?.transactionGatewayDTO?.transactionNumber,
+              destination: e?.transactionGatewayDTO?.receiveCountry,
+              value: e?.transactionGatewayDTO?.principalAmount,
+              currency: e?.transactionGatewayDTO?.settlementCurrency,
+              settlement: helper.roundToTwoFixed(e?.transactionGatewayDTO?.principalAmount * e?.transactionGatewayDTO?.exchangeRates),
+              destinationBank: e?.transactionGatewayDTO?.destinationBankBicCode,
+              forex: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates),
+              date: e?.transactionGatewayDTO?.owCreatedDate,
+              reporting: e?.transactionGatewayDTO?.reportingStatus,
+              status: e?.transactionGatewayDTO?.transactionStatus,
+              final_amount: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates * e?.transactionGatewayDTO?.principalAmount),
+              applicant: e?.applicant,
+              gateway_name: e?.transactionGatewayDTO?.forexPaymentGateway?.company,
+              //@ts-ignore
+              inid: e?.transactionInwardNumber,
+            }
+          })
+          ?.filter((transaction: any) => {
+            if (queryParams.get('id') != null) {
+              return transaction?.id == queryParams.get('id')
+            }
 
-      // Set the appropriate data based on transaction type
-      if (transactionType === 'inwards') {
-        setTransactionData(inbound);
-      } else {
-        setOutboundTransaction(outbound);
+            if (userCountry === 'IN') {
+              return transaction.destination?.toLowerCase() !== 'in'
+            } else if (userCountry === 'ZA') {
+              return transaction.destination?.toLowerCase() !== 'za'
+            }
+            return true
+          })
+
+        // Set the appropriate data based on transaction type
+        if (transactionType === 'inwards') {
+          setTransactionData(inbound)
+        } else {
+          setOutboundTransaction(outbound)
+        }
+
+        // Set the total row count for pagination
+        setRowCount(data?.totalElements || 0)
+
+        setcommonloader(false)
+      } catch (error) {
+        console.log(error)
+        setcommonloader(false)
       }
-
-      // Set the total row count for pagination
-      setRowCount(data?.totalElements || 0);
-
-      setcommonloader(false);
-    } catch (error) {
-      console.log(error)
-      setcommonloader(false);
-    }
-  }, [transactionType, userCountry])
+    },
+    [transactionType, userCountry],
+  )
 
   useEffect(() => {
     if (!flow) {
@@ -764,7 +765,7 @@ const TransactionListing = () => {
   }
 
   const getLoadingState = () => {
-    return commonloader;
+    return commonloader
   }
 
   return (
@@ -878,12 +879,9 @@ const TransactionListing = () => {
             columnVisibilityModel={columnVisibilityModel}
             onColumnVisibilityModelChange={setColumnVisibilityModel}
             slots={{
-              loadingOverlay: LoaderUI.LoadingOverlay, toolbar: () => (
-                <CustomToolbar downloadCSV={downloadCSV} downloadPDF={downloadPDF} />
-              )
+              loadingOverlay: LoaderUI.LoadingOverlay,
+              toolbar: () => <CustomToolbar downloadCSV={downloadCSV} downloadPDF={downloadPDF} />,
             }}
-
-
             disableRowSelectionOnClick
             sx={{
               '& .MuiDataGrid-root': {
@@ -1091,7 +1089,7 @@ const TransactionListing = () => {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="secondary" >
+          <Button onClick={handleClose} color="secondary">
             Cancel
           </Button>
           <Button onClick={handleApply} variant="contained" color="primary">
@@ -1100,7 +1098,7 @@ const TransactionListing = () => {
         </DialogActions>
       </Dialog>
 
-      <CompliancTool open={toolopen} setOpen={setToolOpen} userList={userList} fetchUserDetails={() => { }} />
+      <CompliancTool open={toolopen} setOpen={setToolOpen} userList={userList} fetchUserDetails={() => {}} />
 
       <Modal open={modalOpen} onClose={() => setmodalOpen(false)}>
         <Box
