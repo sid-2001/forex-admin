@@ -42,4 +42,10 @@ export interface Customer {
   email: string
   kycSubmittedOn: string // Date in YYYY-MM-DD format
   verifiedOn: string // Date or "N/A"
+
+   applicantName:string,
+  
+     kycCountry:string,
+     applicantId:string,
+     kycStatus:string
 }

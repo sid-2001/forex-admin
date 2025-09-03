@@ -33,6 +33,9 @@ import HasPermission from '@/components/permissionWrapper'
 import { HelperService } from '@/helpers/helper'
 import dayjs from 'dayjs'
 import LoaderUI from '@/components/loader/loader'
+import DownloadIcon from '@mui/icons-material/Download'
+import { jsPDF } from 'jspdf'
+import autoTable from 'jspdf-autotable'
 
 const KYCPage = () => {
   const [open, setOpen] = useState(false)
@@ -138,11 +141,11 @@ const KYCPage = () => {
 
   const getApplicantKYCData = async () => {
     try {
-      setCommonLoader(true)
+      // setCommonLoader(true)
       const data: any = await applicant_service.getApplicantKyc(userCountry)
       console.log(data?.data)
       setMockData(data?.data)
-      setCommonLoader(false)
+      // setCommonLoader(false)
 
       if (kycIdFromRoute) {
         const filtered: any = data.filter((item: any) => item.kycId === kycIdFromRoute)
@@ -159,6 +162,74 @@ const KYCPage = () => {
   useEffect(() => {
     getApplicantKYCData()
   }, [userCountry, kycIdFromRoute]) // include kycIdFromRoute in dependencies
+
+  // Function to download data as CSV
+  const downloadCSV = () => {
+    if (!filteredData || filteredData.length === 0) return
+    
+    // Create CSV headers
+    const headers = ['KYC ID', 'Customer Name', 'Nationality', 'Resident Country', 'Applicant ID', 'Verification Status']
+    
+    // Create CSV rows
+    const rows = filteredData.map(item => [
+      item.kycId,
+      item?.applicantName,
+      item.nationality,
+      item?.kycCountry,
+      item?.applicantId,
+      item?.kycStatus === 'v' ? 'Verified' : 'Unverified'
+    ])
+    
+    // Combine headers and rows
+    const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n')
+    
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.setAttribute('href', url)
+    link.setAttribute('download', 'kyc_data.csv')
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  // Function to download data as PDF
+  const downloadPDF = () => {
+    if (!filteredData || filteredData.length === 0) return
+    
+    const doc = new jsPDF()
+    
+    // Add title
+    doc.setFontSize(16)
+    doc.text('KYC Data Report', 14, 15)
+    doc.setFontSize(10)
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 22)
+    
+    // Prepare table data
+    const tableColumn = ['KYC ID', 'Customer Name', 'Nationality', 'Resident Country', 'Applicant ID', 'Status']
+    const tableRows = filteredData.map(item => [
+      item.kycId,
+      item.applicantName,
+      item.nationality,
+      item.kycCountry,
+      item.applicantId,
+      item.kycStatus === 'v' ? 'Verified' : 'Unverified'
+    ])
+    
+    // Add table to PDF
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 30,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [41, 128, 185] }
+    })
+    
+    // Save the PDF
+    doc.save('kyc_data_report.pdf')
+  }
 
   const handleAddComment = async () => {
     if (newComment.trim() === '') return
@@ -203,6 +274,7 @@ const KYCPage = () => {
 
   const verifyProofType = async (proofType: any) => {
     try {
+      setCheckboxOpen(false)
       setCommonLoader(true)
       await kycservice.verifyDocument(proofType?.documentCode, proofType?.kycId)
       await getKycDetailsById(proofType?.kycId)
@@ -215,6 +287,7 @@ const KYCPage = () => {
 
   const unverifyProofType = async (proofType: any) => {
     try {
+      setCheckboxOpen(false)
       setCommonLoader(true)
       await kycservice.unverifyDocument(proofType?.documentCode, proofType?.kycId)
       await kycservice.changeKycStatus('p', proofType?.kycId)
@@ -251,9 +324,31 @@ const KYCPage = () => {
   return (
     <Box sx={{ width: '80vw', height: '70vh' }}>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.KYC}>
-        <Typography variant="h4" gutterBottom>
-          <strong>Know Your Customer</strong>
-        </Typography>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h4" gutterBottom>
+            <strong>Know Your Customer</strong>
+          </Typography>
+          
+          <Box>
+            <Button
+              variant="outlined"
+              startIcon={<DownloadIcon />}
+              onClick={downloadCSV}
+              sx={{ mr: 1 }}
+              disabled={!filteredData || filteredData.length === 0}
+            >
+              CSV
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<DownloadIcon />}
+              onClick={downloadPDF}
+              disabled={!filteredData || filteredData.length === 0}
+            >
+              PDF
+            </Button>
+          </Box>
+        </Box>
 
         <Box
           sx={{
@@ -280,6 +375,7 @@ const KYCPage = () => {
         </Box>
       </HasPermission>
 
+      {/* Rest of the component remains the same */}
       {/* Full-Screen Drawer */}
 
       <Drawer
@@ -305,7 +401,7 @@ const KYCPage = () => {
               >
                 KYC ID : {selectedKYC?.kycId}
               </Typography>
-              <Typography variant="subtitle1" style={{ backgroundColor: '#FFEEBA', padding: '4px 8px', borderRadius: '4px' }}>
+              <Typography variant="subtitle1" style={{ backgroundColor: `${ selectedKYC?.kycStatus == 'v' ? 'green' : 'red'}`,color:"white", padding: '4px 8px', borderRadius: '4px' }}>
                 {selectedKYC?.kycStatus == 'v' ? 'Verified' : 'Unverified'}
               </Typography>
             </Box>
@@ -327,6 +423,7 @@ const KYCPage = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    borderColor:`${selectedKYC?.kycStatus == 'v' ? 'green' : 'red'}`
                   }}
                 >
                   {/* {' '}

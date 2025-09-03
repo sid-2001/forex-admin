@@ -501,7 +501,7 @@ const TransactionListing = () => {
     //@ts-ignore
     filterQuery: string = "") => {
     try {
-      setcommonloader(true)
+      // setcommonloader(true)
       const data: any = await transaction_Service.getOutwardAllTransaction(userCountry, page, size)
       console.log(data)
       // Assuming your API response has a structure like:
