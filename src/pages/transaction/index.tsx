@@ -46,152 +46,225 @@ const helper = new HelperService()
 const local_service = new LocalStorageService()
 
 const TransactionListing = () => {
-  const columns_outward = [
-    {
-      field: 'id',
-      headerName: 'Transaction ID',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return (
-          <a href="#" style={{ color: theme.palette.text.primary }} onClick={() => handleViewMore(params.row)}>
-            {params?.value}
-          </a>
-        )
-      },
-    },
-    { field: 'transactionInwardNumber', headerName: 'Inward ID', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'destination', headerName: 'Destination', flex: 1, headerClassName: 'super-app-theme--header' },
-    {
-      field: 'value',
-      headerName: ' Principal Amount ',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => params?.value?.toFixed(2),
-    },
-    { field: 'principalCurrency', headerName: ' Principal Currency ', flex: 1, headerClassName: 'super-app-theme--header' },
-    {
-      field: 'settlementAmount',
-      headerName: ' Settlement Amount',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => params?.value?.toFixed(2),
-    },
-    { field: 'settlementCurrency', headerName: 'Settlement Currency  ', flex: 1, headerClassName: 'super-app-theme--header' },
-    {
-      field: 'applicant',
-      headerName: 'Applicant',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        const nameOrId = params.value?.name || params.value?.applicantId || 'N/A'
-        return (
-          <Tooltip title={`Go to ${nameOrId}'s details`} arrow>
-            <span
-              onClick={() => handleNavigation(`/applicant-details/${params.value?.applicantId}`)}
-              style={{ cursor: 'pointer', color: theme.palette.text.primary, textDecoration: 'underline' }}
-            >
-              {nameOrId}
-            </span>
-          </Tooltip>
-        )
-      },
-    },
-    { field: 'forex', headerName: 'Exchange Rate', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'charges', headerName: 'Charges', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'gateway_name', headerName: 'Gateway', width: 100, headerClassName: 'super-app-theme--header' },
-
-    {
-      field: 'owCreatedDate',
-      headerName: 'Date',
-      type: 'Date',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return helper.convertDateAndTime(params?.row?.owCreatedDate)
-      },
-    },
-    {
-      field: 'status',
-      headerName: 'Status',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return <div style={{ color: statusColors[params?.row?.status?.toUpperCase()] }}>{params?.row?.status?.toUpperCase()}</div>
-      },
-    },
-    {
-      field: 'payment_status',
-      headerName: 'Settlement Status',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return (
-          <div>
-            <span
-              style={{
-                backgroundColor: statusColors[params?.row?.paymentStatus?.toUpperCase()],
-                color: 'white',
-                borderRadius: '20px',
-                padding: '12px 12px',
-                fontSize: '13px',
-              }}
-            >
-              {params?.row?.paymentStatus?.toUpperCase()}
-            </span>
-          </div>
-        )
-      },
-    },
-    {
-      field: 'stpError',
-      headerName: 'STP',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => (
-        <Chip
-          label={params.value === 'Y' ? 'Error' : 'No Error'}
-          color={params.value === 'Y' ? 'error' : 'success'}
-          onClick={() => {
-            if (params.value === 'Y') {
-              setmodalOpen(true)
-              fetchStpErrorList(params?.row?.id)
+ const columns_outward = [
+  {
+    field: 'id',
+    headerName: 'Transaction ID',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+    renderCell: (params: any) => (
+      <a
+        href="#"
+        style={{ color: theme.palette.text.primary }}
+        onClick={() => handleViewMore(params.row)}
+      >
+        {params?.value}
+      </a>
+    ),
+    disableExport: false,
+  },
+  {
+    field: 'transactionInwardNumber',
+    headerName: 'Inward ID',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+    disableExport: false,
+  },
+  {
+    field: 'destination',
+    headerName: 'Destination',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+    disableExport: false,
+  },
+  {
+    field: 'value',
+    headerName: 'Principal Amount',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+    renderCell: (params: any) => params?.value?.toFixed(2),
+    disableExport: false,
+  },
+  {
+    field: 'principalCurrency',
+    headerName: 'Principal Currency',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+    disableExport: false,
+  },
+  {
+    field: 'settlementAmount',
+    headerName: 'Settlement Amount',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+    renderCell: (params: any) => params?.value?.toFixed(2),
+    disableExport: false,
+  },
+  {
+    field: 'settlementCurrency',
+    headerName: 'Settlement Currency',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+    disableExport: false,
+  },
+  {
+    field: 'applicant',
+    headerName: 'Applicant',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+    renderCell: (params: any) => {
+      const nameOrId =
+        params.value?.name || params.value?.applicantId || 'N/A'
+      return (
+        <Tooltip title={`Go to ${nameOrId}'s details`} arrow>
+          <span
+            onClick={() =>
+              handleNavigation(`/applicant-details/${params.value?.applicantId}`)
             }
-          }}
-        />
-      ),
-    },
-    {
-      field: 'Bop action',
-      headerName: 'Bop',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => (
-        <>
-          <IconButton
-            onClick={() => {
-              handleNavigation(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`)
-              handleViewMore(params.row)
+            style={{
+              cursor: 'pointer',
+              color: theme.palette.text.primary,
+              textDecoration: 'underline',
             }}
           >
-            <PreviewOutlined />
-          </IconButton>
-        </>
-      ),
+            {nameOrId}
+          </span>
+        </Tooltip>
+      )
     },
-  ]
+    disableExport: false,
+  },
+  {
+    field: 'forex',
+    headerName: 'Exchange Rate',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+    disableExport: false,
+  },
+  {
+    field: 'charges',
+    headerName: 'Charges',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+    disableExport: false,
+  },
+  {
+    field: 'gateway_name',
+    headerName: 'Gateway',
+    width: 100,
+    headerClassName: 'super-app-theme--header',
+    disableExport: false,
+  },
+  {
+    field: 'owCreatedDate',
+    headerName: 'Date',
+    type: 'Date',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+    renderCell: (params: any) =>
+      helper.convertDateAndTime(params?.row?.owCreatedDate),
+    disableExport: false,
+  },
+  {
+    field: 'status',
+    headerName: 'Status',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+    renderCell: (params: any) => {
+      const value = params?.row?.status?.toUpperCase()
+      if (!value) return null
+      return (
+        <Chip
+          label={value}
+          sx={{
+            backgroundColor: statusColors[value],
+            color: 'white',
+            fontWeight: 500,
+            fontSize: '13px',
+            borderRadius: '8px',
+            height: 28,
+          }}
+        />
+      )
+    },
+    disableExport: false,
+  },
+  {
+    field: 'payment_status',
+    headerName: 'Settlement Status',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+    renderCell: (params: any) => {
+      const value = params?.row?.paymentStatus?.toUpperCase()
+      if (!value) return null
+      return (
+        <Chip
+          label={value}
+          sx={{
+            backgroundColor: statusColors[value],
+            color: 'white',
+            fontWeight: 500,
+            fontSize: '13px',
+            borderRadius: '8px',
+            height: 28,
+          }}
+        />
+      )
+    },
+    disableExport: false,
+  },
+  {
+    field: 'stpError',
+    headerName: 'STP',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+    renderCell: (params: any) => (
+      <Chip
+        label={params.value === 'Y' ? 'Error' : 'No Error'}
+        color={params.value === 'Y' ? 'error' : 'success'}
+        onClick={() => {
+          if (params.value === 'Y') {
+            setmodalOpen(true)
+            fetchStpErrorList(params?.row?.id)
+          }
+        }}
+      />
+    ),
+    disableExport: false,
+  },
+  {
+    field: 'Bop action',
+    headerName: 'Bop',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+    renderCell: (params: any) => (
+      <IconButton
+        onClick={() => {
+          handleNavigation(
+            `/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`,
+          )
+          handleViewMore(params.row)
+        }}
+      >
+        <PreviewOutlined />
+      </IconButton>
+    ),
+    disableExport: true, // 👈 action column shouldn’t go in export
+  },
+]
+
 
   const inward_columns = [
-    { field: 'transactionNumberIw', headerName: 'Transaction Number IW', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'owTransactionNumber', headerName: 'OW Transaction Number', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'sendingCountry', headerName: 'Sending Country', width: 130, headerClassName: 'super-app-theme--header' },
-    { field: 'receivingCountry', headerName: 'Receiving Country', width: 130, headerClassName: 'super-app-theme--header' },
-    { field: 'settlementCurrency', headerName: 'Settlement Currency', width: 150, headerClassName: 'super-app-theme--header' },
-    { field: 'principalCurrency', headerName: 'Principal Currency', width: 150, headerClassName: 'super-app-theme--header' },
+    { field: 'transactionNumberIw', headerName: 'Transaction Number IW', flex: 1, headerClassName: 'super-app-theme--header' , disableExport: false},
+    { field: 'owTransactionNumber', headerName: 'OW Transaction Number', flex: 1, headerClassName: 'super-app-theme--header' , disableExport: false},
+    { field: 'sendingCountry', headerName: 'Sending Country', width: 130, headerClassName: 'super-app-theme--header' , disableExport: false},
+    { field: 'receivingCountry', headerName: 'Receiving Country', width: 130, headerClassName: 'super-app-theme--header' , disableExport: false},
+    { field: 'settlementCurrency', headerName: 'Settlement Currency', width: 150, headerClassName: 'super-app-theme--header' , disableExport: false},
+    { field: 'principalCurrency', headerName: 'Principal Currency', width: 150, headerClassName: 'super-app-theme--header' , disableExport: false},
 
-    { field: 'gatewayId', headerName: 'Gateway', width: 100, headerClassName: 'super-app-theme--header' },
+    { field: 'gatewayId', headerName: 'Gateway Id', width: 100, headerClassName: 'super-app-theme--header' , disableExport: false},
 
-    { field: 'gatewayStatus', headerName: 'Gateway', width: 100, headerClassName: 'super-app-theme--header' },
+    { field: 'gatewayStatus', headerName: 'Gateway Status', width: 100, headerClassName: 'super-app-theme--header', disableExport: false },
     {
       field: 'settlementAmount',
       headerName: 'Settlement Amount',
@@ -241,6 +314,8 @@ const TransactionListing = () => {
       headerName: 'STP',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      disableExport: true, // ✅ don't export actions
+
       renderCell: (params: any) => (
         <Chip
           label={params.value === 'Y' ? 'Error' : 'No Error'}
@@ -259,6 +334,8 @@ const TransactionListing = () => {
       headerName: 'Action',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      disableExport: true, // ✅ don't export actions
+
       renderCell: (params: any) => (
         <IconButton
           onClick={() => {
@@ -310,7 +387,7 @@ const TransactionListing = () => {
   const [endDate, setEndDate] = useState<string | null>(null)
   const [stpErrors, setStpErrors] = useState<any>([])
   const [givenTransaction, setGivenTransaction] = useState<any>(null)
-  
+
   // Add state for row count
   const [rowCount, setRowCount] = useState(0);
 
@@ -491,10 +568,10 @@ const TransactionListing = () => {
       } else {
         setOutboundTransaction(outbound);
       }
-      
+
       // Set the total row count for pagination
       setRowCount(data?.totalElements || 0);
-      
+
       setcommonloader(false);
     } catch (error) {
       console.log(error)
@@ -615,7 +692,7 @@ const TransactionListing = () => {
   }
 
   return (
-    <Box sx={{  width: '80vw', height: '70vh' }}>
+    <Box sx={{ width: '80vw', height: '70vh' }}>
       <Typography variant="h4" gutterBottom>
         <strong>Transactions</strong>
       </Typography>
@@ -710,7 +787,7 @@ const TransactionListing = () => {
         {helper.checkUserHasPermission(getTransactionPermission(), 'canRead') && (
           <DataGrid
             rows={transactionType === 'inwards' ? inboundTransaction : outboundTransaction || []}
-           //@ts-ignore
+            //@ts-ignore
             columns={transactionType === 'inwards' ? inward_columns : columns_outward}
             getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
             pageSizeOptions={[10, 20, 50]}
@@ -724,8 +801,9 @@ const TransactionListing = () => {
             loading={getLoadingState()}
             slots={{
               loadingOverlay: LoaderUI.LoadingOverlay,
-              toolbar: GridToolbar,
+               toolbar: GridToolbar,
             }}
+
             disableRowSelectionOnClick
             sx={{
               '& .MuiDataGrid-root': {
@@ -942,7 +1020,7 @@ const TransactionListing = () => {
         </DialogActions>
       </Dialog>
 
-      <CompliancTool open={toolopen} setOpen={setToolOpen} userList={userList} fetchUserDetails={() => {}} />
+      <CompliancTool open={toolopen} setOpen={setToolOpen} userList={userList} fetchUserDetails={() => { }} />
 
       <Modal open={modalOpen} onClose={() => setmodalOpen(false)}>
         <Box

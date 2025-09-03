@@ -19,9 +19,12 @@ import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
 import RestartAltIcon from '@mui/icons-material/RestartAlt'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { TransactionService } from '@/services/transaction.service'
 import { isNull } from 'util'
 import { useRecoilState } from 'recoil'
+import { useNavigate } from 'react-router-dom'
+
 import { alertState, alertTextState, alertTypeState, loaderState, loaderStateNew } from '@/states/state'
 import { LocalDrink } from '@mui/icons-material'
 import { theme } from '@/contants/theme'
@@ -30,6 +33,7 @@ const ReconPage = () => {
   const [selectedRows, setSelectedRows] = useState<Record<string, string>>({})
   const [globalTransactionId, setGlobalTransactionId] = useState('')
   const [rows, setRows] = useState()
+  const navigate = useNavigate()
 
   const [filteredRows, setFilteredRows] = useState([])
   const [startDate, setStartDate] = useState<Dayjs | null>(null)
@@ -245,282 +249,278 @@ const ReconPage = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box sx={{ width: '100%' }}>
-        <Typography variant="h4" gutterBottom>
-          <strong>Recon Transactions</strong>
-        </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}> <Typography variant="h4" sx={{ fontWeight: 'bold' }}> Recon Transactions </Typography> <Button variant="outlined" startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)} > Back </Button> </Box>
 
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            marginBottom: 2,
-            gap: 2,
-            flexWrap: 'wrap',
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          marginBottom: 2,
+          gap: 2,
+          flexWrap: 'wrap',
+        }}
+      >
+        {/* Start Date Picker */}
+        <DatePicker
+          label="Start Date"
+          value={startDate}
+          onChange={(newDate) => setStartDate(newDate)}
+          //@ts-ignore
+          renderInput={(params) => <TextField {...params} />}
+        />
+
+        {/* End Date Picker */}
+        <DatePicker
+          label="End Date"
+          value={endDate}
+          onChange={(newDate) => setEndDate(newDate)}
+          //@ts-ignore
+          renderInput={(params) => <TextField {...params} />}
+        />
+
+        <IconButton
+          onClick={() => {
+            setStartDate(null)
+            setEndDate(null)
+
+            setFilteredRows(
+              //@ts-ignore
+              rows,
+            )
           }}
         >
-          {/* Start Date Picker */}
-          <DatePicker
-            label="Start Date"
-            value={startDate}
-            onChange={(newDate) => setStartDate(newDate)}
-            //@ts-ignore
-            renderInput={(params) => <TextField {...params} />}
-          />
+          <RestartAltIcon></RestartAltIcon>
+        </IconButton>
 
-          {/* End Date Picker */}
-          <DatePicker
-            label="End Date"
-            value={endDate}
-            onChange={(newDate) => setEndDate(newDate)}
-            //@ts-ignore
-            renderInput={(params) => <TextField {...params} />}
-          />
+        {/* Apply Filter Button */}
+        <Button variant="contained" color="primary" onClick={handleDateFilter}>
+          Apply Filter
+        </Button>
 
-          <IconButton
-            onClick={() => {
-              setStartDate(null)
-              setEndDate(null)
+        {/* Global Transaction ID Input */}
+        <TextField label="Recon Id" value={globalTransactionId} onChange={(e) => setGlobalTransactionId(e.target.value)} size="small" />
 
-              setFilteredRows(
-                //@ts-ignore
-                rows,
-              )
-            }}
-          >
-            <RestartAltIcon></RestartAltIcon>
-          </IconButton>
-
-          {/* Apply Filter Button */}
-          <Button variant="contained" color="primary" onClick={handleDateFilter}>
-            Apply Filter
-          </Button>
-
-          {/* Global Transaction ID Input */}
-          <TextField label="Recon Id" value={globalTransactionId} onChange={(e) => setGlobalTransactionId(e.target.value)} size="small" />
-
-          <TextField
-            label="Recon ID"
-            variant="outlined"
-            value={reconid}
-            onChange={(v) => {
-              setReconID(v.target.value)
-              console.log(v.target.value)
-              var all_data = allreconData
-                .map((e: any) => {
-                  if (
+        <TextField
+          label="Recon ID"
+          variant="outlined"
+          value={reconid}
+          onChange={(v) => {
+            setReconID(v.target.value)
+            console.log(v.target.value)
+            var all_data = allreconData
+              .map((e: any) => {
+                if (
+                  //@ts-ignore
+                  e?.transactionOutward?.reconId == v.target.value
+                ) {
+                  // Check for undefined or null reconId
+                  return {
                     //@ts-ignore
-                    e?.transactionOutward?.reconId == v.target.value
-                  ) {
-                    // Check for undefined or null reconId
-                    return {
-                      //@ts-ignore
-                      id: e.transactionOutward?.transactionNumber || '',
-                      //@ts-ignore
-                      destination: e.transactionOutward?.receiveCountry || '',
-                      //@ts-ignore
-                      value: e.transactionOutward?.principalAmount || 0,
-                      //@ts-ignore
-                      currency:
-                        e.transactionOutward?.principalAmount && e.transactionOutward?.exchangeRates
-                          ? e.transactionOutward.principalAmount * e.transactionOutward.exchangeRates
-                          : '0', // Ensuring safe multiplication
-                      settlement: e.transactionOutward?.owCreatedDate || new Date(),
-                      destinationBank: e.transactionOutward?.destinationBankBicCode || '',
-                      reconid: e.transactionOutward?.reconId ? e.transactionOutward.reconId : null,
-                    }
+                    id: e.transactionOutward?.transactionNumber || '',
+                    //@ts-ignore
+                    destination: e.transactionOutward?.receiveCountry || '',
+                    //@ts-ignore
+                    value: e.transactionOutward?.principalAmount || 0,
+                    //@ts-ignore
+                    currency:
+                      e.transactionOutward?.principalAmount && e.transactionOutward?.exchangeRates
+                        ? e.transactionOutward.principalAmount * e.transactionOutward.exchangeRates
+                        : '0', // Ensuring safe multiplication
+                    settlement: e.transactionOutward?.owCreatedDate || new Date(),
+                    destinationBank: e.transactionOutward?.destinationBankBicCode || '',
+                    reconid: e.transactionOutward?.reconId ? e.transactionOutward.reconId : null,
                   }
-                  return null // This will be filtered out later
-                })
-                .filter(Boolean)
-              console.log(all_data)
-              //@ts-ignore
-              setRows(all_data)
-              //@ts-ignore
-              setFilteredRows(all_data)
-            }}
-            fullWidth
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => {
-                      var all_data = allreconData
-                        .map((e: any) => {
-                          if (!e?.transactionOutward?.reconId) {
-                            // Check for undefined or null reconId
-                            return {
-                              id: e.transactionOutward?.transactionNumber || '',
-                              destination: e.transactionOutward?.receiveCountry || '',
-                              value: e.transactionOutward?.principalAmount || 0,
-                              currency:
-                                e.transactionOutward?.principalAmount && e.transactionOutward?.exchangeRates
-                                  ? e.transactionOutward.principalAmount * e.transactionOutward.exchangeRates
-                                  : '0', // Ensuring safe multiplication
-                              settlement: e.transactionOutward?.owCreatedDate || new Date(),
-                              destinationBank: e.transactionOutward?.destinationBankBicCode || '',
-                              reconid: e.transactionOutward?.reconId ? e.transactionOutward.reconId : null,
-                            }
+                }
+                return null // This will be filtered out later
+              })
+              .filter(Boolean)
+            console.log(all_data)
+            //@ts-ignore
+            setRows(all_data)
+            //@ts-ignore
+            setFilteredRows(all_data)
+          }}
+          fullWidth
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => {
+                    var all_data = allreconData
+                      .map((e: any) => {
+                        if (!e?.transactionOutward?.reconId) {
+                          // Check for undefined or null reconId
+                          return {
+                            id: e.transactionOutward?.transactionNumber || '',
+                            destination: e.transactionOutward?.receiveCountry || '',
+                            value: e.transactionOutward?.principalAmount || 0,
+                            currency:
+                              e.transactionOutward?.principalAmount && e.transactionOutward?.exchangeRates
+                                ? e.transactionOutward.principalAmount * e.transactionOutward.exchangeRates
+                                : '0', // Ensuring safe multiplication
+                            settlement: e.transactionOutward?.owCreatedDate || new Date(),
+                            destinationBank: e.transactionOutward?.destinationBankBicCode || '',
+                            reconid: e.transactionOutward?.reconId ? e.transactionOutward.reconId : null,
                           }
-                          return null // This will be filtered out later
-                        })
-                        .filter(Boolean)
-                      console.log(all_data)
-                      //@ts-ignore
-                      setRows(all_data)
-                      //@ts-ignore
-                      setFilteredRows(all_data)
-                    }}
-                    edge="end"
-                  >
-                    <LocalDrink />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
+                        }
+                        return null // This will be filtered out later
+                      })
+                      .filter(Boolean)
+                    console.log(all_data)
+                    //@ts-ignore
+                    setRows(all_data)
+                    //@ts-ignore
+                    setFilteredRows(all_data)
+                  }}
+                  edge="end"
+                >
+                  <LocalDrink />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
 
-          {/* Copy to All Button */}
-          <Button variant="contained" color="primary" onClick={handleCopyToAll} disabled={!globalTransactionId}>
-            Copy to All
-          </Button>
+        {/* Copy to All Button */}
+        <Button variant="contained" color="primary" onClick={handleCopyToAll} disabled={!globalTransactionId}>
+          Copy to All
+        </Button>
 
-          {/* Save Button */}
-          <Button variant="contained" onClick={handleSave}>
-            Save
-          </Button>
+        {/* Save Button */}
+        <Button variant="contained" onClick={handleSave}>
+          Save
+        </Button>
 
-          {/* Add Reconciliation Button */}
-          {/* <Button
+        {/* Add Reconciliation Button */}
+        {/* <Button
             variant="contained"
             color="success"
             onClick={handleOpenModal}
           >
             Add Reconciliation
           </Button> */}
-        </Box>
-
-        <Box
-          marginTop={2}
-          sx={{
-            width: '80vw',
-            height: '60vh', // fixed height for the table
-          }}
-        >
-          <DataGrid
-            rows={filteredRows}
-            columns={columns}
-            checkboxSelection={false}
-            //@ts-ignore
-            disableSelectionOnClick
-            sx={{
-              width: '100%',
-              height: '100%',  // fills parent Box
-            }}
-          />
-        </Box>
-
-
-        {/* Add Reconciliation Modal */}
-        <Modal open={openModal} onClose={handleCloseModal}>
-          <Box sx={{ padding: 4, maxWidth: 400, margin: 'auto', borderRadius: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Add Reconciliation
-            </Typography>
-
-            <TextField
-              label="Reconciliation ID"
-              name="reconId"
-              value={reconciliation.reconId}
-              onChange={handleReconciliationChange}
-              fullWidth
-              sx={{ marginBottom: 2 }}
-            />
-
-            <DatePicker
-              label="Reconciliation Date"
-              value={reconciliation.reconDate}
-              //@ts-ignore
-              onChange={(newDate) => setReconciliation((prev) => ({ ...prev, reconDate: newDate }))}
-              //@ts-ignore
-              renderInput={(params) => <TextField {...params} fullWidth sx={{ marginBottom: 2 }} />}
-            />
-
-            <DatePicker
-              label="From Transaction Date"
-              value={reconciliation.from_transactionDate}
-              onChange={(newDate) => setReconciliation((prev: any) => ({ ...prev, from_transactionDate: newDate }))}
-              //@ts-ignore
-              renderInput={(params) => <TextField {...params} fullWidth sx={{ marginBottom: 2 }} />}
-            />
-
-            <DatePicker
-              label="To Transaction Date"
-              value={reconciliation.to_transactionDate}
-              onChange={(newDate) => setReconciliation((prev: any) => ({ ...prev, to_transactionDate: newDate }))}
-              //@ts-ignore
-              renderInput={(params) => <TextField {...params} fullWidth sx={{ marginBottom: 2 }} />}
-            />
-
-            <TextField
-              label="Reported Bank Name"
-              name="reported_bankName"
-              value={reconciliation.reported_bankName}
-              onChange={handleReconciliationChange}
-              fullWidth
-              sx={{ marginBottom: 2 }}
-            />
-
-            <FormControl fullWidth sx={{ marginBottom: 2 }}>
-              <InputLabel>Reconciliation Status</InputLabel>
-              <Select
-                label="Reconciliation Status"
-                name="reconStatus"
-                value={reconciliation.reconStatus}
-                //@ts-ignore
-                onChange={handleReconciliationChange}
-              >
-                <MenuItem value="Pending">Pending</MenuItem>
-                <MenuItem value="Completed">Completed</MenuItem>
-              </Select>
-            </FormControl>
-
-            <TextField
-              label="Principal Amount"
-              name="principalAmount"
-              value={reconciliation.principalAmount}
-              onChange={handleReconciliationChange}
-              fullWidth
-              sx={{ marginBottom: 2 }}
-            />
-
-            <TextField
-              label="Settlement Amount"
-              name="settlementAmount"
-              value={reconciliation.settlementAmount}
-              onChange={handleReconciliationChange}
-              fullWidth
-              sx={{ marginBottom: 2 }}
-            />
-
-            <TextField
-              label="UTR ID"
-              name="UTR_Id"
-              value={reconciliation.UTR_Id}
-              onChange={handleReconciliationChange}
-              fullWidth
-              sx={{ marginBottom: 2 }}
-            />
-
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button variant="contained" color="primary" onClick={handleReconciliationSubmit}>
-                Submit
-              </Button>
-            </Box>
-          </Box>
-        </Modal>
       </Box>
-    </LocalizationProvider>
+
+      <Box
+        marginTop={2}
+        sx={{
+          width: '80vw',
+          height: '60vh', // fixed height for the table
+        }}
+      >
+        <DataGrid
+          rows={filteredRows}
+          columns={columns}
+          checkboxSelection={false}
+          //@ts-ignore
+          disableSelectionOnClick
+          sx={{
+            width: '100%',
+            height: '100%',  // fills parent Box
+          }}
+        />
+      </Box>
+
+
+      {/* Add Reconciliation Modal */}
+      <Modal open={openModal} onClose={handleCloseModal}>
+        <Box sx={{ padding: 4, maxWidth: 400, margin: 'auto', borderRadius: 2 }}>
+          <Typography variant="h6" gutterBottom>
+            Add Reconciliation
+          </Typography>
+
+          <TextField
+            label="Reconciliation ID"
+            name="reconId"
+            value={reconciliation.reconId}
+            onChange={handleReconciliationChange}
+            fullWidth
+            sx={{ marginBottom: 2 }}
+          />
+
+          <DatePicker
+            label="Reconciliation Date"
+            value={reconciliation.reconDate}
+            //@ts-ignore
+            onChange={(newDate) => setReconciliation((prev) => ({ ...prev, reconDate: newDate }))}
+            //@ts-ignore
+            renderInput={(params) => <TextField {...params} fullWidth sx={{ marginBottom: 2 }} />}
+          />
+
+          <DatePicker
+            label="From Transaction Date"
+            value={reconciliation.from_transactionDate}
+            onChange={(newDate) => setReconciliation((prev: any) => ({ ...prev, from_transactionDate: newDate }))}
+            //@ts-ignore
+            renderInput={(params) => <TextField {...params} fullWidth sx={{ marginBottom: 2 }} />}
+          />
+
+          <DatePicker
+            label="To Transaction Date"
+            value={reconciliation.to_transactionDate}
+            onChange={(newDate) => setReconciliation((prev: any) => ({ ...prev, to_transactionDate: newDate }))}
+            //@ts-ignore
+            renderInput={(params) => <TextField {...params} fullWidth sx={{ marginBottom: 2 }} />}
+          />
+
+          <TextField
+            label="Reported Bank Name"
+            name="reported_bankName"
+            value={reconciliation.reported_bankName}
+            onChange={handleReconciliationChange}
+            fullWidth
+            sx={{ marginBottom: 2 }}
+          />
+
+          <FormControl fullWidth sx={{ marginBottom: 2 }}>
+            <InputLabel>Reconciliation Status</InputLabel>
+            <Select
+              label="Reconciliation Status"
+              name="reconStatus"
+              value={reconciliation.reconStatus}
+              //@ts-ignore
+              onChange={handleReconciliationChange}
+            >
+              <MenuItem value="Pending">Pending</MenuItem>
+              <MenuItem value="Completed">Completed</MenuItem>
+            </Select>
+          </FormControl>
+
+          <TextField
+            label="Principal Amount"
+            name="principalAmount"
+            value={reconciliation.principalAmount}
+            onChange={handleReconciliationChange}
+            fullWidth
+            sx={{ marginBottom: 2 }}
+          />
+
+          <TextField
+            label="Settlement Amount"
+            name="settlementAmount"
+            value={reconciliation.settlementAmount}
+            onChange={handleReconciliationChange}
+            fullWidth
+            sx={{ marginBottom: 2 }}
+          />
+
+          <TextField
+            label="UTR ID"
+            name="UTR_Id"
+            value={reconciliation.UTR_Id}
+            onChange={handleReconciliationChange}
+            fullWidth
+            sx={{ marginBottom: 2 }}
+          />
+
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Button variant="contained" color="primary" onClick={handleReconciliationSubmit}>
+              Submit
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
+    </LocalizationProvider >
   )
 }
 
