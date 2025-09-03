@@ -1,5 +1,5 @@
 export const statusColors: any = {
-  PENDING: '#d6d629',
+  PENDING: '#ED6D03',
   DRAFT: 'black',
   RELEASED: 'green',
   ACK: 'green',
