@@ -16,6 +16,13 @@ import {
   CardContent,
   Typography,
   useTheme,
+  ListItemAvatar,
+  Avatar,
+  ListItemText,
+  ListItem,
+  List,
+  Paper,
+  InputAdornment,
 } from '@mui/material'
 import { ApplicantService } from '@/services/applicant.service'
 import TransactionTable from '../transaction-table'
@@ -24,6 +31,7 @@ import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react'
 
 const UtilizationEnquiryForm: React.FC = () => {
   const [apiType, setApiType] = useState('')
@@ -39,7 +47,11 @@ const UtilizationEnquiryForm: React.FC = () => {
   const helper = new HelperService()
   const local_service = new LocalStorageService()
   const navigate = useNavigate();
-
+  const [filteredUsers, setFilteredUsers] = useState<any[]>([])
+  const [selectedUser, setSelectedUser] = useState<any | null>(null)
+  const [searchText, setSearchText] = useState('')
+  const [applicantContactDetails, setApplicantContactDetails] = useState([]);
+  const [userlist, setUserList] = useState<any[]>([])
 
   const handleSubmit = (e: React.FormEvent) => {
     appilicant_service.getTransactionsByApplicantId(applicantId).then((data) => {
@@ -75,12 +87,24 @@ const UtilizationEnquiryForm: React.FC = () => {
       setTranactiondata(formattedData || [])
     })
     appilicant_service.searchByApplicantId(applicantId).then((data: any) => {
-      setapplicantData(data?.data?.applicant)
+      setapplicantData(data?.applicant)
+      console.log(data?.applicant)
     })
 
     e.preventDefault()
     setShowResults(true)
   }
+  useEffect(() => {
+    appilicant_service.getApplicantDetalis().then((data: any) => {
+      const users = data?.map((e: any) => ({
+        applicantId: e.applicant.applicantId,
+        id: e.applicant.applicantId,
+        name: e.applicant?.firstName,
+        accountNumber: e.applicant.applicantId,
+      }))
+      setUserList(users || [])
+    })
+  }, [])
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.COMPLIANCE_MONITOR}>
@@ -98,7 +122,7 @@ const UtilizationEnquiryForm: React.FC = () => {
           <Button
             variant="outlined"
             startIcon={<ArrowBackIcon />}
-            onClick={() => navigate(-1)} // Takes user back
+            onClick={() => navigate(-1)}
           >
             Back
           </Button>
@@ -118,7 +142,13 @@ const UtilizationEnquiryForm: React.FC = () => {
             <form onSubmit={handleSubmit}>
               <FormControl fullWidth margin="normal">
                 <InputLabel id="enquiry-type-label">Enquiry Type</InputLabel>
-                <Select labelId="enquiry-type-label" value={enquiryType} onChange={(e: SelectChangeEvent) => setEnquiryType(e.target.value)}>
+                <Select
+                  labelId="enquiry-type-label"
+                  id="enquiry-type"
+                  value={enquiryType}
+                  label="Enquiry Type"   
+                  onChange={(e: SelectChangeEvent) => setEnquiryType(e.target.value)}
+                >
                   <MenuItem value="utilization">Utilization</MenuItem>
                   <MenuItem value="limit">Limit</MenuItem>
                 </Select>
@@ -126,7 +156,13 @@ const UtilizationEnquiryForm: React.FC = () => {
 
               <FormControl fullWidth margin="normal">
                 <InputLabel id="api-type-label">API Type</InputLabel>
-                <Select labelId="api-type-label" value={apiType} onChange={(e: SelectChangeEvent) => setApiType(e.target.value)}>
+                <Select
+                  labelId="api-type-label"
+                  id="api-type"
+                  value={apiType}
+                  label="API Type"   
+                  onChange={(e: SelectChangeEvent) => setApiType(e.target.value)}
+                >
                   <MenuItem value="type1">SDA</MenuItem>
                   <MenuItem value="type2">FIA</MenuItem>
                   <MenuItem value="type3">FN</MenuItem>
@@ -136,7 +172,6 @@ const UtilizationEnquiryForm: React.FC = () => {
               <FormControl component="fieldset" margin="normal">
                 <RadioGroup row value={searchBy} onChange={(e) => setSearchBy(e.target.value as 'applicantId' | 'nationalId')}>
                   <FormControlLabel value="applicantId" control={<Radio />} label="Applicant ID" />
-                  <FormControlLabel value="nationalId" disabled control={<Radio />} label="National ID" />
                 </RadioGroup>
               </FormControl>
 
@@ -144,19 +179,63 @@ const UtilizationEnquiryForm: React.FC = () => {
                 label="Applicant ID"
                 fullWidth
                 margin="normal"
-                value={applicantId}
+                value={searchText}
                 onChange={(e) => {
                   const input = e.target.value
-                  const onlyAlphanumeric = input.replace(/[^a-zA-Z0-9]/g, '') // removes special chars
-                  setApplicantId(onlyAlphanumeric)
+                  setSearchText(input)
+
+                  if (input.trim() === '') {
+                    setFilteredUsers([])
+                  } else {
+                    const filtered = userlist.filter(
+                      (user) =>
+                        user?.name?.toLowerCase().includes(input.toLowerCase()) ||
+                        user.id.toString().includes(input)
+                    )
+                    setFilteredUsers(filtered)
+                  }
                 }}
-                inputProps={{
-                  pattern: '[a-zA-Z0-9]*',
-                  title: 'Only alphanumeric characters are allowed',
+                placeholder="Type a User name or ID..."
+                InputProps={{
+                  startAdornment: selectedUser && (
+                    <InputAdornment position="start">
+                      <Avatar alt={selectedUser.name} sx={{ mr: 1 }}>
+                        {selectedUser.name[0]}
+                      </Avatar>
+                    </InputAdornment>
+                  ),
+                  readOnly: false,
                 }}
               />
 
-              <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
+              {/* Dropdown list */}
+              {filteredUsers.length > 0 && (
+                <Paper elevation={3} sx={{ mt: 1, maxHeight: 250, overflowY: 'auto' }}>
+                  <List>
+                    {filteredUsers.map((user: any) => (
+                      <ListItem
+                        key={user.applicantId}
+                        divider
+                        onClick={() => {
+                          setSelectedUser(user)
+                          setApplicantId(user.applicantId)
+                          setSearchText(user.applicantId)
+                          setFilteredUsers([])
+                        }}
+                      >
+                        <ListItemAvatar>
+                          <Avatar alt={user.name}>{user.name[0]}</Avatar>
+                        </ListItemAvatar>
+                        <ListItemText primary={user.name} secondary={`ID: ${user.applicantId}`} />
+                      </ListItem>
+                    ))}
+
+                  </List>
+                </Paper>
+              )}
+
+
+              <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }} disabled={!applicantId}>
                 Submit
               </Button>
             </form>
@@ -174,7 +253,7 @@ const UtilizationEnquiryForm: React.FC = () => {
                       </Typography>
                       <Typography>Name: {applicantData?.firstName ?? 'No Data Found'}</Typography>
                       <Typography>Gender: {applicantData?.gender ?? 'No Data Found'}</Typography>
-                      <Typography>Country: {applicantData?.residenceCountry ?? 'No Data Found'}</Typography>
+                      <Typography>Country: {applicantData?.nationality ?? 'No Data Found'}</Typography>
                     </CardContent>
                   </Card>
                 </Grid>
@@ -219,7 +298,7 @@ const UtilizationEnquiryForm: React.FC = () => {
                 }}
               >
                 <Typography variant="h6" color="textSecondary">
-                  No Records Found
+                  No Records
                 </Typography>
               </Box>
             )}

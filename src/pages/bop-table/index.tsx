@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
-import { Box, Typography, IconButton } from '@mui/material'
+import { Box, Typography, IconButton, Chip } from '@mui/material'
 import { useNavigate, Link } from 'react-router-dom'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import { HelperService } from '@/helpers/helper'
@@ -84,30 +84,77 @@ const BopTable: React.FC = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
+        const status = params?.row?.transaction_status?.toUpperCase?.() || '';
+
+        if (!status) {
+          return null; // 👈 empty ho toh chip hi na render karo
+          // OR return <Chip label="N/A" size="small" />; // fallback chahiye toh
+        }
+
         return (
-          <div style={{ color: statusColors[params?.row?.transaction_status?.toUpperCase()] }}>{params?.row?.transaction_status?.toUpperCase()}</div>
-        )
+          <Chip
+            label={status}
+            sx={{
+              backgroundColor: statusColors[status] || 'grey',
+              color: 'white',
+              fontWeight: 'bold',
+            }}
+          />
+        );
       },
     },
-
     {
       field: 'status',
       headerName: 'Bop Status',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        return <div style={{ color: statusColors[params?.row?.status.toUpperCase()] }}>{params?.row?.status.toUpperCase()}</div>
+        const status = params?.row?.status?.toUpperCase?.() || '';
+
+        if (!status) {
+          return null; // 👈 empty ho toh chip skip
+        }
+
+        return (
+          <Chip
+            label={status}
+            sx={{
+              backgroundColor: statusColors[status] || 'grey',
+              color: 'white',
+              fontWeight: 'bold',
+            }}
+            size="small"
+          />
+        );
       },
     },
+
     {
       field: 'sap_status',
       headerName: 'Sarb Status',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        return <div style={{ color: statusColors[params?.row?.status.toUpperCase()] }}>{params?.row?.sap_status.toUpperCase()}</div>
+        const sapStatus = params?.row?.sap_status?.toUpperCase?.() || '';
+
+        if (!sapStatus) {
+          return null; // 👈 agar empty hai toh chip na dikhe
+        }
+
+        return (
+          <Chip
+            label={sapStatus}
+            sx={{
+              backgroundColor: statusColors[sapStatus] || 'grey',
+              color: 'white',
+              fontWeight: 'bold',
+            }}
+            size="small"
+          />
+        );
       },
     },
+
     {
       field: 'created_at',
       headerName: 'Date',

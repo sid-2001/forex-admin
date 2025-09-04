@@ -53,6 +53,7 @@ const KYCPage = () => {
   const [prooftype, setProoftype] = useState()
   const [imageUrl, setImageUrl] = useState('')
   const { id: kycIdFromRoute } = useParams()
+  const [isLoading, setIsLoading] = useState(false)  // ✅ Add this
 
   const navigate = useNavigate()
   const theme = useTheme()
@@ -68,13 +69,6 @@ const KYCPage = () => {
       headerName: 'KYC ID',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return (
-          <a style={{ cursor: 'pointer', color: theme.palette.text.primary, textDecoration: 'underline' }} onClick={() => openDrawer(params.row)}>
-            {params.row.kycId}
-          </a>
-        )
-      },
     },
     {
       field: 'applicantName',
@@ -123,7 +117,7 @@ const KYCPage = () => {
         if (params.value === '') color = 'warning'
         else if (params.value === 'Rejected') color = 'error'
 
-        return <Chip label={params.value == 'v' ? 'Verified' : 'Unverified'} color={params.value == 'v' ? 'success' : 'warning'} variant="outlined" />
+        return <Chip label={params.value == 'v' ? 'Verified' : 'Unverified'} color={params.value == 'v' ? 'success' : 'warning'} variant="filled" />
       },
     },
     {
@@ -141,6 +135,7 @@ const KYCPage = () => {
 
   const getApplicantKYCData = async () => {
     try {
+        setIsLoading(true)
       // setCommonLoader(true)
       const data: any = await applicant_service.getApplicantKyc(userCountry)
       console.log(data?.data)
@@ -157,6 +152,9 @@ const KYCPage = () => {
       setCommonLoader(false)
       console.error('Error fetching countries:', err)
     }
+    finally {
+      setIsLoading(false)   
+    }
   }
 
   useEffect(() => {
@@ -166,10 +164,10 @@ const KYCPage = () => {
   // Function to download data as CSV
   const downloadCSV = () => {
     if (!filteredData || filteredData.length === 0) return
-    
+
     // Create CSV headers
     const headers = ['KYC ID', 'Customer Name', 'Nationality', 'Resident Country', 'Applicant ID', 'Verification Status']
-    
+
     // Create CSV rows
     const rows = filteredData.map(item => [
       item.kycId,
@@ -179,10 +177,10 @@ const KYCPage = () => {
       item?.applicantId,
       item?.kycStatus === 'v' ? 'Verified' : 'Unverified'
     ])
-    
+
     // Combine headers and rows
     const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n')
-    
+
     // Create download link
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
@@ -198,15 +196,15 @@ const KYCPage = () => {
   // Function to download data as PDF
   const downloadPDF = () => {
     if (!filteredData || filteredData.length === 0) return
-    
+
     const doc = new jsPDF()
-    
+
     // Add title
     doc.setFontSize(16)
     doc.text('KYC Data Report', 14, 15)
     doc.setFontSize(10)
     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 22)
-    
+
     // Prepare table data
     const tableColumn = ['KYC ID', 'Customer Name', 'Nationality', 'Resident Country', 'Applicant ID', 'Status']
     const tableRows = filteredData.map(item => [
@@ -217,7 +215,7 @@ const KYCPage = () => {
       item.applicantId,
       item.kycStatus === 'v' ? 'Verified' : 'Unverified'
     ])
-    
+
     // Add table to PDF
     autoTable(doc, {
       head: [tableColumn],
@@ -226,7 +224,7 @@ const KYCPage = () => {
       styles: { fontSize: 8 },
       headStyles: { fillColor: [41, 128, 185] }
     })
-    
+
     // Save the PDF
     doc.save('kyc_data_report.pdf')
   }
@@ -324,11 +322,11 @@ const KYCPage = () => {
   return (
     <Box sx={{ width: '80vw', height: '70vh' }}>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.KYC}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h4" gutterBottom>
             <strong>Know Your Customer</strong>
           </Typography>
-          
+
           <Box>
             <Button
               variant="outlined"
@@ -367,7 +365,7 @@ const KYCPage = () => {
               },
             }}
             pageSizeOptions={[10]}
-            loading={loader}
+            loading={isLoading}
             slots={{
               loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
             }}
@@ -388,7 +386,7 @@ const KYCPage = () => {
       >
         <Box>
           <Box p={3}>
-            <Box mb={6} display="flex" justifyContent="space-between" alignItems="center">
+            <Box mb={6} display="flex" alignItems="center">
               <Typography
                 variant="h5"
                 sx={{
@@ -401,10 +399,40 @@ const KYCPage = () => {
               >
                 KYC ID : {selectedKYC?.kycId}
               </Typography>
-              <Typography variant="subtitle1" style={{ backgroundColor: `${ selectedKYC?.kycStatus == 'v' ? 'green' : 'red'}`,color:"white", padding: '4px 8px', borderRadius: '4px' }}>
-                {selectedKYC?.kycStatus == 'v' ? 'Verified' : 'Unverified'}
+
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  backgroundColor: selectedKYC?.kycStatus === 'v' ? 'green' : 'red',
+                  color: 'white',
+                  height: 50,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 100,
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  ml: 2,
+                  fontWeight: 'bold',
+                }}
+              >
+                {selectedKYC?.kycStatus === 'v' ? 'Verified' : 'Unverified'}
               </Typography>
+
+              {/* Close button with space only before itself */}
+              <Button
+                variant="contained"
+                color="success"
+                onClick={handleClose}
+                sx={{
+                  ml: '55%', height: 50,
+                }}
+              >
+                Close
+              </Button>
             </Box>
+
+
 
             {/* Applicant Details Section */}
             <Grid container>
@@ -423,7 +451,7 @@ const KYCPage = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    borderColor:`${selectedKYC?.kycStatus == 'v' ? 'green' : 'red'}`
+                    borderColor: `${selectedKYC?.kycStatus == 'v' ? 'green' : 'red'}`
                   }}
                 >
                   {/* {' '}
@@ -668,13 +696,6 @@ const KYCPage = () => {
                   </Grid>
                 ),
               )}
-            </Box>
-
-            {/* Buttons */}
-            <Box mt={4}>
-              <Button variant="contained" color="success" onClick={handleClose}>
-                Close
-              </Button>
             </Box>
           </Box>
         </Box>
