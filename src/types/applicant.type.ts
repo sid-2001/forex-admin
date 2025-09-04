@@ -1,23 +1,23 @@
 interface ApplicantFormData {
-  applicant: any;
-  applicantName: string;
-  city: string;
-  country: string;
-  email: string;
-  nationality: string;
-  phone: string;
-  physicalAddressLine1: string;
-  physicalAddressLine2: string;
-  physicalAddressLine3: string;
-  postalAddressLine1: string;
-  postalAddressLine2: string;
-  postalAddressLine3: string;
-  postalCode: string;
-  residenceCity: string;
-  residenceCountry: string;
-  residencePostalCode: string;
-  residenceState: string;
-  state: string;
+  applicant: any
+  applicantName: string
+  city: string
+  country: string
+  email: string
+  nationality: string
+  phone: string
+  physicalAddressLine1: string
+  physicalAddressLine2: string
+  physicalAddressLine3: string
+  postalAddressLine1: string
+  postalAddressLine2: string
+  postalAddressLine3: string
+  postalCode: string
+  residenceCity: string
+  residenceCountry: string
+  residencePostalCode: string
+  residenceState: string
+  state: string
 }
 
 export interface ApplicantResponse {
@@ -94,7 +94,10 @@ export interface Beneficiary {
   beneficiaryId: string
   residenceCountry: string
   nationality: string
-  beneficiaryName: string
+  beneficiaryFirstName: string
+  beneficiaryMiddleName: string
+  beneficiaryLastName: string
+  accountNumber: string
   idType: string
   idNumber: string
   physicalAddressLine1: string

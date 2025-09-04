@@ -18,6 +18,8 @@ const BeneficiaryForm = ({
 
   // Dummy beneficiary data
 
+  console.log(beneficiaries, '===========')
+
   const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget)
   }

@@ -50,7 +50,7 @@ import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useTheme } from '@emotion/react'
 import staticdataService from '@/services/staticdata.service'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 const { VITE_APP_URL } = import.meta.env
 
 const helper = new HelperService()
@@ -60,7 +60,7 @@ const transaction_service = new TransactionService()
 const kyc_service = new KycService()
 const static_service = new staticdataService()
 
-const ConfirmAndPayButton = ({ handleClick = () => { }, imgUrl = '' }) => {
+const ConfirmAndPayButton = ({ handleClick = () => {}, imgUrl = '' }) => {
   return (
     <Button
       variant="outlined"
@@ -193,9 +193,13 @@ const SendMoneyPage = () => {
       let benificiary_list = data.beneficiaryList.map((b) => {
         return {
           benificaryId: b.beneficiaryId,
-          name: b.beneficiaryName,
-          accountHolderName: b.beneficiaryName,
-          accountNumber: b.bankBicCode,
+          name: b?.beneficiaryMiddleName
+            ? `${b.beneficiaryFirstName} ${b.beneficiaryMiddleName} ${b.beneficiaryLastName}`
+            : `${b.beneficiaryFirstName} ${b.beneficiaryLastName}`,
+          accountHolderName: b?.beneficiaryMiddleName
+            ? `${b.beneficiaryFirstName} ${b.beneficiaryMiddleName} ${b.beneficiaryLastName}`
+            : `${b.beneficiaryFirstName} ${b.beneficiaryLastName}`,
+          accountNumber: b.accountNumber,
           bank: b.bankName,
           ifscCode: b.bankBicCode,
         }
@@ -246,9 +250,13 @@ const SendMoneyPage = () => {
           let benificiary_list = e.beneficiaryList.map((b) => {
             return {
               benificaryId: b.beneficiaryId,
-              name: b.beneficiaryName,
-              accountHolderName: b.beneficiaryName,
-              accountNumber: b.bankBicCode,
+              name: b?.beneficiaryMiddleName
+                ? `${b.beneficiaryFirstName} ${b.beneficiaryMiddleName} ${b.beneficiaryLastName}`
+                : `${b.beneficiaryFirstName} ${b.beneficiaryLastName}`,
+              accountHolderName: b?.beneficiaryMiddleName
+                ? `${b.beneficiaryFirstName} ${b.beneficiaryMiddleName} ${b.beneficiaryLastName}`
+                : `${b.beneficiaryFirstName} ${b.beneficiaryLastName}`,
+              accountNumber: b.accountNumber,
               bank: b.bankName,
               ifscCode: b.bankBicCode,
             }
@@ -361,6 +369,8 @@ const SendMoneyPage = () => {
   }
 
   const transactionPayload = {
+    vatCharges: 0,
+    rewardPoints: 23.7,
     amount: amount,
     applicant: {
       applicantId: selectedUser?.applicantId,
@@ -540,8 +550,9 @@ const SendMoneyPage = () => {
 
   const handlePeachPaymentsClick = async () => {
     setcommonloader(true)
-    const deal_data = await transaction_service.createDealcover(dealCoverPayload)
-    if (deal_data.dealNumber) {
+    const { data } = await transaction_service.createDealcover(dealCoverPayload)
+
+    if (data?.dealNumber) {
       const txnResponse = await transaction_service.createTransaction(transactionPayload)
       if (txnResponse?.status) {
         setCommonLoader(true)
@@ -564,9 +575,9 @@ const SendMoneyPage = () => {
       const response = await transaction_service.createOrder({ amount })
       const { payment_session_id } = response
 
-      const deal_data = await transaction_service.createDealcover(dealCoverPayload)
+      const { data } = await transaction_service.createDealcover(dealCoverPayload)
 
-      if (deal_data?.dealNumber) {
+      if (data?.dealNumber) {
         const txnResponse = await transaction_service.createTransaction(transactionPayload)
         if (txnResponse?.status) {
           setCommonLoader(true)
@@ -636,20 +647,11 @@ const SendMoneyPage = () => {
         }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography
-            variant="h5"
-            gutterBottom
-            color={theme.palette.secondary.main}
-            sx={{ fontWeight: 'bold' }}
-          >
+          <Typography variant="h5" gutterBottom color={theme.palette.secondary.main} sx={{ fontWeight: 'bold' }}>
             Send Money
           </Typography>
 
-          <Button
-            variant="outlined"
-            startIcon={<ArrowBackIcon />}
-            onClick={() => navigate(-1)}
-          >
+          <Button variant="outlined" startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)}>
             Back
           </Button>
         </Box>
@@ -738,7 +740,7 @@ const SendMoneyPage = () => {
                           color: 'green',
                         }}
                       />
-                      {selectedUser.name} (Account: {selectedUser.accountNumber})
+                      {selectedUser.name} (Account: {selectedUser.applicantId})
                     </Typography>
                   )}
                 </Grid>
