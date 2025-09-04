@@ -37,6 +37,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
+import FindReplaceIcon from '@mui/icons-material/FindReplace';
 import React from 'react'
 import {
   GridColDef,
@@ -499,8 +500,30 @@ const TransactionListing = () => {
 
   // handle filter changes
   const handleFilterChange = (newFilterModel: GridFilterModel) => {
-    setFilterModel(newFilterModel);
+    const filter=newFilterModel.items[0]
+    if(filter.field=="id"&&filter.value){try{
+
+    
+getAllTransactions(0,10,filter.value)
+
+
+    }catch(err){
+
+
+    }
+
+
+    }
+    console.log(filter)
+    // setFilterModel(newFilterModel);
   };
+
+   const handleResetFilter = () => {
+    setFilterModel({ items: [] });
+  getAllTransactions(0,10,"");
+  };
+
+  // Load default data on mount
 
   interface CustomToolbarProps {
     downloadCSV: () => void;
@@ -517,6 +540,10 @@ const TransactionListing = () => {
         PDF
       </Button>
 
+
+  <Button variant="outlined" startIcon={<FindReplaceIcon />} onClick={handleResetFilter} size='small' >
+        Reset Filters
+      </Button>
     </GridToolbarContainer>
   )
 
@@ -578,29 +605,18 @@ const TransactionListing = () => {
     filterQuery: string = "") => {
     try {
       // setcommonloader(true)
-      const data: any = await transaction_Service.getOutwardAllTransaction(userCountry, page, size)
-      console.log(data)
-      // Assuming your API response has a structure like:
-      // { content: [], totalElements: 100, totalPages: 5 }
-      const inbound: Array<TransactionInwardCalclulated>[] | any = data?.content?.map((e: any) => {
-        //@ts-ignore
-        return {
-          //@ts-ignore
-          ...e.transactionInwardList,
-          ...e.beneficiary,
-          id: e?.transactionInwardList?.transactionNumberIw,
-          destination: e?.transactionInwardList?.receivingCountry,
-          value: e?.transactionInwardList?.settlementAmount,
-          currency: e?.transactionInwardList?.settlementCurrency,
-          settlement: helper.roundToTwoFixed(e?.transactionInwardList?.settlementAmount),
-          destinationBank: e?.transactionInwardList?.destinationBankCode,
-          errorCause: ' ',
-          forex: e?.transactionOutward?.exchangeRates,
-          date: e?.transactionOutward?.owCreatedDate,
-          final_amount: e?.transactionOutward?.exchangeRates * e?.transactionOutward?.principalAmount,
-          applicant: e?.applicant,
-        }
-      })
+      var data: any;
+    if(filterQuery.length>0){
+data=  await transaction_Service.getTransactionbyquery( filterQuery,userCountry)
+
+
+    }
+    else{
+data=  await transaction_Service.getOutwardAllTransaction(userCountry, page, size)
+
+
+    }
+    console.log("outbound trx:",data)
 
       const outbound: Array<TransactionOutward> | any = data
         ?.map((e: any) => {
@@ -638,12 +654,10 @@ const TransactionListing = () => {
           return true
         })
 
-      // Set the appropriate data based on transaction type
-      if (transactionType === 'inwards') {
-        setTransactionData(inbound);
-      } else {
-        setOutboundTransaction(outbound);
-      }
+
+        console.log("outbound transaction",outbound)
+   
+       setOutboundTransaction(outbound);
 
       // Set the total row count for pagination
       setRowCount(data?.totalElements || 0);
@@ -1155,6 +1169,8 @@ const TransactionListing = () => {
             slots={{
               loadingOverlay: LoaderUI.LoadingOverlay,
             }}
+              filterMode="server"
+        onFilterModelChange={handleFilterChange}
             pageSizeOptions={[10]}
             getRowId={(row: any) => row.id} // Ensure proper row ID handling
           />

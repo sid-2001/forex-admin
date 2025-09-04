@@ -289,4 +289,19 @@ async updateLoyaltyTier(id: number, data: any): Promise<any> {
       console.log(err)
     }
   }
+
+    async getTransactionbyquery(query: any,country:any) {
+    const url = `/api/transactions/transaction-outward/search/sendCountry/${country}?query=${query}`
+    try {
+      const data = await api1.get(url)
+      return data?.data
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+
 }
+
+
+
