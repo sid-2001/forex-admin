@@ -37,6 +37,8 @@ const UserAdd = () => {
   }
   //@ts-ignore
   const [staffData, setStaffData] = useState<StaffProfile>({ staffIdType: 'Aadhar' })
+  const [countrieslist] = useState(['USA', 'Canada', 'India'])
+  const [flows] = useState(['Onboarding', 'Approval', 'Checkout'])
   const [roles, setRoles] = useState<any>([])
   const [selectedRole, setSelectedRole] = useState('')
   const [permissions, setPermissions] = useState([])
@@ -151,10 +153,16 @@ const UserAdd = () => {
     })),
   ]
 
+
   const fetchAllData = async () => {
     setLoading(true)
     try {
-      await Promise.all([fetchRolesList(), fetchCountries(), fetchBranches(), staffId ? fetchStaffDetailsByStaffId() : Promise.resolve()])
+      await Promise.all([
+        fetchRolesList(),
+        fetchCountries(),
+        fetchBranches(),
+        staffId ? fetchStaffDetailsByStaffId() : Promise.resolve(),
+      ])
     } catch (err) {
       console.error(err)
     } finally {
@@ -312,6 +320,7 @@ const UserAdd = () => {
       </Box>
     )
   }
+
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.STAFF}>
@@ -483,7 +492,7 @@ const UserAdd = () => {
                   const value = handleRegexChange(e, /^[a-zA-Z0-9\s,.\-]*$/)
                   if (value !== null) handleChange(e)
                 }}
-                // InputProps={{ readOnly: !isEditable }}
+              // InputProps={{ readOnly: !isEditable }}
               />
             </Grid>
 
@@ -518,7 +527,6 @@ const UserAdd = () => {
                 onChange={handleChange}
                 InputProps={{ readOnly: !isEditable }}
                 SelectProps={{ native: true }}
-                disabled={!!staffId}
               >
                 <option value="">-- Select Country --</option>
                 {countryList.map((country: any) => (
@@ -535,15 +543,17 @@ const UserAdd = () => {
                 name="staffPostalCode"
                 value={staffData?.staffPostalCode || ''}
                 onChange={(e) => {
-                  // const value = e.target.value;
-                  // const country = staffData?.staffCountry;
-                  // Get maxLength from map or default to 10
-                  // const maxLength = postalCodeMaxLengthMap[country] || 0;
-                  if (new RegExp(`^\\d{0,${postalCodeMaxLengthMap[staffData?.staffCountry]}}$`).test(e.target.value)) handleChange(e)
+                  const value = e.target.value;
+                  const country = staffData?.staffCountry;
+                  const maxLength = postalCodeMaxLengthMap[country] || 0; 
+                  if (value.length <= maxLength) {
+                    handleChange(e);
+                  }
                 }}
                 InputProps={{ readOnly: !isEditable }}
               />
             </Grid>
+
           </Grid>
         </Box>
 
