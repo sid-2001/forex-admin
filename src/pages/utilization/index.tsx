@@ -108,8 +108,8 @@ const UtilizationEnquiryForm: React.FC = () => {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.COMPLIANCE_MONITOR}>
-      <Box sx={{ flexGrow: 1, p: 1 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+    <Box sx={{ flexGrow: 1, p: 1 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
           <Typography
             variant="h4"
             gutterBottom
@@ -127,6 +127,14 @@ const UtilizationEnquiryForm: React.FC = () => {
             Back
           </Button>
         </Box>
+        <Typography
+          variant="h5"
+          gutterBottom
+          //fontWeight="bold"
+          textAlign="left"
+        >
+          Per Applicant
+        </Typography>
 
         <Grid container spacing={50}>
           {/* LEFT SIDE — FORM */}
@@ -140,40 +148,24 @@ const UtilizationEnquiryForm: React.FC = () => {
             }}
           >
             <form onSubmit={handleSubmit}>
-              <FormControl fullWidth margin="normal">
+              {/* <FormControl fullWidth margin="normal">
                 <InputLabel id="enquiry-type-label">Enquiry Type</InputLabel>
                 <Select
                   labelId="enquiry-type-label"
                   id="enquiry-type"
                   value={enquiryType}
-                  label="Enquiry Type"   
+                  label="Enquiry Type"
                   onChange={(e: SelectChangeEvent) => setEnquiryType(e.target.value)}
                 >
                   <MenuItem value="utilization">Utilization</MenuItem>
                   <MenuItem value="limit">Limit</MenuItem>
                 </Select>
-              </FormControl>
-
-              <FormControl fullWidth margin="normal">
-                <InputLabel id="api-type-label">API Type</InputLabel>
-                <Select
-                  labelId="api-type-label"
-                  id="api-type"
-                  value={apiType}
-                  label="API Type"   
-                  onChange={(e: SelectChangeEvent) => setApiType(e.target.value)}
-                >
-                  <MenuItem value="type1">SDA</MenuItem>
-                  <MenuItem value="type2">FIA</MenuItem>
-                  <MenuItem value="type3">FN</MenuItem>
-                </Select>
-              </FormControl>
-
-              <FormControl component="fieldset" margin="normal">
+              </FormControl> */}
+              {/* <FormControl component="fieldset" margin="normal">
                 <RadioGroup row value={searchBy} onChange={(e) => setSearchBy(e.target.value as 'applicantId' | 'nationalId')}>
                   <FormControlLabel value="applicantId" control={<Radio />} label="Applicant ID" />
                 </RadioGroup>
-              </FormControl>
+              </FormControl> */}
 
               <TextField
                 label="Applicant ID"
@@ -186,6 +178,8 @@ const UtilizationEnquiryForm: React.FC = () => {
 
                   if (input.trim() === '') {
                     setFilteredUsers([])
+                    setSelectedUser(null)
+                    setApplicantId('')
                   } else {
                     const filtered = userlist.filter(
                       (user) =>
@@ -233,7 +227,20 @@ const UtilizationEnquiryForm: React.FC = () => {
                   </List>
                 </Paper>
               )}
-
+              <FormControl fullWidth margin="normal">
+                <InputLabel id="api-type-label">API Type</InputLabel>
+                <Select
+                  labelId="api-type-label"
+                  id="api-type"
+                  value={apiType}
+                  label="API Type"
+                  onChange={(e: SelectChangeEvent) => setApiType(e.target.value)}
+                >
+                  <MenuItem value="type1">SDA</MenuItem>
+                  <MenuItem value="type2">FIA</MenuItem>
+                  <MenuItem value="type3">FN</MenuItem>
+                </Select>
+              </FormControl>
 
               <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }} disabled={!applicantId}>
                 Submit
@@ -305,6 +312,7 @@ const UtilizationEnquiryForm: React.FC = () => {
           </Grid>
         </Grid>
       </Box>
+
     </HasPermission>
   )
 }
