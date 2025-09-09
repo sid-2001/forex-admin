@@ -87,7 +87,7 @@ const UtilizationEnquiryForm: React.FC = () => {
       setTranactiondata(formattedData || [])
     })
     appilicant_service.searchByApplicantId(applicantId).then((data: any) => {
-      setapplicantData(data?.applicant)
+      setapplicantData(data)
       console.log(data?.applicant)
     })
 
@@ -108,7 +108,7 @@ const UtilizationEnquiryForm: React.FC = () => {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.COMPLIANCE_MONITOR}>
-    <Box sx={{ flexGrow: 1, p: 1 }}>
+      <Box sx={{ flexGrow: 1, p: 1}}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
           <Typography
             variant="h4"
@@ -136,7 +136,7 @@ const UtilizationEnquiryForm: React.FC = () => {
           Per Applicant
         </Typography>
 
-        <Grid container spacing={50}>
+        <Grid container spacing={0}>
           {/* LEFT SIDE — FORM */}
 
           <Grid
@@ -144,29 +144,10 @@ const UtilizationEnquiryForm: React.FC = () => {
             xs={12}
             md={6}
             style={{
-              width: '100vw',
+              width: '90vw',
             }}
           >
             <form onSubmit={handleSubmit}>
-              {/* <FormControl fullWidth margin="normal">
-                <InputLabel id="enquiry-type-label">Enquiry Type</InputLabel>
-                <Select
-                  labelId="enquiry-type-label"
-                  id="enquiry-type"
-                  value={enquiryType}
-                  label="Enquiry Type"
-                  onChange={(e: SelectChangeEvent) => setEnquiryType(e.target.value)}
-                >
-                  <MenuItem value="utilization">Utilization</MenuItem>
-                  <MenuItem value="limit">Limit</MenuItem>
-                </Select>
-              </FormControl> */}
-              {/* <FormControl component="fieldset" margin="normal">
-                <RadioGroup row value={searchBy} onChange={(e) => setSearchBy(e.target.value as 'applicantId' | 'nationalId')}>
-                  <FormControlLabel value="applicantId" control={<Radio />} label="Applicant ID" />
-                </RadioGroup>
-              </FormControl> */}
-
               <TextField
                 label="Applicant ID"
                 fullWidth
@@ -227,20 +208,7 @@ const UtilizationEnquiryForm: React.FC = () => {
                   </List>
                 </Paper>
               )}
-              <FormControl fullWidth margin="normal">
-                <InputLabel id="api-type-label">API Type</InputLabel>
-                <Select
-                  labelId="api-type-label"
-                  id="api-type"
-                  value={apiType}
-                  label="API Type"
-                  onChange={(e: SelectChangeEvent) => setApiType(e.target.value)}
-                >
-                  <MenuItem value="type1">SDA</MenuItem>
-                  <MenuItem value="type2">FIA</MenuItem>
-                  <MenuItem value="type3">FN</MenuItem>
-                </Select>
-              </FormControl>
+
 
               <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }} disabled={!applicantId}>
                 Submit
@@ -249,40 +217,77 @@ const UtilizationEnquiryForm: React.FC = () => {
           </Grid>
 
           {/* RIGHT SIDE — RESULTS OR NO DATA */}
-          <Grid item xs={12} md={6}>
-            {showResults ? (
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <Card>
-                    <CardContent sx={{ cursor: 'pointer', '&:hover': { boxShadow: 3 }, border: '1px solid', borderColor: 'primary.light' }}>
-                      <Typography variant="h6">
-                        <b>Applicant Info</b>
-                      </Typography>
-                      <Typography>Name: {applicantData?.firstName ?? 'No Data Found'}</Typography>
-                      <Typography>Gender: {applicantData?.gender ?? 'No Data Found'}</Typography>
-                      <Typography>Country: {applicantData?.nationality ?? 'No Data Found'}</Typography>
-                    </CardContent>
+
+          {showResults && (
+            <Box sx={{ mt: 4 , marginRight:2}}>
+              {/* Applicant Info Row */}
+              <Grid container spacing={2} sx={{ mb: 2 }}>
+                <Grid item xs={12} sm={3}>
+                  <TextField
+                    label="Applicant Name"
+                    value={applicantData?.applicant?.firstName ?? 'No Data Found'}
+                    fullWidth
+                    InputProps={{ readOnly: true }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={3}>
+                  <TextField
+                    label="Nationality"
+                    value={applicantData?.applicant?.nationality ?? 'No Data Found'}
+                    fullWidth
+                    InputProps={{ readOnly: true }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={3}>
+                  <TextField
+                    label="Residence Country"
+                    value={applicantData?.applicant?.ResidentialAddressCity ?? 'No Data Found'}
+                    fullWidth
+                    InputProps={{ readOnly: true }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={3}>
+                  <TextField
+                    label="Phone"
+                    value={
+                      applicantData?.applicantContactDetails?.find((c: any) => c.contactType === 'phone')
+                        ?.contactDetails ?? 'No Data Found'
+                    }
+                    fullWidth
+                    InputProps={{ readOnly: true }}
+                  />
+
+                </Grid>
+              </Grid>
+
+              {/* Limit Card */}
+              <Grid container spacing={2} sx={{ mt: 2 }}>
+                {/* Limit Card - Fixed Small Box */}
+                <Grid item xs={12} md={4} lg={3}>
+                  <Card
+                    sx={{
+                      p: 2,
+                      background: 'linear-gradient(135deg, #42a5f5 0%,rgb(150, 198, 242) 50%,rgb(143, 158, 180) 100%)',
+                      color: 'black',
+                      height: 200,       
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Typography variant="h6"><b>{apiType}</b></Typography>
+                    <Typography   variant="h6" sx={{ fontWeight: 'bold', marginBottom:1}}>Maximum Limit: {limitData?.maxLimit ?? 'No Data Found'}</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom:1}}>Utilised Value: {limitData?.utilizedLimit ?? 'No Data Found'}</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom:1}}>Avail Value: {limitData?.availableLimit ?? 'No Data Found'}</Typography>
                   </Card>
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
-                  <Card>
-                    <CardContent sx={{ cursor: 'pointer', '&:hover': { boxShadow: 3 }, border: '1px solid', borderColor: 'primary.light' }}>
-                      <Typography variant="h6">
-                        <b>Limits</b>
-                      </Typography>
-                      <Typography>Max Limit: {limitData?.maxLimit ?? 'No Data Found'}</Typography>
-                      <Typography>Utilized Limit: {limitData?.utilizedLimit ?? 'No Data Found'}</Typography>
-                      <Typography>Available Limit: {limitData?.availableLimit ?? 'No Data Found'}</Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-
-                <Grid item xs={12}>
-                  <Typography variant="h6" sx={{ mt: 2 }}>
-                    <b>Transactions</b>
+                {/* Transactions Table - Flexible, takes remaining space */}
+                <Grid item xs={12} md={8} lg={9}>
+                  <Typography variant="h6" sx={{ mb: 0.5 }}>
+                    Transactions
                   </Typography>
-                  <Box sx={{ height: '40vh', width: '20vw' }}>
+                  <Box sx={{ width: '100%', height: 400 }}>
                     <TransactionTable
                       //@ts-ignore
                       transaction={transactionData}
@@ -292,29 +297,15 @@ const UtilizationEnquiryForm: React.FC = () => {
                   </Box>
                 </Grid>
               </Grid>
-            ) : (
-              <Box
-                sx={{
-                  height: '100%',
-                  width: '100%',
-                  border: '1px dashed grey',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  minHeight: '60vh',
-                }}
-              >
-                <Typography variant="h6" color="textSecondary">
-                  No Records
-                </Typography>
-              </Box>
-            )}
-          </Grid>
+
+
+            </Box>
+          )}
         </Grid>
       </Box>
-
     </HasPermission>
   )
 }
 
 export default UtilizationEnquiryForm
+
