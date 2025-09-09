@@ -108,15 +108,14 @@ const UtilizationEnquiryForm: React.FC = () => {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.COMPLIANCE_MONITOR}>
-      <Box sx={{ flexGrow: 1, p: 1}}>
+      <Box sx={{ flexGrow: 1, p: 1 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
           <Typography
             variant="h4"
-            gutterBottom
             fontWeight="bold"
             textAlign="left"
           >
-            Limit Utilization Enquiry
+            Limit Utilization
           </Typography>
 
           <Button
@@ -219,11 +218,12 @@ const UtilizationEnquiryForm: React.FC = () => {
           {/* RIGHT SIDE — RESULTS OR NO DATA */}
 
           {showResults && (
-            <Box sx={{ mt: 4 , marginRight:2}}>
+            <Box sx={{ mt: 4, marginRight: 2 }}>
               {/* Applicant Info Row */}
               <Grid container spacing={2} sx={{ mb: 2 }}>
                 <Grid item xs={12} sm={3}>
                   <TextField
+                  variant='filled'
                     label="Applicant Name"
                     value={applicantData?.applicant?.firstName ?? 'No Data Found'}
                     fullWidth
@@ -232,6 +232,7 @@ const UtilizationEnquiryForm: React.FC = () => {
                 </Grid>
                 <Grid item xs={12} sm={3}>
                   <TextField
+                  variant='filled'
                     label="Nationality"
                     value={applicantData?.applicant?.nationality ?? 'No Data Found'}
                     fullWidth
@@ -240,14 +241,17 @@ const UtilizationEnquiryForm: React.FC = () => {
                 </Grid>
                 <Grid item xs={12} sm={3}>
                   <TextField
+                  variant='filled'
                     label="Residence Country"
                     value={applicantData?.applicant?.ResidentialAddressCity ?? 'No Data Found'}
                     fullWidth
                     InputProps={{ readOnly: true }}
+                    
                   />
                 </Grid>
                 <Grid item xs={12} sm={3}>
                   <TextField
+                  variant='filled'
                     label="Phone"
                     value={
                       applicantData?.applicantContactDetails?.find((c: any) => c.contactType === 'phone')
@@ -267,18 +271,18 @@ const UtilizationEnquiryForm: React.FC = () => {
                   <Card
                     sx={{
                       p: 2,
-                      background: 'linear-gradient(135deg, #42a5f5 0%,rgb(150, 198, 242) 50%,rgb(143, 158, 180) 100%)',
+                      background: 'linear-gradient(135deg,rgb(88, 175, 246) 0%,rgb(183, 203, 222) 50%,rgb(221, 226, 235) 100%)',
                       color: 'black',
-                      height: 200,       
+                      height: 200,
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'center',
                     }}
                   >
                     <Typography variant="h6"><b>{apiType}</b></Typography>
-                    <Typography   variant="h6" sx={{ fontWeight: 'bold', marginBottom:1}}>Maximum Limit: {limitData?.maxLimit ?? 'No Data Found'}</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom:1}}>Utilised Value: {limitData?.utilizedLimit ?? 'No Data Found'}</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom:1}}>Avail Value: {limitData?.availableLimit ?? 'No Data Found'}</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: 1 }}>Maximum Limit: {limitData?.maxLimit ?? 'No Data Found'}</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: 1 }}>Utilised Value: {limitData?.utilizedLimit ?? 'No Data Found'}</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: 1 }}>Avail Value: {limitData?.availableLimit ?? 'No Data Found'}</Typography>
                   </Card>
                 </Grid>
 
