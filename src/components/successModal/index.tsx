@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, Box, Button } from '@mui/material'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 const { VITE_APP_URL } = import.meta.env
 const GifModal: React.FC = () => {
   const handleOpen = () => setOpen(true)
   const [open, setOpen] = useState(true)
+ const [searchParams, setSearchParams] = useSearchParams();
 
   let navigate = useNavigate()
   const handleClose = () => {
@@ -45,7 +46,7 @@ const GifModal: React.FC = () => {
         >
           {/* GIF */}
           <img
-            src="https://i.pinimg.com/originals/90/13/f7/9013f7b5eb6db0f41f4fd51d989491e7.gif" // Replace this URL with your GIF
+            src={ searchParams.get("status")=="success"?"https://i.pinimg.com/originals/90/13/f7/9013f7b5eb6db0f41f4fd51d989491e7.gif":"https://i0.wp.com/nrifuture.com/wp-content/uploads/2022/05/comp_3.gif?fit=800%2C600&ssl=1"} 
             alt="Loading GIF"
             style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
           />

@@ -51,6 +51,8 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useTheme } from '@emotion/react'
 import staticdataService from '@/services/staticdata.service'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+
+import {generateZapperSessionIdApi} from "../../helpers/zapper"
 const { VITE_APP_URL } = import.meta.env
 
 const helper = new HelperService()
@@ -1013,6 +1015,11 @@ const SendMoneyPage = () => {
                     imgUrl="https://www.peachpayments.com/hubfs/peachpayments-logo.svg"
                     handleClick={() => handlePeachPaymentsClick()}
                   />
+
+                     <ConfirmAndPayButton
+                    imgUrl="https://www.peachpayments.com/hubfs/peachpayments-logo.svg"
+                    handleClick={() => ( generateZapperSessionIdApi())}
+                  />
                 </>
               ) : (
                 <>
@@ -1020,6 +1027,8 @@ const SendMoneyPage = () => {
                     imgUrl="https://media.licdn.com/dms/image/v2/C560BAQF4u3uIRgM6Cg/company-logo_200_200/company-logo_200_200/0/1632367052546/cashfree_logo?e=1749081600&v=beta&t=sL4clktovuYkc63HKbm9-vhHI0HYzzTPiFwSMGtu1iM"
                     handleClick={() => handleCashfreePaymentClick()}
                   />
+
+
                 </>
               )}
             </Box>

@@ -433,7 +433,7 @@ const TransactionListing = () => {
   const [endDate, setEndDate] = useState<string | null>(null)
   const [stpErrors, setStpErrors] = useState<any>([])
   const [givenTransaction, setGivenTransaction] = useState<any>(null)
-
+const [isLoading, setIsLoading] = useState(false)
   // Add state for row count
   const [rowCount, setRowCount] = useState(0)
 
@@ -587,10 +587,10 @@ getAllTransactions(0,10,filter.value)
 
   const getInwardTransactionList = useCallback(async () => {
     try {
-      setcommonloader(true)
+     // setcommonloader(true)
       const data = await transaction_Service.getInwardTransaction(userCountry)
       setInboundTransaction(data || [])
-      setcommonloader(false)
+    //  setcommonloader(false)
     } catch (error) {
       console.log(error)
     }
@@ -601,6 +601,7 @@ getAllTransactions(0,10,filter.value)
     filterQuery: string = "") => {
     try {
       // setcommonloader(true)
+      setIsLoading(true)
       var data: any;
     if(filterQuery.length>0){
 data=  await transaction_Service.getTransactionbyquery( filterQuery,userCountry)
@@ -661,8 +662,9 @@ data=  await transaction_Service.getOutwardAllTransaction(userCountry, page, siz
         setcommonloader(false)
       } catch (error) {
         console.log(error)
-        setcommonloader(false)
-      }
+      }finally {
+    setIsLoading(false)  
+  }
     },
     [transactionType, userCountry],
   )
@@ -886,9 +888,10 @@ data=  await transaction_Service.getOutwardAllTransaction(userCountry, page, siz
             filterModel={filterModel}
             onFilterModelChange={handleFilterChange}
             rowCount={1000}
-            loading={getLoadingState()}
+            //loading={getLoadingState()}
             columnVisibilityModel={columnVisibilityModel}
             onColumnVisibilityModelChange={setColumnVisibilityModel}
+            loading={isLoading}
             slots={{
               loadingOverlay: LoaderUI.LoadingOverlay,
               toolbar: () => <CustomToolbar downloadCSV={downloadCSV} downloadPDF={downloadPDF} />,

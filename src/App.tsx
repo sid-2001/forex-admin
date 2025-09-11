@@ -48,6 +48,7 @@ function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
     authenticationPath: '/login',
   }
+  
 
   const [mode, setMode] = useRecoilState(themeModeState)
   const theme = createTheme({
@@ -167,7 +168,7 @@ function App() {
             </Route>
 
             <Route path="login" element={<Login />} />
-            <Route path="transaction/create" element={<GifModal />} />
+            <Route path="transaction/response" element={<GifModal />} />
             <Route path="reset-password" element={<ResetPasswordPage />} />
           </Routes>
         </BrowserRouter>
