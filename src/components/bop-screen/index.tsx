@@ -240,15 +240,29 @@ const BopScreen: React.FC = () => {
   const fetchStaticBopMapping = async (bopCategoryValue: string) => {
     //@ts-ignore
     const countryCode = countryCodes[parseData?.staffCountry]
+
     try {
-      const response = await bopService.getStaticTableBopData(countryCode)
+      const { data } = await bopService.getStaticTableBopData(countryCode)
       //Mapping of bop data
-      if (response.key2 === userLoggedInCountry && response.value1 === bopCategoryValue) {
+
+      if (userLoggedInCountry === data.countryCode) {
         setbopCat((prev: any) => ({
           ...prev,
-          bop_category: response.value2,
+          bop_category: data.value1,
+        }))
+      } else {
+        setbopCat((prev: any) => ({
+          ...prev,
+          bop_category: bopCategoryValue,
         }))
       }
+
+      // if (data.key2 === userLoggedInCountry && data.value1 === bopCategoryValue) {
+      //   setbopCat((prev: any) => ({
+      //     ...prev,
+      //     bop_category: data.value2,
+      //   }))
+      // }
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -502,50 +516,54 @@ const BopScreen: React.FC = () => {
               />
             </Grid>
 
-            <Grid item xs={3}>
-              <TextField
-                size="small"
-                label="Excon Ruling Indicator"
-                variant="outlined"
-                name="excon_ruling_indicator"
-                value={bopCat?.excon_ruling_indicator || ''}
-                disabled
-                fullWidth
-              />
-            </Grid>
-            <Grid item xs={3}>
-              <TextField
-                size="small"
-                label="Excon Ruling Section"
-                variant="outlined"
-                name="excon_ruling_section"
-                value={bopCat?.excon_ruling_section || ''}
-                disabled
-                fullWidth
-              />
-            </Grid>
-            <Grid item xs={3}>
-              <TextField
-                size="small"
-                label="Adhoc Subject"
-                variant="outlined"
-                name="adhoc_subject"
-                value={bopCat?.adhoc_subject || ''}
-                disabled
-                fullWidth
-              />
-            </Grid>
-            <Grid item xs={3}>
-              <TextField
-                size="small"
-                label="Subject Description"
-                variant="outlined"
-                name="subject_description"
-                value={bopCat?.subject_description || ''}
-                disabled
-                fullWidth
-              />
-            </Grid>
+            {userLoggedInCountry === 'ZA' && (
+              <>
+                <Grid item xs={3}>
+                  <TextField
+                    size="small"
+                    label="Excon Ruling Indicator"
+                    variant="outlined"
+                    name="excon_ruling_indicator"
+                    value={bopCat?.excon_ruling_indicator || ''}
+                    disabled
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={3}>
+                  <TextField
+                    size="small"
+                    label="Excon Ruling Section"
+                    variant="outlined"
+                    name="excon_ruling_section"
+                    value={bopCat?.excon_ruling_section || ''}
+                    disabled
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={3}>
+                  <TextField
+                    size="small"
+                    label="Adhoc Subject"
+                    variant="outlined"
+                    name="adhoc_subject"
+                    value={bopCat?.adhoc_subject || ''}
+                    disabled
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={3}>
+                  <TextField
+                    size="small"
+                    label="Subject Description"
+                    variant="outlined"
+                    name="subject_description"
+                    value={bopCat?.subject_description || ''}
+                    disabled
+                    fullWidth
+                  />
+                </Grid>
+              </>
+            )}
           </Grid>
 
           <Box mt={3}>
