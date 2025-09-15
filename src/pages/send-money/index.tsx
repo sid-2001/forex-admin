@@ -1059,14 +1059,14 @@ const handleZapperPaymentGateway= async()=>{
                   />
 
                      <ConfirmAndPayButton
-                    imgUrl="https://www.peachpayments.com/hubfs/peachpayments-logo.svg"
+                    imgUrl="https://zapper.gitbook.io/zapper-platform/~gitbook/image?url=https%3A%2F%2F3889691800-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F-M4tIVi0eT23PM2ng2_g%252Ficon%252Ffg6xU4qKsy5lQJ83OvI0%252FRounded.svg%3Falt%3Dmedia%26token%3D28b1c6cc-492e-43da-a8d8-230b9ac27b70&width=32&dpr=4&quality=100&sign=9960cbd3&sv=2"
                     handleClick={() => ( handleZapperPaymentGateway()  )}
                   />
                 </>
               ) : (
                 <>
                   <ConfirmAndPayButton
-                    imgUrl="https://media.licdn.com/dms/image/v2/C560BAQF4u3uIRgM6Cg/company-logo_200_200/company-logo_200_200/0/1632367052546/cashfree_logo?e=1749081600&v=beta&t=sL4clktovuYkc63HKbm9-vhHI0HYzzTPiFwSMGtu1iM"
+                    imgUrl="https://zapper.gitbook.io/zapper-platform/~gitbook/image?url=https%3A%2F%2F3889691800-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F-M4tIVi0eT23PM2ng2_g%252Ficon%252Ffg6xU4qKsy5lQJ83OvI0%252FRounded.svg%3Falt%3Dmedia%26token%3D28b1c6cc-492e-43da-a8d8-230b9ac27b70&width=32&dpr=4&quality=100&sign=9960cbd3&sv=2"
                     handleClick={() => handleCashfreePaymentClick()}
                   />
 
