@@ -68,6 +68,10 @@ class LocalStorageService {
   get_resetpasswordtoken() {
     return this.get('reset_password_token')
   }
+  get_userCurrency(){
+
+    return this.get("userCurrencyState")
+  }
 }
 
 export { LocalStorageService }

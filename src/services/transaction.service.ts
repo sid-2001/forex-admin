@@ -161,8 +161,9 @@ export class TransactionService extends BaseService {
     }
   }
 
-  async createZaphierTransaction(payload: { amount: any; currency: any }) {
-    const url = `/api/zaphier/generate-uuid`
+  async createZaphierTransaction(payload: { amount: any,  currencyISOCode: any,
+  transactionNumber: any}) {
+    const url = `/api/transactions/zapper/create-session`
     try {
       const { data } = await api1.post(url, payload)
       return data
@@ -286,6 +287,21 @@ export class TransactionService extends BaseService {
     try {
       const data = await api1.get(url)
       return data?.data
+    } catch (err) {
+      console.log(err)
+    }
+  }
+      async createTransactionSeesionSummary(
+        //@ts-ignore
+        trnasaction_id:String,body:{
+  amount: String,
+  currencyISOCode: String,
+  transactionNumber: String
+}) {
+    const url = `api/zapper/create-session`
+    try {
+      const {data} = await api1.post(url,body)
+      return data
     } catch (err) {
       console.log(err)
     }

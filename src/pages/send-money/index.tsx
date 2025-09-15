@@ -127,6 +127,7 @@ const SendMoneyPage = () => {
   const [url, seturl] = useState<string>('')
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  
 
   const applicantId = searchParams.get('applicantId')
 
@@ -374,6 +375,8 @@ const SendMoneyPage = () => {
     vatCharges: 0,
     rewardPoints: 23.7,
     amount: amount,
+    // fcmToken: "",
+
     applicant: {
       applicantId: selectedUser?.applicantId,
       accountNumber: selectedUser?.accountNumber,
@@ -392,7 +395,7 @@ const SendMoneyPage = () => {
       avatarUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a0/Paypal.svg',
     },
     gatewayId: 'IMPGW004',
-    gatewayStatus: 'Success',
+    gatewayStatus: 'Processing',
     selectedTimeMethod: selectedTime,
     sourceCurrency: userCountry === 'ZA' ? 'ZAR' : 'INR',
     sourceCountry: userCountry,
@@ -400,6 +403,7 @@ const SendMoneyPage = () => {
     timecharge: selectedTime?.time,
     totalpaybleamount: Number(amount) + Number(selectedTimeChange) + Number(gatewayCharge),
     transferMethod: selectedTransferMethod,
+      // transactionId: "ZAOWRM250814IN2524",
   }
 
   const dealCoverPayload = {
@@ -409,6 +413,44 @@ const SendMoneyPage = () => {
     applicantId: selectedUser?.applicantId as any,
     rate: Number(forexRate),
   }
+
+
+const handleZapperPaymentGateway= async()=>{
+    setCommonLoader(true)
+  const txnResponse = await transaction_service.createTransaction(transactionPayload)
+      if (txnResponse?.status) {
+        setCommonLoader(true)
+        if (txnResponse?.data) {
+          settype('success')
+          setText('Transaction created Succesfully')
+        } else {
+          settype('error')
+          setText('Failed to Create Transaction')
+        }
+        setOpen(true)
+      
+
+
+     let zapper_trans= await transaction_service.createZaphierTransaction({
+
+            amount:transactionPayload?.amount,
+            currencyISOCode:"ZAR",
+            transactionNumber:txnResponse?.data
+
+                    })
+
+
+                      setcommonloader(false)
+                  
+                    console.log(zapper_trans?.data?.redirectUrl)
+
+        window.location.href=zapper_trans?.data?.redirectUrl
+
+        // navigate('/transaction')
+      
+      }
+
+}
 
   const handleOzowPaymentClick = async () => {
     try {
@@ -1018,7 +1060,7 @@ const SendMoneyPage = () => {
 
                      <ConfirmAndPayButton
                     imgUrl="https://www.peachpayments.com/hubfs/peachpayments-logo.svg"
-                    handleClick={() => ( generateZapperSessionIdApi())}
+                    handleClick={() => ( handleZapperPaymentGateway()  )}
                   />
                 </>
               ) : (

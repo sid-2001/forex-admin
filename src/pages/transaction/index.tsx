@@ -696,6 +696,7 @@ data=  await transaction_Service.getOutwardAllTransaction(userCountry, page, siz
     transaction_Service
       .createZaphierTransaction({
         amount: Number(create_trx?.totalpaybleamount),
+        //@ts-ignore
         currency: 'ZAR',
       })
       .then((data) => {
