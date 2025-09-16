@@ -314,18 +314,23 @@ const DashboardLayout = () => {
         sx={{
           //@ts-ignore
           paddingBottom: 0,
-          
         }}
       >
-        <Toolbar>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', px: 2, py: 1,  }}>
+        <Toolbar sx={{ minHeight: '8vh', height: '7.5vh' }}> {/* lock height in vh */}
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', px: 2, py: 1 }}>
             {/* Logo */}
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Link to='/dashboard' >
-                <img src={LogoWhite} alt="Logo" style={{ height: 55 }} />
+              <Link to='/dashboard'>
+                <img
+                  src={LogoWhite}
+                  alt="Logo"
+                  style={{
+                    maxHeight: '4vh', // keeps logo inside navbar height
+                    width: 'auto',
+                    objectFit: 'contain',
+                  }}
+                />
               </Link>
-
-
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, color: 'white' }}>
@@ -370,7 +375,7 @@ const DashboardLayout = () => {
                     variant="subtitle1"
                     sx={{
                       fontFamily: 'sans-serif',
-                      fontSize: '12px',
+                      fontSize: '1.2vh', // scaled with vh
                       color: 'white',
                       whiteSpace: 'nowrap',
                     }}
@@ -383,8 +388,10 @@ const DashboardLayout = () => {
                       variant="subtitle2"
                       sx={{
                         fontFamily: 'sans-serif',
-                        fontSize: '11px',
+                        fontSize: '1.1vh',
                         color: 'white',
+                        whiteSpace: 'nowrap',
+
                       }}
                     >
                       <strong>{local_service?.get_staff_access().staffId}</strong>
@@ -399,8 +406,10 @@ const DashboardLayout = () => {
                     variant="subtitle1"
                     sx={{
                       fontFamily: 'sans-serif',
-                      fontSize: '12px',
+                      fontSize: '1.2vh',
                       color: 'white',
+                      whiteSpace: 'nowrap',
+
                     }}
                   >
                     <strong>{local_service?.get_staff_access()?.staffFirstName + ' ' + local_service?.get_staff_access()?.staffLastName}</strong>
@@ -411,7 +420,7 @@ const DashboardLayout = () => {
                       variant="subtitle2"
                       sx={{
                         fontFamily: 'sans-serif',
-                        fontSize: '11px',
+                        fontSize: '1.1vh',
                         color: 'white',
                       }}
                     >
