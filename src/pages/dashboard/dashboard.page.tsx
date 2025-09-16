@@ -1,12 +1,8 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react'
 import { Box, Card, CardContent, Typography, Grid, Avatar, Stack, CardMedia, Switch, IconButton, Skeleton } from '@mui/material'
-import { AttachMoney, People, TrendingUp } from '@mui/icons-material'
-import ArrowLeftIcon from '@mui/icons-material/ArrowLeft'
-import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { useTheme } from '@mui/material/styles'
-import ShowChartIcon from '@mui/icons-material/ShowChart'
 import { TransactionService } from '@/services/transaction.service'
 import { PaymentGateway } from '@/types/static.type'
 import staticdataService from '@/services/staticdata.service'
@@ -33,7 +29,6 @@ const Dashboard = () => {
   }
 
   // Modal state
-  const [openModal, setOpenModal] = useState<any>(false)
 
   const [applicatnData, setapplicantData] = useState<
     Array<{
