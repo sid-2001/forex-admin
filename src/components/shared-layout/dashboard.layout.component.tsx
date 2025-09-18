@@ -327,9 +327,9 @@ const DashboardLayout = () => {
                   src={LogoWhite}
                   alt="Logo"
                   style={{
-                    maxHeight: '4vh', // keeps logo inside navbar height
+                    maxHeight: '6vh', // keeps logo inside navbar height
                     width: 'auto',
-                    objectFit: 'contain',
+                   objectFit: 'contain',
                   }}
                 />
               </Link>
