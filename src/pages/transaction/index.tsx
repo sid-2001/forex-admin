@@ -433,7 +433,7 @@ const TransactionListing = () => {
   const [endDate, setEndDate] = useState<string | null>(null)
   const [stpErrors, setStpErrors] = useState<any>([])
   const [givenTransaction, setGivenTransaction] = useState<any>(null)
-const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   // Add state for row count
   const [rowCount, setRowCount] = useState(0)
 
@@ -487,17 +487,18 @@ const [isLoading, setIsLoading] = useState(false)
 
   // handle filter changes
   const handleFilterChange = (newFilterModel: GridFilterModel) => {
-    const filter=newFilterModel.items[0]
-    if(filter.field=="id"&&filter.value){try{
-
-    
-getAllTransactions(0,10,filter.value)
+    const filter = newFilterModel.items[0]
+    if (filter.field == "id" && filter.value) {
+      try {
 
 
-    }catch(err){
+        getAllTransactions(0, 10, filter.value)
 
 
-    }
+      } catch (err) {
+
+
+      }
 
 
     }
@@ -505,9 +506,9 @@ getAllTransactions(0,10,filter.value)
     // setFilterModel(newFilterModel);
   };
 
-   const handleResetFilter = () => {
+  const handleResetFilter = () => {
     setFilterModel({ items: [] });
-  getAllTransactions(0,10,"");
+    getAllTransactions(0, 10, "");
   };
 
   // Load default data on mount
@@ -534,7 +535,7 @@ getAllTransactions(0,10,filter.value)
       </Button>
 
 
-  <Button variant="outlined" startIcon={<FindReplaceIcon />} onClick={handleResetFilter} size='small' >
+      <Button variant="outlined" startIcon={<FindReplaceIcon />} onClick={handleResetFilter} size='small' >
         Reset Filters
       </Button>
     </GridToolbarContainer>
@@ -587,14 +588,15 @@ getAllTransactions(0,10,filter.value)
 
   const getInwardTransactionList = useCallback(async () => {
     try {
-     // setcommonloader(true)
-      const data = await transaction_Service.getInwardTransaction(userCountry)
-      setInboundTransaction(data || [])
-    //  setcommonloader(false)
+      const transactions = await transaction_Service.getInwardTransaction(userCountry)
+      setInboundTransaction(transactions)   // transactions is already the array
     } catch (error) {
       console.log(error)
     }
-  }, [])
+  }, [userCountry])
+
+
+
 
   const getAllTransactions = useCallback(async (page: number, size: number,
     //@ts-ignore
@@ -603,69 +605,69 @@ getAllTransactions(0,10,filter.value)
       // setcommonloader(true)
       setIsLoading(true)
       var data: any;
-    if(filterQuery.length>0){
-data=  await transaction_Service.getTransactionbyquery( filterQuery,userCountry)
+      if (filterQuery.length > 0) {
+        data = await transaction_Service.getTransactionbyquery(filterQuery, userCountry)
 
 
+      }
+      else {
+        data = await transaction_Service.getOutwardAllTransaction(userCountry, page, size)
+
+
+      }
+      console.log("outbound trx:", data)
+
+      const outbound: Array<TransactionOutward> | any = data
+        ?.map((e: any) => {
+          return {
+            ...e.transactionGatewayDTO,
+            ...e.beneficiary,
+            ...e.applicant,
+            id: e?.transactionGatewayDTO?.transactionNumber,
+            destination: e?.transactionGatewayDTO?.receiveCountry,
+            value: e?.transactionGatewayDTO?.principalAmount,
+            currency: e?.transactionGatewayDTO?.settlementCurrency,
+            settlement: helper.roundToTwoFixed(e?.transactionGatewayDTO?.principalAmount * e?.transactionGatewayDTO?.exchangeRates),
+            destinationBank: e?.transactionGatewayDTO?.destinationBankBicCode,
+            forex: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates),
+            date: e?.transactionGatewayDTO?.owCreatedDate,
+            reporting: e?.transactionGatewayDTO?.reportingStatus,
+            status: e?.transactionGatewayDTO?.transactionStatus,
+            final_amount: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates * e?.transactionGatewayDTO?.principalAmount),
+            applicant: e?.applicant,
+            gateway_name: e?.transactionGatewayDTO?.forexPaymentGateway?.company,
+            //@ts-ignore
+            inid: e?.transactionInwardNumber,
+          }
+        })
+        ?.filter((transaction: any) => {
+          if (queryParams.get('id') != null) {
+            return transaction?.id == queryParams.get('id')
+          }
+
+          if (userCountry === 'IN') {
+            return transaction.destination?.toLowerCase() !== 'in'
+          } else if (userCountry === 'ZA') {
+            return transaction.destination?.toLowerCase() !== 'za'
+          }
+          return true
+        })
+
+
+      console.log("outbound transaction", outbound)
+
+      setOutboundTransaction(outbound);
+
+      // Set the total row count for pagination
+      setRowCount(data?.totalElements || 0)
+
+      setcommonloader(false)
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setIsLoading(false)
     }
-    else{
-data=  await transaction_Service.getOutwardAllTransaction(userCountry, page, size)
-
-
-    }
-    console.log("outbound trx:",data)
-
-        const outbound: Array<TransactionOutward> | any = data
-          ?.map((e: any) => {
-            return {
-              ...e.transactionGatewayDTO,
-              ...e.beneficiary,
-              ...e.applicant,
-              id: e?.transactionGatewayDTO?.transactionNumber,
-              destination: e?.transactionGatewayDTO?.receiveCountry,
-              value: e?.transactionGatewayDTO?.principalAmount,
-              currency: e?.transactionGatewayDTO?.settlementCurrency,
-              settlement: helper.roundToTwoFixed(e?.transactionGatewayDTO?.principalAmount * e?.transactionGatewayDTO?.exchangeRates),
-              destinationBank: e?.transactionGatewayDTO?.destinationBankBicCode,
-              forex: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates),
-              date: e?.transactionGatewayDTO?.owCreatedDate,
-              reporting: e?.transactionGatewayDTO?.reportingStatus,
-              status: e?.transactionGatewayDTO?.transactionStatus,
-              final_amount: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates * e?.transactionGatewayDTO?.principalAmount),
-              applicant: e?.applicant,
-              gateway_name: e?.transactionGatewayDTO?.forexPaymentGateway?.company,
-              //@ts-ignore
-              inid: e?.transactionInwardNumber,
-            }
-          })
-          ?.filter((transaction: any) => {
-            if (queryParams.get('id') != null) {
-              return transaction?.id == queryParams.get('id')
-            }
-
-            if (userCountry === 'IN') {
-              return transaction.destination?.toLowerCase() !== 'in'
-            } else if (userCountry === 'ZA') {
-              return transaction.destination?.toLowerCase() !== 'za'
-            }
-            return true
-          })
-
-
-        console.log("outbound transaction",outbound)
-   
-       setOutboundTransaction(outbound);
-
-        // Set the total row count for pagination
-        setRowCount(data?.totalElements || 0)
-
-        setcommonloader(false)
-      } catch (error) {
-        console.log(error)
-      }finally {
-    setIsLoading(false)  
-  }
-    },
+  },
     [transactionType, userCountry],
   )
 
@@ -677,7 +679,7 @@ data=  await transaction_Service.getOutwardAllTransaction(userCountry, page, siz
     }
     getApplicantDetails()
     getInwardTransactionList()
-    getAllTransactions(0, 20)
+    //getAllTransactions(0, 20)
     setGivenTransaction(queryParams.get('id'))
   }, [])
 
@@ -1113,7 +1115,7 @@ data=  await transaction_Service.getOutwardAllTransaction(userCountry, page, siz
         </DialogActions>
       </Dialog>
 
-      <CompliancTool open={toolopen} setOpen={setToolOpen} userList={userList} fetchUserDetails={() => {}} />
+      <CompliancTool open={toolopen} setOpen={setToolOpen} userList={userList} fetchUserDetails={() => { }} />
 
       <Modal open={modalOpen} onClose={() => setmodalOpen(false)}>
         <Box
@@ -1168,8 +1170,8 @@ data=  await transaction_Service.getOutwardAllTransaction(userCountry, page, siz
             slots={{
               loadingOverlay: LoaderUI.LoadingOverlay,
             }}
-              filterMode="server"
-        onFilterModelChange={handleFilterChange}
+            filterMode="server"
+            onFilterModelChange={handleFilterChange}
             pageSizeOptions={[10]}
             getRowId={(row: any) => row.id} // Ensure proper row ID handling
           />
