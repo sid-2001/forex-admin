@@ -233,7 +233,7 @@ export class TransactionService extends BaseService {
   }
 
   async createOrder(payload: any) {
-    const url = `/api/create-order`
+    const url = `/api/transactions/cashfree/create-order`
     try {
       const { data } = await api1.post(url, payload)
       return data

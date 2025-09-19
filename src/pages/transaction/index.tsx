@@ -876,20 +876,23 @@ data=  await transaction_Service.getOutwardAllTransaction(userCountry, page, siz
         }}
       >
         {helper.checkUserHasPermission(getTransactionPermission(), 'canRead') && (
-          <DataGrid
+
+          
+transactionType == 'inwards'?<>
+ <DataGrid
             rows={transactionType === 'inwards' ? inboundTransaction : outboundTransaction || []}
             //@ts-ignore
             columns={transactionType === 'inwards' ? inward_columns : columns_outward}
             getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
-            pageSizeOptions={[10, 20, 50]}
-            paginationMode="server"
-            filterMode="server"
-            paginationModel={paginationModel}
-            onPaginationModelChange={handlePaginationChange}
-            filterModel={filterModel}
-            onFilterModelChange={handleFilterChange}
-            rowCount={1000}
-            //loading={getLoadingState()}
+            // pageSizeOptions={[10, 20, 50]}
+            // paginationMode="server"
+            // filterMode="server"
+            // paginationModel={paginationModel}
+            // onPaginationModelChange={handlePaginationChange}
+            // filterModel={filterModel}
+            // onFilterModelChange={handleFilterChange}
+            // rowCount={1000}
+            loading={getLoadingState()}
             columnVisibilityModel={columnVisibilityModel}
             onColumnVisibilityModelChange={setColumnVisibilityModel}
             loading={isLoading}
@@ -909,6 +912,46 @@ data=  await transaction_Service.getOutwardAllTransaction(userCountry, page, siz
               },
             }}
           />
+
+</>:<>
+ <DataGrid
+            rows={transactionType === 'inwards' ? inboundTransaction : outboundTransaction || []}
+            //@ts-ignore
+            columns={transactionType === 'inwards' ? inward_columns : columns_outward}
+            getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
+            pageSizeOptions={[10, 20, 50]}
+            paginationMode="server"
+            filterMode="server"
+            paginationModel={paginationModel}
+            onPaginationModelChange={handlePaginationChange}
+            filterModel={filterModel}
+            onFilterModelChange={handleFilterChange}
+            rowCount={1000}
+            loading={getLoadingState()}
+            columnVisibilityModel={columnVisibilityModel}
+            onColumnVisibilityModelChange={setColumnVisibilityModel}
+            
+            loading={isLoading}
+            slots={{
+              loadingOverlay: LoaderUI.LoadingOverlay,
+              toolbar: () => <CustomToolbar downloadCSV={downloadCSV} downloadPDF={downloadPDF} />,
+            }}
+            disableRowSelectionOnClick
+            sx={{
+              '& .MuiDataGrid-root': {
+                border: '1 px solid blue',
+              },
+              '& .MuiDataGrid-cell': {
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              },
+            }}
+          />
+</>
+          
+          
+         
         )}
       </Box>
 

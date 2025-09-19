@@ -616,8 +616,24 @@ const handleZapperPaymentGateway= async()=>{
 
   const handleCashfreePaymentClick = async () => {
     try {
-      const response = await transaction_service.createOrder({ amount })
+
+
+        const txnResponse = await transaction_service.createTransaction(transactionPayload)
+      if (txnResponse?.status) {
+        setCommonLoader(true)
+        if (txnResponse?.data) {
+          settype('success')
+          setText('Transaction created Succesfully')
+        } else {
+          settype('error')
+          setText('Failed to Create Transaction')
+        }
+        setOpen(true)
+
+      const response = await transaction_service.createOrder({     amount:transactionPayload?.amount,transactionId:txnResponse?.data })
       const { payment_session_id } = response
+
+      console.log(response)
 
       const { data } = await transaction_service.createDealcover(dealCoverPayload)
 
@@ -671,7 +687,7 @@ const handleZapperPaymentGateway= async()=>{
       document.open()
       document.write(htmlContent)
       document.close()
-    } catch (error) {
+  }  } catch (error) {
       console.error('Payment initiation failed:', error)
       alert('Payment failed. Please try again.')
     }
@@ -1066,7 +1082,7 @@ const handleZapperPaymentGateway= async()=>{
               ) : (
                 <>
                   <ConfirmAndPayButton
-                    imgUrl="https://zapper.gitbook.io/zapper-platform/~gitbook/image?url=https%3A%2F%2F3889691800-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F-M4tIVi0eT23PM2ng2_g%252Ficon%252Ffg6xU4qKsy5lQJ83OvI0%252FRounded.svg%3Falt%3Dmedia%26token%3D28b1c6cc-492e-43da-a8d8-230b9ac27b70&width=32&dpr=4&quality=100&sign=9960cbd3&sv=2"
+                    imgUrl="https://cashfreelogo.cashfree.com/website/landings-cache/landings/logo-lightbg_3x.webp"
                     handleClick={() => handleCashfreePaymentClick()}
                   />
 
