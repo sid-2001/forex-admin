@@ -895,6 +895,7 @@ transactionType == 'inwards'?<>
             loading={getLoadingState()}
             columnVisibilityModel={columnVisibilityModel}
             onColumnVisibilityModelChange={setColumnVisibilityModel}
+            //@ts-ignore
             loading={isLoading}
             slots={{
               loadingOverlay: LoaderUI.LoadingOverlay,
