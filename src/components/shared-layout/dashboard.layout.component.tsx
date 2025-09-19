@@ -312,6 +312,8 @@ const DashboardLayout = () => {
       <AppBar
         position="sticky"
         sx={{
+          minHeight: '8vh',   // AppBar height relative to viewport
+          height: '8vh',
           //@ts-ignore
           paddingBottom: 0,
         }}
@@ -325,9 +327,9 @@ const DashboardLayout = () => {
                   src={LogoWhite}
                   alt="Logo"
                   style={{
-                    maxHeight: '4vh', // keeps logo inside navbar height
+                    maxHeight: '6vh', // keeps logo inside navbar height
                     width: 'auto',
-                    objectFit: 'contain',
+                   objectFit: 'contain',
                   }}
                 />
               </Link>
@@ -442,17 +444,17 @@ const DashboardLayout = () => {
               width: isDrawerOpen ? 200 : 100,
               //@ts-ignore
               backgroundColor: theme.palette.secondary.main,
-              height: '100vh',
-              position: 'fixed', // Makes the sidebar stay fixed in place
-              top: 76, // Stick to the top of the viewport
-              left: 0, // Stick to the left of the viewport
-              overflow: 'hidden',
+              position: 'fixed',
+              top: '8vh',                   
+              left: 0,
+              height: 'calc(100vh - 8vh)', 
+              overflowY: 'auto',            
               boxShadow: '2px 0 5px rgba(0,0,0,0.3)',
-              transition: 'width 0.3s', // Smooth transition for open/close
-              zIndex: 1500, // Ensure it's above other elements
+              transition: 'width 0.3s',
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'space-between', // Space items out, so logout stays at the bottom
+              justifyContent: 'space-between',
+              zIndex: 1500,
             }}
           >
             <List
@@ -462,7 +464,7 @@ const DashboardLayout = () => {
                 textAlign: 'center',
                 height: '100%',
                 '@media (max-height: 700px)': {
-                  maxHeight: 'calc(100vh - 80px)', // Adjust based on AppBar height
+                  maxHeight: 'calc(100vh - 80px)', 
                 },
                 '&::-webkit-scrollbar': {
                   width: '8px',

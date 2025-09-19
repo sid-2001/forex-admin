@@ -32,14 +32,15 @@ export class TransactionService extends BaseService {
   }
 
   async getInwardTransaction(receving_country: any): Promise<Array<TransactionInward>> {
-    try {
-      const url = `/api/transactions/transaction-inward/receivingCountry/${receving_country}`
-      const data = await api1.get(url)
-      return data?.transactionDetailList as any
-    } catch (e) {
-      throw new Error(e as any)
-    }
+  try {
+    const url = `/api/transactions/transaction-inward/receivingCountry/${receving_country}`
+    const response = await api1.get(url)
+    return response?.data || []  
+  } catch (e) {
+    throw new Error(e as any)
   }
+}
+
   async getLoyaltyMasterData(): Promise<any> {
     const url = '/api/transactions/loyalty-master'
     try {
