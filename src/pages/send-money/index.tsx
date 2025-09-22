@@ -618,22 +618,22 @@ const handleZapperPaymentGateway= async()=>{
     try {
 
 
-        const txnResponse = await transaction_service.createTransaction(transactionPayload)
-      if (txnResponse?.status) {
-        setCommonLoader(true)
-        if (txnResponse?.data) {
-          settype('success')
-          setText('Transaction created Succesfully')
-        } else {
-          settype('error')
-          setText('Failed to Create Transaction')
-        }
-        setOpen(true)
+      //   const txnResponse = await transaction_service.createTransaction(transactionPayload)
+      //   debugger;
+      // if (txnResponse?.status) {
+      //   setCommonLoader(true)
+      //   if (txnResponse?.data) {
+      //     settype('success')
+      //     setText('Transaction created Succesfully')
+      //   } else {
+      //     settype('error')
+      //     setText('Failed to Create Transaction')
+      //   }
+      //   setOpen(true)
 
-      const response = await transaction_service.createOrder({     amount:transactionPayload?.amount,transactionId:txnResponse?.data })
-      const { payment_session_id } = response
 
-      console.log(response)
+
+      // console.log(response)
 
       const { data } = await transaction_service.createDealcover(dealCoverPayload)
 
@@ -643,16 +643,17 @@ const handleZapperPaymentGateway= async()=>{
           setCommonLoader(true)
           if (txnResponse?.data) {
             settype('success')
-            setText('Transaction created Succesfully')
+            setText('Transaction Redicect Success')
           } else {
             settype('error')
-            setText('Failed to Create Transaction')
+            setText('Failed to Redircet Transaction')
           }
           setOpen(true)
           setcommonloader(false)
-          navigate('/transaction')
-        }
-      }
+          // navigate('/transaction')
+
+    const response = await transaction_service.createOrder({     amount:transactionPayload?.amount,transactionId:txnResponse?.data })
+      const { payment_session_id } = response
 
       if (!payment_session_id) {
         alert('Failed to get session ID')
@@ -687,7 +688,14 @@ const handleZapperPaymentGateway= async()=>{
       document.open()
       document.write(htmlContent)
       document.close()
-  }  } catch (error) {
+
+        }
+      }
+
+
+        
+
+  }   catch (error) {
       console.error('Payment initiation failed:', error)
       alert('Payment failed. Please try again.')
     }

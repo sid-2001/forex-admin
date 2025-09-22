@@ -728,7 +728,7 @@ const TransactionListing = () => {
       forex: row.exchangeRates,
       gatewayId: '13122',
       //@ts-ignore
-      timecharge: row.charges,
+      timecharge: row?.charges,
       sourceCurrency: userCountry === 'ZA' ? 'ZAR' : 'INR',
       sourceCountry: userCountry,
       destinationCurrency: userCountry === 'ZA' ? 'INR' : 'ZAR',
