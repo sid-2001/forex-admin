@@ -29,8 +29,8 @@ import TransactionTable from '../transaction-table'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useNavigate } from 'react-router-dom';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 
 const UtilizationEnquiryForm: React.FC = () => {
@@ -46,11 +46,11 @@ const UtilizationEnquiryForm: React.FC = () => {
   const appilicant_service = new ApplicantService()
   const helper = new HelperService()
   const local_service = new LocalStorageService()
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   const [filteredUsers, setFilteredUsers] = useState<any[]>([])
   const [selectedUser, setSelectedUser] = useState<any | null>(null)
   const [searchText, setSearchText] = useState('')
-  const [applicantContactDetails, setApplicantContactDetails] = useState([]);
+  const [applicantContactDetails, setApplicantContactDetails] = useState([])
   const [userlist, setUserList] = useState<any[]>([])
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -110,19 +110,11 @@ const UtilizationEnquiryForm: React.FC = () => {
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.COMPLIANCE_MONITOR}>
       <Box sx={{ flexGrow: 1, p: 1 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-          <Typography
-            variant="h4"
-            fontWeight="bold"
-            textAlign="left"
-          >
+          <Typography variant="h4" fontWeight="bold" textAlign="left">
             Limit Utilization
           </Typography>
 
-          <Button
-            variant="outlined"
-            startIcon={<ArrowBackIcon />}
-            onClick={() => navigate(-1)}
-          >
+          <Button variant="outlined" startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)}>
             Back
           </Button>
         </Box>
@@ -162,9 +154,7 @@ const UtilizationEnquiryForm: React.FC = () => {
                     setApplicantId('')
                   } else {
                     const filtered = userlist.filter(
-                      (user) =>
-                        user?.name?.toLowerCase().includes(input.toLowerCase()) ||
-                        user.id.toString().includes(input)
+                      (user) => user?.name?.toLowerCase().includes(input.toLowerCase()) || user.id.toString().includes(input),
                     )
                     setFilteredUsers(filtered)
                   }
@@ -203,11 +193,9 @@ const UtilizationEnquiryForm: React.FC = () => {
                         <ListItemText primary={user.name} secondary={`ID: ${user.applicantId}`} />
                       </ListItem>
                     ))}
-
                   </List>
                 </Paper>
               )}
-
 
               <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }} disabled={!applicantId}>
                 Submit
@@ -223,7 +211,7 @@ const UtilizationEnquiryForm: React.FC = () => {
               <Grid container spacing={2} sx={{ mb: 2 }}>
                 <Grid item xs={12} sm={3}>
                   <TextField
-                  variant='filled'
+                    variant="filled"
                     label="Applicant Name"
                     value={applicantData?.applicant?.firstName ?? 'No Data Found'}
                     fullWidth
@@ -232,7 +220,7 @@ const UtilizationEnquiryForm: React.FC = () => {
                 </Grid>
                 <Grid item xs={12} sm={3}>
                   <TextField
-                  variant='filled'
+                    variant="filled"
                     label="Nationality"
                     value={applicantData?.applicant?.nationality ?? 'No Data Found'}
                     fullWidth
@@ -241,26 +229,21 @@ const UtilizationEnquiryForm: React.FC = () => {
                 </Grid>
                 <Grid item xs={12} sm={3}>
                   <TextField
-                  variant='filled'
+                    variant="filled"
                     label="Residence Country"
-                    value={applicantData?.applicant?.ResidentialAddressCity ?? 'No Data Found'}
+                    value={applicantData?.applicant?.residentialAddressCountry ?? 'No Data Found'}
                     fullWidth
                     InputProps={{ readOnly: true }}
-                    
                   />
                 </Grid>
                 <Grid item xs={12} sm={3}>
                   <TextField
-                  variant='filled'
+                    variant="filled"
                     label="Phone"
-                    value={
-                      applicantData?.applicantContactDetails?.find((c: any) => c.contactType === 'phone')
-                        ?.contactDetails ?? 'No Data Found'
-                    }
+                    value={applicantData?.applicantContactDetails?.find((c: any) => c.contactType === 'phone')?.contactDetails ?? 'No Data Found'}
                     fullWidth
                     InputProps={{ readOnly: true }}
                   />
-
                 </Grid>
               </Grid>
 
@@ -279,10 +262,18 @@ const UtilizationEnquiryForm: React.FC = () => {
                       justifyContent: 'center',
                     }}
                   >
-                    <Typography variant="h6"><b>{apiType}</b></Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: 1 }}>Maximum Limit: {limitData?.maxLimit ?? 'No Data Found'}</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: 1 }}>Utilised Value: {limitData?.utilizedLimit ?? 'No Data Found'}</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: 1 }}>Avail Value: {limitData?.availableLimit ?? 'No Data Found'}</Typography>
+                    <Typography variant="h6">
+                      <b>{apiType}</b>
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: 1 }}>
+                      Maximum Limit: {limitData?.maxLimit ?? 'No Data Found'}
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: 1 }}>
+                      Utilised Value: {limitData?.utilizedLimit ?? 'No Data Found'}
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: 1 }}>
+                      Avail Value: {limitData?.availableLimit ?? 'No Data Found'}
+                    </Typography>
                   </Card>
                 </Grid>
 
@@ -301,8 +292,6 @@ const UtilizationEnquiryForm: React.FC = () => {
                   </Box>
                 </Grid>
               </Grid>
-
-
             </Box>
           )}
         </Grid>
@@ -312,4 +301,3 @@ const UtilizationEnquiryForm: React.FC = () => {
 }
 
 export default UtilizationEnquiryForm
-

@@ -30,6 +30,7 @@ const ApplicantPage = () => {
   const [applicantImage, setApplicantImage] = useState<string>('')
   const [applicantDocuments, setApplicantDocuments] = useState<any[]>([])
   const [applicantDetails, setApplicantDetails] = useState<any>({})
+  const parseData = local_service.get_staff_access()
 
   const [kycId, setKycId] = useState<string | null>(null)
 
@@ -382,15 +383,17 @@ const ApplicantPage = () => {
           </Grid>
 
           <Grid container spacing={2} marginBottom={2}>
-            <Grid item xs={12} sm={2.3}>
-              <TextField
-                variant="filled"
-                fullWidth
-                label="Suburb"
-                value={applicantDetails?.postalAddressSuburb || ''}
-                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-              />
-            </Grid>
+            {parseData?.staffCountry === 'ZA' && (
+              <Grid item xs={12} sm={2.3}>
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label="Suburb"
+                  value={applicantDetails?.postalAddressSuburb || ''}
+                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+                />
+              </Grid>
+            )}
 
             <Grid item xs={12} sm={2.3}>
               <TextField
@@ -459,15 +462,18 @@ const ApplicantPage = () => {
           </Grid>
 
           <Grid container spacing={2} marginBottom={2}>
-            <Grid item xs={12} sm={2.3}>
-              <TextField
-                variant="filled"
-                fullWidth
-                label="Suburb"
-                value={applicantDetails?.residentialAddressSuburb || ''}
-                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-              />
-            </Grid>
+            {parseData?.staffCountry === 'ZA' && (
+              <Grid item xs={12} sm={2.3}>
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label="Suburb"
+                  value={applicantDetails?.residentialAddressSuburb || ''}
+                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+                />
+              </Grid>
+            )}
+
             <Grid item xs={12} sm={2.3}>
               <TextField
                 variant="filled"

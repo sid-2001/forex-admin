@@ -729,17 +729,19 @@ const BopScreen: React.FC = () => {
               <Grid item xs={2}>
                 <TextField size="small" label="Email" variant="outlined" name="email" fullWidth value={formData.email || ''} disabled />
               </Grid>
-              <Grid item xs={2}>
-                <TextField
-                  size="small"
-                  label="Account Identifier"
-                  variant="outlined"
-                  name="account_identifier"
-                  fullWidth
-                  value={formData?.account_identifier || ''}
-                  disabled
-                />
-              </Grid>
+              {userLoggedInCountry === 'ZA' && (
+                <Grid item xs={2}>
+                  <TextField
+                    size="small"
+                    label="Account Identifier"
+                    variant="outlined"
+                    name="account_identifier"
+                    fullWidth
+                    value={formData?.account_identifier || ''}
+                    disabled
+                  />
+                </Grid>
+              )}
             </Grid>
 
             <Box mt={3}>
@@ -785,21 +787,22 @@ const BopScreen: React.FC = () => {
                   />
                 </FormControl>
               </Grid>
-
-              <Grid item xs={2.3}>
-                <TextField
-                  label="Suburb"
-                  fullWidth
-                  size="small"
-                  name="suburb"
-                  variant="outlined"
-                  value={formData.suburb || ''}
-                  onChange={handleChange}
-                  error={Boolean(formErrors.suburb)}
-                  helperText={formErrors.suburb}
-                  disabled={disableFormFieldsViaStatus || !isEditing}
-                />
-              </Grid>
+              {userLoggedInCountry === 'ZA' && (
+                <Grid item xs={2.3}>
+                  <TextField
+                    label="Suburb"
+                    fullWidth
+                    size="small"
+                    name="suburb"
+                    variant="outlined"
+                    value={formData.suburb || ''}
+                    onChange={handleChange}
+                    error={Boolean(formErrors.suburb)}
+                    helperText={formErrors.suburb}
+                    disabled={disableFormFieldsViaStatus || !isEditing}
+                  />
+                </Grid>
+              )}
               <Grid item xs={2.3}>
                 <TextField
                   label="City"
@@ -898,20 +901,22 @@ const BopScreen: React.FC = () => {
                 </FormControl>
               </Grid>
 
-              <Grid item xs={2.3}>
-                <TextField
-                  label="Postal Suburb"
-                  fullWidth
-                  size="small"
-                  name="postal_suburb"
-                  variant="outlined"
-                  value={formData.postal_suburb || ''}
-                  onChange={handleChange}
-                  error={Boolean(formErrors.postal_suburb)}
-                  helperText={formErrors.postal_suburb}
-                  disabled={disableFormFieldsViaStatus || !isEditing}
-                />
-              </Grid>
+              {userLoggedInCountry === 'ZA' && (
+                <Grid item xs={2.3}>
+                  <TextField
+                    label="Postal Suburb"
+                    fullWidth
+                    size="small"
+                    name="postal_suburb"
+                    variant="outlined"
+                    value={formData.postal_suburb || ''}
+                    onChange={handleChange}
+                    error={Boolean(formErrors.postal_suburb)}
+                    helperText={formErrors.postal_suburb}
+                    disabled={disableFormFieldsViaStatus || !isEditing}
+                  />
+                </Grid>
+              )}
               <Grid item xs={2.3}>
                 <TextField
                   label="Postal City"
@@ -1082,17 +1087,19 @@ const BopScreen: React.FC = () => {
                 disabled
               />
             </Grid>
-            <Grid item xs={2.3}>
-              <TextField
-                size="small"
-                label="Non Resident Account Identifier"
-                variant="outlined"
-                name="non_resident_identifier"
-                fullWidth
-                value={formData.non_resident_identifier || ''}
-                disabled
-              />
-            </Grid>
+            {userLoggedInCountry === 'ZA' && (
+              <Grid item xs={2.3}>
+                <TextField
+                  size="small"
+                  label="Non Resident Account Identifier"
+                  variant="outlined"
+                  name="non_resident_identifier"
+                  fullWidth
+                  value={formData.non_resident_identifier || ''}
+                  disabled
+                />
+              </Grid>
+            )}
           </Grid>
 
           <Box mt={3}>
