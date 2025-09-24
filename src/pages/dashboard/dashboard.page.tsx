@@ -407,15 +407,15 @@ const Dashboard = () => {
         {/* LEFT SIDE (Balances + Consumers + Volume + Recent Transactions) */}
         <Grid item xs={12} md={9}>
           <Grid container spacing={2}>
-            <Grid item xs={12} md={5}>
+            <Grid item xs={12} md={5} >
               {/* Available Balances */}
               <Card sx={{ border: '2px solid', borderColor: '#79CBF0', mb: 2 }}>
                 <CardContent>
-                  <Typography variant="h6" fontWeight={800} gutterBottom>
+                  <Typography variant="subtitle1" fontWeight={800} gutterBottom>
                     Available Balances
                   </Typography>
 
-                  <Grid container spacing={0}>
+                  <Grid container spacing={2}>
                     {bankAccounts.map((bank, index) => {
                       const colors = ['green', 'red', 'goldenrod'] // cycle
                       const borderColor = colors[index % colors.length]
