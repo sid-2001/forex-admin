@@ -243,7 +243,7 @@ const UtilizationEnquiryForm: React.FC = () => {
                   <TextField
                   variant='filled'
                     label="Residence Country"
-                    value={applicantData?.applicant?.ResidentialAddressCity ?? 'No Data Found'}
+                    value={applicantData?.applicant?.residentialAddressCountry ?? 'No Data Found'}
                     fullWidth
                     InputProps={{ readOnly: true }}
                     

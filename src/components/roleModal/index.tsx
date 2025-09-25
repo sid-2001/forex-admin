@@ -17,7 +17,7 @@ import HasPermission from '../permissionWrapper';
 const RoleModal = ({
   //@ts-ignore
   open, setSelectedRole,
- 
+
   //@ts-ignore
   onClose, initialData, onSave }
   //@ts-ignore
@@ -33,7 +33,8 @@ const RoleModal = ({
   const [allModules, setAllModules] = useState<any>([])
   const user_service = new UserService();
   const local_service = new LocalStorageService();
-  
+  const [selectOpen, setSelectOpen] = useState(false);
+
   const helper_service = new HelperService();
 
 
@@ -103,20 +104,24 @@ const RoleModal = ({
 
     setPermissions(updatedPermissions);
   };
-  
-  const handleToggle = (
-    //@ts-ignore
-    id, type) => {
-    setPermissions((prev: any) => ({
-      ...prev,
-      [id]: {
-        //@ts-ignore
-        ...prev[id],
-        //@ts-ignore
-        [type]: !prev[id][type],
-      },
-    }));
+
+  const handleToggle = (id: any, type: string) => {
+    setPermissions((prev: any) => {
+      const updated = {
+        ...prev,
+        [id]: {
+          ...prev[id],
+          [type]: !prev[id][type],
+        },
+      };
+      if (type !== 'read' && updated[id][type]) {
+        updated[id].read = true;
+      }
+
+      return updated;
+    });
   };
+
 
   const columns = [
     { field: 'moduleName', headerName: 'Module Name', width: 200 },
@@ -167,8 +172,8 @@ const RoleModal = ({
   ];
 
 
-  const handleSave =async () => {
-    
+  const handleSave = async () => {
+
     var payload
 
     if (roleId) {
@@ -177,7 +182,7 @@ const RoleModal = ({
         roleDescription: roleName,
         roleStatus: true,
         modules: selectedModules.map((id) => {
-          const mod = allModules.find((m:any) => m.moduleId === id);
+          const mod = allModules.find((m: any) => m.moduleId === id);
           return {
             staffModuleId: id,
             staffModuleDescription: `${mod?.moduleName} Screen`,
@@ -199,7 +204,7 @@ const RoleModal = ({
         roleDescription: roleName,
         roleStatus: true,
         modules: selectedModules.map((id) => {
-          const mod = allModules.find((m:any) => m.moduleId === id);
+          const mod = allModules.find((m: any) => m.moduleId === id);
           return {
             staffModuleId: id,
             staffModuleDescription: `${mod?.moduleName} Screen`,
@@ -216,13 +221,13 @@ const RoleModal = ({
 
       user_service.addRole(payload)
     }
-   
+
 
 
     settype('success')
     setText("Succesfully Updated Staff")
     setOpen(false)
-setSelectedRole(null)
+    setSelectedRole(null)
 
     setTimeout(() => {
 
@@ -255,23 +260,48 @@ setSelectedRole(null)
             renderValue={(selected) => (
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                 {selected.map((id) => {
-                  const mod = allModules.find((m:any) => m.moduleId === id);
+                  const mod = allModules.find((m: any) => m.moduleId === id);
                   return <Chip key={id} label={mod?.moduleName} />;
                 })}
               </Box>
             )}
+            open={selectOpen}
+            onOpen={() => setSelectOpen(true)}
+            onClose={() => setSelectOpen(false)}
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 300, padding: 1 }, // add padding for button
+              },
+            }}
           >
-            {allModules.map((mod:any) => (
+            {allModules.map((mod: any) => (
               <MenuItem key={mod.moduleId} value={mod.moduleId}>
                 {mod.moduleName}
               </MenuItem>
             ))}
+
+            {/* ✅ Done button aligned right, small & filled */}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1, px: 1 }}>
+              <Button
+                size="small"
+                variant="contained"
+                color="primary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectOpen(false);
+                }}
+              >
+                Done
+              </Button>
+            </Box>
           </Select>
         </FormControl>
 
+
+
         <div style={{ height: 400, width: '100%', marginTop: 16 }}>
           <DataGrid
-            rows={allModules.filter((m:any) => selectedModules.includes(
+            rows={allModules.filter((m: any) => selectedModules.includes(
               //@ts-ignore
               m?.moduleId))}
             columns={columns}
