@@ -54,7 +54,7 @@ const VerifyDocumentModal = (
             <TextField label="Issuing Authority" fullWidth value="SA Republic" sx={{ mb: 2 }} disabled />
             <Typography>
               <CloudDownloadIcon fontSize="small" />{' '}
-              <a href={sampledata.documentUrl} target="_blank" rel="noopener noreferrer">
+              <a href={sampledata?.documentUrl} target="_blank" rel="noopener noreferrer">
                 Download Document
               </a>
             </Typography>

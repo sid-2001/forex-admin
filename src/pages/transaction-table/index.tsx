@@ -121,7 +121,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.TRANSACTION_OUTWARD}>
-      <Box sx={{ width: '58vw'}}>
+      <Box sx={{ width: '46vw'}}>
         {transaction.length > 0 ? (
           <Box
             sx={{
