@@ -183,7 +183,7 @@ const LoginPage = () => {
             padding: '20px',
             backgroundColor: 'white',
             borderRadius: 2,
-            height: '60%',
+            height: '60',
             boxShadow: 3,
           }}
         >
