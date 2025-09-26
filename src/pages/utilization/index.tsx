@@ -154,7 +154,7 @@ const UtilizationEnquiryForm: React.FC = () => {
                     setApplicantId('')
                   } else {
                     const filtered = userlist.filter(
-                      (user) => user?.name?.toLowerCase().includes(input.toLowerCase()) || user.id.toString().includes(input),
+                      (user) => user?.name?.toLowerCase().includes(input.toLowerCase()) || user?.id?.toLowerCase().includes(input.toLowerCase()),
                     )
                     setFilteredUsers(filtered)
                   }
@@ -256,7 +256,7 @@ const UtilizationEnquiryForm: React.FC = () => {
                       p: 2,
                       background: 'linear-gradient(135deg,rgb(88, 175, 246) 0%,rgb(183, 203, 222) 50%,rgb(221, 226, 235) 100%)',
                       color: 'black',
-                      height: 200,
+                      height: '45vh',
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'center',
@@ -282,7 +282,7 @@ const UtilizationEnquiryForm: React.FC = () => {
                   <Typography variant="h6" sx={{ mb: 0.5 }}>
                     Transactions
                   </Typography>
-                  <Box sx={{ width: '100%', height: 400 }}>
+                  <Box sx={{ width: '50%', height: 400 }}>
                     <TransactionTable
                       //@ts-ignore
                       transaction={transactionData}

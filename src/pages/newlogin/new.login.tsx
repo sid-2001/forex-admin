@@ -183,6 +183,7 @@ const LoginPage = () => {
             padding: '20px',
             backgroundColor: 'white',
             borderRadius: 2,
+            height: '60',
             boxShadow: 3,
           }}
         >
@@ -197,7 +198,7 @@ const LoginPage = () => {
               alignItems: 'center',
             }}
           >
-            <img src={Logo} alt="Logo" style={{ width: '80%', height: '80px', marginBottom: '1rem' }} />
+            <img src={Logo} alt="Logo" style={{ width: '80%', height: '190px', marginBottom: '3.5rem' }} />
             <Typography variant="h6" color="grey" textAlign="center" fontFamily="Inter">
               Please Sign In With Your Credentials
             </Typography>
@@ -208,7 +209,7 @@ const LoginPage = () => {
             item
             xs={12}
             sx={{
-              padding: 3,
+              padding: 1,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',

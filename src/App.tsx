@@ -147,7 +147,8 @@ function App() {
                 <Route path="loyalty" element={<Loyality />} />
               <Route path="profile" element={<UserTable />} />
               <Route path="profile/add" element={<UserAdd />} />
-              <Route path="profile/edit/:staffId" element={<UserAdd />} />
+              <Route path="profile/edit/:staffId" 
+              element={<UserAdd />} />
               <Route path="applicant-details/:applicantId" element={<ApplicantPage />} />
               <Route path="applicant" element={<ApplicantEnquiry />} />
               <Route path="add-applicant" element={<AddApplicant />} />

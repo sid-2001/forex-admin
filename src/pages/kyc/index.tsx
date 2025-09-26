@@ -16,7 +16,7 @@ import {
   ListItem,
   List,
 } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
+import { DataGrid, GridFilterModel, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarFilterButton } from '@mui/x-data-grid'
 import VerifyDocumentModal from '@/components/verify-document'
 import { Customer } from '@/types/customer.type'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
@@ -34,6 +34,7 @@ import { HelperService } from '@/helpers/helper'
 import dayjs from 'dayjs'
 import LoaderUI from '@/components/loader/loader'
 import DownloadIcon from '@mui/icons-material/Download'
+import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
@@ -54,6 +55,7 @@ const KYCPage = () => {
   const [imageUrl, setImageUrl] = useState('')
   const { id: kycIdFromRoute } = useParams()
   const [isLoading, setIsLoading] = useState(false)  // ✅ Add this
+  const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
 
   const navigate = useNavigate()
   const theme = useTheme()
@@ -133,9 +135,50 @@ const KYCPage = () => {
     },
   ]
 
+
+  const CustomToolbar = () => {
+    return (
+      <GridToolbarContainer sx={{ justifyContent: 'flex-start', gap: 1, py: 1 }}>
+        <GridToolbarColumnsButton />
+        <GridToolbarFilterButton />
+
+        {/* Export CSV */}
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<DownloadIcon />}
+          onClick={downloadCSV}
+        >
+          CSV
+        </Button>
+
+        {/* Export PDF */}
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<DownloadIcon />}
+          onClick={downloadPDF}
+        >
+          PDF
+        </Button>
+
+        {/* Reset Filters */}
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<FindReplaceIcon />}
+          onClick={() => setFilterModel({ items: [] })}
+        >
+          Reset Filters
+        </Button>
+      </GridToolbarContainer>
+    )
+  }
+
+
   const getApplicantKYCData = async () => {
     try {
-        setIsLoading(true)
+      setIsLoading(true)
       // setCommonLoader(true)
       const data: any = await applicant_service.getApplicantKyc(userCountry)
       console.log(data?.data)
@@ -153,7 +196,7 @@ const KYCPage = () => {
       console.error('Error fetching countries:', err)
     }
     finally {
-      setIsLoading(false)   
+      setIsLoading(false)
     }
   }
 
@@ -327,25 +370,6 @@ const KYCPage = () => {
             <strong>Know Your Customer</strong>
           </Typography>
 
-          <Box>
-            <Button
-              variant="outlined"
-              startIcon={<DownloadIcon />}
-              onClick={downloadCSV}
-              sx={{ mr: 1 }}
-              disabled={!filteredData || filteredData.length === 0}
-            >
-              CSV
-            </Button>
-            <Button
-              variant="outlined"
-              startIcon={<DownloadIcon />}
-              onClick={downloadPDF}
-              disabled={!filteredData || filteredData.length === 0}
-            >
-              PDF
-            </Button>
-          </Box>
         </Box>
 
         <Box
@@ -359,6 +383,8 @@ const KYCPage = () => {
             rows={filteredData || []}
             getRowId={(row) => row.kycId}
             columns={KycColumns || []}
+            filterModel={filterModel}                      // 🔹 Add this
+            onFilterModelChange={(model) => setFilterModel(model)} // 🔹 Add this
             initialState={{
               pagination: {
                 paginationModel: { pageSize: 20, page: 0 },
@@ -367,9 +393,11 @@ const KYCPage = () => {
             pageSizeOptions={[10]}
             loading={isLoading}
             slots={{
-              loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
+              loadingOverlay: LoaderUI.LoadingOverlay,
+              toolbar: CustomToolbar, // 🔹 Add the custom toolbar
             }}
           />
+
         </Box>
       </HasPermission>
 

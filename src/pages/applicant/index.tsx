@@ -94,23 +94,28 @@ const ApplicantPage = () => {
     }
   }
   const fetchApplicantData = async () => {
-    if (!applicantId) {
-      console.error('Applicant ID is missing in the URL')
-      return
-    }
-    try {
-      const response = await applicant_service.searchByApplicantId(applicantId)
-      const { applicant, applicantContactDetails, beneficiaryList }: any = response
-      setApplicantDetails({
-        ...applicant,
-        email: applicantContactDetails?.[1]?.contactDetails,
-        phone: applicantContactDetails?.[0]?.contactDetails,
-        beneficiaryList,
-      })
-    } catch (error) {
-      console.error('Error fetching applicant data:', error)
-    }
+  if (!applicantId) {
+    console.error('Applicant ID is missing in the URL')
+    return
   }
+  try {
+    const response = await applicant_service.searchByApplicantId(applicantId)
+    const { applicant, applicantContactDetails, beneficiaryList, kycId }: any = response
+
+    setApplicantDetails({
+      ...applicant,
+      email: applicantContactDetails?.[1]?.contactDetails,
+      phone: applicantContactDetails?.[0]?.contactDetails,
+      beneficiaryList,
+    })
+
+    if (kycId) {
+      setKycId(kycId)
+    }
+  } catch (error) {
+    console.error('Error fetching applicant data:', error)
+  }
+}
 
   const fetchTransactionsList = useCallback(async () => {
     if (!applicantId) return
@@ -200,15 +205,15 @@ const ApplicantPage = () => {
     return applicantDetails?.firstName.charAt(0) + '' + applicantDetails?.lastName.charAt(0)
   }
 
-  useEffect(() => {
-    if (!applicantId) return
+  // useEffect(() => {
+  //   if (!applicantId) return
 
-    applicant_service.getApplicantDetailsById(applicantId).then((data) => {
-      if (data?.kycId) {
-        setKycId(data.kycId)
-      }
-    })
-  }, [applicantId])
+  //   applicant_service.getApplicantDetailsById(applicantId).then((data) => {
+  //     if (data?.kycId) {
+  //       setKycId(data.kycId)
+  //     }
+  //   })
+  // }, [applicantId])
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.APPLICANT}>
