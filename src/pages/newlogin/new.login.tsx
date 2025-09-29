@@ -156,19 +156,19 @@ const LoginPage = () => {
   return (
     <Grid container sx={{ height: '100vh' }}>
       {/* Left Section */}
-  <Box
-  sx={{
-    width: { xs: '100vw', md: '800px' }, // fixed 400px on desktop, full width on mobile
-    height: '100vh',
-    backgroundColor: 'white',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    px: 4,
-  }}
->
-        <Box sx={{ width: '100vw', maxWidth: 600 }}>
+<Grid
+      item
+      xs={12}
+      md={4}
+      sx={{
+        backgroundColor: 'white',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        px: 4,
+      }}
+    >
+        <Box sx={{ width: '100%', maxWidth: 600 }}>
           {/* Logo + Title */}
           <Box
             sx={{
@@ -290,34 +290,35 @@ const LoginPage = () => {
           </Button>
 
           {/* Footer */}
-    <Typography
-  variant="body2"
-  sx={{
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    mt: 20,
-    fontSize: '16px',
-  }}
->
-  <span style={{ color: '#0361B1', fontWeight: 400 ,fontSize:"20px"}}>www.</span>
-  <span style={{ color: '#0361B1', fontWeight: 'bold',fontSize:"30px" }}>impropay.global</span>
-</Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              mt: 20,
+              fontSize: '16px',
+            }}
+          >
+            <span style={{ color: '#0361B1', fontWeight: 400, fontSize: "20px" }}>www.</span>
+            <span style={{ color: '#0361B1', fontWeight: 'bold', fontSize: "30px" }}>impropay.global</span>
+          </Typography>
 
 
         </Box>
-      </Box>
+      </Grid>
 
       {/* Right Section */}
       <Grid
-        item
-        xs={12}
-        md={8}
+            item
+      xs={false}
+      md={8}
         sx={{
+          display: { xs: 'none', md: 'block' },
           background: 'linear-gradient(to bottom, #004080, #0361B1)',
-          // display: { xs: 'none', md: 'block' },
         }}
       />
+
 
       {/* Loader + Snackbar */}
       <LoaderUI.LoaderBackdrop openloader={commonloader} />
