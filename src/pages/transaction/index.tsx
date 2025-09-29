@@ -52,7 +52,7 @@ const TransactionListing = () => {
     {
       field: 'id',
       headerName: 'Transaction ID',
-      flex: 1,
+      width: 200,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <a href="#" style={{ color: theme.palette.text.primary }} onClick={() => handleViewMore(params.row)}>
@@ -101,7 +101,7 @@ const TransactionListing = () => {
     {
       field: 'applicant',
       headerName: 'Applicant',
-      flex: 1,
+      width: 200,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         const nameOrId = params.value?.name || params.value?.applicantId || 'N/A'
@@ -305,7 +305,7 @@ const TransactionListing = () => {
   }
 
   const inward_columns = [
-    { field: 'transactionNumberIw', headerName: 'Transaction Number IW', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'transactionNumberIw', headerName: 'Transaction Number IW', width: 200, headerClassName: 'super-app-theme--header' },
     { field: 'owTransactionNumber', headerName: 'OW Transaction Number', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'sendingCountry', headerName: 'Sending Country', width: 130, headerClassName: 'super-app-theme--header' },
     { field: 'receivingCountry', headerName: 'Receiving Country', width: 130, headerClassName: 'super-app-theme--header' },
