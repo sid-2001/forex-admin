@@ -37,7 +37,7 @@ import DownloadIcon from '@mui/icons-material/Download'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
-import FindReplaceIcon from '@mui/icons-material/FindReplace';
+import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import React from 'react'
 import { GridColDef, GridToolbar, GridPaginationModel, GridFilterModel } from '@mui/x-data-grid'
 
@@ -488,28 +488,19 @@ const TransactionListing = () => {
   // handle filter changes
   const handleFilterChange = (newFilterModel: GridFilterModel) => {
     const filter = newFilterModel.items[0]
-    if (filter.field == "id" && filter.value) {
+    if (filter.field == 'id' && filter.value) {
       try {
-
-
         getAllTransactions(0, 10, filter.value)
-
-
-      } catch (err) {
-
-
-      }
-
-
+      } catch (err) {}
     }
     console.log(filter)
     // setFilterModel(newFilterModel);
-  };
+  }
 
   const handleResetFilter = () => {
-    setFilterModel({ items: [] });
-    getAllTransactions(0, 10, "");
-  };
+    setFilterModel({ items: [] })
+    getAllTransactions(0, 10, '')
+  }
 
   // Load default data on mount
 
@@ -534,8 +525,7 @@ const TransactionListing = () => {
         PDF
       </Button>
 
-
-      <Button variant="outlined" startIcon={<FindReplaceIcon />} onClick={handleResetFilter} size='small' >
+      <Button variant="outlined" startIcon={<FindReplaceIcon />} onClick={handleResetFilter} size="small">
         Reset Filters
       </Button>
     </GridToolbarContainer>
@@ -589,85 +579,80 @@ const TransactionListing = () => {
   const getInwardTransactionList = useCallback(async () => {
     try {
       const transactions = await transaction_Service.getInwardTransaction(userCountry)
-      setInboundTransaction(transactions)   // transactions is already the array
+      setInboundTransaction(transactions) // transactions is already the array
     } catch (error) {
       console.log(error)
     }
   }, [userCountry])
 
+  const getAllTransactions = useCallback(
+    async (
+      page: number,
+      size: number,
+      //@ts-ignore
+      filterQuery: string = '',
+    ) => {
+      try {
+        // setcommonloader(true)
+        setIsLoading(true)
+        var data: any
+        if (filterQuery.length > 0) {
+          data = await transaction_Service.getTransactionbyquery(filterQuery, userCountry)
+        } else {
+          data = await transaction_Service.getOutwardAllTransaction(userCountry, page, size)
+        }
+        console.log('outbound trx:', data)
 
+        const outbound: Array<TransactionOutward> | any = data
+          ?.map((e: any) => {
+            return {
+              ...e.transactionGatewayDTO,
+              ...e.beneficiary,
+              ...e.applicant,
+              id: e?.transactionGatewayDTO?.transactionNumber,
+              destination: e?.transactionGatewayDTO?.receiveCountry,
+              value: e?.transactionGatewayDTO?.principalAmount,
+              currency: e?.transactionGatewayDTO?.settlementCurrency,
+              settlement: helper.roundToTwoFixed(e?.transactionGatewayDTO?.principalAmount * e?.transactionGatewayDTO?.exchangeRates),
+              destinationBank: e?.transactionGatewayDTO?.destinationBankBicCode,
+              forex: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates),
+              date: e?.transactionGatewayDTO?.owCreatedDate,
+              reporting: e?.transactionGatewayDTO?.reportingStatus,
+              status: e?.transactionGatewayDTO?.transactionStatus,
+              final_amount: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates * e?.transactionGatewayDTO?.principalAmount),
+              applicant: e?.applicant,
+              gateway_name: e?.transactionGatewayDTO?.forexPaymentGateway?.company,
+              //@ts-ignore
+              inid: e?.transactionInwardNumber,
+            }
+          })
+          ?.filter((transaction: any) => {
+            if (queryParams.get('id') != null) {
+              return transaction?.id == queryParams.get('id')
+            }
 
+            if (userCountry === 'IN') {
+              return transaction.destination?.toLowerCase() !== 'in'
+            } else if (userCountry === 'ZA') {
+              return transaction.destination?.toLowerCase() !== 'za'
+            }
+            return true
+          })
 
-  const getAllTransactions = useCallback(async (page: number, size: number,
-    //@ts-ignore
-    filterQuery: string = "") => {
-    try {
-      // setcommonloader(true)
-      setIsLoading(true)
-      var data: any;
-      if (filterQuery.length > 0) {
-        data = await transaction_Service.getTransactionbyquery(filterQuery, userCountry)
+        console.log('outbound transaction', outbound)
 
+        setOutboundTransaction(outbound)
 
+        // Set the total row count for pagination
+        setRowCount(data?.totalElements || 0)
+
+        setcommonloader(false)
+      } catch (error) {
+        console.log(error)
+      } finally {
+        setIsLoading(false)
       }
-      else {
-        data = await transaction_Service.getOutwardAllTransaction(userCountry, page, size)
-
-
-      }
-      console.log("outbound trx:", data)
-
-      const outbound: Array<TransactionOutward> | any = data
-        ?.map((e: any) => {
-          return {
-            ...e.transactionGatewayDTO,
-            ...e.beneficiary,
-            ...e.applicant,
-            id: e?.transactionGatewayDTO?.transactionNumber,
-            destination: e?.transactionGatewayDTO?.receiveCountry,
-            value: e?.transactionGatewayDTO?.principalAmount,
-            currency: e?.transactionGatewayDTO?.settlementCurrency,
-            settlement: helper.roundToTwoFixed(e?.transactionGatewayDTO?.principalAmount * e?.transactionGatewayDTO?.exchangeRates),
-            destinationBank: e?.transactionGatewayDTO?.destinationBankBicCode,
-            forex: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates),
-            date: e?.transactionGatewayDTO?.owCreatedDate,
-            reporting: e?.transactionGatewayDTO?.reportingStatus,
-            status: e?.transactionGatewayDTO?.transactionStatus,
-            final_amount: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates * e?.transactionGatewayDTO?.principalAmount),
-            applicant: e?.applicant,
-            gateway_name: e?.transactionGatewayDTO?.forexPaymentGateway?.company,
-            //@ts-ignore
-            inid: e?.transactionInwardNumber,
-          }
-        })
-        ?.filter((transaction: any) => {
-          if (queryParams.get('id') != null) {
-            return transaction?.id == queryParams.get('id')
-          }
-
-          if (userCountry === 'IN') {
-            return transaction.destination?.toLowerCase() !== 'in'
-          } else if (userCountry === 'ZA') {
-            return transaction.destination?.toLowerCase() !== 'za'
-          }
-          return true
-        })
-
-
-      console.log("outbound transaction", outbound)
-
-      setOutboundTransaction(outbound);
-
-      // Set the total row count for pagination
-      setRowCount(data?.totalElements || 0)
-
-      setcommonloader(false)
-    } catch (error) {
-      console.log(error)
-    } finally {
-      setIsLoading(false)
-    }
-  },
+    },
     [transactionType, userCountry],
   )
 
@@ -739,6 +724,7 @@ const TransactionListing = () => {
     }
     setCreatetrx(d as any)
     // addpayment(d as any)
+    console.log(row, 'row data')
     setTransactionDetails(row)
     setDrawerOpen(true)
   }
@@ -877,85 +863,82 @@ const TransactionListing = () => {
           },
         }}
       >
-        {helper.checkUserHasPermission(getTransactionPermission(), 'canRead') && (
-
-          
-transactionType == 'inwards'?<>
- <DataGrid
-            rows={transactionType === 'inwards' ? inboundTransaction : outboundTransaction || []}
-            //@ts-ignore
-            columns={transactionType === 'inwards' ? inward_columns : columns_outward}
-            getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
-            // pageSizeOptions={[10, 20, 50]}
-            // paginationMode="server"
-            // filterMode="server"
-            // paginationModel={paginationModel}
-            // onPaginationModelChange={handlePaginationChange}
-            // filterModel={filterModel}
-            // onFilterModelChange={handleFilterChange}
-            // rowCount={1000}
-            loading={getLoadingState()}
-            columnVisibilityModel={columnVisibilityModel}
-            onColumnVisibilityModelChange={setColumnVisibilityModel}
-            //@ts-ignore
-            loading={isLoading}
-            slots={{
-              loadingOverlay: LoaderUI.LoadingOverlay,
-              toolbar: () => <CustomToolbar downloadCSV={downloadCSV} downloadPDF={downloadPDF} />,
-            }}
-            disableRowSelectionOnClick
-            sx={{
-              '& .MuiDataGrid-root': {
-                border: '1 px solid blue',
-              },
-              '& .MuiDataGrid-cell': {
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              },
-            }}
-          />
-
-</>:<>
- <DataGrid
-            rows={transactionType === 'inwards' ? inboundTransaction : outboundTransaction || []}
-            //@ts-ignore
-            columns={transactionType === 'inwards' ? inward_columns : columns_outward}
-            getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
-            pageSizeOptions={[10, 20, 50]}
-            paginationMode="server"
-            filterMode="server"
-            paginationModel={paginationModel}
-            onPaginationModelChange={handlePaginationChange}
-            filterModel={filterModel}
-            onFilterModelChange={handleFilterChange}
-            rowCount={1000}
-            loading={getLoadingState()}
-            columnVisibilityModel={columnVisibilityModel}
-            onColumnVisibilityModelChange={setColumnVisibilityModel}
-            //@ts-ignore
-            loading={isLoading}
-            slots={{
-              loadingOverlay: LoaderUI.LoadingOverlay,
-              toolbar: () => <CustomToolbar downloadCSV={downloadCSV} downloadPDF={downloadPDF} />,
-            }}
-            disableRowSelectionOnClick
-            sx={{
-              '& .MuiDataGrid-root': {
-                border: '1 px solid blue',
-              },
-              '& .MuiDataGrid-cell': {
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              },
-            }}
-          />
-</>
-          
-          
-         
-        )}
+        {helper.checkUserHasPermission(getTransactionPermission(), 'canRead') &&
+          (transactionType == 'inwards' ? (
+            <>
+              <DataGrid
+                rows={transactionType === 'inwards' ? inboundTransaction : outboundTransaction || []}
+                //@ts-ignore
+                columns={transactionType === 'inwards' ? inward_columns : columns_outward}
+                getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
+                // pageSizeOptions={[10, 20, 50]}
+                // paginationMode="server"
+                // filterMode="server"
+                // paginationModel={paginationModel}
+                // onPaginationModelChange={handlePaginationChange}
+                // filterModel={filterModel}
+                // onFilterModelChange={handleFilterChange}
+                // rowCount={1000}
+                loading={getLoadingState()}
+                columnVisibilityModel={columnVisibilityModel}
+                onColumnVisibilityModelChange={setColumnVisibilityModel}
+                //@ts-ignore
+                loading={isLoading}
+                slots={{
+                  loadingOverlay: LoaderUI.LoadingOverlay,
+                  toolbar: () => <CustomToolbar downloadCSV={downloadCSV} downloadPDF={downloadPDF} />,
+                }}
+                disableRowSelectionOnClick
+                sx={{
+                  '& .MuiDataGrid-root': {
+                    border: '1 px solid blue',
+                  },
+                  '& .MuiDataGrid-cell': {
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  },
+                }}
+              />
+            </>
+          ) : (
+            <>
+              <DataGrid
+                rows={transactionType === 'inwards' ? inboundTransaction : outboundTransaction || []}
+                //@ts-ignore
+                columns={transactionType === 'inwards' ? inward_columns : columns_outward}
+                getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
+                pageSizeOptions={[10, 20, 50]}
+                paginationMode="server"
+                filterMode="server"
+                paginationModel={paginationModel}
+                onPaginationModelChange={handlePaginationChange}
+                filterModel={filterModel}
+                onFilterModelChange={handleFilterChange}
+                rowCount={1000}
+                loading={getLoadingState()}
+                columnVisibilityModel={columnVisibilityModel}
+                onColumnVisibilityModelChange={setColumnVisibilityModel}
+                //@ts-ignore
+                loading={isLoading}
+                slots={{
+                  loadingOverlay: LoaderUI.LoadingOverlay,
+                  toolbar: () => <CustomToolbar downloadCSV={downloadCSV} downloadPDF={downloadPDF} />,
+                }}
+                disableRowSelectionOnClick
+                sx={{
+                  '& .MuiDataGrid-root': {
+                    border: '1 px solid blue',
+                  },
+                  '& .MuiDataGrid-cell': {
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  },
+                }}
+              />
+            </>
+          ))}
       </Box>
 
       <Drawer
@@ -977,10 +960,8 @@ transactionType == 'inwards'?<>
               fontWeight="bold"
               sx={{
                 backgroundColor: theme.palette.primary.main,
-                p: '0.5%',
+                p: '0.7%',
                 color: 'white',
-                paddingLeft: '5%',
-                paddingRight: '5%',
                 marginBottom: 2,
                 width: '40%',
               }}
@@ -1062,7 +1043,11 @@ transactionType == 'inwards'?<>
                   label="Account Holder Name"
                   variant="filled"
                   fullWidth
-                  defaultValue={transactionDetails?.beneficiaryName}
+                  defaultValue={
+                    transactionDetails?.beneficiaryMiddleName
+                      ? `${transactionDetails.beneficiaryFirstName} ${transactionDetails.beneficiaryMiddleName} ${transactionDetails.beneficiaryLastName}`
+                      : `${transactionDetails.beneficiaryFirstName} ${transactionDetails.beneficiaryLastName}`
+                  }
                   size="small"
                   disabled
                 />
@@ -1159,7 +1144,7 @@ transactionType == 'inwards'?<>
         </DialogActions>
       </Dialog>
 
-      <CompliancTool open={toolopen} setOpen={setToolOpen} userList={userList} fetchUserDetails={() => { }} />
+      <CompliancTool open={toolopen} setOpen={setToolOpen} userList={userList} fetchUserDetails={() => {}} />
 
       <Modal open={modalOpen} onClose={() => setmodalOpen(false)}>
         <Box

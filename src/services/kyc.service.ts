@@ -84,8 +84,8 @@ export class KycService extends BaseService {
   }
 
   //@ts-ignore
-  async getCharges(souceCountry, destinationCountry, amount, segment) {
-    const url = `/api/charges/service/filter?sendingCountry=SA&receivingCountry=${destinationCountry}&amount=${amount}&marketSegment=${segment}`
+  async getCharges(sourceCountry, destinationCountry, amount, segment) {
+    const url = `/api/charges/service/filter?sendingCountry=${sourceCountry}&receivingCountry=${destinationCountry}&amount=${amount}&marketSegment=${segment}`
     try {
       const data = await api1.get(url)
       return data as any

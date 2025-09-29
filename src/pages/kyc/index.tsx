@@ -54,7 +54,7 @@ const KYCPage = () => {
   const [prooftype, setProoftype] = useState()
   const [imageUrl, setImageUrl] = useState('')
   const { id: kycIdFromRoute } = useParams()
-  const [isLoading, setIsLoading] = useState(false)  // ✅ Add this
+  const [isLoading, setIsLoading] = useState(false) // ✅ Add this
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
 
   const navigate = useNavigate()
@@ -135,7 +135,6 @@ const KYCPage = () => {
     },
   ]
 
-
   const CustomToolbar = () => {
     return (
       <GridToolbarContainer sx={{ justifyContent: 'flex-start', gap: 1, py: 1 }}>
@@ -143,38 +142,22 @@ const KYCPage = () => {
         <GridToolbarFilterButton />
 
         {/* Export CSV */}
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<DownloadIcon />}
-          onClick={downloadCSV}
-        >
+        <Button variant="outlined" size="small" startIcon={<DownloadIcon />} onClick={downloadCSV}>
           CSV
         </Button>
 
         {/* Export PDF */}
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<DownloadIcon />}
-          onClick={downloadPDF}
-        >
+        <Button variant="outlined" size="small" startIcon={<DownloadIcon />} onClick={downloadPDF}>
           PDF
         </Button>
 
         {/* Reset Filters */}
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<FindReplaceIcon />}
-          onClick={() => setFilterModel({ items: [] })}
-        >
+        <Button variant="outlined" size="small" startIcon={<FindReplaceIcon />} onClick={() => setFilterModel({ items: [] })}>
           Reset Filters
         </Button>
       </GridToolbarContainer>
     )
   }
-
 
   const getApplicantKYCData = async () => {
     try {
@@ -194,8 +177,7 @@ const KYCPage = () => {
     } catch (err) {
       setCommonLoader(false)
       console.error('Error fetching countries:', err)
-    }
-    finally {
+    } finally {
       setIsLoading(false)
     }
   }
@@ -212,17 +194,17 @@ const KYCPage = () => {
     const headers = ['KYC ID', 'Customer Name', 'Nationality', 'Resident Country', 'Applicant ID', 'Verification Status']
 
     // Create CSV rows
-    const rows = filteredData.map(item => [
+    const rows = filteredData.map((item) => [
       item.kycId,
       item?.applicantName,
       item.nationality,
       item?.kycCountry,
       item?.applicantId,
-      item?.kycStatus === 'v' ? 'Verified' : 'Unverified'
+      item?.kycStatus === 'v' ? 'Verified' : 'Unverified',
     ])
 
     // Combine headers and rows
-    const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n')
+    const csvContent = [headers, ...rows].map((row) => row.join(',')).join('\n')
 
     // Create download link
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
@@ -250,13 +232,13 @@ const KYCPage = () => {
 
     // Prepare table data
     const tableColumn = ['KYC ID', 'Customer Name', 'Nationality', 'Resident Country', 'Applicant ID', 'Status']
-    const tableRows = filteredData.map(item => [
+    const tableRows = filteredData.map((item) => [
       item.kycId,
       item.applicantName,
       item.nationality,
       item.kycCountry,
       item.applicantId,
-      item.kycStatus === 'v' ? 'Verified' : 'Unverified'
+      item.kycStatus === 'v' ? 'Verified' : 'Unverified',
     ])
 
     // Add table to PDF
@@ -265,7 +247,7 @@ const KYCPage = () => {
       body: tableRows,
       startY: 30,
       styles: { fontSize: 8 },
-      headStyles: { fillColor: [41, 128, 185] }
+      headStyles: { fillColor: [41, 128, 185] },
     })
 
     // Save the PDF
@@ -369,7 +351,6 @@ const KYCPage = () => {
           <Typography variant="h4" gutterBottom>
             <strong>Know Your Customer</strong>
           </Typography>
-
         </Box>
 
         <Box
@@ -383,7 +364,7 @@ const KYCPage = () => {
             rows={filteredData || []}
             getRowId={(row) => row.kycId}
             columns={KycColumns || []}
-            filterModel={filterModel}                      // 🔹 Add this
+            filterModel={filterModel} // 🔹 Add this
             onFilterModelChange={(model) => setFilterModel(model)} // 🔹 Add this
             initialState={{
               pagination: {
@@ -397,7 +378,6 @@ const KYCPage = () => {
               toolbar: CustomToolbar, // 🔹 Add the custom toolbar
             }}
           />
-
         </Box>
       </HasPermission>
 
@@ -419,10 +399,8 @@ const KYCPage = () => {
                 variant="h5"
                 sx={{
                   backgroundColor: theme.palette.primary.main,
-                  p: '0.5%',
+                  p: '0.7%',
                   color: 'white',
-                  paddingLeft: '5%',
-                  paddingRight: '5%',
                 }}
               >
                 KYC ID : {selectedKYC?.kycId}
@@ -453,14 +431,13 @@ const KYCPage = () => {
                 color="success"
                 onClick={handleClose}
                 sx={{
-                  ml: '55%', height: 50,
+                  ml: '55%',
+                  height: 50,
                 }}
               >
                 Close
               </Button>
             </Box>
-
-
 
             {/* Applicant Details Section */}
             <Grid container>
@@ -479,7 +456,7 @@ const KYCPage = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    borderColor: `${selectedKYC?.kycStatus == 'v' ? 'green' : 'red'}`
+                    borderColor: `${selectedKYC?.kycStatus == 'v' ? 'green' : 'red'}`,
                   }}
                 >
                   {/* {' '}
