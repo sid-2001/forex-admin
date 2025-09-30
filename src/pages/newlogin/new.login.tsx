@@ -185,7 +185,7 @@ const LoginPage = () => {
           </Box>
 
           {/* Heading */}
-          <Typography variant="h3" fontWeight="bold" mb={1}>
+          <Typography variant="h3" fontWeight="bold" mb={1} color="black">
             Sign In
           </Typography>
           <Typography variant="h5" color="text.secondary" mb={3}>
@@ -217,6 +217,12 @@ const LoginPage = () => {
                   borderColor: "#024a87", // darker blue on focus
                   borderWidth: "1.5px",
                 },
+                "& .MuiInputBase-input": {
+      color: "black", // input text explicitly black
+    },
+    "& .MuiFormHelperText-root": {
+      color: "grey", // helper/error text explicitly grey
+    },
               },
             }}
           />
@@ -253,6 +259,12 @@ const LoginPage = () => {
                   borderColor: "#024a87", // darker blue on focus
                   borderWidth: "1.5px",
                 },
+                "& .MuiInputBase-input": {
+      color: "black", // input text explicitly black
+    },
+    "& .MuiFormHelperText-root": {
+      color: "grey", // helper/error text explicitly grey
+    },
               },
             }}
           />
