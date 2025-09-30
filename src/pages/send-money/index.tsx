@@ -52,7 +52,7 @@ import { useTheme } from '@emotion/react'
 import staticdataService from '@/services/staticdata.service'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 
-import {generateZapperSessionIdApi} from "../../helpers/zapper"
+import { generateZapperSessionIdApi } from '../../helpers/zapper'
 const { VITE_APP_URL } = import.meta.env
 
 const helper = new HelperService()
@@ -127,7 +127,6 @@ const SendMoneyPage = () => {
   const [url, seturl] = useState<string>('')
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  
 
   const applicantId = searchParams.get('applicantId')
 
@@ -148,10 +147,10 @@ const SendMoneyPage = () => {
           onChange={() => {
             handleRadioChange(params.row)
 
-            let data = kyc_service.getCharges('SA', sendCountry, amount, params?.row?.id).then((data) => {
+            kyc_service.getCharges(userCountry, sendCountry, amount, params?.row?.id).then(({ data }) => {
               console.log(data)
-              if (data?.length > 0) {
-                setSelectedTimeCharge(data[0].minimumCharges)
+              if (data) {
+                setSelectedTimeCharge(data.minimumCharges)
               } else {
                 setSelectedTimeCharge(0)
               }
@@ -308,6 +307,7 @@ const SendMoneyPage = () => {
 
     // Find the selected country
     const selected = countries.find((country) => country.countryCode == countryCode)
+    console.log('selected', selected)
 
     static_service.getCountryCurrency(selected?.countryCode).then((data) => {
       //@ts-ignore
@@ -328,7 +328,7 @@ const SendMoneyPage = () => {
         //@ts-ignore
         // setCurrency(selected.currency)
         //@ts-ignore
-        setsendCountry(selected.code)
+        setsendCountry(selected.countryCode)
         setSourceCountry(userCountry === 'IN' ? 'INR' : 'ZAR')
       }
     })
@@ -403,7 +403,7 @@ const SendMoneyPage = () => {
     timecharge: selectedTime?.time,
     totalpaybleamount: Number(amount) + Number(selectedTimeChange) + Number(gatewayCharge),
     transferMethod: selectedTransferMethod,
-      // transactionId: "ZAOWRM250814IN2524",
+    // transactionId: "ZAOWRM250814IN2524",
   }
 
   const dealCoverPayload = {
@@ -414,43 +414,35 @@ const SendMoneyPage = () => {
     rate: Number(forexRate),
   }
 
-
-const handleZapperPaymentGateway= async()=>{
+  const handleZapperPaymentGateway = async () => {
     setCommonLoader(true)
-  const txnResponse = await transaction_service.createTransaction(transactionPayload)
-      if (txnResponse?.status) {
-        setCommonLoader(true)
-        if (txnResponse?.data) {
-          settype('success')
-          setText('Transaction created Succesfully')
-        } else {
-          settype('error')
-          setText('Failed to Create Transaction')
-        }
-        setOpen(true)
-      
-
-
-     let zapper_trans= await transaction_service.createZaphierTransaction({
-
-            amount:transactionPayload?.amount,
-            currencyISOCode:"ZAR",
-            transactionNumber:txnResponse?.data
-
-                    })
-
-
-                      setcommonloader(false)
-                  
-                    console.log(zapper_trans?.data?.redirectUrl)
-
-        window.location.href=zapper_trans?.data?.redirectUrl
-
-        // navigate('/transaction')
-      
+    const txnResponse = await transaction_service.createTransaction(transactionPayload)
+    if (txnResponse?.status) {
+      setCommonLoader(true)
+      if (txnResponse?.data) {
+        settype('success')
+        setText('Transaction created Succesfully')
+      } else {
+        settype('error')
+        setText('Failed to Create Transaction')
       }
+      setOpen(true)
 
-}
+      let zapper_trans = await transaction_service.createZaphierTransaction({
+        amount: transactionPayload?.amount,
+        currencyISOCode: 'ZAR',
+        transactionNumber: txnResponse?.data,
+      })
+
+      setcommonloader(false)
+
+      console.log(zapper_trans?.data?.redirectUrl)
+
+      window.location.href = zapper_trans?.data?.redirectUrl
+
+      // navigate('/transaction')
+    }
+  }
 
   const handleOzowPaymentClick = async () => {
     try {
@@ -616,8 +608,6 @@ const handleZapperPaymentGateway= async()=>{
 
   const handleCashfreePaymentClick = async () => {
     try {
-
-
       //   const txnResponse = await transaction_service.createTransaction(transactionPayload)
       //   debugger;
       // if (txnResponse?.status) {
@@ -630,8 +620,6 @@ const handleZapperPaymentGateway= async()=>{
       //     setText('Failed to Create Transaction')
       //   }
       //   setOpen(true)
-
-
 
       // console.log(response)
 
@@ -652,15 +640,15 @@ const handleZapperPaymentGateway= async()=>{
           setcommonloader(false)
           // navigate('/transaction')
 
-    const response = await transaction_service.createOrder({     amount:transactionPayload?.amount,transactionId:txnResponse?.data })
-      const { payment_session_id } = response
+          const response = await transaction_service.createOrder({ amount: transactionPayload?.amount, transactionId: txnResponse?.data })
+          const { payment_session_id } = response
 
-      if (!payment_session_id) {
-        alert('Failed to get session ID')
-        return
-      }
+          if (!payment_session_id) {
+            alert('Failed to get session ID')
+            return
+          }
 
-      const htmlContent = `<!DOCTYPE html>
+          const htmlContent = `<!DOCTYPE html>
       <html lang="en">
       <head>
           <meta charset="UTF-8">
@@ -685,17 +673,12 @@ const handleZapperPaymentGateway= async()=>{
       </body>
       </html>`
 
-      document.open()
-      document.write(htmlContent)
-      document.close()
-
+          document.open()
+          document.write(htmlContent)
+          document.close()
         }
       }
-
-
-        
-
-  }   catch (error) {
+    } catch (error) {
       console.error('Payment initiation failed:', error)
       alert('Payment failed. Please try again.')
     }
@@ -825,17 +808,22 @@ const handleZapperPaymentGateway= async()=>{
                         onChange={handleCountryChange}
                         displayEmpty
                       >
-                        {(userCountry === 'IN' ? countries : countries)?.map((country) => (
-                          <MenuItem
-                            //@ts-ignore
-                            key={country?.countryCode}
-                            value={country.countryCode}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                              <Typography>{country?.countryName}</Typography>
-                            </div>
-                          </MenuItem>
-                        ))}
+                        {
+                          //(userCountry === 'IN' ? countries : countries)
+                          countries
+                            ?.filter((item) => item.status === 'A' && item.countryCode !== userCountry)
+                            .map((country) => (
+                              <MenuItem
+                                //@ts-ignore
+                                key={country?.countryCode}
+                                value={country.countryCode}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                  <Typography>{country?.countryName}</Typography>
+                                </div>
+                              </MenuItem>
+                            ))
+                        }
                       </Select>
                     </FormControl>
                   </Grid>
@@ -1082,9 +1070,9 @@ const handleZapperPaymentGateway= async()=>{
                     handleClick={() => handlePeachPaymentsClick()}
                   />
 
-                     <ConfirmAndPayButton
+                  <ConfirmAndPayButton
                     imgUrl="https://zapper.gitbook.io/zapper-platform/~gitbook/image?url=https%3A%2F%2F3889691800-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F-M4tIVi0eT23PM2ng2_g%252Ficon%252Ffg6xU4qKsy5lQJ83OvI0%252FRounded.svg%3Falt%3Dmedia%26token%3D28b1c6cc-492e-43da-a8d8-230b9ac27b70&width=32&dpr=4&quality=100&sign=9960cbd3&sv=2"
-                    handleClick={() => ( handleZapperPaymentGateway()  )}
+                    handleClick={() => handleZapperPaymentGateway()}
                   />
                 </>
               ) : (
@@ -1093,8 +1081,6 @@ const handleZapperPaymentGateway= async()=>{
                     imgUrl="https://cashfreelogo.cashfree.com/website/landings-cache/landings/logo-lightbg_3x.webp"
                     handleClick={() => handleCashfreePaymentClick()}
                   />
-
-
                 </>
               )}
             </Box>
