@@ -53,19 +53,33 @@ const TransactionListing = () => {
       field: 'id',
       headerName: 'Transaction ID',
       width: 200,
+      minWidth: 200,
+      maxWidth: 200,
+      sortable: false,
+      resizable: false,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
-        <a href="#" style={{ color: theme.palette.text.primary }} onClick={() => handleViewMore(params.row)}>
+        <a
+          href="#"
+          style={{ color: theme.palette.text.primary }}
+          onClick={() => handleViewMore(params.row)}
+        >
           {params?.value}
         </a>
       ),
     },
+
     {
       field: 'transactionInwardNumber',
       headerName: 'Inward ID',
-      flex: 1,
+      width: 200,
+      minWidth: 200,
+      maxWidth: 200,
+      sortable: false,
+      resizable: false,
       headerClassName: 'super-app-theme--header',
     },
+
     {
       field: 'destination',
       headerName: 'Destination',
@@ -102,13 +116,18 @@ const TransactionListing = () => {
       field: 'applicant',
       headerName: 'Applicant',
       width: 200,
+      minWidth: 200,
+      maxWidth: 200,
+      sortable: false,
+      resizable: false,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         const nameOrId = params.value?.name || params.value?.applicantId || 'N/A'
         return (
-          <Tooltip title={`Go to ${nameOrId}'s details`} arrow>
             <span
-              onClick={() => handleNavigation(`/applicant-details/${params.value?.applicantId}`)}
+              onClick={() =>
+                handleNavigation(`/applicant-details/${params.value?.applicantId}`)
+              }
               style={{
                 cursor: 'pointer',
                 color: theme.palette.text.primary,
@@ -117,10 +136,10 @@ const TransactionListing = () => {
             >
               {nameOrId}
             </span>
-          </Tooltip>
         )
       },
     },
+
     {
       field: 'forex',
       headerName: 'Exchange Rate',
@@ -491,7 +510,7 @@ const TransactionListing = () => {
     if (filter.field == 'id' && filter.value) {
       try {
         getAllTransactions(0, 10, filter.value)
-      } catch (err) {}
+      } catch (err) { }
     }
     console.log(filter)
     // setFilterModel(newFilterModel);
@@ -1144,7 +1163,7 @@ const TransactionListing = () => {
         </DialogActions>
       </Dialog>
 
-      <CompliancTool open={toolopen} setOpen={setToolOpen} userList={userList} fetchUserDetails={() => {}} />
+      <CompliancTool open={toolopen} setOpen={setToolOpen} userList={userList} fetchUserDetails={() => { }} />
 
       <Modal open={modalOpen} onClose={() => setmodalOpen(false)}>
         <Box
