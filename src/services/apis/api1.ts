@@ -33,6 +33,8 @@ instance.interceptors.request.use(
 
       config.headers['access-control-allow-origin'] = '*'
       config.headers['ngrok-skip-browser-warning'] = 'true'
+      config.headers['X-Device-IP']="73.43.34.24"
+      config.headers['X-Device-Name']="Siddhant HP Test System"
     }
     return config
   },

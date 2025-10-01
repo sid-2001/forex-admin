@@ -636,8 +636,9 @@ const UserAdd = () => {
               if (staffId) {
                 //@ts-ignore
                 delete staffData?.password
+          
 
-                user_service.editStaff({ ...staffData, roleId: selectedRole }, staffData?.staffId).then((data) => {
+                user_service.editStaff({ ...staffData, roleId: selectedRole,staffID:staffData?.staffId }, local_service.get_staff_id()).then((data) => {
                   console.log(data)
 
                   if (data) {
