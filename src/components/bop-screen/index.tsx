@@ -149,6 +149,7 @@ const BopScreen: React.FC = () => {
           bop_description: bopCat.bop_description,
           id: bopCat.id,
         },
+        staffId: local_service.get_staff_id(),
       }
 
       try {
