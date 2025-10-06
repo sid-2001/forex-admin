@@ -584,6 +584,9 @@ const SendMoneyPage = () => {
     }
   }
 
+
+
+
   const handlePeachPaymentsClick = async () => {
     setcommonloader(true)
     const { data } = await transaction_service.createDealcover(dealCoverPayload)
@@ -676,6 +679,74 @@ const SendMoneyPage = () => {
           document.open()
           document.write(htmlContent)
           document.close()
+        }
+      }
+    } catch (error) {
+      console.error('Payment initiation failed:', error)
+      alert('Payment failed. Please try again.')
+    }
+  }
+
+    const handleAdumoPaymentClick = async () => {
+    try {
+    
+
+      const { data } = await transaction_service.createDealcover(dealCoverPayload)
+
+      if (data?.dealNumber) {
+        const txnResponse = await transaction_service.createTransaction(transactionPayload)
+        if (txnResponse?.status) {
+          setCommonLoader(true)
+          if (txnResponse?.data) {
+            settype('success')
+            setText('Transaction Redicect Success')
+          } else {
+            settype('error')
+            setText('Failed to Redircet Transaction')
+          }
+          setOpen(true)
+          setcommonloader(false)
+          // navigate('/transaction')
+
+          const response = await transaction_service.createAdumoOrder({ amount: transactionPayload?.amount, transactionId: txnResponse?.data })
+           const { data } = response
+
+           console.log()
+
+          if (!data) {
+            alert('Failed to get session ID')
+            return
+          }
+          window.location.replace(JSON.parse( data)?.redirect_url)
+
+      //     const htmlContent = `<!DOCTYPE html>
+      // <html lang="en">
+      // <head>
+      //     <meta charset="UTF-8">
+      //     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      //     <title>Cashfree Checkout</title>
+      //     <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+      // </head>
+      // <body>
+      //     <script>
+      //         document.addEventListener("DOMContentLoaded", function () {
+      //             const cashfree = Cashfree({ mode: "sandbox" });
+
+      //             let checkoutOptions = {
+      //                 paymentSessionId: "${payment_session_id}",
+      //                 redirectTarget: "_self",
+      //             };
+
+      //             // Automatically trigger checkout when page loads
+      //             cashfree.checkout(checkoutOptions);
+      //         });
+      //     </script>
+      // </body>
+      // </html>`
+
+      //     document.open()
+      //     document.write(htmlContent)
+      //     document.close()
         }
       }
     } catch (error) {
@@ -1064,6 +1135,11 @@ const SendMoneyPage = () => {
                   <ConfirmAndPayButton
                     imgUrl="https://cdn.prod.website-files.com/6282d4840afd19e1afa62e70/6491490c213c45a9d600d387_ozow_small_xs.png"
                     handleClick={() => handleOzowPaymentClick()}
+                  />
+
+                   <ConfirmAndPayButton
+                    imgUrl="https://media.licdn.com/dms/image/v2/D4D0BAQFafwhXng3fkQ/company-logo_200_200/company-logo_200_200/0/1730292941961/adumo_online_logo?e=2147483647&v=beta&t=agng3yUCjdKlMYt76saZvTJHFC3Tx1BC9uaGlVTLh4c"
+                    handleClick={() => handleAdumoPaymentClick()}
                   />
                   <ConfirmAndPayButton
                     imgUrl="https://www.peachpayments.com/hubfs/peachpayments-logo.svg"

@@ -31,8 +31,8 @@ export interface Modules {
 }
 
 export class UserService extends BaseService {
-  async createModule(payload: any): Promise<any> {
-    let url = '/api/staff/staff-modules'
+  async createModule(payload: any,staffId:any): Promise<any> {
+    let url = `/api/staff/staff-modules/staff/${staffId}/modules`
     try {
       let { data } = await api1.post(url, payload)
       return data
@@ -101,8 +101,8 @@ export class UserService extends BaseService {
     }
   }
 
-  async deleteModule(id: number): Promise<any> {
-    let url = `/api/staff/staff-modules/deleteModule/${id}`
+  async deleteModule(id: number,staffId:any): Promise<any> {
+    let url = `/api/staff/staff-modules/staff/${staffId}/deleteModule/${id}`
     try {
       let data = await api1.del(url, {})
       return data
@@ -111,8 +111,8 @@ export class UserService extends BaseService {
     }
   }
 
-  async updateModule(payload: any, moduleId: number): Promise<any> {
-    let url = `/api/staff/staff-modules/updateModule/${moduleId}`
+  async updateModule(payload: any, staffId: number): Promise<any> {
+    let url = `/api/staff/staff-modules/updateModule/${staffId}`
     try {
       let { data } = await api1.put(url, payload)
       return data
@@ -131,8 +131,8 @@ export class UserService extends BaseService {
     }
   }
 
-  async addRole(payload: any): Promise<any> {
-    let url = `/api/staff/staff-roles/add`
+  async addRole(payload: any,staffId:any): Promise<any> {
+    let url = `/api/staff/staff-roles/staff/${staffId}/add`
     try {
       let data = await api1.post(url, payload)
       return data
@@ -151,8 +151,8 @@ export class UserService extends BaseService {
     }
   }
 
-  async editRoles(roleId: string, payload: any): Promise<any> {
-  const url = `/api/staff/staff-roles/update/${roleId}`;
+  async editRoles(staffId: string, payload: any): Promise<any> {
+  const url = `/api/staff/staff-roles/update/${staffId}`;
   try {
     const { data } = await api1.post(url, payload);
     return data; // This will contain { status: true, message: "...", data: "..."}

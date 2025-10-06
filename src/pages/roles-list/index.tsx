@@ -30,7 +30,7 @@ const RoleManagementPage = () => {
 
   const handleSave = (updatedRole: any) => {
    
-    api_service.addRole(updatedRole)
+    api_service.addRole(updatedRole,local_service?.get_staff_id())
     setSelectedRole(null)
     window.location.reload()
   

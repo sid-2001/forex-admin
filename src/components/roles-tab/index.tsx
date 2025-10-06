@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { UserService } from '@/services/user.service';
+import { LocalStorageService } from '@/helpers/local-storage-service';
 
 const modules = [
   { moduleId: 1, moduleName: 'Transaction Outward', moduleLink: '/admin/users' },
@@ -118,6 +119,7 @@ const RoleModal = (
     },
   ];
   let user_service=new UserService()
+  let local_service=new LocalStorageService()
 
   const handleSave = () => {
     const output = {
@@ -138,7 +140,7 @@ const RoleModal = (
         };
       }),
     };
-user_service.addRole(output).then(data=>{
+user_service.addRole(output,local_service?.get_staff_id()).then(data=>{
 
   console.log(data)
 })
