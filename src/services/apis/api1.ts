@@ -34,7 +34,7 @@ export async function getDeviceInfo(): Promise<{ ip: string; deviceName: string 
   }
 
   // Get device name (simplified: OS + browser)
-  const deviceName = `${navigator.platform} - ${navigator.userAgent}`;
+  const deviceName = `${navigator.platform}`;
 
   return { ip, deviceName };
 }
