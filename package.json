@@ -43,6 +43,7 @@
     "npm": "^10.8.1",
     "nvm": "^0.0.4",
     "path": "^0.12.7",
+    "public-ip": "^8.0.0",
     "random": "^4.1.0",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",

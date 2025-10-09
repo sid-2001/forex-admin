@@ -376,27 +376,28 @@ const SendMoneyPage = () => {
     rewardPoints: 23.7,
     amount: amount,
     // fcmToken: "",
+    //@ts-ignore
 
-    applicant: {
-      applicantId: selectedUser?.applicantId,
-      accountNumber: selectedUser?.accountNumber,
-      name: selectedUser?.name,
-      profilePhoto: selectedUser?.profilePhoto,
-    },
-    benificary: selectedBenficary,
-    bopId: category,
+    benificaryId: selectedBenficary?.benificaryId,
+    // bopId: category,
+     bopId: 79,
+       applicantId:selectedUser?.applicantId, 
     destinationCountry: selectedCountry,
     destinationCurrency: userCountry === 'ZA' ? 'INR' : 'ZAR',
     forex: forexRate,
     // hardcoded Values
-    gateway: {
-      id: 1,
-      name: 'PayPal',
-      avatarUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a0/Paypal.svg',
-    },
+    // gateway: {
+    //   id: 1,
+    //   name: 'PayPal',
+    //   avatarUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a0/Paypal.svg',
+    // },
     gatewayId: 'IMPGW004',
-    gatewayStatus: 'Processing',
-    selectedTimeMethod: selectedTime,
+    gatewayStatus: 'Pending',
+    selectedTimeMethod: {
+        "time": "2 hours",
+        "charges": 50,
+        "total": 200
+    },
     sourceCurrency: userCountry === 'ZA' ? 'ZAR' : 'INR',
     sourceCountry: userCountry,
     //@ts-ignore
