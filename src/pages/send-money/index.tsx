@@ -376,27 +376,23 @@ const SendMoneyPage = () => {
     rewardPoints: 23.7,
     amount: amount,
     // fcmToken: "",
+    //@ts-ignore
 
-    applicant: {
-      applicantId: selectedUser?.applicantId,
-      accountNumber: selectedUser?.accountNumber,
-      name: selectedUser?.name,
-      profilePhoto: selectedUser?.profilePhoto,
-    },
-    benificary: selectedBenficary,
+    benificaryId: selectedBenficary?.benificaryId,
     bopId: category,
+    //  bopId: 79,
+       applicantId:selectedUser?.applicantId, 
     destinationCountry: selectedCountry,
     destinationCurrency: userCountry === 'ZA' ? 'INR' : 'ZAR',
     forex: forexRate,
-    // hardcoded Values
-    gateway: {
-      id: 1,
-      name: 'PayPal',
-      avatarUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a0/Paypal.svg',
-    },
+
     gatewayId: 'IMPGW004',
-    gatewayStatus: 'Processing',
-    selectedTimeMethod: selectedTime,
+    gatewayStatus: 'Pending',
+    selectedTimeMethod: {
+        "time": "2 hours",
+        "charges": 50,
+        "total": 200
+    },
     sourceCurrency: userCountry === 'ZA' ? 'ZAR' : 'INR',
     sourceCountry: userCountry,
     //@ts-ignore
@@ -939,7 +935,7 @@ const SendMoneyPage = () => {
                   </Grid>
                 </Grid>
                 <Grid container spacing={2} marginBottom={2}>
-                  <Grid
+                  {/* <Grid
                     item
                     xs={12}
                     md={12}
@@ -965,7 +961,7 @@ const SendMoneyPage = () => {
                     ) : (
                       <></>
                     )}
-                  </Grid>
+                  </Grid> */}
 
                   {selectedGateway ? (
                     <>
@@ -1046,9 +1042,38 @@ const SendMoneyPage = () => {
                   onClick={() => {
                     setTabValue('2')
                   }}
-                  disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
+                  // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
                   sx={{ marginTop: '10px' }}
+
+              disabled={!(selectedUser?.applicantId&&userCountry&&userCountry&&category)}
                 >
+
+{/*    amount: amount,
+    // fcmToken: "",
+    //@ts-ignore
+
+    benificaryId: selectedBenficary?.benificaryId,
+    bopId: category,
+    //  bopId: 79,
+       applicantId:selectedUser?.applicantId, 
+    destinationCountry: selectedCountry,
+    destinationCurrency: userCountry === 'ZA' ? 'INR' : 'ZAR',
+    forex: forexRate,
+
+    gatewayId: 'IMPGW004',
+    gatewayStatus: 'Pending',
+    selectedTimeMethod: {
+        "time": "2 hours",
+        "charges": 50,
+        "total": 200
+    },
+    sourceCurrency: userCountry === 'ZA' ? 'ZAR' : 'INR',
+    sourceCountry: userCountry,
+    //@ts-ignore
+    timecharge: selectedTime?.time,
+    totalpaybleamount: Number(amount) + Number(selectedTimeChange) + Number(gatewayCharge),
+    transferMethod: selectedTransferMethod, */}
+                  
                   Continue
                 </Button>
               </Box>

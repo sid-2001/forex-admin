@@ -4,6 +4,7 @@ import { redirect } from 'react-router-dom'
 import { LocalStorageService } from '../../helpers/local-storage-service'
 import { BaseError } from '../../types/error.type'
 import { logger } from '../../helpers/logger'
+import { publicIpv4 } from 'public-ip';
 
 const { VITE_APP_BACKEND } = import.meta.env
 
@@ -24,18 +25,13 @@ const instance: AxiosInstance = axios.create({
 export async function getDeviceInfo(): Promise<{ ip: string; deviceName: string }> {
   let ip = 'unknown'
   try {
-    const response = await fetch('https://api.ipify.org?format=json')
-    if (response.ok) {
-      const data = await response.json()
-      ip = data?.ip || 'unknown'
-    }
+    ip = await publicIpv4() || 'unknown';
   } catch (err) {
     console.warn('Failed to fetch public IP:', err)
   }
 
-  // Get device name (simplified: OS + browser)
-  // const deviceName = `${navigator.platform}`;
-  const deviceName = 'WEB'
+  // Get device name (OS + browser info)
+  const deviceName = `${navigator.platform} - ${navigator.userAgent}`;
 
   return { ip, deviceName }
 }

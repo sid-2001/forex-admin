@@ -107,6 +107,7 @@ const LoginPage = () => {
 
   const handleLogin = async () => {
     try {
+      setcommonloader(true)
       setSelectedTab('Price')
       auth_service
         .loginStaff({
@@ -140,6 +141,7 @@ const LoginPage = () => {
             setType('error')
             setOpen(true)
           }
+            setcommonloader(false)
         })
         .catch((err) => {
           console.error(err)
