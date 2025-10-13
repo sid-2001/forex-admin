@@ -53,6 +53,7 @@ const BeneficiaryForm = ({
           label="Account Holder Name"
           variant="filled"
           fullWidth
+          disabled
           placeholder="Enter Account Holder Name"
           value={formData.accountHolderName}
           InputProps={{
