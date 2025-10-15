@@ -23,24 +23,23 @@ const instance: AxiosInstance = axios.create({
 
 // Fetch device info with fallback
 export async function getDeviceInfo(): Promise<{ ip: string; deviceName: string }> {
-   let ip = 'unknown';
+  let ip = 'unknown'
   try {
     ip = await publicIpv4() || 'unknown';
   } catch (err) {
-    console.warn('Failed to fetch public IP:', err);
+    console.warn('Failed to fetch public IP:', err)
   }
 
   // Get device name (OS + browser info)
   const deviceName = `${navigator.platform} - ${navigator.userAgent}`;
 
-  return { ip, deviceName };
+  return { ip, deviceName }
 }
 
-
 instance.interceptors.request.use(
-async (config: AdaptAxiosRequestConfig) => {
+  async (config: AdaptAxiosRequestConfig) => {
     const localStorageService = new LocalStorageService()
-     const { ip, deviceName } = await getDeviceInfo()
+    const { ip, deviceName } = await getDeviceInfo()
     const token = (localStorageService.get_accesstoken() as any)?.replaceAll(`"`, '')
 
     if (token) {
@@ -51,8 +50,8 @@ async (config: AdaptAxiosRequestConfig) => {
 
       config.headers['access-control-allow-origin'] = '*'
       config.headers['ngrok-skip-browser-warning'] = 'true'
-      config.headers['X-Device-IP']=ip
-      config.headers['X-Device-Name']=deviceName
+      config.headers['X-Device-IP'] = ip
+      config.headers['X-Device-Name'] = deviceName
     }
     return config
   },
