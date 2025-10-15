@@ -98,26 +98,12 @@ const Dashboard = () => {
       country: 'India',
     },
     {
-      name: 'HDFC ',
-      balance: 18020.75,
+      name: 'SB ',
+      balance: 1802.75,
       image_url:
-        'https://media.licdn.com/dms/image/v2/C510BAQGqZH7vVbVzWw/company-logo_200_200/company-logo_200_200/0/1630606529683/hdfc_bank_logo?e=1756944000&v=beta&t=RoXmSn8fKd4SYGMdrAyOpeIuy5mFu6NRFNwOBl8szHg',
+        'https://media.licdn.com/dms/image/v2/C4D0BAQEMo-EgURgpnA/company-logo_200_200/company-logo_200_200/0/1630561374295/standard_bank_group_logo?e=1763596800&v=beta&t=SA9TooJjIAO9AO3sO0Y_bMebCjTauJ4XnBz2gI8JTtI',
       country: 'India',
-    },
-    {
-      name: 'SBI ',
-      balance: 50400,
-      image_url:
-        'https://media.licdn.com/dms/image/v2/C4D0BAQHKjQFwtVCmSg/company-logo_200_200/company-logo_200_200/0/1660627573367/state_bank_of_india_logo?e=1756944000&v=beta&t=F_jA5pDKnBTp7RqEQk4odT2kQ0o3ciooaD4bnNzur0Y',
-      country: 'India',
-    },
-    {
-      name: 'HSBC',
-      balance: 2500.9,
-      image_url:
-        'https://media.licdn.com/dms/image/v2/D4E0BAQGF7uhTJxFBvQ/img-crop_100/img-crop_100/0/1717419425342?e=1756944000&v=beta&t=hVuOkKTkoY_puNtx-0XR9P65wEW5WkvVt1dpi6GURQs',
-      country: 'South Africa',
-    },
+    }
   ]
 
   useEffect(() => {
@@ -498,7 +484,7 @@ const Dashboard = () => {
                         </Typography>
                         <Typography variant="body2">Users</Typography>
                         <Typography variant="caption" fontWeight="bold">
-                          KYC Verified
+                          Verified
                         </Typography>
                       </Box>
                     </Grid>
@@ -759,27 +745,45 @@ const Dashboard = () => {
               Payment Gateway
             </Typography>
 
-            <Grid container spacing={1} sx={{ mb: 2 }}>
-              {cards.map((card) => (
-                <Grid item xs={6} key={card.id}>
-                  <Box
-                    sx={{
-                      border: `1px solid ${card.activeStatus ? 'green' : 'red'}`,
-                      borderRadius: 2,
-                      p: 0.1,
-                      display: 'flex',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      minHeight: 120, // keeps height fixed
-                    }}
-                  >
-                    <img src={card.imageUrl} alt={card.company} width={90} />
-                    <Switch checked={card.activeStatus} onChange={() => handleToggle(card.id, !card.activeStatus)} sx={{ mt: 1 }} />
-                  </Box>
-                </Grid>
-              ))}
-            </Grid>
+          <Grid container spacing={1} sx={{ mb: 2 }}>
+  {cards.map((card) => (
+    <Grid item xs={6} key={card.id}>
+      <Box
+        sx={{
+          width: 100,
+          height: 'auto',
+          display: 'flex',
+          flexDirection: 'column', // stack vertically
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: 1,
+          borderRadius: 1,
+          backgroundColor: '#f5f5f5',
+        }}
+      >
+        {/* Image */}
+        <Box
+          component="img"
+          src={card.imageUrl}
+          alt={card.company}
+          sx={{
+            width: '100%',
+            height: 80,
+            objectFit: 'contain',
+          }}
+        />
+
+        {/* Toggle Switch below image */}
+        <Switch
+          checked={card.activeStatus}
+          onChange={() => handleToggle(card.id, !card.activeStatus)}
+          sx={{ mt: 1 }}
+        />
+      </Box>
+    </Grid>
+  ))}
+</Grid>
+
 
             {/* Banking Partners Section */}
             <Typography variant="body1" sx={{ fontWeight: 'bold', mt: 2, mb: 1 }}>
