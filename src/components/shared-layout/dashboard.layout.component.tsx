@@ -318,122 +318,174 @@ const DashboardLayout = () => {
           paddingBottom: 0,
         }}
       >
-        <Toolbar sx={{ minHeight: '8vh', height: '7.5vh' }}> {/* lock height in vh */}
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', px: 2, py: 1 }}>
-            {/* Logo */}
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Link to='/dashboard'>
+        <Toolbar sx={{ minHeight: '8vh', height: '7.5vh', px: 2 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              width: '100%',
+            }}
+          >
+            {/* Left side - Logo + Dark/Light Mode */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Link to="/dashboard">
                 <img
                   src={LogoWhite}
                   alt="Logo"
                   style={{
-                    maxHeight: '6vh', // keeps logo inside navbar height
+                    maxHeight: '6vh',
                     width: 'auto',
-                   objectFit: 'contain',
+                    objectFit: 'contain',
                   }}
                 />
               </Link>
-            </Box>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, color: 'white' }}>
-              <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+              <Tooltip
+                title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              >
                 <IconButton
                   onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
                   color="inherit"
-                  sx={{ transition: 'transform 0.3s', '&:hover': { transform: 'rotate(180deg)' } }}
+                  sx={{
+                    transition: 'transform 0.3s',
+                    '&:hover': { transform: 'rotate(180deg)' },
+                  }}
                 >
                   {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
                 </IconButton>
               </Tooltip>
             </Box>
-          </Box>
 
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              borderRadius: '30px',
-              borderColor: '#1C58F2',
-              backgroundColor: 'primary',
-              border: '1px solid #D1DDFC',
-              padding: '7px',
-              width: "fit-content",
-              minWidth: "auto",
-              maxWidth: "100%",
-              paddingRight: '10px',
-              marginBottom: '6px',
-              height: '65%',
-              lineHeight: 1,
-            }}
-          >
-            {staffCountry == 'ZA' ? (
-              <>
-                <Avatar>
-                  {<strong>{local_service?.get_staff_access().staffFirstName[0].toUpperCase() + local_service?.get_staff_access().staffLastName[0].toUpperCase()}</strong>}
-                </Avatar>
+            {/* Right side - Profile box */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                borderRadius: '30px',
+                border: '1px solid #D1DDFC',
+                padding: '3px 10px', // spacing fixed
+                gap: 1.2, // space between avatar and text
+                backgroundColor: 'transparent',
+              }}
+            >
+              <Avatar
+                sx={{
+                  bgcolor: 'grey.700',
+                  width: 42,
+                  height: 42,
+                  fontSize: '1.8vh',
+                  fontWeight: 600,
+                }}
+              >
+                {
+                  <strong>
+                    {local_service
+                      ?.get_staff_access()
+                      .staffFirstName[0].toUpperCase() +
+                      local_service?.get_staff_access().staffLastName[0].toUpperCase()}
+                  </strong>
+                }
+              </Avatar>
 
-                <Box ml={1}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                {/* Name + Role in one line */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.2 }}>
                   <Typography
                     variant="subtitle1"
                     sx={{
                       fontFamily: 'sans-serif',
-                      fontSize: '1.2vh', // scaled with vh
+                      fontSize: '1.3vh',
                       color: 'white',
+                      fontWeight: 600,
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    <strong>{local_service?.get_staff_access().staffFirstName + ' ' + local_service?.get_staff_access().staffLastName}</strong>
+                    {local_service?.get_staff_access().staffFirstName +
+                      ' ' +
+                      local_service?.get_staff_access().staffLastName}
                   </Typography>
 
-                  <Stack direction="row">
-                    <Typography
-                      variant="subtitle2"
-                      sx={{
-                        fontFamily: 'sans-serif',
-                        fontSize: '1.1vh',
-                        color: 'white',
-                        whiteSpace: 'nowrap',
-
-                      }}
-                    >
-                      <strong>{local_service?.get_staff_access().staffId}</strong>
-                    </Typography>
-                  </Stack>
-                </Box>
-              </>
-            ) : (
-              <>
-                <Box ml={1}>
                   <Typography
-                    variant="subtitle1"
+                    variant="body2"
                     sx={{
                       fontFamily: 'sans-serif',
-                      fontSize: '1.2vh',
+                      fontSize: '1.1vh',
                       color: 'white',
+                      opacity: 0.8,
                       whiteSpace: 'nowrap',
-
                     }}
                   >
-                    <strong>{local_service?.get_staff_access()?.staffFirstName + ' ' + local_service?.get_staff_access()?.staffLastName}</strong>
+                    •{' '}
+                    {local_service?.get_staff_access().userCategory ||
+                      local_service?.get_staff_access().roleDescription ||
+                      'User'}
                   </Typography>
-
-                  <Stack direction="row">
-                    <Typography
-                      variant="subtitle2"
-                      sx={{
-                        fontFamily: 'sans-serif',
-                        fontSize: '1.1vh',
-                        color: 'white',
-                      }}
-                    >
-                      <strong>{local_service?.get_staff_access()?.staffId}</strong>
-                    </Typography>
-                  </Stack>
                 </Box>
-              </>
-            )}
+
+                {/* Staff ID */}
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontFamily: 'sans-serif',
+                    fontSize: '1.1vh',
+                    color: 'white',
+                    fontWeight: 500,
+                    whiteSpace: 'nowrap',
+                    marginTop: '2px',
+                  }}
+                >
+                  {local_service?.get_staff_access().staffId}
+                </Typography>
+
+                {/* Country */}
+                <Stack direction="row" alignItems="center" spacing={0.6} sx={{ marginTop: '2px' }}>
+                  {(() => {
+                    const staff = local_service?.get_staff_access();
+                    if (!staff) return null;
+
+                    const flag = staff.staffCountry
+                      ? staff.staffCountry
+                        .toUpperCase()
+                        .replace(/./g, (c: string) =>
+                          String.fromCodePoint(127397 + c.charCodeAt(0))
+                        )
+                      : '🏳️';
+
+                    const countryNames: Record<string, string> = {
+                      ZA: 'South Africa',
+                      IN: 'India',
+                      US: 'United States',
+                      UK: 'United Kingdom',
+                      AE: 'UAE',
+                    };
+
+                    const countryName =
+                      countryNames[staff.staffCountry] ||
+                      staff.staffCountry ||
+                      'Unknown';
+
+                    return (
+                      <>
+                        <Typography sx={{ fontSize: '1.1vh' }}>{flag}</Typography>
+                        <Typography
+                          sx={{
+                            fontSize: '1.1vh',
+                            color: 'white',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {countryName}
+                        </Typography>
+                      </>
+                    );
+                  })()}
+                </Stack>
+              </Box>
+            </Box>
           </Box>
         </Toolbar>
+
       </AppBar>
 
       <DashboardContainer>
@@ -445,10 +497,10 @@ const DashboardLayout = () => {
               //@ts-ignore
               backgroundColor: theme.palette.secondary.main,
               position: 'fixed',
-              top: '8vh',                   
+              top: '8vh',
               left: 0,
-              height: 'calc(100vh - 8vh)', 
-              overflowY: 'auto',            
+              height: 'calc(100vh - 8vh)',
+              overflowY: 'auto',
               boxShadow: '2px 0 5px rgba(0,0,0,0.3)',
               transition: 'width 0.3s',
               display: 'flex',
@@ -464,7 +516,7 @@ const DashboardLayout = () => {
                 textAlign: 'center',
                 height: '100%',
                 '@media (max-height: 700px)': {
-                  maxHeight: 'calc(100vh - 80px)', 
+                  maxHeight: 'calc(100vh - 80px)',
                 },
                 '&::-webkit-scrollbar': {
                   width: '8px',
@@ -564,7 +616,7 @@ const DashboardLayout = () => {
               </ListItem>
             </List>
 
-          
+
             <List
               sx={{
                 textAlign: 'center',
