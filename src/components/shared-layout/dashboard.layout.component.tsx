@@ -27,8 +27,8 @@ import ShowChartIcon from '@mui/icons-material/ShowChart'
 import ViewModuleIcon from '@mui/icons-material/ViewModule'
 import { TransactionService } from '@/services/transaction.service'
 import ConfirmationModal from '../logout/logout.component'
-import LoyaltyIcon from '@mui/icons-material/Loyalty';
-import ErrorIcon from '@mui/icons-material/Error';
+import LoyaltyIcon from '@mui/icons-material/Loyalty'
+import ErrorIcon from '@mui/icons-material/Error'
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
@@ -101,7 +101,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Dashboard',
-      name: "Dashboard"
+      name: 'Dashboard',
     },
     {
       icon: (
@@ -120,7 +120,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Transaction',
-      name: "Transactions"
+      name: 'Transactions',
     },
 
     {
@@ -140,7 +140,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Kyc',
-      name: "KYC"
+      name: 'KYC',
     },
     {
       icon: (
@@ -159,7 +159,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Applicant',
-      name: "Applicants"
+      name: 'Applicants',
     },
     {
       icon: (
@@ -175,7 +175,7 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Bop',
-      name: "BOP"
+      name: 'BOP',
     },
     {
       icon: (
@@ -191,7 +191,7 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Profile',
-      name: "Users"
+      name: 'Users',
     },
     {
       icon: (
@@ -290,10 +290,43 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Loyalty',
-      name: "Loyalty"
+      name: 'Loyalty',
+    },
+
+    {
+      icon: (
+        <>
+          <LoyaltyIcon
+            sx={{
+              //@ts-ignore
+              fontSize: '2vh',
+              //@ts-ignore
+              color: theme.palette.primary.light, // Corrected theme usage
+            }}
+          />
+        </>
+      ),
+      label: 'Audit-Logs',
+      name: 'Audit-Logs',
+    },
+
+    {
+      icon: (
+        <>
+          <LoyaltyIcon
+            sx={{
+              //@ts-ignore
+              fontSize: '2vh',
+              //@ts-ignore
+              color: theme.palette.primary.light, // Corrected theme usage
+            }}
+          />
+        </>
+      ),
+      label: 'Field-Validation',
+      name: 'Field-Validation',
     },
   ]
-
 
   useEffect(() => {
     setTimeout(() => {
@@ -312,24 +345,26 @@ const DashboardLayout = () => {
       <AppBar
         position="sticky"
         sx={{
-          minHeight: '8vh',   // AppBar height relative to viewport
+          minHeight: '8vh', // AppBar height relative to viewport
           height: '8vh',
           //@ts-ignore
           paddingBottom: 0,
         }}
       >
-        <Toolbar sx={{ minHeight: '8vh', height: '7.5vh' }}> {/* lock height in vh */}
+        <Toolbar sx={{ minHeight: '8vh', height: '7.5vh' }}>
+          {' '}
+          {/* lock height in vh */}
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', px: 2, py: 1 }}>
             {/* Logo */}
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Link to='/dashboard'>
+              <Link to="/dashboard">
                 <img
                   src={LogoWhite}
                   alt="Logo"
                   style={{
                     maxHeight: '6vh', // keeps logo inside navbar height
                     width: 'auto',
-                   objectFit: 'contain',
+                    objectFit: 'contain',
                   }}
                 />
               </Link>
@@ -347,7 +382,6 @@ const DashboardLayout = () => {
               </Tooltip>
             </Box>
           </Box>
-
           <Box
             sx={{
               display: 'flex',
@@ -357,9 +391,9 @@ const DashboardLayout = () => {
               backgroundColor: 'primary',
               border: '1px solid #D1DDFC',
               padding: '7px',
-              width: "fit-content",
-              minWidth: "auto",
-              maxWidth: "100%",
+              width: 'fit-content',
+              minWidth: 'auto',
+              maxWidth: '100%',
               paddingRight: '10px',
               marginBottom: '6px',
               height: '65%',
@@ -369,7 +403,12 @@ const DashboardLayout = () => {
             {staffCountry == 'ZA' ? (
               <>
                 <Avatar>
-                  {<strong>{local_service?.get_staff_access().staffFirstName[0].toUpperCase() + local_service?.get_staff_access().staffLastName[0].toUpperCase()}</strong>}
+                  {
+                    <strong>
+                      {local_service?.get_staff_access().staffFirstName[0].toUpperCase() +
+                        local_service?.get_staff_access().staffLastName[0].toUpperCase()}
+                    </strong>
+                  }
                 </Avatar>
 
                 <Box ml={1}>
@@ -393,7 +432,6 @@ const DashboardLayout = () => {
                         fontSize: '1.1vh',
                         color: 'white',
                         whiteSpace: 'nowrap',
-
                       }}
                     >
                       <strong>{local_service?.get_staff_access().staffId}</strong>
@@ -411,7 +449,6 @@ const DashboardLayout = () => {
                       fontSize: '1.2vh',
                       color: 'white',
                       whiteSpace: 'nowrap',
-
                     }}
                   >
                     <strong>{local_service?.get_staff_access()?.staffFirstName + ' ' + local_service?.get_staff_access()?.staffLastName}</strong>
@@ -445,10 +482,10 @@ const DashboardLayout = () => {
               //@ts-ignore
               backgroundColor: theme.palette.secondary.main,
               position: 'fixed',
-              top: '8vh',                   
+              top: '8vh',
               left: 0,
-              height: 'calc(100vh - 8vh)', 
-              overflowY: 'auto',            
+              height: 'calc(100vh - 8vh)',
+              overflowY: 'auto',
               boxShadow: '2px 0 5px rgba(0,0,0,0.3)',
               transition: 'width 0.3s',
               display: 'flex',
@@ -464,7 +501,7 @@ const DashboardLayout = () => {
                 textAlign: 'center',
                 height: '100%',
                 '@media (max-height: 700px)': {
-                  maxHeight: 'calc(100vh - 80px)', 
+                  maxHeight: 'calc(100vh - 80px)',
                 },
                 '&::-webkit-scrollbar': {
                   width: '8px',

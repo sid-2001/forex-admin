@@ -43,12 +43,13 @@ import { useRecoilState } from 'recoil'
 import { CssBaseline } from '@mui/material'
 import SarbErrorsListing from './pages/sarb-errors'
 import Loyality from './pages/loyality'
+import AuditLogTable from './pages/audit-log'
+import FieldValidationTable from './pages/field-validation'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
     authenticationPath: '/login',
   }
-  
 
   const [mode, setMode] = useRecoilState(themeModeState)
   const theme = createTheme({
@@ -85,13 +86,12 @@ function App() {
             color: mode === 'dark' ? '#fff' : '#000',
             transition: 'all 0.3s ease',
           },
-           /* Hide scrollbar globally */
+          /* Hide scrollbar globally */
           '&::-webkit-scrollbar': {
-            display: 'none', 
+            display: 'none',
           },
-          scrollbarWidth: 'none', 
-          msOverflowStyle: 'none', 
- 
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
 
           '#root': {
             display: 'flex',
@@ -144,11 +144,10 @@ function App() {
               <Route path="kyc" element={<KYCPage />} />
               <Route path="kyc/:id" element={<KYCPage />} />
               <Route path="cdi" element={<CdiScreen />} />
-                <Route path="loyalty" element={<Loyality />} />
+              <Route path="loyalty" element={<Loyality />} />
               <Route path="profile" element={<UserTable />} />
               <Route path="profile/add" element={<UserAdd />} />
-              <Route path="profile/edit/:staffId" 
-              element={<UserAdd />} />
+              <Route path="profile/edit/:staffId" element={<UserAdd />} />
               <Route path="applicant-details/:applicantId" element={<ApplicantPage />} />
               <Route path="applicant" element={<ApplicantEnquiry />} />
               <Route path="add-applicant" element={<AddApplicant />} />
@@ -165,6 +164,9 @@ function App() {
               <Route path="module" element={<ModuleTable />} />
               <Route path="role" element={<RoleManagement />} />
               <Route path="sarberrors" element={<SarbErrorsListing />} />
+              <Route path="audit-logs" element={<AuditLogTable />} />
+              <Route path="field-validation" element={<FieldValidationTable />} />
+
               <Route path="*" element={<Dashboard />} />
             </Route>
 
