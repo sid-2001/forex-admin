@@ -447,7 +447,7 @@ const Dashboard = () => {
               <Card sx={{ border: '2px solid', borderColor: '#79CBF0' }}>
                 <CardContent>
                   <Typography variant="subtitle1" fontWeight={700} gutterBottom>
-                    Consumers
+                    User Analytics
                   </Typography>
                   <Grid container spacing={2}>
                     <Grid item xs={4}>
@@ -582,7 +582,7 @@ const Dashboard = () => {
           {/* Active Channels */}
           <Grid item xs={12} md={12}>
             {/* Active Channels */}
-            <Box sx={{ mt: 0, mb: 1 }}>
+            <Box sx={{ mt: 0, mb: 1 ,pl:2}}>
               <Typography variant="h5" fontWeight={700} gutterBottom>
                 Active Channels
               </Typography>
@@ -649,63 +649,6 @@ const Dashboard = () => {
                 </Box>
               </Box>
 
-              {/* ZA → UK (Disabled) */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  p: 1,
-                  mb: 1,
-                  border: '1px dashed grey',
-                  borderRadius: 2,
-                  opacity: 0.5,
-                }}
-              >
-                <Box sx={{ width: '90px' }}>
-                  <Typography fontWeight={600}>ZA (ZAR)</Typography>
-                  <Typography variant="caption">South Africa</Typography>
-                </Box>
-
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '40px' }}>
-                  <ArrowBackIcon sx={{ color: 'grey' }} />
-                  <ArrowForwardIcon sx={{ color: 'grey' }} />
-                </Box>
-
-                <Box sx={{ width: '110px', textAlign: 'right' }}>
-                  <Typography fontWeight={600}>UK (GBP)</Typography>
-                  <Typography variant="caption">United Kingdom</Typography>
-                </Box>
-              </Box>
-
-              {/* NIG → ZA (Disabled) */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  p: 1,
-                  mb: 1,
-                  border: '1px dashed grey',
-                  borderRadius: 2,
-                  opacity: 0.5,
-                }}
-              >
-                <Box sx={{ width: '90px' }}>
-                  <Typography fontWeight={600}>NIG (KLS)</Typography>
-                  <Typography variant="caption">Nigeria</Typography>
-                </Box>
-
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '40px' }}>
-                  <ArrowBackIcon sx={{ color: 'grey' }} />
-                  <ArrowForwardIcon sx={{ color: 'grey' }} />
-                </Box>
-
-                <Box sx={{ width: '110px', textAlign: 'right' }}>
-                  <Typography fontWeight={600}>ZA (ZAR)</Typography>
-                  <Typography variant="caption">South Africa</Typography>
-                </Box>
-              </Box>
             </Box>
           </Grid>
 
