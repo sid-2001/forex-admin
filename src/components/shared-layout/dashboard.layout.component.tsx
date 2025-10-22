@@ -528,40 +528,6 @@ const DashboardLayout = () => {
                 </ListItem>
               ))}
 
-              <ListItem
-                button
-                key="logout"
-                sx={{
-                  textAlign: 'center',
-                  alignItems: 'center',
-                }}
-                onClick={() => {
-                  setIsModalOpen(true)
-                }}
-              >
-                <Stack>
-                  {/* <Item>
-                    <ListItemIcon
-                      sx={{
-                        textAlign: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <LogoutIcon sx={{ color: 'red' }} />
-                    </ListItemIcon>
-                  </Item> */}
-                  {isDrawerOpen && (
-                    <Item
-                      style={{
-                        color: 'white',
-                        padding: '1%',
-                      }}
-                    >
-                      Logout
-                    </Item>
-                  )}
-                </Stack>
-              </ListItem>
             </List>
 
           
