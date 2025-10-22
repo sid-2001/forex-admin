@@ -577,7 +577,7 @@ const DashboardLayout = () => {
                 }}
               >
                 <Stack>
-                  <Item>
+                  {/* <Item>
                     <ListItemIcon
                       sx={{
                         textAlign: 'center',
@@ -586,7 +586,7 @@ const DashboardLayout = () => {
                     >
                       <LogoutIcon sx={{ color: 'red' }} />
                     </ListItemIcon>
-                  </Item>
+                  </Item> */}
                   {isDrawerOpen && (
                     <Item
                       style={{
@@ -601,8 +601,7 @@ const DashboardLayout = () => {
               </ListItem>
             </List>
 
-            {/* Logout icon */}
-
+          
             <List
               sx={{
                 textAlign: 'center',

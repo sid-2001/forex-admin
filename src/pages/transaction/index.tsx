@@ -550,6 +550,27 @@ const TransactionListing = () => {
     </GridToolbarContainer>
   )
 
+  function CustomColumnMenu(props:
+    //@ts-ignore
+    GridColumnMenuProps) {
+  return (
+
+    //@ts-ignore
+    <GridColumnMenu
+      {...props}
+      slotProps={{
+        // Swap positions of filter and sort items
+        columnMenuFilterItem: {
+          displayOrder: 0, // Previously `10`
+        },
+        columnMenuSortItem: {
+          displayOrder: 10, // Previously `0`
+        },
+      }}
+    />
+  );
+}
+
   const fetchStpErrorList = useCallback(async (transactionId: string) => {
     try {
       const { data } = await transaction_Service.getStpRules(transactionId)
@@ -804,72 +825,77 @@ const TransactionListing = () => {
           </ToggleButtonGroup>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {/* Left group: three text links */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0, mr: 3 }}>
-            <Typography
-              variant="body2"
-              sx={{
-                cursor: 'pointer',
-                borderBottom: '1px solid black',
-                lineHeight: 1.5,
-                px: 0.5,
-                '&:hover': {
-                  borderBottomColor: 'primary.main',
-                  fontWeight: 'bold', // correct casing
-                },
-              }}
-              onClick={() => handleNavigation('/recon-trx')}
-            >
-              Reconciliation
-            </Typography>
+    
+<Box sx={{ display: 'flex', alignItems: 'center' }}>
+      {/* Left group: text-style buttons */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 3 }}>
+        <Button
+          variant="text"
+          sx={{
+            textTransform: 'none',
+            borderBottom: '1px solid transparent',
+            borderRadius: 0,
+            color: 'text.primary',
+            '&:hover': {
+              borderBottomColor: 'primary.main',
+              fontWeight: 'bold',
+              backgroundColor: 'transparent',
+            },
+          }}
+          onClick={() => handleNavigation('/recon-trx')}
+        >
+          Reconciliation
+        </Button>
 
-            <Typography
-              variant="body2"
-              sx={{
-                cursor: 'pointer',
-                borderBottom: '1px solid black',
-                lineHeight: 1.5,
-                px: 0.5,
-                '&:hover': {
-                  borderBottomColor: 'primary.main',
-                  fontWeight: 'bold',
-                },
-              }}
-              // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
-              onClick={() => handleNavigation('/utilization')}
-            >
-              Utilization Limit
-            </Typography>
+        <Button
+          variant="text"
+          sx={{
+            textTransform: 'none',
+            borderBottom: '1px solid transparent',
+            borderRadius: 0,
+            color: 'text.primary',
+            '&:hover': {
+              borderBottomColor: 'primary.main',
+              fontWeight: 'bold',
+              backgroundColor: 'transparent',
+            },
+          }}
+          // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
+          onClick={() => handleNavigation('/utilization')}
+        >
+          Utilization Limit
+        </Button>
 
-            <Typography
-              variant="body2"
-              sx={{
-                cursor: 'pointer',
-                borderBottom: '1px solid black',
-                lineHeight: 1.5,
-                px: 0.5,
-                '&:hover': {
-                  borderBottomColor: 'primary.main',
-                  fontWeight: 'bold',
-                },
-              }}
-              // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
-              onClick={() => handleNavigation('/recon')}
-            >
-              Settlement
-            </Typography>
-          </Box>
+        <Button
+          variant="text"
+          sx={{
+            textTransform: 'none',
+            borderBottom: '1px solid transparent',
+            borderRadius: 0,
+            color: 'text.primary',
+            '&:hover': {
+              borderBottomColor: 'primary.main',
+              fontWeight: 'bold',
+              backgroundColor: 'transparent',
+            },
+          }}
+          // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
+          onClick={() => handleNavigation('/recon')}
+        >
+          Settlement
+        </Button>
+      </Box>
 
-          {/* Right: transaction button */}
-          <Button
-            variant="contained"
-            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
-            onClick={() => handleNavigation('/sendmoney')}
-          >
-            + Transaction
-          </Button>
-        </Box>
+      {/* Right: Transaction button */}
+      <Button
+        variant="contained"
+        disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
+        onClick={() => handleNavigation('/sendmoney')}
+      >
+        + Transaction
+      </Button>
+    </Box>
+
       </Box>
 
       <Box
@@ -940,9 +966,13 @@ const TransactionListing = () => {
                 onColumnVisibilityModelChange={setColumnVisibilityModel}
                 //@ts-ignore
                 loading={isLoading}
+                 disableColumnMenu
+
+               
                 slots={{
                   loadingOverlay: LoaderUI.LoadingOverlay,
                   toolbar: () => <CustomToolbar downloadCSV={downloadCSV} downloadPDF={downloadPDF} />,
+             
                 }}
                 disableRowSelectionOnClick
                 sx={{
