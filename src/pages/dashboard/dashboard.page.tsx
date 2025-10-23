@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react'
-import { Box, Card, CardContent, Typography, Grid, Avatar, Stack, CardMedia, Switch, IconButton, Skeleton } from '@mui/material'
+import { Box, Card, CardContent, Typography, Grid, Avatar, Stack, CardMedia, Switch, IconButton, Skeleton, Button } from '@mui/material'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { useTheme } from '@mui/material/styles'
@@ -14,7 +14,17 @@ import { HelperService } from '@/helpers/helper'
 import { Link, useNavigate } from 'react-router-dom'
 import { AgChartOptions } from 'ag-charts-community'
 import TransactionModal from '@/components/transaction-panel'
-import { DataGrid } from '@mui/x-data-grid'
+import {
+  DataGrid, GridToolbarContainer,
+  GridToolbarColumnsButton,
+  GridToolbarFilterButton,
+  GridFilterModel,
+} from '@mui/x-data-grid'
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
+import DownloadIcon from '@mui/icons-material/Download'
+import FindReplaceIcon from '@mui/icons-material/FindReplace'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 import { ApplicantService } from '@/services/applicant.service'
 
 const Dashboard = () => {
@@ -51,6 +61,8 @@ const Dashboard = () => {
   const helper = new HelperService()
   const userCountry = local_service?.get_staff_country()
   const trx_service = new TransactionService()
+  const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState<{ [key: string]: boolean }>({})
 
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
   const navigate = useNavigate()
@@ -64,7 +76,7 @@ const Dashboard = () => {
   }
 
   const getOutwardTransactionsList = useCallback(async () => {
-    const data = await transaction_service.getOutwardAllTransaction(userCountry,0,20)
+    const data = await transaction_service.getOutwardAllTransaction(userCountry, 0, 20)
     setrecentTransaction(data || [])
     setIsLoading(false)
   }, [])
@@ -196,6 +208,131 @@ const Dashboard = () => {
       ),
     },
   ]
+
+  // ✅ Custom Toolbar (same as ApplicantDataGrid)
+ const handleExportCSV = () => {
+  if (!recentTransaction || recentTransaction.length === 0) return
+
+  // Get all column definitions
+  const visibleCols = RECENT_TRANSACTIONS_COLUMNS.filter(
+    (col) => columnVisibilityModel[col.field] !== false
+  )
+
+  const headers = visibleCols.map((col) => col.headerName).join(',')
+
+  const rows = recentTransaction.map((transaction: any, index: number) => {
+    const rowData: Record<string, any> = {
+      sno: index + 1,
+      transactionId: transaction?.transactionOutward?.transactionNumber,
+      sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
+      receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
+      amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
+      reported:
+        transaction?.transactionOutward?.reportingStatus === 'Completed'
+          ? 'Yes'
+          : transaction?.transactionOutward?.reportingStatus,
+      date: helper.convertDateAndTime(transaction?.transactionOutward?.owCreatedDate),
+      status: transaction?.transactionOutward?.reportingStatus,
+    }
+
+    return visibleCols.map((col) => rowData[col.field]).join(',')
+  })
+
+  const csv = [headers, ...rows].join('\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.setAttribute('download', 'Recent_Transactions.csv')
+  link.click()
+}
+
+ const handleExportPDF = () => {
+  if (!recentTransaction || recentTransaction.length === 0) return
+
+  const visibleCols = RECENT_TRANSACTIONS_COLUMNS.filter(
+    (col) => columnVisibilityModel[col.field] !== false
+  )
+
+  const headers = visibleCols.map((col) => col.headerName)
+  const data = recentTransaction.map((transaction: any, index: number) => {
+    const rowData: Record<string, any> = {
+      sno: index + 1,
+      transactionId: transaction?.transactionOutward?.transactionNumber,
+      sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
+      receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
+      amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
+      reported:
+        transaction?.transactionOutward?.reportingStatus === 'Completed'
+          ? 'Yes'
+          : transaction?.transactionOutward?.reportingStatus,
+      date: helper.convertDateAndTime(transaction?.transactionOutward?.owCreatedDate),
+      status: transaction?.transactionOutward?.reportingStatus,
+    }
+
+    return visibleCols.map((col) => rowData[col.field])
+  })
+
+  const doc = new jsPDF({ unit: 'pt' })
+  doc.setFontSize(14)
+  doc.text('Recent Transactions Report', 40, 40)
+  doc.setFontSize(10)
+  doc.text(`Generated: ${new Date().toLocaleString()}`, 40, 56)
+
+  autoTable(doc, {
+    head: [headers],
+    body: data,
+    startY: 72,
+    margin: { left: 40, right: 40 },
+    styles: { fontSize: 9, cellPadding: 6 },
+    headStyles: { fillColor: [0, 80, 153], textColor: 255 },
+    didDrawPage: () => {
+      const pageCount = doc.internal.getNumberOfPages()
+      const pageSize = doc.internal.pageSize
+      const w = pageSize.width
+      const h = pageSize.height
+      doc.text(`Page ${pageCount}`, w - 60, h - 20)
+    },
+  })
+
+  doc.save(`Recent_Transactions_${new Date().toISOString().slice(0, 10)}.pdf`)
+}
+
+  const CustomToolbar = () => (
+    <GridToolbarContainer sx={{ justifyContent: 'flex-start', gap: 1, py: 1 }}>
+      <GridToolbarColumnsButton />
+      <GridToolbarFilterButton />
+
+      <Button
+        variant="outlined"
+        color="primary"
+        size="small"
+        startIcon={<DownloadIcon />}
+        onClick={handleExportCSV}
+      >
+        CSV
+      </Button>
+
+      <Button
+        variant="outlined"
+        color="primary"
+        size="small"
+        startIcon={<PictureAsPdfIcon />}
+        onClick={handleExportPDF}
+      >
+        PDF
+      </Button>
+
+      <Button
+        variant="outlined"
+        color="primary"
+        size="small"
+        startIcon={<FindReplaceIcon />}
+        onClick={() => setFilterModel({ items: [] })}
+      >
+        Reset Filters
+      </Button>
+    </GridToolbarContainer>
+  )
 
   const BankBalanceCarousel = () => {
     const scrollRef = React.useRef<HTMLDivElement>(null)
@@ -546,7 +683,6 @@ const Dashboard = () => {
               <Typography variant="h4" gutterBottom fontWeight="bold" color="primary">
                 Recent Transactions
               </Typography>
-
               <Box sx={{ height: 400, width: '100%' }}>
                 {isLoading ? (
                   <>
@@ -567,26 +703,38 @@ const Dashboard = () => {
                       receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
                       amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
                       reported:
-                        transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
+                        transaction?.transactionOutward?.reportingStatus === 'Completed'
+                          ? 'Yes'
+                          : transaction?.transactionOutward?.reportingStatus,
                       date: helper.convertDateAndTime(transaction?.transactionOutward?.owCreatedDate),
-                      action: transaction?.transactionOutward?.transactionNumber,
                       status: transaction?.transactionOutward?.reportingStatus,
                     }))}
                     columns={RECENT_TRANSACTIONS_COLUMNS}
-                    pageSizeOptions={[5, 10]}
+                    filterModel={filterModel}
+                    onFilterModelChange={(model) => setFilterModel(model)}
+                     columnVisibilityModel={columnVisibilityModel}
+  onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
+                    initialState={{
+                      pagination: { paginationModel: { pageSize: 10, page: 0 } },
+                    }}
+                    pageSizeOptions={[5, 10, 20]}
                     disableRowSelectionOnClick
+                    slots={{ toolbar: CustomToolbar }}
                     sx={{
                       '& .MuiDataGrid-cell': { borderBottom: '1px solid #e0e0e0' },
-                      '& .MuiDataGrid-columnHeaders': { fontWeight: 'bold', borderBottom: '2px solid #1976d2' },
+                      '& .MuiDataGrid-columnHeaders': {
+                        fontWeight: 'bold',
+                        borderBottom: '2px solid #1976d2',
+                      },
                       '& .MuiDataGrid-columnHeaderTitle': {
                         fontWeight: 'bold',
-                        fontSize: '1.2rem',
+                        fontSize: '1.1rem',
                       },
                     }}
-                    getRowClassName={(params) => (params.row.status === 'Error' ? 'error-row' : '')}
                   />
                 )}
               </Box>
+
             </Box>
           </Grid>
         </Grid>
