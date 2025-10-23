@@ -27,8 +27,8 @@ import ShowChartIcon from '@mui/icons-material/ShowChart'
 import ViewModuleIcon from '@mui/icons-material/ViewModule'
 import { TransactionService } from '@/services/transaction.service'
 import ConfirmationModal from '../logout/logout.component'
-import LoyaltyIcon from '@mui/icons-material/Loyalty'
-import ErrorIcon from '@mui/icons-material/Error'
+import LoyaltyIcon from '@mui/icons-material/Loyalty';
+import ErrorIcon from '@mui/icons-material/Error';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
@@ -101,7 +101,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Dashboard',
-      name: 'Dashboard',
+      name: "Dashboard"
     },
     {
       icon: (
@@ -120,7 +120,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Transaction',
-      name: 'Transactions',
+      name: "Transactions"
     },
 
     {
@@ -140,7 +140,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Kyc',
-      name: 'KYC',
+      name: "KYC"
     },
     {
       icon: (
@@ -159,7 +159,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Applicant',
-      name: 'Applicants',
+      name: "Applicants"
     },
     {
       icon: (
@@ -175,7 +175,7 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Bop',
-      name: 'BOP',
+      name: "BOP"
     },
     {
       icon: (
@@ -191,7 +191,7 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Profile',
-      name: 'Users',
+      name: "Users"
     },
     {
       icon: (
@@ -290,43 +290,10 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Loyalty',
-      name: 'Loyalty',
-    },
-
-    {
-      icon: (
-        <>
-          <LoyaltyIcon
-            sx={{
-              //@ts-ignore
-              fontSize: '2vh',
-              //@ts-ignore
-              color: theme.palette.primary.light, // Corrected theme usage
-            }}
-          />
-        </>
-      ),
-      label: 'Audit-Logs',
-      name: 'Audit-Logs',
-    },
-
-    {
-      icon: (
-        <>
-          <LoyaltyIcon
-            sx={{
-              //@ts-ignore
-              fontSize: '2vh',
-              //@ts-ignore
-              color: theme.palette.primary.light, // Corrected theme usage
-            }}
-          />
-        </>
-      ),
-      label: 'Field-Validation',
-      name: 'Field-Validation',
+      name: "Loyalty"
     },
   ]
+
 
   useEffect(() => {
     setTimeout(() => {
@@ -345,18 +312,23 @@ const DashboardLayout = () => {
       <AppBar
         position="sticky"
         sx={{
-          minHeight: '8vh', // AppBar height relative to viewport
+          minHeight: '8vh',   // AppBar height relative to viewport
           height: '8vh',
           //@ts-ignore
           paddingBottom: 0,
         }}
       >
-        <Toolbar sx={{ minHeight: '8vh', height: '7.5vh' }}>
-          {' '}
-          {/* lock height in vh */}
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', px: 2, py: 1 }}>
-            {/* Logo */}
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Toolbar sx={{ minHeight: '8vh', height: '7.5vh', px: 2 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              width: '100%',
+            }}
+          >
+            {/* Left side - Logo + Dark/Light Mode */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Link to="/dashboard">
                 <img
                   src={LogoWhite}
@@ -384,35 +356,37 @@ const DashboardLayout = () => {
                 </IconButton>
               </Tooltip>
             </Box>
-          </Box>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              borderRadius: '30px',
-              borderColor: '#1C58F2',
-              backgroundColor: 'primary',
-              border: '1px solid #D1DDFC',
-              padding: '7px',
-              width: 'fit-content',
-              minWidth: 'auto',
-              maxWidth: '100%',
-              paddingRight: '10px',
-              marginBottom: '6px',
-              height: '65%',
-              lineHeight: 1,
-            }}
-          >
-            {staffCountry == 'ZA' ? (
-              <>
-                <Avatar>
-                  {
-                    <strong>
-                      {local_service?.get_staff_access().staffFirstName[0].toUpperCase() +
-                        local_service?.get_staff_access().staffLastName[0].toUpperCase()}
-                    </strong>
-                  }
-                </Avatar>
+
+            {/* Right side - Profile box */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                borderRadius: '30px',
+                border: '1px solid #D1DDFC',
+                padding: '3px 10px', // spacing fixed
+                gap: 1.2, // space between avatar and text
+                backgroundColor: 'transparent',
+              }}
+            >
+              <Avatar
+                sx={{
+                  bgcolor: 'grey.700',
+                  width: 42,
+                  height: 42,
+                  fontSize: '1.8vh',
+                  fontWeight: 600,
+                }}
+              >
+                {
+                  <strong>
+                    {local_service
+                      ?.get_staff_access()
+                      .staffFirstName[0].toUpperCase() +
+                      local_service?.get_staff_access().staffLastName[0].toUpperCase()}
+                  </strong>
+                }
+              </Avatar>
 
               <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 {/* Name + Role in one line */}
@@ -432,24 +406,6 @@ const DashboardLayout = () => {
                       local_service?.get_staff_access().staffLastName}
                   </Typography>
 
-                  <Stack direction="row">
-                    <Typography
-                      variant="subtitle2"
-                      sx={{
-                        fontFamily: 'sans-serif',
-                        fontSize: '1.1vh',
-                        color: 'white',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      <strong>{local_service?.get_staff_access().staffId}</strong>
-                    </Typography>
-                  </Stack>
-                </Box>
-              </>
-            ) : (
-              <>
-                <Box ml={1}>
                   <Typography
                     variant="body2"
                     sx={{
@@ -596,7 +552,7 @@ const DashboardLayout = () => {
                     navigate(item.label.toLocaleLowerCase())
                   }}
                 >
-                  <Stack sx={{ backgroundColor: 'transparent', padding: '1%' }}>
+                  <Stack sx={{ backgroundColor: 'inherit', padding: '1%' }}>
                     <Item sx={{ backgroundColor: 'transparent' }}>
                       <ListItemIcon
                         sx={{
@@ -624,6 +580,40 @@ const DashboardLayout = () => {
                 </ListItem>
               ))}
 
+              <ListItem
+                button
+                key="logout"
+                sx={{
+                  textAlign: 'center',
+                  alignItems: 'center',
+                }}
+                onClick={() => {
+                  setIsModalOpen(true)
+                }}
+              >
+                <Stack>
+                  {/* <Item>
+                    <ListItemIcon
+                      sx={{
+                        textAlign: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <LogoutIcon sx={{ color: 'red' }} />
+                    </ListItemIcon>
+                  </Item> */}
+                  {isDrawerOpen && (
+                    <Item
+                      style={{
+                        color: 'white',
+                        padding: '1%',
+                      }}
+                    >
+                      Logout
+                    </Item>
+                  )}
+                </Stack>
+              </ListItem>
             </List>
 
 

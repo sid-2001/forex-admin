@@ -272,6 +272,8 @@ const Dashboard = () => {
     styles: { fontSize: 9, cellPadding: 6 },
     headStyles: { fillColor: [0, 80, 153], textColor: 255 },
     didDrawPage: () => {
+
+      //@ts-ignore
       const pageCount = doc.internal.getNumberOfPages()
       const pageSize = doc.internal.pageSize
       const w = pageSize.width
