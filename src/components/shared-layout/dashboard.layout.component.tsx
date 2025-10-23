@@ -537,7 +537,7 @@ const DashboardLayout = () => {
                     navigate(item.label.toLocaleLowerCase())
                   }}
                 >
-                  <Stack sx={{ backgroundColor: 'inherit', padding: '1%' }}>
+                  <Stack sx={{ backgroundColor: 'transparent', padding: '1%' }}>
                     <Item sx={{ backgroundColor: 'transparent' }}>
                       <ListItemIcon
                         sx={{
