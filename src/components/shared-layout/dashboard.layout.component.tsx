@@ -545,21 +545,21 @@ const DashboardLayout = () => {
                     justifyContent: isDrawerOpen ? 'flex-start' : 'center',
                     textAlign: 'center',
                     alignItems: 'center',
-                    backgroundColor: 'transparent',
+                  backgroundColor: 'transparent',
                   }}
                   onClick={() => {
                     setSelectedApp(item.label)
                     navigate(item.label.toLocaleLowerCase())
                   }}
                 >
-                  <Stack sx={{ backgroundColor: 'inherit', padding: '1%' }}>
-                    <Item sx={{ backgroundColor: 'transparent' }}>
+                  <Stack sx={{ padding: '1%' }}>
+                    <Item >
                       <ListItemIcon
                         sx={{
                           textAlign: 'center',
                           justifyContent: 'center',
                           //@ts-ignore
-                          color: selectedApp === item.label ? theme.palette.primary.main : 'inherit', // Change color if selected
+                          // color: selectedApp === item.label ? theme.palette.primary.main : 'red', // Change color if selected
                         }}
                         onClick={() => {
                           navigate(item.label.toLocaleLowerCase())
