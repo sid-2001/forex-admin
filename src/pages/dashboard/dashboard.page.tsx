@@ -111,7 +111,7 @@ const Dashboard = () => {
     },
     {
       name: 'SB ',
-      balance: 1802.75,
+      balance:"No Data",
       image_url:
         'https://media.licdn.com/dms/image/v2/C4D0BAQEMo-EgURgpnA/company-logo_200_200/company-logo_200_200/0/1630561374295/standard_bank_group_logo?e=1763596800&v=beta&t=SA9TooJjIAO9AO3sO0Y_bMebCjTauJ4XnBz2gI8JTtI',
       country: 'India',
@@ -572,7 +572,10 @@ const Dashboard = () => {
                             </Box>
                             {/* Right side: Balance */}
                             <Typography fontWeight="bold" variant="body1">
-                              {bank.balance.toLocaleString('en-IN')}
+                              {
+                              //@ts-ignore
+                              bank.balance.toLocaleString('en-IN')
+                              }
                             </Typography>
                           </Box>
                         </Grid>
@@ -732,8 +735,26 @@ const Dashboard = () => {
           {/* Active Channels */}
           <Grid item xs={12} md={12}>
             {/* Active Channels */}
+
+
+
             <Box sx={{ mt: 0, mb: 1 ,pl:2}}>
-              <Typography variant="h5" fontWeight={700} gutterBottom>
+
+                <Typography variant="body1" sx={{ fontWeight: 'bold', mt: 2, mb: 1 }}>
+              Banking Partners
+            </Typography>
+
+            <Grid container spacing={2}>
+              {bankAccounts.map((bank) => (
+                <Grid item xs={6} key={bank.name}>
+                  <BankCards image_url={bank.image_url} title={bank.name} />
+                </Grid>
+              ))}
+            </Grid>
+              <Typography variant="h5" 
+              //@ts-ignore
+               variant="body1" sx={{ fontWeight: 'bold', mt: 2, mb: 1 }}
+              fontWeight={700} gutterBottom>
                 Active Channels
               </Typography>
 
@@ -769,44 +790,13 @@ const Dashboard = () => {
                 </Box>
               </Box>
 
-              {/* IND → UK */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  p: 1,
-                  mb: 1,
-                  border: '1px dashed grey',
-                  borderRadius: 2,
-                  boxShadow: 1,
-                  opacity: 0.5,
-                }}
-              >
-                <Box sx={{ width: '90px' }}>
-                  <Typography fontWeight={600}>IND (INR)</Typography>
-                  <Typography variant="caption">India</Typography>
-                </Box>
-
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '40px' }}>
-                  <ArrowBackIcon sx={{ color: 'red' }} />
-                  <ArrowForwardIcon sx={{ color: 'red' }} />
-                </Box>
-
-                <Box sx={{ width: '110px', textAlign: 'right' }}>
-                  <Typography fontWeight={600}>UK (GBP)</Typography>
-                  <Typography variant="caption">United Kingdom</Typography>
-                </Box>
-              </Box>
-
+            
             </Box>
           </Grid>
 
           {/* Active Integrations */}
           <Box sx={{ p: 2 }}>
-            <Typography variant="h5" fontWeight={700} gutterBottom>
-              Active Integrations
-            </Typography>
+        
 
             {/* KYC Section */}
             <Typography variant="body1" sx={{ mt: 1, mb: 1, fontWeight: 'bold' }}>
@@ -836,6 +826,7 @@ const Dashboard = () => {
             {/* Payment Gateway Section */}
             <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 1 }}>
               Payment Gateway
+
             </Typography>
 
           <Grid container spacing={1} sx={{ mb: 2 }}>
@@ -843,7 +834,7 @@ const Dashboard = () => {
     <Grid item xs={6} key={card.id}>
       <Box
         sx={{
-          width: 100,
+          width: '8vw',
           height: 'auto',
           display: 'flex',
           flexDirection: 'column', // stack vertically
@@ -879,17 +870,7 @@ const Dashboard = () => {
 
 
             {/* Banking Partners Section */}
-            <Typography variant="body1" sx={{ fontWeight: 'bold', mt: 2, mb: 1 }}>
-              Banking Partners
-            </Typography>
-
-            <Grid container spacing={2}>
-              {bankAccounts.map((bank) => (
-                <Grid item xs={6} key={bank.name}>
-                  <BankCards image_url={bank.image_url} title={bank.name} />
-                </Grid>
-              ))}
-            </Grid>
+          
           </Box>
         </Grid>
       </Grid>

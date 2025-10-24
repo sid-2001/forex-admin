@@ -313,7 +313,7 @@ const DashboardLayout = () => {
         position="sticky"
         sx={{
           minHeight: '8vh',   // AppBar height relative to viewport
-          height: '8vh',
+          // height: '8vh',
           //@ts-ignore
           paddingBottom: 0,
         }}
