@@ -199,6 +199,7 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
           loadingOverlay: LoaderUI.LoadingOverlay,
           toolbar: CustomToolbar, // 👈 Toolbar with reset filters
         }}
+        disableColumnMenu
       />
     </Box>
   )

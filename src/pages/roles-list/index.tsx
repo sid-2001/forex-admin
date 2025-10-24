@@ -1,116 +1,170 @@
 import React, { useEffect, useState } from 'react'
-import { DataGrid } from '@mui/x-data-grid'
-import RoleModal  from '../../components/roleModal'
-import { Box, Button, Typography } from '@mui/material'
+import {
+  DataGrid,
+  GridToolbarContainer,
+  GridToolbarColumnsButton,
+  GridToolbarFilterButton,
+  GridFilterModel,
+  GridColDef,
+} from '@mui/x-data-grid'
+import { Box, Typography, Button } from '@mui/material'
 import { UserService } from '@/services/user.service'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { HelperService } from '@/helpers/helper'
-import { useTheme } from '@emotion/react'
+import RoleModal from '@/components/roleModal'
 import LoaderUI from '@/components/loader/loader'
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
+import DownloadIcon from '@mui/icons-material/Download'
+import FindReplaceIcon from '@mui/icons-material/FindReplace'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 
-const RoleManagementPage = () => {
-  const [roles, setRoles] = useState([])
-  const [selectedRole, setSelectedRole] = useState(null)
+interface Role {
+  roleId: string | number
+  roleDescription: string
+  roleStatus: string
+}
+
+const RoleManagementPage: React.FC = () => {
+  const [roles, setRoles] = useState<Role[]>([])
+  const [selectedRole, setSelectedRole] = useState<Role | 'create' | null>(null)
+  const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState<Record<string, boolean>>({})
+  const apiRef = React.useRef<any>(null)
 
   const api_service = new UserService()
   const local_service = new LocalStorageService()
   const helper_service = new HelperService()
 
-  const fetchRoles = () => {
-    api_service.getRolesList().then((data) => {
-      setRoles(data)
-    })
+  const fetchRoles = async () => {
+    const data = await api_service.getRolesList()
+    setRoles(data)
   }
-  const theme: any = useTheme()
 
   useEffect(() => {
     fetchRoles()
   }, [])
 
-  const handleSave = (updatedRole: any) => {
-   
-    api_service.addRole(updatedRole,local_service?.get_staff_id())
+  const handleSave = (updatedRole: Role) => {
+    api_service.addRole(updatedRole, local_service.get_staff_id())
     setSelectedRole(null)
     window.location.reload()
-  
-
-    // axios.put(`/api/roles/${updatedRole.roleId}`, updatedRole) // 🔁 Replace with your PUT API
-    //   .then(() => {
-    //     alert('Role updated successfully');
-    //     setSelectedRole(null);
-    //     fetchRoles(); // Refresh list
-    //   })
-    //   .catch((err) => console.error(err));
   }
 
+  const columns: GridColDef[] = [
+    { field: 'roleDescription', headerName: 'Role Name', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'roleStatus', headerName: 'Status', flex: 1, headerClassName: 'super-app-theme--header' },
+  ]
+
+  const getVisibleFilteredRows = () => {
+    const visibleCols = columns.filter(col => columnVisibilityModel[col.field] !== false)
+    const filteredRows = roles.filter(row =>
+      filterModel.items.every(filter => {
+        if (!filter.value) return true
+        const cellValue = (row as any)[filter.field]?.toString().toLowerCase() || ''
+        return cellValue.includes(filter.value.toLowerCase())
+      })
+    )
+    return { visibleCols, filteredRows }
+  }
+
+  const handleExportCSV = () => {
+    const { visibleCols, filteredRows } = getVisibleFilteredRows()
+    if (!filteredRows.length) {
+      alert('No matching rows to export!')
+      return
+    }
+
+    const headers = visibleCols.map(col => col.headerName).join(',')
+    const rows = filteredRows.map(row => visibleCols.map(col => `"${(row as any)[col.field] || ''}"`).join(','))
+    const csv = [headers, ...rows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.setAttribute('download', 'Roles_List.csv')
+    link.click()
+  }
+
+  const handleExportPDF = () => {
+    const { visibleCols, filteredRows } = getVisibleFilteredRows()
+    if (!filteredRows.length) {
+      alert('No matching rows to export!')
+      return
+    }
+
+    const headers = visibleCols.map(col => col.headerName)
+    const data = filteredRows.map(row => visibleCols.map(col => (row as any)[col.field] || ''))
+    const doc = new jsPDF({ unit: 'pt' })
+    doc.setFontSize(14)
+    doc.text('Roles Report', 40, 40)
+    //@ts-ignore
+    autoTable(doc, { head: [headers], body: data, startY: 60, styles: { fontSize: 9, cellPadding: 6 }, headStyles: { fillColor: [0, 80, 153], textColor: 255 } })
+    doc.save('Roles_List.pdf')
+  }
+
+  const CustomToolbar = () => (
+    <GridToolbarContainer sx={{ justifyContent: 'flex-start', gap: 1, py: 1 }}>
+      <GridToolbarColumnsButton />
+      <GridToolbarFilterButton />
+      <Button variant="outlined" size="small" startIcon={<DownloadIcon />} onClick={handleExportCSV}>
+        CSV
+      </Button>
+      <Button variant="outlined" size="small" startIcon={<PictureAsPdfIcon />} onClick={handleExportPDF}>
+        PDF
+      </Button>
+      <Button variant="outlined" size="small" startIcon={<FindReplaceIcon />} onClick={() => setFilterModel({ items: [] })}>
+        Reset Filters
+      </Button>
+    </GridToolbarContainer>
+  )
+
   return (
-    <HasPermission module={local_service.get_modules()?.ROLE} permission={'canRead'}>
-      <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'} sx={{ width: '80vw' }}>
-        <Box>
-          <Typography variant="h4" gutterBottom>
-            <strong>Roles </strong>
-          </Typography>
-        </Box>
-        <Box>
+    <HasPermission module={local_service.get_modules()?.ROLE} permission="canRead">
+      <Box sx={{ width: '80vw', height: '70vh' }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h4"><strong>Roles</strong></Typography>
           <Button
             variant="contained"
             disabled={!helper_service.checkUserHasPermission(local_service.get_modules()?.ROLE, 'canCreate')}
-            sx={{ mb: 2 }}
-            onClick={() => {
-              setSelectedRole(null)
-              //@ts-ignore
-              setSelectedRole('create')
-            }}
+            onClick={() => setSelectedRole('create')}
           >
             Add Role
           </Button>
         </Box>
-      </Box>
 
-      <Box
-        sx={{
-          width: '80vw',
-          height: '70vh',
-        }}
-      >
         <DataGrid
+          apiRef={apiRef}
           rows={roles}
-          //@ts-ignore
-          columns={[
-            { field: 'roleDescription', headerName: 'Role Name', width: 250, flex: 1, headerClassName: 'super-app-theme--header' },
-            { field: 'roleStatus', headerName: 'Status', width: 120, flex: 1, headerClassName: 'super-app-theme--header' },
-            ,
-          ]}
-          //@ts-ignore//@ts-ignore
-          getRowId={(row) => row?.roleId}
-          initialState={{
-            pagination: {
-              paginationModel: { pageSize: 20, page: 0 },
-            },
-          }}
-          pageSizeOptions={[10]}
+          columns={columns}
+          getRowId={row => row.roleId}
+          filterModel={filterModel}
+          onFilterModelChange={model => setFilterModel(model)}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={model => setColumnVisibilityModel(model)}
+          initialState={{ pagination: { paginationModel: { pageSize: 20, page: 0 } } }}
+          pageSizeOptions={[10, 20, 50]}
+          disableRowSelectionOnClick
           loading={roles.length === 0}
-          slots={{
-            loadingOverlay: LoaderUI.LoadingOverlay, // Make sure LoaderUI is defined/imported
-          }}
+          slots={{ toolbar: CustomToolbar, loadingOverlay: LoaderUI.LoadingOverlay }}
           sx={{
-            '& .MuiDataGrid-root': {
-              border: '1 px solid blue',
-            },
-            '& .MuiDataGrid-cell': {
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            },
+            '& .MuiDataGrid-columnHeaders': { backgroundColor: '#005099', color: 'white' },
+            '& .MuiDataGrid-cell': { fontSize: '14px' },
+            '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold', fontSize: '16px' },
           }}
-          onRowClick={(params) => setSelectedRole(params.row)}
+          disableColumnMenu
         />
-      </Box>
 
-      {selectedRole && < 
-        //@ts-ignore
-        RoleModal  setSelectedRole={setSelectedRole} open={!!selectedRole} initialData={selectedRole} onClose={() => setSelectedRole(null)} onSave={handleSave} />}
+        {selectedRole && (
+          <RoleModal
+            setSelectedRole={setSelectedRole}
+            open={!!selectedRole}
+            initialData={selectedRole === 'create' ? null : selectedRole}
+            onClose={() => setSelectedRole(null)}
+            onSave={handleSave}
+          />
+        )}
+      </Box>
     </HasPermission>
   )
 }

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef , GridToolbarContainer,
+  GridToolbarColumnsButton,
+  GridToolbarFilterButton,} from '@mui/x-data-grid'
 import { Switch, Box, Typography, Button, useTheme } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { useNavigate } from 'react-router-dom'
@@ -9,6 +11,11 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { HelperService } from '@/helpers/helper'
 import RoleModal from '@/components/roles-tab'
 import LoaderUI from '@/components/loader/loader'
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
+import DownloadIcon from '@mui/icons-material/Download'
+import FindReplaceIcon from '@mui/icons-material/FindReplace'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 
 const StyledDataGrid = styled(DataGrid)({
   '& .MuiDataGrid-columnHeaders': {
@@ -39,7 +46,9 @@ const UserTable: React.FC = () => {
   const [staffList, setStaffList] = useState<any>([])
   const [open, setOpen] = useState(false)
   const theme = useTheme()
-
+  const apiRef = React.useRef<any>(null)
+  const [filterModel, setFilterModel] = useState({ items: [] })
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState({})
   let navigate = useNavigate()
   const user_service = new UserService()
   const local_service = new LocalStorageService()
@@ -98,6 +107,105 @@ const UserTable: React.FC = () => {
     { field: 'email', headerName: 'Email', flex: 1, headerClassName: 'super-app-theme--header' },
   ]
 
+  
+ const handleExportCSV = () => {
+    const visibleCols = columns.filter(
+      //@ts-ignore
+      (col) => columnVisibilityModel[col.field] !== false
+    )
+
+    const visibleRowIds = Array.from(apiRef.current?.getFilteredRows?.().keys?.() || [])
+    const visibleRows = staffList.filter((row: any) =>
+      visibleRowIds.includes(row.staffId)
+    )
+
+    const headers = visibleCols.map((col) => col.headerName).join(',')
+    const rows = visibleRows.map((row: any) =>
+      visibleCols.map((col) => {
+        if (col.field === 'id1')
+          return `${row.staffFirstName} ${row.staffLastName}`
+        return row[col.field] || ''
+      }).join(',')
+    )
+
+    const csv = [headers, ...rows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.setAttribute('download', 'User_List.csv')
+    link.click()
+  }
+
+  // 📄 Export PDF
+  const handleExportPDF = () => {
+    const visibleCols = columns.filter(
+      //@ts-ignore
+      (col) => columnVisibilityModel[col.field] !== false
+    )
+
+    const visibleRowIds = Array.from(apiRef.current?.getFilteredRows?.().keys?.() || [])
+    const visibleRows = staffList.filter((row: any) =>
+      visibleRowIds.includes(row.staffId)
+    )
+
+    const headers = visibleCols.map((col) => col.headerName)
+    const data = visibleRows.map((row: any) =>
+      visibleCols.map((col) => {
+        if (col.field === 'id1')
+          return `${row.staffFirstName} ${row.staffLastName}`
+        return row[col.field] || ''
+      })
+    )
+
+    const doc = new jsPDF({ unit: 'pt' })
+    doc.setFontSize(14)
+    doc.text('User Listing Report', 40, 40)
+    autoTable(doc, {
+      //@ts-ignore
+      head: [headers],
+      body: data,
+      startY: 60,
+      styles: { fontSize: 9, cellPadding: 6 },
+      headStyles: { fillColor: [0, 80, 153], textColor: 255 },
+    })
+    doc.save('User_List.pdf')
+  }
+
+  // 🧰 Custom Toolbar
+  const CustomToolbar = () => (
+    <GridToolbarContainer sx={{ justifyContent: 'flex-start', gap: 1, py: 1 }}>
+      <GridToolbarColumnsButton />
+      <GridToolbarFilterButton />
+      <Button
+        variant="outlined"
+        color="primary"
+        size="small"
+        startIcon={<DownloadIcon />}
+        onClick={handleExportCSV}
+      >
+        CSV
+      </Button>
+      <Button
+        variant="outlined"
+        color="primary"
+        size="small"
+        startIcon={<PictureAsPdfIcon />}
+        onClick={handleExportPDF}
+      >
+        PDF
+      </Button>
+      <Button
+        variant="outlined"
+        color="primary"
+        size="small"
+        startIcon={<FindReplaceIcon />}
+        onClick={() => setFilterModel({ items: [] })}
+      >
+        Reset Filters
+      </Button>
+    </GridToolbarContainer>
+  )
+
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.STAFF}>
       <Box sx={{ width: '80vw', height: '70vh' }}>
@@ -122,20 +230,28 @@ const UserTable: React.FC = () => {
         </Box>
 
         <StyledDataGrid
+          apiRef={apiRef}
           rows={staffList || []}
           columns={columns}
+          filterModel={filterModel}
+          //@ts-ignore
+          onFilterModelChange={(model) => setFilterModel(model)}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
           initialState={{
-              pagination: {
-                paginationModel: { pageSize: 20, page: 0 },
-              },
-            }}
-            pageSizeOptions={[10]}
-            loading={ staffList.length === 0}
-            slots={{
-              loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
-            }}
+            pagination: {
+              paginationModel: { pageSize: 20, page: 0 },
+            },
+          }}
+          pageSizeOptions={[10, 20, 50]}
           disableRowSelectionOnClick
           getRowId={(row) => row.staffId}
+          loading={staffList.length === 0}
+          slots={{
+            toolbar: CustomToolbar,
+            loadingOverlay: LoaderUI.LoadingOverlay,
+          }}
+          disableColumnMenu
         />
 
         <RoleModal open={open} setOpen={setOpen}></RoleModal>

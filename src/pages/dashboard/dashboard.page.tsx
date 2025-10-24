@@ -719,6 +719,7 @@ const Dashboard = () => {
                         fontSize: '1.1rem',
                       },
                     }}
+                    disableColumnMenu
                   />
                 )}
               </Box>

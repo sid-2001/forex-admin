@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { DataGrid } from '@mui/x-data-grid'
+import {
+  DataGrid, GridToolbarContainer,
+  GridToolbarColumnsButton,
+  GridToolbarFilterButton
+} from '@mui/x-data-grid'
 import { Box, Typography, Button, Modal, Grid, TextField, FormControl, MenuItem, Select } from '@mui/material'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
@@ -7,7 +11,11 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { UserService } from '@/services/user.service'
 import { useTheme } from '@emotion/react'
 import LoaderUI from '@/components/loader/loader'
-
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
+import DownloadIcon from '@mui/icons-material/Download'
+import FindReplaceIcon from '@mui/icons-material/FindReplace'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 const user_service = new UserService()
 const helper = new HelperService()
 const local_service = new LocalStorageService()
@@ -25,15 +33,15 @@ const AddUpdateModuleDialog: React.FC<any> = ({ action = 'Add', handleClose, han
     if (selectedModuleData?.moduleId) {
       setModuleData(selectedModuleData)
     }
-  }, [])
+  }, [selectedModuleData])
 
   const handleModuleSubmit = async () => {
     try {
       let response
       if (selectedModuleData?.moduleId) {
-        response = await user_service.updateModule({...moduleData,moduleId:selectedModuleData?.moduleId}, local_service.get_staff_id())
+        response = await user_service.updateModule({ ...moduleData, moduleId: selectedModuleData?.moduleId }, local_service.get_staff_id())
       } else {
-        response = await user_service.createModule(moduleData,local_service.get_staff_id())
+        response = await user_service.createModule(moduleData, local_service.get_staff_id())
       }
       setModuleData({})
       handleSubmit({ ...response.data })
@@ -49,12 +57,12 @@ const AddUpdateModuleDialog: React.FC<any> = ({ action = 'Add', handleClose, han
       [name]: value,
     }))
   }
-  
+
   const handleCancelBtn = () => {
     handleClose()
     setModuleData({})
   }
-  
+
   return (
     <Modal
       open={isOpen}
@@ -62,7 +70,6 @@ const AddUpdateModuleDialog: React.FC<any> = ({ action = 'Add', handleClose, han
         handleClose()
       }}
     >
-    
       <Box
         sx={{
           position: 'absolute',
@@ -76,10 +83,7 @@ const AddUpdateModuleDialog: React.FC<any> = ({ action = 'Add', handleClose, han
           borderRadius: 2,
         }}
       >
-       
         <Typography variant="h4" gutterBottom>
-       
-       
           {action}  Module
         </Typography>
         <Box mt={4}>
@@ -205,6 +209,48 @@ const ModuleTable: React.FC = () => {
     setSelectedModule({})
   }
   const theme = useTheme()
+  const CustomToolbar = ({ rows, columns }: any) => {
+    const handleDownloadCSV = () => {
+      const headers = columns.map((col: any) => col.headerName)
+      const csvRows = [
+        headers.join(','),
+        ...rows.map((row: any) =>
+          columns.map((col: any) => `"${row[col.field] || ''}"`).join(',')
+        ),
+      ].join('\n')
+
+      const blob = new Blob([csvRows], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.setAttribute('download', 'modules.csv')
+      link.click()
+    }
+
+    const handleDownloadPDF = () => {
+      const doc = new jsPDF()
+      const tableColumn = columns.map((col: any) => col.headerName)
+      const tableRows = rows.map((row: any) => columns.map((col: any) => row[col.field] || ''))
+
+      autoTable(doc, { head: [tableColumn], body: tableRows })
+      doc.save('modules.pdf')
+    }
+
+    return (
+      <GridToolbarContainer sx={{ gap: 1, py: 1 }}>
+        <GridToolbarColumnsButton />
+        <GridToolbarFilterButton />
+        <Button onClick={handleDownloadCSV} startIcon={<DownloadIcon />} size="small" variant="outlined">
+          CSV
+        </Button>
+        <Button onClick={handleDownloadPDF} startIcon={<PictureAsPdfIcon />} size="small" variant="outlined">
+          PDF
+        </Button>
+        <Button onClick={() => { }} startIcon={<FindReplaceIcon />} size="small" variant="outlined">
+          Reset Filters
+        </Button>
+      </GridToolbarContainer>
+    )
+  }
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MODULE}>
@@ -228,48 +274,19 @@ const ModuleTable: React.FC = () => {
           </Box>
         </Box>
         <DataGrid
-          sx={{
-            width: '100%',
-            '& .MuiDataGrid-columnHeaders': {
-              '& .super-app-theme--header': {
-                backgroundColor: '#005099',
-                color: 'white',
-              },
-            },
-            '& .MuiDataGrid-columnHeaderTitle': {
-              fontWeight: 'bold',
-            },
-            '& .MuiDataGrid-cell': {
-              fontSize: '14px',
-            },
-            // '& .MuiDataGrid-row:nth-of-type(even)': {
-            //   backgroundColor: '#f0f8ff',
-            // },
-            // '& .MuiDataGrid-row:nth-of-type(odd)': {
-            //   backgroundColor: '#ffffff',
-            // },
-            '& .super-app-theme--header': {
-              fontSize: '16px',
-            },
-          }}
           columns={MODULE_COLUMNS}
           rows={moduleData}
-          //@ts-ignore
-          initialState={{
-              pagination: {
-                paginationModel: { pageSize: 20, page: 0 },
-              },
-            }}
-            pageSizeOptions={[10]}
-            loading={ moduleData.length === 0}
-            slots={{
-              loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
-            }}
-          getRowId={(row: any) => row.moduleId} // Ensure proper row ID handling
-          onRowClick={(params) => {
-            setIsModalOpen(true)
-            setSelectedModule(params.row)
+          getRowId={(row: any) => row.moduleId}
+          slots={{
+            toolbar: () => <CustomToolbar rows={moduleData} columns={MODULE_COLUMNS} />,
+            loadingOverlay: LoaderUI.LoadingOverlay,
           }}
+          initialState={{
+            pagination: { paginationModel: { pageSize: 20, page: 0 } },
+          }}
+          pageSizeOptions={[10]}
+          loading={moduleData.length === 0}
+          disableColumnMenu
         />
         {isModalOpen && (
           <AddUpdateModuleDialog

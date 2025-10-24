@@ -20,14 +20,18 @@ import {
   Switch,
   FormControlLabel
 } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton } from '@mui/x-data-grid'
 import { styled } from '@mui/material/styles'
 import { PreviewOutlined, Add, Edit } from '@mui/icons-material'
 import { TransactionService } from '@/services/transaction.service'
 import LoaderUI from '@/components/loader/loader'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
-
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
+import DownloadIcon from '@mui/icons-material/Download'
+import FindReplaceIcon from '@mui/icons-material/FindReplace'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 const StyledDataGrid = styled(DataGrid)({
   '& .MuiDataGrid-columnHeaders': {
     backgroundColor: '#1976d2',
@@ -57,6 +61,10 @@ const Loyality = () => {
   const [open, setOpen] = useRecoilState(alertState)
   const [text, setText] = useRecoilState(alertTextState)
   const [type, settype] = useRecoilState(alertTypeState)
+
+  // DataGrid state
+  const [filterModel, setFilterModel] = useState<any>({ items: [] })
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState<any>({})
 
   // Form state
   const [formData, setFormData] = useState({
@@ -212,6 +220,57 @@ const Loyality = () => {
     },
   ]
 
+  const handleExportCSV = () => {
+    const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false)
+    const headers = visibleCols.map((col) => col.headerName).join(',')
+    const rows = loyaltyRecords.map(row =>
+      visibleCols.map(col => row[col.field] ?? '').join(',')
+    )
+    const csv = [headers, ...rows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.setAttribute('download', 'Loyalty_Tiers.csv')
+    link.click()
+  }
+
+  // PDF Export
+  const handleExportPDF = () => {
+    //@ts-ignore
+    const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false)
+    const headers = visibleCols.map(col => col.headerName)
+    const data = loyaltyRecords.map(row => visibleCols.map(col => row[col.field] ?? ''))
+    const doc = new jsPDF({ unit: 'pt' })
+    doc.setFontSize(14)
+    doc.text('Loyalty Tiers Report', 40, 40)
+    autoTable(doc, {
+       //@ts-ignore
+      head: [headers],
+      body: data,
+      startY: 60,
+      styles: { fontSize: 9, cellPadding: 6 },
+      headStyles: { fillColor: [0, 80, 153], textColor: 255 },
+    })
+    doc.save('Loyalty_Tiers.pdf')
+  }
+
+  // Custom Toolbar
+  const CustomToolbar = () => (
+    <GridToolbarContainer sx={{ justifyContent: 'flex-start', gap: 1, py: 1 }}>
+      <GridToolbarColumnsButton />
+      <GridToolbarFilterButton />
+      <Button variant="outlined" size="small" startIcon={<DownloadIcon />} onClick={handleExportCSV}>
+        CSV
+      </Button>
+      <Button variant="outlined" size="small" startIcon={<PictureAsPdfIcon />} onClick={handleExportPDF}>
+        PDF
+      </Button>
+      <Button variant="outlined" size="small" startIcon={<FindReplaceIcon />} onClick={() => setFilterModel({ items: [] })}>
+        Reset Filters
+      </Button>
+    </GridToolbarContainer>
+  )
+
   return (
     <Box sx={{ width: '80vw', height: '70vh', p: 2 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
@@ -227,23 +286,24 @@ const Loyality = () => {
         </Button>
       </Box>
 
-      <StyledDataGrid
+       <StyledDataGrid
         rows={loyaltyRecords}
         columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: { pageSize: 20, page: 0 },
-          },
-        }}
-        pageSizeOptions={[10]}
-        loading={isLoading}
-        slots={{
-          loadingOverlay: LoaderUI.LoadingOverlay,
-        }}
+        filterModel={filterModel}
+        onFilterModelChange={(model) => setFilterModel(model)}
+        columnVisibilityModel={columnVisibilityModel}
+        onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
+        initialState={{ pagination: { paginationModel: { pageSize: 20 } } }}
+        pageSizeOptions={[10, 20, 50]}
         disableRowSelectionOnClick
         getRowId={(row) => row.id}
+        slots={{
+          toolbar: CustomToolbar,
+          loadingOverlay: LoaderUI.LoadingOverlay,
+        }}
+        loading={isLoading}
+        disableColumnMenu
       />
-
       {/* Detail Drawer */}
       <Drawer
         anchor="right"
