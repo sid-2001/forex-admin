@@ -377,6 +377,7 @@ const KYCPage = () => {
               loadingOverlay: LoaderUI.LoadingOverlay,
               toolbar: CustomToolbar, // 🔹 Add the custom toolbar
             }}
+            disableColumnMenu
           />
         </Box>
       </HasPermission>

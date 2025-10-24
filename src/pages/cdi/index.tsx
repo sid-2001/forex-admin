@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Typography, useTheme, Drawer, Grid, TextField, Divider, Chip, IconButton, Button} from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { Box, Typography, useTheme, Drawer, Grid, TextField, Divider, Chip, IconButton, Button } from '@mui/material'
+import { DataGrid, GridColDef, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton } from '@mui/x-data-grid'
 import { styled } from '@mui/material/styles'
 import { PreviewOutlined } from '@mui/icons-material'
 import { TransactionService } from '@/services/transaction.service'
@@ -8,6 +8,11 @@ import LoaderUI from '@/components/loader/loader'
 import { Card, CardContent, Stack, } from '@mui/material'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
+import DownloadIcon from '@mui/icons-material/Download'
+import FindReplaceIcon from '@mui/icons-material/FindReplace'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 
 
 const StyledDataGrid = styled(DataGrid)({
@@ -41,6 +46,8 @@ const CdiScreen = () => {
   const [open, setOpen] = useRecoilState(alertState);
   const [text, setText] = useRecoilState(alertTextState);
   const [type, settype] = useRecoilState(alertTypeState);
+  const [filterModel, setFilterModel] = useState({ items: [] })
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState({})
 
   const [dashboardData, setDashboardData] = useState({
     totalDeposit: '0',
@@ -148,6 +155,79 @@ const CdiScreen = () => {
     },
   ]
 
+  const handleExportCSV = () => {
+    //@ts-ignore
+    const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false)
+    const headers = visibleCols.map((col) => col.headerName).join(',')
+    const rows = cdiRecords.map((row: any) =>
+      visibleCols.map((col) => row[col.field] || '').join(',')
+    )
+    const csv = [headers, ...rows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.setAttribute('download', 'CDI_Transactions.csv')
+    link.click()
+  }
+
+  // PDF Export
+  const handleExportPDF = () => {
+    //@ts-ignore
+    const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false)
+    const headers = visibleCols.map((col) => col.headerName)
+    const data = cdiRecords.map((row: any) =>
+      visibleCols.map((col) => row[col.field] || '')
+    )
+    const doc = new jsPDF({ unit: 'pt' })
+    doc.setFontSize(14)
+    doc.text('CDI Transactions Report', 40, 40)
+    autoTable(doc, {
+      //@ts-ignore
+      head: [headers],
+      body: data,
+      startY: 60,
+      styles: { fontSize: 9, cellPadding: 6 },
+      headStyles: { fillColor: [0, 80, 153], textColor: 255 },
+    })
+    doc.save('CDI_Transactions.pdf')
+  }
+
+  // Custom Toolbar
+  const CustomToolbar = () => (
+    <GridToolbarContainer sx={{ justifyContent: 'flex-start', gap: 1, py: 1 }}>
+      <GridToolbarColumnsButton />
+      <GridToolbarFilterButton />
+      <Button
+        variant="outlined"
+        color="primary"
+        size="small"
+        startIcon={<DownloadIcon />}
+        onClick={handleExportCSV}
+      >
+        CSV
+      </Button>
+      <Button
+        variant="outlined"
+        color="primary"
+        size="small"
+        startIcon={<PictureAsPdfIcon />}
+        onClick={handleExportPDF}
+      >
+        PDF
+      </Button>
+      <Button
+        variant="outlined"
+        color="primary"
+        size="small"
+        startIcon={<FindReplaceIcon />}
+        onClick={() => setFilterModel({ items: [] })}
+      >
+        Reset Filters
+      </Button>
+    </GridToolbarContainer>
+  )
+
+
 
 
   return (
@@ -229,26 +309,25 @@ const CdiScreen = () => {
 
 
       </Stack>
-
-
       <StyledDataGrid
         rows={cdiRecords}
         columns={columns}
+        filterModel={filterModel}
         //@ts-ignore
-        initialState={{
-          pagination: {
-            paginationModel: { pageSize: 20, page: 0 },
-          },
-        }}
-        pageSizeOptions={[10]}
+        onFilterModelChange={(model) => setFilterModel(model)}
+        columnVisibilityModel={columnVisibilityModel}
+        onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
+        initialState={{ pagination: { paginationModel: { pageSize: 20, page: 0 } } }}
+        pageSizeOptions={[10, 20, 50]}
+        disableRowSelectionOnClick
+        getRowId={(row) => row.transactionNumber}
         loading={cdiRecords.length === 0}
         slots={{
-          loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
+          toolbar: CustomToolbar,
+          loadingOverlay: LoaderUI.LoadingOverlay,
         }}
-        disableRowSelectionOnClick
-        getRowId={(row) => row?.transactionNumber}
+        disableColumnMenu
       />
-
       <Drawer
         anchor="right"
         open={isDrawerOpen}
@@ -340,31 +419,31 @@ const CdiScreen = () => {
               </Grid>
             </Grid>
 
-            
+
             {transactionDetails?.referenceMatchIndicator?.toUpperCase() !== 'YES' && (
-             <>
-              <Divider sx={{ my: 3, borderBottomWidth: '5px', }} />
-              <Box sx={{ mt: 3 }}>
-                <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 1 }}>
-                  Reference  Number
-                </Typography>
+              <>
+                <Divider sx={{ my: 3, borderBottomWidth: '5px', }} />
+                <Box sx={{ mt: 3 }}>
+                  <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 1 }}>
+                    Reference  Number
+                  </Typography>
 
-                <TextField
-                  label="Enter Reference Number"
-                  value={referenceInput}
-                  onChange={(e) => setReferenceInput(e.target.value)}
-                  fullWidth
-                  sx={{ my: 2 }}
-                />
+                  <TextField
+                    label="Enter Reference Number"
+                    value={referenceInput}
+                    onChange={(e) => setReferenceInput(e.target.value)}
+                    fullWidth
+                    sx={{ my: 2 }}
+                  />
 
-                <Button
-                  variant="contained"
-                  onClick={handleUpdateReference}
-                  disabled={!referenceInput}
-                >
-                  Send to Release
-                </Button>
-              </Box>
+                  <Button
+                    variant="contained"
+                    onClick={handleUpdateReference}
+                    disabled={!referenceInput}
+                  >
+                    Send to Release
+                  </Button>
+                </Box>
               </>
             )}
           </Box>
