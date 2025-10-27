@@ -195,9 +195,7 @@ export class TransactionService extends BaseService {
 
   async getForexRate(base_currency: String, sourc_currency: String) {
 
-    let urlpath=`/api/transactions/exchange-rate/sourceCurrency/${base_currency}/targetCurrency/${sourc_currency}`
-
-
+   
     let urlpath=`/api/transactions/exchange-rate/sourceCurrency/${base_currency}/targetCurrency/${sourc_currency}`
 
     const url = `https://data.fixer.io/api/latest?access_key=${VITE_FOREX_APP_CREDENTIALS}&base=${base_currency}&symbols=${sourc_currency}`
