@@ -88,12 +88,12 @@ const AuditLogTable: React.FC = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
-    {
-      field: 'status',
-      headerName: 'Status',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
+    // {
+    //   field: 'status',
+    //   headerName: 'Status',
+    //   flex: 1,
+    //   headerClassName: 'super-app-theme--header',
+    // },
   ]
 
   const handleChange = (event: any) => {

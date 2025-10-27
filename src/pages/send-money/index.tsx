@@ -136,6 +136,21 @@ const SendMoneyPage = () => {
     { id: 3, time: '2 days', charges: 0.5, total: 200 },
   ]
 
+
+  const getCharges=()=>{
+
+
+          kyc_service.getCharges(userCountry, sendCountry, amount,0).then(({ data }) => {
+              console.log(data)
+              if (data) {
+                setSelectedTimeCharge(data.minimumCharges)
+              } else {
+                setSelectedTimeCharge(0)
+              }
+            })
+
+
+  }
   const chargesTableColumns: GridColDef[] = [
     {
       field: 'select',
@@ -939,6 +954,7 @@ const SendMoneyPage = () => {
                       onChange={(e) => {
                         setAmount(e.target.value as any)
                         setSelectedTimeCharge(0)
+                        getCharges();
                       }}
                     />
                   </Grid>
