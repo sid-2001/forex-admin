@@ -27,8 +27,8 @@ import ShowChartIcon from '@mui/icons-material/ShowChart'
 import ViewModuleIcon from '@mui/icons-material/ViewModule'
 import { TransactionService } from '@/services/transaction.service'
 import ConfirmationModal from '../logout/logout.component'
-import LoyaltyIcon from '@mui/icons-material/Loyalty';
-import ErrorIcon from '@mui/icons-material/Error';
+import LoyaltyIcon from '@mui/icons-material/Loyalty'
+import ErrorIcon from '@mui/icons-material/Error'
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
@@ -101,7 +101,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Dashboard',
-      name: "Dashboard"
+      name: 'Dashboard',
     },
     {
       icon: (
@@ -120,7 +120,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Transaction',
-      name: "Transactions"
+      name: 'Transactions',
     },
 
     {
@@ -140,7 +140,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Kyc',
-      name: "KYC"
+      name: 'KYC',
     },
     {
       icon: (
@@ -159,7 +159,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Applicant',
-      name: "Applicants"
+      name: 'Applicants',
     },
     {
       icon: (
@@ -175,7 +175,7 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Bop',
-      name: "BOP"
+      name: 'BOP',
     },
     {
       icon: (
@@ -191,7 +191,7 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Profile',
-      name: "Users"
+      name: 'Users',
     },
     {
       icon: (
@@ -290,10 +290,42 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Loyalty',
-      name: "Loyalty"
+      name: 'Loyalty',
+    },
+    {
+      icon: (
+        <>
+          <LoyaltyIcon
+            sx={{
+              //@ts-ignore
+              fontSize: '2vh',
+              //@ts-ignore
+              color: theme.palette.primary.light, // Corrected theme usage
+            }}
+          />
+        </>
+      ),
+      label: 'Audit-Logs',
+      name: 'Audit-Logs',
+    },
+
+    {
+      icon: (
+        <>
+          <LoyaltyIcon
+            sx={{
+              //@ts-ignore
+              fontSize: '2vh',
+              //@ts-ignore
+              color: theme.palette.primary.light, // Corrected theme usage
+            }}
+          />
+        </>
+      ),
+      label: 'Field-Validation',
+      name: 'Field-Validation',
     },
   ]
-
 
   useEffect(() => {
     setTimeout(() => {
@@ -312,7 +344,7 @@ const DashboardLayout = () => {
       <AppBar
         position="sticky"
         sx={{
-          minHeight: '8vh',   // AppBar height relative to viewport
+          minHeight: '8vh', // AppBar height relative to viewport
           // height: '8vh',
           //@ts-ignore
           paddingBottom: 0,
@@ -341,9 +373,7 @@ const DashboardLayout = () => {
                 />
               </Link>
 
-              <Tooltip
-                title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              >
+              <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
                 <IconButton
                   onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
                   color="inherit"
@@ -380,9 +410,7 @@ const DashboardLayout = () => {
               >
                 {
                   <strong>
-                    {local_service
-                      ?.get_staff_access()
-                      .staffFirstName[0].toUpperCase() +
+                    {local_service?.get_staff_access().staffFirstName[0].toUpperCase() +
                       local_service?.get_staff_access().staffLastName[0].toUpperCase()}
                   </strong>
                 }
@@ -401,9 +429,7 @@ const DashboardLayout = () => {
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    {local_service?.get_staff_access().staffFirstName +
-                      ' ' +
-                      local_service?.get_staff_access().staffLastName}
+                    {local_service?.get_staff_access().staffFirstName + ' ' + local_service?.get_staff_access().staffLastName}
                   </Typography>
 
                   <Typography
@@ -416,10 +442,7 @@ const DashboardLayout = () => {
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    •{' '}
-                    {local_service?.get_staff_access().userCategory ||
-                      local_service?.get_staff_access().roleDescription ||
-                      'User'}
+                    • {local_service?.get_staff_access().userCategory || local_service?.get_staff_access().roleDescription || 'User'}
                   </Typography>
                 </Box>
 
@@ -441,16 +464,12 @@ const DashboardLayout = () => {
                 {/* Country */}
                 <Stack direction="row" alignItems="center" spacing={0.6} sx={{ marginTop: '2px' }}>
                   {(() => {
-                    const staff = local_service?.get_staff_access();
-                    if (!staff) return null;
+                    const staff = local_service?.get_staff_access()
+                    if (!staff) return null
 
                     const flag = staff.staffCountry
-                      ? staff.staffCountry
-                        .toUpperCase()
-                        .replace(/./g, (c: string) =>
-                          String.fromCodePoint(127397 + c.charCodeAt(0))
-                        )
-                      : '🏳️';
+                      ? staff.staffCountry.toUpperCase().replace(/./g, (c: string) => String.fromCodePoint(127397 + c.charCodeAt(0)))
+                      : '🏳️'
 
                     const countryNames: Record<string, string> = {
                       ZA: 'South Africa',
@@ -458,12 +477,9 @@ const DashboardLayout = () => {
                       US: 'United States',
                       UK: 'United Kingdom',
                       AE: 'UAE',
-                    };
+                    }
 
-                    const countryName =
-                      countryNames[staff.staffCountry] ||
-                      staff.staffCountry ||
-                      'Unknown';
+                    const countryName = countryNames[staff.staffCountry] || staff.staffCountry || 'Unknown'
 
                     return (
                       <>
@@ -478,14 +494,13 @@ const DashboardLayout = () => {
                           {countryName}
                         </Typography>
                       </>
-                    );
+                    )
                   })()}
                 </Stack>
               </Box>
             </Box>
           </Box>
         </Toolbar>
-
       </AppBar>
 
       <DashboardContainer>
@@ -545,7 +560,7 @@ const DashboardLayout = () => {
                     justifyContent: isDrawerOpen ? 'flex-start' : 'center',
                     textAlign: 'center',
                     alignItems: 'center',
-                  backgroundColor: 'transparent',
+                    backgroundColor: 'transparent',
                   }}
                   onClick={() => {
                     setSelectedApp(item.label)
@@ -553,7 +568,7 @@ const DashboardLayout = () => {
                   }}
                 >
                   <Stack sx={{ padding: '1%' }}>
-                    <Item >
+                    <Item>
                       <ListItemIcon
                         sx={{
                           textAlign: 'center',
@@ -615,7 +630,6 @@ const DashboardLayout = () => {
                 </Stack>
               </ListItem>
             </List>
-
 
             <List
               sx={{
