@@ -314,6 +314,8 @@ const SendMoneyPage = () => {
       setCurrency(data)
 
       if (selected) {
+        console.log(userCurrency)
+        console.log(data)
         transaction_service
           .getForexRate(
             //@ts-ignore
