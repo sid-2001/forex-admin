@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
-import { Box, Typography, Button, Modal, Grid, TextField, FormControl, MenuItem, Select } from '@mui/material'
+import { Box, Typography, Button, Modal, Grid, TextField, FormControl, MenuItem, Select, FormHelperText, InputLabel } from '@mui/material'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
@@ -12,15 +12,11 @@ const helper = new HelperService()
 const local_service = new LocalStorageService()
 const field_validation_service = new FieldValidationService()
 const numbersArray = Array.from({ length: 35 }, (_, i) => i + 1)
+const requiredFormFields = ['errorMessage', 'specialCharacterList', 'maxLength', 'minLength', 'fieldType', 'fieldName']
 
 const AddUpdateFieldValidationDialog: React.FC<any> = ({ action = 'Add', handleClose, handleSubmit, isOpen, selectedFieldData = {} }) => {
   const [formData, setFormData] = useState<any>({})
-  const inputLabelStyle = {
-    color: 'black',
-    textDecoration: 'bold',
-    fontWeight: 800,
-    fontStyle: 'bold',
-  }
+  const [formErrors, setFormErrors] = useState<any>({})
 
   useEffect(() => {
     if (selectedFieldData?.id) {
@@ -28,8 +24,27 @@ const AddUpdateFieldValidationDialog: React.FC<any> = ({ action = 'Add', handleC
     }
   }, [])
 
-  const handleFormSubmit = async () => {
+  const validateForm = (formData: any) => {
+    const errors: any = {}
+    const { minLength, maxLength } = formData
+
+    for (const [key, value] of Object.entries(formData)) {
+      if (requiredFormFields.includes(key) && value === '') {
+        errors[key] = `Field is required.`
+      }
+    }
+    if (Number(maxLength) <= Number(minLength)) {
+      errors['maxLength'] = `Max length must be greater than Min length.`
+    }
+    return errors // empty object if no errors
+  }
+
+  const handleFormSubmit = async (e: any) => {
     try {
+      e.preventDefault()
+      const errors = validateForm(formData)
+      setFormErrors(errors)
+
       let response
       if (selectedFieldData?.id) {
         response = await field_validation_service.updateFieldvalidation(formData, selectedFieldData?.id)
@@ -85,77 +100,125 @@ const AddUpdateFieldValidationDialog: React.FC<any> = ({ action = 'Add', handleC
         <Typography variant="h4" gutterBottom>
           {action} Field Validation
         </Typography>
-        <Box mt={4}>
-          <Grid container spacing={2} mb={2}>
-            <Grid item xs={12} sm={12}>
-              <label style={inputLabelStyle}>Field Name</label>
-              <TextField value={formData?.fieldName || ''} onChange={handleChange} fullWidth name="fieldName" />
-            </Grid>
-            <Grid item xs={12} sm={12}>
-              <label style={inputLabelStyle}>Field Type</label>
-              <TextField value={formData?.fieldType || ''} onChange={handleChange} fullWidth name="fieldType" />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <label style={inputLabelStyle}>Min Length</label>
-              <Select
-                variant="outlined"
-                name="minLength"
-                value={formData.minLength || ''}
-                fullWidth
-                onChange={(e) => {
-                  setFormData((prev: any) => ({
-                    ...prev,
-                    minLength: e.target.value,
-                  }))
-                }}
-              >
-                {numbersArray.map((item, ind) => (
-                  <MenuItem key={ind} value={item}>
-                    {item}
-                  </MenuItem>
-                ))}
-              </Select>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <label style={inputLabelStyle}>Max Length</label>
-              <Select
-                variant="outlined"
-                name="maxLength"
-                fullWidth
-                value={formData.maxLength || ''}
-                onChange={(e) => {
-                  setFormData((prev: any) => ({
-                    ...prev,
-                    maxLength: e.target.value,
-                  }))
-                }}
-              >
-                {numbersArray.map((item, ind) => (
-                  <MenuItem key={ind} value={item}>
-                    {item}
-                  </MenuItem>
-                ))}
-              </Select>
-            </Grid>
-            <Grid item xs={12} sm={12}>
-              <label style={inputLabelStyle}>Special Character List</label>
-              <TextField value={formData?.specialCharacterList || ''} onChange={handleChange} fullWidth name="specialCharacterList" />
-            </Grid>
-            <Grid item xs={12} sm={12}>
-              <label style={inputLabelStyle}>Error Message</label>
-              <TextField value={formData?.errorMessage || ''} onChange={handleChange} fullWidth name="errorMessage" />
-            </Grid>
-          </Grid>
-        </Box>
-        <Box sx={{ mt: 2, display: 'flex', alignItems: 'flex-end' }}>
-          <Button variant="contained" color="primary" onClick={() => handleFormSubmit()} sx={{ mt: 2 }}>
-            {action}
-          </Button>
+        <form onSubmit={handleFormSubmit} noValidate autoComplete="off">
+          <Box mt={4}>
+            <Grid container spacing={2} mb={2}>
+              <Grid item xs={12} sm={12}>
+                <FormControl fullWidth>
+                  <TextField
+                    value={formData?.fieldName || ''}
+                    error={Boolean(formErrors.fieldName)}
+                    helperText={formErrors.fieldName}
+                    onChange={handleChange}
+                    name="fieldName"
+                    required={true}
+                    label="Field Name"
+                  />
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={12}>
+                <FormControl fullWidth>
+                  <TextField
+                    value={formData?.fieldType || ''}
+                    error={Boolean(formErrors.fieldType)}
+                    helperText={formErrors.fieldType}
+                    onChange={handleChange}
+                    name="fieldType"
+                    required={true}
+                    label="Field Type"
+                  />
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth variant="outlined" required>
+                  <InputLabel id="demo-simple-select-label">Min Length</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    name="minLength"
+                    value={formData.minLength || ''}
+                    error={Boolean(formErrors.minLength)}
+                    label="Min Length"
+                    onChange={(e) => {
+                      setFormData((prev: any) => ({
+                        ...prev,
+                        minLength: e.target.value,
+                      }))
+                    }}
+                  >
+                    {numbersArray.map((item, ind) => (
+                      <MenuItem key={ind} value={item}>
+                        {item}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth variant="outlined" required>
+                  <InputLabel id="demo-simple-select-label-max">Max Length</InputLabel>
 
-          <Button variant="outlined" onClick={() => handleCancelBtn()} sx={{ mt: 2, ml: 2 }}>
-            Close
-          </Button>
-        </Box>
+                  <Select
+                    labelId="demo-simple-select-label-max"
+                    id="demo-simple-select-max"
+                    name="maxLength"
+                    value={formData.maxLength || ''}
+                    onChange={(e) => {
+                      setFormData((prev: any) => ({
+                        ...prev,
+                        maxLength: e.target.value,
+                      }))
+                    }}
+                    label="Max Length"
+                    error={Boolean(formErrors.maxLength)}
+                  >
+                    {numbersArray.map((item, ind) => (
+                      <MenuItem key={ind} value={item}>
+                        {item}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <FormHelperText sx={{ color: 'red', margin: 0 }}>{formErrors.maxLength}</FormHelperText>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={12}>
+                <FormControl fullWidth>
+                  <TextField
+                    label="Special Character List"
+                    value={formData?.specialCharacterList || ''}
+                    required={true}
+                    onChange={handleChange}
+                    name="specialCharacterList"
+                    error={Boolean(formErrors.specialCharacterList)}
+                    helperText={formErrors.specialCharacterList}
+                  />
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={12}>
+                <FormControl fullWidth>
+                  <TextField
+                    label="Error Message"
+                    value={formData?.errorMessage || ''}
+                    error={Boolean(formErrors.errorMessage)}
+                    helperText={formErrors.errorMessage}
+                    required={true}
+                    onChange={handleChange}
+                    name="errorMessage"
+                  />
+                </FormControl>
+              </Grid>
+            </Grid>
+          </Box>
+          <Box sx={{ mt: 2, display: 'flex', alignItems: 'flex-end' }}>
+            <Button variant="contained" color="primary" type="submit" sx={{ mt: 2 }}>
+              {action}
+            </Button>
+
+            <Button variant="outlined" onClick={() => handleCancelBtn()} sx={{ mt: 2, ml: 2 }}>
+              Close
+            </Button>
+          </Box>
+        </form>
       </Box>
     </Modal>
   )
