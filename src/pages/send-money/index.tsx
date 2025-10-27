@@ -129,6 +129,7 @@ const SendMoneyPage = () => {
   const navigate = useNavigate()
 
   const applicantId = searchParams.get('applicantId')
+  const beneficiaryId = searchParams.get('beneficiaryId')
 
   const TimechargesRows: GridRowsProp = [
     { id: 1, time: '2 hours', charges: 10, total: 200 },
@@ -187,7 +188,7 @@ const SendMoneyPage = () => {
 
     try {
       console.log('Selected user')
-      const data = await applicant_service.searchByApplicantId(applicantId)
+      const data: any = await applicant_service.searchByApplicantId(applicantId)
       console.log(data, 'data found')
       setcommonloader(false)
 
@@ -206,6 +207,21 @@ const SendMoneyPage = () => {
           ifscCode: b.bankBicCode,
         }
       })
+      if (beneficiaryId) {
+        const selectedBen = data.beneficiaryList.find((b: any) => beneficiaryId === b.beneficiaryId)
+        setSelectedBenificary({
+          accountHolderName: selectedBen?.beneficiaryMiddleName
+            ? `${selectedBen.beneficiaryFirstName} ${selectedBen.beneficiaryMiddleName} ${selectedBen.beneficiaryLastName}`
+            : `${selectedBen.beneficiaryFirstName} ${selectedBen.beneficiaryLastName}`,
+          accountNumber: selectedBen?.accountNumber,
+          bank: selectedBen?.bankName,
+          ifscCode: selectedBen?.ifscCode,
+          benificaryId: beneficiaryId,
+          name: selectedBen?.beneficiaryMiddleName
+            ? `${selectedBen.beneficiaryFirstName} ${selectedBen.beneficiaryMiddleName} ${selectedBen.beneficiaryLastName}`
+            : `${selectedBen.beneficiaryFirstName} ${selectedBen.beneficiaryLastName}`,
+        })
+      }
       //@ts-ignore
       setSelectedUser({
         //@ts-ignore
@@ -381,7 +397,7 @@ const SendMoneyPage = () => {
     benificaryId: selectedBenficary?.benificaryId,
     bopId: category,
     //  bopId: 79,
-       applicantId:selectedUser?.applicantId, 
+    applicantId: selectedUser?.applicantId,
     destinationCountry: selectedCountry,
     destinationCurrency: userCountry === 'ZA' ? 'INR' : 'ZAR',
     forex: forexRate,
@@ -389,9 +405,9 @@ const SendMoneyPage = () => {
     gatewayId: 'IMPGW004',
     gatewayStatus: 'Pending',
     selectedTimeMethod: {
-        "time": "2 hours",
-        "charges": 50,
-        "total": 200
+      time: '2 hours',
+      charges: 50,
+      total: 200,
     },
     sourceCurrency: userCountry === 'ZA' ? 'ZAR' : 'INR',
     sourceCountry: userCountry,
@@ -580,9 +596,6 @@ const SendMoneyPage = () => {
     }
   }
 
-
-
-
   const handlePeachPaymentsClick = async () => {
     setcommonloader(true)
     const { data } = await transaction_service.createDealcover(dealCoverPayload)
@@ -683,10 +696,8 @@ const SendMoneyPage = () => {
     }
   }
 
-    const handleAdumoPaymentClick = async () => {
+  const handleAdumoPaymentClick = async () => {
     try {
-    
-
       const { data } = await transaction_service.createDealcover(dealCoverPayload)
 
       if (data?.dealNumber) {
@@ -705,44 +716,44 @@ const SendMoneyPage = () => {
           // navigate('/transaction')
 
           const response = await transaction_service.createAdumoOrder({ amount: transactionPayload?.amount, transactionId: txnResponse?.data })
-           const { data } = response
+          const { data } = response
 
-           console.log()
+          console.log()
 
           if (!data) {
             alert('Failed to get session ID')
             return
           }
-          window.location.replace(JSON.parse( data)?.redirect_url)
+          window.location.replace(JSON.parse(data)?.redirect_url)
 
-      //     const htmlContent = `<!DOCTYPE html>
-      // <html lang="en">
-      // <head>
-      //     <meta charset="UTF-8">
-      //     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      //     <title>Cashfree Checkout</title>
-      //     <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
-      // </head>
-      // <body>
-      //     <script>
-      //         document.addEventListener("DOMContentLoaded", function () {
-      //             const cashfree = Cashfree({ mode: "sandbox" });
+          //     const htmlContent = `<!DOCTYPE html>
+          // <html lang="en">
+          // <head>
+          //     <meta charset="UTF-8">
+          //     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          //     <title>Cashfree Checkout</title>
+          //     <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+          // </head>
+          // <body>
+          //     <script>
+          //         document.addEventListener("DOMContentLoaded", function () {
+          //             const cashfree = Cashfree({ mode: "sandbox" });
 
-      //             let checkoutOptions = {
-      //                 paymentSessionId: "${payment_session_id}",
-      //                 redirectTarget: "_self",
-      //             };
+          //             let checkoutOptions = {
+          //                 paymentSessionId: "${payment_session_id}",
+          //                 redirectTarget: "_self",
+          //             };
 
-      //             // Automatically trigger checkout when page loads
-      //             cashfree.checkout(checkoutOptions);
-      //         });
-      //     </script>
-      // </body>
-      // </html>`
+          //             // Automatically trigger checkout when page loads
+          //             cashfree.checkout(checkoutOptions);
+          //         });
+          //     </script>
+          // </body>
+          // </html>`
 
-      //     document.open()
-      //     document.write(htmlContent)
-      //     document.close()
+          //     document.open()
+          //     document.write(htmlContent)
+          //     document.close()
         }
       }
     } catch (error) {
@@ -998,9 +1009,13 @@ const SendMoneyPage = () => {
               </Typography>
 
               <BeneficiaryForm
-                setselectedBenficiary={setSelectedBenificary}
+                beneficiaryId={beneficiaryId || ''}
+                choosedBenificiary={beneficiaryId ? selectedBenficary : {}}
                 //@ts-ignore
-                beneficiaries={selectedUser?.benificary}
+                beneficiaries={beneficiaryId ? [] : selectedUser?.benificary}
+                handleSetBenificiaryData={(record: any) => {
+                  setSelectedBenificary(record)
+                }}
               />
 
               <Divider sx={{ marginY: 2 }} />
@@ -1044,11 +1059,9 @@ const SendMoneyPage = () => {
                   }}
                   // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
                   sx={{ marginTop: '10px' }}
-
-              disabled={!(selectedUser?.applicantId&&userCountry&&userCountry&&category)}
+                  disabled={!(selectedUser?.applicantId && userCountry && userCountry && category)}
                 >
-
-{/*    amount: amount,
+                  {/*    amount: amount,
     // fcmToken: "",
     //@ts-ignore
 
@@ -1073,7 +1086,6 @@ const SendMoneyPage = () => {
     timecharge: selectedTime?.time,
     totalpaybleamount: Number(amount) + Number(selectedTimeChange) + Number(gatewayCharge),
     transferMethod: selectedTransferMethod, */}
-                  
                   Continue
                 </Button>
               </Box>
@@ -1162,7 +1174,7 @@ const SendMoneyPage = () => {
                     handleClick={() => handleOzowPaymentClick()}
                   />
 
-                   <ConfirmAndPayButton
+                  <ConfirmAndPayButton
                     imgUrl="https://media.licdn.com/dms/image/v2/D4D0BAQFafwhXng3fkQ/company-logo_200_200/company-logo_200_200/0/1730292941961/adumo_online_logo?e=2147483647&v=beta&t=agng3yUCjdKlMYt76saZvTJHFC3Tx1BC9uaGlVTLh4c"
                     handleClick={() => handleAdumoPaymentClick()}
                   />

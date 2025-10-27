@@ -94,28 +94,30 @@ const ApplicantPage = () => {
     }
   }
   const fetchApplicantData = async () => {
-  if (!applicantId) {
-    console.error('Applicant ID is missing in the URL')
-    return
-  }
-  try {
-    const response = await applicant_service.searchByApplicantId(applicantId)
-    const { applicant, applicantContactDetails, beneficiaryList, kycId }: any = response
-
-    setApplicantDetails({
-      ...applicant,
-      email: applicantContactDetails?.[1]?.contactDetails,
-      phone: applicantContactDetails?.[0]?.contactDetails,
-      beneficiaryList,
-    })
-
-    if (kycId) {
-      setKycId(kycId)
+    if (!applicantId) {
+      console.error('Applicant ID is missing in the URL')
+      return
     }
-  } catch (error) {
-    console.error('Error fetching applicant data:', error)
+    try {
+      const response = await applicant_service.searchByApplicantId(applicantId)
+      console.log(response, 'response')
+      const { applicant, applicantContactDetails, beneficiaryList, kycId, kycStatus }: any = response
+
+      setApplicantDetails({
+        ...applicant,
+        email: applicantContactDetails?.[1]?.contactDetails,
+        phone: applicantContactDetails?.[0]?.contactDetails,
+        beneficiaryList,
+        kycStatus,
+      })
+
+      if (kycId) {
+        setKycId(kycId)
+      }
+    } catch (error) {
+      console.error('Error fetching applicant data:', error)
+    }
   }
-}
 
   const fetchTransactionsList = useCallback(async () => {
     if (!applicantId) return
@@ -242,30 +244,32 @@ const ApplicantPage = () => {
           >
             Applicant Id - {applicantId}
           </Typography>
-          <Typography
-            variant="body1"
-            mb={1}
-            onClick={() => {
-              if (kycId) {
-                navigate(`/kyc/${kycId}`)
-              }
-            }}
-            sx={{
-              backgroundColor: 'primary.main',
-              p: '0.5%',
-              color: 'white',
-              paddingBlock: 1,
-              paddingInline: 1,
-              cursor: 'pointer',
-              ml: 2,
-              '&:hover': {
-                backgroundColor: theme.palette.primary.dark,
-                textDecoration: 'underline',
-              },
-            }}
-          >
-            {`KYC ID - ${kycId ?? 'Loading...'}`}
-          </Typography>
+          {applicantDetails?.kycStatus === 'v' && (
+            <Typography
+              variant="body1"
+              mb={1}
+              onClick={() => {
+                if (kycId) {
+                  navigate(`/kyc/${kycId}`)
+                }
+              }}
+              sx={{
+                backgroundColor: 'primary.main',
+                p: '0.5%',
+                color: 'white',
+                paddingBlock: 1,
+                paddingInline: 1,
+                cursor: 'pointer',
+                ml: 2,
+                '&:hover': {
+                  backgroundColor: theme.palette.primary.dark,
+                  textDecoration: 'underline',
+                },
+              }}
+            >
+              {`KYC ID - ${kycId}`}
+            </Typography>
+          )}
         </Box>
 
         {/* Applicant Information Form */}
