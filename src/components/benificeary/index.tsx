@@ -1,12 +1,16 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Grid, TextField, Menu, MenuItem, IconButton, Avatar, ListItemText, ListItemIcon } from '@mui/material'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 
 const BeneficiaryForm = ({
   //@ts-ignore
-  setselectedBenficiary,
+  choosedBenificiary,
   //@ts-ignore
   beneficiaries,
+  //@ts-ignore
+  beneficiaryId,
+  //@ts-ignore
+  handleSetBenificiaryData,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [formData, setFormData] = useState({
@@ -14,14 +18,20 @@ const BeneficiaryForm = ({
     accountNumber: '',
     bank: '',
     ifscCode: '',
+    benificaryId: '',
   })
 
-  // Dummy beneficiary data
-
-  console.log(beneficiaries, '===========')
+  useEffect(() => {
+    if (beneficiaryId) {
+      setFormData({ ...choosedBenificiary })
+      setAnchorEl(null)
+    }
+  }, [beneficiaryId, choosedBenificiary])
 
   const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget)
+    if (!beneficiaryId) {
+      setAnchorEl(event.currentTarget)
+    }
   }
 
   const handleCloseMenu = () => {
@@ -29,20 +39,8 @@ const BeneficiaryForm = ({
   }
 
   const handleSelectBeneficiary = (beneficiary: (typeof beneficiaries)[0]) => {
-    setFormData({
-      accountHolderName: beneficiary.name,
-      accountNumber: beneficiary.accountNumber,
-      bank: beneficiary.bank,
-      ifscCode: beneficiary.ifscCode,
-    })
-
-    setselectedBenficiary({
-      accountHolderName: beneficiary.name,
-      accountNumber: beneficiary.accountNumber,
-      bank: beneficiary.bank,
-      ifscCode: beneficiary.ifscCode,
-      benificaryId: beneficiary?.benificaryId,
-    })
+    setFormData({ ...beneficiary })
+    handleSetBenificiaryData({ ...beneficiary })
     setAnchorEl(null)
   }
 
@@ -56,13 +54,17 @@ const BeneficiaryForm = ({
           disabled
           placeholder="Enter Account Holder Name"
           value={formData.accountHolderName}
-          InputProps={{
-            endAdornment: (
-              <IconButton onClick={handleOpenMenu}>
-                <PersonAddIcon />
-              </IconButton>
-            ),
-          }}
+          InputProps={
+            beneficiaries && beneficiaries.length > 0
+              ? {
+                  endAdornment: (
+                    <IconButton onClick={handleOpenMenu}>
+                      <PersonAddIcon />
+                    </IconButton>
+                  ),
+                }
+              : {}
+          }
         />
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseMenu}>
           {beneficiaries && beneficiaries.length > 0 ? (
@@ -84,39 +86,15 @@ const BeneficiaryForm = ({
       </Grid>
 
       <Grid item xs={12} md={6}>
-        <TextField
-          label="Account Number"
-          variant="filled"
-          fullWidth
-          placeholder="Enter Account Number"
-          value={formData.accountNumber}
-          disabled
-          // onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
-        />
+        <TextField label="Account Number" variant="filled" fullWidth placeholder="Enter Account Number" value={formData.accountNumber} disabled />
       </Grid>
 
       <Grid item xs={12} md={6}>
-        <TextField
-          label="Bank"
-          variant="filled"
-          fullWidth
-          placeholder="Enter Bank Name"
-          value={formData.bank}
-          disabled
-          // onChange={(e) => setFormData({ ...formData, bank: e.target.value })}
-        />
+        <TextField label="Bank" variant="filled" fullWidth placeholder="Enter Bank Name" value={formData.bank} disabled />
       </Grid>
 
       <Grid item xs={12} md={6}>
-        <TextField
-          label="IFSC Code"
-          variant="filled"
-          fullWidth
-          placeholder="Enter IFSC Code"
-          value={formData.ifscCode}
-          disabled
-          // onChange={(e) => setFormData({ ...formData, ifscCode: e.target.value })}
-        />
+        <TextField label="IFSC Code" variant="filled" fullWidth placeholder="Enter IFSC Code" value={formData.ifscCode} disabled />
       </Grid>
     </Grid>
   )

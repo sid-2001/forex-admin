@@ -47,7 +47,7 @@ const BeneficiaryDetailPage = () => {
           </Typography>
           <Button
             variant="outlined"
-            onClick={() => navigate(`/sendmoney?applicantId=${beneficiaryData?.applicant}`)}
+            onClick={() => navigate(`/sendmoney?applicantId=${beneficiaryData?.applicant}&beneficiaryId=${beneficiaryId}`)}
             disabled={!helper_service.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
           >
             Add Transaction +
@@ -57,7 +57,17 @@ const BeneficiaryDetailPage = () => {
         <Box mt={2}>
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={12} sm={4}>
-              <TextField label="Applicant ID" size="small" variant="filled" name="applicantId" fullWidth value={beneficiaryData?.applicant || ''} />
+              <TextField
+                label="Applicant ID"
+                InputProps={{
+                  readOnly: true,
+                }}
+                size="small"
+                variant="filled"
+                name="applicantId"
+                fullWidth
+                value={beneficiaryData?.applicant || ''}
+              />
             </Grid>
             <Grid item xs={12} sm={4}>
               <Typography
@@ -82,6 +92,9 @@ const BeneficiaryDetailPage = () => {
                 fullWidth
                 size="small"
                 value={beneficiaryData?.beneficiaryFirstName || ''}
+                InputProps={{
+                  readOnly: true,
+                }}
               />
             </Grid>
             <Grid item xs={12} sm={2.3}>
@@ -92,6 +105,9 @@ const BeneficiaryDetailPage = () => {
                 size="small"
                 fullWidth
                 value={beneficiaryData?.beneficiaryMiddleName || ''}
+                InputProps={{
+                  readOnly: true,
+                }}
               />
             </Grid>
             <Grid item xs={12} sm={2.3}>
@@ -102,10 +118,23 @@ const BeneficiaryDetailPage = () => {
                 size="small"
                 fullWidth
                 value={beneficiaryData?.beneficiaryLastName || ''}
+                InputProps={{
+                  readOnly: true,
+                }}
               />
             </Grid>
             <Grid item xs={12} sm={2.3}>
-              <TextField label="Nationality" size="small" variant="filled" name="nationality" fullWidth value={beneficiaryData?.nationality || ''} />
+              <TextField
+                label="Nationality"
+                size="small"
+                variant="filled"
+                InputProps={{
+                  readOnly: true,
+                }}
+                name="nationality"
+                fullWidth
+                value={beneficiaryData?.nationality || ''}
+              />
             </Grid>
             <Grid item xs={12} sm={2.3}>
               <TextField
@@ -115,6 +144,9 @@ const BeneficiaryDetailPage = () => {
                 name="residenceCountry"
                 fullWidth
                 value={beneficiaryData?.residenceCountry || ''}
+                InputProps={{
+                  readOnly: true,
+                }}
               />
             </Grid>
           </Grid>
@@ -134,6 +166,9 @@ const BeneficiaryDetailPage = () => {
                 label="Address Line 1"
                 name="physicalAddressLine1"
                 value={beneficiaryData?.physicalAddressLine1 || ''}
+                InputProps={{
+                  readOnly: true,
+                }}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -144,15 +179,38 @@ const BeneficiaryDetailPage = () => {
                 label="Address Line 2"
                 name="addressLine2"
                 value={beneficiaryData?.physicalAddressLine2 || ''}
+                InputProps={{
+                  readOnly: true,
+                }}
               />
             </Grid>
           </Grid>
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={12} sm={2.3}>
-              <TextField variant="filled" size="small" fullWidth label="Suburb" name="suburb" value={beneficiaryData?.suburb || ''} />
+              <TextField
+                variant="filled"
+                size="small"
+                InputProps={{
+                  readOnly: true,
+                }}
+                fullWidth
+                label="Suburb"
+                name="suburb"
+                value={beneficiaryData?.suburb || ''}
+              />
             </Grid>
             <Grid item xs={12} sm={2.3}>
-              <TextField variant="filled" size="small" fullWidth label="City" name="city" value={beneficiaryData?.city || ''} />
+              <TextField
+                variant="filled"
+                size="small"
+                InputProps={{
+                  readOnly: true,
+                }}
+                fullWidth
+                label="City"
+                name="city"
+                value={beneficiaryData?.city || ''}
+              />
             </Grid>
             <Grid item xs={12} sm={2.3}>
               <TextField
@@ -160,15 +218,38 @@ const BeneficiaryDetailPage = () => {
                 size="small"
                 fullWidth
                 label="State/Province"
+                InputProps={{
+                  readOnly: true,
+                }}
                 name="state"
                 value={beneficiaryData?.beneficiaryState || ''}
               />
             </Grid>
             <Grid item xs={12} sm={2.3}>
-              <TextField variant="filled" size="small" fullWidth label="ZipCode" name="postCode" value={beneficiaryData?.postCode || ''} />
+              <TextField
+                variant="filled"
+                InputProps={{
+                  readOnly: true,
+                }}
+                size="small"
+                fullWidth
+                label="ZipCode"
+                name="postCode"
+                value={beneficiaryData?.postCode || ''}
+              />
             </Grid>
             <Grid item xs={12} sm={2.3}>
-              <TextField variant="filled" size="small" fullWidth label="Country" name="country" value={beneficiaryData?.country || ''} />
+              <TextField
+                variant="filled"
+                InputProps={{
+                  readOnly: true,
+                }}
+                size="small"
+                fullWidth
+                label="Country"
+                name="country"
+                value={beneficiaryData?.country || ''}
+              />
             </Grid>
           </Grid>
         </Box>
@@ -184,6 +265,9 @@ const BeneficiaryDetailPage = () => {
                 variant="filled"
                 size="small"
                 fullWidth
+                InputProps={{
+                  readOnly: true,
+                }}
                 label="Account Holder Name"
                 name="beneficiaryName"
                 value={renderBeneficiaryfullName()}
@@ -194,13 +278,26 @@ const BeneficiaryDetailPage = () => {
                 variant="filled"
                 size="small"
                 fullWidth
+                InputProps={{
+                  readOnly: true,
+                }}
                 label="Account Number"
                 name="accountNumber"
                 value={beneficiaryData?.accountNumber || ''}
               />
             </Grid>
             <Grid item xs={12} sm={4}>
-              <TextField variant="filled" size="small" fullWidth label="Bank Name" name="bankName" value={beneficiaryData?.bankName || ''} />
+              <TextField
+                variant="filled"
+                InputProps={{
+                  readOnly: true,
+                }}
+                size="small"
+                fullWidth
+                label="Bank Name"
+                name="bankName"
+                value={beneficiaryData?.bankName || ''}
+              />
             </Grid>
             <Grid item xs={12} sm={4}>
               <TextField
@@ -208,6 +305,9 @@ const BeneficiaryDetailPage = () => {
                 size="small"
                 fullWidth
                 label="BIC Code/ IFSC Code"
+                InputProps={{
+                  readOnly: true,
+                }}
                 name="bankBicCode"
                 value={beneficiaryData?.bankBicCode || ''}
               />
@@ -217,6 +317,9 @@ const BeneficiaryDetailPage = () => {
                 variant="filled"
                 size="small"
                 fullWidth
+                InputProps={{
+                  readOnly: true,
+                }}
                 label="Bank Location"
                 name="bankLocation"
                 value={beneficiaryData?.bankLocation || ''}

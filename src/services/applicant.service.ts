@@ -9,7 +9,6 @@ import api1 from './apis/api1'
 import { BaseService } from './base.service'
 
 class ApplicantService extends BaseService {
- 
   async submitApplicantForm(): Promise<ApplicantResponse> {
     try {
       const { data } = await api1.get('/api/kyc')
@@ -76,7 +75,7 @@ class ApplicantService extends BaseService {
     }
   }
 
-  async searchByApplicantId(applicantId: string): Promise<ApplicantResponse> {
+  async searchByApplicantId(applicantId: string): Promise<any> {
     const url = `/api/applicant/applicant-all-details/applicantId/${applicantId}`
     try {
       const { data } = await api1.get(url)
