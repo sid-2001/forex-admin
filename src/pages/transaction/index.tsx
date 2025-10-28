@@ -152,12 +152,12 @@ const TransactionListing = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
-    {
-      field: 'gateway_name',
-      headerName: 'Gateway',
-      width: 100,
-      headerClassName: 'super-app-theme--header',
-    },
+    // {
+    //   field: 'gateway_name',
+    //   headerName: 'Gateway',
+    //   width: 100,
+    //   headerClassName: 'super-app-theme--header',
+    // },
     {
       field: 'owCreatedDate',
       headerName: 'Date',
@@ -331,7 +331,7 @@ const TransactionListing = () => {
     { field: 'settlementCurrency', headerName: 'Settlement Currency', width: 150, headerClassName: 'super-app-theme--header' },
     { field: 'principalCurrency', headerName: 'Principal Currency', width: 150, headerClassName: 'super-app-theme--header' },
 
-    { field: 'gatewayId', headerName: 'Gateway Id', width: 100, headerClassName: 'super-app-theme--header' },
+    // { field: 'gatewayId', headerName: 'Gateway Id', width: 100, headerClassName: 'super-app-theme--header' },
 
     { field: 'gatewayStatus', headerName: 'Gateway Status', width: 100, headerClassName: 'super-app-theme--header' },
     {

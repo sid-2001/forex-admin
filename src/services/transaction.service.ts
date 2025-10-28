@@ -32,14 +32,14 @@ export class TransactionService extends BaseService {
   }
 
   async getInwardTransaction(receving_country: any): Promise<Array<TransactionInward>> {
-  try {
-    const url = `/api/transactions/transaction-inward/receivingCountry/${receving_country}`
-    const response = await api1.get(url)
-    return response?.data || []  
-  } catch (e) {
-    throw new Error(e as any)
+    try {
+      const url = `/api/transactions/transaction-inward/receivingCountry/${receving_country}`
+      const response = await api1.get(url)
+      return response?.data || []
+    } catch (e) {
+      throw new Error(e as any)
+    }
   }
-}
 
   async getLoyaltyMasterData(): Promise<any> {
     const url = '/api/transactions/loyalty-master'
@@ -127,8 +127,8 @@ export class TransactionService extends BaseService {
     }
   }
 
-  async getBop() {
-    const url = `/api/static-table/forex-bop`
+  async getBop(country: any) {
+    const url = `/api/static-table/forex-bop/by-country?country=${country}`
     try {
       const data = await api1.get(url)
       return data
@@ -162,8 +162,7 @@ export class TransactionService extends BaseService {
     }
   }
 
-  async createZaphierTransaction(payload: { amount: any,  currencyISOCode: any,
-  transactionNumber: any}) {
+  async createZaphierTransaction(payload: { amount: any; currencyISOCode: any; transactionNumber: any }) {
     const url = `/api/transactions/zapper/create-session`
     try {
       const { data } = await api1.post(url, payload)
@@ -194,11 +193,16 @@ export class TransactionService extends BaseService {
   }
 
   async getForexRate(base_currency: String, sourc_currency: String) {
+    let urlpath = `/api/transactions/exchange-rate/sourceCurrency/${base_currency}/targetCurrency/${sourc_currency}`
+
     const url = `https://data.fixer.io/api/latest?access_key=${VITE_FOREX_APP_CREDENTIALS}&base=${base_currency}&symbols=${sourc_currency}`
     try {
-      const { data } = await axios.get(url)
+      // const { data } = await axios.get(url)
+      const { data } = await api1.get(urlpath)
       //@ts-ignore
-      return data.rates[sourc_currency]
+      console.log(data)
+      return data.rate
+      // return data.rates[sourc_currency]
     } catch (err) {
       console.log(err)
     }
@@ -243,7 +247,7 @@ export class TransactionService extends BaseService {
     }
   }
 
-    async createAdumoOrder(payload: any) {
+  async createAdumoOrder(payload: any) {
     const url = `/api/transactions/adumo/token/new`
     try {
       const { data } = await api1.post(url, payload)
@@ -293,7 +297,7 @@ export class TransactionService extends BaseService {
     }
   }
 
-    async getTransactionbyquery(query: any,country:any) {
+  async getTransactionbyquery(query: any, country: any) {
     const url = `/api/transactions/transaction-outward/search/sendCountry/${country}?query=${query}`
     try {
       const data = await api1.get(url)
@@ -302,24 +306,21 @@ export class TransactionService extends BaseService {
       console.log(err)
     }
   }
-      async createTransactionSeesionSummary(
-        //@ts-ignore
-        trnasaction_id:String,body:{
-  amount: String,
-  currencyISOCode: String,
-  transactionNumber: String
-}) {
+  async createTransactionSeesionSummary(
+    //@ts-ignore
+    trnasaction_id: String,
+    body: {
+      amount: String
+      currencyISOCode: String
+      transactionNumber: String
+    },
+  ) {
     const url = `api/zapper/create-session`
     try {
-      const {data} = await api1.post(url,body)
+      const { data } = await api1.post(url, body)
       return data
     } catch (err) {
       console.log(err)
     }
   }
-
-
 }
-
-
-

@@ -75,11 +75,13 @@ const BobCategoryDropdown: React.FC<BobCategoryDropdownProps> = ({ amount, setAm
             getContentAnchorEl: null,
           }}
         >
-          {remittanceList.map((item) => (
-            <MenuItem key={item.id} value={item.id}>
-              {item.categoryDescription} ({item.bopCategoryCd})
-            </MenuItem>
-          ))}
+          {remittanceList &&
+            remittanceList.length > 0 &&
+            remittanceList.map((item) => (
+              <MenuItem key={item.id} value={item.id}>
+                {item.categoryDescription} ({item.bopCategoryCd})
+              </MenuItem>
+            ))}
         </Select>
       </FormControl>
 

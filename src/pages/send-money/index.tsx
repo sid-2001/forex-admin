@@ -137,6 +137,16 @@ const SendMoneyPage = () => {
     { id: 3, time: '2 days', charges: 0.5, total: 200 },
   ]
 
+  const getCharges = () => {
+    kyc_service.getCharges(userCountry, sendCountry, amount, 0).then(({ data }) => {
+      console.log(data)
+      if (data) {
+        setSelectedTimeCharge(data.minimumCharges)
+      } else {
+        setSelectedTimeCharge(0)
+      }
+    })
+  }
   const chargesTableColumns: GridColDef[] = [
     {
       field: 'select',
@@ -231,26 +241,27 @@ const SendMoneyPage = () => {
         //@ts-ignore
         name: data.applicant?.firstName,
         //@ts-ignore
+        nationality: data?.applicant?.nationality,
+        //@ts-ignore
+        lastname: data?.applicant?.lastName,
+        //@ts-ignore
         accountNumber: data.applicant.applicantId,
         profilePhoto: 'https://randomuser.me/api/portraits/women/4.jpg',
         benificary: benificiary_list,
       })
       //@ts-ignore
       setSearchText(data.applicant?.firstName) // Set selected user's name in TextField
-      fetchBopList()
-      setFilteredUsers([]) // Clear th
-
+      setFilteredUsers([])
       return
     } catch (error) {
       console.error('Error fetching applicant data:', error)
     }
   }
 
-  const fetchBopList = () => {
+  const fetchBopList = async () => {
     try {
-      transaction_service.getBop().then((data) => {
-        setRemittanceList(data as any)
-      })
+      const { data } = await transaction_service.getBop(userCountry)
+      setRemittanceList(data || [])
     } catch (err) {
       console.log(err)
     }
@@ -283,6 +294,11 @@ const SendMoneyPage = () => {
           return {
             applicantId: e.applicant.applicantId,
             id: e.applicant.applicantId,
+            //@ts-ignore
+            lastname: e.applicant?.lastName,
+            //@ts-ignore
+
+            nationality: e.applicant?.nationality,
             //@ts-ignore
             name: e.applicant?.firstName,
             accountNumber: e.applicant.applicantId,
@@ -330,6 +346,8 @@ const SendMoneyPage = () => {
       setCurrency(data)
 
       if (selected) {
+        console.log(userCurrency)
+        console.log(data)
         transaction_service
           .getForexRate(
             //@ts-ignore
@@ -368,15 +386,27 @@ const SendMoneyPage = () => {
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value
     setSearchText(value)
+    console.log(local_service?.get_staff_country())
 
     // Filter users based on the search text for name or ID
     if (value.trim() === '') {
       setFilteredUsers([])
+      setSelectedUser(null)
     } else {
+      console.log(value)
       const filtered = userlist.filter(
         (user) =>
           //@ts-ignore
-          user?.name?.toLowerCase().includes(value.toLowerCase()) || user.id.toString().includes(value),
+
+          (user?.name?.toLowerCase().includes(value.toLowerCase()) ||
+            //@ts-ignore
+            user?.lastName?.toLowerCase().includes(value.toLowerCase()) ||
+            //@ts-ignore
+            user?.id?.toString().includes(value) ||
+            //@ts-ignore
+            user?.lastname?.toLowerCase().includes(value.toLowerCase())) &&
+          //@ts-ignore
+          user?.nationality?.toLowerCase() == local_service?.get_staff_country()?.toLowerCase(),
       )
       setFilteredUsers(filtered)
     }
@@ -653,7 +683,7 @@ const SendMoneyPage = () => {
           // navigate('/transaction')
 
           const response = await transaction_service.createOrder({ amount: transactionPayload?.amount, transactionId: txnResponse?.data })
-          const { payment_session_id } = response
+          const { payment_session_id } = response.data
 
           if (!payment_session_id) {
             alert('Failed to get session ID')
@@ -809,9 +839,10 @@ const SendMoneyPage = () => {
                           <Avatar
                             //@ts-ignore
                             // src={selectedUser.profilePhoto}
-                            alt={selectedUser.name}
+                            alt={selectedUser.name + '' + selectedUser.lastname}
                             style={{ marginRight: '8px' }}
                           >
+                            {/* {JSON.stringify( selectedUser)} */}
                             {selectedUser.name[0]}
                           </Avatar>
                         </InputAdornment>
@@ -850,7 +881,7 @@ const SendMoneyPage = () => {
                             <ListItemText
                               primary={
                                 //@ts-ignore
-                                user.name
+                                user.name + ' ' + user.lastname
                               }
                               //@ts-ignore
                               secondary={`ID: ${user.id} `}
@@ -869,7 +900,11 @@ const SendMoneyPage = () => {
                           color: 'green',
                         }}
                       />
-                      {selectedUser.name} (Account: {selectedUser.applicantId})
+                      {selectedUser.name +
+                        ' ' +
+                        //@ts-ignore
+                        selectedUser?.lastname}{' '}
+                      (Account: {selectedUser.applicantId})
                     </Typography>
                   )}
                 </Grid>
@@ -909,12 +944,14 @@ const SendMoneyPage = () => {
                   {/* Amount Input */}
                   <Grid item xs={12} md={3}>
                     <TextField
+                      type="number"
                       label={`Amount In   ${userCurrency != undefined ? userCurrency : ''} `}
                       variant="filled"
                       fullWidth
                       onChange={(e) => {
                         setAmount(e.target.value as any)
                         setSelectedTimeCharge(0)
+                        getCharges()
                       }}
                     />
                   </Grid>
@@ -1169,19 +1206,19 @@ const SendMoneyPage = () => {
               </TableContainer>
               {userCountry === 'ZA' ? (
                 <>
-                  <ConfirmAndPayButton
+                  {/* <ConfirmAndPayButton
                     imgUrl="https://cdn.prod.website-files.com/6282d4840afd19e1afa62e70/6491490c213c45a9d600d387_ozow_small_xs.png"
                     handleClick={() => handleOzowPaymentClick()}
-                  />
+                  /> */}
 
                   <ConfirmAndPayButton
                     imgUrl="https://media.licdn.com/dms/image/v2/D4D0BAQFafwhXng3fkQ/company-logo_200_200/company-logo_200_200/0/1730292941961/adumo_online_logo?e=2147483647&v=beta&t=agng3yUCjdKlMYt76saZvTJHFC3Tx1BC9uaGlVTLh4c"
                     handleClick={() => handleAdumoPaymentClick()}
                   />
-                  <ConfirmAndPayButton
+                  {/* <ConfirmAndPayButton
                     imgUrl="https://www.peachpayments.com/hubfs/peachpayments-logo.svg"
                     handleClick={() => handlePeachPaymentsClick()}
-                  />
+                  /> */}
 
                   <ConfirmAndPayButton
                     imgUrl="https://zapper.gitbook.io/zapper-platform/~gitbook/image?url=https%3A%2F%2F3889691800-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F-M4tIVi0eT23PM2ng2_g%252Ficon%252Ffg6xU4qKsy5lQJ83OvI0%252FRounded.svg%3Falt%3Dmedia%26token%3D28b1c6cc-492e-43da-a8d8-230b9ac27b70&width=32&dpr=4&quality=100&sign=9960cbd3&sv=2"
