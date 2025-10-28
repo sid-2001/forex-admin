@@ -24,7 +24,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { TransactionInward, TransactionInwardCalclulated, TransactionOutward } from '@/types/transaction.type'
 import { PreviewOutlined } from '@mui/icons-material'
 import { useRecoilState } from 'recoil'
-import { loaderStateNew } from '@/states/state'
+import { alertState, alertTextState, alertTypeState, loaderStateNew } from '@/states/state'
 import CompliancTool from '@/components/compliance-tool'
 import { HelperService } from '@/helpers/helper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
@@ -45,9 +45,12 @@ const applicant_service = new ApplicantService()
 const transaction_Service = new TransactionService()
 const helper = new HelperService()
 const local_service = new LocalStorageService()
+const transaction_service = new TransactionService()
 
 const TransactionListing = () => {
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<GridColumnVisibilityModel>({})
+
+      
   const columns_outward = [
     {
       field: 'id',
@@ -281,6 +284,140 @@ const TransactionListing = () => {
     return { headers, body, title: isInwards ? 'inwards' : 'outwards' }
   }
 
+
+    const handleZapperPaymentGateway = async () => {
+    setCommonLoader(true)
+
+  let zapper_trans = await transaction_service.createZaphierTransaction({
+        amount:  transactionDetails?.value,
+        currencyISOCode: 'ZAR',
+        transactionNumber: transactionDetails?.transactionNumber,
+      })
+
+      setcommonloader(false)
+
+      console.log(zapper_trans?.data?.redirectUrl)
+
+      window.location.href = zapper_trans?.data?.redirectUrl
+
+
+    
+
+    
+      // navigate('/transaction')
+    }
+  
+
+
+
+
+
+
+
+  // const handleCashfreePaymentClick = async () => {
+  //   try {
+  
+
+  //     const { data } = await transaction_service.createDealcover(dealCoverPayload)
+
+  //     if (data?.dealNumber) {
+  //       const txnResponse = await transaction_service.createTransaction(transactionPayload)
+  //       if (txnResponse?.status) {
+  //         setCommonLoader(true)
+  //         if (txnResponse?.data) {
+  //           settype('success')
+  //           setText('Transaction Redicect Success')
+  //         } else {
+  //           settype('error')
+  //           setText('Failed to Redircet Transaction')
+  //         }
+  //         setOpen(true)
+  //         setcommonloader(false)
+  //         // navigate('/transaction')
+
+  //         const response = await transaction_service.createOrder({ amount: transactionPayload?.amount, transactionId: txnResponse?.data })
+  //         const { payment_session_id } = response.data
+
+  //         if (!payment_session_id) {
+  //           alert('Failed to get session ID')
+  //           return
+  //         }
+
+  //         const htmlContent = `<!DOCTYPE html>
+  //     <html lang="en">
+  //     <head>
+  //         <meta charset="UTF-8">
+  //         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  //         <title>Cashfree Checkout</title>
+  //         <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+  //     </head>
+  //     <body>
+  //         <script>
+  //             document.addEventListener("DOMContentLoaded", function () {
+  //                 const cashfree = Cashfree({ mode: "sandbox" });
+
+  //                 let checkoutOptions = {
+  //                     paymentSessionId: "${payment_session_id}",
+  //                     redirectTarget: "_self",
+  //                 };
+
+  //                 // Automatically trigger checkout when page loads
+  //                 cashfree.checkout(checkoutOptions);
+  //             });
+  //         </script>
+  //     </body>
+  //     </html>`
+
+  //         document.open()
+  //         document.write(htmlContent)
+  //         document.close()
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error('Payment initiation failed:', error)
+  //     alert('Payment failed. Please try again.')
+  //   }
+  // }
+
+    const handleAdumoPaymentClick = async () => {
+    try {
+    
+
+console.log(transactionDetails)
+console.log(transactionDetails)
+
+          const response = await transaction_service.createAdumoOrder({ amount: transactionDetails?.value, transactionId: transactionDetails?.transactionNumber })
+           const { data } = response
+
+           console.log()
+
+          if (!data) {
+            alert('Failed to get session ID')
+            return
+          }
+          window.location.replace(JSON.parse( data)?.redirect_url)
+
+     
+    } catch (error) {
+      console.error('Payment initiation failed:', error)
+      // alert('Payment failed. Please try again.')
+    }
+  }
+
+
+  const ConfirmAndPayButton = ({ handleClick = () => {}, imgUrl = '' }) => {
+    return (
+      <Button
+        variant="outlined"
+        color="primary"
+        sx={{ marginTop: 3, display: 'flex', alignItems: 'center', gap: 1, padding: '6px 16px' }}
+        disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
+        onClick={() => handleClick()}
+      >
+        <img src={imgUrl} alt="Ozow" style={{ height: '20px' }} />
+        Confirm & Pay
+      </Button>
+    )}
   const downloadCSV = () => {
     const { headers, body, title } = rowsForExport()
     if (!body.length) return
@@ -447,12 +584,17 @@ const TransactionListing = () => {
   const [userList, setUserList] = useState([])
   const [creattrx, setCreatetrx] = useState('')
   const [zaphierlink, setZaphierLink] = useState('')
-  const [open, setOpen] = useState(false)
+  // const [open, setOpen] = useState(false)
   const [startDate, setStartDate] = useState<string | null>(null)
   const [endDate, setEndDate] = useState<string | null>(null)
   const [stpErrors, setStpErrors] = useState<any>([])
   const [givenTransaction, setGivenTransaction] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(false)
+
+    const [open, setOpen] = useRecoilState(alertState)
+        const [text, setText] = useRecoilState(alertTextState)
+        const [type, settype] = useRecoilState(alertTypeState)
+        const [commonLoader, setCommonLoader] = useRecoilState(loaderStateNew)
   // Add state for row count
   const [rowCount, setRowCount] = useState(0)
 
@@ -624,6 +766,7 @@ const TransactionListing = () => {
       console.log(error)
     }
   }, [userCountry])
+  
 
   const getAllTransactions = useCallback(
     async (
@@ -1099,7 +1242,7 @@ const TransactionListing = () => {
                   }
                   size="small"
                   disabled
-                />
+              />
               </Grid>
             </Grid>
 
@@ -1148,6 +1291,38 @@ const TransactionListing = () => {
                   />
                   Complete Payment
                 </Button>
+
+
+       {userCountry === 'ZA' ? (
+                <>
+                  {/* <ConfirmAndPayButton
+                    imgUrl="https://cdn.prod.website-files.com/6282d4840afd19e1afa62e70/6491490c213c45a9d600d387_ozow_small_xs.png"
+                    handleClick={() => handleOzowPaymentClick()}
+                  /> */}
+
+                   <ConfirmAndPayButton
+                    imgUrl="https://media.licdn.com/dms/image/v2/D4D0BAQFafwhXng3fkQ/company-logo_200_200/company-logo_200_200/0/1730292941961/adumo_online_logo?e=2147483647&v=beta&t=agng3yUCjdKlMYt76saZvTJHFC3Tx1BC9uaGlVTLh4c"
+                    handleClick={() => handleAdumoPaymentClick()}
+                  />
+                  {/* <ConfirmAndPayButton
+                    imgUrl="https://www.peachpayments.com/hubfs/peachpayments-logo.svg"
+                    handleClick={() => handlePeachPaymentsClick()}
+                  /> */}
+
+                  <ConfirmAndPayButton
+                    imgUrl="https://zapper.gitbook.io/zapper-platform/~gitbook/image?url=https%3A%2F%2F3889691800-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F-M4tIVi0eT23PM2ng2_g%252Ficon%252Ffg6xU4qKsy5lQJ83OvI0%252FRounded.svg%3Falt%3Dmedia%26token%3D28b1c6cc-492e-43da-a8d8-230b9ac27b70&width=32&dpr=4&quality=100&sign=9960cbd3&sv=2"
+                    handleClick={() => handleZapperPaymentGateway()}
+                  />
+                </>
+              ) : (
+                <>
+                  <ConfirmAndPayButton
+                    imgUrl="https://cashfreelogo.cashfree.com/website/landings-cache/landings/logo-lightbg_3x.webp"
+                 
+                  />
+                </>
+              )}
+
               </>
             ) : (
               <></>
