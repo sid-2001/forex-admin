@@ -207,16 +207,6 @@ const ApplicantPage = () => {
     return applicantDetails?.firstName.charAt(0) + '' + applicantDetails?.lastName.charAt(0)
   }
 
-  // useEffect(() => {
-  //   if (!applicantId) return
-
-  //   applicant_service.getApplicantDetailsById(applicantId).then((data) => {
-  //     if (data?.kycId) {
-  //       setKycId(data.kycId)
-  //     }
-  //   })
-  // }, [applicantId])
-
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.APPLICANT}>
       <Box sx={{ width: '80vw' }}>
@@ -359,7 +349,6 @@ const ApplicantPage = () => {
               </Grid>
             </Grid>
             <Grid item xs={12} sm={3} sx={{ alignContent: 'top' }}>
-              {/* <LimitPieChart></LimitPieChart> */}
               {MemoizedPieChart}
             </Grid>
           </Grid>

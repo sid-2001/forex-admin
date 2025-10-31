@@ -6,7 +6,7 @@ class BeneficiaryService extends BaseService {
   async getBeneficiaryDetailsByBeneficiaryId(beneficiaryId: string): Promise<BeneficiaryFormData> {
     const url = `/api/applicant/beneficiary/${beneficiaryId}`
     try {
-      const { data } = await api1.get(url)
+      const data = await api1.get(url)
       return data
     } catch (err) {
       console.error('Error fetching  data:', err)

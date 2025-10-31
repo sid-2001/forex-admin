@@ -20,8 +20,8 @@ const BeneficiaryDetailPage = () => {
       return
     }
     try {
-      const data = await beneficiary_service.getBeneficiaryDetailsByBeneficiaryId(beneficiaryId)
-      setBeneficiaryData(data)
+      const response: any = await beneficiary_service.getBeneficiaryDetailsByBeneficiaryId(beneficiaryId)
+      setBeneficiaryData({ ...response.data, kycStatus: response?.kycStatus || '' })
     } catch (err) {
       console.error('Error fetching data')
     }
@@ -45,13 +45,15 @@ const BeneficiaryDetailPage = () => {
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
             Beneficiary Details
           </Typography>
-          <Button
-            variant="outlined"
-            onClick={() => navigate(`/sendmoney?applicantId=${beneficiaryData?.applicant}&beneficiaryId=${beneficiaryId}`)}
-            disabled={!helper_service.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
-          >
-            Add Transaction +
-          </Button>
+          {beneficiaryData?.kycStatus === 'v' && (
+            <Button
+              variant="outlined"
+              onClick={() => navigate(`/sendmoney?applicantId=${beneficiaryData?.applicant}&beneficiaryId=${beneficiaryId}`)}
+              disabled={!helper_service.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
+            >
+              Add Transaction +
+            </Button>
+          )}
         </Box>
         {/* Beneficiary Information Form */}
         <Box mt={2}>
