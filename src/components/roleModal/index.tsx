@@ -81,6 +81,9 @@ const RoleModal = ({
       getModuleList()
     }
   }, [initialData]);
+  useEffect(()=>{
+getModuleList()
+  },[])
 
   const handleModuleChange = (event: any) => {
     const newSelection = event.target.value;
@@ -198,6 +201,7 @@ const RoleModal = ({
       };
       const res = await user_service.editRoles(local_service.get_staff_id(), {...payload,roleId:roleId});
 
+
     } else {
       payload = {
         roleId,
@@ -226,7 +230,7 @@ const RoleModal = ({
 
     settype('success')
     setText("Succesfully Updated Staff")
-    setOpen(false)
+    setOpen(true)
     setSelectedRole(null)
 
     setTimeout(() => {

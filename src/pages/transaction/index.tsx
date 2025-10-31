@@ -1129,7 +1129,7 @@ console.log(transactionDetails)
                 filterMode="server"
                 paginationModel={paginationModel}
                 onPaginationModelChange={handlePaginationChange}
-                filterModel={filterModel}
+                filterModel={filterModel}ap
                 onFilterModelChange={handleFilterChange}
                 rowCount={1000}
                 loading={getLoadingState()}
