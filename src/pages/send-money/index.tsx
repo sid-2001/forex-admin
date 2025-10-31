@@ -123,6 +123,7 @@ const SendMoneyPage = () => {
   >([])
   const [selectedGateway, setSelectedGateway] = React.useState('')
   const [gatewaysList, setGatewaysList] = useState([])
+  const [availableLimit, setAvailablelimit] = useState('')
 
   const [url, seturl] = useState<string>('')
   const [searchParams] = useSearchParams()
@@ -267,15 +268,26 @@ const SendMoneyPage = () => {
     }
   }
 
+  const fetchComplianceLimitData = async (userId: any) => {
+    if (!userId) {
+      return
+    }
+    try {
+      const response = await applicant_service.getCompliance(userId)
+      setAvailablelimit(response?.availableLimit)
+    } catch (error) {
+      console.error('Error fetching applicant data:', error)
+    }
+  }
+
   useEffect(() => {
     setcommonloader(true)
     if (applicantId) {
       fetchApplicantData()
+      fetchComplianceLimitData(applicantId)
     } else {
       applicant_service.getApplicantDetalis().then((data) => {
-        let users
-
-        users = data.map((e) => {
+        let users = data.map((e) => {
           let benificiary_list = e.beneficiaryList.map((b) => {
             return {
               benificaryId: b.beneficiaryId,
@@ -691,7 +703,9 @@ const SendMoneyPage = () => {
     setSelectedUser(user)
     setSearchText(user.name) // Set selected user's name in TextField
     setFilteredUsers([])
+    fetchComplianceLimitData(user?.applicantId)
   }
+
   const theme: any = useTheme()
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.TRANSACTION_OUTWARD}>
@@ -961,11 +975,18 @@ const SendMoneyPage = () => {
                   variant="contained"
                   color="primary"
                   onClick={() => {
-                    setTabValue('2')
+                    if (amount < Number(availableLimit)) {
+                      setTabValue('2')
+                    } else {
+                      setOpen(true)
+                      settype('error')
+                      setText('Please enter an amount less than the available limit.')
+                      return
+                    }
                   }}
                   // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
                   sx={{ marginTop: '10px' }}
-                  disabled={!(selectedUser?.applicantId && userCountry && userCountry && category)}
+                  disabled={!(selectedUser?.applicantId && userCountry && category)}
                 >
                   {/*    amount: amount,
     // fcmToken: "",
