@@ -11,6 +11,7 @@ import { useRecoilState } from 'recoil'
 import { HelperService } from '@/helpers/helper'
 import { theme } from '@/contants/theme'
 import { useTheme } from '@emotion/react'
+import PhoneInput from 'react-phone-number-input'
 
 //@ts-ignore
 function sortAscending(arr, key) {
@@ -56,6 +57,7 @@ const UserAdd = () => {
   const [branchList, setBranchList] = useState([])
   const userCountry = local_service?.get_staff_country()
   const [loading, setLoading] = useState(true) // ✅ loader state
+  const[isbuttondisabled,setIsbuttondisabled]=useState(true)
 
   const { staffId } = useParams()
   const navigate = useNavigate()
@@ -264,10 +266,12 @@ const UserAdd = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: any; value: any }>) => {
     const { name, value } = e.target
+
     setStaffData((prev: any) => ({
       ...prev,
       [name]: value,
     }))
+    setIsbuttondisabled(false)
   }
 
   // const disableButton = () => {
@@ -279,6 +283,7 @@ const UserAdd = () => {
   // }
 
   const disableButton = () => {
+
     const requiredFields = [
       staffData?.staffFirstName,
       staffData?.staffLastName,
@@ -305,6 +310,7 @@ const UserAdd = () => {
 
     return !hasPermission || isAnyFieldEmpty
   }
+
   if (loading) {
     return (
       <Box
@@ -366,26 +372,7 @@ const UserAdd = () => {
               />
             </Grid>
 
-            <Grid item xs={12} sm={2}>
-              <label style={inputLabelStyle}>Branch</label>
-              <TextField
-                select
-                fullWidth
-                name="staffBranch"
-                label
-                value={staffData?.staffBranch || ''}
-                onChange={handleChange}
-                InputProps={{ readOnly: !isEditable }}
-                SelectProps={{ native: true }}
-              >
-                <option value="">-- Select Branch --</option>
-                {branchList.map((branch: any) => (
-                  <option key={branch.id} value={branch.branchCode}>
-                    {branch.city} ({branch.branchCode})
-                  </option>
-                ))}
-              </TextField>
-            </Grid>
+        
 
             <Grid item xs={12} sm={3}>
               <label style={inputLabelStyle}>Phone</label>
@@ -399,6 +386,7 @@ const UserAdd = () => {
                 fullWidth
                 type="text" // Use text instead of number to enforce length
               />
+              
             </Grid>
 
             <Grid item xs={12} sm={3}>
@@ -553,6 +541,26 @@ const UserAdd = () => {
                 InputProps={{ readOnly: !isEditable }}
               />
             </Grid>
+                <Grid item xs={12} sm={2}>
+              <label style={inputLabelStyle}>Branch</label>
+              <TextField
+                select
+                fullWidth
+                name="staffBranch"
+                label
+                value={staffData?.staffBranch || ''}
+                onChange={handleChange}
+                InputProps={{ readOnly: !isEditable }}
+                SelectProps={{ native: true }}
+              >
+                <option value="">-- Select Branch --</option>
+                {branchList.map((branch: any) => (
+                  <option key={branch.id} value={branch.branchCode}>
+                    {branch.city} ({branch.branchCode})
+                  </option>
+                ))}
+              </TextField>
+            </Grid>
 
           </Grid>
         </Box>
@@ -568,6 +576,7 @@ const UserAdd = () => {
               value={selectedRole}
               onChange={(e) => {
                 setSelectedRole(e.target.value)
+                setIsbuttondisabled(false)
                 user_service.getRole(e?.target?.value).then((data) => {
                   console.log(data)
                   const initialPermissions = data?.modules?.map(
@@ -631,7 +640,9 @@ const UserAdd = () => {
               ml: 2,
             }}
             variant="outlined"
-            disabled={disableButton()}
+            disabled={isbuttondisabled}
+
+            // disabled={disableButton()}
             onClick={() => {
               if (staffId) {
                 //@ts-ignore
@@ -643,7 +654,9 @@ const UserAdd = () => {
 
                   if (data) {
                     settype('success')
-                    setText('Succesfully Updated Staff')
+                    setText('Succesfully Operation ')
+                    navigate('/profile')
+
                   } else {
                     settype('error')
                     setText(data?.message)

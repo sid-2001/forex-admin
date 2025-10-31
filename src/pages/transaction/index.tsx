@@ -40,6 +40,7 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
 import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import React from 'react'
 import { GridColDef, GridToolbar, GridPaginationModel, GridFilterModel } from '@mui/x-data-grid'
+import StageTimeline from '@/components/stageTimeLine'
 
 const applicant_service = new ApplicantService()
 const transaction_Service = new TransactionService()
@@ -308,6 +309,33 @@ const TransactionListing = () => {
     }
   
 
+
+    const stageDetails = [
+  {
+    stage: "INITIATED",
+    status: "COMPLETED",
+    timestamp: "2025-10-28T09:42:18Z",
+    message: "Payment request created.",
+  },
+  {
+    stage: "PROCESSING",
+    status: "FAILED",
+    timestamp: "2025-10-28T09:43:00Z",
+    message: "Payment failed due to insufficient funds.",
+  },
+  {
+    stage: "VERIFIED",
+    status: "SKIPPED",
+    timestamp: null,
+    message: "Verification not attempted as payment failed.",
+  },
+  {
+    stage: "COMPLETED",
+    status: "FAILED",
+    timestamp: "2025-10-28T09:43:50Z",
+    message: "Transaction marked as failed.",
+  },
+];
 
 
 
@@ -1101,7 +1129,7 @@ console.log(transactionDetails)
                 filterMode="server"
                 paginationModel={paginationModel}
                 onPaginationModelChange={handlePaginationChange}
-                filterModel={filterModel}
+                filterModel={filterModel}ap
                 onFilterModelChange={handleFilterChange}
                 rowCount={1000}
                 loading={getLoadingState()}
@@ -1162,6 +1190,12 @@ console.log(transactionDetails)
             </Typography>
 
             <Chip label={transactionDetails?.status} color="warning" sx={{ marginBottom: 2 }} />
+
+
+                  <Grid container spacing={2} mb={2} p={3}>
+              
+               <StageTimeline stageDetails={stageDetails} />
+            </Grid>
 
             {/* Transaction Details Section */}
             <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>
@@ -1246,6 +1280,7 @@ console.log(transactionDetails)
               </Grid>
             </Grid>
 
+
             <Divider sx={{ my: 2 }} />
             <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2, color: theme.palette.primary.main }}>
               Applicant Details
@@ -1272,6 +1307,11 @@ console.log(transactionDetails)
                 />
               </Grid>
             </Grid>
+
+
+
+
+
             {trxStatus == 'DRAFT' || trxStatus == 'PENDING' ? (
               <>
                 <Button

@@ -13,6 +13,14 @@ const static_list = [
     listname: 'Postal Codes',
     updatePrimaryKey: 'id',
   },
+
+    {
+    name: 'postal-code',
+    'primary-key': 'id',
+    api: '/api/static-table/postalcode/action',
+    listname: 'Postal Codes',
+    updatePrimaryKey: 'id',
+  },
   {
     name: 'forex-gateway',
     'primary-key': 'id',
@@ -47,6 +55,13 @@ const static_list = [
     api: '/api/static-table/forex/bank/action',
     listname: 'Forex Bank',
     updatePrimaryKey: 'bankCode',
+  },
+    {
+    name: "Branches",
+    'primary-key': 'bankCode',
+    api: '/api/static-table/forex/branch/action',
+    listname: 'Forex Branch',
+    updatePrimaryKey: 'id',
   },
 ]
 export default static_list

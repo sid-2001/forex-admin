@@ -16,6 +16,9 @@ import DownloadIcon from '@mui/icons-material/Download'
 import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import { Edit } from '@mui/icons-material'
+import { useRecoilState } from 'recoil'
+import { alertState, alertTextState, alertTypeState } from '@/states/state'
 const user_service = new UserService()
 const helper = new HelperService()
 const local_service = new LocalStorageService()
@@ -146,6 +149,10 @@ const ModuleTable: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedModule, setSelectedModule] = useState<any>({})
 
+    const [open, setOpen] = useRecoilState(alertState)
+    const [text, setText] = useRecoilState(alertTextState)
+    const [type, settype] = useRecoilState(alertTypeState)
+
   const MODULE_COLUMNS = [
     {
       field: 'moduleName',
@@ -183,6 +190,33 @@ const ModuleTable: React.FC = () => {
         return <div>{params.row.moduleStatus}</div>
       },
     },
+    {
+        field: 'actions',
+        headerName: 'Actions',
+        flex: 1,
+        headerClassName: 'super-app-theme--header',
+        renderCell: (params:any) => (
+          <Button
+            variant="outlined"
+            color="primary"
+            size="small"
+            startIcon={<Edit />}
+            onClick={() => {
+              
+              
+              setSelectedModule( params.row)
+              setIsModalOpen(true)
+              
+
+
+    
+
+            }}
+          >
+            Edit
+          </Button>
+        ),
+      }
   ]
 
   useEffect(() => {
@@ -206,7 +240,17 @@ const ModuleTable: React.FC = () => {
       setModuleData([...moduleData, data])
     }
     setIsModalOpen(false)
+settype('success')
+setText("Updated Succesfully")
+setOpen(true)
+
+setTimeout(() => {
+  window.location.reload()
+}, 1200);
+  
+
     setSelectedModule({})
+
   }
   const theme = useTheme()
   const CustomToolbar = ({ rows, columns }: any) => {

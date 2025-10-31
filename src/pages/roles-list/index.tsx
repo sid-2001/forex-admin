@@ -19,6 +19,7 @@ import DownloadIcon from '@mui/icons-material/Download'
 import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import { Edit } from '@mui/icons-material'
 
 interface Role {
   roleId: string | number
@@ -55,6 +56,33 @@ const RoleManagementPage: React.FC = () => {
   const columns: GridColDef[] = [
     { field: 'roleDescription', headerName: 'Role Name', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'roleStatus', headerName: 'Status', flex: 1, headerClassName: 'super-app-theme--header' },
+
+    {
+    field: 'actions',
+    headerName: 'Actions',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+    renderCell: (params) => (
+      <Button
+        variant="outlined"
+        color="primary"
+        size="small"
+        startIcon={<Edit />}
+        onClick={() => (setSelectedRole( params.row))}
+      >
+        Edit
+      </Button>
+    ),
+  },
+  {
+    field: 'Total Modules',
+    headerName: 'Total Modules',
+    flex: 1,
+    headerClassName: 'super-app-theme--header',
+    renderCell: (params) => (
+      params?.row?.modules?.length
+    ),
+  },
   ]
 
   const getVisibleFilteredRows = () => {

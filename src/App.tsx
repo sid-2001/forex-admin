@@ -45,6 +45,7 @@ import SarbErrorsListing from './pages/sarb-errors'
 import Loyality from './pages/loyality'
 import AuditLogTable from './pages/audit-log'
 import FieldValidationTable from './pages/field-validation'
+import ForexBranchesPage from './pages/branches'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -166,7 +167,7 @@ function App() {
               <Route path="sarberrors" element={<SarbErrorsListing />} />
               <Route path="audit-logs" element={<AuditLogTable />} />
               <Route path="field-validation" element={<FieldValidationTable />} />
-
+  <Route path="branches" element={<ForexBranchesPage />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 

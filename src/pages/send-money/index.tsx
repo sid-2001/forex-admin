@@ -535,74 +535,9 @@ const SendMoneyPage = () => {
         setcommonloader(false)
 
         navigate('/transaction')
-        //   transaction_service.createPayfastTransaction(data?.data,((Number(amount)+  Number(selectedTimeChange)+ Number(gatewayCharge)))).then((res)=>{
-        //     console.log(res)
-        //  seturl(res.url)
-
-        //  if(res){
-        //   settype('success')
-        //   setText("Tnansaction created Succesfully")
-
-        //  }else{
-        //   settype('error')
-        //   setText("Tnansaction created false")
-
-        //  }
-
-        //  setOpen(true)
-        // setcommonloader(false)
-
-        // window.open(JSON.parse(res.data)?.url, "_blank", "noopener,noreferrer");
-
-        // })
+  
       }
-      //  if (data.id) {
-      //   // HTML content for the new window
-      //   const htmlContent = `
-      //     <!DOCTYPE html>
-      //     <html lang="en">
-      //     <head>
-      //         <meta charset="UTF-8">
-      //         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      //         <title>Peach Payments</title>
-      //         <script src="https://test.oppwa.com/v1/paymentWidgets.js?checkoutId=${data.id}"></script>
-      //     </head>
-      //     <body>
-      //         <h2>Complete Your Payment</h2>
-      //         <form action=${VITE_APP_URL}/transaction/create class="paymentWidgets">
-      //             VISA MASTER
-      //         </form>
-      //         <button id="closeBtn">Close</button>
-      //         <script>
-      //           document.getElementById('closeBtn').addEventListener('click', function() {
-      //             window.close();
-      //           });
-      //         </script>
-      //     </body>
-      //     </html>
-      //   `;
-
-      //   // Open a new window and write the HTML content
-      //   const paymentWindow = window.open("", "_blank", "width=600,height=800");
-      //   if (paymentWindow) {
-      //     paymentWindow.document.open();
-      //     paymentWindow.document.write(htmlContent);
-      //     paymentWindow.document.close();
-
-      //     // Check if the window is closed
-      //     const interval = setInterval(() => {
-      //       if (paymentWindow.closed) {
-      //         clearInterval(interval);
-      //         navigate('/transaction/create'); // Navigate when the window is closed
-
-      //       }
-
-      //     }, 50);
-
-      //   } else {
-      //     alert("Popup blocked! Please allow popups for this site.");
-      //   }
-      // }
+     
 
       if (data.id) {
         // HTML content for the current tab
@@ -662,20 +597,7 @@ const SendMoneyPage = () => {
 
   const handleCashfreePaymentClick = async () => {
     try {
-      //   const txnResponse = await transaction_service.createTransaction(transactionPayload)
-      //   debugger;
-      // if (txnResponse?.status) {
-      //   setCommonLoader(true)
-      //   if (txnResponse?.data) {
-      //     settype('success')
-      //     setText('Transaction created Succesfully')
-      //   } else {
-      //     settype('error')
-      //     setText('Failed to Create Transaction')
-      //   }
-      //   setOpen(true)
-
-      // console.log(response)
+     
 
       const { data } = await transaction_service.createDealcover(dealCoverPayload)
 
@@ -768,34 +690,7 @@ const SendMoneyPage = () => {
           }
           window.location.replace(JSON.parse(data)?.redirect_url)
 
-          //     const htmlContent = `<!DOCTYPE html>
-          // <html lang="en">
-          // <head>
-          //     <meta charset="UTF-8">
-          //     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          //     <title>Cashfree Checkout</title>
-          //     <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
-          // </head>
-          // <body>
-          //     <script>
-          //         document.addEventListener("DOMContentLoaded", function () {
-          //             const cashfree = Cashfree({ mode: "sandbox" });
-
-          //             let checkoutOptions = {
-          //                 paymentSessionId: "${payment_session_id}",
-          //                 redirectTarget: "_self",
-          //             };
-
-          //             // Automatically trigger checkout when page loads
-          //             cashfree.checkout(checkoutOptions);
-          //         });
-          //     </script>
-          // </body>
-          // </html>`
-
-          //     document.open()
-          //     document.write(htmlContent)
-          //     document.close()
+         
         }
       }
     } catch (error) {
@@ -997,33 +892,7 @@ const SendMoneyPage = () => {
                   </Grid>
                 </Grid>
                 <Grid container spacing={2} marginBottom={2}>
-                  {/* <Grid
-                    item
-                    xs={12}
-                    md={12}
-                    sx={{
-                      '& .super-app-theme--header': {
-                        backgroundColor: '#005099',
-                        color: 'white',
-                      },
-                    }}
-                  >
-                    {selectedCountry && amount > 0 ? (
-                      <>
-                        <DataGrid
-                          rows={TimechargesRows}
-                          columns={chargesTableColumns}
-                          //@ts-ignore
-                          pagination={false}
-                          disableSelectionOnClick
-                          // hideFooterSelectedRowCount
-                          hideFooterPagination={true}
-                        />
-                      </>
-                    ) : (
-                      <></>
-                    )}
-                  </Grid> */}
+                  
 
                   {selectedGateway ? (
                     <>
@@ -1210,10 +1079,7 @@ const SendMoneyPage = () => {
                       <TableCell>Platform Charges</TableCell>
                       <TableCell align="right">{selectedTimeChange ? selectedTimeChange : 0 + ' ' + sourceCountry}</TableCell>
                     </TableRow>
-                    {/* <TableRow>
-                    <TableCell>Gateway Charges</TableCell>
-                    <TableCell align="right">{ gatewayCharge +" " +sourceCountry}</TableCell>
-                  </TableRow> */}
+                  
                     <TableRow>
                       <TableCell>
                         <strong>Net Payable</strong>
@@ -1227,19 +1093,13 @@ const SendMoneyPage = () => {
               </TableContainer>
               {userCountry === 'ZA' ? (
                 <>
-                  {/* <ConfirmAndPayButton
-                    imgUrl="https://cdn.prod.website-files.com/6282d4840afd19e1afa62e70/6491490c213c45a9d600d387_ozow_small_xs.png"
-                    handleClick={() => handleOzowPaymentClick()}
-                  /> */}
+              
 
                   <ConfirmAndPayButton
                     imgUrl="https://media.licdn.com/dms/image/v2/D4D0BAQFafwhXng3fkQ/company-logo_200_200/company-logo_200_200/0/1730292941961/adumo_online_logo?e=2147483647&v=beta&t=agng3yUCjdKlMYt76saZvTJHFC3Tx1BC9uaGlVTLh4c"
                     handleClick={() => handleAdumoPaymentClick()}
                   />
-                  {/* <ConfirmAndPayButton
-                    imgUrl="https://www.peachpayments.com/hubfs/peachpayments-logo.svg"
-                    handleClick={() => handlePeachPaymentsClick()}
-                  /> */}
+                  
 
                   <ConfirmAndPayButton
                     imgUrl="https://zapper.gitbook.io/zapper-platform/~gitbook/image?url=https%3A%2F%2F3889691800-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F-M4tIVi0eT23PM2ng2_g%252Ficon%252Ffg6xU4qKsy5lQJ83OvI0%252FRounded.svg%3Falt%3Dmedia%26token%3D28b1c6cc-492e-43da-a8d8-230b9ac27b70&width=32&dpr=4&quality=100&sign=9960cbd3&sv=2"
