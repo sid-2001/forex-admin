@@ -142,7 +142,7 @@ const SendMoneyPage = () => {
     kyc_service.getCharges(userCountry, sendCountry, amount, 0).then(({ data }) => {
       console.log(data)
       if (data) {
-        setSelectedTimeCharge(data.minimumCharges)
+        setSelectedTimeCharge(data?.calculatedCharge)
       } else {
         setSelectedTimeCharge(0)
       }
