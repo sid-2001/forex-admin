@@ -10,7 +10,7 @@ const AuditLogTable: React.FC = () => {
   const [auditLogData, setAuditLogData] = useState([])
   const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
     page: 0,
-    pageSize: 20,
+    pageSize: 1000,
   })
   const [rowCount, setRowCount] = useState(0)
   const [logType, setlogType] = useState('transaction_audit_log')
