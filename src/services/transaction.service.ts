@@ -41,6 +41,16 @@ export class TransactionService extends BaseService {
     }
   }
 
+    async getInwardTransactionFilted(page:any,size:any,  receving_country: any): Promise<Array<TransactionInward>> {
+    try {
+      const url = `/api/transactions/transaction-inward/receivingCountry/${receving_country}?page=${page}&size=${size}`
+      const response = await api1.get(url)
+      return response?.data || []
+    } catch (e) {
+      throw new Error(e as any)
+    }
+  }
+
   async getLoyaltyMasterData(): Promise<any> {
     const url = '/api/transactions/loyalty-master'
     try {

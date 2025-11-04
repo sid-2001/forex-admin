@@ -339,74 +339,6 @@ const TransactionListing = () => {
 
 
 
-
-
-
-  // const handleCashfreePaymentClick = async () => {
-  //   try {
-  
-
-  //     const { data } = await transaction_service.createDealcover(dealCoverPayload)
-
-  //     if (data?.dealNumber) {
-  //       const txnResponse = await transaction_service.createTransaction(transactionPayload)
-  //       if (txnResponse?.status) {
-  //         setCommonLoader(true)
-  //         if (txnResponse?.data) {
-  //           settype('success')
-  //           setText('Transaction Redicect Success')
-  //         } else {
-  //           settype('error')
-  //           setText('Failed to Redircet Transaction')
-  //         }
-  //         setOpen(true)
-  //         setcommonloader(false)
-  //         // navigate('/transaction')
-
-  //         const response = await transaction_service.createOrder({ amount: transactionPayload?.amount, transactionId: txnResponse?.data })
-  //         const { payment_session_id } = response.data
-
-  //         if (!payment_session_id) {
-  //           alert('Failed to get session ID')
-  //           return
-  //         }
-
-  //         const htmlContent = `<!DOCTYPE html>
-  //     <html lang="en">
-  //     <head>
-  //         <meta charset="UTF-8">
-  //         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  //         <title>Cashfree Checkout</title>
-  //         <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
-  //     </head>
-  //     <body>
-  //         <script>
-  //             document.addEventListener("DOMContentLoaded", function () {
-  //                 const cashfree = Cashfree({ mode: "sandbox" });
-
-  //                 let checkoutOptions = {
-  //                     paymentSessionId: "${payment_session_id}",
-  //                     redirectTarget: "_self",
-  //                 };
-
-  //                 // Automatically trigger checkout when page loads
-  //                 cashfree.checkout(checkoutOptions);
-  //             });
-  //         </script>
-  //     </body>
-  //     </html>`
-
-  //         document.open()
-  //         document.write(htmlContent)
-  //         document.close()
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error('Payment initiation failed:', error)
-  //     alert('Payment failed. Please try again.')
-  //   }
-  // }
-
     const handleAdumoPaymentClick = async () => {
     try {
     
@@ -634,16 +566,26 @@ console.log(transactionDetails)
   const flow = queryParams.get('flow')
 
   // pagination state
+
   const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
     page: 0,
     pageSize: 20,
   })
+
+  const [paginationInwardModel, setPaginationInwardModel] = React.useState<GridPaginationModel>({
+    page: 0,
+    pageSize: 20,
+  })
+
 
   // filter state
   const [filterModel, setFilterModel] = React.useState<GridFilterModel>({
     items: [],
   })
 
+    const [inwardfilterModel, setInwardFilterModel] = React.useState<GridFilterModel>({
+    items: [],
+  })
   // Fetch API whenever pagination or filter changes
   React.useEffect(() => {
     const fetchData = async () => {
@@ -669,10 +611,42 @@ console.log(transactionDetails)
     fetchData()
   }, [paginationModel, filterModel])
 
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { page, pageSize } = paginationInwardModel
+
+        // build filter query (basic example: single filter only)
+        let filterQuery = ''
+        if (filterModel.items.length > 0) {
+          const f = filterModel.items[0]
+          if (f.value) {
+            filterQuery = `&filterField=${f.field}&filterValue=${f.value}`
+          }
+        }
+
+
+        getInwardTransactionListFilterd(page,pageSize)
+      } catch (err) {
+        console.error('Failed to fetch transactions', err)
+      } finally {
+        // setLoading(false);
+      }
+    }
+
+    fetchData()
+  }, [paginationInwardModel, filterModel])
+
+
   // handle page or pageSize change
   const handlePaginationChange = (newModel: GridPaginationModel) => {
     setPaginationModel(newModel)
   }
+    const handleInwardPaginationChange = (newModel: GridPaginationModel) => {
+    setPaginationInwardModel(newModel)
+  }
+
 
   // handle filter changes
   const handleFilterChange = (newFilterModel: GridFilterModel) => {
@@ -786,6 +760,15 @@ console.log(transactionDetails)
     }
   }, [])
 
+    const getInwardTransactionListFilterd = useCallback(async (page:any,size:any) => {
+    try {
+      const transactions = await transaction_Service.getInwardTransactionFilted(page,size,userCountry)
+      setInboundTransaction(transactions) // transactions is already the array
+    } catch (error) {
+      console.log(error)
+    }
+  }, [userCountry])
+
   const getInwardTransactionList = useCallback(async () => {
     try {
       const transactions = await transaction_Service.getInwardTransaction(userCountry)
@@ -874,7 +857,7 @@ console.log(transactionDetails)
       setTransactionType(flow)
     }
     getApplicantDetails()
-    getInwardTransactionList()
+    getInwardTransactionListFilterd(1,20)
     //getAllTransactions(0, 20)
     setGivenTransaction(queryParams.get('id'))
   }, [])
@@ -1087,15 +1070,18 @@ console.log(transactionDetails)
                 //@ts-ignore
                 columns={transactionType === 'inwards' ? inward_columns : columns_outward}
                 getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
-                // pageSizeOptions={[10, 20, 50]}
-                // paginationMode="server"
-                // filterMode="server"
-                // paginationModel={paginationModel}
-                // onPaginationModelChange={handlePaginationChange}
-                // filterModel={filterModel}
-                // onFilterModelChange={handleFilterChange}
-                // rowCount={1000}
+                pageSizeOptions={[10, 20, 50]}
+
+                paginationMode="server"
+                filterMode="server"
+                paginationModel={paginationInwardModel}
+                onPaginationModelChange={handleInwardPaginationChange}
+                filterModel={filterModel}
+                onFilterModelChange={handleFilterChange}
+                rowCount={1000}
+                
                 loading={getLoadingState()}
+
                 columnVisibilityModel={columnVisibilityModel}
                 onColumnVisibilityModelChange={setColumnVisibilityModel}
                 //@ts-ignore
@@ -1129,7 +1115,7 @@ console.log(transactionDetails)
                 filterMode="server"
                 paginationModel={paginationModel}
                 onPaginationModelChange={handlePaginationChange}
-                filterModel={filterModel}ap
+                filterModel={filterModel}
                 onFilterModelChange={handleFilterChange}
                 rowCount={1000}
                 loading={getLoadingState()}

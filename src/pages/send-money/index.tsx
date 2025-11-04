@@ -442,15 +442,16 @@ const SendMoneyPage = () => {
     applicantId: selectedUser?.applicantId,
     destinationCountry: selectedCountry,
     destinationCurrency: userCountry === 'ZA' ? 'INR' : 'ZAR',
-    forex: forexRate,
-
+    forex: forexRate?forexRate:4.5,
+      charges: selectedTimeChange,
+      total: Number(amount) + Number(selectedTimeChange) + Number(gatewayCharge),
     gatewayId: 'IMPGW004',
     gatewayStatus: 'Pending',
-    selectedTimeMethod: {
-      time: '2 hours',
-      charges: 50,
-      total: 200,
-    },
+    // selectedTimeMethod: {
+    //   time: '2 hours',
+    //   charges: selectedTimeChange,
+    //   total: Number(amount) + Number(selectedTimeChange) + Number(gatewayCharge),
+    // },
     sourceCurrency: userCountry === 'ZA' ? 'ZAR' : 'INR',
     sourceCountry: userCountry,
     //@ts-ignore

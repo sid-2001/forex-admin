@@ -12,9 +12,34 @@ const AuditLogTable: React.FC = () => {
     page: 0,
     pageSize: 20,
   })
+  
+    // filter state
+    const [filterModel, setFilterModel] = React.useState<GridFilterModel>({
+      items: [],
+    })
+  
+ 
   const [rowCount, setRowCount] = useState(0)
   const [logType, setlogType] = useState('transaction_audit_log')
   const [isLoading, setIsLoading] = useState(false)
+
+  // handle filter changes
+    const handleFilterChange = (newFilterModel: GridFilterModel) => {
+      const filter = newFilterModel.items[0]
+      if (filter.field == 'id' && filter.value) {
+        try {
+       
+        } catch (err) { }
+      }
+      console.log(filter)
+      // setFilterModel(newFilterModel);
+    }
+  
+    const handleResetFilter = () => {
+      setFilterModel({ items: [] })
+   
+    }
+  
   const auditLogService = new AuditService()
 
   const auditLogTypes = [
@@ -165,11 +190,20 @@ const AuditLogTable: React.FC = () => {
           //     paginationModel: { pageSize: 20, page: 0 },
           //   },
           // }}
-          rowCount={rowCount}
-          paginationMode="server"
-          paginationModel={paginationModel}
-          onPaginationModelChange={handlePaginationChange}
-          pageSizeOptions={[10, 20, 30, 40, 50]}
+
+               pageSizeOptions={[10, 20, 50]}
+                paginationMode="server"
+                filterMode="server"
+                paginationModel={paginationModel}
+                onPaginationModelChange={handlePaginationChange}
+                filterModel={filterModel}
+                onFilterModelChange={handleFilterChange}
+                rowCount={1000}
+                // loading={getLoadingState()}
+         
+   
+      
+       
           loading={isLoading}
           slots={{
             loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
