@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
 import { Box, Typography, Button, Modal, Grid, TextField, FormControl, MenuItem, Select, FormHelperText, InputLabel } from '@mui/material'
 import { HelperService } from '@/helpers/helper'
-import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { FieldValidationService } from '@/services/fieldvalidstion.service'
 import { useTheme } from '@emotion/react'
 import LoaderUI from '@/components/loader/loader'
+import HasPermission from '@/components/permissionWrapper'
 
 const helper = new HelperService()
 const local_service = new LocalStorageService()
@@ -210,7 +210,17 @@ const AddUpdateFieldValidationDialog: React.FC<any> = ({ action = 'Add', handleC
             </Grid>
           </Box>
           <Box sx={{ mt: 2, display: 'flex', alignItems: 'flex-end' }}>
-            <Button variant="contained" color="primary" type="submit" sx={{ mt: 2 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              disabled={
+                action === 'Update'
+                  ? !helper.checkUserHasPermission(local_service.get_modules()?.FIELD_VALIDATION, 'canUpdate')
+                  : !helper.checkUserHasPermission(local_service.get_modules()?.FIELD_VALIDATION, 'canCreate')
+              }
+              sx={{ mt: 2 }}
+            >
               {action}
             </Button>
 
@@ -296,80 +306,80 @@ const FieldValidationTable: React.FC = () => {
   const theme = useTheme()
 
   return (
-    // <HasPermission permission={'canRead'} module={local_service.get_modules()?.MODULE}>
-    <Box sx={{ width: '80vw', height: '70vh' }}>
-      <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'}>
-        <Box>
-          <Typography variant="h4" gutterBottom>
-            <strong>Field Validations</strong>
-          </Typography>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.FIELD_VALIDATION}>
+      <Box sx={{ width: '80vw', height: '70vh' }}>
+        <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'}>
+          <Box>
+            <Typography variant="h4" gutterBottom>
+              <strong>Field Validations</strong>
+            </Typography>
+          </Box>
+          <Box>
+            <Button
+              variant="contained"
+              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.FIELD_VALIDATION, 'canCreate')}
+              onClick={() => {
+                setIsModalOpen(true)
+              }}
+            >
+              Add Field Validation
+            </Button>
+          </Box>
         </Box>
-        <Box>
-          <Button
-            variant="contained"
-            // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MODULE, 'canCreate')}
-            onClick={() => {
-              setIsModalOpen(true)
-            }}
-          >
-            Add Field Validation
-          </Button>
-        </Box>
-      </Box>
-      <DataGrid
-        sx={{
-          width: '100%',
-          '& .MuiDataGrid-columnHeaders': {
-            '& .super-app-theme--header': {
-              backgroundColor: '#005099',
-              color: 'white',
+        <DataGrid
+          sx={{
+            width: '100%',
+            '& .MuiDataGrid-columnHeaders': {
+              '& .super-app-theme--header': {
+                backgroundColor: '#005099',
+                color: 'white',
+              },
             },
-          },
-          '& .MuiDataGrid-columnHeaderTitle': {
-            fontWeight: 'bold',
-          },
-          '& .MuiDataGrid-cell': {
-            fontSize: '14px',
-          },
-          '& .super-app-theme--header': {
-            fontSize: '16px',
-          },
-        }}
-        columns={FIELD_COLUMNS}
-        rows={fieldValidationsData}
-        //@ts-ignore
-        initialState={{
-          pagination: {
-            paginationModel: { pageSize: 20, page: 0 },
-          },
-        }}
-        pageSizeOptions={[10]}
-        loading={fieldValidationsData.length === 0}
-        slots={{
-          loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
-        }}
-        getRowId={(row: any) => row.id} // Ensure proper row ID handling
-        onRowClick={(params) => {
-          setIsModalOpen(true)
-          setSelectedField(params.row)
-        }}
-      />
-      {isModalOpen && (
-        <AddUpdateFieldValidationDialog
-          isOpen={isModalOpen}
-          handleClose={() => {
-            setIsModalOpen(false)
-            setSelectedField({})
+            '& .MuiDataGrid-columnHeaderTitle': {
+              fontWeight: 'bold',
+            },
+            '& .MuiDataGrid-cell': {
+              fontSize: '14px',
+            },
+            '& .super-app-theme--header': {
+              fontSize: '16px',
+            },
           }}
-          action={selectedField?.id ? 'Update' : 'Add'}
-          selectedFieldData={selectedField?.id ? selectedField : {}}
-          handleSubmit={(response: any) => {
-            handleSavedFieldValidation(response)
+          columns={FIELD_COLUMNS}
+          rows={fieldValidationsData}
+          //@ts-ignore
+          initialState={{
+            pagination: {
+              paginationModel: { pageSize: 20, page: 0 },
+            },
+          }}
+          pageSizeOptions={[10]}
+          loading={fieldValidationsData.length === 0}
+          slots={{
+            loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
+          }}
+          getRowId={(row: any) => row.id} // Ensure proper row ID handling
+          onRowClick={(params) => {
+            setIsModalOpen(true)
+            setSelectedField(params.row)
           }}
         />
-      )}
-    </Box>
-    // </HasPermission>
+        {isModalOpen && (
+          <AddUpdateFieldValidationDialog
+            isOpen={isModalOpen}
+            handleClose={() => {
+              setIsModalOpen(false)
+              setSelectedField({})
+            }}
+            action={selectedField?.id ? 'Update' : 'Add'}
+            selectedFieldData={selectedField?.id ? selectedField : {}}
+            handleSubmit={(response: any) => {
+              handleSavedFieldValidation(response)
+            }}
+          />
+        )}
+      </Box>
+    </HasPermission>
   )
 }
 

@@ -6,7 +6,6 @@ import {
   Drawer,
   Grid,
   TextField,
-  Divider,
   Chip,
   IconButton,
   Button,
@@ -14,11 +13,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Card,
-  CardContent,
-  Stack,
   Switch,
-  FormControlLabel
+  FormControlLabel,
 } from '@mui/material'
 import { DataGrid, GridColDef, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton } from '@mui/x-data-grid'
 import { styled } from '@mui/material/styles'
@@ -32,6 +28,10 @@ import DownloadIcon from '@mui/icons-material/Download'
 import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import HasPermission from '@/components/permissionWrapper'
+import { LocalStorageService } from '@/helpers/local-storage-service'
+import { HelperService } from '@/helpers/helper'
+
 const StyledDataGrid = styled(DataGrid)({
   '& .MuiDataGrid-columnHeaders': {
     backgroundColor: '#1976d2',
@@ -61,7 +61,8 @@ const Loyality = () => {
   const [open, setOpen] = useRecoilState(alertState)
   const [text, setText] = useRecoilState(alertTextState)
   const [type, settype] = useRecoilState(alertTypeState)
-
+  const local_service = new LocalStorageService()
+  const helper = new HelperService()
   // DataGrid state
   const [filterModel, setFilterModel] = useState<any>({ items: [] })
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<any>({})
@@ -77,7 +78,7 @@ const Loyality = () => {
     tierRetentionAmount: 0,
     timePeriodDays: 0,
     status: true,
-    countryCode: 'IN'
+    countryCode: 'IN',
   })
 
   const fetchLoyaltyData = async () => {
@@ -86,9 +87,9 @@ const Loyality = () => {
       setLoyaltyRecords(data)
     } catch (error) {
       console.error('Failed to fetch loyalty data:', error)
-      setText("Error fetching loyalty data")
+      setText('Error fetching loyalty data')
       setOpen(true)
-      settype("error")
+      settype('error')
     }
   }
 
@@ -125,7 +126,7 @@ const Loyality = () => {
         tierRetentionAmount: record.tierRetentionAmount,
         timePeriodDays: record.timePeriodDays,
         status: record.status,
-        countryCode: record.countryCode
+        countryCode: record.countryCode,
       })
       setIsEditMode(true)
     } else {
@@ -140,7 +141,7 @@ const Loyality = () => {
         tierRetentionAmount: 0,
         timePeriodDays: 0,
         status: true,
-        countryCode: 'IN'
+        countryCode: 'IN',
       })
       setIsEditMode(false)
     }
@@ -153,9 +154,9 @@ const Loyality = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }))
   }
 
@@ -163,20 +164,20 @@ const Loyality = () => {
     try {
       if (isEditMode) {
         await service.updateLoyaltyTier(formData.id, formData)
-        setText("Loyalty tier updated successfully")
+        setText('Loyalty tier updated successfully')
       } else {
         await service.createLoyaltyTier(formData)
-        setText("Loyalty tier created successfully")
+        setText('Loyalty tier created successfully')
       }
       setOpen(true)
-      settype("success")
+      settype('success')
       closeDialog()
       fetchLoyaltyData() // Refresh the data
     } catch (error) {
       console.error('Failed to save loyalty tier:', error)
-      setText("Error saving loyalty tier")
+      setText('Error saving loyalty tier')
       setOpen(true)
-      settype("error")
+      settype('error')
     }
   }
 
@@ -194,12 +195,7 @@ const Loyality = () => {
       headerName: 'Status',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => (
-        <Chip
-          label={params.value ? 'Active' : 'Inactive'}
-          color={params.value ? 'success' : 'error'}
-        />
-      )
+      renderCell: (params: any) => <Chip label={params.value ? 'Active' : 'Inactive'} color={params.value ? 'success' : 'error'} />,
     },
     { field: 'countryCode', headerName: 'Country Code', flex: 1, headerClassName: 'super-app-theme--header' },
     {
@@ -223,9 +219,7 @@ const Loyality = () => {
   const handleExportCSV = () => {
     const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false)
     const headers = visibleCols.map((col) => col.headerName).join(',')
-    const rows = loyaltyRecords.map(row =>
-      visibleCols.map(col => row[col.field] ?? '').join(',')
-    )
+    const rows = loyaltyRecords.map((row) => visibleCols.map((col) => row[col.field] ?? '').join(','))
     const csv = [headers, ...rows].join('\n')
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
@@ -238,13 +232,13 @@ const Loyality = () => {
   const handleExportPDF = () => {
     //@ts-ignore
     const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false)
-    const headers = visibleCols.map(col => col.headerName)
-    const data = loyaltyRecords.map(row => visibleCols.map(col => row[col.field] ?? ''))
+    const headers = visibleCols.map((col) => col.headerName)
+    const data = loyaltyRecords.map((row) => visibleCols.map((col) => row[col.field] ?? ''))
     const doc = new jsPDF({ unit: 'pt' })
     doc.setFontSize(14)
     doc.text('Loyalty Tiers Report', 40, 40)
     autoTable(doc, {
-       //@ts-ignore
+      //@ts-ignore
       head: [headers],
       body: data,
       startY: 60,
@@ -273,254 +267,259 @@ const Loyality = () => {
 
   return (
     <Box sx={{ width: '80vw', height: '70vh', p: 2 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h4">
-          <strong>Loyalty Tiers</strong>
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<Add />}
-          onClick={() => openDialog()}
+      <HasPermission permission={'canRead'} module={local_service.get_modules()?.LOYALTY}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h4">
+            <strong>Loyalty Tiers</strong>
+          </Typography>
+          <Button
+            variant="contained"
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.LOYALTY, 'canCreate')}
+            startIcon={<Add />}
+            onClick={() => openDialog()}
+          >
+            Add Tier
+          </Button>
+        </Box>
+
+        <StyledDataGrid
+          rows={loyaltyRecords}
+          columns={columns}
+          filterModel={filterModel}
+          onFilterModelChange={(model) => setFilterModel(model)}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
+          initialState={{ pagination: { paginationModel: { pageSize: 20 } } }}
+          pageSizeOptions={[10, 20, 50]}
+          disableRowSelectionOnClick
+          getRowId={(row) => row.id}
+          slots={{
+            toolbar: CustomToolbar,
+            loadingOverlay: LoaderUI.LoadingOverlay,
+          }}
+          loading={isLoading}
+          disableColumnMenu
+        />
+        {/* Detail Drawer */}
+        <Drawer
+          anchor="right"
+          open={isDrawerOpen}
+          onClose={closeDrawer}
+          sx={{
+            '& .MuiDrawer-paper': {
+              width: '30%',
+              padding: 2,
+            },
+          }}
         >
-          Add Tier
-        </Button>
-      </Box>
-
-       <StyledDataGrid
-        rows={loyaltyRecords}
-        columns={columns}
-        filterModel={filterModel}
-        onFilterModelChange={(model) => setFilterModel(model)}
-        columnVisibilityModel={columnVisibilityModel}
-        onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
-        initialState={{ pagination: { paginationModel: { pageSize: 20 } } }}
-        pageSizeOptions={[10, 20, 50]}
-        disableRowSelectionOnClick
-        getRowId={(row) => row.id}
-        slots={{
-          toolbar: CustomToolbar,
-          loadingOverlay: LoaderUI.LoadingOverlay,
-        }}
-        loading={isLoading}
-        disableColumnMenu
-      />
-      {/* Detail Drawer */}
-      <Drawer
-        anchor="right"
-        open={isDrawerOpen}
-        onClose={closeDrawer}
-        sx={{
-          '& .MuiDrawer-paper': {
-            width: '30%',
-            padding: 2,
-          },
-        }}
-      >
-        {selectedRecord && (
-          <Box>
-            <Typography
-              variant="h6"
-              fontWeight="bold"
-              sx={{
-                backgroundColor: theme.palette.primary.main,
-                p: '0.5%',
-                color: 'white',
-                paddingLeft: '5%',
-                paddingRight: '5%',
-                marginBottom: 2,
-                width: '70%',
-              }}
-            >
-              TIER: {selectedRecord.userTier}
-            </Typography>
-
-            <Chip
-              label={selectedRecord.status ? 'ACTIVE' : 'INACTIVE'}
-              color={selectedRecord.status ? 'success' : 'error'}
-              sx={{ marginBottom: 2 }}
-            />
-
-            <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>
-              Tier Details
-            </Typography>
-
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <TextField label="ID" value={selectedRecord.id} fullWidth variant="outlined" size="small" disabled />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField label="User Tier" value={selectedRecord.userTier} fullWidth variant="outlined" size="small" disabled />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField label="Discount Percentage" value={selectedRecord.discountPercentage} fullWidth variant="outlined" size="small" disabled />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField label="Transactions Required" value={selectedRecord.totalTransactionsRequired} fullWidth variant="outlined" size="small" disabled />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField label="Amount Required" value={selectedRecord.totalAmountRequired} fullWidth variant="outlined" size="small" disabled />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField label="Retention Transactions" value={selectedRecord.tierRetentionTransactions} fullWidth variant="outlined" size="small" disabled />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField label="Retention Amount" value={selectedRecord.tierRetentionAmount} fullWidth variant="outlined" size="small" disabled />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField label="Time Period (Days)" value={selectedRecord.timePeriodDays} fullWidth variant="outlined" size="small" disabled />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField label="Country Code" value={selectedRecord.countryCode} fullWidth variant="outlined" size="small" disabled />
-              </Grid>
-            </Grid>
-
-            <Box sx={{ mt: 3 }}>
-              <Button
-                variant="outlined"
-                startIcon={<Edit />}
-                onClick={() => {
-                  closeDrawer()
-                  openDialog(selectedRecord)
+          {selectedRecord && (
+            <Box>
+              <Typography
+                variant="h6"
+                fontWeight="bold"
+                sx={{
+                  backgroundColor: theme.palette.primary.main,
+                  p: '0.5%',
+                  color: 'white',
+                  paddingLeft: '5%',
+                  paddingRight: '5%',
+                  marginBottom: 2,
+                  width: '70%',
                 }}
-                fullWidth
               >
-                Edit Tier
-              </Button>
-            </Box>
-          </Box>
-        )}
-      </Drawer>
+                TIER: {selectedRecord.userTier}
+              </Typography>
 
-      {/* Add/Edit Tier Dialog */}
-      <Dialog open={isDialogOpen} onClose={closeDialog} maxWidth="md" fullWidth>
-        <DialogTitle><b>
-          {isEditMode ? 'Update Loyalty Tier' : 'Add New Loyalty Tier'}    </b> </DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            {isEditMode && (
+              <Chip
+                label={selectedRecord.status ? 'ACTIVE' : 'INACTIVE'}
+                color={selectedRecord.status ? 'success' : 'error'}
+                sx={{ marginBottom: 2 }}
+              />
+
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>
+                Tier Details
+              </Typography>
+
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  <TextField label="ID" value={selectedRecord.id} fullWidth variant="outlined" size="small" disabled />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField label="User Tier" value={selectedRecord.userTier} fullWidth variant="outlined" size="small" disabled />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    label="Discount Percentage"
+                    value={selectedRecord.discountPercentage}
+                    fullWidth
+                    variant="outlined"
+                    size="small"
+                    disabled
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    label="Transactions Required"
+                    value={selectedRecord.totalTransactionsRequired}
+                    fullWidth
+                    variant="outlined"
+                    size="small"
+                    disabled
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField label="Amount Required" value={selectedRecord.totalAmountRequired} fullWidth variant="outlined" size="small" disabled />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    label="Retention Transactions"
+                    value={selectedRecord.tierRetentionTransactions}
+                    fullWidth
+                    variant="outlined"
+                    size="small"
+                    disabled
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField label="Retention Amount" value={selectedRecord.tierRetentionAmount} fullWidth variant="outlined" size="small" disabled />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField label="Time Period (Days)" value={selectedRecord.timePeriodDays} fullWidth variant="outlined" size="small" disabled />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField label="Country Code" value={selectedRecord.countryCode} fullWidth variant="outlined" size="small" disabled />
+                </Grid>
+              </Grid>
+
+              <Box sx={{ mt: 3 }}>
+                <Button
+                  variant="outlined"
+                  startIcon={<Edit />}
+                  onClick={() => {
+                    closeDrawer()
+                    openDialog(selectedRecord)
+                  }}
+                  fullWidth
+                  disabled={!helper.checkUserHasPermission(local_service.get_modules()?.LOYALTY, 'canUpdate')}
+                >
+                  Edit Tier
+                </Button>
+              </Box>
+            </Box>
+          )}
+        </Drawer>
+
+        {/* Add/Edit Tier Dialog */}
+        <Dialog open={isDialogOpen} onClose={closeDialog} maxWidth="md" fullWidth>
+          <DialogTitle>
+            <b>{isEditMode ? 'Update Loyalty Tier' : 'Add New Loyalty Tier'} </b>{' '}
+          </DialogTitle>
+          <DialogContent>
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              {isEditMode && (
+                <Grid item xs={12} md={6}>
+                  <TextField name="id" label="ID" value={formData.id} fullWidth disabled />
+                </Grid>
+              )}
+              <Grid item xs={12} md={isEditMode ? 6 : 12}>
+                <TextField name="userTier" label="User Tier" value={formData.userTier} onChange={handleInputChange} fullWidth required />
+              </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
-                  name="id"
-                  label="ID"
-                  value={formData.id}
+                  name="discountPercentage"
+                  label="Discount Percentage"
+                  type="number"
+                  value={formData.discountPercentage}
+                  onChange={handleInputChange}
                   fullWidth
-                  disabled
+                  required
+                  inputProps={{ min: 0, max: 100 }}
                 />
               </Grid>
-            )}
-            <Grid item xs={12} md={isEditMode ? 6 : 12}>
-              <TextField
-                name="userTier"
-                label="User Tier"
-                value={formData.userTier}
-                onChange={handleInputChange}
-                fullWidth
-                required
-              />
+              <Grid item xs={12} md={6}>
+                <TextField
+                  name="totalTransactionsRequired"
+                  label="Transactions Required"
+                  type="number"
+                  value={formData.totalTransactionsRequired}
+                  onChange={handleInputChange}
+                  fullWidth
+                  required
+                  inputProps={{ min: 0 }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  name="totalAmountRequired"
+                  label="Amount Required"
+                  type="number"
+                  value={formData.totalAmountRequired}
+                  onChange={handleInputChange}
+                  fullWidth
+                  required
+                  inputProps={{ min: 0 }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  name="tierRetentionTransactions"
+                  label="Retention Transactions"
+                  type="number"
+                  value={formData.tierRetentionTransactions}
+                  onChange={handleInputChange}
+                  fullWidth
+                  required
+                  inputProps={{ min: 0 }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  name="tierRetentionAmount"
+                  label="Retention Amount"
+                  type="number"
+                  value={formData.tierRetentionAmount}
+                  onChange={handleInputChange}
+                  fullWidth
+                  required
+                  inputProps={{ min: 0 }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  name="timePeriodDays"
+                  label="Time Period (Days)"
+                  type="number"
+                  value={formData.timePeriodDays}
+                  onChange={handleInputChange}
+                  fullWidth
+                  required
+                  inputProps={{ min: 0 }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField name="countryCode" label="Country Code" value={formData.countryCode} onChange={handleInputChange} fullWidth required />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControlLabel control={<Switch name="status" checked={formData.status} onChange={handleInputChange} />} label="Active" />
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                name="discountPercentage"
-                label="Discount Percentage"
-                type="number"
-                value={formData.discountPercentage}
-                onChange={handleInputChange}
-                fullWidth
-                required
-                inputProps={{ min: 0, max: 100 }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                name="totalTransactionsRequired"
-                label="Transactions Required"
-                type="number"
-                value={formData.totalTransactionsRequired}
-                onChange={handleInputChange}
-                fullWidth
-                required
-                inputProps={{ min: 0 }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                name="totalAmountRequired"
-                label="Amount Required"
-                type="number"
-                value={formData.totalAmountRequired}
-                onChange={handleInputChange}
-                fullWidth
-                required
-                inputProps={{ min: 0 }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                name="tierRetentionTransactions"
-                label="Retention Transactions"
-                type="number"
-                value={formData.tierRetentionTransactions}
-                onChange={handleInputChange}
-                fullWidth
-                required
-                inputProps={{ min: 0 }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                name="tierRetentionAmount"
-                label="Retention Amount"
-                type="number"
-                value={formData.tierRetentionAmount}
-                onChange={handleInputChange}
-                fullWidth
-                required
-                inputProps={{ min: 0 }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                name="timePeriodDays"
-                label="Time Period (Days)"
-                type="number"
-                value={formData.timePeriodDays}
-                onChange={handleInputChange}
-                fullWidth
-                required
-                inputProps={{ min: 0 }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                name="countryCode"
-                label="Country Code"
-                value={formData.countryCode}
-                onChange={handleInputChange}
-                fullWidth
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    name="status"
-                    checked={formData.status}
-                    onChange={handleInputChange}
-                  />
-                }
-                label="Active"
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeDialog}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained">
-            {isEditMode ? 'Update Tier' : 'Create Tier'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={closeDialog}>Cancel</Button>
+            <Button
+              onClick={handleSubmit}
+              variant="contained"
+              disabled={
+                isEditMode
+                  ? !helper.checkUserHasPermission(local_service.get_modules()?.LOYALTY, 'canUpdate')
+                  : !helper.checkUserHasPermission(local_service.get_modules()?.LOYALTY, 'canCreate')
+              }
+            >
+              {isEditMode ? 'Update Tier' : 'Create Tier'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </HasPermission>
     </Box>
   )
 }

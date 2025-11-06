@@ -6,6 +6,9 @@ import staticdataService from '@/services/staticdata.service'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState, staticTableState } from '@/states/state'
 import LoaderUI from '@/components/loader/loader'
+import { LocalStorageService } from '@/helpers/local-storage-service'
+import { HelperService } from '@/helpers/helper'
+
 const StaticDataGrid = ({
   //@ts-ignore
   data,
@@ -41,12 +44,14 @@ const StaticDataGrid = ({
   // Initialize component with data
 
   const static_service = new staticdataService()
+  const local_service = new LocalStorageService()
+  const helper = new HelperService()
 
   useEffect(() => {
     if (data && data.length > 0) {
       setRows(data)
       generateColumnsAndFormModel(data[0])
-    } 
+    }
   }, [data])
 
   // useEffect(() => {
@@ -66,25 +71,25 @@ const StaticDataGrid = ({
   //       }
   //     })
   // }, [])
+
   useEffect(() => {
-  if (!apiEndpoint) return
+    if (!apiEndpoint) return
 
-  setRows([]) // clear previous data while loading new
-  static_service
-    .staticData(apiEndpoint, {
-      action: 'READ_ALL',
-    })
-    .then((data) => {
-      if (data?.data.length > 0) {
-        setRows(data.data)
-        generateColumnsAndFormModel(data.data[0])
-      }
-    })
-    .catch((err) => {
-      console.error(err)
-    })
-}, [apiEndpoint]) // 🚨 KEY CHANGE HERE
-
+    setRows([]) // clear previous data while loading new
+    static_service
+      .staticData(apiEndpoint, {
+        action: 'READ_ALL',
+      })
+      .then((data) => {
+        if (data?.data.length > 0) {
+          setRows(data.data)
+          generateColumnsAndFormModel(data.data[0])
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+  }, [apiEndpoint]) // 🚨 KEY CHANGE HERE
 
   // Generate columns and form model based on first data item
   const generateColumnsAndFormModel = (sampleData: any) => {
@@ -134,8 +139,18 @@ const StaticDataGrid = ({
       flex: 1,
       headerClassName: 'super-app-theme--header',
       getActions: (params: any) => [
-        <GridActionsCellItem icon={<Edit />} label="Edit" onClick={() => handleEditClick(params.row)} />,
-        <GridActionsCellItem icon={<Delete />} label="Delete" onClick={() => handleDeleteClick(params.row[primaryKey])} />,
+        <GridActionsCellItem
+          icon={<Edit />}
+          label="Edit"
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.STATIC_DATA, 'canUpdate')}
+          onClick={() => handleEditClick(params.row)}
+        />,
+        <GridActionsCellItem
+          icon={<Delete />}
+          label="Delete"
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.STATIC_DATA, 'canDelete')}
+          onClick={() => handleDeleteClick(params.row[primaryKey])}
+        />,
       ],
     })
     //@ts-ignore
@@ -280,7 +295,6 @@ const StaticDataGrid = ({
         disabled: column.field === primaryKey && editMode,
         sx: { mt: 2 },
       }
-      
 
       // Handle different field types
       switch (column.type) {
@@ -390,15 +404,13 @@ const StaticDataGrid = ({
       }}
     >
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-        <b >
-          {' '}
-        </b>
         <Button
           variant="contained"
           color="primary"
           startIcon={<Add />}
           onClick={handleAddClick}
-            sx={{ height: '40px' }}
+          sx={{ height: '40px' }}
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.STATIC_DATA, 'canCreate')}
         >
           Add Data
         </Button>
@@ -409,16 +421,15 @@ const StaticDataGrid = ({
           rows={rows}
           columns={columns}
           initialState={{
-              pagination: {
-                paginationModel: { pageSize: 20, page: 0 },
-              },
-            }}
-            pageSizeOptions={[10]}
-            loading={ rows.length === 0}
-            slots={{
-              loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
-            }}
-          
+            pagination: {
+              paginationModel: { pageSize: 20, page: 0 },
+            },
+          }}
+          pageSizeOptions={[10]}
+          loading={rows.length === 0}
+          slots={{
+            loadingOverlay: LoaderUI.LoadingOverlay, // custom loader
+          }}
           disableRowSelectionOnClick
           //@ts-ignore
           components={{
@@ -450,7 +461,16 @@ const StaticDataGrid = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button onClick={handleSubmit} color="primary" variant="contained">
+          <Button
+            onClick={handleSubmit}
+            color="primary"
+            variant="contained"
+            disabled={
+              editMode
+                ? !helper.checkUserHasPermission(local_service.get_modules()?.STATIC_DATA, 'canUpdate')
+                : !helper.checkUserHasPermission(local_service.get_modules()?.STATIC_DATA, 'canCreate')
+            }
+          >
             {editMode ? 'Update' : 'Create'}
           </Button>
         </DialogActions>

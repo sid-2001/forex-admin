@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Box, Typography, useTheme, Drawer, Grid, TextField, Divider, Chip, IconButton, Button } from '@mui/material'
 import { DataGrid, GridColDef, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton } from '@mui/x-data-grid'
 import { styled } from '@mui/material/styles'
 import { PreviewOutlined } from '@mui/icons-material'
 import { TransactionService } from '@/services/transaction.service'
 import LoaderUI from '@/components/loader/loader'
-import { Card, CardContent, Stack, } from '@mui/material'
+import { Card, Stack } from '@mui/material'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
@@ -13,7 +13,9 @@ import DownloadIcon from '@mui/icons-material/Download'
 import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
-
+import HasPermission from '@/components/permissionWrapper'
+import { LocalStorageService } from '@/helpers/local-storage-service'
+import { HelperService } from '@/helpers/helper'
 
 const StyledDataGrid = styled(DataGrid)({
   '& .MuiDataGrid-columnHeaders': {
@@ -41,27 +43,26 @@ const CdiScreen = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [transactionDetails, setTransactionDetails] = useState<any>(null)
   const service = new TransactionService()
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true)
   const [referenceInput, setReferenceInput] = useState('')
-  const [open, setOpen] = useRecoilState(alertState);
-  const [text, setText] = useRecoilState(alertTextState);
-  const [type, settype] = useRecoilState(alertTypeState);
+  const [open, setOpen] = useRecoilState(alertState)
+  const [text, setText] = useRecoilState(alertTextState)
+  const [type, settype] = useRecoilState(alertTypeState)
   const [filterModel, setFilterModel] = useState({ items: [] })
   const [columnVisibilityModel, setColumnVisibilityModel] = useState({})
+  const local_service = new LocalStorageService()
+  const helper_service = new HelperService()
 
   const [dashboardData, setDashboardData] = useState({
     totalDeposit: '0',
     released: '0',
     unMapped: '0',
-  });
-
+  })
 
   const fetchCdiApiCall = async () => {
     try {
       const data = await service.cdiTransactions()
       setCdiRecords(data)
-
-
     } catch (error) {
       console.error('Failed to fetch transactions:', error)
     }
@@ -72,22 +73,20 @@ const CdiScreen = () => {
       const data = await service.cdiCards()
       setDashboardData(data as any)
     } catch (error) {
-      console.error('Failed to load dashboard data:', error);
+      console.error('Failed to load dashboard data:', error)
     }
-  };
-
+  }
 
   useEffect(() => {
     const loadData = async () => {
-      setIsLoading(true);
-      await fetchCdiApiCall();
-      await fetchDashboardData();
-      setIsLoading(false);
-    };
+      setIsLoading(true)
+      await fetchCdiApiCall()
+      await fetchDashboardData()
+      setIsLoading(false)
+    }
 
-    loadData();
-  }, []);
-
+    loadData()
+  }, [])
 
   const openDrawer = (data: any) => {
     setTransactionDetails(data)
@@ -99,28 +98,26 @@ const CdiScreen = () => {
     setTransactionDetails(null)
   }
 
-  // for reference update 
+  // for reference update
   const handleUpdateReference = async () => {
-    if (!referenceInput.trim()) return;
+    if (!referenceInput.trim()) return
 
     try {
-      await service.updateTransactionMapping(referenceInput.trim(), transactionDetails.transactionNumber);
-      setReferenceInput('');
-      setText("Mapped Successfully")
+      await service.updateTransactionMapping(referenceInput.trim(), transactionDetails.transactionNumber)
+      setReferenceInput('')
+      setText('Mapped Successfully')
       setOpen(true)
-      settype("success")
-      closeDrawer();
+      settype('success')
+      closeDrawer()
     } catch (error) {
-      setText("Error fetching your data ")
+      setText('Error fetching your data ')
       setOpen(true)
-      settype("error")
-      console.error('API error:', error);
+      settype('error')
+      console.error('API error:', error)
     }
-  };
-
+  }
 
   const columns: GridColDef[] = [
-
     { field: 'transactionNumber', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'transactionDate', headerName: 'Date', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'transactionTime', headerName: 'Time', flex: 1, headerClassName: 'super-app-theme--header' },
@@ -159,9 +156,7 @@ const CdiScreen = () => {
     //@ts-ignore
     const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false)
     const headers = visibleCols.map((col) => col.headerName).join(',')
-    const rows = cdiRecords.map((row: any) =>
-      visibleCols.map((col) => row[col.field] || '').join(',')
-    )
+    const rows = cdiRecords.map((row: any) => visibleCols.map((col) => row[col.field] || '').join(','))
     const csv = [headers, ...rows].join('\n')
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
@@ -175,9 +170,7 @@ const CdiScreen = () => {
     //@ts-ignore
     const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false)
     const headers = visibleCols.map((col) => col.headerName)
-    const data = cdiRecords.map((row: any) =>
-      visibleCols.map((col) => row[col.field] || '')
-    )
+    const data = cdiRecords.map((row: any) => visibleCols.map((col) => row[col.field] || ''))
     const doc = new jsPDF({ unit: 'pt' })
     doc.setFontSize(14)
     doc.text('CDI Transactions Report', 40, 40)
@@ -197,258 +190,252 @@ const CdiScreen = () => {
     <GridToolbarContainer sx={{ justifyContent: 'flex-start', gap: 1, py: 1 }}>
       <GridToolbarColumnsButton />
       <GridToolbarFilterButton />
-      <Button
-        variant="outlined"
-        color="primary"
-        size="small"
-        startIcon={<DownloadIcon />}
-        onClick={handleExportCSV}
-      >
+      <Button variant="outlined" color="primary" size="small" startIcon={<DownloadIcon />} onClick={handleExportCSV}>
         CSV
       </Button>
-      <Button
-        variant="outlined"
-        color="primary"
-        size="small"
-        startIcon={<PictureAsPdfIcon />}
-        onClick={handleExportPDF}
-      >
+      <Button variant="outlined" color="primary" size="small" startIcon={<PictureAsPdfIcon />} onClick={handleExportPDF}>
         PDF
       </Button>
-      <Button
-        variant="outlined"
-        color="primary"
-        size="small"
-        startIcon={<FindReplaceIcon />}
-        onClick={() => setFilterModel({ items: [] })}
-      >
+      <Button variant="outlined" color="primary" size="small" startIcon={<FindReplaceIcon />} onClick={() => setFilterModel({ items: [] })}>
         Reset Filters
       </Button>
     </GridToolbarContainer>
   )
 
-
-
-
   return (
     <Box sx={{ width: '80vw', height: '70vh', p: 2 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h4" >
-          <strong>CDI Transactions</strong>
-        </Typography>
-      </Box>
-      <Stack direction="row" spacing={2} mb={2} >
-        {/* Total Deposits */}
-        <Card
-          sx={{
-            width: 240,
-            height: 120,
-            background: 'linear-gradient(135deg, rgb(164, 216, 228), rgb(15, 98, 165))',
-            color: 'white',
-            borderRadius: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            p: 2,
-          }}
-        >
-          <Typography variant="body2" fontWeight={1000} fontSize={20}>
-            Total Deposits
+      <HasPermission permission={'canRead'} module={local_service.get_modules()?.CDI}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h4">
+            <strong>CDI Transactions</strong>
           </Typography>
-
-          <Typography variant="h6" fontWeight="bold" align="right">
-            {dashboardData.totalDeposit}
-          </Typography>
-        </Card>
-
-        {/* Released */}
-        <Card
-          sx={{
-            width: 240,
-            height: 120,
-            background: 'linear-gradient(135deg, #21CBF3 , #4CAF50)',
-            color: 'white',
-            borderRadius: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            p: 2,
-          }}
-        >
-          <Typography variant="body2" fontWeight={1000} fontSize={20}>
-            Released
-          </Typography>
-
-          <Typography variant="h6" fontWeight="bold" align="right">
-            {dashboardData.released}
-          </Typography>
-        </Card>
-
-        {/* Un-mapped */}
-        <Card
-          sx={{
-            width: 240,
-            height: 120,
-            background: 'linear-gradient(135deg,rgb(93, 206, 231), #ff416c)',
-            color: 'white',
-            borderRadius: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            p: 2,
-          }}
-        >
-          <Typography variant="body2" fontWeight={1000} fontSize={20}>
-            Un-Mapped
-          </Typography>
-
-          <Typography variant="h6" fontWeight="bold" align="right">
-            {dashboardData.unMapped}
-          </Typography>
-        </Card>
-
-
-      </Stack>
-      <StyledDataGrid
-        rows={cdiRecords}
-        columns={columns}
-        filterModel={filterModel}
-        //@ts-ignore
-        onFilterModelChange={(model) => setFilterModel(model)}
-        columnVisibilityModel={columnVisibilityModel}
-        onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
-        initialState={{ pagination: { paginationModel: { pageSize: 20, page: 0 } } }}
-        pageSizeOptions={[10, 20, 50]}
-        disableRowSelectionOnClick
-        getRowId={(row) => row.transactionNumber}
-        loading={cdiRecords.length === 0}
-        slots={{
-          toolbar: CustomToolbar,
-          loadingOverlay: LoaderUI.LoadingOverlay,
-        }}
-        disableColumnMenu
-      />
-      <Drawer
-        anchor="right"
-        open={isDrawerOpen}
-        onClose={closeDrawer}
-        sx={{
-          '& .MuiDrawer-paper': {
-            width: '30%',
-            padding: 2,
-          },
-        }}
-      >
-        {transactionDetails && (
-          <Box>
-            <Typography
-              variant="h6"
-              fontWeight="bold"
-              sx={{
-                backgroundColor: theme.palette.primary.main,
-                p: '0.5%',
-                color: 'white',
-                paddingLeft: '5%',
-                paddingRight: '5%',
-                marginBottom: 2,
-                width: '70%',
-              }}
-            >
-              TRANSACTION ID : {transactionDetails.transactionNumber}
+        </Box>
+        <Stack direction="row" spacing={2} mb={2}>
+          {/* Total Deposits */}
+          <Card
+            sx={{
+              width: 240,
+              height: 120,
+              background: 'linear-gradient(135deg, rgb(164, 216, 228), rgb(15, 98, 165))',
+              color: 'white',
+              borderRadius: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              p: 2,
+            }}
+          >
+            <Typography variant="body2" fontWeight={1000} fontSize={20}>
+              Total Deposits
             </Typography>
 
-            <Chip
-              label={
-                ['YES', 'Yes', 'Y', true].includes(
-                  String(transactionDetails?.referenceMatchIndicator).toUpperCase()
-                )
-                  ? 'MAPPED'
-                  : 'NOT MAPPED'
-              }
-              color={
-                ['YES', 'Yes', 'Y', true].includes(
-                  String(transactionDetails?.referenceMatchIndicator).toUpperCase()
-                )
-                  ? 'success'
-                  : 'error'
-              }
-              sx={{ marginBottom: 2 }}
-            />
+            <Typography variant="h6" fontWeight="bold" align="right">
+              {dashboardData.totalDeposit}
+            </Typography>
+          </Card>
 
-
-            <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>
-              Transaction Details
+          {/* Released */}
+          <Card
+            sx={{
+              width: 240,
+              height: 120,
+              background: 'linear-gradient(135deg, #21CBF3 , #4CAF50)',
+              color: 'white',
+              borderRadius: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              p: 2,
+            }}
+          >
+            <Typography variant="body2" fontWeight={1000} fontSize={20}>
+              Released
             </Typography>
 
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <TextField label="UTR Number" value={transactionDetails?.uniqueInstanceId || ''} fullWidth variant="outlined" size="small" disabled />
-              </Grid>
+            <Typography variant="h6" fontWeight="bold" align="right">
+              {dashboardData.released}
+            </Typography>
+          </Card>
 
-              <Grid item xs={12} md={6}>
-                <TextField label="Amount" value={transactionDetails?.transactionAmount || ''} fullWidth variant="outlined" size="small" disabled />
-              </Grid>
+          {/* Un-mapped */}
+          <Card
+            sx={{
+              width: 240,
+              height: 120,
+              background: 'linear-gradient(135deg,rgb(93, 206, 231), #ff416c)',
+              color: 'white',
+              borderRadius: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              p: 2,
+            }}
+          >
+            <Typography variant="body2" fontWeight={1000} fontSize={20}>
+              Un-Mapped
+            </Typography>
 
-              <Grid item xs={12} md={6}>
-                <TextField label="Date" value={transactionDetails?.transactionDate || ''} fullWidth variant="outlined" size="small" disabled />
-              </Grid>
+            <Typography variant="h6" fontWeight="bold" align="right">
+              {dashboardData.unMapped}
+            </Typography>
+          </Card>
+        </Stack>
+        <StyledDataGrid
+          rows={cdiRecords}
+          columns={columns}
+          filterModel={filterModel}
+          //@ts-ignore
+          onFilterModelChange={(model) => setFilterModel(model)}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
+          initialState={{ pagination: { paginationModel: { pageSize: 20, page: 0 } } }}
+          pageSizeOptions={[10, 20, 50]}
+          disableRowSelectionOnClick
+          getRowId={(row) => row.transactionNumber}
+          loading={cdiRecords.length === 0}
+          slots={{
+            toolbar: CustomToolbar,
+            loadingOverlay: LoaderUI.LoadingOverlay,
+          }}
+          disableColumnMenu
+        />
+        <Drawer
+          anchor="right"
+          open={isDrawerOpen}
+          onClose={closeDrawer}
+          sx={{
+            '& .MuiDrawer-paper': {
+              width: '30%',
+              padding: 2,
+            },
+          }}
+        >
+          {transactionDetails && (
+            <Box>
+              <Typography
+                variant="h6"
+                fontWeight="bold"
+                sx={{
+                  backgroundColor: theme.palette.primary.main,
+                  p: '0.5%',
+                  color: 'white',
+                  paddingLeft: '5%',
+                  paddingRight: '5%',
+                  marginBottom: 2,
+                  width: '70%',
+                }}
+              >
+                TRANSACTION ID : {transactionDetails.transactionNumber}
+              </Typography>
 
-              <Grid item xs={12} md={6}>
-                <TextField label="Time" value={transactionDetails?.transactionTime || ''} fullWidth variant="outlined" size="small" disabled />
-              </Grid>
+              <Chip
+                label={
+                  ['YES', 'Yes', 'Y', true].includes(String(transactionDetails?.referenceMatchIndicator).toUpperCase()) ? 'MAPPED' : 'NOT MAPPED'
+                }
+                color={['YES', 'Yes', 'Y', true].includes(String(transactionDetails?.referenceMatchIndicator).toUpperCase()) ? 'success' : 'error'}
+                sx={{ marginBottom: 2 }}
+              />
 
-              <Grid item xs={12} md={6}>
-                <TextField label="Account Number" value={transactionDetails?.accountNumber || ''} fullWidth variant="outlined" size="small" disabled />
-              </Grid>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>
+                Transaction Details
+              </Typography>
 
-              <Grid item xs={12} md={6}>
-                <TextField label="Reference Number" value={transactionDetails?.referenceNumber || ''} fullWidth variant="outlined" size="small" disabled />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="Effective Date" value={transactionDetails?.effectiveDate || ''} fullWidth variant="outlined" size="small" disabled />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <TextField label="Bank Name" value={transactionDetails?.bankName || ''} fullWidth variant="outlined" size="small" disabled />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <TextField label="Branch Code" value={transactionDetails?.branchCode || ''} fullWidth variant="outlined" size="small" disabled />
-              </Grid>
-            </Grid>
-
-
-            {transactionDetails?.referenceMatchIndicator?.toUpperCase() !== 'YES' && (
-              <>
-                <Divider sx={{ my: 3, borderBottomWidth: '5px', }} />
-                <Box sx={{ mt: 3 }}>
-                  <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 1 }}>
-                    Reference  Number
-                  </Typography>
-
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
                   <TextField
-                    label="Enter Reference Number"
-                    value={referenceInput}
-                    onChange={(e) => setReferenceInput(e.target.value)}
+                    label="UTR Number"
+                    value={transactionDetails?.uniqueInstanceId || ''}
                     fullWidth
-                    sx={{ my: 2 }}
+                    variant="outlined"
+                    size="small"
+                    disabled
                   />
+                </Grid>
 
-                  <Button
-                    variant="contained"
-                    onClick={handleUpdateReference}
-                    disabled={!referenceInput}
-                  >
-                    Send to Release
-                  </Button>
-                </Box>
-              </>
-            )}
-          </Box>
-        )}
-      </Drawer>
+                <Grid item xs={12} md={6}>
+                  <TextField label="Amount" value={transactionDetails?.transactionAmount || ''} fullWidth variant="outlined" size="small" disabled />
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField label="Date" value={transactionDetails?.transactionDate || ''} fullWidth variant="outlined" size="small" disabled />
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField label="Time" value={transactionDetails?.transactionTime || ''} fullWidth variant="outlined" size="small" disabled />
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    label="Account Number"
+                    value={transactionDetails?.accountNumber || ''}
+                    fullWidth
+                    variant="outlined"
+                    size="small"
+                    disabled
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    label="Reference Number"
+                    value={transactionDetails?.referenceNumber || ''}
+                    fullWidth
+                    variant="outlined"
+                    size="small"
+                    disabled
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    label="Effective Date"
+                    value={transactionDetails?.effectiveDate || ''}
+                    fullWidth
+                    variant="outlined"
+                    size="small"
+                    disabled
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField label="Bank Name" value={transactionDetails?.bankName || ''} fullWidth variant="outlined" size="small" disabled />
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField label="Branch Code" value={transactionDetails?.branchCode || ''} fullWidth variant="outlined" size="small" disabled />
+                </Grid>
+              </Grid>
+
+              {transactionDetails?.referenceMatchIndicator?.toUpperCase() !== 'YES' && (
+                <>
+                  <Divider sx={{ my: 3, borderBottomWidth: '5px' }} />
+                  <Box sx={{ mt: 3 }}>
+                    <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 1 }}>
+                      Reference Number
+                    </Typography>
+
+                    <TextField
+                      label="Enter Reference Number"
+                      value={referenceInput}
+                      onChange={(e) => setReferenceInput(e.target.value)}
+                      fullWidth
+                      sx={{ my: 2 }}
+                    />
+
+                    <Button
+                      variant="contained"
+                      onClick={handleUpdateReference}
+                      disabled={!(referenceInput || helper_service.checkUserHasPermission(local_service.get_modules()?.CDI, 'canUpdate'))}
+                    >
+                      Send to Release
+                    </Button>
+                  </Box>
+                </>
+              )}
+            </Box>
+          )}
+        </Drawer>
+      </HasPermission>
     </Box>
   )
 }
