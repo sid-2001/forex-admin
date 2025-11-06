@@ -9,6 +9,8 @@ import DownloadIcon from '@mui/icons-material/Download'
 import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import HasPermission from '@/components/permissionWrapper'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
 const sarbdata = [
   {
@@ -32,9 +34,9 @@ const sarbdata = [
 ]
 
 const SarbErrorsListing: React.FC = () => {
-  const theme = useTheme()
   const [sarbData, setSarbData] = useState(sarbdata)
   const helper = new HelperService()
+  const local_service = new LocalStorageService()
 
   // DataGrid state
   const [filterModel, setFilterModel] = useState<any>({ items: [] })
@@ -114,10 +116,10 @@ const SarbErrorsListing: React.FC = () => {
 
   // CSV export
   const handleExportCSV = () => {
-    const visibleCols = columns.filter(col => columnVisibilityModel[col.field] !== false)
-    const headers = visibleCols.map(col => col.headerName).join(',')
+    const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false)
+    const headers = visibleCols.map((col) => col.headerName).join(',')
     //@ts-ignore
-    const rows = sarbData.map(row => visibleCols.map(col => row[col.field] ?? '').join(','))
+    const rows = sarbData.map((row) => visibleCols.map((col) => row[col.field] ?? '').join(','))
     const csv = [headers, ...rows].join('\n')
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
@@ -128,10 +130,10 @@ const SarbErrorsListing: React.FC = () => {
 
   // PDF export
   const handleExportPDF = () => {
-    const visibleCols = columns.filter(col => columnVisibilityModel[col.field] !== false)
-    const headers = visibleCols.map(col => col.headerName)
+    const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false)
+    const headers = visibleCols.map((col) => col.headerName)
     //@ts-ignore
-    const data = sarbData.map(row => visibleCols.map(col => row[col.field] ?? ''))
+    const data = sarbData.map((row) => visibleCols.map((col) => row[col.field] ?? ''))
     const doc = new jsPDF({ unit: 'pt' })
     doc.setFontSize(14)
     doc.text('Sarb Errors Report', 40, 40)
@@ -164,66 +166,104 @@ const SarbErrorsListing: React.FC = () => {
 
   return (
     <Box sx={{ width: '80vw', height: '70vh' }}>
-      <Typography variant="h4" gutterBottom>
-        <strong>Ack/Nack</strong>
-      </Typography>
+      <HasPermission permission={'canRead'} module={local_service.get_modules()?.ERROR_CODES}>
+        <Typography variant="h4" gutterBottom>
+          <strong>Ack/Nack</strong>
+        </Typography>
 
-      <Stack direction="row" spacing={2} mb={2}>
-        {/* Cards */}
-        <Card sx={{ width: 240, height: 120, background: 'linear-gradient(135deg, rgb(164, 216, 228), rgb(15, 98, 165))', color: 'white', borderRadius: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', p: 2 }}>
-          <Typography variant="body2" fontWeight={1000} fontSize={20}>
-            Total Transactions
-          </Typography>
-          <Typography variant="h6" fontWeight="bold" align="right">
-            R2
-          </Typography>
-        </Card>
+        <Stack direction="row" spacing={2} mb={2}>
+          {/* Cards */}
+          <Card
+            sx={{
+              width: 240,
+              height: 120,
+              background: 'linear-gradient(135deg, rgb(164, 216, 228), rgb(15, 98, 165))',
+              color: 'white',
+              borderRadius: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              p: 2,
+            }}
+          >
+            <Typography variant="body2" fontWeight={1000} fontSize={20}>
+              Total Transactions
+            </Typography>
+            <Typography variant="h6" fontWeight="bold" align="right">
+              R2
+            </Typography>
+          </Card>
 
-        <Card sx={{ width: 240, height: 120, background: 'linear-gradient(135deg, #21CBF3 , #4CAF50)', color: 'white', borderRadius: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', p: 2 }}>
-          <Typography variant="body2" fontWeight={1000} fontSize={20}>
-            Ack
-          </Typography>
-          <Typography variant="h6" fontWeight="bold" align="right">
-            R1
-          </Typography>
-        </Card>
+          <Card
+            sx={{
+              width: 240,
+              height: 120,
+              background: 'linear-gradient(135deg, #21CBF3 , #4CAF50)',
+              color: 'white',
+              borderRadius: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              p: 2,
+            }}
+          >
+            <Typography variant="body2" fontWeight={1000} fontSize={20}>
+              Ack
+            </Typography>
+            <Typography variant="h6" fontWeight="bold" align="right">
+              R1
+            </Typography>
+          </Card>
 
-        <Card sx={{ width: 240, height: 120, background: 'linear-gradient(135deg,rgb(93, 206, 231), #ff416c)', color: 'white', borderRadius: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', p: 2 }}>
-          <Typography variant="body2" fontWeight={1000} fontSize={20}>
-            Nack
-          </Typography>
-          <Typography variant="h6" fontWeight="bold" align="right">
-            R1
-          </Typography>
-        </Card>
-      </Stack>
+          <Card
+            sx={{
+              width: 240,
+              height: 120,
+              background: 'linear-gradient(135deg,rgb(93, 206, 231), #ff416c)',
+              color: 'white',
+              borderRadius: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              p: 2,
+            }}
+          >
+            <Typography variant="body2" fontWeight={1000} fontSize={20}>
+              Nack
+            </Typography>
+            <Typography variant="h6" fontWeight="bold" align="right">
+              R1
+            </Typography>
+          </Card>
+        </Stack>
 
-      {sarbData && (
-        <DataGrid
-          sx={{
-            width: '100%',
-            '& .MuiDataGrid-columnHeaders': { '& .super-app-theme--header': { backgroundColor: '#005099', color: 'white' } },
-            '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' },
-            '& .MuiDataGrid-cell': { fontSize: '14px' },
-            '& .super-app-theme--header': { fontSize: '16px' },
-          }}
-          columns={columns}
-          rows={sarbData}
-          filterModel={filterModel}
-          onFilterModelChange={model => setFilterModel(model)}
-          columnVisibilityModel={columnVisibilityModel}
-          onColumnVisibilityModelChange={model => setColumnVisibilityModel(model)}
-          initialState={{ pagination: { paginationModel: { pageSize: 20 } } }}
-          pageSizeOptions={[10, 20, 50]}
-          loading={sarbData.length === 0}
-          getRowId={(row: any) => row.id}
-          slots={{
-            toolbar: CustomToolbar,
-            loadingOverlay: LoaderUI.LoadingOverlay,
-          }}
-          disableColumnMenu
-        />
-      )}
+        {sarbData && (
+          <DataGrid
+            sx={{
+              width: '100%',
+              '& .MuiDataGrid-columnHeaders': { '& .super-app-theme--header': { backgroundColor: '#005099', color: 'white' } },
+              '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' },
+              '& .MuiDataGrid-cell': { fontSize: '14px' },
+              '& .super-app-theme--header': { fontSize: '16px' },
+            }}
+            columns={columns}
+            rows={sarbData}
+            filterModel={filterModel}
+            onFilterModelChange={(model) => setFilterModel(model)}
+            columnVisibilityModel={columnVisibilityModel}
+            onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
+            initialState={{ pagination: { paginationModel: { pageSize: 20 } } }}
+            pageSizeOptions={[10, 20, 50]}
+            loading={sarbData.length === 0}
+            getRowId={(row: any) => row.id}
+            slots={{
+              toolbar: CustomToolbar,
+              loadingOverlay: LoaderUI.LoadingOverlay,
+            }}
+            disableColumnMenu
+          />
+        )}
+      </HasPermission>
     </Box>
   )
 }
