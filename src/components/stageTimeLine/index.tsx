@@ -14,6 +14,7 @@ interface StageTimelineProps {
 
 const StageTimeline: React.FC<StageTimelineProps> = ({ stageDetails }) => {
   const theme = useTheme();
+  
 
   const getColor = (status: string) => {
     switch (status) {
@@ -40,7 +41,7 @@ const StageTimeline: React.FC<StageTimelineProps> = ({ stageDetails }) => {
         position: "relative",
       }}
     >
-      {stageDetails.map((stage, index) => (
+      {stageDetails?.map((stage, index) => (
         <Box
           key={index}
           sx={{

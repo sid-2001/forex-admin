@@ -29,6 +29,7 @@ import {
   Select,
   MenuItem,
   Autocomplete,
+  IconButton,
 } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
 import { DataGrid, GridColDef, GridRenderCellParams, GridRowsProp } from '@mui/x-data-grid'
@@ -51,6 +52,9 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useTheme } from '@emotion/react'
 import staticdataService from '@/services/staticdata.service'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+
 
 import { generateZapperSessionIdApi } from '../../helpers/zapper'
 const { VITE_APP_URL } = import.meta.env
@@ -98,16 +102,21 @@ const SendMoneyPage = () => {
   const [sendCountry, setsendCountry] = useState('')
   const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
   const [userCurrency, setUserCurrency] = useRecoilState(userCurrencyState)
-  const [selectedTimeChange, setSelectedTimeCharge] = useState<number | null>(null)
+  const [selectedTimeChange, setSelectedTimeCharge] = useState<number>(0)
   const [selectedUser, setSelectedUser] = useState<{ name: string; accountNumber: string; profilePhoto: string; applicantId: string } | null>(null)
   const [category, setCategory] = useState<string>('')
+  const[loyalityamout,setloyalityamount]=useState(0)
   const [selectedCountry, setSelectedCountry] = useState<string>('')
+    const [isSecondTabEnabled, setIsSecondTabEnabled] = useState(false);
+      const [error, setError] = useState(false);
 
   const [currency, setCurrency] = useState<string>('')
   const [forexRate, setForexRate] = useState<string>('')
-  const [amount, setAmount] = useState<number>(0)
+  const [amount, setAmount] = useState<number>(100)
   const [selectedTransferMethod, setSelectedTransferMethod] = useState('Bank Transfer')
   const [countries, setCountries] = useRecoilState(countyState)
+   const [included, setIncluded] = useState(false);
+  
 
   const [remittanceList, setRemittanceList] = useState<
     {
@@ -139,10 +148,25 @@ const SendMoneyPage = () => {
   ]
 
   const getCharges = () => {
-    kyc_service.getCharges(userCountry, sendCountry, amount, 0).then(({ data }) => {
+    kyc_service.getCharges(userCountry, sendCountry, amount, 0, selectedUser?.applicantId).then(({ data }) => {
       console.log(data)
+      setloyalityamount(data?.loyaltyDiscountAmt)
+      
       if (data) {
-        setSelectedTimeCharge(data?.calculatedCharge)
+        setSelectedTimeCharge(data?.finalCharges)
+
+
+          //    applicantId: selectedUser?.applicantId,
+          //  receiveCountry:selectedCountry,
+          //      sendCountry:selectedCountry,
+             
+
+          //@ts-ignore
+        transaction_service.getTransactionReferalsPoints( selectedUser?.applicantId, userCountry === 'ZA' ? 'ZAR' : 'INR',(data?.calculatedCharge)).then(referaldata=>{
+
+//  setloyalityamount((referaldata?.data)?(referaldata?.data):0);
+        })
+       
       } else {
         setSelectedTimeCharge(0)
       }
@@ -159,10 +183,11 @@ const SendMoneyPage = () => {
           onChange={() => {
             handleRadioChange(params.row)
 
-            kyc_service.getCharges(userCountry, sendCountry, amount, params?.row?.id).then(({ data }) => {
+            kyc_service.getCharges(userCountry, sendCountry, amount, params?.row?.id, selectedUser?.applicantId).then(({ data }) => {
               console.log(data)
               if (data) {
                 setSelectedTimeCharge(data.minimumCharges)
+                   setloyalityamount((data?.loyaltyDiscountAmt)?(data?.loyaltyDiscountAmt):0);
               } else {
                 setSelectedTimeCharge(0)
               }
@@ -430,34 +455,66 @@ const SendMoneyPage = () => {
   }
 
   const transactionPayload = {
-    vatCharges: 0,
-    rewardPoints: 23.7,
-    amount: amount,
+   
+
+    // amount: amount,
     // fcmToken: "",
     //@ts-ignore
+  
 
-    benificaryId: selectedBenficary?.benificaryId,
-    bopId: category,
+  
     //  bopId: 79,
-    applicantId: selectedUser?.applicantId,
-    destinationCountry: selectedCountry,
-    destinationCurrency: userCountry === 'ZA' ? 'INR' : 'ZAR',
-    forex: forexRate?forexRate:4.5,
-      charges: selectedTimeChange,
-      total: Number(amount) + Number(selectedTimeChange) + Number(gatewayCharge),
-    gatewayId: 'IMPGW004',
-    gatewayStatus: 'Pending',
+ 
+  
+
+
+ 
+    // forex: forexRate?forexRate:4.5,
+   
+   
     // selectedTimeMethod: {
     //   time: '2 hours',
     //   charges: selectedTimeChange,
     //   total: Number(amount) + Number(selectedTimeChange) + Number(gatewayCharge),
     // },
-    sourceCurrency: userCountry === 'ZA' ? 'ZAR' : 'INR',
-    sourceCountry: userCountry,
-    //@ts-ignore
-    timecharge: selectedTime?.time,
-    totalpaybleamount: Number(amount) + Number(selectedTimeChange) + Number(gatewayCharge),
+   
+
+    // sourceCountry: userCountry,
+    // //@ts-ignore
+    // timecharge: selectedTime?.time,
+    // totalpaybleamount: Number(amount) + Number(selectedTimeChange) + Number(gatewayCharge),
+
+
     transferMethod: selectedTransferMethod,
+    //@ts-ignore
+      receiverId: selectedBenficary?.benificaryId,
+         applicantId: selectedUser?.applicantId,
+           receiveCountry:selectedCountry,
+               sendCountry:selectedCountry,
+             
+     principalAmount: Number(amount),
+
+    principalCurrency: userCountry === 'ZA' ? 'ZAR' : 'INR',
+       settlementCurrency: userCountry === 'ZA' ? 'INR' : 'ZAR',
+        settlementAmount: Number(amount) + Number(selectedTimeChange) + Number(gatewayCharge),
+          
+
+    gatewayStatus: 'Pending',
+
+
+      rewardPoints: 23.7,
+     exchangeRates: 4.5,
+  vatCharges: 50.0,
+    
+    bopId: category,
+
+ gatewayId: 'IMPGW004',
+    charges: selectedTimeChange,
+      loyaltyDiscountAmt: 50.0,
+     
+//@ts-nocheck
+//@ts-ignore
+     finalCharges: selectedTime?.time,
     // transactionId: "ZAOWRM250814IN2524",
   }
 
@@ -472,31 +529,31 @@ const SendMoneyPage = () => {
   const handleZapperPaymentGateway = async () => {
     setCommonLoader(true)
     const txnResponse = await transaction_service.createTransaction(transactionPayload)
-    if (txnResponse?.status) {
-      setCommonLoader(true)
-      if (txnResponse?.data) {
-        settype('success')
-        setText('Transaction created Succesfully')
-      } else {
-        settype('error')
-        setText('Failed to Create Transaction')
-      }
-      setOpen(true)
+    // if (txnResponse?.status) {
+    //   setCommonLoader(true)
+    //   if (txnResponse?.data) {
+    //     settype('success')
+    //     setText('Transaction created Succesfully')
+    //   } else {
+    //     settype('error')
+    //     setText('Failed to Create Transaction')
+    //   }
+    //   setOpen(true)
 
-      let zapper_trans = await transaction_service.createZaphierTransaction({
-        amount: transactionPayload?.amount,
-        currencyISOCode: 'ZAR',
-        transactionNumber: txnResponse?.data,
-      })
+    //   let zapper_trans = await transaction_service.createZaphierTransaction({
+    //     amount: transactionPayload?.amount,
+    //     currencyISOCode: 'ZAR',
+    //     transactionNumber: txnResponse?.data,
+    //   })
 
-      setcommonloader(false)
+    //   setcommonloader(false)
 
-      console.log(zapper_trans?.data?.redirectUrl)
+    //   console.log(zapper_trans?.data?.redirectUrl)
 
-      window.location.href = zapper_trans?.data?.redirectUrl
+    //   window.location.href = zapper_trans?.data?.redirectUrl
 
-      // navigate('/transaction')
-    }
+    //   // navigate('/transaction')
+    // }
   }
 
   const handleOzowPaymentClick = async () => {
@@ -617,6 +674,8 @@ const SendMoneyPage = () => {
           setcommonloader(false)
           // navigate('/transaction')
 
+
+          //@ts-ignore
           const response = await transaction_service.createOrder({ amount: transactionPayload?.amount, transactionId: txnResponse?.data })
           const { payment_session_id } = response.data
 
@@ -680,6 +739,8 @@ const SendMoneyPage = () => {
           setcommonloader(false)
           // navigate('/transaction')
 
+
+          //@ts-ignore
           const response = await transaction_service.createAdumoOrder({ amount: transactionPayload?.amount, transactionId: txnResponse?.data })
           const { data } = response
 
@@ -730,7 +791,7 @@ const SendMoneyPage = () => {
         <TabContext value={tabValue}>
           <Tabs value={tabValue} onChange={handleChange} sx={{ marginBottom: 3 }}>
             <Tab label="Create Transaction" value="1" />
-            <Tab label="Pay Now" value="2" />
+            <Tab label="Pay Now" value="2" disabled={!(selectedUser?.applicantId && userCountry && category)}></Tab> 
           </Tabs>
           <TabPanel value="1">
             <Box>
@@ -804,18 +865,20 @@ const SendMoneyPage = () => {
                 </Grid>
                 <Grid item xs={12} md={6}>
                   {selectedUser && (
-                    <Typography style={{ marginTop: '20px', textAlign: 'center', color: 'grey' }}>
-                      <VerifiedIcon
-                        sx={{
-                          color: 'green',
-                        }}
-                      />
-                      {selectedUser.name +
-                        ' ' +
-                        //@ts-ignore
-                        selectedUser?.lastname}{' '}
-                      (Account: {selectedUser.applicantId})
-                    </Typography>
+
+                 <Typography style={{ marginTop: '20px', textAlign: 'center', color: 'grey' }}>
+  <VerifiedIcon
+    sx={{
+      mr: 3,
+      color: 'green',
+    }}
+  />
+  {selectedUser.name +
+    ' ' +
+    //@ts-ignore
+    selectedUser?.lastname}{' '}
+  (Account: {selectedUser.applicantId})
+</Typography>
                   )}
                 </Grid>
               </Grid>
@@ -858,12 +921,37 @@ const SendMoneyPage = () => {
                       label={`Amount In   ${userCurrency != undefined ? userCurrency : ''} `}
                       variant="filled"
                       fullWidth
+                      defaultValue={amount}
                       onChange={(e) => {
-                        setAmount(e.target.value as any)
-                        setSelectedTimeCharge(0)
-                        getCharges()
+                        // setAmount(e.target.value as any)
+                        // setSelectedTimeCharge(0)
+                        // getCharges()
+
+
+                         const value = Number(e.target.value);
+                         console.log(value)
+    setAmount(e.target.value as any) ;
+
+    
+
+    if (value < 100 || isNaN(value)) {
+      setError(true);
+    } else {
+      setError(false);
+      setSelectedTimeCharge(0);
+      getCharges();
+    }
                       }}
                     />
+                      {error && (
+        <Typography
+          variant="body2"
+          color="error"
+          sx={{ mt: 0.5, ml: 1 }}
+        >
+          Amount must be at least 100
+        </Typography>
+      )}
                   </Grid>
 
                   {/* Currency (Auto-populated and Disabled) */}
@@ -957,10 +1045,14 @@ const SendMoneyPage = () => {
               </Grid>
               <Box sx={{ textAlign: 'left', marginTop: 2 }}>
                 <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                  Principal Amount: {helper.roundToTwoFixed(amount * Number(forexRate)) + ' ' + currency}
+                  Principal Amount: {helper.roundToTwoFixed( (Number(amount)-Number(selectedTimeChange)) * Number(forexRate)) + ' ' + currency}
                 </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                {/* <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                   Settlement Amount: {Number(amount) + Number(selectedTimeChange) + ' ' + sourceCountry}
+                </Typography> */}
+
+                    <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                  Settlement Amount: {Number(amount) + ' ' + sourceCountry}
                 </Typography>
                 <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                   Base Amount: {amount + ' ' + sourceCountry}
@@ -971,6 +1063,30 @@ const SendMoneyPage = () => {
                 <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                   Platform Charges: {selectedTimeChange ? selectedTimeChange : 0 + ' ' + sourceCountry}
                 </Typography>
+
+
+                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+           Available Loayality Amount: {loyalityamout ? loyalityamout : 0 + ' ' + sourceCountry}
+                </Typography>
+
+
+                 {/* <Stack direction="row" alignItems="center" spacing={1}>
+      <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+        Referal Amount Available: {loyalityamout ? loyalityamout : 0} {sourceCountry}
+      </Typography>
+
+      <IconButton
+        size="small"
+        color={included ? 'error' : 'primary'}
+        onClick={() => setIncluded(!included)}
+      >
+        {included ? <RemoveCircleOutlineIcon /> : <AddCircleOutlineIcon />}
+      </IconButton>
+
+      <Typography variant="body2" sx={{ color: included ? 'green' : 'gray' }}>
+        {included ? 'Included' : 'Excluded'}
+      </Typography>
+    </Stack> */}
 
                 <Button
                   variant="contained"

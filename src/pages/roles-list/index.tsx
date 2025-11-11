@@ -50,7 +50,7 @@ const RoleManagementPage: React.FC = () => {
   const handleSave = (updatedRole: Role) => {
     api_service.addRole(updatedRole, local_service.get_staff_id())
     setSelectedRole(null)
-    window.location.reload()
+    // window.location.reload()
   }
 
   const columns: GridColDef[] = [

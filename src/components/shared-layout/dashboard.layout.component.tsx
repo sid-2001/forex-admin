@@ -341,168 +341,190 @@ const DashboardLayout = () => {
   return (
     <ThemeProvider theme={theme}>
       <LoaderBackdrop openloader={openloader} imageSrc=".." />
-      <AppBar
-        position="sticky"
-        sx={{
-          minHeight: '8vh', // AppBar height relative to viewport
-          // height: '8vh',
-          //@ts-ignore
-          paddingBottom: 0,
-        }}
-      >
-        <Toolbar sx={{ minHeight: '8vh', height: '7.5vh', px: 2 }}>
-          <Box
+<AppBar
+  position="sticky"
+  sx={{
+    minHeight: '8vh',
+    height: '10vh',
+ 
+  }}
+>
+  <Toolbar>
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%',
+      }}
+    >
+      {/* Left side - Logo + Dark/Light Mode (UNCHANGED) */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+          <IconButton
+            onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
+            
+            color="inherit"
             sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              width: '100%',
+              transition: 'transform 0.3s',
+              '&:hover': { transform: 'rotate(180deg)' },
+              marginLeft:'7%'
             }}
           >
-            {/* Left side - Logo + Dark/Light Mode */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Link to="/dashboard">
-                <img
-                  src={LogoWhite}
-                  alt="Logo"
-                  style={{
-                    maxHeight: '6vh',
-                    width: 'auto',
-                    objectFit: 'contain',
-                  }}
-                />
-              </Link>
+            {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
+          </IconButton>
+        </Tooltip>
+    
+      
+      </Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2,textAlign:"center" }}>
 
-              <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
-                <IconButton
-                  onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
-                  color="inherit"
-                  sx={{
-                    transition: 'transform 0.3s',
-                    '&:hover': { transform: 'rotate(180deg)' },
-                  }}
-                >
-                  {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
-                </IconButton>
-              </Tooltip>
-            </Box>
+            <Link to="/dashboard">
+          <img
+            src={LogoWhite}
+            alt="Logo"
+            style={{
+              maxHeight: '6vh',
+              width: 'auto',
+              objectFit: 'contain',
+              marginLeft:200
+            }}
+          />
+        </Link>
 
-            {/* Right side - Profile box */}
-            <Box
+      </Box>
+
+      {/* Right side - Profile box (MADE RESPONSIVE) */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          borderRadius: { xs: '20px', md: '30px' },
+          // border: '1px solid #D1DDFC',
+          gap: { xs: 1, md: 1.2 },
+          backgroundColor: 'transparent',
+          // p: { xs: 0.8, md: 1 } ,
+          margin:10,
+       
+
+        }}
+      >
+        <Avatar
+          sx={{
+            bgcolor: 'grey.700',
+            width: { xs: 36, md: 42 },
+            height: { xs: 36, md: 42 },
+            fontSize: { xs: '14px', md: '1.8vh' },
+            fontWeight: 600,
+          }}
+        >
+          {
+            <strong>
+              {local_service?.get_staff_access().staffFirstName[0]?.toUpperCase() +
+                local_service?.get_staff_access().staffLastName[0]?.toUpperCase()}
+            </strong>
+          }
+        </Avatar>
+
+        {/* Text content - hidden on mobile, visible on tablet+ */}
+        <Box 
+          sx={{ 
+            display: { xs: 'none', sm: 'flex' }, 
+            flexDirection: 'column', 
+            justifyContent: 'center' 
+          }}
+        >
+          {/* Name + Role in one line */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Typography
+              variant="subtitle1"
               sx={{
-                display: 'flex',
-                alignItems: 'center',
-                borderRadius: '30px',
-                border: '1px solid #D1DDFC',
-                padding: '3px 10px', // spacing fixed
-                gap: 1.2, // space between avatar and text
-                backgroundColor: 'transparent',
+                fontFamily: 'sans-serif',
+                fontSize: { xs: '14px', md: '2vh' },
+                color: 'white',
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
               }}
             >
-              <Avatar
-                sx={{
-                  bgcolor: 'grey.700',
-                  width: 42,
-                  height: 42,
-                  fontSize: '1.8vh',
-                  fontWeight: 600,
-                }}
-              >
-                {
-                  <strong>
-                    {local_service?.get_staff_access().staffFirstName[0].toUpperCase() +
-                      local_service?.get_staff_access().staffLastName[0].toUpperCase()}
-                  </strong>
-                }
-              </Avatar>
+              {local_service?.get_staff_access().staffFirstName + ' ' + local_service?.get_staff_access().staffLastName}
+            </Typography>
 
-              <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                {/* Name + Role in one line */}
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.2 }}>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{
-                      fontFamily: 'sans-serif',
-                      fontSize: '1.3vh',
-                      color: 'white',
-                      fontWeight: 600,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {local_service?.get_staff_access().staffFirstName + ' ' + local_service?.get_staff_access().staffLastName}
-                  </Typography>
-
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontFamily: 'sans-serif',
-                      fontSize: '1.1vh',
-                      color: 'white',
-                      opacity: 0.8,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    • {local_service?.get_staff_access().userCategory || local_service?.get_staff_access().roleDescription || 'User'}
-                  </Typography>
-                </Box>
-
-                {/* Staff ID */}
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    fontFamily: 'sans-serif',
-                    fontSize: '1.1vh',
-                    color: 'white',
-                    fontWeight: 500,
-                    whiteSpace: 'nowrap',
-                    marginTop: '2px',
-                  }}
-                >
-                  {local_service?.get_staff_access().staffId}
-                </Typography>
-
-                {/* Country */}
-                <Stack direction="row" alignItems="center" spacing={0.6} sx={{ marginTop: '2px' }}>
-                  {(() => {
-                    const staff = local_service?.get_staff_access()
-                    if (!staff) return null
-
-                    const flag = staff.staffCountry
-                      ? staff.staffCountry.toUpperCase().replace(/./g, (c: string) => String.fromCodePoint(127397 + c.charCodeAt(0)))
-                      : '🏳️'
-
-                    const countryNames: Record<string, string> = {
-                      ZA: 'South Africa',
-                      IN: 'India',
-                      US: 'United States',
-                      UK: 'United Kingdom',
-                      AE: 'UAE',
-                    }
-
-                    const countryName = countryNames[staff.staffCountry] || staff.staffCountry || 'Unknown'
-
-                    return (
-                      <>
-                        <Typography sx={{ fontSize: '1.1vh' }}>{flag}</Typography>
-                        <Typography
-                          sx={{
-                            fontSize: '1.1vh',
-                            color: 'white',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {countryName}
-                        </Typography>
-                      </>
-                    )
-                  })()}
-                </Stack>
-              </Box>
-            </Box>
+            <Typography
+              variant="body2"
+              sx={{
+                fontFamily: 'sans-serif',
+                fontSize: { xs: '12px', md: '1.5vh' },
+                color: 'white',
+                opacity: 0.8,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              • {local_service?.get_staff_access().userCategory || local_service?.get_staff_access().roleDescription || 'User'}
+            </Typography>
           </Box>
-        </Toolbar>
-      </AppBar>
 
+          {/* Staff ID */}
+               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+
+          
+          <Typography
+            variant="subtitle2"
+            sx={{
+              fontFamily: 'sans-serif',
+              fontSize: { xs: '12px', md: '1.5vh' },
+              color: 'white',
+              fontWeight: 500,
+              whiteSpace: 'nowrap',
+              marginTop: '2px',
+            }}
+          >
+            {local_service?.get_staff_access().staffId}
+          </Typography>
+          <Typography>
+                <Stack direction="row" alignItems="center" spacing={0.6} sx={{ marginTop: '2px' }}>
+            {(() => {
+              const staff = local_service?.get_staff_access()
+              if (!staff) return null
+
+              const flag = staff.staffCountry
+                ? staff.staffCountry.toUpperCase().replace(/./g, (c: string) => String.fromCodePoint(127397 + c.charCodeAt(0)))
+                : '🏳️'
+
+              const countryNames: Record<string, string> = {
+                ZA: 'South Africa',
+                IN: 'India',
+                US: 'United States',
+                UK: 'United Kingdom',
+                AE: 'UAE',
+              }
+
+              const countryName = countryNames[staff.staffCountry] || staff.staffCountry || 'Unknown'
+
+              return (
+                <>
+                  <Typography sx={{ fontSize: { xs: '12px', md: '1.5vh' } }}>{flag}</Typography>
+                  <Typography
+                    sx={{
+                      fontSize: { xs: '12px', md: '1.5vh' },
+                      color: 'white',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {countryName}
+                  </Typography>
+                </>
+              )
+            })()}
+          </Stack>
+          </Typography>
+</Box>
+          {/* Country */}
+      
+        </Box>
+      </Box>
+    </Box>
+  </Toolbar>
+</AppBar>
       <DashboardContainer>
         <Box sx={{ position: 'relative' }}>
           {/* Sidebar */}
@@ -512,9 +534,9 @@ const DashboardLayout = () => {
               //@ts-ignore
               backgroundColor: theme.palette.secondary.main,
               position: 'fixed',
-              top: '8vh',
+              top: '10vh',
               left: 0,
-              height: 'calc(100vh - 8vh)',
+              height: 'calc(100vh - 10vh)',
               overflowY: 'auto',
               boxShadow: '2px 0 5px rgba(0,0,0,0.3)',
               transition: 'width 0.3s',
@@ -668,7 +690,7 @@ const DashboardLayout = () => {
               flexGrow: 1,
 
               padding: '2%',
-              paddingLeft: '5%',
+              paddingLeft: '1 %',
               marginLeft: 0, // Prevent the sidebar from affecting the content
             }}
           >
