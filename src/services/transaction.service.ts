@@ -51,6 +51,21 @@ export class TransactionService extends BaseService {
     }
   }
 
+
+      async getTransactionReferalsPoints(applicantID:String,countryCode:String,charges:Number): Promise<any> {
+    try {
+      const url = `/api/kyc/totalReferral/get-referral-point`
+      const response = await api1.post(url,{
+    "applicantId": applicantID,
+    "countryCode": countryCode,
+    "charges": charges
+})
+      return response?.data || []
+    } catch (e) {
+      throw new Error(e as any)
+    }
+  }
+
   async getLoyaltyMasterData(): Promise<any> {
     const url = '/api/transactions/loyalty-master'
     try {

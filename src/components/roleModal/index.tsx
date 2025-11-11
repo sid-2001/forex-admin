@@ -233,11 +233,11 @@ getModuleList()
     setOpen(true)
     setSelectedRole(null)
 
-    setTimeout(() => {
+    // setTimeout(() => {
 
-      window.location.reload()
-      setRoleId(null)
-    }, 1200)
+    //   window.location.reload()
+    //   setRoleId(null)
+    // }, 1200)
 
     // onSave(payload);
   }

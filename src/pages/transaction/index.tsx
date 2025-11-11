@@ -803,6 +803,7 @@ console.log(transactionDetails)
               ...e.transactionGatewayDTO,
               ...e.beneficiary,
               ...e.applicant,
+               stages:{  ...e.stages},
               id: e?.transactionGatewayDTO?.transactionNumber,
               destination: e?.transactionGatewayDTO?.receiveCountry,
               value: e?.transactionGatewayDTO?.principalAmount,
@@ -1065,43 +1066,51 @@ console.log(transactionDetails)
         {helper.checkUserHasPermission(getTransactionPermission(), 'canRead') &&
           (transactionType == 'inwards' ? (
             <>
-              <DataGrid
-                rows={transactionType === 'inwards' ? inboundTransaction : outboundTransaction || []}
-                //@ts-ignore
-                columns={transactionType === 'inwards' ? inward_columns : columns_outward}
-                getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
-                pageSizeOptions={[10, 20, 50]}
-
-                paginationMode="server"
-                filterMode="server"
-                paginationModel={paginationInwardModel}
-                onPaginationModelChange={handleInwardPaginationChange}
-                filterModel={filterModel}
-                onFilterModelChange={handleFilterChange}
-                rowCount={1000}
-                
-                loading={getLoadingState()}
-
-                columnVisibilityModel={columnVisibilityModel}
-                onColumnVisibilityModelChange={setColumnVisibilityModel}
-                //@ts-ignore
-                loading={isLoading}
-                slots={{
-                  loadingOverlay: LoaderUI.LoadingOverlay,
-                  toolbar: () => <CustomToolbar downloadCSV={downloadCSV} downloadPDF={downloadPDF} />,
-                }}
-                disableRowSelectionOnClick
-                sx={{
-                  '& .MuiDataGrid-root': {
-                    border: '1 px solid blue',
-                  },
-                  '& .MuiDataGrid-cell': {
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  },
-                }}
-              />
+  <DataGrid
+  rows={transactionType === 'inwards' ? inboundTransaction : outboundTransaction || []}
+  //@ts-ignore
+  columns={transactionType === 'inwards' ? inward_columns : columns_outward}
+  getRowId={(row: any) =>
+    transactionType === 'inwards' ? row?.transactionNumberIw : row.id
+  }
+  pageSizeOptions={[10, 20, 50]}
+  paginationMode="server"
+  filterMode="server"
+  paginationModel={paginationInwardModel}
+  onPaginationModelChange={handleInwardPaginationChange}
+  filterModel={filterModel}
+  onFilterModelChange={handleFilterChange}
+  rowCount={1000}
+  disableColumnMenu // ✅ Removes the 3-dot column menu icon globally
+  disableRowSelectionOnClick
+  loading={getLoadingState() || isLoading}
+  columnVisibilityModel={columnVisibilityModel}
+  onColumnVisibilityModelChange={setColumnVisibilityModel}
+    
+ 
+  slots={{
+    loadingOverlay: LoaderUI.LoadingOverlay,
+    toolbar: () => (
+      <CustomToolbar
+        downloadCSV={downloadCSV}
+        downloadPDF={downloadPDF}
+      />
+    ),
+  }}
+  sx={{
+    '& .MuiDataGrid-root': {
+      border: '1px solid blue', // ✅ Fixed typo ('1 px' → '1px')
+    },
+    '& .MuiDataGrid-cell': {
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+    },
+    '& .MuiDataGrid-columnHeaders': {
+      backgroundColor: '#f5f5f5', // optional: better header visibility
+    },
+  }}
+/>
             </>
           ) : (
             <>
@@ -1180,7 +1189,7 @@ console.log(transactionDetails)
 
                   <Grid container spacing={2} mb={2} p={3}>
               
-               <StageTimeline stageDetails={stageDetails} />
+               <StageTimeline stageDetails={transactionDetails?.stages} />
             </Grid>
 
             {/* Transaction Details Section */}
