@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import {
-  DataGrid, GridToolbarContainer,
-  GridToolbarColumnsButton,
-  GridToolbarFilterButton
-} from '@mui/x-data-grid'
+import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton } from '@mui/x-data-grid'
 import { Box, Typography, Button, Modal, Grid, TextField, FormControl, MenuItem, Select } from '@mui/material'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
@@ -87,7 +83,7 @@ const AddUpdateModuleDialog: React.FC<any> = ({ action = 'Add', handleClose, han
         }}
       >
         <Typography variant="h4" gutterBottom>
-          {action}  Module
+          {action} Module
         </Typography>
         <Box mt={4}>
           <Grid container spacing={2} mb={2}>
@@ -149,9 +145,9 @@ const ModuleTable: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedModule, setSelectedModule] = useState<any>({})
 
-    const [open, setOpen] = useRecoilState(alertState)
-    const [text, setText] = useRecoilState(alertTextState)
-    const [type, settype] = useRecoilState(alertTypeState)
+  const [open, setOpen] = useRecoilState(alertState)
+  const [text, setText] = useRecoilState(alertTextState)
+  const [type, settype] = useRecoilState(alertTypeState)
 
   const MODULE_COLUMNS = [
     {
@@ -191,32 +187,25 @@ const ModuleTable: React.FC = () => {
       },
     },
     {
-        field: 'actions',
-        headerName: 'Actions',
-        flex: 1,
-        headerClassName: 'super-app-theme--header',
-        renderCell: (params:any) => (
-          <Button
-            variant="outlined"
-            color="primary"
-            size="small"
-            startIcon={<Edit />}
-            onClick={() => {
-              
-              
-              setSelectedModule( params.row)
-              setIsModalOpen(true)
-              
-
-
-    
-
-            }}
-          >
-            Edit
-          </Button>
-        ),
-      }
+      field: 'actions',
+      headerName: 'Actions',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => (
+        <Button
+          variant="outlined"
+          color="primary"
+          size="small"
+          startIcon={<Edit />}
+          onClick={() => {
+            setSelectedModule(params.row)
+            setIsModalOpen(true)
+          }}
+        >
+          Edit
+        </Button>
+      ),
+    },
   ]
 
   useEffect(() => {
@@ -240,28 +229,21 @@ const ModuleTable: React.FC = () => {
       setModuleData([...moduleData, data])
     }
     setIsModalOpen(false)
-settype('success')
-setText("Updated Succesfully")
-setOpen(true)
+    settype('success')
+    setText(selectedModule?.moduleId ? 'Module updated successfully!' : 'Module created successfully!')
+    setOpen(true)
 
-setTimeout(() => {
-  window.location.reload()
-}, 1200);
-  
+    setTimeout(() => {
+      window.location.reload()
+    }, 1200)
 
     setSelectedModule({})
-
   }
   const theme = useTheme()
   const CustomToolbar = ({ rows, columns }: any) => {
     const handleDownloadCSV = () => {
       const headers = columns.map((col: any) => col.headerName)
-      const csvRows = [
-        headers.join(','),
-        ...rows.map((row: any) =>
-          columns.map((col: any) => `"${row[col.field] || ''}"`).join(',')
-        ),
-      ].join('\n')
+      const csvRows = [headers.join(','), ...rows.map((row: any) => columns.map((col: any) => `"${row[col.field] || ''}"`).join(','))].join('\n')
 
       const blob = new Blob([csvRows], { type: 'text/csv;charset=utf-8;' })
       const link = document.createElement('a')
@@ -289,7 +271,7 @@ setTimeout(() => {
         <Button onClick={handleDownloadPDF} startIcon={<PictureAsPdfIcon />} size="small" variant="outlined">
           PDF
         </Button>
-        <Button onClick={() => { }} startIcon={<FindReplaceIcon />} size="small" variant="outlined">
+        <Button onClick={() => {}} startIcon={<FindReplaceIcon />} size="small" variant="outlined">
           Reset Filters
         </Button>
       </GridToolbarContainer>
@@ -301,7 +283,7 @@ setTimeout(() => {
       <Box sx={{ width: '80vw', height: '70vh' }}>
         <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'}>
           <Box>
-            <Typography variant="h4" gutterBottom >
+            <Typography variant="h4" gutterBottom>
               <strong>Modules</strong>
             </Typography>
           </Box>

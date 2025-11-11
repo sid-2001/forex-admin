@@ -11,7 +11,7 @@ import { useRecoilState } from 'recoil'
 import { HelperService } from '@/helpers/helper'
 import { theme } from '@/contants/theme'
 import { useTheme } from '@emotion/react'
-import PhoneInput from 'react-phone-number-input'
+// import PhoneInput from 'react-phone-number-input'
 
 //@ts-ignore
 function sortAscending(arr, key) {
@@ -57,7 +57,7 @@ const UserAdd = () => {
   const [branchList, setBranchList] = useState([])
   const userCountry = local_service?.get_staff_country()
   const [loading, setLoading] = useState(true) // ✅ loader state
-  const[isbuttondisabled,setIsbuttondisabled]=useState(true)
+  const [isbuttondisabled, setIsbuttondisabled] = useState(true)
 
   const { staffId } = useParams()
   const navigate = useNavigate()
@@ -155,16 +155,10 @@ const UserAdd = () => {
     })),
   ]
 
-
   const fetchAllData = async () => {
     setLoading(true)
     try {
-      await Promise.all([
-        fetchRolesList(),
-        fetchCountries(),
-        fetchBranches(),
-        staffId ? fetchStaffDetailsByStaffId() : Promise.resolve(),
-      ])
+      await Promise.all([fetchRolesList(), fetchCountries(), fetchBranches(), staffId ? fetchStaffDetailsByStaffId() : Promise.resolve()])
     } catch (err) {
       console.error(err)
     } finally {
@@ -283,7 +277,6 @@ const UserAdd = () => {
   // }
 
   const disableButton = () => {
-
     const requiredFields = [
       staffData?.staffFirstName,
       staffData?.staffLastName,
@@ -326,7 +319,6 @@ const UserAdd = () => {
       </Box>
     )
   }
-
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.STAFF}>
@@ -372,8 +364,6 @@ const UserAdd = () => {
               />
             </Grid>
 
-        
-
             <Grid item xs={12} sm={3}>
               <label style={inputLabelStyle}>Phone</label>
               <TextField
@@ -386,7 +376,6 @@ const UserAdd = () => {
                 fullWidth
                 type="text" // Use text instead of number to enforce length
               />
-              
             </Grid>
 
             <Grid item xs={12} sm={3}>
@@ -480,7 +469,7 @@ const UserAdd = () => {
                   const value = handleRegexChange(e, /^[a-zA-Z0-9\s,.\-]*$/)
                   if (value !== null) handleChange(e)
                 }}
-              // InputProps={{ readOnly: !isEditable }}
+                // InputProps={{ readOnly: !isEditable }}
               />
             </Grid>
 
@@ -531,17 +520,17 @@ const UserAdd = () => {
                 name="staffPostalCode"
                 value={staffData?.staffPostalCode || ''}
                 onChange={(e) => {
-                  const value = e.target.value;
-                  const country = staffData?.staffCountry;
-                  const maxLength = postalCodeMaxLengthMap[country] || 0; 
+                  const value = e.target.value
+                  const country = staffData?.staffCountry
+                  const maxLength = postalCodeMaxLengthMap[country] || 0
                   if (value.length <= maxLength) {
-                    handleChange(e);
+                    handleChange(e)
                   }
                 }}
                 InputProps={{ readOnly: !isEditable }}
               />
             </Grid>
-                <Grid item xs={12} sm={2}>
+            <Grid item xs={12} sm={2}>
               <label style={inputLabelStyle}>Branch</label>
               <TextField
                 select
@@ -561,7 +550,6 @@ const UserAdd = () => {
                 ))}
               </TextField>
             </Grid>
-
           </Grid>
         </Box>
 
@@ -641,50 +629,40 @@ const UserAdd = () => {
             }}
             variant="outlined"
             disabled={isbuttondisabled}
-
             // disabled={disableButton()}
             onClick={() => {
               if (staffId) {
                 //@ts-ignore
                 delete staffData?.password
-          
 
-                user_service.editStaff({ ...staffData, roleId: selectedRole,staffID:staffData?.staffId }, local_service.get_staff_id()).then((data) => {
-                  console.log(data)
-
-                  if (data) {
-                    settype('success')
-                    setText('Succesfully Operation ')
-                    navigate('/profile')
-
-                  } else {
-                    settype('error')
-                    setText(data?.message)
-                  }
-                  setTimeout(() => {
-                    window.location.reload()
-                  }, 1233)
-
-                  setOpen(true)
-                })
+                user_service
+                  .editStaff({ ...staffData, roleId: selectedRole, staffID: staffData?.staffId }, local_service.get_staff_id())
+                  .then((data) => {
+                    console.log(data)
+                    if (data) {
+                      settype('success')
+                      setText('Staff updated successfully!')
+                      navigate('/profile')
+                    } else {
+                      settype('error')
+                      setText(data?.message)
+                    }
+                    setOpen(true)
+                  })
               } else {
                 user_service
                   .createStaff({
                     ...staffData,
-                    // staffIdNumber: '14-5678-9012',
                     staffIdType: 'Aadhar',
                     roleId: selectedRole,
                   })
                   .then((data) => {
                     if (data.status) {
                       settype('success')
-                      setText('Succesfully created Staff')
-                      // window.location.reload()
+                      setText('Staff created successfully!')
                       navigate('/profile')
                     } else {
                       setText(data?.message)
-                      settype('error')
-
                       settype('error')
                     }
                     setOpen(true)
@@ -692,7 +670,7 @@ const UserAdd = () => {
               }
             }}
           >
-            {staffId ? <> UPDATE</> : 'ADD'}
+            {staffId ? 'UPDATE' : 'ADD'}
           </Button>
         </Grid>
 
