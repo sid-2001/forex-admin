@@ -148,8 +148,8 @@ const SendMoneyPage = () => {
     { id: 3, time: '2 days', charges: 0.5, total: 200 },
   ]
 
-  const getCharges = () => {
-    kyc_service.getCharges(userCountry, sendCountry, amount, 0, selectedUser?.applicantId).then(({ data }) => {
+  const getCharges = (principla_amount:any) => {
+    kyc_service.getCharges(userCountry, sendCountry, principla_amount, 0, selectedUser?.applicantId).then(({ data }) => {
       console.log(data)
       setloyalityamount(data?.loyaltyDiscountAmt)
       
@@ -744,7 +744,7 @@ const SendMoneyPage = () => {
 
 
           //@ts-ignore
-          const response = await transaction_service.createAdumoOrder({ amount: transactionPayload?.amount, transactionId: txnResponse?.data })
+          const response = await transaction_service.createAdumoOrder({ amount: transactionPayload?.principalAmount, transactionId: txnResponse?.data })
           const { data } = response
 
           console.log()
@@ -942,7 +942,7 @@ const SendMoneyPage = () => {
     } else {
       setError(false);
       setSelectedTimeCharge(0);
-      getCharges();
+      getCharges(e.target.value);
     }
                       }}
                     />
