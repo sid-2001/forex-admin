@@ -529,31 +529,32 @@ const SendMoneyPage = () => {
   const handleZapperPaymentGateway = async () => {
     setCommonLoader(true)
     const txnResponse = await transaction_service.createTransaction(transactionPayload)
-    // if (txnResponse?.status) {
-    //   setCommonLoader(true)
-    //   if (txnResponse?.data) {
-    //     settype('success')
-    //     setText('Transaction created Succesfully')
-    //   } else {
-    //     settype('error')
-    //     setText('Failed to Create Transaction')
-    //   }
-    //   setOpen(true)
+    if (txnResponse?.status) {
+      setCommonLoader(true)
+      if (txnResponse?.data) {
+        settype('success')
+        setText('Transaction created Succesfully')
+      } else {
+        settype('error')
+        setText('Failed to Create Transaction')
+      }
+      setOpen(true)
 
-    //   let zapper_trans = await transaction_service.createZaphierTransaction({
-    //     amount: transactionPayload?.amount,
-    //     currencyISOCode: 'ZAR',
-    //     transactionNumber: txnResponse?.data,
-    //   })
+      let zapper_trans = await transaction_service.createZaphierTransaction({
+        //@ts-ignore
+        amount: transactionPayload?.amount,
+        currencyISOCode: 'ZAR',
+        transactionNumber: txnResponse?.data,
+      })
 
-    //   setcommonloader(false)
+      setcommonloader(false)
 
-    //   console.log(zapper_trans?.data?.redirectUrl)
+      console.log(zapper_trans?.data?.redirectUrl)
 
-    //   window.location.href = zapper_trans?.data?.redirectUrl
+      window.location.href = zapper_trans?.data?.redirectUrl
 
-    //   // navigate('/transaction')
-    // }
+      // navigate('/transaction')
+    }
   }
 
   const handleOzowPaymentClick = async () => {
