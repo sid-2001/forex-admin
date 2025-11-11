@@ -108,7 +108,8 @@ const SendMoneyPage = () => {
   const[loyalityamout,setloyalityamount]=useState(0)
   const [selectedCountry, setSelectedCountry] = useState<string>('')
     const [isSecondTabEnabled, setIsSecondTabEnabled] = useState(false);
-      const [error, setError] = useState(false);
+    const [error, setError] = useState(false);
+    const[finalcharges,setfinalcharges]=useState(0);
 
   const [currency, setCurrency] = useState<string>('')
   const [forexRate, setForexRate] = useState<string>('')
@@ -147,13 +148,14 @@ const SendMoneyPage = () => {
     { id: 3, time: '2 days', charges: 0.5, total: 200 },
   ]
 
-  const getCharges = () => {
-    kyc_service.getCharges(userCountry, sendCountry, amount, 0, selectedUser?.applicantId).then(({ data }) => {
+  const getCharges = (principla_amount:any) => {
+    kyc_service.getCharges(userCountry, sendCountry, principla_amount, 0, selectedUser?.applicantId).then(({ data }) => {
       console.log(data)
       setloyalityamount(data?.loyaltyDiscountAmt)
       
       if (data) {
-        setSelectedTimeCharge(data?.finalCharges)
+        setSelectedTimeCharge(data?.calculatedCharge)
+        setfinalcharges(data?.finalCharges)
 
 
           //    applicantId: selectedUser?.applicantId,
@@ -742,7 +744,7 @@ const SendMoneyPage = () => {
 
 
           //@ts-ignore
-          const response = await transaction_service.createAdumoOrder({ amount: transactionPayload?.amount, transactionId: txnResponse?.data })
+          const response = await transaction_service.createAdumoOrder({ amount: transactionPayload?.principalAmount, transactionId: txnResponse?.data })
           const { data } = response
 
           console.log()
@@ -940,7 +942,7 @@ const SendMoneyPage = () => {
     } else {
       setError(false);
       setSelectedTimeCharge(0);
-      getCharges();
+      getCharges(e.target.value);
     }
                       }}
                     />
@@ -958,7 +960,7 @@ const SendMoneyPage = () => {
                   {/* Currency (Auto-populated and Disabled) */}
                   <Grid item xs={12} md={3}>
                     <TextField
-                      label="Settlement Currency"
+                      label="Principal Currency"
                       variant="filled"
                       value={currency}
                       InputProps={{
@@ -1045,31 +1047,44 @@ const SendMoneyPage = () => {
                 </Grid>
               </Grid>
               <Box sx={{ textAlign: 'left', marginTop: 2 }}>
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                  Principal Amount: {helper.roundToTwoFixed( (Number(amount)-Number(selectedTimeChange)) * Number(forexRate)) + ' ' + currency}
+
+                  <Typography variant="body2" >
+                  Platform Fees: {selectedTimeChange ? selectedTimeChange : 0 + ' ' + sourceCountry}  <i style={{
+                    fontSize:'100'
+                  }}>(VAT Inclusive)</i>
                 </Typography>
+                       <Typography variant="body2" >
+          Loyalty Discount: {loyalityamout ? loyalityamout : 0 + ' ' + sourceCountry}
+                </Typography>
+               
+                 <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+          Final Charges: {finalcharges ? finalcharges : 0 + ' ' + sourceCountry}
+                </Typography>
+
+                
+  <br></br>
+
                 {/* <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                   Settlement Amount: {Number(amount) + Number(selectedTimeChange) + ' ' + sourceCountry}
                 </Typography> */}
 
                     <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                  Settlement Amount: {Number(amount) + ' ' + sourceCountry}
+                  Net Payable Amount (Settlement Amount): {Number(amount) + ' ' + sourceCountry} 
                 </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+
+                <Typography variant="body1" sx={{ fontWeight: 'bold' }} >
+            Beneficiary will Receive (Principal Amount): {helper.roundToTwoFixed( (Number(amount)-Number(selectedTimeChange)) * Number(forexRate)) + ' ' + currency}
+                </Typography>
+                {/* <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                   Base Amount: {amount + ' ' + sourceCountry}
-                </Typography>
+                </Typography> */}
                 {/* <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
         Gateway Fee: {  gatewayCharge +" " +sourceCountry }
       </Typography> */}
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                  Platform Charges: {selectedTimeChange ? selectedTimeChange : 0 + ' ' + sourceCountry}
-                </Typography>
+              
 
 
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-           Available Loayality Amount: {loyalityamout ? loyalityamout : 0 + ' ' + sourceCountry}
-                </Typography>
-
+         
 
                  {/* <Stack direction="row" alignItems="center" spacing={1}>
       <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
@@ -1203,7 +1218,7 @@ const SendMoneyPage = () => {
                         <strong>Net Payable</strong>
                       </TableCell>
                       <TableCell align="right">
-                        <strong>{Number(amount) + Number(selectedTimeChange) + Number(gatewayCharge) + ' ' + sourceCountry}</strong>
+                        <strong>{Number(amount)  + sourceCountry}</strong>
                       </TableCell>
                     </TableRow>
                   </TableBody>
