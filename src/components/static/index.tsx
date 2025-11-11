@@ -403,7 +403,7 @@ const StaticDataGrid = ({
         },
       }}
     >
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+      <Box sx={{ margin: '10px 0px', textAlign: 'end' }}>
         <Button
           variant="contained"
           color="primary"
@@ -414,9 +414,9 @@ const StaticDataGrid = ({
         >
           Add Data
         </Button>
-      </Stack>
+      </Box>
 
-      <Box sx={{ height: 600, width: '80vw' }}>
+      <Box sx={{ height: 600 }}>
         <DataGrid
           rows={rows}
           columns={columns}

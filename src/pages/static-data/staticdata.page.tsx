@@ -27,7 +27,7 @@ const StaticData = () => {
           </Typography>
         )}
         {/* Dropdown */}
-        <FormControl sx={{ mb: -5, width: '20%', marginTop: '1%' }}>
+        <FormControl sx={{ m: '5px 0px', width: '20%' }}>
           <InputLabel>Select Table</InputLabel>
           <Select value={staticTable?.name || ''} label="Select Table" onChange={handleChange}>
             {static_list.map((table: any) => (
