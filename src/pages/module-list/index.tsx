@@ -201,6 +201,7 @@ const ModuleTable: React.FC = () => {
             setSelectedModule(params.row)
             setIsModalOpen(true)
           }}
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MODULE, 'canUpdate')}
         >
           Edit
         </Button>
