@@ -9,7 +9,6 @@ import { StaffProfile } from '@/types/staff.type'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import { useRecoilState } from 'recoil'
 import { HelperService } from '@/helpers/helper'
-import { theme } from '@/contants/theme'
 import { useTheme } from '@emotion/react'
 // import PhoneInput from 'react-phone-number-input'
 
@@ -38,8 +37,6 @@ const UserAdd = () => {
   }
   //@ts-ignore
   const [staffData, setStaffData] = useState<StaffProfile>({ staffIdType: 'Aadhar' })
-  const [countrieslist] = useState(['USA', 'Canada', 'India'])
-  const [flows] = useState(['Onboarding', 'Approval', 'Checkout'])
   const [roles, setRoles] = useState<any>([])
   const [selectedRole, setSelectedRole] = useState('')
   const [permissions, setPermissions] = useState([])
@@ -76,7 +73,6 @@ const UserAdd = () => {
     //@ts-ignore
 
     var new_permisson_data
-    console.log(permissions)
     let full_data = JSON.parse(JSON.stringify(permissions))
 
     let find_handels = full_data.filter(
@@ -100,7 +96,6 @@ const UserAdd = () => {
       }
 
       let sorted = new_permisson_data.sort((a, b) => a.id - b.id)
-      console.log(sorted)
 
       setPermissions(
         //@ts-ignore
@@ -120,6 +115,7 @@ const UserAdd = () => {
         canDelete: e?.delete, // Consider renaming this if 'view' is not truly 'delete'
       },
     }))
+    setIsbuttondisabled(false)
 
     setModulePermisson(permisson_data as any)
     setStaffData({
@@ -246,18 +242,6 @@ const UserAdd = () => {
     return null // Return null if the value doesn't match the regex
   }
 
-  // useEffect(() => {
-  //   fetchRolesList()
-  //   fetchCountries()
-  //   fetchBranches()
-  // }, [])
-
-  // useEffect(() => {
-  //   if (staffId) {
-  //     fetchStaffDetailsByStaffId()
-  //   }
-  // }, [staffId])
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: any; value: any }>) => {
     const { name, value } = e.target
 
@@ -268,13 +252,42 @@ const UserAdd = () => {
     setIsbuttondisabled(false)
   }
 
-  // const disableButton = () => {
-  //   if (staffId) {
-  //     return !helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canUpdate')
-  //   } else {
-  //     return !helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canCreate')
-  //   }
-  // }
+  const handleAddUpdateUser = () => {
+    if (staffId) {
+      //@ts-ignore
+      delete staffData?.password
+
+      user_service.editStaff({ ...staffData, roleId: selectedRole, staffID: staffData?.staffId }, local_service.get_staff_id()).then((data) => {
+        if (data) {
+          settype('success')
+          setText('Staff updated successfully!')
+          navigate('/profile')
+        } else {
+          settype('error')
+          setText(data?.message)
+        }
+        setOpen(true)
+      })
+    } else {
+      user_service
+        .createStaff({
+          ...staffData,
+          staffIdType: 'Aadhar',
+          roleId: selectedRole,
+        })
+        .then((data) => {
+          if (data.status) {
+            settype('success')
+            setText('Staff created successfully!')
+            navigate('/profile')
+          } else {
+            setText(data?.message)
+            settype('error')
+          }
+          setOpen(true)
+        })
+    }
+  }
 
   const disableButton = () => {
     const requiredFields = [
@@ -566,7 +579,6 @@ const UserAdd = () => {
                 setSelectedRole(e.target.value)
                 setIsbuttondisabled(false)
                 user_service.getRole(e?.target?.value).then((data) => {
-                  console.log(data)
                   const initialPermissions = data?.modules?.map(
                     //@ts-ignore
                     (res, index) => ({
@@ -579,7 +591,6 @@ const UserAdd = () => {
                       delete: res.access.canDelete,
                     }),
                   )
-                  console.log(initialPermissions)
                   setPermissions(
                     initialPermissions.sort(
                       //@ts-ignore
@@ -630,45 +641,7 @@ const UserAdd = () => {
             variant="outlined"
             disabled={isbuttondisabled}
             // disabled={disableButton()}
-            onClick={() => {
-              if (staffId) {
-                //@ts-ignore
-                delete staffData?.password
-
-                user_service
-                  .editStaff({ ...staffData, roleId: selectedRole, staffID: staffData?.staffId }, local_service.get_staff_id())
-                  .then((data) => {
-                    console.log(data)
-                    if (data) {
-                      settype('success')
-                      setText('Staff updated successfully!')
-                      navigate('/profile')
-                    } else {
-                      settype('error')
-                      setText(data?.message)
-                    }
-                    setOpen(true)
-                  })
-              } else {
-                user_service
-                  .createStaff({
-                    ...staffData,
-                    staffIdType: 'Aadhar',
-                    roleId: selectedRole,
-                  })
-                  .then((data) => {
-                    if (data.status) {
-                      settype('success')
-                      setText('Staff created successfully!')
-                      navigate('/profile')
-                    } else {
-                      setText(data?.message)
-                      settype('error')
-                    }
-                    setOpen(true)
-                  })
-              }
-            }}
+            onClick={() => handleAddUpdateUser()}
           >
             {staffId ? 'UPDATE' : 'ADD'}
           </Button>

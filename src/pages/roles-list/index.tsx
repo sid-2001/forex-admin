@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import {
-  DataGrid,
-  GridToolbarContainer,
-  GridToolbarColumnsButton,
-  GridToolbarFilterButton,
-  GridFilterModel,
-  GridColDef,
-} from '@mui/x-data-grid'
+import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridFilterModel, GridColDef } from '@mui/x-data-grid'
 import { Box, Typography, Button } from '@mui/material'
 import { UserService } from '@/services/user.service'
 import HasPermission from '@/components/permissionWrapper'
@@ -58,41 +51,40 @@ const RoleManagementPage: React.FC = () => {
     { field: 'roleStatus', headerName: 'Status', flex: 1, headerClassName: 'super-app-theme--header' },
 
     {
-    field: 'actions',
-    headerName: 'Actions',
-    flex: 1,
-    headerClassName: 'super-app-theme--header',
-    renderCell: (params) => (
-      <Button
-        variant="outlined"
-        color="primary"
-        size="small"
-        startIcon={<Edit />}
-        onClick={() => (setSelectedRole( params.row))}
-      >
-        Edit
-      </Button>
-    ),
-  },
-  {
-    field: 'Total Modules',
-    headerName: 'Total Modules',
-    flex: 1,
-    headerClassName: 'super-app-theme--header',
-    renderCell: (params) => (
-      params?.row?.modules?.length
-    ),
-  },
+      field: 'actions',
+      headerName: 'Actions',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => (
+        <Button
+          variant="outlined"
+          color="primary"
+          size="small"
+          startIcon={<Edit />}
+          onClick={() => setSelectedRole(params.row)}
+          disabled={!helper_service.checkUserHasPermission(local_service.get_modules()?.ROLE, 'canUpdate')}
+        >
+          Edit
+        </Button>
+      ),
+    },
+    {
+      field: 'Total Modules',
+      headerName: 'Total Modules',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => params?.row?.modules?.length,
+    },
   ]
 
   const getVisibleFilteredRows = () => {
-    const visibleCols = columns.filter(col => columnVisibilityModel[col.field] !== false)
-    const filteredRows = roles.filter(row =>
-      filterModel.items.every(filter => {
+    const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false)
+    const filteredRows = roles.filter((row) =>
+      filterModel.items.every((filter) => {
         if (!filter.value) return true
         const cellValue = (row as any)[filter.field]?.toString().toLowerCase() || ''
         return cellValue.includes(filter.value.toLowerCase())
-      })
+      }),
     )
     return { visibleCols, filteredRows }
   }
@@ -104,8 +96,8 @@ const RoleManagementPage: React.FC = () => {
       return
     }
 
-    const headers = visibleCols.map(col => col.headerName).join(',')
-    const rows = filteredRows.map(row => visibleCols.map(col => `"${(row as any)[col.field] || ''}"`).join(','))
+    const headers = visibleCols.map((col) => col.headerName).join(',')
+    const rows = filteredRows.map((row) => visibleCols.map((col) => `"${(row as any)[col.field] || ''}"`).join(','))
     const csv = [headers, ...rows].join('\n')
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
@@ -121,13 +113,20 @@ const RoleManagementPage: React.FC = () => {
       return
     }
 
-    const headers = visibleCols.map(col => col.headerName)
-    const data = filteredRows.map(row => visibleCols.map(col => (row as any)[col.field] || ''))
+    const headers = visibleCols.map((col) => col.headerName)
+    const data = filteredRows.map((row) => visibleCols.map((col) => (row as any)[col.field] || ''))
     const doc = new jsPDF({ unit: 'pt' })
     doc.setFontSize(14)
     doc.text('Roles Report', 40, 40)
-    //@ts-ignore
-    autoTable(doc, { head: [headers], body: data, startY: 60, styles: { fontSize: 9, cellPadding: 6 }, headStyles: { fillColor: [0, 80, 153], textColor: 255 } })
+
+    autoTable(doc, {
+      //@ts-ignore
+      head: [headers],
+      body: data,
+      startY: 60,
+      styles: { fontSize: 9, cellPadding: 6 },
+      headStyles: { fillColor: [0, 80, 153], textColor: 255 },
+    })
     doc.save('Roles_List.pdf')
   }
 
@@ -151,7 +150,9 @@ const RoleManagementPage: React.FC = () => {
     <HasPermission module={local_service.get_modules()?.ROLE} permission="canRead">
       <Box sx={{ width: '80vw', height: '70vh' }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h4"><strong>Roles</strong></Typography>
+          <Typography variant="h4">
+            <strong>Roles</strong>
+          </Typography>
           <Button
             variant="contained"
             disabled={!helper_service.checkUserHasPermission(local_service.get_modules()?.ROLE, 'canCreate')}
@@ -165,11 +166,11 @@ const RoleManagementPage: React.FC = () => {
           apiRef={apiRef}
           rows={roles}
           columns={columns}
-          getRowId={row => row.roleId}
+          getRowId={(row) => row.roleId}
           filterModel={filterModel}
-          onFilterModelChange={model => setFilterModel(model)}
+          onFilterModelChange={(model) => setFilterModel(model)}
           columnVisibilityModel={columnVisibilityModel}
-          onColumnVisibilityModelChange={model => setColumnVisibilityModel(model)}
+          onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
           initialState={{ pagination: { paginationModel: { pageSize: 20, page: 0 } } }}
           pageSizeOptions={[10, 20, 50]}
           disableRowSelectionOnClick

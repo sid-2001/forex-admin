@@ -1,6 +1,22 @@
 import React, { useState, useEffect } from 'react'
 import { DataGrid, GridToolbarContainer, GridToolbarExport, GridActionsCellItem } from '@mui/x-data-grid'
-import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Box, FormControlLabel, Checkbox, Stack, useTheme } from '@mui/material'
+import {
+  Typography,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Box,
+  FormControlLabel,
+  Checkbox,
+  useTheme,
+} from '@mui/material'
 import { Add, Edit, Delete } from '@mui/icons-material'
 import staticdataService from '@/services/staticdata.service'
 import { useRecoilState } from 'recoil'
@@ -8,11 +24,11 @@ import { alertState, alertTextState, alertTypeState, staticTableState } from '@/
 import LoaderUI from '@/components/loader/loader'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { HelperService } from '@/helpers/helper'
+import static_list from '@/contants/static.data'
 
 const StaticDataGrid = ({
   //@ts-ignore
   data,
-
   //@ts-ignore
   apiEndpoint,
   primaryKey = 'id',
@@ -29,7 +45,6 @@ const StaticDataGrid = ({
   const [type, setType] = useRecoilState(alertTypeState)
   const [open, setOpen] = useRecoilState(alertState)
   const [date, setDate] = useState(null)
-  const theme = useTheme()
   const [staticTable, setStaticTable] = useRecoilState<{
     name: string
     'primary-key': string
@@ -42,7 +57,6 @@ const StaticDataGrid = ({
   )
 
   // Initialize component with data
-
   const static_service = new staticdataService()
   const local_service = new LocalStorageService()
   const helper = new HelperService()
@@ -53,24 +67,6 @@ const StaticDataGrid = ({
       generateColumnsAndFormModel(data[0])
     }
   }, [data])
-
-  // useEffect(() => {
-  //   console.log(apiEndpoint)
-  //   static_service
-  //     //@ts-ignore
-  //     .staticData(staticTable.api, {
-  //       action: 'READ_ALL',
-  //     })
-  //     .then((data) => {
-  //       console.log(data)
-  //       if (data?.data.length > 0) {
-  //         console.log(data?.data[0])
-
-  //         setRows(data?.data)
-  //         generateColumnsAndFormModel(data?.data[0])
-  //       }
-  //     })
-  // }, [])
 
   useEffect(() => {
     if (!apiEndpoint) return
@@ -93,7 +89,6 @@ const StaticDataGrid = ({
 
   // Generate columns and form model based on first data item
   const generateColumnsAndFormModel = (sampleData: any) => {
-    console.log(sampleData)
     const generatedColumns = []
     const formModel = {}
 
@@ -161,6 +156,13 @@ const StaticDataGrid = ({
   // Helper function to format header names
   const formatHeaderName = (key: any) => {
     return key.replace(/([A-Z])/g, ' $1').replace(/^./, (str: any) => str.toUpperCase())
+  }
+
+  const handleChange = (event: any) => {
+    const selectedTable = static_list.find((table: any) => table.name === event.target.value)
+    if (selectedTable) {
+      setStaticTable(selectedTable)
+    }
   }
 
   // Helper function to determine column width
@@ -334,17 +336,10 @@ const StaticDataGrid = ({
             <TextField
               onChange={(e) => {
                 const { name, value } = e.target
-                console.log(column.field)
-                console.log(value)
-                console.log(e.target)
                 setFormData((prev: any) => ({
                   ...prev,
                   [column.field]: value,
                 }))
-
-                console.log('set new data', formData)
-
-                console.log(e.target.value)
                 //@ts-ignore
                 setDate(e.target.value)
               }}
@@ -394,29 +389,38 @@ const StaticDataGrid = ({
   }
 
   return (
-    <Box
-      sx={{
-        width: '80vw',
-        '& .super-app-theme--header': {
-          backgroundColor: '#005099',
-          color: 'white',
-        },
-      }}
-    >
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+    <>
+      {staticTable?.listname && (
+        <Typography variant="h4" fontWeight={600} gutterBottom>
+          {staticTable.listname}
+        </Typography>
+      )}
+      {/* Dropdown */}
+
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <FormControl sx={{ width: '20%' }}>
+          <InputLabel>Select Table</InputLabel>
+          <Select value={staticTable?.name || ''} label="Select Table" onChange={handleChange}>
+            {static_list.map((table: any) => (
+              <MenuItem key={table.name} value={table.name}>
+                {table.listname}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <Button
           variant="contained"
           color="primary"
+          size="large"
           startIcon={<Add />}
           onClick={handleAddClick}
-          sx={{ height: '40px' }}
           disabled={!helper.checkUserHasPermission(local_service.get_modules()?.STATIC_DATA, 'canCreate')}
         >
           Add Data
         </Button>
-      </Stack>
+      </Box>
 
-      <Box sx={{ height: 600, width: '80vw' }}>
+      <Box sx={{ height: 550 }}>
         <DataGrid
           rows={rows}
           columns={columns}
@@ -475,7 +479,7 @@ const StaticDataGrid = ({
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </>
   )
 }
 
