@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, Box, Button } from '@mui/material'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { TransactionService } from '@/services/transaction.service'
 
 const { VITE_APP_URL } = import.meta.env
 const GifModal: React.FC = () => {
@@ -9,6 +10,7 @@ const GifModal: React.FC = () => {
  const [searchParams, setSearchParams] = useSearchParams();
 
   let navigate = useNavigate()
+  const transaction_service=new TransactionService()
   const handleClose = () => {
     setOpen(false)
 
@@ -24,6 +26,21 @@ const GifModal: React.FC = () => {
     window.location.replace(`${VITE_APP_URL}/transaction`)
   }, 3000)
 
+
+  useEffect(()=>{
+    if(searchParams.get("payfastdata")){
+      let payfast=searchParams.get("payfastdata")
+          const decoded = decodeURIComponent(payfast as any);
+        const parsed = JSON.parse(decoded);
+        console.log(parsed)
+
+   transaction_service.createTransaction(parsed)
+
+    }
+
+  },[]
+
+  )
   return (
     <>
       {/* Button to open the modal */}

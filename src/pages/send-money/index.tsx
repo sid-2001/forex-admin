@@ -52,11 +52,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useTheme } from '@emotion/react'
 import staticdataService from '@/services/staticdata.service'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 
-
-import { generateZapperSessionIdApi } from '../../helpers/zapper'
 const { VITE_APP_URL } = import.meta.env
 
 const helper = new HelperService()
@@ -65,6 +61,9 @@ const applicant_service = new ApplicantService()
 const transaction_service = new TransactionService()
 const kyc_service = new KycService()
 const static_service = new staticdataService()
+
+
+
 
 const ConfirmAndPayButton = ({ handleClick = () => {}, imgUrl = '' }) => {
   return (
@@ -117,7 +116,7 @@ const SendMoneyPage = () => {
   const [selectedTransferMethod, setSelectedTransferMethod] = useState('Bank Transfer')
   const [countries, setCountries] = useRecoilState(countyState)
    const [included, setIncluded] = useState(false);
-  
+   const[live ,islive]=useState(false)
 
   const [remittanceList, setRemittanceList] = useState<
     {
@@ -492,27 +491,27 @@ const SendMoneyPage = () => {
       receiverId: selectedBenficary?.benificaryId,
          applicantId: selectedUser?.applicantId,
            receiveCountry:selectedCountry,
-               sendCountry:selectedCountry,
+               sendCountry:userCountry,
              
-     principalAmount: Number(amount),
+     principalAmount: helper.roundToTwoFixed( (Number(amount)-Number(selectedTimeChange)) * Number(forexRate)),
 
-    principalCurrency: userCountry === 'ZA' ? 'ZAR' : 'INR',
-       settlementCurrency: userCountry === 'ZA' ? 'INR' : 'ZAR',
-        settlementAmount: Number(amount) + Number(selectedTimeChange) + Number(gatewayCharge),
+    principalCurrency: userCountry === 'ZA' ? 'INR' : 'ZAR',
+       settlementCurrency: userCountry === 'ZA' ? 'ZAR' : 'INR',
+        settlementAmount: Number(amount) ,
           
 
     gatewayStatus: 'Pending',
 
 
       rewardPoints: 23.7,
-     exchangeRates: 4.5,
+     exchangeRates: helper.roundToTwoFixed(forexRate),
   vatCharges: 50.0,
     
     bopId: category,
 
  gatewayId: 'IMPGW004',
-    charges: selectedTimeChange,
-      loyaltyDiscountAmt: 50.0,
+    charges: finalcharges,
+      loyaltyDiscountAmt:loyalityamout,
      
 //@ts-nocheck
 //@ts-ignore
@@ -544,7 +543,7 @@ const SendMoneyPage = () => {
 
       let zapper_trans = await transaction_service.createZaphierTransaction({
         //@ts-ignore
-        amount: transactionPayload?.amount,
+        amount: transactionPayload?.principalAmount,
         currencyISOCode: 'ZAR',
         transactionNumber: txnResponse?.data,
       })
@@ -747,13 +746,13 @@ const SendMoneyPage = () => {
           const response = await transaction_service.createAdumoOrder({ amount: transactionPayload?.principalAmount, transactionId: txnResponse?.data })
           const { data } = response
 
-          console.log()
+          console.log(data)
 
           if (!data) {
             alert('Failed to get session ID')
             return
           }
-          window.location.replace(JSON.parse(data)?.redirect_url)
+          window.location.replace((data)?.url)
 
          
         }
@@ -763,6 +762,73 @@ const SendMoneyPage = () => {
       alert('Payment failed. Please try again.')
     }
   }
+
+
+  const payfastCredentials = {
+  payUrlSandbox: "https://sandbox.payfast.co.za/eng/process",
+  payUrlLive: "https://www.payfast.co.za/eng/process",
+  merchant_id: "10000100",
+  merchant_key: "46f0cd694581a",
+  m_payment_id: "01AB",
+  return_url: `${VITE_APP_URL}/transaction/response&status=success&payfastdata=${
+JSON.stringify({...transactionPayload,gatewayStatus:"Success"})
+
+  }`,
+  cancel_url: `${VITE_APP_URL}/transaction/response&status=fail&payfastdata=${
+JSON.stringify({...transactionPayload,gatewayStatus:"Fail"})
+  }`,
+  notify_url: "https://example.com/notify",
+};
+
+ const handlePayfast = () => {
+    const payfastURL ="https://sandbox.payfast.co.za/eng/process"
+
+    console.log(JSON.stringify({...transactionPayload,gatewayStatus:"Success"})
+)
+
+    const payfastForm = `
+      <html>
+        <body onload="document.forms[0].submit()">
+          <form action="${payfastURL}" method="post">
+            <input type="hidden" name="merchant_id" value="${payfastCredentials.merchant_id}" />
+            <input type="hidden" name="merchant_key" value="${payfastCredentials.merchant_key}" />
+            <input type="hidden" name="amount" value="${amount}" />
+            <input type="hidden" name="m_payment_id" value="${payfastCredentials.m_payment_id}" />
+            <input type="hidden" name="item_name" value="panakajtomar" />
+            <input type="hidden" name="item_description" value="This is a test item." />
+            <input type="hidden" name="name_first" value="siddhant" />
+            <input type="hidden" name="name_last" value="kauhsij" />
+            <input type="hidden" name="email_address" value="siddhant@gmail.com" />
+            <input type="hidden" name="cell_number" value="+27831231234" />
+            <input type="hidden" name="return_url" value=${ VITE_APP_URL}/transaction/response?status=success&payfastdata=${encodeURIComponent(
+JSON.stringify(( {...transactionPayload,gatewayStatus:"Success"})))
+  } />
+
+<input
+  type="hidden"
+  name="cancel_url"
+  value=${VITE_APP_URL}/transaction/response?status=cancelled&payfastdata=${encodeURIComponent(JSON.stringify({ ...transactionPayload, gatewayStatus: "Failed" }))}
+/>
+
+
+
+
+            <input type="hidden" name="notify_url" value="${payfastCredentials.notify_url}" />
+          </form>
+        </body>
+      </html>
+    `;
+
+    // Open the form in a new tab and auto-submit
+    // const document = window.open("", "_blank");
+    // newWindow.document.write(payfastForm);
+    // newWindow.document.close();
+    document.open();
+document.write(payfastForm);
+document.close();
+
+  };
+
 
   const handleUserSelect = (user: { name: string; accountNumber: string; profilePhoto: string; applicantId: string }) => {
     setSelectedUser(user)
@@ -1195,22 +1261,19 @@ const SendMoneyPage = () => {
                   </TableHead>
                   <TableBody>
                     <TableRow>
-                      <TableCell>Settlement Amount</TableCell>
+                      <TableCell>Principal Amount</TableCell>
                       <TableCell align="right">
-                        {
-                          //@ts-ignore
-                          helper.roundToTwoFixed(amount * forexRate) + ' ' + currency
-                        }
+   {helper.roundToTwoFixed( (Number(amount)-Number(selectedTimeChange)) * Number(forexRate)) + ' ' + currency}
                       </TableCell>
                     </TableRow>
 
                     <TableRow>
-                      <TableCell>Amount</TableCell>
+                      <TableCell>Settlement Amount</TableCell>
                       <TableCell align="right">{helper.roundToTwoFixed(amount) + ' ' + sourceCountry}</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>Platform Charges</TableCell>
-                      <TableCell align="right">{selectedTimeChange ? selectedTimeChange : 0 + ' ' + sourceCountry}</TableCell>
+                      <TableCell align="right">{finalcharges ? finalcharges : 0 + ' ' + sourceCountry}</TableCell>
                     </TableRow>
                   
                     <TableRow>
@@ -1218,7 +1281,7 @@ const SendMoneyPage = () => {
                         <strong>Net Payable</strong>
                       </TableCell>
                       <TableCell align="right">
-                        <strong>{Number(amount)  + sourceCountry}</strong>
+                        <strong>{Number(amount)  +" "+ sourceCountry}</strong>
                       </TableCell>
                     </TableRow>
                   </TableBody>
@@ -1237,6 +1300,10 @@ const SendMoneyPage = () => {
                   <ConfirmAndPayButton
                     imgUrl="https://zapper.gitbook.io/zapper-platform/~gitbook/image?url=https%3A%2F%2F3889691800-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F-M4tIVi0eT23PM2ng2_g%252Ficon%252Ffg6xU4qKsy5lQJ83OvI0%252FRounded.svg%3Falt%3Dmedia%26token%3D28b1c6cc-492e-43da-a8d8-230b9ac27b70&width=32&dpr=4&quality=100&sign=9960cbd3&sv=2"
                     handleClick={() => handleZapperPaymentGateway()}
+                  />
+                    <ConfirmAndPayButton
+                    imgUrl="https://media.licdn.com/dms/image/v2/D4E0BAQEz9WJPKYSK0A/company-logo_200_200/B4EZpNyegnKsAI-/0/1762241671815?e=1764806400&v=beta&t=09XanxAnaCDQCwm9VDqNzu0_IpVEAWGqFzGDf_74O8E"
+                    handleClick={() => handlePayfast()}
                   />
                 </>
               ) : (
