@@ -115,8 +115,8 @@ class ApplicantService extends BaseService {
     }
   }
 
-  async getConsumersData(): Promise<any> {
-    const url = '/api/applicant/applicant/overview'
+  async getConsumersData(user_country:any): Promise<any> {
+    const url = `/api/applicant/applicant/overview?country=${user_country}`
     try {
       const response = await api1.get(url)
       return response

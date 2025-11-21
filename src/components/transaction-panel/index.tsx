@@ -4,6 +4,9 @@ import { Box, Grid, Button, CircularProgress, Alert } from "@mui/material";
 import { AgCharts } from "ag-charts-react";
 import staticdataService from "@/services/staticdata.service";
 import { useTheme } from "@mui/material/styles";
+import { useRecoilState } from "recoil";
+import { selectedCountryState } from "@/states/state";
+import { LocalStorageService } from "@/helpers/local-storage-service";
 
 
 const TransactionPanel = () => {
@@ -14,7 +17,9 @@ const TransactionPanel = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [yearsData, setYearsData] = useState<any[]>([]);
+  const[selectedCounty,SetSelectedCountry]=useRecoilState(selectedCountryState)
   let static_service = new staticdataService();
+  let local_service=new LocalStorageService();
   const theme = useTheme(); 
 
 
@@ -29,12 +34,18 @@ const TransactionPanel = () => {
     }).format(amount);
   };
 
+
+
+  useEffect(()=>{
+console.log(local_service.get_staff_country())
+
+  },[])
   // ✅ Updated: fetch monthly data for a given year
   const fetchMonthlyData = async (selectedYear: number) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await static_service.getTransactionYearlyData("ZA", selectedYear);
+      const res = await static_service.getTransactionYearlyData(local_service.get_staff_country(), selectedYear);
       setMonthlyData(res?.data || []);
       setSelectedMonth(null);
       setYear(selectedYear); // update selected year
@@ -50,7 +61,7 @@ const TransactionPanel = () => {
     setError(null);
     try {
       const res = await static_service.getTransactionMonthlyData(
-        "ZA",
+        local_service.get_staff_country(),
         month.toUpperCase(),
         year
       );
@@ -80,9 +91,9 @@ const TransactionPanel = () => {
   const fetchYearlyData = async () => {
     setLoading(true);
     try {
-      const res2023 = await static_service.getTransactionYearlyData("ZA", 2023);
-      const res2024 = await static_service.getTransactionYearlyData("ZA", 2024);
-      const res2025 = await static_service.getTransactionYearlyData("ZA", 2025);
+      const res2023 = await static_service.getTransactionYearlyData(local_service.get_staff_country(), 2023);
+      const res2024 = await static_service.getTransactionYearlyData(local_service.get_staff_country(), 2024);
+      const res2025 = await static_service.getTransactionYearlyData(local_service.get_staff_country(), 2025);
 
       setYearsData([
         {

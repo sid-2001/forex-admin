@@ -83,7 +83,7 @@ const Dashboard = () => {
 
   const fetchConsumersData = async () => {
     try {
-      const data = await applicant_service.getConsumersData()
+      const data = await applicant_service.getConsumersData(local_service?.get_staff_country)
       setConsumersData(data)
     } catch (error) {
       console.error('Failed to load dashboard data:', error)
