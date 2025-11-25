@@ -93,14 +93,16 @@ const SendMoneyPage = () => {
   const [selectedTime, setSelectedTime] = useState({})
   const [selectedTimeTableRow, setSelectedTimeTableRow] = useState<number | null>(null)
   const [finalamount, setFinalAmount] = useState(0)
-  const [sourceCountry, setSourceCountry] = useState(userCountry === 'IN' ? 'INR' : 'ZAR')
+    const [userCurrency, setUserCurrency] = useRecoilState(userCurrencyState)
+    //@ts-ignore
+  const [sourceCountry, setSourceCountry] = useState(userCurrency?.currencyCode)
   const [gatewayCharge, setGatewayCharge] = useState(0)
   const [selectedBenficary, setSelectedBenificary] = useState({})
   const [userlist, setUserList] = useState([])
   const [gifsuccess, setGifSuccess] = useState(false)
   const [sendCountry, setsendCountry] = useState('')
   const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
-  const [userCurrency, setUserCurrency] = useRecoilState(userCurrencyState)
+
   const [selectedTimeChange, setSelectedTimeCharge] = useState<number>(0)
   const [selectedUser, setSelectedUser] = useState<{ name: string; accountNumber: string; profilePhoto: string; applicantId: string } | null>(null)
   const [category, setCategory] = useState<string>('')
@@ -381,7 +383,10 @@ const SendMoneyPage = () => {
 
     static_service.getCountryCurrency(selected?.countryCode).then((data) => {
       //@ts-ignore
-      setCurrency(data)
+
+      console.log(data)
+      //@ts-ignore
+      setCurrency(data?.currencyCode)
 
       if (selected) {
         console.log(userCurrency)
@@ -389,9 +394,9 @@ const SendMoneyPage = () => {
         transaction_service
           .getForexRate(
             //@ts-ignore
-
-            userCurrency,
-            data,
+            userCurrency?.currencyCode,
+            //@ts-ignore
+            data?.currencyCode,
           )
           .then((data) => {
             console.log(data)
@@ -400,8 +405,10 @@ const SendMoneyPage = () => {
         //@ts-ignore
         // setCurrency(selected.currency)
         //@ts-ignore
+        
         setsendCountry(selected.countryCode)
-        setSourceCountry(userCountry === 'IN' ? 'INR' : 'ZAR')
+        //@ts-ignore
+        setSourceCountry(userCurrency?.currencyCode)
       }
     })
   }
@@ -495,12 +502,12 @@ const SendMoneyPage = () => {
              
      principalAmount: helper.roundToTwoFixed( (Number(amount)-Number(selectedTimeChange)) * Number(forexRate)),
 
-    principalCurrency: userCountry === 'ZA' ? 'INR' : 'ZAR',
-       settlementCurrency: userCountry === 'ZA' ? 'ZAR' : 'INR',
+    principalCurrency: currency,
+       settlementCurrency: sourceCountry,
         settlementAmount: Number(amount) ,
           
 
-    gatewayStatus: 'Pending',
+    gatewayStatus: 'Success',
 
 
       rewardPoints: 23.7,
@@ -515,7 +522,7 @@ const SendMoneyPage = () => {
      
 //@ts-nocheck
 //@ts-ignore
-     finalCharges: selectedTime?.time,
+     finalCharges: finalcharges,
     // transactionId: "ZAOWRM250814IN2524",
   }
 
@@ -764,6 +771,50 @@ const SendMoneyPage = () => {
   }
 
 
+    const handleSquadPaymentClick = async () => {
+    try {
+      const { data } = await transaction_service.createDealcover(dealCoverPayload)
+
+      if (data?.dealNumber) {
+        const txnResponse = await transaction_service.createTransaction({...transactionPayload
+
+
+        })
+        if (txnResponse?.status) {
+          setCommonLoader(true)
+          if (txnResponse?.data) {
+            settype('success')
+            setText('Transaction Redicect Success')
+          } else {
+            settype('error')
+            setText('Failed to Redircet Transaction')
+          }
+          setOpen(true)
+          setcommonloader(false)
+          // navigate('/transaction')
+
+
+          //@ts-ignore
+          const response = await transaction_service.createSquadOrder({ amount: amount, transactionNumber: txnResponse?.data })
+          const { data } = response
+
+          console.log(data)
+
+          // if (!data) {
+          //   alert('Failed to get session ID')
+          //   return
+          // }
+          window.location.replace((data)?.checkout_url)
+
+         
+        }
+      }
+    } catch (error) {
+      console.error('Payment initiation failed:', error)
+      alert('Payment failed. Please try again.')
+    }
+  }
+
   const payfastCredentials = {
   payUrlSandbox: "https://sandbox.payfast.co.za/eng/process",
   payUrlLive: "https://www.payfast.co.za/eng/process",
@@ -987,7 +1038,9 @@ document.close();
                   <Grid item xs={12} md={3}>
                     <TextField
                       type="number"
-                      label={`Amount In   ${userCurrency != undefined ? userCurrency : ''} `}
+
+                      //@ts-ignore
+                      label={`Amount In   ${userCurrency?.currencyCode != undefined ? userCurrency?.currencyCode : ''} `}
                       variant="filled"
                       fullWidth
                       defaultValue={amount}
@@ -1307,12 +1360,24 @@ document.close();
                   />
                 </>
               ) : (
+                
+                (userCountry === 'NG')?
+                
                 <>
+                   <ConfirmAndPayButton
+                    imgUrl="https://media.licdn.com/dms/image/v2/C4D0BAQGh5DFMJmqbng/company-logo_200_200/company-logo_200_200/0/1673622411246?e=1765411200&v=beta&t=euP3Wo4Y6e0grj-yFgmI-tEqfgffArBxqLfBejAG0Zg"
+                    handleClick={() => handleSquadPaymentClick()}
+                  />
+
+                </>:<>
+                
                   <ConfirmAndPayButton
                     imgUrl="https://cashfreelogo.cashfree.com/website/landings-cache/landings/logo-lightbg_3x.webp"
                     handleClick={() => handleCashfreePaymentClick()}
                   />
                 </>
+
+
               )}
             </Box>
           </TabPanel>

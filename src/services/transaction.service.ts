@@ -282,6 +282,16 @@ export class TransactionService extends BaseService {
     }
   }
 
+    async createSquadOrder(payload: any) {
+    const url = `/api/transactions/squad/transaction/initiate`
+    try {
+      const { data } = await api1.post(url, payload)
+      return data
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   async fetchGatewaysByCountry(countryCode: string): Promise<any> {
     const url = `api/static-table/forex-gateway/by-country?countryCode=${countryCode}`
     try {

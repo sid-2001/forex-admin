@@ -171,12 +171,12 @@ const TransactionListing = () => {
       renderCell: (params: any) => helper.convertDateAndTime(params?.row?.owCreatedDate),
     },
     {
-      field: 'status',
-      headerName: 'Status',
+      field: 'gateway_status',
+      headerName: 'Gateway Status',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        const value = params?.row?.status?.toUpperCase()
+        const value = ( params?.row?.gateway_status)?.toUpperCase()
         if (!value) return null
         return (
           <Chip
@@ -268,7 +268,7 @@ const TransactionListing = () => {
     // keep order from the grid; visible if not explicitly false
     const visibleCols = allCols.filter((col) => columnVisibilityModel[col.field] ?? true)
 
-    const headers = visibleCols.map((c) => c.headerName ?? c.field)
+    const headers = visibleCols?.map((c) => c.headerName ?? c.field)
 
     const valueFor = (r: any, field: string) => {
       const v = r?.[field]
@@ -817,6 +817,7 @@ console.log(transactionDetails)
               final_amount: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates * e?.transactionGatewayDTO?.principalAmount),
               applicant: e?.applicant,
               gateway_name: e?.transactionGatewayDTO?.forexPaymentGateway?.company,
+               gateway_status: e?.transactionGatewayDTO?.gatewayStatus,
               //@ts-ignore
               inid: e?.transactionInwardNumber,
             }
@@ -1187,10 +1188,10 @@ console.log(transactionDetails)
             <Chip label={transactionDetails?.status} color="warning" sx={{ marginBottom: 2 }} />
 
 
-                  <Grid container spacing={2} mb={2} p={3}>
+                  {/* <Grid container spacing={2} mb={2} p={3}>
               
                <StageTimeline stageDetails={transactionDetails?.stages} />
-            </Grid>
+            </Grid> */}
 
             {/* Transaction Details Section */}
             <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>

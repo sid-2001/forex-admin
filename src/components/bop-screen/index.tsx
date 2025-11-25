@@ -414,7 +414,7 @@ const BopScreen: React.FC = () => {
               gutterBottom
               // @ts-ignore
             >
-              {userLoggedInCountry === 'IN' ? 'Purpose Code Details' : 'Bop Category Details'}
+              {userLoggedInCountry === 'IN'||"NG" ? 'Purpose Code Details' : 'Bop Category Details'}
             </Typography>
           </Box>
 

@@ -14,6 +14,8 @@ const ApplicantEnquiry = () => {
 
   const staffCountry = local_service?.get_staff_country()
 
+  
+
   const getApplicantListByCountry = useCallback(async () => {
     try {
       setIsLoading(true)

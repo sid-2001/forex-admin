@@ -59,9 +59,10 @@ const UserTable: React.FC = () => {
       const response = await user_service.getAllStaffList()
       const staffId=await  local_service.get_staff_access()?.staffId
 
-      setStaffList(  response.filter(
-    (e) => e?.staffId != staffId
-))
+//       setStaffList(  response.filter(
+//     (e) => e?.staffId != staffId
+// ))
+setStaffList(response)
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error)
     }

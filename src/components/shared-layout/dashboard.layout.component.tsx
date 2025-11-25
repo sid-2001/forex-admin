@@ -359,6 +359,7 @@ const DashboardLayout = () => {
       }}
     >
       {/* Left side - Logo + Dark/Light Mode (UNCHANGED) */}
+      
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
           <IconButton
@@ -387,7 +388,7 @@ const DashboardLayout = () => {
               maxHeight: '6vh',
               width: 'auto',
               objectFit: 'contain',
-              marginLeft:200
+              marginLeft:"130%"
             }}
           />
         </Link>
