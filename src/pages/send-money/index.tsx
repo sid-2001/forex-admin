@@ -52,6 +52,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useTheme } from '@emotion/react'
 import staticdataService from '@/services/staticdata.service'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import RexPay from "rexpay";
 
 const { VITE_APP_URL } = import.meta.env
 
@@ -114,11 +115,12 @@ const SendMoneyPage = () => {
 
   const [currency, setCurrency] = useState<string>('')
   const [forexRate, setForexRate] = useState<string>('')
-  const [amount, setAmount] = useState<number>(100)
+  const [amount, setAmount] = useState<number>(0)
   const [selectedTransferMethod, setSelectedTransferMethod] = useState('Bank Transfer')
   const [countries, setCountries] = useRecoilState(countyState)
    const [included, setIncluded] = useState(false);
    const[live ,islive]=useState(false)
+   
 
   const [remittanceList, setRemittanceList] = useState<
     {
@@ -148,6 +150,82 @@ const SendMoneyPage = () => {
     { id: 2, time: '8 hours', charges: 5, total: 200 },
     { id: 3, time: '2 days', charges: 0.5, total: 200 },
   ]
+
+
+ const [state, setState] = useState({
+    amount: "",
+    loading: false,
+    transactions: [],
+  });
+  function OnClickPayButton() {
+    let transactionId = "Test" + Math.floor(Math.random() * 1000000);
+    setState({ ...state, loading: true });
+    const rex = new RexPay();
+    // rex.apiUrl=
+    try {
+      // rex.apiUrl="https://checkout-dev.globalaccelerex.com/pay/17642458VziKSogBww"
+      //   rex.testUrl="https://checkout-dev.globalaccelerex.com/pay/17642458VziKSogBww"
+      rex.initializePayment({
+        reference: transactionId,
+        amount: 100,
+        currency: "NGN",
+        userId: "test@gmail.com",
+        callbackUrl: "google.com",
+        mode: "Debug",
+        metadata: {
+          email: "test@gmail.com",
+          customerName: "Test User",
+        },
+      }).then((response) => {
+        if (response.success) {
+          setState({ ...state, loading: false });
+          sessionStorage.setItem("tranId", transactionId); // it can be saved to Database.
+          sessionStorage.setItem("reference", response.data?.reference); // it can be saved to Database
+          window.location.href = response.data?.authorizeUrl;
+        } else {
+          setState({ ...state, loading: false });
+          window.location.href = response.data?.authorizeUrl;
+        }
+      });
+    } catch (error) {
+      //handle error
+      console.log(error);
+    }
+  }
+
+  function VerifyPayment() {
+    try {
+      const tranId =
+        localStorage.getItem("tranId") === null
+          ? ""
+          : localStorage.getItem("tranId");
+     const rex = new RexPay();
+     //@ts-ignore
+      rex.VerifyPayment({
+        transactionReference: tranId,
+
+      }).then(
+        //@ts-ignore
+        (response) => {
+        let amount = response?.data?.amount;
+        if (amount) {
+          setState({ ...state, amount, transactions: response.data.history });
+        } else {
+          setState({ ...state, amount: "" });
+        }
+      });
+    } catch (error) {
+      //handle error
+      setState({ ...state, amount: "" });
+    }
+  }
+  useEffect(() => {
+    // or ComponentDidMount if you are using class component
+    VerifyPayment();
+  }, []);
+
+
+
 
   const getCharges = (principla_amount:any) => {
     kyc_service.getCharges(userCountry, sendCountry, principla_amount, 0, selectedUser?.applicantId).then(({ data }) => {
@@ -815,6 +893,50 @@ const SendMoneyPage = () => {
     }
   }
 
+  const RexPaymentClick = async () => {
+    try {
+      const { data } = await transaction_service.createDealcover(dealCoverPayload)
+
+      if (data?.dealNumber) {
+        const txnResponse = await transaction_service.createTransaction({...transactionPayload
+
+
+        })
+        if (txnResponse?.status) {
+          setCommonLoader(true)
+          if (txnResponse?.data) {
+            settype('success')
+            setText('Transaction Redicect Success')
+          } else {
+            settype('error')
+            setText('Failed to Redircet Transaction')
+          }
+          setOpen(true)
+          setcommonloader(false)
+          // navigate('/transaction')
+
+
+          //@ts-ignore
+          const response = await transaction_service.createRexoayOrder({ amount: amount, transactionNumber: txnResponse?.data })
+          const { data } = response
+
+          console.log(data)
+OnClickPayButton()
+          // if (!data) {
+          //   alert('Failed to get session ID')
+          //   return
+          // }
+          // window.location.replace((data)?.checkout_url)
+
+         
+        }
+      }
+    } catch (error) {
+      console.error('Payment initiation failed:', error)
+      alert('Payment failed. Please try again.')
+    }
+  }
+
   const payfastCredentials = {
   payUrlSandbox: "https://sandbox.payfast.co.za/eng/process",
   payUrlLive: "https://www.payfast.co.za/eng/process",
@@ -917,8 +1039,9 @@ document.close();
             <Box>
               <Grid container spacing={2} marginBottom={2}>
                 <Grid item xs={12} md={6}>
+              
                   <TextField
-                    //   label="Select User"
+                  //   label="Select User"
                     variant="filled"
                     fullWidth
                     value={searchText}
@@ -1036,35 +1159,32 @@ document.close();
 
                   {/* Amount Input */}
                   <Grid item xs={12} md={3}>
-                    <TextField
-                      type="number"
+                   <TextField
+  type="number"
+  //@ts-ignore
+  label={`Amount In ${userCurrency?.currencyCode ?? ""}`}
+  variant="filled"
+  fullWidth
+  inputProps={{ min: 0 }}   // ⛔ disallow typing negative numbers
+  value={amount}            // use controlled input, not defaultValue
+  onChange={(e) => {
+    let value = Number(e.target.value);
 
-                      //@ts-ignore
-                      label={`Amount In   ${userCurrency?.currencyCode != undefined ? userCurrency?.currencyCode : ''} `}
-                      variant="filled"
-                      fullWidth
-                      defaultValue={amount}
-                      onChange={(e) => {
-                        // setAmount(e.target.value as any)
-                        // setSelectedTimeCharge(0)
-                        // getCharges()
+    // ⛔ Don't allow negative values at all
+    if (value < 0) return;
 
-
-                         const value = Number(e.target.value);
-                         console.log(value)
-    setAmount(e.target.value as any) ;
-
-    
+    setAmount(value);
 
     if (value < 100 || isNaN(value)) {
       setError(true);
     } else {
       setError(false);
       setSelectedTimeCharge(0);
-      getCharges(e.target.value);
+      getCharges(value);
     }
-                      }}
-                    />
+  }}
+/>
+
                       {error && (
         <Typography
           variant="body2"
@@ -1141,18 +1261,19 @@ document.close();
 
               <BeneficiaryForm
                 beneficiaryId={beneficiaryId || ''}
-                choosedBenificiary={beneficiaryId ? selectedBenficary : {}}
+                choosedBenificiary={ selectedBenficary }
                 //@ts-ignore
                 beneficiaries={beneficiaryId ? [] : selectedUser?.benificary}
                 handleSetBenificiaryData={(record: any) => {
                   setSelectedBenificary(record)
+              
                 }}
               />
 
               <Divider sx={{ marginY: 2 }} />
 
               <Typography variant="h6" gutterBottom>
-                BOP Category
+            {userCountry=="Ng"||"In"?" Purpose Code":"BOP Category"}     
               </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={12} md={12}>
@@ -1365,9 +1486,14 @@ document.close();
                 
                 <>
                    <ConfirmAndPayButton
-                    imgUrl="https://media.licdn.com/dms/image/v2/C4D0BAQGh5DFMJmqbng/company-logo_200_200/company-logo_200_200/0/1673622411246?e=1765411200&v=beta&t=euP3Wo4Y6e0grj-yFgmI-tEqfgffArBxqLfBejAG0Zg"
+                    imgUrl="https://squadco.com/assets/squadbyhabari.svg"
                     handleClick={() => handleSquadPaymentClick()}
                   />
+                     <ConfirmAndPayButton
+                    imgUrl="https://www.myrexpay.com/assets/landingimages/App-Logo.svg"
+                    handleClick={() => RexPaymentClick()}
+                  />
+
 
                 </>:<>
                 

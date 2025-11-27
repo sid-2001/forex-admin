@@ -22,6 +22,7 @@ const BeneficiaryForm = ({
   })
 
   useEffect(() => {
+       setFormData({ ...choosedBenificiary })
     if (beneficiaryId) {
       setFormData({ ...choosedBenificiary })
       setAnchorEl(null)
@@ -72,8 +73,8 @@ const BeneficiaryForm = ({
               //@ts-ignore
               (beneficiary, index) => (
                 <MenuItem key={index} onClick={() => handleSelectBeneficiary(beneficiary)}>
-                  <ListItemIcon>
-                    <Avatar>{beneficiary?.name?.charAt(0)}</Avatar>
+                  <ListItemIcon sx={{p:1}}>
+                    <Avatar>{beneficiary?.name?.charAt(0)} </Avatar>
                   </ListItemIcon>
                   <ListItemText primary={beneficiary?.name} />
                 </MenuItem>

@@ -803,7 +803,7 @@ console.log(transactionDetails)
               ...e.transactionGatewayDTO,
               ...e.beneficiary,
               ...e.applicant,
-               stages:{  ...e.stages},
+            stages:e?.stages,
               id: e?.transactionGatewayDTO?.transactionNumber,
               destination: e?.transactionGatewayDTO?.receiveCountry,
               value: e?.transactionGatewayDTO?.principalAmount,
@@ -1188,10 +1188,11 @@ console.log(transactionDetails)
             <Chip label={transactionDetails?.status} color="warning" sx={{ marginBottom: 2 }} />
 
 
-                  {/* <Grid container spacing={2} mb={2} p={3}>
+                <Grid container spacing={2} mb={2} p={3}>
+                  {/* { JSON.stringify(transactionDetails?.stages)} */}
               
                <StageTimeline stageDetails={transactionDetails?.stages} />
-            </Grid> */}
+            </Grid>
 
             {/* Transaction Details Section */}
             <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>

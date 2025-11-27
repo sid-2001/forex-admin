@@ -360,7 +360,7 @@ const DashboardLayout = () => {
     >
       {/* Left side - Logo + Dark/Light Mode (UNCHANGED) */}
       
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'left', gap: 2 }}>
           <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
           <IconButton
             onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}

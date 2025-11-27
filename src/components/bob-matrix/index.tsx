@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { FormControl, InputLabel, MenuItem, Select, Button } from '@mui/material'
 import FileUploadIcon from '@mui/icons-material/UploadFile'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
 interface RemittanceDetails {
   id: number
@@ -25,6 +26,7 @@ const BobCategoryDropdown: React.FC<BobCategoryDropdownProps> = ({ amount, setAm
   // const [category, setCategory] = useState<string>("");
   const [contract, setContract] = useState<File | null>(null)
   const [addressProof, setAddressProof] = useState<File | null>(null)
+  const local_service=new LocalStorageService()
 
   const handleCategoryChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     console.log(event)
@@ -46,11 +48,14 @@ const BobCategoryDropdown: React.FC<BobCategoryDropdownProps> = ({ amount, setAm
   }
 
   const showAddressProof = category === '417' || amount > 50000
+    const userCountry = local_service?.get_staff_country()
 
   return (
     <div>
       <FormControl fullWidth>
-        <InputLabel id="bob-category-label">Select BOP Category</InputLabel>
+        <InputLabel id="bob-category-label">Select
+        
+        {userCountry=="Ng"||"IN"?"BOP Category":"Purpose Code"} </InputLabel>
         <Select
           labelId="bob-category-label"
           value={category}

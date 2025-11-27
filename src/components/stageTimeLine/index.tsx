@@ -18,7 +18,7 @@ const StageTimeline: React.FC<StageTimelineProps> = ({ stageDetails }) => {
 
   const getColor = (status: string) => {
     switch (status) {
-      case "COMPLETED":
+      case "SUCCESS":
         return 'green';
       case "FAILED":
         return 'red';
@@ -82,9 +82,10 @@ const StageTimeline: React.FC<StageTimelineProps> = ({ stageDetails }) => {
           </Tooltip>
 
           {/* Connector line */}
-          {index < stageDetails.length - 1 && (
+          {/* {index < stageDetails.length - 1 && (
             <Box
               sx={{
+           
                 flex: 1,
                 height: 3,
                 backgroundColor:
@@ -93,14 +94,31 @@ const StageTimeline: React.FC<StageTimelineProps> = ({ stageDetails }) => {
                     : 'green',
               }}
             />
-          )}
+          )} */}
+
+
+          {index < stageDetails.length - 1 && (
+  <Box
+    sx={{
+      flex: 1,
+      height: 3,
+      background:
+        stage.status !== stageDetails[index + 1].status
+          ? `linear-gradient(to right, ${getColor(stage.status)} 90%, ${getColor(
+              stageDetails[index + 1].status
+            )} 50%)`
+          : getColor(stage.status),
+    }}
+  />
+)}
+
 
           {/* Stage name below */}
           <Box
             sx={{
               position: "absolute",
               bottom: -25,
-              left: 0,
+              left: "-35%",
               width: "100%",
               textAlign: "center",
             }}

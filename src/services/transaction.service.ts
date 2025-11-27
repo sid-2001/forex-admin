@@ -291,6 +291,15 @@ export class TransactionService extends BaseService {
       console.log(err)
     }
   }
+      async createRexoayOrder(payload: any) {
+    const url = `/api/transactions/rexpay/createPayment`
+    try {
+      const { data } = await api1.post(url, payload)
+      return data
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
   async fetchGatewaysByCountry(countryCode: string): Promise<any> {
     const url = `api/static-table/forex-gateway/by-country?countryCode=${countryCode}`
