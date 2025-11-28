@@ -22,6 +22,7 @@ const DocumentsListComponent = ({ documentRecords }: { documentRecords: any }) =
       field: 'actions',
       headerName: 'View',
       flex: 0.5,
+
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <IconButton onClick={() => handleViewDocument(params.row.docUrl?.replace(
@@ -29,7 +30,7 @@ const DocumentsListComponent = ({ documentRecords }: { documentRecords: any }) =
   "https://api.impronics.com/uat/"
 ))} color="primary">
 
-  
+
           <VisibilityIcon />
         </IconButton>
       ),
@@ -39,6 +40,7 @@ const DocumentsListComponent = ({ documentRecords }: { documentRecords: any }) =
   const [selectedDocUrl, setSelectedDocUrl] = useState<string | null>(null)
 
   const handleViewDocument = (url: string) => {
+    console.log(url)
     setSelectedDocUrl(url)
     setOpenDialog(true)
   }

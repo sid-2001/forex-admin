@@ -108,8 +108,9 @@ class ApplicantService extends BaseService {
   async getDocumentByApplicantId(applicantId: string): Promise<any> {
     const url = `/api/kyc/kyc/document-status/${applicantId}`
     try {
-      const { data } = await api1.get(url)
-      return data
+      const data  = await api1.get(url)
+      console.log(data)
+      return data?.data
     } catch (err) {
       throw new Error('Unable to fetch documents by applicant ID. Please try again.')
     }

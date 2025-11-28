@@ -442,15 +442,15 @@ const KYCPage = () => {
 
             {/* Applicant Details Section */}
             <Grid container>
-              <Grid item xs={2}>
+              <Grid item xs={2} p={3}>
                 <Avatar
                   src={imageUrl?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')} // Replace with actual image URL
                   sx={{
-                    width: 150,
-                    height: 150,
+                    width: "100%",
+                    height: "27%",
                     marginTop: '10%',
-                    marginRight: '10%',
-                    marginLeft: '10%',
+                    // marginRight: '10%',
+                    // marginLeft: '10%',
                     border: '4px solid green',
                     paddingTop: '1%',
                     borderRadius: '50%',

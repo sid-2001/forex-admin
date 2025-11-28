@@ -180,7 +180,8 @@ const ApplicantPage = () => {
   const getdocumentlistByApplicantId = useCallback(async () => {
     if (!applicantId) return
     try {
-      const { data } = await applicant_service.getDocumentByApplicantId(applicantId)
+      const  data  = await applicant_service.getDocumentByApplicantId(applicantId)
+      console.log(data)
       if (data.length > 0) {
         const imageRecord = data.find((doc: any) => doc.documentName === 'image')
         setApplicantImage(imageRecord?.docUrl || '')

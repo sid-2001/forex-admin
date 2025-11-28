@@ -52,7 +52,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useTheme } from '@emotion/react'
 import staticdataService from '@/services/staticdata.service'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import RexPay from "rexpay";
+import RexPay from "../../helpers/rexpay";
 
 const { VITE_APP_URL } = import.meta.env
 
@@ -170,20 +170,25 @@ const SendMoneyPage = () => {
         amount: 100,
         currency: "NGN",
         userId: "test@gmail.com",
-        callbackUrl: "google.com",
+        callbackUrl: "https://webhook.site/16fd3edc-f043-4a2b-b475-2825b56fc80c",
         mode: "Debug",
         metadata: {
           email: "test@gmail.com",
           customerName: "Test User",
         },
       }).then((response) => {
+        console.log(response);
+        //@ts-ignore
         if (response.success) {
           setState({ ...state, loading: false });
           sessionStorage.setItem("tranId", transactionId); // it can be saved to Database.
+          //@ts-ignore
           sessionStorage.setItem("reference", response.data?.reference); // it can be saved to Database
+          //@ts-ignore
           window.location.href = response.data?.authorizeUrl;
         } else {
           setState({ ...state, loading: false });
+          //@ts-ignore
           window.location.href = response.data?.authorizeUrl;
         }
       });
@@ -899,14 +904,12 @@ const SendMoneyPage = () => {
 
       if (data?.dealNumber) {
         const txnResponse = await transaction_service.createTransaction({...transactionPayload
-
-
         })
         if (txnResponse?.status) {
           setCommonLoader(true)
           if (txnResponse?.data) {
             settype('success')
-            setText('Transaction Redicect Success')
+            setText('Transaction Redirect Success')
           } else {
             settype('error')
             setText('Failed to Redircet Transaction')
