@@ -83,7 +83,7 @@ const Dashboard = () => {
 
   const fetchConsumersData = async () => {
     try {
-      const data = await applicant_service.getConsumersData(local_service?.get_staff_country)
+      const data = await applicant_service.getConsumersData(local_service?.get_staff_country())
       setConsumersData(data)
     } catch (error) {
       console.error('Failed to load dashboard data:', error)
@@ -107,15 +107,37 @@ const Dashboard = () => {
       balance,
       image_url:
         'https://pbs.twimg.com/profile_images/1477924435969462272/ZQADGPv5_400x400.png  ',
-      country: 'India',
+      country: 'In',
     },
     {
       name: 'SB ',
       balance:"No Data",
       image_url:
         'https://media.licdn.com/dms/image/v2/C4D0BAQEMo-EgURgpnA/company-logo_200_200/company-logo_200_200/0/1630561374295/standard_bank_group_logo?e=1763596800&v=beta&t=SA9TooJjIAO9AO3sO0Y_bMebCjTauJ4XnBz2gI8JTtI',
-      country: 'India',
-    }
+      country: 'In',
+    },
+
+        {
+      name: 'SA ',
+      balance:"No Data",
+      image_url:
+        'https://media.licdn.com/dms/image/v2/C4D0BAQEMo-EgURgpnA/company-logo_200_200/company-logo_200_200/0/1630561374295/standard_bank_group_logo?e=1763596800&v=beta&t=SA9TooJjIAO9AO3sO0Y_bMebCjTauJ4XnBz2gI8JTtI',
+      country: 'SA',
+    },
+     {
+      name: 'Standard Bank ',
+      balance:"No Data",
+      image_url:
+        'https://media.licdn.com/dms/image/v2/C4D0BAQEMo-EgURgpnA/company-logo_200_200/company-logo_200_200/0/1630561374295/standard_bank_group_logo?e=1763596800&v=beta&t=SA9TooJjIAO9AO3sO0Y_bMebCjTauJ4XnBz2gI8JTtI',
+      country: 'NG',
+    },
+       {
+      name: 'First Bank ',
+      balance:"No Data",
+      image_url:
+        'https://media.licdn.com/dms/image/v2/C4D0BAQEMo-EgURgpnA/company-logo_200_200/company-logo_200_200/0/1630561374295/standard_bank_group_logo?e=1763596800&v=beta&t=SA9TooJjIAO9AO3sO0Y_bMebCjTauJ4XnBz2gI8JTtI',
+      country: 'NG',
+    },
   ]
 
   useEffect(() => {
@@ -188,7 +210,9 @@ const Dashboard = () => {
       headerName: 'Action',
       flex: 1,
       renderCell: (params: any) => (
-        <Link to={`/transaction?flow=outwards&id=${params.value}`}>
+        <Link to={`/transaction?flow=outwards&id=${params?.row?.transactionId}`}>
+
+       
           <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>View more</span>
         </Link>
       ),
@@ -534,20 +558,28 @@ const Dashboard = () => {
           <Grid container spacing={2}>
             <Grid item xs={12} md={5} >
               {/* Available Balances */}
-              <Card sx={{ border: '2px solid', borderColor: '#79CBF0', mb: 2 }}>
-                <CardContent>
-                  <Typography variant="subtitle1" fontWeight={800} gutterBottom>
-                    Available Balances
-                  </Typography>
+              <Card sx={{ border: '2px solid', borderColor: '#79CBF0', mb: 2,p:1 }}>
+                <CardContent sx={{
+                
+                }}>
+                  {/* <Typography variant="subtitle1" fontWeight={800} gutterBottom>
+                  Payment Gateways
+                  </Typography> */}
 
                   <Grid container spacing={2}>
-                    {bankAccounts.map((bank, index) => {
+
+<HorizontalCardCarousel></HorizontalCardCarousel>
+
+                    {bankAccounts.filter(e=>e.country==userCountry).map((bank, index) => {
                       const colors = ['green', 'red', 'goldenrod'] // cycle
                       const borderColor = colors[index % colors.length]
                       const isActive = bank.name.toLowerCase().includes('icici')
 
                       return (
+                
+                      
                         <Grid item xs={6} key={index}>
+                         
                           <Box
                             sx={{
                               border: `3px solid ${borderColor}`,
