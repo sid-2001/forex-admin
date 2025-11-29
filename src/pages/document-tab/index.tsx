@@ -41,7 +41,8 @@ const DocumentsListComponent = ({ documentRecords }: { documentRecords: any }) =
 
   const handleViewDocument = (url: string) => {
     console.log(url)
-    setSelectedDocUrl(url)
+    setSelectedDocUrl(url ?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')
+  .replace('http://64.227.139.142/', 'https://api.impronics.com/'))
     setOpenDialog(true)
   }
 
