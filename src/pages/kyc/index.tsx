@@ -444,7 +444,8 @@ const KYCPage = () => {
             <Grid container>
               <Grid item xs={2} p={3}>
                 <Avatar
-                  src={imageUrl?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')} // Replace with actual image URL
+                  src={imageUrl?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')
+  .replace('http://64.227.139.142/', 'https://api.impronics.com/')} // Replace with actual image URL
                   sx={{
                     width: "100%",
                     height: "27%",

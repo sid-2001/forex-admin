@@ -529,7 +529,8 @@ const Dashboard = () => {
                 title={card?.company}
                 description=""
                 status={card?.activeStatus}
-                image_url={card?.imageUrl}
+                image_url={card?.imageUrl?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')
+  .replace('http://64.227.139.142/', 'https://api.impronics.com/')}
                 //@ts-ignore
                 status={card?.activeStatus}
               />

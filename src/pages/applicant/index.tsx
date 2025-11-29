@@ -269,7 +269,8 @@ const ApplicantPage = () => {
             <Grid item xs={12} sm={2} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
               <Box width={150} height={150} border="4px solid green" borderRadius="50%" display="flex" alignItems="center" justifyContent="center">
                 <Avatar
-                  src={applicantImage.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')}
+                  src={applicantImage?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')
+  .replace('http://64.227.139.142/', 'https://api.impronics.com/')}
                   style={{
                     width: '100%',
                     height: '100%',
