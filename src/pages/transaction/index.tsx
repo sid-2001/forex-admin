@@ -1191,7 +1191,7 @@ console.log(transactionDetails)
                 <Grid container spacing={2} mb={2} p={3}>
                   {/* { JSON.stringify(transactionDetails?.stages)} */}
               
-               <StageTimeline stageDetails={transactionDetails?.stages} />
+               {/* <StageTimeline stageDetails={transactionDetails?.stages} /> */}
             </Grid>
 
             {/* Transaction Details Section */}
