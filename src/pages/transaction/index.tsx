@@ -194,12 +194,12 @@ const TransactionListing = () => {
       },
     },
     {
-      field: 'payment_status',
-      headerName: 'Settlement Status',
+      field: 'status',
+      headerName: 'Transaction Status',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        const value = params?.row?.paymentStatus?.toUpperCase()
+        const value = params?.row?.status?.toUpperCase()
         if (!value) return null
         return (
           <Chip
