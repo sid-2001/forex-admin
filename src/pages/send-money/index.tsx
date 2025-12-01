@@ -599,7 +599,7 @@ const SendMoneyPage = () => {
     
     bopId: category,
 
- gatewayId: 'IMPGW004',
+ gatewayId: 'IMPGW009',
     charges: finalcharges,
       loyaltyDiscountAmt:loyalityamout,
      
