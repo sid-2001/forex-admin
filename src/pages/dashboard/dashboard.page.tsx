@@ -132,7 +132,7 @@ const Dashboard = () => {
       country: 'NG',
     },
        {
-      name: 'First Bank ',
+      name: 'Tatum Bank ',
       balance:"No Data",
       image_url:
         'https://media.licdn.com/dms/image/v2/C4D0BAQEMo-EgURgpnA/company-logo_200_200/company-logo_200_200/0/1630561374295/standard_bank_group_logo?e=1763596800&v=beta&t=SA9TooJjIAO9AO3sO0Y_bMebCjTauJ4XnBz2gI8JTtI',
