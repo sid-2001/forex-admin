@@ -396,12 +396,15 @@ const Dashboard = () => {
     description,
   }) => {
     return (
+      <Box sx={{p:1}}>
+
+    
       <Card
         sx={{
           display: 'flex',
           alignItems: 'center',
           p: 1.2,
-          height: '104%',
+          height: '90%',
           borderRadius: 3,
           boxShadow: 3,
           opacity: status ? 1 : 0.5, // dim when disabled
@@ -410,10 +413,13 @@ const Dashboard = () => {
           borderColor: 'primary.light',
         }}
       >
-        <CardMedia component="img" image={image_url} alt={title} sx={{ width: '10vw', height: '3vh', borderRadius: 2 }} />
+        <CardMedia component="img" image={image_url} alt={title} sx={{ width: 'auto', height: '3vh', borderRadius: 2 }} />
         <CardContent sx={{ ml: 2, flexGrow: 1 }}>
-          <Typography variant="body2" color="text.secondary">
+       
             <Switch
+            sx={{
+              // ml:20
+            }}
               checked={status}
               value={status}
               onChange={(e: any) => {
@@ -421,9 +427,10 @@ const Dashboard = () => {
                 handleToggle(id, !status)
               }}
             />
-          </Typography>
+        
         </CardContent>
       </Card>
+        </Box>
     )
   }
 
@@ -516,11 +523,12 @@ const Dashboard = () => {
               key={index}
               sx={{
                 flex: '0 0 auto',
-                width: {
-                  xs: '80%',
-                  sm: '45%',
-                  md: '30%',
-                },
+                // width: {
+                //   xs: '80%',
+                //   sm: '45%',
+                //   md: '30%',
+
+                // },
                 scrollSnapAlign: 'start',
               }}
             >

@@ -65,6 +65,9 @@ const BopScreen: React.FC = () => {
   const transaction_Service = new TransactionService()
   const [isEditing, setIsEditing] = useState(false)
 
+
+  const[bopCategorySelected,setBopCategorySelected]=useState(null);
+
   const parseData = local_service.get_staff_access()
   const disableFormFieldsViaStatus =
     stpErrors?.length === 0 &&
@@ -230,8 +233,11 @@ const BopScreen: React.FC = () => {
         settlement_amount: helper.roundToTwoFixed(response?.settlement_amount) || 0,
       })
 
+      console.log(response?.bop_category)
+      setBopCategorySelected(response?.bop_category)
+
       if (response?.bop_category) {
-        fetchStaticBopMapping(response.bop_category)
+        fetchStaticBopMapping(bopCat.bop_category)
       }
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error)
@@ -421,8 +427,17 @@ const BopScreen: React.FC = () => {
           <Grid container spacing={2} mt={1}>
             <Grid item xs={3}>
               <FormControl fullWidth>
-                <InputLabel>{userLoggedInCountry === 'IN' ? 'Purpose Code' : 'Bop Category'}</InputLabel>
-                <Select
+                {/* <InputLabel>{userLoggedInCountry === 'IN' ? 'Purpose Code' : 'Bop Category'}</InputLabel> */}
+                {bopCategorySelected?<>
+                <TextField 
+                  size='small'
+                  label={userLoggedInCountry === 'IN'||"NG" ? 'Purpose Code' : 'Bop Category'}
+                  disabled
+                  
+                  value={bopCategorySelected}></TextField>
+                </>:<>
+                
+                      <Select
                   label={userLoggedInCountry === 'IN' ? 'Purpose Code' : 'Bop Category'}
                   variant="outlined"
                   name="bop_category"
@@ -446,6 +461,8 @@ const BopScreen: React.FC = () => {
                     </MenuItem>
                   ))}
                 </Select>
+                </>}
+          
               </FormControl>
             </Grid>
             <Grid item xs={3}>
