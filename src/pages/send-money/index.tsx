@@ -117,6 +117,7 @@ const SendMoneyPage = () => {
   const [forexRate, setForexRate] = useState<string>('')
   const [amount, setAmount] = useState<number>(0)
   const [selectedTransferMethod, setSelectedTransferMethod] = useState('Bank Transfer')
+  const[gatewayId,setgatewayId]=useState(null)
   const [countries, setCountries] = useRecoilState(countyState)
    const [included, setIncluded] = useState(false);
    const[live ,islive]=useState(false)
@@ -859,7 +860,7 @@ const SendMoneyPage = () => {
       const { data } = await transaction_service.createDealcover(dealCoverPayload)
 
       if (data?.dealNumber) {
-        const txnResponse = await transaction_service.createTransaction({...transactionPayload
+        const txnResponse = await transaction_service.createTransaction({...transactionPayload,gatewayId:"IMPGW009"
 
 
         })
@@ -903,7 +904,7 @@ const SendMoneyPage = () => {
       const { data } = await transaction_service.createDealcover(dealCoverPayload)
 
       if (data?.dealNumber) {
-        const txnResponse = await transaction_service.createTransaction({...transactionPayload
+        const txnResponse = await transaction_service.createTransaction({...transactionPayload,gatewayId:'IMPGW010'
         })
         if (txnResponse?.status) {
           setCommonLoader(true)
