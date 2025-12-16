@@ -279,7 +279,7 @@ const UserAdd = () => {
           if (data.status) {
             settype('success')
             setText('Staff created successfully!')
-            navigate('/profile')
+            // navigate('/profile')
           } else {
             setText(data?.message)
             settype('error')

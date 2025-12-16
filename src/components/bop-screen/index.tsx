@@ -406,11 +406,11 @@ const BopScreen: React.FC = () => {
                 fullWidth
               />
             </Grid>
-            <Grid item xs={2.3}>
+            {/* <Grid item xs={2.3}>
               <TextField size="small" label="Bop Status" disabled variant="outlined" name="status" value={formData.status || ''} fullWidth />
-            </Grid>
+            </Grid> */}
             <Grid item xs={2.3}>
-              <TextField size="small" label="Sarb Status" disabled variant="outlined" name="sap_status" value={formData.sap_status || ''} fullWidth />
+              <TextField size="small" label="Reserve Bank Status" disabled variant="outlined" name="sap_status" value={formData.sap_status || ''} fullWidth />
             </Grid>
           </Grid>
 
@@ -686,7 +686,7 @@ const BopScreen: React.FC = () => {
                   />
                 </LocalizationProvider>
               </Grid>
-              <Grid item xs={2}>
+              {/* <Grid item xs={2}>
                 <TextField
                   size="small"
                   label="Id Type"
@@ -713,8 +713,8 @@ const BopScreen: React.FC = () => {
                   helperText={formErrors.id_details}
                   disabled={disableFormFieldsViaStatus || !isEditing}
                 />
-              </Grid>
-              <Grid item xs={1.5}>
+              </Grid> */}
+              {/* <Grid item xs={1.5}>
                 <TextField
                   size="small"
                   label="Contact Type"
@@ -727,12 +727,12 @@ const BopScreen: React.FC = () => {
                   helperText={formErrors.contact_type}
                   disabled={disableFormFieldsViaStatus || !isEditing}
                 />
-              </Grid>
+              </Grid> */}
               <Grid item xs={2}>
                 <TextField
                   size="small"
                   type="number"
-                  label="Contact Details"
+                  label="Phone Number"
                   variant="outlined"
                   name="contact_details"
                   fullWidth
@@ -745,7 +745,7 @@ const BopScreen: React.FC = () => {
                 />
               </Grid>
               <Grid item xs={2}>
-                <TextField size="small" label="Email" variant="outlined" name="email" fullWidth value={formData.email || ''} disabled />
+                <TextField size="small" label="Email Address" variant="outlined" name="email" fullWidth value={formData.email || ''} disabled />
               </Grid>
               {userLoggedInCountry === 'ZA' && (
                 <Grid item xs={2}>
@@ -828,7 +828,7 @@ const BopScreen: React.FC = () => {
                   fullWidth
                   name="city"
                   variant="outlined"
-                  value={formData.city || ''}
+                  value={formData.postal_city || ''}
                   onChange={handleChange}
                   error={Boolean(formErrors.city)}
                   helperText={formErrors.city}
@@ -881,7 +881,7 @@ const BopScreen: React.FC = () => {
 
             <Box mt={3}>
               <Typography variant="h6" gutterBottom>
-                Postal Address
+                Residential Address
               </Typography>
             </Box>
 
@@ -890,7 +890,7 @@ const BopScreen: React.FC = () => {
                 <FormControl fullWidth>
                   <TextField
                     size="small"
-                    label="Postal Address Line 1"
+                    label=" Address Line 1"
                     name="postal_address_line1"
                     variant="outlined"
                     value={formData.postal_address_line1 || ''}
@@ -905,7 +905,7 @@ const BopScreen: React.FC = () => {
               <Grid item xs={6}>
                 <FormControl fullWidth>
                   <TextField
-                    label="Postal Address Line 2"
+                    label=" Address Line 2"
                     size="small"
                     name="postal_address_line2"
                     variant="outlined"
@@ -922,7 +922,7 @@ const BopScreen: React.FC = () => {
               {userLoggedInCountry === 'ZA' && (
                 <Grid item xs={2.3}>
                   <TextField
-                    label="Postal Suburb"
+                    label=" Suburb"
                     fullWidth
                     size="small"
                     name="postal_suburb"
@@ -937,7 +937,7 @@ const BopScreen: React.FC = () => {
               )}
               <Grid item xs={2.3}>
                 <TextField
-                  label="Postal City"
+                  label=" City"
                   fullWidth
                   size="small"
                   name="postal_city"
@@ -951,7 +951,7 @@ const BopScreen: React.FC = () => {
               </Grid>
               <Grid item xs={2.3}>
                 <TextField
-                  label="Postal State/Province"
+                  label=" State/Province"
                   fullWidth
                   size="small"
                   name="postal_state"
@@ -965,7 +965,7 @@ const BopScreen: React.FC = () => {
               </Grid>
               <Grid item xs={2.3}>
                 <TextField
-                  label="Postal Zipcode"
+                  label=" Zipcode"
                   fullWidth
                   size="small"
                   name="postal_postcode"
@@ -979,7 +979,7 @@ const BopScreen: React.FC = () => {
               </Grid>
               <Grid item xs={2.3}>
                 <TextField
-                  label="Postal Country"
+                  label=" Country"
                   fullWidth
                   size="small"
                   name="postal_country"
@@ -1000,7 +1000,7 @@ const BopScreen: React.FC = () => {
               gutterBottom
               //@ts-ignore
             >
-              Non Resident Details
+            Beneficary Details
             </Typography>
           </Box>
 
@@ -1015,8 +1015,9 @@ const BopScreen: React.FC = () => {
                 disabled
                 fullWidth
               />
-            </Grid>
-            <Grid item xs={2.3}>
+            </Grid>'
+            {formData.benificiary_middle_name?<>
+               <Grid item xs={2.3}>
               <TextField
                 size="small"
                 label="Non Resident Middle Name"
@@ -1027,6 +1028,10 @@ const BopScreen: React.FC = () => {
                 fullWidth
               />
             </Grid>
+            </>:<>
+            
+            </> }
+         
             <Grid item xs={2.3}>
               <TextField
                 size="small"

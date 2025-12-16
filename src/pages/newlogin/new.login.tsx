@@ -32,6 +32,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+const[logintype,setLogintype]=useState("email")
   const [text, setText] = useState('')
   const [type, setType] = useState('')
   const [open, setOpen] = useState(false)
@@ -51,11 +52,35 @@ const LoginPage = () => {
   const navigate = useNavigate()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let input = e.target.value
-    input = input.toLowerCase()
-    setEmail(input)
-  }
+    // let input = e.target.value
+    // input = input.toLowerCase()
+    // setEmail(input)
 
+     const value = e.target.value;
+  setEmail(value);
+  setLogintype(value)
+
+  const type = checkType(value);
+
+  setLogintype(type);
+
+  if (type === "invalid") {
+    setError("Enter valid email, phone number, or username");
+  } else {
+    setError("");
+    console.log("Input type:", type); // email | phone | username
+  }
+  }
+const checkType = (value: string) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegex = /^[6-9]\d{9}$/; // Indian 10-digit mobile
+  const usernameRegex = /^[a-zA-Z0-9_.]{3,20}$/;
+
+  if (emailRegex.test(value)) return "email";
+  if (phoneRegex.test(value)) return "phone";
+  if (usernameRegex.test(value)) return "username";
+  return "invalid";
+};
   const getCountryList = async () => {
     try {
       const data = await static_service.getCountryList()
@@ -111,7 +136,11 @@ const LoginPage = () => {
       setSelectedTab('Price')
       auth_service
         .loginStaff({
-          username: email,
+            "usernameOrEmailOrPhone": logintype ,
+    "value":email,
+          // username: email,
+          // loginStaff:email,
+
           password: password,
         })
         .then((response: any) => {
@@ -196,13 +225,13 @@ const LoginPage = () => {
 
           {/* Username */}
           <TextField
-            placeholder="Email ID"
+            placeholder="Username/Email/Phone"
             variant="outlined"
             fullWidth
             margin="normal"
             value={email}
             onChange={handleChange}
-            inputProps={{ maxLength: 20 }}
+            // inputProps={{ maxLength: 20 }}
             error={!!error}
             helperText={error}
             sx={{

@@ -65,7 +65,7 @@ class AuthService extends BaseService {
     }
   }
 
-  async loginStaff(payload: { username: String; password: String }): Promise<StaffResponse> {
+  async loginStaff(payload: { value: String; password: String ,usernameOrEmailOrPhone:String}): Promise<StaffResponse> {
     let url = '/api/staff/staff-details/login'
     try {
       let { data } = await api1.post(url, payload)

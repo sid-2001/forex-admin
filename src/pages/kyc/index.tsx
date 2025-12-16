@@ -443,31 +443,21 @@ const KYCPage = () => {
             {/* Applicant Details Section */}
             <Grid container>
               <Grid item xs={2} p={3}>
-                <Avatar
-                  src={imageUrl?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')
-  .replace('http://64.227.139.142/', 'https://api.impronics.com/')} // Replace with actual image URL
-                  sx={{
-                    width: "100%",
-                    height: "27%",
-                    marginTop: '10%',
-                    // marginRight: '10%',
-                    // marginLeft: '10%',
-                    border: '4px solid green',
-                    paddingTop: '1%',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderColor: `${selectedKYC?.kycStatus == 'v' ? 'green' : 'red'}`,
-                  }}
-                >
-                  {/* {' '}
-                  {selectedKYC?.applicantName?.split(' ').length > 0
-                    ? selectedKYC?.applicantName.split(' ')[0][0] +
-                      ' ' +
-                      (selectedKYC?.applicantName.split(' ')[1][0] ? selectedKYC?.applicantName.split(' ')[1][0] : '')
-                    : selectedKYC?.applicantName.split(' ')[0]}{' '} */}
-                </Avatar>
+        <Avatar
+  src={imageUrl
+    ?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')
+    .replace('http://64.227.139.142/', 'https://api.impronics.com/')
+  }
+  
+  sx={{
+    width: 100,          // fixed size
+    height: 100,         // must be equal to width
+    borderRadius: '50%', // makes it round
+    border: '4px solid',
+    borderColor: selectedKYC?.kycStatus === 'v' ? 'green' : 'red',
+    objectFit: 'cover',  // ensures image fills circle properly
+  }}
+/>
               </Grid>
               <Grid item xs={10}>
                 <Typography variant="h6" gutterBottom color={theme.palette.secondary.main}>
