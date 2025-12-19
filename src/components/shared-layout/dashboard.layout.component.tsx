@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@mui/material/styles'
-import { Box, Typography, Avatar, List, ListItem, IconButton, AppBar, ListItemIcon, Toolbar, Tooltip } from '@mui/material'
+import { Box, Typography, Avatar, List, ListItem, IconButton, AppBar, ListItemIcon, Toolbar, Tooltip, Chip, MenuItem, Select } from '@mui/material'
 import { styled } from '@mui/system'
 import { LogoWhite } from '@/assets/images'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
@@ -67,6 +67,113 @@ const Header = styled(Box)({
   alignItems: 'center',
   paddingBottom: '1rem',
 })
+
+
+
+
+const CountrySelector = () => {
+  const staff = local_service?.get_staff_access()
+
+  if (!staff) return null
+
+  const countryNames: Record<string, string> = {
+    ZA: 'South Africa',
+    IN: 'India',
+    US: 'United States',
+    UK: 'United Kingdom',
+    AE: 'UAE',
+  }
+
+  const getFlag = (code: string) =>
+    code
+      ? code
+          .toUpperCase()
+          .replace(/./g, c =>
+            String.fromCodePoint(127397 + c.charCodeAt(0))
+          )
+      : '🏳️'
+
+  /** 🔹 Auto select first country if not selected */
+  useEffect(() => {
+    if (!staff.staffCountry && staff.staffCountries?.length) {
+      local_service.set_usercountry(staff.staffCountries[0])
+    }
+  }, [staff])
+
+  const selectedCountry =local_service.get_staff_country();
+
+
+  return (
+    <Typography>
+      <Stack
+        direction="row"
+        alignItems="center"
+        spacing={0.6}
+        sx={{ mt: '2px' }}
+      >
+        {/* 🔹 MULTIPLE COUNTRIES → DROPDOWN */}
+        {staff.staffCountries?.length > 1 ? (
+          <Select
+            size="small"
+            value={selectedCountry}
+            onChange={e =>
+            {
+              console.log(e)
+              local_service.set_usercountry(e.target.value)
+              window.location.reload()
+            }
+            }
+            sx={{
+             
+              fontSize: { xs: '11px', md: '1.4vh' },
+              color: 'white',
+              backgroundColor: 'rgba(255,255,255,0.15)',
+              borderRadius: '20px',
+              '& .MuiSelect-icon': { color: 'white' },
+              '& fieldset': { border: 'none' },
+            }}
+          >
+            {staff.staffCountries.map((code: string) => (
+              <MenuItem key={code} value={code}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                  }}
+                >
+                  <span>{getFlag(code)}</span>
+                  <span>{countryNames[code] || code}</span>
+                </Box>
+              </MenuItem>
+            ))}
+          </Select>
+        ) : (
+          /* 🔹 SINGLE COUNTRY → TEXT */
+          selectedCountry && (
+            <>
+              <Typography
+                sx={{ fontSize: { xs: '12px', md: '1.5vh' } }}
+              >
+                {getFlag(selectedCountry)}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: { xs: '12px', md: '1.5vh' },
+                  color: 'white',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {countryNames[selectedCountry] ||
+                  selectedCountry}
+              </Typography>
+            </>
+          )
+        )}
+      </Stack>
+    </Typography>
+  )
+}
 
 const DashboardLayout = () => {
   const [mode, setMode] = useRecoilState(themeModeState)
@@ -481,48 +588,19 @@ const DashboardLayout = () => {
           >
             {local_service?.get_staff_access().staffId}
           </Typography>
-          <Typography>
-                <Stack direction="row" alignItems="center" spacing={0.6} sx={{ marginTop: '2px' }}>
-            {(() => {
-              const staff = local_service?.get_staff_access()
-              if (!staff) return null
+     <Typography>
 
-              const flag = staff.staffCountry
-                ? staff.staffCountry.toUpperCase().replace(/./g, (c: string) => String.fromCodePoint(127397 + c.charCodeAt(0)))
-                : '🏳️'
+    <CountrySelector></CountrySelector>
 
-              const countryNames: Record<string, string> = {
-                ZA: 'South Africa',
-                IN: 'India',
-                US: 'United States',
-                UK: 'United Kingdom',
-                AE: 'UAE',
-              }
+</Typography>
 
-              const countryName = countryNames[staff.staffCountry] || staff.staffCountry || 'Unknown'
-
-              return (
-                <>
-                  <Typography sx={{ fontSize: { xs: '12px', md: '1.5vh' } }}>{flag}</Typography>
-                  <Typography
-                    sx={{
-                      fontSize: { xs: '12px', md: '1.5vh' },
-                      color: 'white',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {countryName}
-                  </Typography>
-                </>
-              )
-            })()}
-          </Stack>
-          </Typography>
 </Box>
           {/* Country */}
       
         </Box>
       </Box>
+
+    
     </Box>
   </Toolbar>
 </AppBar>

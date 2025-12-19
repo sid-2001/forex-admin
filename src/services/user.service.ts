@@ -84,9 +84,11 @@ export class UserService extends BaseService {
   async createStaff(payload: any): Promise<any> {
     let url = '/api/staff/staff-details/add'
     try {
+      console.log(payload)
       let { data } = await api1.post(url, payload)
       return data
     } catch (err) {
+      console.log(err)
       throw new Error(err as any)
     }
   }

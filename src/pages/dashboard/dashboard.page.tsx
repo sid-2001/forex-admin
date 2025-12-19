@@ -70,6 +70,7 @@ const Dashboard = () => {
   const [text, setText] = useRecoilState(alertTextState)
   const [type, settype] = useRecoilState(alertTypeState)
   const getGatewayList = () => {
+    console.log("Hello i am ",local_service?.get_staff_country())
     static_service.getStaticPaymentGateway(local_service?.get_staff_country()).then((data: any) => {
       setCards(data?.data?.sort((e: any) => e.costFee))
     })

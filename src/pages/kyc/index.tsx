@@ -330,11 +330,13 @@ const KYCPage = () => {
   const closeDrawer = () => {
     setSelectedKYC(null)
     setIsDrawerOpen(false)
+    getApplicantKYCData()
   }
 
   const handleClose = () => {
     setIsDrawerOpen(false)
     setselectedVerifcationOpen(false)
+    getApplicantKYCData()
   }
 
   const renderUserImage = () => {
@@ -698,7 +700,9 @@ const KYCPage = () => {
         </Box>
       </Drawer>
 
-      <Modal open={open} onClose={() => setOpen(false)}>
+      <Modal open={open} onClose={() =>{ 
+        
+        setOpen(false)}}>
         <Box
           sx={{
             position: 'absolute',

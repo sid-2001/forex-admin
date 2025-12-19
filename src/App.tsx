@@ -62,7 +62,7 @@ function App() {
       },
       secondary: {
         main: '#0A1C2C',
-        light: 'white',
+        light: '#c2d9eeff',
       },
       text: {
         primary: mode === 'dark' ? '#ffffff' : '#0A1C2C',

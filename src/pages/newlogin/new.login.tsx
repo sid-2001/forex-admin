@@ -21,6 +21,7 @@ import {
   loaderState,
   selectedAppState,
   selectedCountryState,
+  userAccessCountry,
   userCurrencyState,
 } from '@/states/state'
 import { UserService } from '@/services/user.service'
@@ -37,6 +38,8 @@ const[logintype,setLogintype]=useState("email")
   const [type, setType] = useState('')
   const [open, setOpen] = useState(false)
   const [commonloader, setcommonloader] = useRecoilState(loaderState)
+  const[userAccesCountry,setuserAccesCountry]=useRecoilState(userAccessCountry)
+  // userAccessCountry
   const [selecteCountryState, setselectedCountryState] =
     useRecoilState(selectedCountryState)
   const [selectedTab, setSelectedTab] = useRecoilState(selectedAppState)
@@ -163,6 +166,7 @@ const checkType = (value: string) => {
               local_service.set_role(data?.roleDescription)
               getCountryList()
               fetchAllValidations(data?.staffCountry)
+              setuserAccesCountry(data?.staffCountries)
               navigate('/dashboard')
             }, 500)
           } else {

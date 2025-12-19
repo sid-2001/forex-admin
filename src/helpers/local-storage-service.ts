@@ -32,6 +32,7 @@ class LocalStorageService {
 
   get_staff_access() {
     let staff_record: any = this.get('staff_access')
+    
     return JSON.parse(staff_record)
   }
 
@@ -41,8 +42,19 @@ class LocalStorageService {
   }
   
   get_staff_country() {
-    let staff_record: any = this.get('staff_access')
-    return JSON.parse(staff_record)?.staffCountry
+//@ts-ignore
+      let staff_record: any = this.get('userCountry').replace(/^"|"$/g, "");
+    return staff_record;
+
+    // let staff_record: any = this.get('staff_access')
+
+    
+    // return JSON.parse(staff_record)?.staffCountry
+  }
+
+  set_usercountry(user_country:any) {
+    let modules_record: any = this.set('userCountry',user_country);
+    return (modules_record)
   }
 
   get_modules() {
@@ -56,6 +68,18 @@ class LocalStorageService {
   }
 
   set_staff_access(staff_data: any) {
+
+
+      //  this.set_usercountry(JSON.parse(staff_data)?.staffCountry);
+       this.set('userCountry',(staff_data)?.staffCountry);
+
+       if(staff_data?.staffCountries?.length>1){
+        this.set('userCountry',(staff_data)?.staffCountries[0]);
+       }
+
+       console.log("i m in the data")
+      //  console.log("setting data",(staff_data)?.staffCountry)
+    // return JSON.parse(staff_record)?.staffCountry
     return this.set('staff_access', staff_data)
   }
 

@@ -6,7 +6,7 @@ import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { Modules, UserService } from '@/services/user.service'
 import { StaffProfile } from '@/types/staff.type'
-import { alertState, alertTextState, alertTypeState } from '@/states/state'
+import { alertState, alertTextState, alertTypeState, countyState } from '@/states/state'
 import { useRecoilState } from 'recoil'
 import { HelperService } from '@/helpers/helper'
 import { useTheme } from '@emotion/react'
@@ -50,7 +50,7 @@ const UserAdd = () => {
   const helper_service = new HelperService()
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
-  const [countryList, setCountryList] = useState([])
+  const [countryList, setCountryList] = useRecoilState(countyState)
   const [branchList, setBranchList] = useState([])
   const userCountry = local_service?.get_staff_country()
   const [loading, setLoading] = useState(true) // ✅ loader state
@@ -245,10 +245,21 @@ const UserAdd = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: any; value: any }>) => {
     const { name, value } = e.target
 
+    if(name=="staffCountries"){
+    setStaffData((prev: any) => ({
+      ...prev,
+         [name]: typeof value === "string" ? value.split(",") : value,
+    }))
+
+    }
+    else{
+
     setStaffData((prev: any) => ({
       ...prev,
       [name]: value,
     }))
+    }
+
     setIsbuttondisabled(false)
   }
 
@@ -508,7 +519,7 @@ const UserAdd = () => {
               />
             </Grid>
             <Grid item xs={12} sm={2}>
-              <label style={inputLabelStyle}>Country</label>
+              <label style={inputLabelStyle}>Residence Country</label>
               <TextField
                 select
                 fullWidth
@@ -526,6 +537,36 @@ const UserAdd = () => {
                 ))}
               </TextField>
             </Grid>
+
+            <Grid item xs={12} sm={2}>
+  <label style={inputLabelStyle}>Country</label>
+  <TextField
+    select
+    fullWidth
+    name="staffCountries"
+    //@ts-ignore
+    value={staffData?.staffCountries || []} 
+    //@ts-ignore
+    // must be array
+    onChange={handleChange}
+    InputProps={{ readOnly: !isEditable }}
+    SelectProps={{
+      multiple: true,
+      renderValue: (selected: any) =>
+        countryList
+          .filter((c: any) => selected.includes(c.countryCode))
+          .map((c: any) => c.countryName)
+          .join(", "),
+    }}
+  >
+    {countryList.map((country: any) => (
+      <MenuItem key={country.countryCode} value={country.countryCode}>
+        {country.countryName}
+      </MenuItem>
+    ))}
+  </TextField>
+</Grid>
+
             <Grid item xs={12} sm={2}>
               <label style={inputLabelStyle}>Postal Code</label>
               <TextField

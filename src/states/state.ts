@@ -109,6 +109,12 @@ export const userCurrencyState = atom({
   effects_UNSTABLE: [localStorageEffect('userCurrencyState')],
 })
 
+export const userAccessCountry = atom({
+  key: 'userAccessCountry',
+  default: '',
+  effects_UNSTABLE: [localStorageEffect('userAccessCountry')],
+})
+
 
 export const staticTableState = atom({
   key: 'staticTableState',
