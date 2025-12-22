@@ -4,7 +4,7 @@ import axios from 'axios'
 
 export class BopService extends BaseService {
   async getBopListing(): Promise<any> {
-    const url = '/api2/bob/bop/getAll'
+    const url = '/bop/getAll'
     try {
       const { data } = await api1.get(url)
       return data
@@ -14,7 +14,7 @@ export class BopService extends BaseService {
   }
 
   async getBopDetailByTransactionId(transactionId: any, transaction_attempt: any): Promise<any> {
-    const url = `/api2/bob/bop/${transactionId}/${transaction_attempt}`
+    const url = `/bop/${transactionId}/${transaction_attempt}`
     try {
       const { data } = await api1.get(url)
       return data
@@ -24,7 +24,7 @@ export class BopService extends BaseService {
   }
 
   async getBopCategoryDetailByTransactionId(transactionId: any, transaction_attempt: any): Promise<any> {
-    const url = `/api2/bob/bop/bopCategory/${transactionId}/${transaction_attempt}`
+    const url = `/bop/bopCategory/${transactionId}/${transaction_attempt}`
     try {
       const { data } = await api1.get(url)
       return data
@@ -54,7 +54,7 @@ export class BopService extends BaseService {
   }
 
   async updateBopData(payload: any, id: any): Promise<any> {
-    const url = `/api2/bob/bop/${id}`
+    const url = `/bop/${id}`
     try {
       const data = await api1.put(url, payload)
       return data
@@ -64,7 +64,7 @@ export class BopService extends BaseService {
   }
 
   async releaseBopData(payload: any): Promise<any> {
-    const url = '/api2/bob/bop/release-bopdata'
+    const url = '/bop/release-bopdata'
     try {
       const data = await api1.post(url, payload)
       return data
@@ -74,7 +74,7 @@ export class BopService extends BaseService {
   }
 
   async cancelReplaceBop(payload: any): Promise<any> {
-    const url = '/api2/bob/bop/cancelReplaceTransaction'
+    const url = '/bop/cancelReplaceTransaction'
     try {
       const data = await api1.post(url, payload)
       return data
