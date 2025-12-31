@@ -18,6 +18,7 @@ import { Logo, SecondLogo } from '@/assets/images'
 import { useRecoilState } from 'recoil'
 import {
   countyState,
+  inactivityTiming,
   loaderState,
   selectedAppState,
   selectedCountryState,
@@ -46,6 +47,7 @@ const[logintype,setLogintype]=useState("email")
   const [county, setCountry] = useRecoilState(countyState)
   const [error, setError] = useState('')
   const [userCurrency, setUserCurrency] = useRecoilState(userCurrencyState)
+  const[inactivitytiming,setinactivityTiming]=useRecoilState(inactivityTiming)
 
   const auth_service = new AuthService()
   const local_service = new LocalStorageService()
@@ -167,6 +169,7 @@ const checkType = (value: string) => {
               getCountryList()
               fetchAllValidations(data?.staffCountry)
               setuserAccesCountry(data?.staffCountries)
+              setinactivityTiming(data?.inactivityTime)
               navigate('/dashboard')
             }, 500)
           } else {

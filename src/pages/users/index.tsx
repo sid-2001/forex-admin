@@ -106,6 +106,7 @@ setStaffList(response)
     { field: 'staffCountry', headerName: 'Country', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'username', headerName: 'Username', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'email', headerName: 'Email', flex: 1, headerClassName: 'super-app-theme--header' },
+     { field: 'utcDatetime', headerName: 'Date', flex: 1, headerClassName: 'super-app-theme--header' },
   ]
 
   

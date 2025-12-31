@@ -41,17 +41,28 @@ instance.interceptors.request.use(
     const localStorageService = new LocalStorageService()
     const { ip, deviceName } = await getDeviceInfo()
     const token = (localStorageService.get_accesstoken() as any)?.replaceAll(`"`, '')
+ const now = new Date();
 
+  // Timezone offset in minutes → convert to ±HH:MM
+  const offsetMinutes = -now.getTimezoneOffset();
+  const sign = offsetMinutes >= 0 ? "+" : "-";
+  const hours = String(Math.floor(Math.abs(offsetMinutes) / 60)).padStart(2, "0");
+  const minutes = String(Math.abs(offsetMinutes) % 60).padStart(2, "0");
+  const offset = `${sign}${hours}:${minutes}`;
+
+  const localDateTime = now.toISOString().slice(0, 19);
     if (token) {
       // config.headers['Authorization'] = 'Bearer ' + token
       config.headers['ngrok-skip-browser-warning'] = '69420'
       // "ngrok-skip-browser-warning": true;
       config.headers['access-control-allow-credentials'] = 'true'
-
       config.headers['access-control-allow-origin'] = '*'
       config.headers['ngrok-skip-browser-warning'] = 'true'
-      config.headers['X-Device-IP'] = ip
-      config.headers['X-Device-Name'] = deviceName
+      // config.headers['X-Device-IP'] = ip
+      // config.headers['X-Device-Name'] = deviceName
+   config.headers["timezone"] = "UTC";
+  config.headers["offset"] = offset;
+  config.headers["localdatetime"] = localDateTime; 
     }
     return config
   },

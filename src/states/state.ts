@@ -114,6 +114,11 @@ export const userAccessCountry = atom({
   default: '',
   effects_UNSTABLE: [localStorageEffect('userAccessCountry')],
 })
+export const inactivityTiming = atom({
+  key: 'inactivityTime',
+  default: '',
+  effects_UNSTABLE: [localStorageEffect('inactivityTime')],
+})
 
 
 export const staticTableState = atom({

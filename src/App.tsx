@@ -38,7 +38,7 @@ import ReconScreen from './pages/recon-screen'
 import StaticData from './pages/static-data/staticdata.page'
 import Dashboard from './pages/dashboard/dashboard.page'
 import CdiScreen from './pages/cdi'
-import { themeModeState } from '@/states/state'
+import { inactivityTiming, themeModeState } from '@/states/state'
 import { useRecoilState } from 'recoil'
 import { CssBaseline } from '@mui/material'
 import SarbErrorsListing from './pages/sarb-errors'
@@ -46,13 +46,19 @@ import Loyality from './pages/loyality'
 import AuditLogTable from './pages/audit-log'
 import FieldValidationTable from './pages/field-validation'
 import ForexBranchesPage from './pages/branches'
+import { useCallback, useEffect } from 'react'
+import { useAutoLogout } from './helpers/useAutoLogout'
+import { LocalStorageService } from './helpers/local-storage-service'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
     authenticationPath: '/login',
   }
-
   const [mode, setMode] = useRecoilState(themeModeState)
+  const[inactivity,setinactivityTiming]=useRecoilState(inactivityTiming);
+  const local_service: any = new LocalStorageService()
+  
+  
   const theme = createTheme({
     palette: {
       mode,
@@ -128,6 +134,24 @@ function App() {
     },
   })
 
+const handleLogout = useCallback(() => {
+  
+
+
+  if(local_service?.get_accesstoken()!=null ){
+    localStorage.clear();
+    sessionStorage.clear();   
+    window.location.reload()
+   
+  }
+
+
+  }, []);
+const INACTIVITY_TIME = 1 * 60 * 1000; // 30 minutes
+  // ✅ Enable auto logout (30 min inactivity)
+  useAutoLogout(handleLogout,Number(inactivity)*60000>INACTIVITY_TIME?Number(inactivity)*60000:INACTIVITY_TIME);
+
+
 
   
 
@@ -185,3 +209,7 @@ function App() {
 }
 
 export default App
+
+function handleLogout(): void {
+  throw new Error('Function not implemented.')
+}

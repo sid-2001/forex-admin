@@ -401,6 +401,22 @@ const UserAdd = () => {
                 type="text" // Use text instead of number to enforce length
               />
             </Grid>
+              <Grid item xs={12} sm={3}>
+              <label style={inputLabelStyle}>
+                In
+              </label>
+              <TextField
+                value={staffData?.staffContactNumber || ''}
+                onChange={(e) => {
+                  const value = handleRegexChange(e, /^\d{0,10}$/) // Allow only numbers and limit to 10 digits
+                  if (value !== null) handleChange(e)
+                }}
+                name="staffContactNumber"
+                fullWidth
+                type="text" // Use text instead of number to enforce length
+              />
+            </Grid>
+
 
             <Grid item xs={12} sm={3}>
               <label style={inputLabelStyle}>Email</label>

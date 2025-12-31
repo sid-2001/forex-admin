@@ -156,12 +156,7 @@ const TransactionListing = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
-    // {
-    //   field: 'gateway_name',
-    //   headerName: 'Gateway',
-    //   width: 100,
-    //   headerClassName: 'super-app-theme--header',
-    // },
+  
     {
       field: 'owCreatedDate',
       headerName: 'Date',
@@ -444,7 +439,8 @@ console.log(transactionDetails)
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        return helper.convertDateAndTime(params?.row?.inCreatedDate)
+        console.log(params)
+        return helper.convertDateAndTime(params?.row?.utcDatetime)
       },
     },
     {
@@ -763,6 +759,8 @@ console.log(transactionDetails)
     const getInwardTransactionListFilterd = useCallback(async (page:any,size:any) => {
     try {
       const transactions = await transaction_Service.getInwardTransactionFilted(page,size,userCountry)
+      console.log("inbound")
+      console.log(transactions)
       setInboundTransaction(transactions) // transactions is already the array
     } catch (error) {
       console.log(error)
@@ -795,8 +793,7 @@ console.log(transactionDetails)
         } else {
           data = await transaction_Service.getOutwardAllTransaction(userCountry, page, size)
         }
-        console.log('outbound trx:', data)
-
+       
         const outbound: Array<TransactionOutward> | any = data
           ?.map((e: any) => {
             return {
@@ -804,6 +801,7 @@ console.log(transactionDetails)
               ...e.beneficiary,
               ...e.applicant,
             stages:e?.stages,
+          
               id: e?.transactionGatewayDTO?.transactionNumber,
               destination: e?.transactionGatewayDTO?.receiveCountry,
               value: e?.transactionGatewayDTO?.principalAmount,
@@ -811,7 +809,8 @@ console.log(transactionDetails)
               settlement: helper.roundToTwoFixed(e?.transactionGatewayDTO?.principalAmount * e?.transactionGatewayDTO?.exchangeRates),
               destinationBank: e?.transactionGatewayDTO?.destinationBankBicCode,
               forex: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates),
-              date: e?.transactionGatewayDTO?.owCreatedDate,
+              date: e?.utcDatetime,
+              
               reporting: e?.transactionGatewayDTO?.reportingStatus,
               status: e?.transactionGatewayDTO?.transactionStatus,
               final_amount: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates * e?.transactionGatewayDTO?.principalAmount),
@@ -1242,6 +1241,7 @@ console.log(transactionDetails)
                   size="small"
                   disabled
                 />
+              
               </Grid>
             </Grid>
 

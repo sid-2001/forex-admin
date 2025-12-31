@@ -285,6 +285,7 @@ const KYCPage = () => {
       setImageUrl(image)
 
       setSelectedKYC(response)
+      console.log(response)
       //@ts-ignore
       setComments(response?.comments || [])
       if (checkboxOpen) {
@@ -494,6 +495,18 @@ const KYCPage = () => {
                       fullWidth
                       //@ts-ignore
                       defaultValue={selectedKYC?.nationality}
+                      disabled
+                    />
+                  </Grid>
+
+                     <Grid item xs={3}>
+                    <TextField
+                      label="Date"
+                      variant="filled"
+                      defaultValue={selectedKYC?.utcDatetime}
+                      fullWidth
+                      //@ts-ignore
+                      defaultValue={selectedKYC?.utcDatetime}
                       disabled
                     />
                   </Grid>

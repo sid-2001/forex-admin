@@ -50,6 +50,7 @@ const RoleModal = ({
     const user_service = new UserService()
     const local_service = new LocalStorageService()
     const [selectOpen, setSelectOpen] = useState(false)
+    const [inactivitytime, setinactivitytime] = useState(0);
 
     const helper_service = new HelperService()
 
@@ -68,10 +69,9 @@ const RoleModal = ({
         console.log(initialData)
         setRoleName(initialData.roleDescription || '')
         setRoleId(initialData.roleId || null)
-
+setinactivitytime(initialData?.inactivityTime)
         const selected = (initialData.modules || []).map((m: any) => m.moduleId)
         setSelectedModules(selected)
-
         const perms = {}
         ;(initialData.modules || []).forEach((mod: any) => {
           //@ts-ignore
@@ -174,6 +174,8 @@ const RoleModal = ({
           roleId,
           roleDescription: roleName,
           roleStatus: true,
+          inactivityTime:inactivitytime,
+          
           modules: selectedModules.map((id) => {
             const mod = allModules.find((m: any) => m.moduleId === id)
             return {
@@ -194,6 +196,7 @@ const RoleModal = ({
         payload = {
           roleId,
           roleDescription: roleName,
+          inactivityTime:inactivitytime,
           roleStatus: true,
           modules: selectedModules.map((id) => {
             const mod = allModules.find((m: any) => m.moduleId === id)
@@ -232,7 +235,16 @@ const RoleModal = ({
         <DialogTitle> {roleId ? 'Edit Role' : 'Add Role'} </DialogTitle>
         <DialogContent>
           <TextField fullWidth margin="normal" label="Role Name" value={roleName} onChange={(e) => setRoleName(e.target.value)} />
-
+  {/* <TextField fullWidth  type="number" margin="normal" label="Timing" value={inactivitytime} onChange={(e) => setinactivitytime( e.target.value)} /> */}
+    <TextField  fullWidth  type="number" margin="normal" label="Timing Mins"  inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} 
+    
+    value={inactivitytime} onChange={(e) => 
+      
+        //@ts-ignore
+      setinactivitytime( e.target.value)}
+    />
+    {/* <input type='number'></input> */}
+    {/* <NumberField label="Number Field" min={10} max={40} /> */}
           <FormControl fullWidth margin="normal">
             <InputLabel id="module-select-label">Select Modules</InputLabel>
             <Select

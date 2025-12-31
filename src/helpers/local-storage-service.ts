@@ -43,7 +43,7 @@ class LocalStorageService {
   
   get_staff_country() {
 //@ts-ignore
-      let staff_record: any = this.get('userCountry').replace(/^"|"$/g, "");
+      let staff_record: any = this.get('userCountry')?.replace(/^"|"$/g, "");
     return staff_record;
 
     // let staff_record: any = this.get('staff_access')
