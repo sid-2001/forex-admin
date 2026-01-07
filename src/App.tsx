@@ -49,6 +49,8 @@ import ForexBranchesPage from './pages/branches'
 import { useCallback, useEffect } from 'react'
 import { useAutoLogout } from './helpers/useAutoLogout'
 import { LocalStorageService } from './helpers/local-storage-service'
+import { CrossBorderPaymentsDashboard } from './pages/dashboard'
+import EnhancedDashboard from './pages/dashboard/dashboard-new'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -147,7 +149,7 @@ const handleLogout = useCallback(() => {
 
 
   }, []);
-const INACTIVITY_TIME = 1 * 60 * 1000; // 30 minutes
+const INACTIVITY_TIME = 10 * 60 * 1000; // 1 minutes
   // ✅ Enable auto logout (30 min inactivity)
   useAutoLogout(handleLogout,Number(inactivity)*60000>INACTIVITY_TIME?Number(inactivity)*60000:INACTIVITY_TIME);
 
@@ -167,6 +169,7 @@ const INACTIVITY_TIME = 1 * 60 * 1000; // 30 minutes
           <Routes>
             <Route path="/" element={<ProtectedRoute {...defaultProtectedRouteProps} outlet={<DashboardLayout />} />}>
               <Route index element={<Dashboard />}></Route>
+               <Route path="dash" element={<EnhancedDashboard />} />
               <Route path="transaction" element={<TransactionListing />} />
               <Route path="sendmoney" element={<SendMoneyPage />} />
               <Route path="kyc" element={<KYCPage />} />
@@ -182,7 +185,7 @@ const INACTIVITY_TIME = 1 * 60 * 1000; // 30 minutes
               <Route path="recon" element={<ReconPage />} />
               <Route path="utilization" element={<UtilizationEnquiryForm />} />
               <Route path="beneficiary-details/:beneficiaryId" element={<BeneficiaryDetailPage />} />
-              <Route path="configuration" element={<MainTabsPage />} />
+              <Route path="configuration" element={<MainTabsPage />} />f
               <Route path="users/add" element={<UserAdd />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="bop-details/:transactionId/:transaction_attempt" element={<BopScreen />} />

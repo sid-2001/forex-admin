@@ -514,7 +514,7 @@ const DashboardLayout = () => {
               maxHeight: '6vh',
               width: 'auto',
               objectFit: 'contain',
-              marginLeft:"130%"
+              // marginLeft:"10%"t
             }}
           />
         </Link>

@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 const ProfileMenu = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-
   const local_service=new LocalStorageService();
   const staff = local_service?.get_staff_access();
 
@@ -220,6 +219,8 @@ const CountrySelector = () => {
 
         <MenuItem
           onClick={() => {
+          local_service.delete_eaccestoke();
+          window.location.reload();
             handleClose();
             console.log("Logout");
           }}

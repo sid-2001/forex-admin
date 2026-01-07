@@ -27,14 +27,6 @@ const TransactionPanel = () => {
     fetchMonthlyData(year);
   }, [year]);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-ZA", {
-      style: "currency",
-      currency: "ZAR",
-    }).format(amount);
-  };
-
-
 
   useEffect(()=>{
 console.log(local_service.get_staff_country())

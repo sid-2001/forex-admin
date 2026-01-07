@@ -236,7 +236,7 @@ setinactivitytime(initialData?.inactivityTime)
         <DialogContent>
           <TextField fullWidth margin="normal" label="Role Name" value={roleName} onChange={(e) => setRoleName(e.target.value)} />
   {/* <TextField fullWidth  type="number" margin="normal" label="Timing" value={inactivitytime} onChange={(e) => setinactivitytime( e.target.value)} /> */}
-    <TextField  fullWidth  type="number" margin="normal" label="Timing Mins"  inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} 
+    <TextField  fullWidth  type="number" margin="normal"   inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} 
     
     value={inactivitytime} onChange={(e) => 
       

@@ -401,7 +401,7 @@ const UserAdd = () => {
                 type="text" // Use text instead of number to enforce length
               />
             </Grid>
-              <Grid item xs={12} sm={3}>
+              {/* <Grid item xs={12} sm={3}>
               <label style={inputLabelStyle}>
                 In
               </label>
@@ -415,7 +415,7 @@ const UserAdd = () => {
                 fullWidth
                 type="text" // Use text instead of number to enforce length
               />
-            </Grid>
+            </Grid> */}
 
 
             <Grid item xs={12} sm={3}>
@@ -555,7 +555,7 @@ const UserAdd = () => {
             </Grid>
 
             <Grid item xs={12} sm={2}>
-  <label style={inputLabelStyle}>Country</label>
+  <label style={inputLabelStyle}>Access Country</label>
   <TextField
     select
     fullWidth
@@ -583,7 +583,7 @@ const UserAdd = () => {
   </TextField>
 </Grid>
 
-            <Grid item xs={12} sm={2}>
+            {/* <Grid item xs={12} sm={2}>
               <label style={inputLabelStyle}>Postal Code</label>
               <TextField
                 fullWidth
@@ -619,7 +619,7 @@ const UserAdd = () => {
                   </option>
                 ))}
               </TextField>
-            </Grid>
+            </Grid> */}
           </Grid>
         </Box>
 

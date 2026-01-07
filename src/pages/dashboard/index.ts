@@ -1,2 +1,3 @@
-import Dashboard from "./dashboard.page";
-export default Dashboard
+import Dashboard from "./dashboard-new";
+import CrossBorderPaymentsDashboard from "./dashboard-new";
+export { Dashboard,CrossBorderPaymentsDashboard}

@@ -10,7 +10,6 @@ const VerifyDocumentModal = (
   { open, onClose, sampledata }: { open: boolean; onClose: () => void }) => {
   const [fileType, setFileType] = useState<'pdf' | 'image'>('image') // Example type
   const [filePath, setFilePath] = useState('../../assets/images/passport.jpg') // Example file
-
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
@@ -48,11 +47,7 @@ const VerifyDocumentModal = (
 
           {/* Right Column */}
           <Box flex={1}>
-            <TextField label="Document Number" fullWidth value="189328392890" sx={{ mb: 2 }} disabled />
-            <TextField label="Expiry Date" fullWidth value="12/04/2026" sx={{ mb: 2 }} disabled />
-            <TextField label="Name as per Document" fullWidth value="Mohit Kumar" sx={{ mb: 2 }} disabled />
-            <TextField label="Issuing Authority" fullWidth value="SA Republic" sx={{ mb: 2 }} disabled />
-            <Typography>
+                  <Typography>
               <CloudDownloadIcon fontSize="small" />{' '}
               <a href={sampledata?.documentUrl} target="_blank" rel="noopener noreferrer">
                 Download Document

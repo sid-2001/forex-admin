@@ -108,7 +108,20 @@ const TransactionListing = () => {
       headerName: 'Settlement Amount',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => params?.value?.toFixed(2),
+      renderCell: (params: any) => {
+
+        if ( !isNaN(params?.value)){
+
+ return params?.value?.toFixed(2)}
+            else{
+return 0;
+       }
+       }
+        
+      
+      
+      
+      
     },
     {
       field: 'settlementCurrency',
@@ -267,7 +280,7 @@ const TransactionListing = () => {
 
     const valueFor = (r: any, field: string) => {
       const v = r?.[field]
-      if (typeof v === 'number') return v.toFixed(2)
+      if (typeof v === 'number') return v?.toFixed(2)
       if (field === 'applicant') return r?.applicant?.firstName ?? r?.applicant?.applicantId ?? ''
       if (field === 'stpError') return v === 'Y' ? 'Error' : 'No Error'
       if (field === 'status' || field === 'payment_status' || field === 'paymentStatus' || field === 'transactionStatus')
@@ -646,6 +659,7 @@ console.log(transactionDetails)
 
   // handle filter changes
   const handleFilterChange = (newFilterModel: GridFilterModel) => {
+    // console.log()
     const filter = newFilterModel.items[0]
     if (filter.field == 'id' && filter.value) {
       try {
@@ -1074,12 +1088,12 @@ console.log(transactionDetails)
     transactionType === 'inwards' ? row?.transactionNumberIw : row.id
   }
   pageSizeOptions={[10, 20, 50]}
-  paginationMode="server"
-  filterMode="server"
-  paginationModel={paginationInwardModel}
-  onPaginationModelChange={handleInwardPaginationChange}
-  filterModel={filterModel}
-  onFilterModelChange={handleFilterChange}
+  // paginationMode="server"
+  // filterMode="server"
+  // paginationModel={paginationInwardModel}
+  // onPaginationModelChange={handleInwardPaginationChange}
+  // filterModel={filterModel}
+  // onFilterModelChange={handleFilterChange}
   rowCount={1000}
   disableColumnMenu // ✅ Removes the 3-dot column menu icon globally
   disableRowSelectionOnClick
