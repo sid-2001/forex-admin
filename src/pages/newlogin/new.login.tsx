@@ -90,7 +90,7 @@ const checkType = (value: string) => {
     try {
       const data = await static_service.getCountryList()
       console.log("the login data is here",data);
-      setCountry(data)
+      setCountry(data);
       return
       
     } catch (err) {

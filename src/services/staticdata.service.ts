@@ -8,6 +8,7 @@ export interface Gender {
   active?: boolean
 }
 export default class staticdataService extends BaseService {
+
   async staticData(
     url: '',
     payload: any,

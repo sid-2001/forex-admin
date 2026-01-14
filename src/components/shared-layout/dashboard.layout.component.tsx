@@ -31,7 +31,7 @@ import LoyaltyIcon from '@mui/icons-material/Loyalty'
 import ErrorIcon from '@mui/icons-material/Error'
 import ProfileMenu from '../profilesetting'
 import RefreshIcon from '@mui/icons-material/Refresh';
-
+import WcIcon from '@mui/icons-material/Wc';
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
   padding: theme.spacing(1),
@@ -69,9 +69,6 @@ const Header = styled(Box)({
   alignItems: 'center',
   paddingBottom: '1rem',
 })
-
-
-
 
 const CountrySelector = () => {
   const staff = local_service?.get_staff_access()
@@ -187,6 +184,7 @@ const DashboardLayout = () => {
   const [isDrawerOpen, setDrawerOpen] = useState(false)
   const navigate = useNavigate()
   const theme = useTheme()
+  
 
   const handleModalClose = () => {
     setIsModalOpen(!isModalOpen)
@@ -453,6 +451,23 @@ const DashboardLayout = () => {
       ),
       label: 'Field-Validation',
       name: 'Field-Validation',
+    },
+
+        {
+      icon: (
+        <>
+          <WcIcon
+            sx={{
+              //@ts-ignore
+              fontSize: '2vh',
+              //@ts-ignore
+              color: theme.palette.primary.light, // Corrected theme usage
+            }}
+          />
+        </>
+      ),
+      label: 'Static-Gender',
+      name: 'Gender',
     },
   ]
 

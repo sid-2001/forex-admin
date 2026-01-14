@@ -56,12 +56,6 @@ const static_list = [
     listname: 'Forex Bank',
     updatePrimaryKey: 'bankCode',
   }
-  //   {
-  //   name: "Branches",
-  //   'primary-key': 'branchCode',
-  //   api: '/api/static-table/forex/branch/action',
-  //   listname: 'Forex Branch',
-  //   updatePrimaryKey: 'id',
-  // },
+  
 ]
 export default static_list
