@@ -89,8 +89,11 @@ export const countyState = atom<Array< CountryData>>({
   default: [],
     effects_UNSTABLE: [localStorageEffect('countryList')],
 })
-
-
+export const backState = atom<Array< CountryData>>({
+  key: 'backstate',
+  default: [],
+    effects_UNSTABLE: [localStorageEffect('backstate')],
+})
 
 export const selectedAppState = atom({
   key: 'selectedAppState',
@@ -102,6 +105,14 @@ export const selectedCountryState = atom({
   key: 'selectedCountryState',
   default: '',
   effects_UNSTABLE: [localStorageEffect('selectedCountryState')],
+})
+
+// ... (keep your existing localStorageEffect and other atoms)
+
+export const menuHistoryState = atom<string[]>({
+  key: 'menuHistoryState',
+  default: [], // Starts as an empty list
+  effects_UNSTABLE: [localStorageEffect('menuHistoryState')],
 })
 export const userCurrencyState = atom({
   key: 'userCurrencyState',

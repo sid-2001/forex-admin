@@ -89,7 +89,10 @@ const checkType = (value: string) => {
   const getCountryList = async () => {
     try {
       const data = await static_service.getCountryList()
+      console.log("the login data is here",data);
       setCountry(data)
+      return
+      
     } catch (err) {
       console.log(err)
     }
@@ -166,11 +169,14 @@ const checkType = (value: string) => {
                   setUserCurrency(currency as any)
                 })
               local_service.set_role(data?.roleDescription)
-              getCountryList()
+              getCountryList().then(()=>{
+
               fetchAllValidations(data?.staffCountry)
               setuserAccesCountry(data?.staffCountries)
               setinactivityTiming(data?.inactivityTime)
               navigate('/dashboard')
+              })
+
             }, 500)
           } else {
             setText(response?.message)

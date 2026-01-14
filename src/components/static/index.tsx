@@ -62,7 +62,7 @@ const StaticDataGrid = ({
   const helper = new HelperService()
 
   useEffect(() => {
-    if (data && data.length > 0) {
+    if (data && data?.length > 0) {
       setRows(data)
       generateColumnsAndFormModel(data[0])
     }

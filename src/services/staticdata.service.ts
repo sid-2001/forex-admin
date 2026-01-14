@@ -2,6 +2,11 @@ import { BaseService } from './base.service'
 import api1 from './apis/api1'
 import { CountryData, PaymentGateway } from '@/types/static.type'
 
+export interface Gender {
+  gendercode: string
+  description: string
+  active?: boolean
+}
 export default class staticdataService extends BaseService {
   async staticData(
     url: '',
@@ -74,5 +79,84 @@ export default class staticdataService extends BaseService {
       const data = await api1.get(url)
       return data
     } catch (err) {}
+  }
+
+
+  async getGenderList(): Promise<{
+    success: boolean
+    count: number
+    data: Gender[]
+  }> {
+    const url = '/api/gender/list'
+    try {
+      const { data } = await api1.get(url)
+      return data
+    } catch (err) {
+      return err as any
+    }
+  }
+
+  /**
+   * Create Gender
+   */
+  async createGender(payload: {
+    username: string
+    gendercode: string
+    description: string
+    countrycode: string
+    active: boolean
+    effectivefromdate: string
+    effectivetodate: string
+  }): Promise<{
+    status: boolean
+    message: string
+  }> {
+    const url = '/api/gender/create'
+    try {
+      const { data } = await api1.post(url, payload)
+      return data
+    } catch (err) {
+      return err as any
+    }
+  }
+
+  /**
+   * Update Gender
+   */
+  async updateGender(payload: {
+    username: string
+    gendercode: string
+    countrycode: string
+    description: string
+  }): Promise<{
+    status: boolean
+    message: string
+  }> {
+    const url = '/api/gender/update'
+    try {
+      const { data } = await api1.put(url, payload)
+      return data
+    } catch (err) {
+      return err as any
+    }
+  }
+
+  /**
+   * Delete Gender
+   */
+  async deleteGender(payload: {
+    gendercode: string
+    countrycode: string
+  }): Promise<{
+    status: boolean
+    message: string
+  }> {
+    const url = '/api/gender/delete'
+    try {
+      const { data } = await api1.post(url, payload)
+      return data
+    } catch (err) {
+      return err as any
+    }
   }
 }

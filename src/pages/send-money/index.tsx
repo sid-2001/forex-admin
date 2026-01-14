@@ -1162,43 +1162,59 @@ document.close();
                   </Grid>
 
                   {/* Amount Input */}
-                  <Grid item xs={12} md={3}>
-                   <TextField
-  type="number"
-  //@ts-ignore
-  label={`Amount In ${userCurrency?.currencyCode ?? ""}`}
-  variant="filled"
-  fullWidth
-  inputProps={{ min: 0 }}   // ⛔ disallow typing negative numbers
-  value={amount}            // use controlled input, not defaultValue
-  onChange={(e) => {
-    let value = Number(e.target.value);
+             <Grid item xs={12} md={3}>
+  <TextField
+    type="number"
+    //@ts-ignore
+    label={`Amount In ${userCurrency?.currencyCode ?? ""}`}
+    variant="filled"
+    fullWidth
+    inputProps={{ min: 1 }}
+    value={amount ?? ""}
+    onChange={(e) => {
+      let rawValue = e.target.value;
 
-    // ⛔ Don't allow negative values at all
-    if (value < 0) return;
+      // ✅ allow clearing
+      if (rawValue === "") {
+        //@ts-ignore
+        setAmount(null);
+        setError(false);
+        return;
+      }
 
-    setAmount(value);
+      // ⛔ remove leading zeros (0, 01, 0005 → 5)
+      rawValue = rawValue.replace(/^0+/, "");
 
-    if (value < 100 || isNaN(value)) {
-      setError(true);
-    } else {
-      setError(false);
-      setSelectedTimeCharge(0);
-      getCharges(value);
-    }
-  }}
-/>
+      // if only zeros were entered → clear input
+      if (rawValue === "") {
+        //@ts-ignore
+        setAmount(null);
+        return;
+      }
 
-                      {error && (
-        <Typography
-          variant="body2"
-          color="error"
-          sx={{ mt: 0.5, ml: 1 }}
-        >
-          Amount must be at least 100
-        </Typography>
-      )}
-                  </Grid>
+      const value = Number(rawValue);
+
+      // ⛔ block negative or invalid
+      if (isNaN(value) || value < 0) return;
+
+      setAmount(value);
+
+      if (value < 100) {
+        setError(true);
+      } else {
+        setError(false);
+        setSelectedTimeCharge(0);
+        getCharges(value);
+      }
+    }}
+  />
+
+  {error && (
+    <Typography variant="body2" color="error" sx={{ mt: 0.5, ml: 1 }}>
+      Amount must be at least 100
+    </Typography>
+  )}
+</Grid>
 
                   {/* Currency (Auto-populated and Disabled) */}
                   <Grid item xs={12} md={3}>

@@ -6,9 +6,9 @@ import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
 import Person2Icon from '@mui/icons-material/Person2'
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
-import { themeModeState } from '@/states/state'
+import { menuHistoryState, themeModeState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-import { Brightness4, Brightness7 } from '@mui/icons-material'
+import { ArrowBack, Brightness4, Brightness7 } from '@mui/icons-material'
 import { alertState, loaderState, selectedAppState, loaderStateNew, availableBalanceState } from '@/states/state'
 import { useState, useEffect } from 'react'
 import Backdrop from '@mui/material/Backdrop'
@@ -191,6 +191,26 @@ const DashboardLayout = () => {
   const handleModalClose = () => {
     setIsModalOpen(!isModalOpen)
   }
+
+  const [history, setHistory] = useRecoilState(menuHistoryState);
+
+  // 1. ADD: Adds item to the end (prevents duplicates if desired)
+  const addToHistory = (menuName: string) => {
+    setHistory((oldHistory) => {
+      // if (oldHistory.includes(menuName)) return oldHistory; // Avoid duplicates
+      return [...oldHistory, menuName];
+    });
+  };
+
+  // 2. REMOVE: Removes a specific item by name
+  const removeFromHistory = (menuName: string) => {
+    setHistory((oldHistory) => 
+      oldHistory.filter((item) => item !== menuName)
+    );
+  };
+
+  // 3. CLEAR: Empty the whole list
+  const clearHistory = () => setHistory([])
 
   const menuItems = [
     {
@@ -502,8 +522,29 @@ const DashboardLayout = () => {
             {mode === 'dark' ? <RefreshIcon /> : <RefreshIcon />}
           </IconButton>
 
+
+          <IconButton
+            onClick={() =>{
+              console.log("History is Here=>",window.history)
+window.history.back();
+setSelectedApp(history[history.length-2]);
+
+          
+            }}
+            
+            color="inherit"
+            sx={{
+              transition: 'transform 0.3s',
+              // '&:hover': { transform: 'rotate(180deg)' },
+              marginLeft:'7%'
+            }}
+          >
+            {mode === 'dark' ? <ArrowBack /> : <ArrowBack />}
+          </IconButton>
+
       
       </Box>
+      
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2,textAlign:"center" }}>
 
             <Link to="/dashboard">
@@ -590,6 +631,10 @@ const DashboardLayout = () => {
                   }}
                   onClick={() => {
                     setSelectedApp(item.label)
+                    addToHistory(item.label)
+                
+                    
+                   
                     navigate(item.label.toLocaleLowerCase())
                   }}
                 >

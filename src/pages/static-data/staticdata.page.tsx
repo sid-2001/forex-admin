@@ -16,10 +16,10 @@ const StaticData = () => {
         {/* Data Grid */}
         {staticTable?.api && (
           <StaticDataGrid
-            key={staticTable.name}
-            apiEndpoint={staticTable.api}
+            key={staticTable?.name}
+            apiEndpoint={staticTable?.api}
             primaryKey={staticTable['primary-key']}
-            title={staticTable.listname}
+            title={staticTable?.listname}
             data={undefined}
           />
         )}

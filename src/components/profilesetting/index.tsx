@@ -1,6 +1,7 @@
 import { LocalStorageService } from "@/helpers/local-storage-service";
 import { Box, Avatar, Typography, Menu, MenuItem, Divider, Select, Stack } from "@mui/material";
 import { useEffect, useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 
 
 const ProfileMenu = () => {
@@ -8,13 +9,17 @@ const ProfileMenu = () => {
   const open = Boolean(anchorEl);
   const local_service=new LocalStorageService();
   const staff = local_service?.get_staff_access();
+  const navigate= useNavigate()
+
+
 
 
 
 const CountrySelector = () => {
   const staff = local_service?.get_staff_access()
-
+ 
   if (!staff) return null
+
 
   const countryNames: Record<string, string> = {
     ZA: 'South Africa',
@@ -193,8 +198,18 @@ const CountrySelector = () => {
       
     
           <Typography>
+            <span 
+          
+            onClick={()=>{
+
+navigate(`/profile/edit/${staff?.staffId}`)
+// navigate()
+
+            }}>
+    Staff ID: {staff?.staffId}
+            </span>
              
-            Staff ID: {staff?.staffId}
+        
           </Typography>
         </Box>
 
@@ -207,13 +222,15 @@ const CountrySelector = () => {
 
         <Divider sx={{ borderColor: "rgba(255,255,255,0.1)" }} />
 
-        <MenuItem onClick={() => console.log("Profile Click")}>
+        <MenuItem onClick={() => {
+
+navigate(`/profile/edit/${staff?.staffId}`)
+
+        }}>
           My Profile
         </MenuItem>
 
-        <MenuItem onClick={() => console.log("Settings Click")}>
-          Settings
-        </MenuItem>
+     
 
         <Divider sx={{ borderColor: "rgba(255,255,255,0.1)" }} />
 
