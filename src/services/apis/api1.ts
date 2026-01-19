@@ -175,14 +175,36 @@ const patch = async (url: string, object: any) => {
   }
 }
 
-const del = async (url: string, object: any) => {
+
+
+const del = async (url: string, object?: any) => {
   try {
-    const { data } = await instance.delete(url, object)
+    const { data } = await instance.delete(url, {
+      data: object, // 👈 body goes here
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
     return data
   } catch (error) {
     throw error
   }
 }
+
+// const del = async (url: string, object: any) => {
+//   try {
+//  const data = await instance.delete(url, object, {
+//       headers: {
+//         'Content-Type': 'application/json',
+//       }});
+
+
+//       return data
+
+//   } catch (error) {
+//     throw error
+//   }
+// }
 
 const upload = async (url: string, formData: any, onUploadProgress: (progressEvent: AxiosProgressEvent) => void) => {
   try {

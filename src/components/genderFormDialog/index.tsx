@@ -1,3 +1,4 @@
+import { LocalStorageService } from "@/helpers/local-storage-service";
 import { countyState } from "@/states/state";
 import {
   Dialog,
@@ -19,6 +20,10 @@ interface Gender {
   gendercode: string;
   description: string;
   active: boolean;
+   created_by:any;
+   effectivefromdate:any,
+    effectivetodate:any,
+   countrycode:any
 }
 interface Props {
   open: boolean;
@@ -36,8 +41,13 @@ export default function GenderFormDialog({
   const [gendercode, setGendercode] = useState("");
   const [description, setDescription] = useState("");
   const [active, setActive] = useState(true);
+  const local_service =new LocalStorageService();
+  const [username, setUsername] = useState(local_service?.get_staff_id());
+const [effectiveFrom, setEffectiveFrom] = useState("");
+const [effectiveTo, setEffectiveTo] = useState("");
 const [selectedCountry, setSelectedCountry] = useState<string>('')
 const [countries, setCountries] = useRecoilState(countyState)
+
 
 
   useEffect(() => {
@@ -45,27 +55,39 @@ const [countries, setCountries] = useRecoilState(countyState)
       setGendercode(editData.gendercode);
       setDescription(editData.description);
       setActive(editData.active);
+
+    setUsername(editData?.created_by);
+    setEffectiveFrom(editData?.effectivefromdate.split("T")[0]);
+    setEffectiveTo(editData?.effectivetodate.split("T")[0]);
+    setSelectedCountry(editData?.countrycode);
     } else {
-      setGendercode("");
-      setDescription("");
-      setActive(true);
+       setGendercode("");
+    setDescription("");
+    setActive(true);
+    setUsername("");
+    setEffectiveFrom("");
+    setEffectiveTo("");
     }
   }, [editData]);
 
   const handleSubmit = () => {
     onSubmit({
-      gendercode,
-      description,
-      active
+       gendercode,
+    description,
+    active,
+    selectedCountry,
+    username,
+    effectiveFrom,
+    effectiveTo
     });
   };
 
     const handleCountryChange = (event: React.ChangeEvent<{ value: unknown }>) => {
         const countryCode = event.target.value as string
-    
+      console.log(countryCode)
         setSelectedCountry(countryCode)
     
-        // Find the selected country
+      
         const selected = countries.find((country) => country.countryCode == countryCode)
         console.log('selected', selected)
     
@@ -80,6 +102,7 @@ const [countries, setCountries] = useRecoilState(countyState)
         <TextField
           label="Gender Code"
           fullWidth
+         inputProps={{ maxLength: 1 }}
           margin="normal"
           value={gendercode}
           disabled={!!editData}
@@ -89,6 +112,7 @@ const [countries, setCountries] = useRecoilState(countyState)
         <TextField
           label="Description"
           fullWidth
+            inputProps={{ maxLength: 15 }}
           margin="normal"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -97,9 +121,12 @@ const [countries, setCountries] = useRecoilState(countyState)
          
                          
                               <InputLabel>Destination Country</InputLabel>
+                            
                               <Select
                                 value={selectedCountry}
                                 //@ts-ignore
+                                  disabled={!!editData}
+                                  //@ts-ignore
                                 onChange={handleCountryChange}
                                 displayEmpty
                               >
@@ -120,7 +147,38 @@ const [countries, setCountries] = useRecoilState(countyState)
                                     ))
                                 }
                               </Select>
-                           
+{/*                            
+                           <TextField
+  label="Username"
+  fullWidth
+  defaultValue={username}
+  margin="normal"
+  value={username}
+  onChange={(e) => setUsername(e.target.value)}
+/> */}
+
+<TextField
+  label="Effective From Date"
+  type="date"
+  fullWidth
+  margin="normal"
+  InputLabelProps={{ shrink: true }}
+  value={effectiveFrom}
+  defaultValue={effectiveFrom}
+  onChange={(e) => setEffectiveFrom(e.target.value)}
+/>
+
+<TextField
+  label="Effective To Date"
+  type="date"
+  fullWidth
+  margin="normal"
+  InputLabelProps={{ shrink: true }}
+  value={effectiveTo}
+  defaultValue={effectiveTo}
+  onChange={(e) => setEffectiveTo(e.target.value)}
+/>
+
         
           
 

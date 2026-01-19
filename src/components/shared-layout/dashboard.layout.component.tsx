@@ -32,6 +32,9 @@ import ErrorIcon from '@mui/icons-material/Error'
 import ProfileMenu from '../profilesetting'
 import RefreshIcon from '@mui/icons-material/Refresh';
 import WcIcon from '@mui/icons-material/Wc';
+import AirIcon from '@mui/icons-material/Air';
+import LanguageIcon from '@mui/icons-material/Language';
+import { LanguagesIcon } from 'lucide-react'
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
   padding: theme.spacing(1),
@@ -469,6 +472,42 @@ const DashboardLayout = () => {
       label: 'Static-Gender',
       name: 'Gender',
     },
+         {
+      icon: (
+        <>
+          <AirIcon
+            sx={{
+              //@ts-ignore
+              fontSize: '2vh',
+              //@ts-ignore
+              color: theme.palette.primary.light, // Corrected theme usage
+            }}
+          />
+        </>
+      ),
+      label: 'channel',
+      name: 'Channels',
+    },
+
+             {
+      icon: (
+        <>
+          <LanguagesIcon
+          //@ts-ignore
+          sx={{
+              //@ts-ignore
+              fontSize: '2vh',
+              //@ts-ignore
+              color: theme.palette.primary.light, // Corrected theme usage
+            }}
+          />
+        </>
+      ),
+      label: 'States',
+      name: 'States',
+    },
+
+
   ]
 
   useEffect(() => {

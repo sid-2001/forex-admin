@@ -52,6 +52,8 @@ import { LocalStorageService } from './helpers/local-storage-service'
 import { CrossBorderPaymentsDashboard } from './pages/dashboard'
 import EnhancedDashboard from './pages/dashboard/dashboard-new'
 import GenderMaster from './pages/gendermaster'
+import ChannelManagement from './components/channelmaster'
+import StateManagement from './pages/state-manegment'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -199,7 +201,9 @@ const INACTIVITY_TIME = 10 * 60 * 1000; // 1 minutes
               <Route path="audit-logs" element={<AuditLogTable />} />
               <Route path="field-validation" element={<FieldValidationTable />} />
               <Route path="static-gender" element={<GenderMaster />} />
-  <Route path="branches" element={<ForexBranchesPage />} />
+               <Route path="states" element={<StateManagement />} />
+                 <Route path="channel" element={<ChannelManagement />} />
+       <Route path="branches" element={<ForexBranchesPage />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 

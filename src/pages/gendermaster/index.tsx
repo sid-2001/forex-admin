@@ -8,17 +8,12 @@ import {
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-
-// import {
-//   getGenders,
-//   createGender,
-//   updateGender,
-//   deleteGender
-// } from "./genderApi";
-
 import GenderFormDialog from "../../components/genderFormDialog";
 import staticdataService from "@/services/staticdata.service";
 import GenderService from "@/services/gender.service";
+import { LocalStorageService } from "@/helpers/local-storage-service";
+import { useRecoilState } from "recoil";
+import { alertState, alertTextState, alertTypeState } from "@/states/state";
 
 interface Gender {
   gendercode: string;
@@ -27,13 +22,19 @@ interface Gender {
 }
 export default function GenderMaster() {
   const [rows, setRows] = useState<Gender[]>([]);
-  const [open, setOpen] = useState(false);
+  const [dialogopen, setDialogopen] = useState(false);
+    const [open, setOpen] = useRecoilState(alertState)
+    const [text, setText] = useRecoilState(alertTextState)
+    const [type, settype] = useRecoilState(alertTypeState)
+  const local_service=new LocalStorageService();
+
   const [editData, setEditData] = useState<Gender | null>(null);
-const static_service=new GenderService();
+   const static_service=new GenderService();
 
   const fetchData = async () => {
     const res = await static_service.getGenderList()
-    setRows(res.data.data);
+    //@ts-ignore
+    setRows(res);
   };
 
 
@@ -42,35 +43,76 @@ const static_service=new GenderService();
   }, []);
 
   const handleCreate = async (data: any) => {
-    await static_service.createGender({
-      username: "SIT_ADMIN_01",
+ const genderresponse=   await static_service.createGender({
+      applicant_id: local_service?.get_staff_id(),
       gendercode: data.gendercode,
       description: data.description,
-      countrycode: "IN",
-      active: data.active,
-      effectivefromdate: "2026-01-01T00:00:00Z",
-      effectivetodate: "2030-12-31T23:59:59Z"
+      countrycode: data?.selectedCountry,
+      active: data?.active,
+      effectivefromdate: data?.effectiveFrom,
+      effectivetodate: data?. effectiveTo
     });
-    setOpen(false);
+  
+    if(
+      //@ts-ignore
+      genderresponse?.success==true){
+
+      setOpen(true);
+      settype("Success");
+      setText("Gender Created Successfully")
+    }
+    else{
+
+      setOpen(true);
+      settype("Fail");
+      setText("Server Error")
+
+
+    }
+    setDialogopen(false);
     fetchData();
   };
 
   const handleUpdate = async (data: any) => {
-    await static_service.updateGender({
-      username: "SIT_MANAGER_02",
-      gendercode: editData?.gendercode,
-      countrycode: "IN",
-      description: data.description
+    console.log("the data to be updated is ",data);
+    const genderresponse=  await static_service.updateGender({
+      //@ts-ignore
+      applicant_id:local_service?.get_staff_id(),
+      gendercode: data?.gendercode,
+      countrycode: data?.selectedCountry,
+      description: data.description,
+      effectivefromdate: data?.effectiveFrom,
+      effectivetodate: data?. effectiveTo
+      
     });
+
+
+        if(
+          //@ts-ignore
+          genderresponse?.success==true){
+
+      setOpen(true);
+      settype("Success");
+      setText("Gender Updated Succesfully");
+    }
+    else{
+
+      setOpen(true);
+      settype("Fail");
+      setText("Server Error")
+
+
+    }
     setEditData(null);
-    setOpen(false);
+    setDialogopen(false);
     fetchData();
   };
 
   const handleDelete = async (row: Gender) => {
     await static_service.deleteGender({
       gendercode: row.gendercode,
-      countrycode: "IN"
+      //@ts-ignore
+      countrycode: row?.countrycode
     });
     fetchData();
   };
@@ -92,8 +134,9 @@ const static_service=new GenderService();
         <>
           <IconButton
             onClick={() => {
+              console.log(params.row)
               setEditData(params.row);
-              setOpen(true);
+              setDialogopen(true);
             }}
           >
             <EditIcon />
@@ -108,13 +151,15 @@ const static_service=new GenderService();
   ];
 
   return (
-    <Box p={2}>
+    <Box p={2} sx={{
+      width:"80vw"
+    }}>
       <Stack direction="row" justifyContent="space-between" mb={2}>
         <Button
           variant="contained"
           onClick={() => {
             setEditData(null);
-            setOpen(true);
+            setDialogopen(true);
           }}
         >
           Add Gender
@@ -130,8 +175,10 @@ const static_service=new GenderService();
       />
 
       <GenderFormDialog
-        open={open}
-        onClose={() => setOpen(false)}
+        open={dialogopen}
+        //@ts-ignore
+        onClose={() => setDialogopen(false)}
+        //@ts-ignore
         editData={editData}
         onSubmit={editData ? handleUpdate : handleCreate}
       />
