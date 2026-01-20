@@ -1,6 +1,6 @@
 import { ThemeProvider } from '@mui/material/styles'
 import { Box, Typography, Avatar, List, ListItem, IconButton, AppBar, ListItemIcon, Toolbar, Tooltip, Chip, MenuItem, Select } from '@mui/material'
-import { styled } from '@mui/system'
+import { color, styled } from '@mui/system'
 import { LogoWhite } from '@/assets/images'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
@@ -8,7 +8,7 @@ import Person2Icon from '@mui/icons-material/Person2'
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
 import { menuHistoryState, themeModeState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-import { ArrowBack, Brightness4, Brightness7 } from '@mui/icons-material'
+import { ArrowBack, Brightness4, Brightness7, ExpandLess, ExpandMore } from '@mui/icons-material'
 import { alertState, loaderState, selectedAppState, loaderStateNew, availableBalanceState } from '@/states/state'
 import { useState, useEffect } from 'react'
 import Backdrop from '@mui/material/Backdrop'
@@ -34,7 +34,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import WcIcon from '@mui/icons-material/Wc';
 import AirIcon from '@mui/icons-material/Air';
 import LanguageIcon from '@mui/icons-material/Language';
-import { LanguagesIcon } from 'lucide-react'
+import { FolderIcon, LanguagesIcon } from 'lucide-react'
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
   padding: theme.spacing(1),
@@ -185,7 +185,10 @@ const DashboardLayout = () => {
   const [openloader, setopenloader] = useRecoilState(loaderStateNew)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDrawerOpen, setDrawerOpen] = useState(false)
+  const [openFixedData, setOpenFixedData] = useState(false)
+
   const navigate = useNavigate()
+
   const theme = useTheme()
   
 
@@ -498,7 +501,9 @@ const DashboardLayout = () => {
               //@ts-ignore
               fontSize: '2vh',
               //@ts-ignore
-              color: theme.palette.primary.light, // Corrected theme usage
+              color:"white",
+              fontColor:'white',
+              // color: theme.palette.primary.light, // Corrected theme usage
             }}
           />
         </>
@@ -509,6 +514,9 @@ const DashboardLayout = () => {
 
 
   ]
+
+
+
 
   useEffect(() => {
     setTimeout(() => {
@@ -719,6 +727,9 @@ setSelectedApp(history[history.length-2]);
                   </Stack>
                 </ListItem>
               ))}
+
+
+
 
               <ListItem
                 button

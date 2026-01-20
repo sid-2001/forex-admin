@@ -36,26 +36,32 @@ export default function StateManagement() {
   }, []);
 
   const handleCreate = async (data: any) => {
+    console.log("i m the creating")
+    console.log(data)
     await stateService.createState({
       applicant_id: local_service?.get_staff_id(),
       statecode: data.stateCode,
       statedescription: data.description,
       countrycode: data.countryCode,
       active: data.active,
-      effectivefromdate: `${data.effectiveFrom}T00:00:00Z`,
-      effectivetodate: `${data.effectiveTo}T23:59:59Z`
+      effectivefromdate: data?.effectiveFrom,
+      effectivetodate: data?.effectiveTo
     });
     setOpen(false);
     fetchData();
   };
 
   const handleUpdate = async (data: any) => {
+    console.log(data)
     await stateService.updateState({
       applicant_id:  local_service?.get_staff_id(),
       statecode: data.stateCode,
       statedescription: data.description,
       //@ts-ignore
       countrycode: data.countryCode,
+      //@ts-ignore
+       effectivefromdate: data.effectivefromdate,
+      effectivetodate: data.effectivefromdate,
         //@ts-ignore
        active: data.active,
     });
@@ -72,14 +78,28 @@ export default function StateManagement() {
   };
 
   const columns: GridColDef[] = [
-    { field: "statecode", headerName: "State Code", flex: 1 },
-    { field: "statedescription", headerName: "Description", flex: 2 },
-    { field: "countrycode", headerName: "Country", flex: 1 },
+    { field: "statecode", headerName: "State Code", flex: 1 , headerClassName: 'super-app-theme--header' },
+    { field: "statedescription", headerName: "Description", flex: 2 , headerClassName: 'super-app-theme--header' },
+    { field: "countrycode", headerName: "Country", flex: 1 , headerClassName: 'super-app-theme--header' },
     {
       field: "active",
       headerName: "Active",
       flex: 1,
       renderCell: (p) => (p.value ? "Yes" : "No")
+      , headerClassName: 'super-app-theme--header' 
+    },
+        {
+      field: "effectivefromdate",
+      headerName: "EffectiveFrom",
+      flex: 1,
+       headerClassName: 'super-app-theme--header'
+
+    },
+            {
+      field: "effectivetodate",
+      headerName: "EffectiveTo",
+      flex: 1,
+       headerClassName: 'super-app-theme--header'
     },
     {
       field: "actions",
@@ -108,6 +128,7 @@ export default function StateManagement() {
           </IconButton>
         </>
       )
+      , headerClassName: 'super-app-theme--header' 
     }
   ];
 

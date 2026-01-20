@@ -79,9 +79,9 @@ export default class StateService extends BaseService {
   }): Promise<{ status: boolean; message: string }> {
     const url = '/api/bop/state/delete'
     try {
-console.log("i m getting deleted")
+
         //@ts-ignore
-      const { data } = await api1.delete(url,  payload )
+      const { data } = await api1.del(url,  payload )
       return data
     } catch (err) {
       return err as any

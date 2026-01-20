@@ -50,7 +50,6 @@ export default function ChannelManagement() {
     fetchData();
   };
 
-  /* ================= UPDATE ================= */
   const handleUpdate = async (data: any) => {
     await static_service.updateChannel({
       applicant_id: local_service?.get_staff_id(),
@@ -82,22 +81,30 @@ export default function ChannelManagement() {
     {
       field: "channel_code",
       headerName: "Channel Code",
-      flex: 1
+      flex: 1,
+     headerClassName: 'super-app-theme--header'
+      
     },
     {
       field: "country_code",
       headerName: "Country",
-      flex: 1
+      flex: 1,
+       headerClassName: 'super-app-theme--header'
     },
     {
       field: "channel_description",
       headerName: "Description",
+       headerClassName: 'super-app-theme--header',
       flex: 2
     },
+          { field: "effective_from_date", headerName: "Effective From", flex: 0.5, headerClassName: 'super-app-theme--header'  },
+   { field: "effective_to_date", headerName: "Effective To", flex: 0.5, headerClassName: 'super-app-theme--header'  },
+
     {
       field: "active",
       headerName: "Active",
       flex: 1,
+       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (params.value ? "Yes" : "No")
     },
     {
@@ -105,6 +112,7 @@ export default function ChannelManagement() {
       headerName: "Actions",
       width: 120,
       sortable: false,
+       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <>
           <IconButton

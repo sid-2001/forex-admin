@@ -56,14 +56,14 @@ export default function ChannelFormDialog({
       setSelectedCountry(editData.country_code);
       setActive(editData.active);
        setApplicantId(editData?.applicant_id);
-      setEffectiveFrom(editData?.effective_from_date);
-      setEffectiveTo(editData?.effective_to_date);
+      setEffectiveFrom(editData?.effective_from_date?.split("T")[0]);
+      setEffectiveTo(editData?.effective_to_date?.split("T")[0]);
 
     } else {
       setChannelCode("");
       setDescription("");
       setSelectedCountry("");
-      setActive(false);
+      setActive(active);
       setApplicantId("");
       setEffectiveFrom("");
       setEffectiveTo("");
@@ -137,7 +137,7 @@ export default function ChannelFormDialog({
             ))}
         </Select>
 
-        {!editData && (
+        
           <>
             <TextField
               type="date"
@@ -159,7 +159,7 @@ export default function ChannelFormDialog({
               onChange={(e) => setEffectiveTo(e.target.value)}
             />
           </>
-        )}
+     
 
         <FormControlLabel
           control={

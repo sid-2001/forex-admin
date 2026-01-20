@@ -42,10 +42,15 @@ export default function StateFormDialog({
 
   useEffect(() => {
     if (editData) {
+      console.log(editData);
       setStateCode(editData.statecode);
       setDescription(editData.statedescription);
       setCountryCode(editData.countrycode);
       setActive(editData.active);
+      setEffectiveFrom(editData?.effectivefromdate?.split("T")[0]);
+      setEffectiveTo(editData?.effectivetodate?.split("T")[0]);
+      // setEffectiveFrom()
+      // setEffectiveTo()
     } else {
       setStateCode("");
       setDescription("");
@@ -121,7 +126,7 @@ export default function StateFormDialog({
             ))}
         </Select>
 
-        {!editData && (
+      
           <>
             <TextField
               type="date"
@@ -143,7 +148,7 @@ export default function StateFormDialog({
               onChange={(e) => setEffectiveTo(e.target.value)}
             />
           </>
-        )}
+       
 
         <FormControlLabel
           control={

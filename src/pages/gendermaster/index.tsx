@@ -118,18 +118,27 @@ export default function GenderMaster() {
   };
 
   const columns: GridColDef[] = [
-    { field: "gendercode", headerName: "Gender Code", width: 150 },
-    { field: "description", headerName: "Description", flex: 1 },
+    { field: "gendercode", headerName: "Gender Code", flex: 0.5
+
+
+      , headerClassName: 'super-app-theme--header' 
+    },
+    { field: "description", headerName: "Description", flex: 1 , headerClassName: 'super-app-theme--header' },
     {
       field: "active",
       headerName: "Active",
       width: 120,
-      renderCell: (params) => (params.value ? "Yes" : "No")
+      renderCell: (params) => (params.value ? "Yes" : "No"), headerClassName: 'super-app-theme--header' 
     },
+
+       { field: "effectivefromdate", headerName: "Effective From", flex: 0.5, headerClassName: 'super-app-theme--header'  },
+   { field: "effectivetodate", headerName: "Effective To", flex: 0.5, headerClassName: 'super-app-theme--header'  },
+
     {
       field: "actions",
       headerName: "Actions",
       width: 150,
+       headerClassName: 'super-app-theme--header' ,
       renderCell: (params) => (
         <>
           <IconButton
@@ -148,6 +157,7 @@ export default function GenderMaster() {
         </>
       )
     }
+    
   ];
 
   return (
@@ -160,6 +170,7 @@ export default function GenderMaster() {
           onClick={() => {
             setEditData(null);
             setDialogopen(true);
+          
           }}
         >
           Add Gender
@@ -176,6 +187,7 @@ export default function GenderMaster() {
 
       <GenderFormDialog
         open={dialogopen}
+        
         //@ts-ignore
         onClose={() => setDialogopen(false)}
         //@ts-ignore
