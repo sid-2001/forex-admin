@@ -54,16 +54,17 @@ import EnhancedDashboard from './pages/dashboard/dashboard-new'
 import GenderMaster from './pages/gendermaster'
 import ChannelManagement from './components/channelmaster'
 import StateManagement from './pages/state-manegment'
+import ProductManagement from './pages/productMaster'
+import ServiceManagement from './pages/ServiceManagement'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
     authenticationPath: '/login',
   }
   const [mode, setMode] = useRecoilState(themeModeState)
-  const[inactivity,setinactivityTiming]=useRecoilState(inactivityTiming);
+  const [inactivity, setinactivityTiming] = useRecoilState(inactivityTiming)
   const local_service: any = new LocalStorageService()
-  
-  
+
   const theme = createTheme({
     palette: {
       mode,
@@ -139,26 +140,16 @@ function App() {
     },
   })
 
-const handleLogout = useCallback(() => {
-  
-
-
-  if(local_service?.get_accesstoken()!=null ){
-    localStorage.clear();
-    sessionStorage.clear();   
-    window.location.reload()
-   
-  }
-
-
-  }, []);
-const INACTIVITY_TIME = 10 * 60 * 1000; // 1 minutes
+  const handleLogout = useCallback(() => {
+    if (local_service?.get_accesstoken() != null) {
+      localStorage.clear()
+      sessionStorage.clear()
+      window.location.reload()
+    }
+  }, [])
+  const INACTIVITY_TIME = 10 * 60 * 1000 // 1 minutes
   // ✅ Enable auto logout (30 min inactivity)
-  useAutoLogout(handleLogout,Number(inactivity)*60000>INACTIVITY_TIME?Number(inactivity)*60000:INACTIVITY_TIME);
-
-
-
-  
+  useAutoLogout(handleLogout, Number(inactivity) * 60000 > INACTIVITY_TIME ? Number(inactivity) * 60000 : INACTIVITY_TIME)
 
   return (
     <>
@@ -172,7 +163,7 @@ const INACTIVITY_TIME = 10 * 60 * 1000; // 1 minutes
           <Routes>
             <Route path="/" element={<ProtectedRoute {...defaultProtectedRouteProps} outlet={<DashboardLayout />} />}>
               <Route index element={<Dashboard />}></Route>
-               <Route path="dash" element={<EnhancedDashboard />} />
+              <Route path="dash" element={<EnhancedDashboard />} />
               <Route path="transaction" element={<TransactionListing />} />
               <Route path="sendmoney" element={<SendMoneyPage />} />
               <Route path="kyc" element={<KYCPage />} />
@@ -201,16 +192,17 @@ const INACTIVITY_TIME = 10 * 60 * 1000; // 1 minutes
               <Route path="audit-logs" element={<AuditLogTable />} />
               <Route path="field-validation" element={<FieldValidationTable />} />
               <Route path="static-gender" element={<GenderMaster />} />
-               <Route path="states" element={<StateManagement />} />
-                 <Route path="channel" element={<ChannelManagement />} />
-       <Route path="branches" element={<ForexBranchesPage />} />
+              <Route path="states" element={<StateManagement />} />
+              <Route path="product" element={<ProductManagement />} />
+              <Route path="service" element={<ServiceManagement />} />
+              <Route path="channel" element={<ChannelManagement />} />
+              <Route path="branches" element={<ForexBranchesPage />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 
             <Route path="login" element={<Login />} />
             <Route path="transaction/response" element={<GifModal />} />
             <Route path="reset-password" element={<ResetPasswordPage />} />
-           
           </Routes>
         </BrowserRouter>
       </ThemeProvider>
