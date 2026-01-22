@@ -18,7 +18,7 @@ export default class SubServiceService extends BaseService {
   async getSubServiceList() {
     const url = '/api/static-table/serviceSubServiceMapping/getAll';
     try {
-      const { data } = await api1.get(url, { headers: this.mandatoryHeaders() });
+      const { data } = await api1.get(url);
       return data;
     } catch (err) { return err as any; }
   }
@@ -26,7 +26,7 @@ export default class SubServiceService extends BaseService {
   async createSubService(payload: any) {
     const url = `${this.baseUrl}/createSubService`;
     try {
-      const { data } = await api1.post(url, payload, { headers: this.mandatoryHeaders() });
+      const { data } = await api1.post(url, payload);
       return data;
     } catch (err) { return err as any; }
   }
