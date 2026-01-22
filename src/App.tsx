@@ -54,6 +54,8 @@ import EnhancedDashboard from './pages/dashboard/dashboard-new'
 import GenderMaster from './pages/gendermaster'
 import ChannelManagement from './components/channelmaster'
 import StateManagement from './pages/state-manegment'
+import BankMasterScreen from './pages/bank-master'
+import BankTypeMaster from './pages/bank-type-master'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -202,6 +204,8 @@ const INACTIVITY_TIME = 10 * 60 * 1000; // 1 minutes
               <Route path="field-validation" element={<FieldValidationTable />} />
               <Route path="static-gender" element={<GenderMaster />} />
                <Route path="states" element={<StateManagement />} />
+                 <Route path="banks-master" element={<BankMasterScreen />} />
+                  <Route path="bank-type" element={<BankTypeMaster />} />
                  <Route path="channel" element={<ChannelManagement />} />
        <Route path="branches" element={<ForexBranchesPage />} />
               <Route path="*" element={<Dashboard />} />

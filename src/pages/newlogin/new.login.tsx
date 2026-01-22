@@ -319,6 +319,7 @@ const checkType = (value: string) => {
             disabled={email.length > 0 && password.length > 0 ? false : true}
             variant="contained"
             fullWidth
+            type='submit'
             sx={{
               mt: 3,
               py: 1.5,

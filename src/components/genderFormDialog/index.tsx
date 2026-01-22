@@ -89,7 +89,7 @@ const [countries, setCountries] = useRecoilState(countyState)
     
       
         const selected = countries.find((country) => country.countryCode == countryCode)
-        console.log('selected', selected)
+      
     
       }
   
@@ -124,6 +124,11 @@ const [countries, setCountries] = useRecoilState(countyState)
                             
                               <Select
                                 value={selectedCountry}
+                                fullWidth
+                                style={{
+
+                                  width:"100%"
+                                }}
                                 //@ts-ignore
                                   disabled={!!editData}
                                   //@ts-ignore
@@ -147,15 +152,7 @@ const [countries, setCountries] = useRecoilState(countyState)
                                     ))
                                 }
                               </Select>
-{/*                            
-                           <TextField
-  label="Username"
-  fullWidth
-  defaultValue={username}
-  margin="normal"
-  value={username}
-  onChange={(e) => setUsername(e.target.value)}
-/> */}
+
 
 <TextField
   label="Effective From Date"
@@ -166,6 +163,9 @@ const [countries, setCountries] = useRecoilState(countyState)
   value={effectiveFrom}
   defaultValue={effectiveFrom}
   onChange={(e) => setEffectiveFrom(e.target.value)}
+    inputProps={{
+    readOnly: true,   // ⬅️ prevents manual typing
+  }}
 />
 
 <TextField
@@ -177,6 +177,10 @@ const [countries, setCountries] = useRecoilState(countyState)
   value={effectiveTo}
   defaultValue={effectiveTo}
   onChange={(e) => setEffectiveTo(e.target.value)}
+    inputProps={{
+    readOnly: true,   // ⬅️ prevents manual typing
+  }}
+
 />
 
         

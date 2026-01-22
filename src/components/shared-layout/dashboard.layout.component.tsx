@@ -511,6 +511,25 @@ const DashboardLayout = () => {
       label: 'States',
       name: 'States',
     },
+               {
+      icon: (
+        <>
+          <LanguagesIcon
+          //@ts-ignore
+          sx={{
+              //@ts-ignore
+              fontSize: '2vh',
+              //@ts-ignore
+              color:"white",
+              fontColor:'white',
+              // color: theme.palette.primary.light, // Corrected theme usage
+            }}
+          />
+        </>
+      ),
+      label: 'Bank-Type',
+      name: 'Bank-Type',
+    },
 
 
   ]
