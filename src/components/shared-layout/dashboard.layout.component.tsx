@@ -8,7 +8,7 @@ import Person2Icon from '@mui/icons-material/Person2'
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
 import { menuHistoryState, themeModeState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-import { ArrowBack, Brightness4, Brightness7, ExpandLess, ExpandMore, FilterBAndW } from '@mui/icons-material'
+import { ArrowBack, Brightness4, Brightness7, ExpandLess, ExpandMore, FilterBAndW, HomeRepairServiceRounded, LeakRemove } from '@mui/icons-material'
 import { alertState, loaderState, selectedAppState, loaderStateNew, availableBalanceState } from '@/states/state'
 import { useState, useEffect } from 'react'
 import Backdrop from '@mui/material/Backdrop'
@@ -30,11 +30,12 @@ import ConfirmationModal from '../logout/logout.component'
 import LoyaltyIcon from '@mui/icons-material/Loyalty'
 import ErrorIcon from '@mui/icons-material/Error'
 import ProfileMenu from '../profilesetting'
-import RefreshIcon from '@mui/icons-material/Refresh';
-import WcIcon from '@mui/icons-material/Wc';
-import AirIcon from '@mui/icons-material/Air';
+import RefreshIcon from '@mui/icons-material/Refresh'
+import WcIcon from '@mui/icons-material/Wc'
+import AirIcon from '@mui/icons-material/Air'
 import BubbleChartIcon from '@mui/icons-material/BubbleChart';
-import LanguageIcon from '@mui/icons-material/Language';
+import LanguageIcon from '@mui/icons-material/Language'
+import Inventory2Icon from '@mui/icons-material/Inventory2';
 // import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import { FolderIcon, LanguagesIcon, Menu, SettingsIcon } from 'lucide-react'
 const Item = styled(Paper)(({ theme }) => ({
@@ -88,14 +89,7 @@ const CountrySelector = () => {
     AE: 'UAE',
   }
 
-  const getFlag = (code: string) =>
-    code
-      ? code
-          .toUpperCase()
-          .replace(/./g, c =>
-            String.fromCodePoint(127397 + c.charCodeAt(0))
-          )
-      : '🏳️'
+  const getFlag = (code: string) => (code ? code.toUpperCase().replace(/./g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0))) : '🏳️')
 
   /** 🔹 Auto select first country if not selected */
   useEffect(() => {
@@ -104,31 +98,22 @@ const CountrySelector = () => {
     }
   }, [staff])
 
-  const selectedCountry =local_service.get_staff_country();
-
+  const selectedCountry = local_service.get_staff_country()
 
   return (
     <Typography>
-      <Stack
-        direction="row"
-        alignItems="center"
-        spacing={0.6}
-        sx={{ mt: '2px' }}
-      >
+      <Stack direction="row" alignItems="center" spacing={0.6} sx={{ mt: '2px' }}>
         {/* 🔹 MULTIPLE COUNTRIES → DROPDOWN */}
         {staff.staffCountries?.length > 1 ? (
           <Select
             size="small"
             value={selectedCountry}
-            onChange={e =>
-            {
+            onChange={(e) => {
               console.log(e)
               local_service.set_usercountry(e.target.value)
               window.location.reload()
-            }
-            }
+            }}
             sx={{
-             
               fontSize: { xs: '11px', md: '1.4vh' },
               color: 'white',
               backgroundColor: 'rgba(255,255,255,0.15)',
@@ -156,11 +141,7 @@ const CountrySelector = () => {
           /* 🔹 SINGLE COUNTRY → TEXT */
           selectedCountry && (
             <>
-              <Typography
-                sx={{ fontSize: { xs: '12px', md: '1.5vh' } }}
-              >
-                {getFlag(selectedCountry)}
-              </Typography>
+              <Typography sx={{ fontSize: { xs: '12px', md: '1.5vh' } }}>{getFlag(selectedCountry)}</Typography>
               <Typography
                 sx={{
                   fontSize: { xs: '12px', md: '1.5vh' },
@@ -168,8 +149,7 @@ const CountrySelector = () => {
                   whiteSpace: 'nowrap',
                 }}
               >
-                {countryNames[selectedCountry] ||
-                  selectedCountry}
+                {countryNames[selectedCountry] || selectedCountry}
               </Typography>
             </>
           )
@@ -217,7 +197,29 @@ const CountrySelector = () => {
     icon: <AccountBalanceIcon fontSize="small" />,
     path: 'banks-master',
   },
+  {
+    label: 'Sub Services',
+    name: 'Sub Services',
+    icon: <LeakRemove fontSize="small" />,
+    path: 'subservice',
+  },
+  {
+    label: 'Services',
+    name: 'Service',
+    icon: <HomeRepairServiceRounded fontSize="small" />,
+    path: 'service',
+  },
+  {
+    label: 'Products',
+    name: 'Products',
+    icon: <Inventory2Icon fontSize="small" />,
+    path: 'product',
+  },
 ]
+
+
+
+
 
 
 const MasterDropdownIcon = () => {
@@ -272,28 +274,25 @@ const DashboardLayout = () => {
   const navigate = useNavigate()
 
   const theme = useTheme()
-  
 
   const handleModalClose = () => {
     setIsModalOpen(!isModalOpen)
   }
 
-  const [history, setHistory] = useRecoilState(menuHistoryState);
+  const [history, setHistory] = useRecoilState(menuHistoryState)
 
   // 1. ADD: Adds item to the end (prevents duplicates if desired)
   const addToHistory = (menuName: string) => {
     setHistory((oldHistory) => {
       // if (oldHistory.includes(menuName)) return oldHistory; // Avoid duplicates
-      return [...oldHistory, menuName];
-    });
-  };
+      return [...oldHistory, menuName]
+    })
+  }
 
   // 2. REMOVE: Removes a specific item by name
   const removeFromHistory = (menuName: string) => {
-    setHistory((oldHistory) => 
-      oldHistory.filter((item) => item !== menuName)
-    );
-  };
+    setHistory((oldHistory) => oldHistory.filter((item) => item !== menuName))
+  }
 
   // 3. CLEAR: Empty the whole list
   const clearHistory = () => setHistory([])
@@ -549,106 +548,91 @@ const DashboardLayout = () => {
   return (
     <ThemeProvider theme={theme}>
       <LoaderBackdrop openloader={openloader} imageSrc=".." />
-<AppBar
-  position="sticky"
-  sx={{
-    minHeight: '8vh',
-    height: '10vh',
- 
-  }}
->
-  <Toolbar>
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        width: '100%',
-      }}
-    >
-      {/* Left side - Logo + Dark/Light Mode (UNCHANGED) */}
-      
-      <Box sx={{ display: 'flex', alignItems: 'left', gap: 2 }}>
-          <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
-          <IconButton
-            onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
-            
-            color="inherit"
+      <AppBar
+        position="sticky"
+        sx={{
+          minHeight: '8vh',
+          height: '10vh',
+        }}
+      >
+        <Toolbar>
+          <Box
             sx={{
-              transition: 'transform 0.3s',
-              '&:hover': { transform: 'rotate(180deg)' },
-              marginLeft:'7%'
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              width: '100%',
             }}
           >
-            {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
-          </IconButton>
+            {/* Left side - Logo + Dark/Light Mode (UNCHANGED) */}
 
-</Tooltip>
-           
-          <IconButton
-            onClick={() =>{
+            <Box sx={{ display: 'flex', alignItems: 'left', gap: 2 }}>
+              <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+                <IconButton
+                  onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
+                  color="inherit"
+                  sx={{
+                    transition: 'transform 0.3s',
+                    '&:hover': { transform: 'rotate(180deg)' },
+                    marginLeft: '7%',
+                  }}
+                >
+                  {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
+                </IconButton>
+              </Tooltip>
 
-              window.location.reload();
-            }}
-            
-            color="inherit"
-            sx={{
-              transition: 'transform 0.3s',
-              '&:hover': { transform: 'rotate(180deg)' },
-              marginLeft:'7%'
-            }}
-          >
-            {mode === 'dark' ? <RefreshIcon /> : <RefreshIcon />}
-          </IconButton>
+              <IconButton
+                onClick={() => {
+                  window.location.reload()
+                }}
+                color="inherit"
+                sx={{
+                  transition: 'transform 0.3s',
+                  '&:hover': { transform: 'rotate(180deg)' },
+                  marginLeft: '7%',
+                }}
+              >
+                {mode === 'dark' ? <RefreshIcon /> : <RefreshIcon />}
+              </IconButton>
 
+              <IconButton
+                onClick={() => {
+                  console.log('History is Here=>', window.history)
+                  window.history.back()
+                  setSelectedApp(history[history.length - 2])
+                }}
+                color="inherit"
+                sx={{
+                  transition: 'transform 0.3s',
+                  // '&:hover': { transform: 'rotate(180deg)' },
+                  marginLeft: '7%',
+                }}
+              >
+                {mode === 'dark' ? <ArrowBack /> : <ArrowBack />}
+              </IconButton>
+            </Box>
 
-          <IconButton
-            onClick={() =>{
-              console.log("History is Here=>",window.history)
-window.history.back();
-setSelectedApp(history[history.length-2]);
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, textAlign: 'center' }}>
+              <Link to="/dashboard">
+                <img
+                  src={LogoWhite}
+                  alt="Logo"
+                  style={{
+                    maxHeight: '6vh',
+                    width: 'auto',
+                    objectFit: 'contain',
+                    // marginLeft:"10%"t
+                  }}
+                />
+              </Link>
+            </Box>
 
-          
-            }}
-            
-            color="inherit"
-            sx={{
-              transition: 'transform 0.3s',
-              // '&:hover': { transform: 'rotate(180deg)' },
-              marginLeft:'7%'
-            }}
-          >
-            {mode === 'dark' ? <ArrowBack /> : <ArrowBack />}
-          </IconButton>
+            {/* Right side - Profile box (MADE RESPONSIVE) */}
 
-      
-      </Box>
-      
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2,textAlign:"center" }}>
-
-            <Link to="/dashboard">
-          <img
-            src={LogoWhite}
-            alt="Logo"
-            style={{
-              maxHeight: '6vh',
-              width: 'auto',
-              objectFit: 'contain',
-              // marginLeft:"10%"t
-            }}
-          />
-        </Link>
-
-      </Box>
-
-      {/* Right side - Profile box (MADE RESPONSIVE) */}
-   
-      <ProfileMenu></ProfileMenu>
-
-    
-    </Box>
-  </Toolbar>
-</AppBar>
+            <ProfileMenu></ProfileMenu>
+          </Box>
+        </Toolbar>
+      </AppBar>
       <DashboardContainer>
         <Box sx={{ position: 'relative' }}>
           {/* Sidebar */}
@@ -711,9 +695,7 @@ setSelectedApp(history[history.length-2]);
                   onClick={() => {
                     setSelectedApp(item.label)
                     addToHistory(item.label)
-                
-                    
-                   
+
                     navigate(item.label.toLocaleLowerCase())
                   }}
                 >
@@ -744,9 +726,6 @@ setSelectedApp(history[history.length-2]);
                   </Stack>
                 </ListItem>
               ))}
-
-
-
 
 
 
