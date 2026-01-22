@@ -21,7 +21,8 @@ export default function ProductManagement() {
     setLoading(true)
     try {
       const res = await productService.getProductList()
-      setRows(res.data || res)
+
+      setRows(res.filter((r: any) => r.active))
     } finally {
       setLoading(false)
     }
@@ -68,9 +69,13 @@ export default function ProductManagement() {
   }
 
   const handleDelete = async (row: any) => {
-    await productService.deleteProduct(row.countryProductCode, false)
-    console.log('content is deleted')
-    fetchData()
+    try {
+      await productService.deleteProduct(row.countryProductCode, false)
+      console.log('Deleted successfully')
+      fetchData()
+    } catch (err) {
+      console.error('Delete failed', err)
+    }
   }
 
   const columns: GridColDef[] = [

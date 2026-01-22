@@ -40,11 +40,15 @@ export default class ServiceMasterService extends BaseService {
     } catch (err) { return err as any; }
   }
 
-  async deleteService(id: string, active: boolean = false) {
-    const url = `${this.baseUrl}/delete/${id}?active=${active}`;
-    try {
-      const { data } = await api1.delete(url, { headers: this.mandatoryHeaders() });
-      return data;
-    } catch (err) { return err as any; }
+async deleteService(id: string, active: boolean = false) {
+  const url = `${this.baseUrl}/delete/${id}?active=${active}`;
+  try {
+    const { data } = await api1.del(url, {}, this.mandatoryHeaders());
+    return data;
+  } catch (err) { 
+    console.error('Delete API failed:', err);
+    return err as any;
   }
+}
+
 }

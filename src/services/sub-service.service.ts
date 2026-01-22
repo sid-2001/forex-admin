@@ -16,7 +16,6 @@ export default class SubServiceService extends BaseService {
   }
 
   async getSubServiceList() {
-    // Note: Using the mapping getAll endpoint as provided in your request
     const url = '/api/static-table/serviceSubServiceMapping/getAll';
     try {
       const { data } = await api1.get(url, { headers: this.mandatoryHeaders() });
@@ -32,7 +31,6 @@ export default class SubServiceService extends BaseService {
     } catch (err) { return err as any; }
   }
 
-  // Dummy functions for now
   async updateSubService(id: string, payload: any) {
     console.log("Dummy Update for:", id, payload);
     return { status: true };

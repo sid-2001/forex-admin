@@ -23,7 +23,7 @@ export default function ServiceManagement() {
       const res = await serviceService.getServiceList()
       const responseData = res?.data || res
       if (Array.isArray(responseData)) {
-        setRows(responseData)
+        setRows(responseData.filter((res) => res.active))
       } else {
         setRows([])
       }
