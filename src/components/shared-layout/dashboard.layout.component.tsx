@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@mui/material/styles'
-import { Box, Typography, Avatar, List, ListItem, IconButton, AppBar, ListItemIcon, Toolbar, Tooltip, Chip, MenuItem, Select } from '@mui/material'
+import { Box, Typography, Avatar, List, ListItem, IconButton, AppBar, ListItemIcon, Toolbar, Tooltip, Chip, MenuItem, Select, ListItemText, ClickAwayListener, Popper, MenuList, DialogContent, Dialog } from '@mui/material'
 import { color, styled } from '@mui/system'
 import { LogoWhite } from '@/assets/images'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
@@ -8,7 +8,7 @@ import Person2Icon from '@mui/icons-material/Person2'
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
 import { menuHistoryState, themeModeState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-import { ArrowBack, Brightness4, Brightness7, ExpandLess, ExpandMore } from '@mui/icons-material'
+import { ArrowBack, Brightness4, Brightness7, ExpandLess, ExpandMore, FilterBAndW } from '@mui/icons-material'
 import { alertState, loaderState, selectedAppState, loaderStateNew, availableBalanceState } from '@/states/state'
 import { useState, useEffect } from 'react'
 import Backdrop from '@mui/material/Backdrop'
@@ -33,8 +33,10 @@ import ProfileMenu from '../profilesetting'
 import RefreshIcon from '@mui/icons-material/Refresh';
 import WcIcon from '@mui/icons-material/Wc';
 import AirIcon from '@mui/icons-material/Air';
+import BubbleChartIcon from '@mui/icons-material/BubbleChart';
 import LanguageIcon from '@mui/icons-material/Language';
-import { FolderIcon, LanguagesIcon } from 'lucide-react'
+// import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import { FolderIcon, LanguagesIcon, Menu, SettingsIcon } from 'lucide-react'
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
   padding: theme.spacing(1),
@@ -176,6 +178,86 @@ const CountrySelector = () => {
     </Typography>
   )
 }
+
+
+  const MASTER_MENU = [
+  {
+    label: 'Field-Validation',
+    name: 'Field-Validation',
+    icon: <LoyaltyIcon fontSize="small" />,
+    path: '/field-validation',
+  },
+  {
+    label: 'Static-Gender',
+    name: 'Gender',
+    icon: <WcIcon fontSize="small" />,
+    path: '/static-gender',
+  },
+  {
+    label: 'Channel',
+    name: 'Channels',
+    icon: <AirIcon fontSize="small" />,
+    path: '/channel',
+  },
+  {
+    label: 'States',
+    name: 'States',
+    icon: <LanguagesIcon fontSize="small" />,
+    path: '/states',
+  },
+  {
+    label: 'Bank-Type',
+    name: 'Bank-Type',
+    icon: <FilterBAndW fontSize="small" />,
+    path: '/bank-type',
+  },
+   {
+    label: 'Bank-Master',
+    name: 'Bank-Master',
+    icon: <AccountBalanceIcon fontSize="small" />,
+    path: 'banks-master',
+  },
+]
+
+
+const MasterDropdownIcon = () => {
+  const [open, setOpen] = useState(false)
+  const navigate = useNavigate()
+
+  const handleClose = () => setOpen(false)
+
+  const handleNavigate = (path: string) => {
+    navigate(path)
+    handleClose()
+  }
+
+  return (
+    <>
+      <IconButton onClick={() => setOpen(true)}>
+        <BubbleChartIcon 
+        color="primary"
+        sx={{ color: 'white',fontColor:"white" }} />
+      </IconButton>
+
+      <Dialog open={open} onClose={handleClose}>
+        <DialogContent sx={{ p: 0 }}>
+          {MASTER_MENU.map((item) => (
+            <MenuItem
+              key={item.name}
+              onClick={() => handleNavigate(item.path)}
+            >
+              <ListItemIcon sx={{ color: 'primary.main' }}>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText primary={item.label} />
+            </MenuItem>
+          ))}
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
+
 
 const DashboardLayout = () => {
   const [mode, setMode] = useRecoilState(themeModeState)
@@ -392,6 +474,7 @@ const DashboardLayout = () => {
       label: 'Static',
       name: 'Static Data',
     },
+
     {
       icon: (
         <>
@@ -425,6 +508,7 @@ const DashboardLayout = () => {
       label: 'Loyalty',
       name: 'Loyalty',
     },
+
     {
       icon: (
         <>
@@ -442,97 +526,11 @@ const DashboardLayout = () => {
       name: 'Audit-Logs',
     },
 
-    {
-      icon: (
-        <>
-          <LoyaltyIcon
-            sx={{
-              //@ts-ignore
-              fontSize: '2vh',
-              //@ts-ignore
-              color: theme.palette.primary.light, // Corrected theme usage
-            }}
-          />
-        </>
-      ),
-      label: 'Field-Validation',
-      name: 'Field-Validation',
-    },
-
-        {
-      icon: (
-        <>
-          <WcIcon
-            sx={{
-              //@ts-ignore
-              fontSize: '2vh',
-              //@ts-ignore
-              color: theme.palette.primary.light, // Corrected theme usage
-            }}
-          />
-        </>
-      ),
-      label: 'Static-Gender',
-      name: 'Gender',
-    },
-         {
-      icon: (
-        <>
-          <AirIcon
-            sx={{
-              //@ts-ignore
-              fontSize: '2vh',
-              //@ts-ignore
-              color: theme.palette.primary.light, // Corrected theme usage
-            }}
-          />
-        </>
-      ),
-      label: 'channel',
-      name: 'Channels',
-    },
-
-             {
-      icon: (
-        <>
-          <LanguagesIcon
-          //@ts-ignore
-          sx={{
-              //@ts-ignore
-              fontSize: '2vh',
-              //@ts-ignore
-              color:"white",
-              fontColor:'white',
-              // color: theme.palette.primary.light, // Corrected theme usage
-            }}
-          />
-        </>
-      ),
-      label: 'States',
-      name: 'States',
-    },
-               {
-      icon: (
-        <>
-          <LanguagesIcon
-          //@ts-ignore
-          sx={{
-              //@ts-ignore
-              fontSize: '2vh',
-              //@ts-ignore
-              color:"white",
-              fontColor:'white',
-              // color: theme.palette.primary.light, // Corrected theme usage
-            }}
-          />
-        </>
-      ),
-      label: 'Bank-Type',
-      name: 'Bank-Type',
-    },
-
+  
 
   ]
+
+
 
 
 
@@ -748,6 +746,27 @@ setSelectedApp(history[history.length-2]);
               ))}
 
 
+
+
+
+
+      <ListItem
+                button
+                key="logout"
+                sx={{
+                  textAlign: 'center',
+                  alignItems: 'center',
+                  color:"white"
+                }}
+               
+              ><Stack 
+              sx={{
+                textAlign:"center"
+              }}>
+          <MasterDropdownIcon></MasterDropdownIcon>
+              
+                </Stack>
+              </ListItem>
 
 
               <ListItem

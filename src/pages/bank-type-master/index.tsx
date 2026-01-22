@@ -24,7 +24,8 @@ export default function BankTypeMaster() {
   const fetchData = async () => {
     const res = await service.getList();
     console.log(res)
-    setRows(res)
+    
+    setRows(res as any)
     // if (res?.status) setRows(res.data);
   };
 
@@ -42,8 +43,10 @@ export default function BankTypeMaster() {
   };
 
   const handleUpdate = async (data: any) => {
+    console.log("the edit data",editData)
     const res = await service.update(
-      editData!.business_type_code,
+      //@ts-ignore
+      editData?.businessTypeCode,
       data
     );
     setOpen(true);
@@ -60,20 +63,22 @@ export default function BankTypeMaster() {
   };
 
   const columns: GridColDef[] = [
-    { field: "business_type_code", headerName: "Code", flex: 0.6 },
-    { field: "bank_business_name", headerName: "Business Name", flex: 1.2 },
-    { field: "business_currency_code", headerName: "Currency", flex: 0.6 },
-    { field: "country_code", headerName: "Country", flex: 0.6 },
+    { field: "businessTypeCode", headerName: "Code", flex: 0.6,headerClassName: 'super-app-theme--header' },
+    { field: "bankBusinessName", headerName: "Business Name", flex: 1.2,headerClassName: 'super-app-theme--header' },
+    { field: "businessCurrencyCode", headerName: "Currency", flex: 0.6 ,headerClassName: 'super-app-theme--header'},
+    { field: "countryCode", headerName: "Country", flex: 0.6,headerClassName: 'super-app-theme--header' },
     {
       field: "active",
       headerName: "Active",
       width: 120,
       renderCell: (params) => (params.value ? "Yes" : "No")
+      ,headerClassName: 'super-app-theme--header'
     },
     {
       field: "actions",
       headerName: "Actions",
       width: 150,
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <>
           <IconButton

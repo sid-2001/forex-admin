@@ -13,6 +13,7 @@ import BankMasterService, { BankMaster } from "../../services/bankmaster.service
 import { useRecoilState } from "recoil";
 import { alertState, alertTextState, alertTypeState } from "@/states/state";
 
+
 export default function BankMasterScreen() {
   const service = new BankMasterService();
 
@@ -26,6 +27,7 @@ export default function BankMasterScreen() {
 
   const fetchData = async () => {
     const res = await service.getBankList();
+    //@ts-ignore
      setRows(res);
    
   };

@@ -22,7 +22,7 @@ interface Props {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: any) => void;
-  editData?: BankBusinessType | null;
+  editData?: any | null;
 }
 
 export default function BankTypeDialog({
@@ -37,7 +37,7 @@ const [countries, setCountries] = useRecoilState(countyState)
 
   const [form, setForm] = useState<any>({
     countryCode: "",
-    businessCurrencyCode: "INR",
+    businessCurrencyCode: "",
     bankBusinessName: "",
     active: true,
     effective_from_date: "",
@@ -46,15 +46,18 @@ const [countries, setCountries] = useRecoilState(countyState)
 
   useEffect(() => {
     if (editData) {
+      console.log(editData);
       setForm({
-        countryCode: editData.country_code,
-        businessCurrencyCode: editData.business_currency_code,
-        bankBusinessName: editData.bank_business_name,
+        countryCode: editData.countryCode,
+        businessCurrencyCode: editData.businessCurrencyCode,
+        bankBusinessName: editData.bankBusinessName,
         active: editData.active,
         effective_from_date: editData.effective_from_date.split("T")[0],
         effective_to_date: editData.effective_to_date.split("T")[0]
       });
-      setSelectedCountry(editData.country_code)
+
+
+      setSelectedCountry(editData.countryCode)
     } else {
       setForm({
         countryCode: "",
@@ -72,6 +75,8 @@ const [countries, setCountries] = useRecoilState(countyState)
   };
 
   const handleSubmit = () => {
+
+    console.log({...form})
     onSubmit({
       ...form,
       created_by: localService.get_staff_id(),
@@ -84,7 +89,7 @@ const [countries, setCountries] = useRecoilState(countyState)
         const countryCode = event.target.value as string
       console.log(countryCode)
         setSelectedCountry(countryCode)
-        handleChange("countryCode", e.target.value)
+        handleChange("countryCode", countryCode)
     
       
         const selected = countries.find((country) => country.countryCode == countryCode)
@@ -119,7 +124,7 @@ const [countries, setCountries] = useRecoilState(countyState)
           }
         />
 
-        <TextField
+        {/* <TextField
           label="Country"
           fullWidth
           margin="dense"
@@ -127,7 +132,7 @@ const [countries, setCountries] = useRecoilState(countyState)
           onChange={(e) =>
             handleChange("countryCode", e.target.value)
           }
-        />
+        /> */}
 
 
                <InputLabel>Destination Country</InputLabel>
@@ -140,7 +145,7 @@ const [countries, setCountries] = useRecoilState(countyState)
                                           width:"100%"
                                         }}
                                         //@ts-ignore
-                                          disabled={!!editData}
+                                          // disabled={!!editData}
                                           //@ts-ignore
                                         onChange={handleCountryChange}
                                         displayEmpty
@@ -157,6 +162,8 @@ const [countries, setCountries] = useRecoilState(countyState)
                                               >
                                                 <div style={{ display: 'flex', alignItems: 'center' }}>
                                                   <Typography>{country?.countryName}</Typography>
+                                                            <Typography>{country?.countryCode}</Typography>
+                                               
                                                 </div>
                                               </MenuItem>
                                             ))
