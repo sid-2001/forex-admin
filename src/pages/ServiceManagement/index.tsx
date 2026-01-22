@@ -44,8 +44,8 @@ export default function ServiceManagement() {
       const payload = {
         countryCode: data.countryCode,
         serviceDescription: data.serviceDescription,
-        effectiveFromDate: `${data.effectiveFromDate}T00:00:00`,
-        effectiveToDate: `${data.effectiveToDate}T23:59:59`,
+        effectiveFromDate: `${data.effectiveFromDate}`,
+        effectiveToDate: `${data.effectiveToDate}`,
         createdBy: local_service?.get_staff_id() || 'APSNGGGN3624',
       }
       await serviceService.createService(payload)
@@ -69,9 +69,9 @@ export default function ServiceManagement() {
       countryCode: data.countryCode,
       serviceDescription: data.serviceDescription,
       active: data.active,
-      effectiveFromDate: `${data.effectiveFromDate}T00:00:00`,
-      effectiveToDate: `${data.effectiveToDate}T23:59:59`,
-      modifiedBy: local_service?.get_staff_id() || 'APSNGGGN3624',
+      effectiveFromDate: `${data.effectiveFromDate}`,
+      effectiveToDate: `${data.effectiveToDate}`,
+      modifiedBy: local_service?.get_staff_id(),
       modifiedLocalDateTime: new Date().toISOString().split('.')[0],
       modifiedTimezone: 'Asia/Kolkata',
       modifiedOffset: '+05:30',
