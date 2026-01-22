@@ -52,7 +52,7 @@ instance.interceptors.request.use(
 
   const localDateTime = now.toISOString().slice(0, 19);
     if (token) {
-      // config.headers['Authorization'] = 'Bearer ' + token
+      config.headers['Authorization'] = 'Bearer ' + token
       config.headers['ngrok-skip-browser-warning'] = '69420'
       // "ngrok-skip-browser-warning": true;
       config.headers['access-control-allow-credentials'] = 'true'

@@ -39,11 +39,18 @@ export default class ProductService extends BaseService {
     } catch (err) { return err as any; }
   }
 
-  async deleteProduct(id: string, active: boolean = false) {
-    const url = `${this.baseUrl}/delete/${id}?active=${active}`;
-    try {
-      const { data } = await api1.delete(url, { headers: this.mandatoryHeaders() });
-      return data;
-    } catch (err) { return err as any; }
-  }
+//   async deleteProduct(id: string, active: boolean = false) {
+//     const url = `${this.baseUrl}/delete/${id}?active=${active}`;
+//     try {
+//       const { data } = await api1.delete(url, { headers: this.mandatoryHeaders() });
+//       return data;
+//     } catch (err) { return err as any; }
+//   }
+async deleteProduct(id: string, active: boolean = false) {
+  const url = `${this.baseUrl}/delete/${id}?active=${active}`;
+  try {
+    const { data } = await api1.delete(url); // <-- do NOT pass mandatoryHeaders
+    return data;
+  } catch (err) { return err as any; }
+}
 }

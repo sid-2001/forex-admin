@@ -35,8 +35,8 @@ export default function ProductManagement() {
     const payload = {
       productCode: data.productCode,
       productName: data.productName,
-      effectiveFromDate: `${data.effectiveFromDate}T00:00:00`,
-      effectiveToDate: `${data.effectiveToDate}T00:00:00`,
+      effectiveFromDate: `${data.effectiveFromDate}`,
+      effectiveToDate: `${data.effectiveToDate}`,
       createdBy: local_service?.get_staff_id() || 'APSNGGGN3654',
     }
 
@@ -111,11 +111,19 @@ export default function ProductManagement() {
             <EditIcon />
           </IconButton>
 
-          <IconButton
+          {/* <IconButton
             color="error"
             onClick={() => {
               handleDelete(params.row)
               console.log('content is deleted')
+            }}
+          >
+            <DeleteIcon />
+          </IconButton> */}
+          <IconButton
+            color="error"
+            onClick={async () => {
+              await handleDelete(params.row)
             }}
           >
             <DeleteIcon />

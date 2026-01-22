@@ -525,6 +525,25 @@ const DashboardLayout = () => {
       label: 'service',
       name: 'Service management',
     },
+    {
+      icon: (
+        <>
+          <LanguagesIcon
+            //@ts-ignore
+            sx={{
+              //@ts-ignore
+              fontSize: '2vh',
+              //@ts-ignore
+              color: 'white',
+              fontColor: 'white',
+              // color: theme.palette.primary.light, // Corrected theme usage
+            }}
+          />
+        </>
+      ),
+      label: 'subservice',
+      name: 'Sub Service management',
+    },
   ]
 
   useEffect(() => {

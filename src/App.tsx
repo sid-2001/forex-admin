@@ -56,6 +56,7 @@ import ChannelManagement from './components/channelmaster'
 import StateManagement from './pages/state-manegment'
 import ProductManagement from './pages/productMaster'
 import ServiceManagement from './pages/ServiceManagement'
+import SubServiceManagement from './pages/subService'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -195,6 +196,7 @@ function App() {
               <Route path="states" element={<StateManagement />} />
               <Route path="product" element={<ProductManagement />} />
               <Route path="service" element={<ServiceManagement />} />
+              <Route path="subservice" element={<SubServiceManagement />} />
               <Route path="channel" element={<ChannelManagement />} />
               <Route path="branches" element={<ForexBranchesPage />} />
               <Route path="*" element={<Dashboard />} />
