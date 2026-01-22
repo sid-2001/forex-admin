@@ -116,7 +116,6 @@ export default function SubServiceManagement() {
           rows={rows}
           columns={columns}
           loading={loading}
-          // Assuming subServiceCodeGenerated is the unique key from the mapping API
           getRowId={(row) => row.subServiceCodeGenerated || Math.random()}
           pageSizeOptions={[10, 20, 50]}
           disableRowSelectionOnClick
