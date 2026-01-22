@@ -29,8 +29,8 @@ export default function SubServiceFormDialog({ open, onClose, onSubmit, editData
       countryCode,
       subServiceName,
       active,
-      effectiveFromDate: `${effectiveFromDate}T00:00:00`,
-      effectiveToDate: `${effectiveToDate}T23:59:59`,
+      effectiveFromDate: `${effectiveFromDate}`,
+      effectiveToDate: `${effectiveToDate}`,
     })
   }
 
