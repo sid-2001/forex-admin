@@ -59,6 +59,7 @@ import ServiceManagement from './pages/ServiceManagement'
 import SubServiceManagement from './pages/subService'
 import BankMasterScreen from './pages/bank-master'
 import BankTypeMaster from './pages/bank-type-master'
+import BopCategoryMaster from './pages/bopcategorymaster'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -203,6 +204,7 @@ function App() {
               <Route path="subservice" element={<SubServiceManagement />} />
               <Route path="channel" element={<ChannelManagement />} />
               <Route path="branches" element={<ForexBranchesPage />} />
+                  <Route path="bopcategory" element={<BopCategoryMaster />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 
