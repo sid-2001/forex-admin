@@ -89,11 +89,15 @@ export default function BopCategoryFormDialog({
         <TextField label="Purpose Code" fullWidth margin="normal" value={bopPurposeCode} onChange={(e) => setBopPurposeCode(e.target.value)} />
         <TextField label="Purpose Description" fullWidth margin="normal" value={bopPurposeDescription} onChange={(e) => setBopPurposeDescription(e.target.value)} />
         <TextField label="Sub Code" fullWidth margin="normal" value={bopPurposeSubCode} onChange={(e) => setBopPurposeSubCode(e.target.value)} />
+     
+        <TextField type="date" label="Effective From" fullWidth margin="normal" InputLabelProps={{ shrink: true }} value={effectiveFrom} onChange={(e) => setEffectiveFrom(e.target.value)} />
+       
+         <TextField type="date" label="Effective To" fullWidth margin="normal" InputLabelProps={{ shrink: true }} value={effectiveTo} onChange={(e) => setEffectiveTo(e.target.value)} />
+     
+
         <TextField label="Sub Description" fullWidth margin="normal" value={bopPurposeSubDescription} onChange={(e) => setBopPurposeSubDescription(e.target.value)} />
 
-        <TextField type="date" label="Effective From" fullWidth margin="normal" InputLabelProps={{ shrink: true }} value={effectiveFrom} onChange={(e) => setEffectiveFrom(e.target.value)} inputProps={{ readOnly: true }} />
-        <TextField type="date" label="Effective To" fullWidth margin="normal" InputLabelProps={{ shrink: true }} value={effectiveTo} onChange={(e) => setEffectiveTo(e.target.value)} inputProps={{ readOnly: true }} />
-
+   
         <FormControlLabel control={<Checkbox checked={active} onChange={(e) => setActive(e.target.checked)} />} label="Active" />
       </DialogContent>
 

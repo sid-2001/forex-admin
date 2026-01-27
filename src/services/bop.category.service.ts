@@ -7,6 +7,13 @@ export default class BopCategoryService {
     );
     return data;
   }
+    async getCategoryType() {
+    const { data } = await api1.get(
+      "/api/static-table/bop-purpose-category-type-master/getAll"
+    );
+    return data;
+  }
+
 
   async create(payload: any) {
     const { data } = await api1.post(

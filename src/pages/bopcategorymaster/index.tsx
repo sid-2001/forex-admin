@@ -26,6 +26,7 @@ export default function BopCategoryMaster() {
   const [rows, setRows] = useState<BopCategory[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editData, setEditData] = useState<BopCategory | null>(null);
+  const [categorylist, setCategorylist] = useState<BopCategory | null>(null);
 
   const [open, setOpen] = useRecoilState(alertState);
   const [text, setText] = useRecoilState(alertTextState);
@@ -37,8 +38,15 @@ export default function BopCategoryMaster() {
   const fetchData = async () => {
     const res = await service.getAll();
     // if (res?.status) {
-    
+
       setRows(res);
+    // }
+  };
+   const fetchCategoryType = async () => {
+    const res = await service.getCategoryType();
+    // if (res?.status) {
+    
+     console.log(res);
     // }
   };
 
@@ -89,13 +97,13 @@ export default function BopCategoryMaster() {
   };
 
   const columns: GridColDef[] = [
-    { field: "bopPurposeCategoryCode", headerName: "Category Code", flex: 0.6 },
-    { field: "countryCode", headerName: "Country", flex: 0.4 },
-    { field: "categoryType", headerName: "Category Type", flex: 0.6 },
-    { field: "bopPurposeCode", headerName: "Purpose Code", flex: 0.5 },
-    { field: "bopPurposeDescription", headerName: "Purpose Description", flex: 1 },
-    { field: "bopPurposeSubCode", headerName: "Sub Code", flex: 0.5 },
-    { field: "bopPurposeSubDescription", headerName: "Sub Description", flex: 1 },
+    { field: "bopPurposeCategoryCode", headerName: "Category Code", flex: 0.6, headerClassName: 'super-app-theme--header'  },
+    { field: "countryCode", headerName: "Country", flex: 0.4 , headerClassName: 'super-app-theme--header' },
+    { field: "categoryType", headerName: "Category Type", flex: 0.6, headerClassName: 'super-app-theme--header'  },
+    { field: "bopPurposeCode", headerName: "Purpose Code", flex: 0.5, headerClassName: 'super-app-theme--header'  },
+    { field: "bopPurposeDescription", headerName: "Purpose Description", flex: 1, headerClassName: 'super-app-theme--header'  },
+    { field: "bopPurposeSubCode", headerName: "Sub Code", flex: 0.5 , headerClassName: 'super-app-theme--header' },
+    { field: "bopPurposeSubDescription", headerName: "Sub Description", flex: 1 , headerClassName: 'super-app-theme--header' },
     {
       field: "active",
       headerName: "Active",
@@ -144,6 +152,14 @@ export default function BopCategoryMaster() {
         getRowId={(row) => row.bopPurposeCategoryCode}
         autoHeight
         pageSizeOptions={[5, 10]}
+                initialState={{
+    pagination: {
+      paginationModel: {
+        page: 0,
+        pageSize: 5,
+      },
+    },
+  }}
       />
 
       <BopCategoryFormDialog

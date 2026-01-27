@@ -119,6 +119,14 @@ export default function SubServiceManagement() {
           getRowId={(row) => row.subServiceCodeGenerated || Math.random()}
           pageSizeOptions={[10, 20, 50]}
           disableRowSelectionOnClick
+                  initialState={{
+    pagination: {
+      paginationModel: {
+        page: 0,
+        pageSize: 5,
+      },
+    },
+  }}
         />
       </div>
 

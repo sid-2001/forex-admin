@@ -3,30 +3,29 @@ import { Box, Button, IconButton, Stack } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import BankTypeDialog from "../../components/bank-type-dialog"
-import BankBusinessTypeService, {
-  BankBusinessType
-} from "../../services/bantypemaster.service";
+
+import BopCategoryTypeFormDialog from "../../components/bopcategorytypedialog";
+import BopCategoryTypeService from "../../services/bop.category.type.service";
+import { LocalStorageService } from "@/helpers/local-storage-service";
 import { useRecoilState } from "recoil";
 import { alertState, alertTextState, alertTypeState } from "@/states/state";
+import { BopCategoryType } from "../../types/bop.type";
 
-export default function BankTypeMaster() {
-  const service = new BankBusinessTypeService();
-
-  const [rows, setRows] = useState<BankBusinessType[]>([]);
+export default function BopCategoryTypeMaster() {
+  const [rows, setRows] = useState<BopCategoryType[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editData, setEditData] = useState<BankBusinessType | null>(null);
+  const [editData, setEditData] = useState<BopCategoryType | null>(null);
 
   const [open, setOpen] = useRecoilState(alertState);
   const [text, setText] = useRecoilState(alertTextState);
   const [type, setType] = useRecoilState(alertTypeState);
 
+  const service = new BopCategoryTypeService();
+  const localService = new LocalStorageService();
+
   const fetchData = async () => {
-    const res = await service.getList();
-    console.log(res)
-    
-    setRows(res as any)
-    // if (res?.status) setRows(res.data);
+    const res = await service.getAll();
+    setRows(res);
   };
 
   useEffect(() => {
@@ -34,51 +33,66 @@ export default function BankTypeMaster() {
   }, []);
 
   const handleCreate = async (data: any) => {
-    const res = await service.create(data);
+    const res = await service.create({
+      ...data,
+      created_by: localService.get_staff_id(),
+    });
+
+    if (res?.status) {
+      setType("Success");
+      setText("BOP Category Type Created Successfully");
+    } else {
+      setType("Fail");
+      setText("Server Error");
+    }
     setOpen(true);
-    setType(res.status ? "Success" : "Fail");
-    setText(res.message);
     setDialogOpen(false);
     fetchData();
   };
 
   const handleUpdate = async (data: any) => {
-    console.log("the edit data",editData)
     const res = await service.update(
-      //@ts-ignore
-      editData?.businessTypeCode,
-      data
+      editData!.bopCategoryTypeCode,
+      {
+        ...data,
+        modified_by: localService.get_staff_id(),
+      }
     );
+
+    if (res?.status) {
+      setType("Success");
+      setText("BOP Category Type Updated Successfully");
+    } else {
+      setType("Fail");
+      setText("Server Error");
+    }
     setOpen(true);
-    setType(res.status ? "Success" : "Fail");
-    setText(res.message);
-    setEditData(null);
     setDialogOpen(false);
+    setEditData(null);
     fetchData();
   };
 
-  const handleDelete = async (row: BankBusinessType) => {
-    await service.delete(row.business_type_code, false);
+  const handleDelete = async (row: BopCategoryType) => {
+    await service.delete(row.bopCategoryTypeCode);
     fetchData();
   };
 
   const columns: GridColDef[] = [
-    { field: "businessTypeCode", headerName: "Code", flex: 0.6,headerClassName: 'super-app-theme--header' },
-    { field: "bankBusinessName", headerName: "Business Name", flex: 1.2,headerClassName: 'super-app-theme--header' },
-    { field: "businessCurrencyCode", headerName: "Currency", flex: 0.6 ,headerClassName: 'super-app-theme--header'},
-    { field: "countryCode", headerName: "Country", flex: 0.6,headerClassName: 'super-app-theme--header' },
+    { field: "bopCategoryTypeCode", headerName: "Code", flex: 0.5 , headerClassName: 'super-app-theme--header' },
+    { field: "bopCategoryType", headerName: "Type", flex: 0.6, headerClassName: 'super-app-theme--header'  },
+    { field: "bopCategoryDescription", headerName: "Description", flex: 1, headerClassName: 'super-app-theme--header'  },
     {
       field: "active",
       headerName: "Active",
       width: 120,
-      renderCell: (params) => (params.value ? "Yes" : "No")
-      ,headerClassName: 'super-app-theme--header'
+      renderCell: (p) => (p.value ? "Yes" : "No"),
+       headerClassName: 'super-app-theme--header' 
     },
     {
       field: "actions",
       headerName: "Actions",
-      width: 150,
-      headerClassName: 'super-app-theme--header',
+      width: 140,
+       headerClassName: 'super-app-theme--header' ,
       renderCell: (params) => (
         <>
           <IconButton
@@ -89,13 +103,12 @@ export default function BankTypeMaster() {
           >
             <EditIcon />
           </IconButton>
-
           <IconButton onClick={() => handleDelete(params.row)}>
             <DeleteIcon color="error" />
           </IconButton>
         </>
-      )
-    }
+      ),
+    },
   ];
 
   return (
@@ -108,34 +121,24 @@ export default function BankTypeMaster() {
             setDialogOpen(true);
           }}
         >
-          Add Bank Type
+          Add Category Type
         </Button>
       </Stack>
 
       <DataGrid
         rows={rows}
-        getRowId={(row) =>
-    `${row.business_type_code}-${row.created_at ?? Math.random()}`
-  }
         columns={columns}
-        // getRowId={(row) => row.business_type_code}
+        getRowId={(row) => row.bopCategoryTypeCode}
         autoHeight
-         pageSizeOptions={[5]}
-          initialState={{
-    pagination: {
-      paginationModel: {
-        page: 0,
-        pageSize: 5,
-      },
-    },
-  }}
-        // pageSizeOptions={[5, 10]}
+        pageSizeOptions={[5, 10]}
+        
+        
       />
 
-      <BankTypeDialog
+      <BopCategoryTypeFormDialog
         open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
         editData={editData}
+        onClose={() => setDialogOpen(false)}
         onSubmit={editData ? handleUpdate : handleCreate}
       />
     </Box>

@@ -170,6 +170,14 @@ export default function ServiceManagement() {
           getRowId={(row) => row.serviceCodeGenerated}
           pageSizeOptions={[10, 20, 50]}
           disableRowSelectionOnClick
+                  initialState={{
+    pagination: {
+      paginationModel: {
+        page: 0,
+        pageSize: 5,
+      },
+    },
+  }}
         />
       </div>
 

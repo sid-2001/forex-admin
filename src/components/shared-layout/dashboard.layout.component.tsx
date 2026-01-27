@@ -36,6 +36,8 @@ import AirIcon from '@mui/icons-material/Air'
 import BubbleChartIcon from '@mui/icons-material/BubbleChart';
 import LanguageIcon from '@mui/icons-material/Language'
 import Inventory2Icon from '@mui/icons-material/Inventory2';
+import ReportIcon from '@mui/icons-material/Report';
+import ReportOffIcon from '@mui/icons-material/ReportOff';
 // import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import { FolderIcon, LanguagesIcon, Menu, SettingsIcon } from 'lucide-react'
 const Item = styled(Paper)(({ theme }) => ({
@@ -214,6 +216,18 @@ const CountrySelector = () => {
     name: 'Products',
     icon: <Inventory2Icon fontSize="small" />,
     path: 'product',
+  },
+   {
+    label: 'Bop Category Type',
+    name: 'Bop Category',
+    icon: <ReportOffIcon fontSize="small" />,
+    path: 'bop-category-type',
+  },
+   {
+    label: 'Bop Category',
+    name: 'Bop Category',
+    icon: <ReportIcon fontSize="small" />,
+    path: 'bopcategory',
   },
 ]
 
@@ -819,6 +833,14 @@ const DashboardLayout = () => {
           <Box
             sx={{
               flexGrow: 1,
+               overflowY: "auto",
+  "&::-webkit-scrollbar": {
+    width: "6px",
+  },
+  "&::-webkit-scrollbar-thumb": {
+    backgroundColor: "#b0b0b0",
+    borderRadius: "4px",
+  },
 
               padding: '2%',
               paddingLeft: '1 %',

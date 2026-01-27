@@ -6,7 +6,7 @@ import ProtectedRoute, { ProtectedRouteProps } from './helpers/protected-route'
 import UserAdd from './pages/user-add'
 import Login from './pages/newlogin'
 import type {} from '@mui/x-data-grid/themeAugmentation'
-
+import ReportIcon from '@mui/icons-material/Report';
 // import Login from './pages/login'
 // import Dashboard from './pages/dashboard'
 // import { getToken, onMessage } from 'firebase/messaging'
@@ -60,6 +60,7 @@ import SubServiceManagement from './pages/subService'
 import BankMasterScreen from './pages/bank-master'
 import BankTypeMaster from './pages/bank-type-master'
 import BopCategoryMaster from './pages/bopcategorymaster'
+import BopCategoryTypeMaster from './pages/bopcategorytypemaster'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -205,6 +206,7 @@ function App() {
               <Route path="channel" element={<ChannelManagement />} />
               <Route path="branches" element={<ForexBranchesPage />} />
                   <Route path="bopcategory" element={<BopCategoryMaster />} />
+                  <Route path="bop-category-type" element={<BopCategoryTypeMaster />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 
