@@ -135,7 +135,7 @@ const [countries, setCountries] = useRecoilState(countyState)
                                 //@ts-ignore
                                   disabled={!!editData}
                                   //@ts-ignore
-                                onChange={handleCountryChange}
+                              onChange={handleCountryChange}
                                 displayEmpty
                               >
                                 {
