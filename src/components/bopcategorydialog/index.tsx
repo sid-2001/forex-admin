@@ -10,6 +10,8 @@ import {
   Select,
   MenuItem,
   InputLabel,
+  FormHelperText,
+  Box,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
@@ -20,11 +22,12 @@ export default function BopCategoryFormDialog({
   onClose,
   onSubmit,
   editData,
+  categorylist,
 }: any) {
   const [countries] = useRecoilState(countyState);
 
   const [countryCode, setCountryCode] = useState("");
-  const [categoryType, setCategoryType] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [bopPurposeCode, setBopPurposeCode] = useState("");
   const [bopPurposeDescription, setBopPurposeDescription] = useState("");
   const [bopPurposeSubCode, setBopPurposeSubCode] = useState("");
@@ -33,10 +36,13 @@ export default function BopCategoryFormDialog({
   const [effectiveTo, setEffectiveTo] = useState("");
   const [active, setActive] = useState(true);
 
+  const [errors, setErrors] = useState<any>({});
+
+  /* ------------------ Edit Mode ------------------ */
   useEffect(() => {
     if (editData) {
       setCountryCode(editData.countryCode);
-      setCategoryType(editData.categoryType);
+      setSelectedCategory(editData.categoryType);
       setBopPurposeCode(editData.bopPurposeCode);
       setBopPurposeDescription(editData.bopPurposeDescription);
       setBopPurposeSubCode(editData.bopPurposeSubCode);
@@ -47,10 +53,45 @@ export default function BopCategoryFormDialog({
     }
   }, [editData]);
 
+  /* ------------------ Validation ------------------ */
+  const validate = () => {
+    const newErrors: any = {};
+
+    if (!countryCode) newErrors.countryCode = "Country is required";
+    if (!selectedCategory) newErrors.categoryType = "Category Type is required";
+    if (!bopPurposeCode.trim())
+      newErrors.bopPurposeCode = "Purpose Code is required";
+    if (!bopPurposeDescription.trim())
+      newErrors.bopPurposeDescription = "Purpose Description is required";
+    if (!bopPurposeSubCode.trim())
+      newErrors.bopPurposeSubCode = "Sub Code is required";
+    if (!bopPurposeSubDescription.trim())
+      newErrors.bopPurposeSubDescription = "Sub Description is required";
+    if (!effectiveFrom)
+      newErrors.effectiveFrom = "Effective From date is required";
+    if (!effectiveTo)
+      newErrors.effectiveTo = "Effective To date is required";
+
+    if (
+      effectiveFrom &&
+      effectiveTo &&
+      new Date(effectiveTo) < new Date(effectiveFrom)
+    ) {
+      newErrors.effectiveTo =
+        "Effective To date cannot be before Effective From";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  /* ------------------ Submit ------------------ */
   const handleSubmit = () => {
+    if (!validate()) return;
+
     onSubmit({
       countryCode,
-      categoryType,
+      categoryType: selectedCategory,
       bopPurposeCode,
       bopPurposeDescription,
       bopPurposeSubCode,
@@ -63,42 +104,142 @@ export default function BopCategoryFormDialog({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle>{editData ? "Update BOP Category" : "Add BOP Category"}</DialogTitle>
+      <DialogTitle>
+        {editData ? "Update BOP Category" : "Add BOP Category"}
+      </DialogTitle>
 
       <DialogContent>
-        <InputLabel>Country</InputLabel>
-        <Select
-          fullWidth
-          value={countryCode}
-          disabled={!!editData}
-          onChange={(e) => setCountryCode(e.target.value)}
-        >
-          {countries
-            ?.filter((c) => c.status === "A")
-            .map((c) => (
+        {/* -------- Country -------- */}
+        <Box mt={1}>
+          <InputLabel required>Country</InputLabel>
+          <Select
+            fullWidth
+            value={countryCode}
+            disabled={!!editData}
+            error={!!errors.countryCode}
+            onChange={(e) => setCountryCode(e.target.value)}
+          >
+            {countries
+              ?.filter((c) => c.status === "A")
+              .map((c) => (
+                <MenuItem
+                //@ts-ignore
+                key={c.countryCode} value={c.countryCode}>
+                  {c.countryName}
+                </MenuItem>
+              ))}
+          </Select>
+          {errors.countryCode && (
+            <FormHelperText error>{errors.countryCode}</FormHelperText>
+          )}
+        </Box>
+
+        {/* -------- Category Type -------- */}
+        <Box mt={2}>
+          <InputLabel required>Category Type</InputLabel>
+          <Select
+            fullWidth
+            value={selectedCategory}
+            disabled={!!editData}
+            error={!!errors.categoryType}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          >
+            {categorylist?.map((c: any) => (
               <MenuItem
-              //@ts-ignore
-              
-              key={c.countryCode} value={c.countryCode}>
-                {c.countryName}
+                key={c.bopCategoryTypeCode}
+                value={c.bopCategoryTypeCode}
+              >
+                {c.bopCategoryType}
               </MenuItem>
             ))}
-        </Select>
+          </Select>
+          {errors.categoryType && (
+            <FormHelperText error>{errors.categoryType}</FormHelperText>
+          )}
+        </Box>
 
-        <TextField label="Category Type" fullWidth margin="normal" value={categoryType} onChange={(e) => setCategoryType(e.target.value)} />
-        <TextField label="Purpose Code" fullWidth margin="normal" value={bopPurposeCode} onChange={(e) => setBopPurposeCode(e.target.value)} />
-        <TextField label="Purpose Description" fullWidth margin="normal" value={bopPurposeDescription} onChange={(e) => setBopPurposeDescription(e.target.value)} />
-        <TextField label="Sub Code" fullWidth margin="normal" value={bopPurposeSubCode} onChange={(e) => setBopPurposeSubCode(e.target.value)} />
-     
-        <TextField type="date" label="Effective From" fullWidth margin="normal" InputLabelProps={{ shrink: true }} value={effectiveFrom} onChange={(e) => setEffectiveFrom(e.target.value)} />
-       
-         <TextField type="date" label="Effective To" fullWidth margin="normal" InputLabelProps={{ shrink: true }} value={effectiveTo} onChange={(e) => setEffectiveTo(e.target.value)} />
-     
+        <TextField
+          label="Purpose Code"
+          fullWidth
+          required
+          margin="normal"
+          value={bopPurposeCode}
+          error={!!errors.bopPurposeCode}
+          helperText={errors.bopPurposeCode}
+          onChange={(e) => setBopPurposeCode(e.target.value)}
+        />
 
-        <TextField label="Sub Description" fullWidth margin="normal" value={bopPurposeSubDescription} onChange={(e) => setBopPurposeSubDescription(e.target.value)} />
+        <TextField
+          label="Purpose Description"
+          fullWidth
+          required
+          margin="normal"
+          value={bopPurposeDescription}
+          error={!!errors.bopPurposeDescription}
+          helperText={errors.bopPurposeDescription}
+          onChange={(e) => setBopPurposeDescription(e.target.value)}
+        />
 
-   
-        <FormControlLabel control={<Checkbox checked={active} onChange={(e) => setActive(e.target.checked)} />} label="Active" />
+        <TextField
+          label="Sub Code"
+          fullWidth
+          required
+          margin="normal"
+          value={bopPurposeSubCode}
+          error={!!errors.bopPurposeSubCode}
+          helperText={errors.bopPurposeSubCode}
+          onChange={(e) => setBopPurposeSubCode(e.target.value)}
+        />
+
+        <TextField
+          label="Sub Description"
+          fullWidth
+          required
+          margin="normal"
+          value={bopPurposeSubDescription}
+          error={!!errors.bopPurposeSubDescription}
+          helperText={errors.bopPurposeSubDescription}
+          onChange={(e) =>
+            setBopPurposeSubDescription(e.target.value)
+          }
+        />
+
+        <TextField
+          type="date"
+          label="Effective From"
+          fullWidth
+          required
+          margin="normal"
+          InputLabelProps={{ shrink: true }}
+          value={effectiveFrom}
+          error={!!errors.effectiveFrom}
+          helperText={errors.effectiveFrom}
+          onChange={(e) => setEffectiveFrom(e.target.value)}
+        />
+
+        <TextField
+          type="date"
+          label="Effective To"
+          fullWidth
+          required
+          margin="normal"
+          InputLabelProps={{ shrink: true }}
+          inputProps={{ min: effectiveFrom }}
+          value={effectiveTo}
+          error={!!errors.effectiveTo}
+          helperText={errors.effectiveTo}
+          onChange={(e) => setEffectiveTo(e.target.value)}
+        />
+
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={active}
+              onChange={(e) => setActive(e.target.checked)}
+            />
+          }
+          label="Active"
+        />
       </DialogContent>
 
       <DialogActions>

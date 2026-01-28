@@ -92,7 +92,7 @@ export default function StateFormDialog({
         <TextField
           label="State Code"
           fullWidth
-
+required
            inputProps={{ maxLength: 2 }}
           margin="normal"
           value={stateCode}
@@ -102,6 +102,7 @@ export default function StateFormDialog({
 
         <TextField
           label="State Description"
+          required
           fullWidth
           margin="normal"
           value={description}
@@ -110,6 +111,7 @@ export default function StateFormDialog({
 
         <InputLabel>Country</InputLabel>
         <Select
+        required
           fullWidth
            disabled={!!editData}
           value={countryCode}
@@ -130,6 +132,7 @@ export default function StateFormDialog({
           <>
             <TextField
               type="date"
+              required
               label="Effective From"
               fullWidth
               margin="normal"
@@ -140,10 +143,12 @@ export default function StateFormDialog({
 
             <TextField
               type="date"
+              required
               label="Effective To"
               fullWidth
               margin="normal"
-              InputLabelProps={{ shrink: true }}
+              //@ts-ignore
+              InputLabelProps={{ shrink: true ,min:effectiveFrom}}
               value={effectiveTo}
               onChange={(e) => setEffectiveTo(e.target.value)}
             />

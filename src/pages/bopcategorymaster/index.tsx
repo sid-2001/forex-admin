@@ -8,6 +8,7 @@ import BopCategoryService from "../../services/bop.category.service";
 import { LocalStorageService } from "@/helpers/local-storage-service";
 import { useRecoilState } from "recoil";
 import { alertState, alertTextState, alertTypeState } from "@/states/state";
+import BopCategoryTypeService from "@/services/bop.category.type.service";
 
 export interface BopCategory {
   bopPurposeCategoryCode: string;
@@ -27,6 +28,7 @@ export default function BopCategoryMaster() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editData, setEditData] = useState<BopCategory | null>(null);
   const [categorylist, setCategorylist] = useState<BopCategory | null>(null);
+  // const [C]
 
   const [open, setOpen] = useRecoilState(alertState);
   const [text, setText] = useRecoilState(alertTextState);
@@ -34,6 +36,7 @@ export default function BopCategoryMaster() {
 
   const service = new BopCategoryService();
   const localService = new LocalStorageService();
+  const bopcategorytypeservice=new BopCategoryTypeService()
 
   const fetchData = async () => {
     const res = await service.getAll();
@@ -51,7 +54,18 @@ export default function BopCategoryMaster() {
   };
 
   useEffect(() => {
-    fetchData();
+   
+  
+         bopcategorytypeservice.getAll().then(data=>{
+        
+    
+            console.log(data)
+            setCategorylist(data)
+             fetchData();
+          })
+    
+ 
+      
   }, []);
 
   const handleCreate = async (data: any) => {
@@ -109,6 +123,7 @@ export default function BopCategoryMaster() {
       headerName: "Active",
       width: 120,
       renderCell: (p) => (p.value ? "Yes" : "No"),
+       headerClassName: 'super-app-theme--header'
     },
     {
       field: "actions",
@@ -124,11 +139,9 @@ export default function BopCategoryMaster() {
           >
             <EditIcon />
           </IconButton>
-          <IconButton onClick={() => handleDelete(params.row)}>
-            <DeleteIcon color="error" />
-          </IconButton>
+       
         </>
-      ),
+      ), headerClassName: 'super-app-theme--header'
     },
   ];
 
@@ -167,6 +180,7 @@ export default function BopCategoryMaster() {
         editData={editData}
         onClose={() => setDialogOpen(false)}
         onSubmit={editData ? handleUpdate : handleCreate}
+        categorylist={categorylist}
       />
     </Box>
   );

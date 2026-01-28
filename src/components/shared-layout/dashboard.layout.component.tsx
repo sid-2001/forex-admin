@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@mui/material/styles'
-import { Box, Typography, Avatar, List, ListItem, IconButton, AppBar, ListItemIcon, Toolbar, Tooltip, Chip, MenuItem, Select, ListItemText, ClickAwayListener, Popper, MenuList, DialogContent, Dialog } from '@mui/material'
+import { Box, Typography, Avatar, List, ListItem, IconButton, AppBar, ListItemIcon, Toolbar, Tooltip, Chip, MenuItem, Select, ListItemText, ClickAwayListener, Popper, MenuList, DialogContent, Dialog, CardMedia } from '@mui/material'
 import { color, styled } from '@mui/system'
 import { LogoWhite } from '@/assets/images'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
@@ -8,7 +8,7 @@ import Person2Icon from '@mui/icons-material/Person2'
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
 import { menuHistoryState, themeModeState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-import { ArrowBack, Brightness4, Brightness7, ExpandLess, ExpandMore, FilterBAndW, HomeRepairServiceRounded, LeakRemove } from '@mui/icons-material'
+import { ArrowBack, Brightness4, Brightness7, CardMembershipRounded, CardTravel, ExpandLess, ExpandMore, FilterBAndW, HomeRepairServiceRounded, LeakRemove } from '@mui/icons-material'
 import { alertState, loaderState, selectedAppState, loaderStateNew, availableBalanceState } from '@/states/state'
 import { useState, useEffect } from 'react'
 import Backdrop from '@mui/material/Backdrop'
@@ -229,6 +229,18 @@ const CountrySelector = () => {
     icon: <ReportIcon fontSize="small" />,
     path: 'bopcategory',
   },
+   {
+    label: 'Product Buisness Mapping',
+    name: 'Product Buisness Mapping',
+    icon: <CardTravel fontSize="small" />,
+    path: 'product-buisness-mapping',
+  },
+   {
+    label: 'Buisness Railand Partners',
+    name: 'Buisness Railand Partners',
+    icon: <CardMembershipRounded fontSize="small" />,
+    path: 'business-railand-partner',
+  },
 ]
 
 
@@ -236,14 +248,20 @@ const CountrySelector = () => {
 
 
 
-const MasterDropdownIcon = () => {
+const MasterDropdownIcon = (
+  //@ts-ignore
+  {setSelectedApp,addToHistory  ,selectedApp ,item}) => {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
 
   const handleClose = () => setOpen(false)
 
-  const handleNavigate = (path: string) => {
-    navigate(path)
+  const handleNavigate = (item: any) => {
+    console.log(item);
+      setSelectedApp(item.label)
+                    addToHistory(item.label)
+
+    navigate(item.path)
     handleClose()
   }
 
@@ -252,6 +270,7 @@ const MasterDropdownIcon = () => {
       <IconButton onClick={() => setOpen(true)}>
         <BubbleChartIcon 
         color="primary"
+
         sx={{ color: 'white',fontColor:"white" }} />
       </IconButton>
 
@@ -260,7 +279,9 @@ const MasterDropdownIcon = () => {
           {MASTER_MENU.map((item) => (
             <MenuItem
               key={item.name}
-              onClick={() => handleNavigate(item.path)}
+            selected={selectedApp==item?.label}
+              onClick={() => handleNavigate(item)}
+              
             >
               <ListItemIcon sx={{ color: 'primary.main' }}>
                 {item.icon}
@@ -749,14 +770,27 @@ const DashboardLayout = () => {
                 sx={{
                   textAlign: 'center',
                   alignItems: 'center',
-                  color:"white"
+               
+                
+                 
                 }}
                
               ><Stack 
               sx={{
-                textAlign:"center"
+                textAlign:"center",
+                width:"100%"
+              
               }}>
-          <MasterDropdownIcon></MasterDropdownIcon>
+
+            
+          <MasterDropdownIcon
+                    //@ts-ignore
+                    setSelectedApp={setSelectedApp}
+                    addToHistory={addToHistory}
+
+
+                    //@ts-ignore
+                    selectedApp={selectedApp} item={undefined}          ></MasterDropdownIcon>
               
                 </Stack>
               </ListItem>

@@ -53,7 +53,7 @@ export default function SubServiceManagement() {
     const id = editData?.subServiceCodeGenerated || editData?.id
     if (!id) return alert('ID missing')
 
-    await subService.updateSubService(id, data)
+    await subService.updateSubService(id, {...data,subServiceCode:id, "modifiedBy": local_service.get_staff_id()})
     setOpen(false)
     fetchData()
   }
@@ -67,7 +67,7 @@ export default function SubServiceManagement() {
   }
 
   const columns: GridColDef[] = [
-    { field: 'serviceSubServiceMapCode', headerName: 'Sub Service Code', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'subServiceCodeGenerated', headerName: 'Sub Service Code', flex: 1, headerClassName: 'super-app-theme--header' },
     // { field: 'subServiceName', headerName: 'Sub Service Name', flex: 2, headerClassName: 'super-app-theme--header' },
     { field: 'countryCode', headerName: 'Country', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'active', headerName: 'Active', flex: 0.7, renderCell: (p) => (p.value ? 'Yes' : 'No'), headerClassName: 'super-app-theme--header' },

@@ -103,9 +103,9 @@ export default function BopCategoryTypeMaster() {
           >
             <EditIcon />
           </IconButton>
-          <IconButton onClick={() => handleDelete(params.row)}>
+          {/* <IconButton onClick={() => handleDelete(params.row)}>
             <DeleteIcon color="error" />
-          </IconButton>
+          </IconButton> */}
         </>
       ),
     },

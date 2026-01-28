@@ -61,6 +61,9 @@ import BankMasterScreen from './pages/bank-master'
 import BankTypeMaster from './pages/bank-type-master'
 import BopCategoryMaster from './pages/bopcategorymaster'
 import BopCategoryTypeMaster from './pages/bopcategorytypemaster'
+import CountryBusinessPayoutPartnerFormDialog from './components/countrybuisnesspayoutformformdialog'
+import CountryBusinessPayoutPartner from './pages/country-business-payout-partners'
+import ProductBusinessCountryMapping from './pages/product-buisness-country-mapping'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -207,6 +210,10 @@ function App() {
               <Route path="branches" element={<ForexBranchesPage />} />
                   <Route path="bopcategory" element={<BopCategoryMaster />} />
                   <Route path="bop-category-type" element={<BopCategoryTypeMaster />} />
+
+                   <Route path="bop-category-type" element={<BopCategoryTypeMaster />} />
+                     <Route path="product-buisness-mapping" element={<ProductBusinessCountryMapping />} />
+                     <Route path="business-railand-partner" element={<CountryBusinessPayoutPartner />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 

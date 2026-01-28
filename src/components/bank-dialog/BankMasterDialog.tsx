@@ -95,42 +95,51 @@ export default function BankMasterDialog({
 
       <DialogContent>
         <TextField label="Bank Code" fullWidth margin="dense"
+        required
           value={form.bankCode}
           disabled={!!editData}
+        
           onChange={(e) => handleChange("bankCode", e.target.value)}
         />
 
         <TextField label="Bank Name" fullWidth margin="dense"
+          required
           value={form.bankName}
           onChange={(e) => handleChange("bankName", e.target.value)}
         />
 
         <TextField label="Branch Code" fullWidth margin="dense"
+          required
           value={form.bankBranchCode}
           onChange={(e) => handleChange("bankBranchCode", e.target.value)}
         />
 
         <TextField label="IFSC / BIC" fullWidth margin="dense"
+          required
           value={form.bankIfscBicCode || ""}
           onChange={(e) => handleChange("bankIfscBicCode", e.target.value)}
         />
 
         <TextField label="City" fullWidth margin="dense"
+          required
           value={form.bankCity}
           onChange={(e) => handleChange("bankCity", e.target.value)}
         />
 
         <TextField label="State" fullWidth margin="dense"
+          required
           value={form.bankStateProvinceCode}
           onChange={(e) => handleChange("bankStateProvinceCode", e.target.value)}
         />
 
         <TextField label="Postal Code" fullWidth margin="dense"
+          required
           value={form.bankPostalCode}
           onChange={(e) => handleChange("bankPostalCode", e.target.value)}
         />
 
         <TextField
+          required
           label="Effective From"
           type="date"
           fullWidth
@@ -142,6 +151,7 @@ export default function BankMasterDialog({
         />
 
         <TextField
+          required
           label="Effective To"
           type="date"
           fullWidth

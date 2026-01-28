@@ -9,7 +9,9 @@ import {
   FormControlLabel,
   Switch,
   Grid,
+  FormHelperText,
 } from "@mui/material";
+
 export interface BopCategoryType {
   bopCategoryTypeCode: string;
   bopCategoryType: string;
@@ -40,6 +42,9 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({
     effective_to_date: "",
   });
 
+  const [errors, setErrors] = useState<any>({});
+
+  /* ------------------ Edit Mode ------------------ */
   useEffect(() => {
     if (editData) {
       setFormData({
@@ -57,15 +62,51 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({
         effective_from_date: "",
         effective_to_date: "",
       });
+      setErrors({});
     }
   }, [editData]);
 
+  /* ------------------ Change Handler ------------------ */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  /* ------------------ Validation ------------------ */
+  const validate = () => {
+    const newErrors: any = {};
+
+    if (!formData.bopCategoryType.trim())
+      newErrors.bopCategoryType = "Category Type is required";
+
+    if (!formData.bopCategoryDescription.trim())
+      newErrors.bopCategoryDescription =
+        "Category Description is required";
+
+    if (!formData.effective_from_date)
+      newErrors.effective_from_date = "Effective From date is required";
+
+    if (!formData.effective_to_date)
+      newErrors.effective_to_date = "Effective To date is required";
+
+    if (
+      formData.effective_from_date &&
+      formData.effective_to_date &&
+      new Date(formData.effective_to_date) <
+        new Date(formData.effective_from_date)
+    ) {
+      newErrors.effective_to_date =
+        "Effective To date cannot be before Effective From";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  /* ------------------ Submit ------------------ */
   const handleSubmit = () => {
+    if (!validate()) return;
+
     onSubmit({
       ...formData,
       effective_from_date: `${formData.effective_from_date}T00:00:00`,
@@ -88,6 +129,8 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({
               fullWidth
               required
               value={formData.bopCategoryType}
+              error={!!errors.bopCategoryType}
+              helperText={errors.bopCategoryType}
               onChange={handleChange}
             />
           </Grid>
@@ -97,7 +140,10 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({
               label="Category Description"
               name="bopCategoryDescription"
               fullWidth
+              required
               value={formData.bopCategoryDescription}
+              error={!!errors.bopCategoryDescription}
+              helperText={errors.bopCategoryDescription}
               onChange={handleChange}
             />
           </Grid>
@@ -108,8 +154,11 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({
               type="date"
               name="effective_from_date"
               fullWidth
+              required
               InputLabelProps={{ shrink: true }}
               value={formData.effective_from_date}
+              error={!!errors.effective_from_date}
+              helperText={errors.effective_from_date}
               onChange={handleChange}
             />
           </Grid>
@@ -120,8 +169,12 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({
               type="date"
               name="effective_to_date"
               fullWidth
+              required
               InputLabelProps={{ shrink: true }}
+              inputProps={{ min: formData.effective_from_date }}
               value={formData.effective_to_date}
+              error={!!errors.effective_to_date}
+              helperText={errors.effective_to_date}
               onChange={handleChange}
             />
           </Grid>
