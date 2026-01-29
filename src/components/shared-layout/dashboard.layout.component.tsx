@@ -1,5 +1,25 @@
 import { ThemeProvider } from '@mui/material/styles'
-import { Box, Typography, Avatar, List, ListItem, IconButton, AppBar, ListItemIcon, Toolbar, Tooltip, Chip, MenuItem, Select, ListItemText, ClickAwayListener, Popper, MenuList, DialogContent, Dialog } from '@mui/material'
+import {
+  Box,
+  Typography,
+  Avatar,
+  List,
+  ListItem,
+  IconButton,
+  AppBar,
+  ListItemIcon,
+  Toolbar,
+  Tooltip,
+  Chip,
+  MenuItem,
+  Select,
+  ListItemText,
+  ClickAwayListener,
+  Popper,
+  MenuList,
+  DialogContent,
+  Dialog,
+} from '@mui/material'
 import { color, styled } from '@mui/system'
 import { LogoWhite } from '@/assets/images'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
@@ -33,11 +53,12 @@ import ProfileMenu from '../profilesetting'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import WcIcon from '@mui/icons-material/Wc'
 import AirIcon from '@mui/icons-material/Air'
-import BubbleChartIcon from '@mui/icons-material/BubbleChart';
+import BubbleChartIcon from '@mui/icons-material/BubbleChart'
 import LanguageIcon from '@mui/icons-material/Language'
-import Inventory2Icon from '@mui/icons-material/Inventory2';
+import Inventory2Icon from '@mui/icons-material/Inventory2'
 // import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import { FolderIcon, LanguagesIcon, Menu, SettingsIcon } from 'lucide-react'
+import WebIcon from '@mui/icons-material/Web'
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
   padding: theme.spacing(1),
@@ -159,8 +180,7 @@ const CountrySelector = () => {
   )
 }
 
-
-  const MASTER_MENU = [
+const MASTER_MENU = [
   {
     label: 'Field-Validation',
     name: 'Field-Validation',
@@ -191,7 +211,7 @@ const CountrySelector = () => {
     icon: <FilterBAndW fontSize="small" />,
     path: '/bank-type',
   },
-   {
+  {
     label: 'Bank-Master',
     name: 'Bank-Master',
     icon: <AccountBalanceIcon fontSize="small" />,
@@ -215,12 +235,13 @@ const CountrySelector = () => {
     icon: <Inventory2Icon fontSize="small" />,
     path: 'product',
   },
+  {
+    label: 'Screen Master',
+    name: 'Screen master',
+    icon: <WebIcon fontSize="small" />,
+    path: 'screen',
+  },
 ]
-
-
-
-
-
 
 const MasterDropdownIcon = () => {
   const [open, setOpen] = useState(false)
@@ -236,21 +257,14 @@ const MasterDropdownIcon = () => {
   return (
     <>
       <IconButton onClick={() => setOpen(true)}>
-        <BubbleChartIcon 
-        color="primary"
-        sx={{ color: 'white',fontColor:"white" }} />
+        <BubbleChartIcon color="primary" sx={{ color: 'white', fontColor: 'white' }} />
       </IconButton>
 
       <Dialog open={open} onClose={handleClose}>
         <DialogContent sx={{ p: 0 }}>
           {MASTER_MENU.map((item) => (
-            <MenuItem
-              key={item.name}
-              onClick={() => handleNavigate(item.path)}
-            >
-              <ListItemIcon sx={{ color: 'primary.main' }}>
-                {item.icon}
-              </ListItemIcon>
+            <MenuItem key={item.name} onClick={() => handleNavigate(item.path)}>
+              <ListItemIcon sx={{ color: 'primary.main' }}>{item.icon}</ListItemIcon>
               <ListItemText primary={item.label} />
             </MenuItem>
           ))}
@@ -259,7 +273,6 @@ const MasterDropdownIcon = () => {
     </>
   )
 }
-
 
 const DashboardLayout = () => {
   const [mode, setMode] = useRecoilState(themeModeState)
@@ -524,15 +537,7 @@ const DashboardLayout = () => {
       label: 'Audit-Logs',
       name: 'Audit-Logs',
     },
-
-  
-
   ]
-
-
-
-
-
 
   useEffect(() => {
     setTimeout(() => {
@@ -727,26 +732,23 @@ const DashboardLayout = () => {
                 </ListItem>
               ))}
 
-
-
-      <ListItem
+              <ListItem
                 button
                 key="logout"
                 sx={{
                   textAlign: 'center',
                   alignItems: 'center',
-                  color:"white"
+                  color: 'white',
                 }}
-               
-              ><Stack 
-              sx={{
-                textAlign:"center"
-              }}>
-          <MasterDropdownIcon></MasterDropdownIcon>
-              
+              >
+                <Stack
+                  sx={{
+                    textAlign: 'center',
+                  }}
+                >
+                  <MasterDropdownIcon></MasterDropdownIcon>
                 </Stack>
               </ListItem>
-
 
               <ListItem
                 button

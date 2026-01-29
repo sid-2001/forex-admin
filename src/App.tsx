@@ -59,6 +59,7 @@ import ServiceManagement from './pages/ServiceManagement'
 import SubServiceManagement from './pages/subService'
 import BankMasterScreen from './pages/bank-master'
 import BankTypeMaster from './pages/bank-type-master'
+import ScreenMaster from './pages/ScreenMaster/ScreenMaster'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -196,12 +197,13 @@ function App() {
               <Route path="field-validation" element={<FieldValidationTable />} />
               <Route path="static-gender" element={<GenderMaster />} />
               <Route path="states" element={<StateManagement />} />
-                 <Route path="banks-master" element={<BankMasterScreen />} />
-                  <Route path="bank-type" element={<BankTypeMaster />} />
+              <Route path="banks-master" element={<BankMasterScreen />} />
+              <Route path="bank-type" element={<BankTypeMaster />} />
               <Route path="product" element={<ProductManagement />} />
               <Route path="service" element={<ServiceManagement />} />
               <Route path="subservice" element={<SubServiceManagement />} />
               <Route path="channel" element={<ChannelManagement />} />
+              <Route path="screen" element={<ScreenMaster />} />
               <Route path="branches" element={<ForexBranchesPage />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
