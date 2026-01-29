@@ -1,89 +1,3 @@
-// import {
-//   Dialog,
-//   DialogTitle,
-//   DialogContent,
-//   DialogActions,
-//   TextField,
-//   Button,
-//   Checkbox,
-//   FormControlLabel,
-//   InputLabel,
-//   Select,
-//   MenuItem,
-//   Typography,
-// } from '@mui/material'
-// import { useState, useEffect } from 'react'
-// import { useRecoilState } from 'recoil'
-// import { countyState } from '@/states/state'
-
-// interface Props {
-//   open: boolean
-//   onClose: () => void
-//   onSubmit: (data: any) => void
-//   editData?: any
-// }
-
-// export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: Props) {
-//   const [screencode, setScreencode] = useState('')
-//   const [description, setDescription] = useState('')
-//   const [active, setActive] = useState(true)
-//   const [selectedCountry, setSelectedCountry] = useState('')
-//   const [countries] = useRecoilState(countyState)
-
-//   useEffect(() => {
-//     if (editData) {
-//       setScreencode(editData.screencode)
-//       setDescription(editData.screendescription || editData.description)
-//       setActive(editData.active)
-//       setSelectedCountry(editData.countrycode)
-//     } else {
-//       setScreencode('')
-//       setDescription('')
-//       setActive(true)
-//       setSelectedCountry('')
-//     }
-//   }, [editData, open])
-
-//   const handleSubmit = () => {
-//     onSubmit({ screencode, screendescription: description, active, selectedCountry })
-//   }
-
-//   return (
-//     <Dialog open={open} onClose={onClose} fullWidth>
-//       <DialogTitle>{editData ? 'Update Screen' : 'Add Screen'}</DialogTitle>
-//       <DialogContent>
-//         <TextField
-//           label="Screen Code"
-//           fullWidth
-//           margin="normal"
-//           value={screencode}
-//           disabled={!!editData}
-//           onChange={(e) => setScreencode(e.target.value)}
-//         />
-//         <TextField label="Description" fullWidth margin="normal" value={description} onChange={(e) => setDescription(e.target.value)} />
-
-//         <InputLabel sx={{ mt: 2 }}>Country</InputLabel>
-//         <Select value={selectedCountry} fullWidth disabled={!!editData} onChange={(e) => setSelectedCountry(e.target.value as string)}>
-//           {countries
-//             ?.filter((c) => c.status === 'A')
-//             .map((c) => (
-//               <MenuItem key={c.countryCode} value={c.countryCode}>
-//                 {c.countryName}
-//               </MenuItem>
-//             ))}
-//         </Select>
-
-//         <FormControlLabel control={<Checkbox checked={active} onChange={(e) => setActive(e.target.checked)} />} label="Active" sx={{ mt: 2 }} />
-//       </DialogContent>
-//       <DialogActions>
-//         <Button onClick={onClose}>Cancel</Button>
-//         <Button variant="contained" onClick={handleSubmit}>
-//           {editData ? 'Update' : 'Create'}
-//         </Button>
-//       </DialogActions>
-//     </Dialog>
-//   )
-// }
 import {
   Dialog,
   DialogTitle,
@@ -118,7 +32,6 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
   const [selectedCountry, setSelectedCountry] = useState<string>('')
   const [countries] = useRecoilState(countyState)
 
-  // Validation State
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({})
 
   useEffect(() => {
@@ -133,7 +46,7 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
       setActive(true)
       setSelectedCountry('')
     }
-    setErrors({}) // Reset errors when dialog opens/closes
+    setErrors({})
   }, [editData, open])
 
   const handleSubmit = () => {
@@ -145,7 +58,6 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
 
     setErrors(newErrors)
 
-    // If any field is empty, don't submit
     if (Object.values(newErrors).some((error) => error)) {
       return
     }

@@ -39,24 +39,9 @@ export default class ScreenService extends BaseService {
   async deleteScreen(payload: { screencode: string; countrycode: string }) {
     const url = '/api/bop/screen/delete';
     try {
-      const { data } = await api1.del(url, { ... payload }); // Ensure DELETE sends body if required
+      const { data } = await api1.del(url, { ... payload }); 
       return data;
     } catch (err) { return err; }
   }
-// async deleteScreen(payload: { screencode: string; countrycode: string }) {
-//     const url = '/api/bop/screen/delete';
-//     try {
-//       // We pass an object with a 'data' property as the second argument
-//       const response = await api1.del(url, { 
-//         data: {
-//           screencode: payload.screencode,
-//           countrycode: payload.countrycode
-//         }
-//       });
-//       return response.data || response; 
-//     } catch (err) { 
-//       console.error("Delete call failed:", err);
-//       return err; 
-//     }
-//   }
+
 }

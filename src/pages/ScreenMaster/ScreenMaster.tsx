@@ -155,7 +155,6 @@ export default function ScreenMaster() {
       p={2}
       sx={{
         width: '80vw',
-        // This ensures the header background color matches your Gender Master CSS
         '& .super-app-theme--header': {
           backgroundColor: 'rgba(0, 0, 0, 0.05)',
         },
@@ -173,20 +172,11 @@ export default function ScreenMaster() {
         </Button>
       </Stack>
 
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        // Unique ID combination for Screen + Country
-        getRowId={(row) => `${row.screencode}-${row.countrycode}`}
-        autoHeight
-        pageSizeOptions={[5, 10]}
-      />
+      <DataGrid rows={rows} columns={columns} getRowId={(row) => `${row.screencode}-${row.countrycode}`} autoHeight pageSizeOptions={[5, 10]} />
 
       <ScreenFormDialog
         open={dialogopen}
-        //@ts-ignore
         onClose={() => setDialogopen(false)}
-        //@ts-ignore
         editData={editData}
         onSubmit={editData ? handleUpdate : handleCreate}
       />
