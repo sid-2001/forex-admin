@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@mui/material/styles'
-import { Box, Typography, Avatar, List, ListItem, IconButton, AppBar, ListItemIcon, Toolbar, Tooltip, Chip, MenuItem, Select, ListItemText, ClickAwayListener, Popper, MenuList, DialogContent, Dialog, CardMedia } from '@mui/material'
+import { Box, Typography, Avatar, List, ListItem, IconButton, AppBar, ListItemIcon, Toolbar, Tooltip, Chip, MenuItem, Select, ListItemText, ClickAwayListener, Popper, MenuList, DialogContent, Dialog, CardMedia, Divider } from '@mui/material'
 import { color, styled } from '@mui/system'
 import { LogoWhite } from '@/assets/images'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
@@ -121,6 +121,8 @@ const CountrySelector = () => {
               backgroundColor: 'rgba(255,255,255,0.15)',
               borderRadius: '20px',
               '& .MuiSelect-icon': { color: 'white' },
+
+              
               '& fieldset': { border: 'none' },
             }}
           >
@@ -243,58 +245,93 @@ const CountrySelector = () => {
   },
 ]
 
+// const chunkArray = (arr: any[], size: number) => {
+//   const chunks = []
+//   for (let i = 0; i < arr.length; i += size) {
+//     chunks.push(arr.slice(i, i + size))
+//   }
+//   return chunks
+// }
+
+const chunkArray = (arr: any[], size: number) => {
+  const chunks = []
+  for (let i = 0; i < arr.length; i += size) {
+    chunks.push(arr.slice(i, i + size))
+  }
+  return chunks
+}
 
 
 
-
-
-const MasterDropdownIcon = (
-  //@ts-ignore
-  {setSelectedApp,addToHistory  ,selectedApp ,item}) => {
+const MasterDropdownIcon = ({
+  setSelectedApp,
+  addToHistory,
+  selectedApp,
+}: any) => {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
 
   const handleClose = () => setOpen(false)
 
   const handleNavigate = (item: any) => {
-    console.log(item);
-      setSelectedApp(item.label)
-                    addToHistory(item.label)
-
+    setSelectedApp(item.label)
+    addToHistory(item.label)
     navigate(item.path)
     handleClose()
   }
 
+  const menuChunks = chunkArray(MASTER_MENU, 6)
+
   return (
     <>
       <IconButton onClick={() => setOpen(true)}>
-        <BubbleChartIcon 
-        color="primary"
-
-        sx={{ color: 'white',fontColor:"white" }} />
+        <BubbleChartIcon sx={{ color: 'white' }} />
       </IconButton>
 
-      <Dialog open={open} onClose={handleClose}>
-        <DialogContent sx={{ p: 0 }}>
-          {MASTER_MENU.map((item) => (
-            <MenuItem
-              key={item.name}
-            selected={selectedApp==item?.label}
-              onClick={() => handleNavigate(item)}
-              
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogContent
+          sx={{
+            display: 'flex',
+            gap: 2,
+            overflowX: 'auto', // 🔥 horizontal scroll if many columns
+          }}
+        >
+          {menuChunks.map((group, index) => (
+            <Box
+              key={index}
+              sx={{
+                minWidth: 220,
+                borderRight:
+                  index !== menuChunks.length - 1
+                    ? '1px solid #eee'
+                    : 'none',
+                pr: 1,
+              }}
             >
-              <ListItemIcon sx={{ color: 'primary.main' }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.label} />
-            </MenuItem>
+              {group.map((item) => (
+                <MenuItem
+                  key={item.name}
+                  selected={selectedApp === item.label}
+                  onClick={() => handleNavigate(item)}
+                >
+                  <ListItemIcon sx={{ color: 'primary.main' }}>
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText primary={item.label} />
+                </MenuItem>
+              ))}
+            </Box>
           ))}
         </DialogContent>
       </Dialog>
     </>
   )
 }
-
 
 const DashboardLayout = () => {
   const [mode, setMode] = useRecoilState(themeModeState)
@@ -875,10 +912,10 @@ const DashboardLayout = () => {
     backgroundColor: "#b0b0b0",
     borderRadius: "4px",
   },
-
+width:"100vw",
               padding: '2%',
               paddingLeft: '1 %',
-              marginLeft: 0, // Prevent the sidebar from affecting the content
+              // marginLeft: 0, // Prevent the sidebar from affecting the content
             }}
           >
             <MainContent>
