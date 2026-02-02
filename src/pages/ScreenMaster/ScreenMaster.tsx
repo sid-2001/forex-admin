@@ -8,6 +8,7 @@ import ScreenService, { Screen } from '@/services/screen.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
+import ConfirmModal from '@/components/ConfirmModal'
 
 export default function ScreenMaster() {
   const [rows, setRows] = useState<Screen[]>([])
@@ -15,7 +16,8 @@ export default function ScreenMaster() {
   const [open, setOpen] = useRecoilState(alertState)
   const [text, setText] = useRecoilState(alertTextState)
   const [type, settype] = useRecoilState(alertTypeState)
-
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [selectedRow, setSelectedRow] = useState<any>(null)
   const local_service = new LocalStorageService()
   const [editData, setEditData] = useState<Screen | null>(null)
   const screen_service = new ScreenService()
@@ -78,24 +80,33 @@ export default function ScreenMaster() {
     fetchData()
   }
 
-  //   const handleDelete = async (row: Screen) => {
-  //     const response = await screen_service.deleteScreen({
-  //       screencode: row.screencode,
-  //       countrycode: row.countrycode,
-  //     })
-  //     console.log(response, 'bhanu')
-  //     //@ts-ignore
-  //     if (response?.success === true) {
+  //   const handleDelete = async (row: any) => {
+  //     if (window.confirm('Are you sure?')) {
+  //       await screen_service.deleteScreen({
+  //         screencode: row.screencode,
+  //         countrycode: row.countrycode,
+  //       })
   //       fetchData()
   //     }
   //   }
+  const handleDeleteClick = (row: any) => {
+    setSelectedRow(row)
+    setDeleteModalOpen(true)
+  }
 
-  const handleDelete = async (row: any) => {
-    if (window.confirm('Are you sure?')) {
+  const handleConfirmDelete = async () => {
+    if (selectedRow) {
       await screen_service.deleteScreen({
-        screencode: row.screencode,
-        countrycode: row.countrycode,
+        screencode: selectedRow.screencode,
+        countrycode: selectedRow.countrycode,
       })
+
+      // Show Alert (Optional)
+      setOpen(true)
+      settype('Success')
+      setText('Screen Deleted Successfully')
+
+      setDeleteModalOpen(false)
       fetchData()
     }
   }
@@ -142,7 +153,7 @@ export default function ScreenMaster() {
             <EditIcon />
           </IconButton>
 
-          <IconButton onClick={() => handleDelete(params.row)}>
+          <IconButton onClick={() => handleDeleteClick(params.row)}>
             <DeleteIcon color="error" />
           </IconButton>
         </>
@@ -179,6 +190,13 @@ export default function ScreenMaster() {
         onClose={() => setDialogopen(false)}
         editData={editData}
         onSubmit={editData ? handleUpdate : handleCreate}
+      />
+      <ConfirmModal
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Screen?"
+        message={`Are you sure you want to delete screen ${selectedRow?.screencode}?`}
       />
     </Box>
   )
