@@ -25,6 +25,7 @@ import DownloadIcon from '@mui/icons-material/Download'
 import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import { ApplicantService } from '@/services/applicant.service'
 
 const Dashboard = () => {
