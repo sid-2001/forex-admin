@@ -6,9 +6,14 @@ import {
   TextField,
   Button,
   Checkbox,
-  FormControlLabel
+  FormControlLabel,
+  Select,
+  MenuItem,
+  InputLabel
 } from "@mui/material";
 import { useEffect, useState } from "react";
+import { useRecoilState } from "recoil";
+import { countyState } from "@/states/state";
 import { LocalStorageService } from "@/helpers/local-storage-service";
 import { BankBusinessType } from "../services/bantypemaster.service";
 
@@ -26,8 +31,9 @@ export default function BankTypeDialog({
   editData
 }: Props) {
   const localService = new LocalStorageService();
+  const [countries] = useRecoilState(countyState);
 
-  const [form, setForm] = useState<any>({
+  const [form, setForm] = useState({
     countryCode: "",
     businessCurrencyCode: "INR",
     bankBusinessName: "",
@@ -36,15 +42,23 @@ export default function BankTypeDialog({
     effective_to_date: ""
   });
 
+  const [errors, setErrors] = useState<any>({});
+
+  /* ================= LOAD EDIT DATA ================= */
   useEffect(() => {
     if (editData) {
       setForm({
-        countryCode: editData.country_code,
-        businessCurrencyCode: editData.business_currency_code,
-        bankBusinessName: editData.bank_business_name,
+
+        //@ts-ignore
+        countryCode: editData.countryCode,
+        //@ts-ignore
+        businessCurrencyCode: editData.businessCurrencyCode,
+        //@ts-ignore
+
+        bankBusinessName: editData.bankBusinessName,
         active: editData.active,
-        effective_from_date: editData.effective_from_date.split("T")[0],
-        effective_to_date: editData.effective_to_date.split("T")[0]
+        effective_from_date: editData.effective_from_date?.split("T")[0],
+        effective_to_date: editData.effective_to_date?.split("T")[0]
       });
     } else {
       setForm({
@@ -56,13 +70,51 @@ export default function BankTypeDialog({
         effective_to_date: ""
       });
     }
-  }, [editData]);
+    setErrors({});
+  }, [editData, open]);
 
+  /* ================= HANDLERS ================= */
   const handleChange = (key: string, value: any) => {
-    setForm({ ...form, [key]: value });
+    setForm((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev: any) => ({ ...prev, [key]: "" }));
   };
 
+  /* ================= VALIDATION ================= */
+  const validate = () => {
+    const newErrors: any = {};
+
+    if (!form.bankBusinessName.trim())
+      newErrors.bankBusinessName = "Business name is required";
+
+    if (!form.businessCurrencyCode)
+      newErrors.businessCurrencyCode = "Currency is required";
+
+    if (!form.countryCode)
+      newErrors.countryCode = "Country is required";
+
+    if (!form.effective_from_date)
+      newErrors.effective_from_date = "Effective from date required";
+
+    if (!form.effective_to_date)
+      newErrors.effective_to_date = "Effective to date required";
+
+    if (
+      form.effective_from_date &&
+      form.effective_to_date &&
+      form.effective_to_date < form.effective_from_date
+    ) {
+      newErrors.effective_to_date =
+        "Effective To must be after Effective From";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  /* ================= SUBMIT ================= */
   const handleSubmit = () => {
+    if (!validate()) return;
+
     onSubmit({
       ...form,
       created_by: localService.get_staff_id(),
@@ -79,62 +131,94 @@ export default function BankTypeDialog({
       </DialogTitle>
 
       <DialogContent>
+        {/* BUSINESS NAME */}
         <TextField
           label="Business Name"
           fullWidth
+          required
           margin="dense"
           value={form.bankBusinessName}
+          error={!!errors.bankBusinessName}
+          helperText={errors.bankBusinessName}
           onChange={(e) =>
             handleChange("bankBusinessName", e.target.value)
           }
         />
 
+        {/* CURRENCY */}
         <TextField
           label="Currency"
           fullWidth
+          required
           margin="dense"
           value={form.businessCurrencyCode}
+          error={!!errors.businessCurrencyCode}
+          helperText={errors.businessCurrencyCode}
           onChange={(e) =>
             handleChange("businessCurrencyCode", e.target.value)
           }
         />
 
-        <TextField
-          label="Country"
+        {/* COUNTRY */}
+        <InputLabel sx={{ mt: 2 }}>Country</InputLabel>
+        <Select
           fullWidth
-          margin="dense"
           value={form.countryCode}
+          error={!!errors.countryCode}
           onChange={(e) =>
             handleChange("countryCode", e.target.value)
           }
-        />
+        >
+          {countries
+            ?.filter((c) => c.status === "A")
+            .map((c) => (
+              <MenuItem
+              //@ts-ignore
+              key={c.countryCode} value={c.countryCode}>
+                {c.countryName}
+              </MenuItem>
+            ))}
+        </Select>
+        {errors.countryCode && (
+          <p style={{ color: "#d32f2f", fontSize: 12 }}>
+            {errors.countryCode}
+          </p>
+        )}
 
+        {/* EFFECTIVE FROM */}
         <TextField
           type="date"
           label="Effective From"
           fullWidth
+          required
           margin="dense"
           InputLabelProps={{ shrink: true }}
           value={form.effective_from_date}
-          inputProps={{ readOnly: true }}
+          error={!!errors.effective_from_date}
+          helperText={errors.effective_from_date}
           onChange={(e) =>
             handleChange("effective_from_date", e.target.value)
           }
         />
 
+        {/* EFFECTIVE TO */}
         <TextField
           type="date"
           label="Effective To"
           fullWidth
+          required
           margin="dense"
           InputLabelProps={{ shrink: true }}
           value={form.effective_to_date}
-          inputProps={{ readOnly: true }}
+          error={!!errors.effective_to_date}
+          helperText={errors.effective_to_date}
+          inputProps={{ min: form.effective_from_date }}
           onChange={(e) =>
             handleChange("effective_to_date", e.target.value)
           }
         />
 
+        {/* ACTIVE */}
         <FormControlLabel
           control={
             <Checkbox

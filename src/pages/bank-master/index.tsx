@@ -132,6 +132,14 @@ export default function BankMasterScreen() {
         getRowId={(row) => row.bankMasterCode}
         autoHeight
         pageSizeOptions={[5, 10]}
+                initialState={{
+    pagination: {
+      paginationModel: {
+        page: 0,
+        pageSize: 5,
+      },
+    },
+  }}
       />
 
       <BankMasterDialog

@@ -58,8 +58,8 @@ instance.interceptors.request.use(
       config.headers['access-control-allow-credentials'] = 'true'
       config.headers['access-control-allow-origin'] = '*'
       config.headers['ngrok-skip-browser-warning'] = 'true'
-      // config.headers['X-Device-IP'] = ip
-      // config.headers['X-Device-Name'] = deviceName
+      config.headers['X-Device-IP'] = ip
+      config.headers['X-Device-Name'] = deviceName
    config.headers["timezone"] = "UTC";
   config.headers["offset"] = offset;
   config.headers["localdatetime"] = localDateTime; 

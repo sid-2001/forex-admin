@@ -120,7 +120,16 @@ export default function BankTypeMaster() {
         columns={columns}
         // getRowId={(row) => row.business_type_code}
         autoHeight
-        pageSizeOptions={[5, 10]}
+         pageSizeOptions={[5]}
+          initialState={{
+    pagination: {
+      paginationModel: {
+        page: 0,
+        pageSize: 5,
+      },
+    },
+  }}
+        // pageSizeOptions={[5, 10]}
       />
 
       <BankTypeDialog

@@ -152,7 +152,7 @@ export default function StateManagement() {
           columns={columns}
           loading={loading}
           getRowId={(row) => `${row.statecode}-${row.countrycode}`}
-          pageSizeOptions={[10, 20, 50]}
+        pageSizeOptions={[5, 10]}
           disableRowSelectionOnClick
         />
       </div>

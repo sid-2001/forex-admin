@@ -101,6 +101,7 @@ export default function ChannelFormDialog({
         <TextField
           label="Channel Code"
           fullWidth
+          required
           margin="normal"
           inputProps={{maxlength:1}}
           value={channelCode}
@@ -110,6 +111,7 @@ export default function ChannelFormDialog({
 
         <TextField
           label="Channel Description"
+          required
           fullWidth
           margin="normal"
           value={description}
@@ -118,6 +120,7 @@ export default function ChannelFormDialog({
 
         <InputLabel>Country</InputLabel>
         <Select
+        required
 
           disabled={!!editData}
           fullWidth
@@ -142,6 +145,7 @@ export default function ChannelFormDialog({
             <TextField
               type="date"
               label="Effective From"
+              required
               fullWidth
               margin="normal"
               InputLabelProps={{ shrink: true }}
@@ -152,6 +156,7 @@ export default function ChannelFormDialog({
             <TextField
               type="date"
               label="Effective To"
+              required
               fullWidth
               margin="normal"
               InputLabelProps={{ shrink: true }}

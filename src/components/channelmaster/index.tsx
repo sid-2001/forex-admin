@@ -160,7 +160,8 @@ export default function ChannelManagement() {
           getRowId={(row) =>
             `${row.channel_code}-${row.country_code}`
           }
-          pageSizeOptions={[10, 20, 50]}
+     
+           pageSizeOptions={[5, 10]}
           disableRowSelectionOnClick
         />
       </div>

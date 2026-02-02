@@ -99,7 +99,7 @@ export default function ServiceManagement() {
       return
     }
 
-    if (window.confirm(`Are you sure you want to delete ${id}?`)) {
+  
       try {
         console.log('Calling API with ID:', id)
         const res = await serviceService.deleteService(id, false)
@@ -108,7 +108,7 @@ export default function ServiceManagement() {
       } catch (e) {
         console.error('Network Error during delete:', e)
       }
-    }
+    
   }
 
   const columns: GridColDef[] = [
@@ -170,6 +170,14 @@ export default function ServiceManagement() {
           getRowId={(row) => row.serviceCodeGenerated}
           pageSizeOptions={[10, 20, 50]}
           disableRowSelectionOnClick
+                  initialState={{
+    pagination: {
+      paginationModel: {
+        page: 0,
+        pageSize: 5,
+      },
+    },
+  }}
         />
       </div>
 

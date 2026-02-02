@@ -104,6 +104,7 @@ const [countries, setCountries] = useRecoilState(countyState)
           fullWidth
          inputProps={{ maxLength: 1 }}
           margin="normal"
+          required
           value={gendercode}
           disabled={!!editData}
           onChange={(e) => setGendercode(e.target.value)}
@@ -112,6 +113,7 @@ const [countries, setCountries] = useRecoilState(countyState)
         <TextField
           label="Description"
           fullWidth
+          required
             inputProps={{ maxLength: 15 }}
           margin="normal"
           value={description}
@@ -123,6 +125,7 @@ const [countries, setCountries] = useRecoilState(countyState)
                               <InputLabel>Destination Country</InputLabel>
                             
                               <Select
+                              required
                                 value={selectedCountry}
                                 fullWidth
                                 style={{
@@ -132,7 +135,7 @@ const [countries, setCountries] = useRecoilState(countyState)
                                 //@ts-ignore
                                   disabled={!!editData}
                                   //@ts-ignore
-                                onChange={handleCountryChange}
+                              onChange={handleCountryChange}
                                 displayEmpty
                               >
                                 {
@@ -157,14 +160,18 @@ const [countries, setCountries] = useRecoilState(countyState)
 <TextField
   label="Effective From Date"
   type="date"
+  required
   fullWidth
   margin="normal"
   InputLabelProps={{ shrink: true }}
   value={effectiveFrom}
   defaultValue={effectiveFrom}
   onChange={(e) => setEffectiveFrom(e.target.value)}
-    inputProps={{
-    readOnly: true,   // ⬅️ prevents manual typing
+  //   inputProps={{
+  //   readOnly: true,   // ⬅️ prevents manual typing
+  // }}
+   inputProps={{
+    min: effectiveFrom, // 👈 prevents selecting earlier date
   }}
 />
 
@@ -172,13 +179,15 @@ const [countries, setCountries] = useRecoilState(countyState)
   label="Effective To Date"
   type="date"
   fullWidth
+  required
   margin="normal"
   InputLabelProps={{ shrink: true }}
   value={effectiveTo}
   defaultValue={effectiveTo}
   onChange={(e) => setEffectiveTo(e.target.value)}
     inputProps={{
-    readOnly: true,   // ⬅️ prevents manual typing
+    // readOnly: true, 
+    min:effectiveFrom
   }}
 
 />

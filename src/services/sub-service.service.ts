@@ -16,7 +16,7 @@ export default class SubServiceService extends BaseService {
   }
 
   async getSubServiceList() {
-    const url = '/api/static-table/serviceSubServiceMapping/getAll';
+    const url = '/api/static-table/subServiceMaster/getAll';
     try {
       const { data } = await api1.get(url);
       return data;
@@ -32,8 +32,12 @@ export default class SubServiceService extends BaseService {
   }
 
   async updateSubService(id: string, payload: any) {
-    console.log("Dummy Update for:", id, payload);
-    return { status: true };
+
+    const url = `/api/static-table/subServiceMaster/update/${id}`;
+    try {
+      const { data } = await api1.patch(url, payload);
+      return data;
+    } catch (err) { return err as any; }
   }
 
   async deleteSubService(id: string) {

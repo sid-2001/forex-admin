@@ -107,7 +107,9 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
             {countries
               ?.filter((item) => item.status === 'A')
               .map((country) => (
-                <MenuItem key={country?.countryCode} value={country.countryCode}>
+                <MenuItem 
+                //@ts-ignore
+                key={country?.countryCode} value={country.countryCode}>
                   {country?.countryName}
                 </MenuItem>
               ))}

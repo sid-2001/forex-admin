@@ -153,7 +153,7 @@ export default function ProductManagement() {
         </Button>
       </Stack>
 
-      <div style={{ height: 500, width: '80vw' }}>
+      <div style={{ width: '80vw' }}>
         <DataGrid
           rows={rows}
           columns={columns}
@@ -161,6 +161,14 @@ export default function ProductManagement() {
           getRowId={(row) => row.countryProductCode}
           pageSizeOptions={[10, 20, 50]}
           disableRowSelectionOnClick
+                  initialState={{
+    pagination: {
+      paginationModel: {
+        page: 0,
+        pageSize: 5,
+      },
+    },
+  }}
         />
       </div>
 

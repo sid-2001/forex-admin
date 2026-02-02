@@ -6,7 +6,7 @@ import ProtectedRoute, { ProtectedRouteProps } from './helpers/protected-route'
 import UserAdd from './pages/user-add'
 import Login from './pages/newlogin'
 import type {} from '@mui/x-data-grid/themeAugmentation'
-
+import ReportIcon from '@mui/icons-material/Report';
 // import Login from './pages/login'
 // import Dashboard from './pages/dashboard'
 // import { getToken, onMessage } from 'firebase/messaging'
@@ -59,6 +59,12 @@ import ServiceManagement from './pages/ServiceManagement'
 import SubServiceManagement from './pages/subService'
 import BankMasterScreen from './pages/bank-master'
 import BankTypeMaster from './pages/bank-type-master'
+import BopCategoryMaster from './pages/bopcategorymaster'
+import BopCategoryTypeMaster from './pages/bopcategorytypemaster'
+import CountryBusinessPayoutPartnerFormDialog from './components/countrybuisnesspayoutformformdialog'
+import CountryBusinessPayoutPartner from './pages/country-business-payout-partners'
+import ProductBusinessCountryMapping from './pages/product-buisness-country-mapping'
+import EmailTemplateMasterPage from './pages/emailtemplatelist'
 import ScreenMaster from './pages/ScreenMaster/ScreenMaster'
 
 function App() {
@@ -205,6 +211,14 @@ function App() {
               <Route path="channel" element={<ChannelManagement />} />
               <Route path="screen" element={<ScreenMaster />} />
               <Route path="branches" element={<ForexBranchesPage />} />
+                  <Route path="bopcategory" element={<BopCategoryMaster />} />
+                  <Route path="bop-category-type" element={<BopCategoryTypeMaster />} />
+
+                   <Route path="bop-category-type" element={<BopCategoryTypeMaster />} />
+                     <Route path="product-buisness-mapping" element={<ProductBusinessCountryMapping />} />
+                     <Route path="business-railand-partner" element={<CountryBusinessPayoutPartner />} />
+                            <Route path="email-template" element={<EmailTemplateMasterPage />} />
+       <Route path="business-railand-partner" element={<CountryBusinessPayoutPartner />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 
