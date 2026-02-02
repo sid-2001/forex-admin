@@ -1,5 +1,27 @@
 import { ThemeProvider } from '@mui/material/styles'
-import { Box, Typography, Avatar, List, ListItem, IconButton, AppBar, ListItemIcon, Toolbar, Tooltip, Chip, MenuItem, Select, ListItemText, ClickAwayListener, Popper, MenuList, DialogContent, Dialog, CardMedia, Divider } from '@mui/material'
+import {
+  Box,
+  Typography,
+  Avatar,
+  List,
+  ListItem,
+  IconButton,
+  AppBar,
+  ListItemIcon,
+  Toolbar,
+  Tooltip,
+  Chip,
+  MenuItem,
+  Select,
+  ListItemText,
+  ClickAwayListener,
+  Popper,
+  MenuList,
+  DialogContent,
+  Dialog,
+  CardMedia,
+  Divider,
+} from '@mui/material'
 import { color, styled } from '@mui/system'
 import { LogoWhite } from '@/assets/images'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
@@ -8,7 +30,18 @@ import Person2Icon from '@mui/icons-material/Person2'
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
 import { menuHistoryState, themeModeState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-import { ArrowBack, Brightness4, Brightness7, CardMembershipRounded, CardTravel, ExpandLess, ExpandMore, FilterBAndW, HomeRepairServiceRounded, LeakRemove } from '@mui/icons-material'
+import {
+  ArrowBack,
+  Brightness4,
+  Brightness7,
+  CardMembershipRounded,
+  CardTravel,
+  ExpandLess,
+  ExpandMore,
+  FilterBAndW,
+  HomeRepairServiceRounded,
+  LeakRemove,
+} from '@mui/icons-material'
 import { alertState, loaderState, selectedAppState, loaderStateNew, availableBalanceState } from '@/states/state'
 import { useState, useEffect } from 'react'
 import Backdrop from '@mui/material/Backdrop'
@@ -35,9 +68,9 @@ import WcIcon from '@mui/icons-material/Wc'
 import AirIcon from '@mui/icons-material/Air'
 import BubbleChartIcon from '@mui/icons-material/BubbleChart'
 import LanguageIcon from '@mui/icons-material/Language'
-import Inventory2Icon from '@mui/icons-material/Inventory2';
-import ReportIcon from '@mui/icons-material/Report';
-import ReportOffIcon from '@mui/icons-material/ReportOff';
+import Inventory2Icon from '@mui/icons-material/Inventory2'
+import ReportIcon from '@mui/icons-material/Report'
+import ReportOffIcon from '@mui/icons-material/ReportOff'
 // import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import { FolderIcon, LanguagesIcon, Menu, SettingsIcon } from 'lucide-react'
 import WebIcon from '@mui/icons-material/Web'
@@ -123,7 +156,6 @@ const CountrySelector = () => {
               borderRadius: '20px',
               '& .MuiSelect-icon': { color: 'white' },
 
-              
               '& fieldset': { border: 'none' },
             }}
           >
@@ -219,30 +251,55 @@ const MASTER_MENU = [
     icon: <Inventory2Icon fontSize="small" />,
     path: 'product',
   },
-   {
+  {
     label: 'Bop Category Type',
     name: 'Bop Category',
     icon: <ReportOffIcon fontSize="small" />,
     path: 'bop-category-type',
   },
-   {
+  {
     label: 'Bop Category',
     name: 'Bop Category',
     icon: <ReportIcon fontSize="small" />,
     path: 'bopcategory',
   },
-   {
+  {
     label: 'Product Buisness Mapping',
     name: 'Product Buisness Mapping',
     icon: <CardTravel fontSize="small" />,
     path: 'product-buisness-mapping',
   },
-   {
+  {
     label: 'Buisness Railand Partners',
     name: 'Buisness Railand Partners',
     icon: <CardMembershipRounded fontSize="small" />,
     path: 'business-railand-partner',
   },
+  {
+    label: 'Screen Master',
+    name: 'Screen master',
+    icon: <WebIcon fontSize="small" />,
+    path: 'screen',
+  },
+  {
+    label: 'WhatsApp Master',
+    name: 'WhatsApp master',
+    icon: <WebIcon fontSize="small" />,
+    path: 'whatsapp',
+  },
+  {
+    label: 'Sms manegement Master',
+    name: 'Sms manegement master',
+    icon: <WebIcon fontSize="small" />,
+    path: 'smsmanegement',
+  },
+  {
+    label: 'Email manegement Master',
+    name: 'Email manegement master',
+    icon: <WebIcon fontSize="small" />,
+    path: 'email-manegement',
+  },
+  // smsmanegement
 ]
 
 // const chunkArray = (arr: any[], size: number) => {
@@ -261,20 +318,15 @@ const chunkArray = (arr: any[], size: number) => {
   return chunks
 }
 
-
-  // {
-  //   label: 'Screen Master',
-  //   name: 'Screen master',
-  //   icon: <WebIcon fontSize="small" />,
-  //   path: 'screen',
-  // },
+// {
+//   label: 'Screen Master',
+//   name: 'Screen master',
+//   icon: <WebIcon fontSize="small" />,
+//   path: 'screen',
+// },
 // ]
 
-const MasterDropdownIcon = ({
-  setSelectedApp,
-  addToHistory,
-  selectedApp,
-}: any) => {
+const MasterDropdownIcon = ({ setSelectedApp, addToHistory, selectedApp }: any) => {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
 
@@ -296,12 +348,7 @@ const MasterDropdownIcon = ({
         <BubbleChartIcon color="primary" sx={{ color: 'white', fontColor: 'white' }} />
       </IconButton>
 
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        maxWidth="md"
-        fullWidth
-      >
+      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogContent
           sx={{
             display: 'flex',
@@ -314,22 +361,13 @@ const MasterDropdownIcon = ({
               key={index}
               sx={{
                 minWidth: 220,
-                borderRight:
-                  index !== menuChunks.length - 1
-                    ? '1px solid #eee'
-                    : 'none',
+                borderRight: index !== menuChunks.length - 1 ? '1px solid #eee' : 'none',
                 pr: 1,
               }}
             >
               {group.map((item) => (
-                <MenuItem
-                  key={item.name}
-                  selected={selectedApp === item.label}
-                  onClick={() => handleNavigate(item)}
-                >
-                  <ListItemIcon sx={{ color: 'primary.main' }}>
-                    {item.icon}
-                  </ListItemIcon>
+                <MenuItem key={item.name} selected={selectedApp === item.label} onClick={() => handleNavigate(item)}>
+                  <ListItemIcon sx={{ color: 'primary.main' }}>{item.icon}</ListItemIcon>
                   <ListItemText primary={item.label} />
                 </MenuItem>
               ))}
@@ -805,28 +843,22 @@ const DashboardLayout = () => {
                 sx={{
                   textAlign: 'center',
                   alignItems: 'center',
-               
-                
-                 
                 }}
-               
-              ><Stack 
-              sx={{
-                textAlign:"center",
-                width:"100%"
-              
-              }}>
-
-            
-          <MasterDropdownIcon
+              >
+                <Stack
+                  sx={{
+                    textAlign: 'center',
+                    width: '100%',
+                  }}
+                >
+                  <MasterDropdownIcon
                     //@ts-ignore
                     setSelectedApp={setSelectedApp}
                     addToHistory={addToHistory}
-
-
                     //@ts-ignore
-                    selectedApp={selectedApp} item={undefined}          ></MasterDropdownIcon>
-              
+                    selectedApp={selectedApp}
+                    item={undefined}
+                  ></MasterDropdownIcon>
                 </Stack>
               </ListItem>
 
@@ -901,15 +933,15 @@ const DashboardLayout = () => {
           <Box
             sx={{
               flexGrow: 1,
-               overflowY: "auto",
-  "&::-webkit-scrollbar": {
-    width: "6px",
-  },
-  "&::-webkit-scrollbar-thumb": {
-    backgroundColor: "#b0b0b0",
-    borderRadius: "4px",
-  },
-width:"100vw",
+              overflowY: 'auto',
+              '&::-webkit-scrollbar': {
+                width: '6px',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: '#b0b0b0',
+                borderRadius: '4px',
+              },
+              width: '100vw',
               padding: '2%',
               paddingLeft: '1 %',
               // marginLeft: 0, // Prevent the sidebar from affecting the content

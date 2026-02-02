@@ -6,7 +6,7 @@ import ProtectedRoute, { ProtectedRouteProps } from './helpers/protected-route'
 import UserAdd from './pages/user-add'
 import Login from './pages/newlogin'
 import type {} from '@mui/x-data-grid/themeAugmentation'
-import ReportIcon from '@mui/icons-material/Report';
+import ReportIcon from '@mui/icons-material/Report'
 // import Login from './pages/login'
 // import Dashboard from './pages/dashboard'
 // import { getToken, onMessage } from 'firebase/messaging'
@@ -46,7 +46,7 @@ import Loyality from './pages/loyality'
 import AuditLogTable from './pages/audit-log'
 import FieldValidationTable from './pages/field-validation'
 import ForexBranchesPage from './pages/branches'
-import { useCallback, useEffect } from 'react'
+import { lazy, useCallback, useEffect } from 'react'
 import { useAutoLogout } from './helpers/useAutoLogout'
 import { LocalStorageService } from './helpers/local-storage-service'
 import { CrossBorderPaymentsDashboard } from './pages/dashboard'
@@ -66,6 +66,9 @@ import CountryBusinessPayoutPartner from './pages/country-business-payout-partne
 import ProductBusinessCountryMapping from './pages/product-buisness-country-mapping'
 import EmailTemplateMasterPage from './pages/emailtemplatelist'
 import ScreenMaster from './pages/ScreenMaster/ScreenMaster'
+import WhatsappTemplateManagement from './pages/whatsAppTemplateMaster'
+import SmsTemplateManagement from './pages/smsTemplateMaster'
+import EmailTemplateManagement from './pages/emailTemplateMaster'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -207,18 +210,21 @@ function App() {
               <Route path="bank-type" element={<BankTypeMaster />} />
               <Route path="product" element={<ProductManagement />} />
               <Route path="service" element={<ServiceManagement />} />
+              <Route path="whatsapp" element={<WhatsappTemplateManagement />} />
+              <Route path="smsmanegement" element={<SmsTemplateManagement />} />
+              <Route path="email-manegement" element={<EmailTemplateManagement />} />
+              {/* EmailTemplateManagement */}
               <Route path="subservice" element={<SubServiceManagement />} />
               <Route path="channel" element={<ChannelManagement />} />
               <Route path="screen" element={<ScreenMaster />} />
               <Route path="branches" element={<ForexBranchesPage />} />
-                  <Route path="bopcategory" element={<BopCategoryMaster />} />
-                  <Route path="bop-category-type" element={<BopCategoryTypeMaster />} />
-
-                   <Route path="bop-category-type" element={<BopCategoryTypeMaster />} />
-                     <Route path="product-buisness-mapping" element={<ProductBusinessCountryMapping />} />
-                     <Route path="business-railand-partner" element={<CountryBusinessPayoutPartner />} />
-                            <Route path="email-template" element={<EmailTemplateMasterPage />} />
-       <Route path="business-railand-partner" element={<CountryBusinessPayoutPartner />} />
+              <Route path="bopcategory" element={<BopCategoryMaster />} />
+              <Route path="bop-category-type" element={<BopCategoryTypeMaster />} />
+              <Route path="bop-category-type" element={<BopCategoryTypeMaster />} />
+              <Route path="product-buisness-mapping" element={<ProductBusinessCountryMapping />} />
+              <Route path="business-railand-partner" element={<CountryBusinessPayoutPartner />} />
+              <Route path="email-template" element={<EmailTemplateMasterPage />} />
+              <Route path="business-railand-partner" element={<CountryBusinessPayoutPartner />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 
