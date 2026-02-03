@@ -7,18 +7,22 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
-  Select,
-  MenuItem,
-  InputLabel,
   Grid,
-  FormControl,
-  FormHelperText,
+  Autocomplete,
+  createFilterOptions,
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
+import ErrorMessage from '../errorMessage'
 
-export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, editData }: any) {
+// This filter allows searching anywhere in the name or code
+const filter = createFilterOptions({
+  matchFrom: 'any',
+  stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
+})
+
+export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, editData, errMassage }: any) {
   const [countries] = useRecoilState(countyState)
 
   const initialFormState = {
@@ -48,6 +52,7 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
       })
     } else {
       setForm(initialFormState)
+      setErrors({})
     }
   }, [editData, open])
 
@@ -59,18 +64,7 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
 
   const validate = () => {
     const newErrors: any = {}
-    const requiredFields = [
-      'countryCode',
-      'templateCode',
-      'templateName',
-      'fromName',
-      'fromEmail',
-      'emailSubject',
-      'emailBodyHtml',
-      'emailBodyText',
-      'effectiveFromDate',
-      'effectiveToDate',
-    ]
+    const requiredFields = ['countryCode', 'templateCode', 'templateName', 'fromEmail', 'emailSubject', 'effectiveFromDate', 'effectiveToDate']
 
     requiredFields.forEach((field) => {
       if (!form[field as keyof typeof form]) {
@@ -88,8 +82,6 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
 
   const handleSubmit = () => {
     if (validate()) {
-      // FIX: Constructing an explicit payload to match your working CURL exactly.
-      // This prevents "Internal Server Error" caused by sending extra ID fields to the Create API.
       const cleanPayload = {
         countryCode: form.countryCode,
         templateCode: form.templateCode,
@@ -104,7 +96,6 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
         effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
         effectiveToDate: `${form.effectiveToDate}T23:59:59`,
       }
-
       onSubmit(cleanPayload)
     }
   }
@@ -115,19 +106,22 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
 
       <DialogContent dividers>
         <Grid container spacing={2} sx={{ mt: 0.5 }}>
-          {/* Row 1: Country and Template Code */}
+          {/* Searchable Country Autocomplete */}
           <Grid item xs={12} sm={6}>
-            <FormControl fullWidth error={!!errors.countryCode}>
-              <InputLabel id="country-select-label">Country</InputLabel>
-              <Select labelId="country-select-label" label="Country" name="countryCode" value={form.countryCode} onChange={handleChange}>
-                {countries?.map((c: any) => (
-                  <MenuItem key={c.countryCode} value={c.countryCode}>
-                    {c.countryName}
-                  </MenuItem>
-                ))}
-              </Select>
-              {errors.countryCode && <FormHelperText>{errors.countryCode}</FormHelperText>}
-            </FormControl>
+            <Autocomplete
+              options={countries || []}
+              filterOptions={filter}
+              getOptionLabel={(option) => `${option.countryName} (${option.countryCode})`}
+              value={countries?.find((c) => c.countryCode === form.countryCode) || null}
+              disabled={!!editData}
+              onChange={(_event, newValue) => {
+                setForm({ ...form, countryCode: newValue ? newValue.countryCode : '' })
+                if (errors.countryCode) setErrors({ ...errors, countryCode: '' })
+              }}
+              renderInput={(params) => (
+                <TextField {...params} label="Search Country" required error={!!errors.countryCode} helperText={errors.countryCode} />
+              )}
+            />
           </Grid>
 
           <Grid item xs={12} sm={6}>
@@ -139,11 +133,10 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
               onChange={handleChange}
               error={!!errors.templateCode}
               helperText={errors.templateCode}
-              disabled={!!editData} // Code should usually be immutable on update
+              disabled={!!editData}
             />
           </Grid>
 
-          {/* Row 2: Template Name and From Name */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -157,18 +150,9 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="From Name"
-              name="fromName"
-              value={form.fromName}
-              onChange={handleChange}
-              error={!!errors.fromName}
-              helperText={errors.fromName}
-            />
+            <TextField fullWidth label="From Name" name="fromName" value={form.fromName} onChange={handleChange} />
           </Grid>
 
-          {/* Row 3: From Email */}
           <Grid item xs={12}>
             <TextField
               fullWidth
@@ -181,7 +165,6 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
             />
           </Grid>
 
-          {/* Row 4: Subject */}
           <Grid item xs={12}>
             <TextField
               fullWidth
@@ -194,38 +177,14 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
             />
           </Grid>
 
-          {/* Row 5: HTML Body */}
           <Grid item xs={12}>
-            <TextField
-              fullWidth
-              multiline
-              rows={4}
-              label="HTML Body"
-              name="emailBodyHtml"
-              placeholder="<html><body>...</body></html>"
-              value={form.emailBodyHtml}
-              onChange={handleChange}
-              error={!!errors.emailBodyHtml}
-              helperText={errors.emailBodyHtml}
-            />
+            <TextField fullWidth multiline rows={4} label="HTML Body" name="emailBodyHtml" value={form.emailBodyHtml} onChange={handleChange} />
           </Grid>
 
-          {/* Row 6: Text Body */}
           <Grid item xs={12}>
-            <TextField
-              fullWidth
-              multiline
-              rows={2}
-              label="Text Body"
-              name="emailBodyText"
-              value={form.emailBodyText}
-              onChange={handleChange}
-              error={!!errors.emailBodyText}
-              helperText={errors.emailBodyText}
-            />
+            <TextField fullWidth multiline rows={2} label="Text Body" name="emailBodyText" value={form.emailBodyText} onChange={handleChange} />
           </Grid>
 
-          {/* Row 7: Dates */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -253,13 +212,13 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
             />
           </Grid>
 
-          {/* Row 8: Active Status */}
           <Grid item xs={12}>
             <FormControlLabel control={<Checkbox name="active" checked={form.active} onChange={handleChange} color="primary" />} label="Active" />
           </Grid>
         </Grid>
       </DialogContent>
-
+      {/* <p style={{ textAlign: 'center', color: 'red' }}>{errMassage ? errMassage : ''}</p> */}
+      <ErrorMessage errMessage={errMassage} />
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={onClose} sx={{ color: 'grey.600' }}>
           CANCEL

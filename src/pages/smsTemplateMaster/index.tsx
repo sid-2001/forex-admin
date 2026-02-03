@@ -12,6 +12,7 @@ export default function SmsTemplateManagement() {
   const [editData, setEditData] = useState<any | null>(null)
   const [rows, setRows] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+  const [errMassage, setErrMasage] = useState(null)
 
   const smsService = useMemo(() => new SmsTemplateService(), [])
   const local_service = useMemo(() => new LocalStorageService(), [])
@@ -44,7 +45,11 @@ export default function SmsTemplateManagement() {
         ...data,
         createdBy: local_service?.get_staff_id() || 'APSNGGGN3624',
       }
-      await smsService.createTemplate(payload)
+      const res = await smsService.createTemplate(payload)
+      if (res.status == false) {
+        setErrMasage(res.message)
+        return
+      }
       setOpen(false)
       setEditData(null)
       fetchData()
@@ -138,6 +143,7 @@ export default function SmsTemplateManagement() {
           }}
           editData={editData}
           onSubmit={editData ? handleUpdate : handleCreate}
+          errMassage={errMassage}
         />
       )}
     </Box>

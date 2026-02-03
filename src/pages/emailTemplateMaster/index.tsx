@@ -12,6 +12,7 @@ export default function EmailTemplateManagement() {
   const [editData, setEditData] = useState<any | null>(null)
   const [rows, setRows] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+  const [errMassage, setErrMasage] = useState(null)
 
   const emailService = useMemo(() => new EmailTemplateService(), [])
   const local_service = useMemo(() => new LocalStorageService(), [])
@@ -51,7 +52,11 @@ export default function EmailTemplateManagement() {
 
   const handleCreate = async (data: any) => {
     try {
-      await emailService.createTemplate({ ...data, createdBy: local_service?.get_staff_id() || 'APSNGGGN3624' })
+      const res = await emailService.createTemplate({ ...data, createdBy: local_service?.get_staff_id() || 'APSNGGGN3624' })
+      if (res.status == false) {
+        setErrMasage(res.message)
+        return
+      }
       setOpen(false)
       fetchData()
     } catch (err) {
@@ -113,6 +118,7 @@ export default function EmailTemplateManagement() {
           onClose={() => setOpen(false)}
           editData={editData}
           onSubmit={editData ? handleUpdate : handleCreate}
+          errMassage={errMassage}
         />
       )}
     </Box>

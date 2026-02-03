@@ -13,6 +13,7 @@ export default function WhatsappTemplateManagement() {
   const [editData, setEditData] = useState<any | null>(null)
   const [rows, setRows] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+  const [errMassage, setErrMasage] = useState(null)
 
   const templateService = useMemo(() => new WhatsappTemplateService(), [])
   const local_service = useMemo(() => new LocalStorageService(), [])
@@ -50,7 +51,11 @@ export default function WhatsappTemplateManagement() {
         effectiveToDate: data.effectiveToDate,
         createdBy: local_service?.get_staff_id() || 'APSNGGGN3624',
       }
-      await templateService.createTemplate(payload)
+      const res = await templateService.createTemplate(payload)
+      if (res.status == false) {
+        setErrMasage(res.message)
+        return
+      }
       setOpen(false)
       fetchData()
     } catch (e) {
@@ -174,7 +179,13 @@ export default function WhatsappTemplateManagement() {
       </div>
 
       {open && (
-        <WhatsappTemplateDialog open={open} onClose={() => setOpen(false)} editData={editData} onSubmit={editData ? handleUpdate : handleCreate} />
+        <WhatsappTemplateDialog
+          open={open}
+          onClose={() => setOpen(false)}
+          editData={editData}
+          errMassage={errMassage}
+          onSubmit={editData ? handleUpdate : handleCreate}
+        />
       )}
     </>
   )

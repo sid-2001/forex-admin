@@ -8,16 +8,20 @@ import {
   Checkbox,
   FormControlLabel,
   Box,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormHelperText,
+  Autocomplete,
+  createFilterOptions,
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
+import ErrorMessage from '../errorMessage'
 
-export default function SmsTemplateDialog({ open, onClose, onSubmit, editData }: any) {
+const filter = createFilterOptions({
+  matchFrom: 'any',
+  stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
+})
+
+export default function SmsTemplateDialog({ open, onClose, onSubmit, editData, errMassage }: any) {
   const [countries] = useRecoilState(countyState)
 
   const [countryCode, setCountryCode] = useState('')
@@ -35,8 +39,16 @@ export default function SmsTemplateDialog({ open, onClose, onSubmit, editData }:
       setActive(editData.active ?? true)
       setEffectiveFromDate(editData.effectiveFromDate?.split('T')[0] || '')
       setEffectiveToDate(editData.effectiveToDate?.split('T')[0] || '')
+    } else {
+      // Reset state when opening a fresh "Add" dialog
+      setCountryCode('')
+      setSmsTemplateDescription('')
+      setActive(true)
+      setEffectiveFromDate('')
+      setEffectiveToDate('')
+      setErrors({})
     }
-  }, [editData])
+  }, [editData, open])
 
   const validate = () => {
     const newErrors: any = {}
@@ -64,18 +76,23 @@ export default function SmsTemplateDialog({ open, onClose, onSubmit, editData }:
       <DialogTitle>{editData ? 'Update SMS Template' : 'Add SMS Template'}</DialogTitle>
       <DialogContent dividers>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-          <InputLabel>Country</InputLabel>
-          <Select value={countryCode} fullWidth disabled={!!editData} onChange={(e) => setCountryCode(e.target.value)} error={!!errors.countryCode}>
-            {countries?.map((c: any) => (
-              <MenuItem key={c.countryCode} value={c.countryCode}>
-                {c.countryName}
-              </MenuItem>
-            ))}
-          </Select>
+          <Autocomplete
+            options={countries || []}
+            filterOptions={filter}
+            getOptionLabel={(o) => `${o.countryName} (${o.countryCode})`}
+            value={countries?.find((c) => c.countryCode === countryCode) || null}
+            disabled={!!editData}
+            onChange={(_, val) => {
+              setCountryCode(val ? val.countryCode : '')
+              if (errors.countryCode) setErrors({ ...errors, countryCode: '' })
+            }}
+            renderInput={(p) => <TextField {...p} label="Search Country" required error={!!errors.countryCode} helperText={errors.countryCode} />}
+          />
 
           <TextField
             label="SMS Description"
             fullWidth
+            required
             value={smsTemplateDescription}
             onChange={(e) => setSmsTemplateDescription(e.target.value)}
             error={!!errors.smsTemplateDescription}
@@ -86,25 +103,30 @@ export default function SmsTemplateDialog({ open, onClose, onSubmit, editData }:
             type="date"
             label="Effective From"
             fullWidth
+            required
             InputLabelProps={{ shrink: true }}
             value={effectiveFromDate}
             onChange={(e) => setEffectiveFromDate(e.target.value)}
             error={!!errors.effectiveFromDate}
+            helperText={errors.effectiveFromDate}
           />
 
           <TextField
             type="date"
             label="Effective To"
             fullWidth
+            required
             InputLabelProps={{ shrink: true }}
             value={effectiveToDate}
             onChange={(e) => setEffectiveToDate(e.target.value)}
             error={!!errors.effectiveToDate}
+            helperText={errors.effectiveToDate}
           />
 
           <FormControlLabel control={<Checkbox checked={active} onChange={(e) => setActive(e.target.checked)} />} label="Active" />
         </Box>
       </DialogContent>
+      <ErrorMessage errMessage={errMassage} />
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
         <Button variant="contained" onClick={handleSubmit}>
