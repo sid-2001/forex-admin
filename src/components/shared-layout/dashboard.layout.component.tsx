@@ -72,6 +72,7 @@ import Inventory2Icon from '@mui/icons-material/Inventory2'
 import ReportIcon from '@mui/icons-material/Report'
 import ReportOffIcon from '@mui/icons-material/ReportOff'
 // import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import { FolderIcon, LanguagesIcon, Menu, SettingsIcon } from 'lucide-react'
 import WebIcon from '@mui/icons-material/Web'
 const Item = styled(Paper)(({ theme }) => ({
@@ -274,6 +275,19 @@ const MASTER_MENU = [
     name: 'Buisness Railand Partners',
     icon: <CardMembershipRounded fontSize="small" />,
     path: 'business-railand-partner',
+  },
+    {
+    label: 'Forex Currency',
+    name: 'Forex Currency',
+    icon: <AttachMoneyIcon fontSize="small" />,
+    path: 'forex-currency-master',
+  },
+  
+     {
+    label: 'Forex Country',
+    name: 'Forex Country',
+    icon: <LanguageIcon fontSize="small" />,
+    path: 'forex-currency-master',
   },
   {
     label: 'Screen Master',

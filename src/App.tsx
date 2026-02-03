@@ -66,6 +66,8 @@ import CountryBusinessPayoutPartner from './pages/country-business-payout-partne
 import ProductBusinessCountryMapping from './pages/product-buisness-country-mapping'
 import EmailTemplateMasterPage from './pages/emailtemplatelist'
 import ScreenMaster from './pages/ScreenMaster/ScreenMaster'
+import ForexCurrencyMaster from './pages/forex-currency-master'
+import ForexCountryMaster from './pages/forex-country'
 import WhatsappTemplateManagement from './pages/whatsAppTemplateMaster'
 import SmsTemplateManagement from './pages/smsTemplateMaster'
 import EmailTemplateManagement from './pages/emailTemplateMaster'
@@ -225,6 +227,8 @@ function App() {
               <Route path="business-railand-partner" element={<CountryBusinessPayoutPartner />} />
               <Route path="email-template" element={<EmailTemplateMasterPage />} />
               <Route path="business-railand-partner" element={<CountryBusinessPayoutPartner />} />
+        <Route path="forex-currency-master" element={<ForexCurrencyMaster />} />
+                <Route path="forex-country-master" element={<ForexCountryMaster />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 
