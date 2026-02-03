@@ -21,19 +21,13 @@ const filter = createFilterOptions({
   stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
 })
 
-export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, editData, errMassage }: any) {
+export default function VerificationPartnerMasterDialog({ open, onClose, onSubmit, editData, errMassage }: any) {
   const [countries] = useRecoilState(countyState)
 
   const initialFormState = {
+    verificationPartnerCode: '',
     countryCode: '',
-    templateCode: '',
-    templateName: '',
-    fromName: '',
-    fromEmail: '',
-    emailSubject: '',
-    emailBodyHtml: '',
-    emailBodyText: '',
-    emailTemplateDescription: '',
+    verificationPartnerDescription: '',
     active: true,
     effectiveFromDate: '',
     effectiveToDate: '',
@@ -63,17 +57,13 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
 
   const validate = () => {
     const newErrors: any = {}
-    const requiredFields = ['countryCode', 'templateName', 'fromEmail', 'emailSubject', 'effectiveFromDate', 'effectiveToDate']
+    const requiredFields = ['countryCode', 'verificationPartnerDescription', 'effectiveFromDate', 'effectiveToDate']
 
     requiredFields.forEach((field) => {
       if (!form[field as keyof typeof form]) {
-        newErrors[field] = 'This field is required'
+        newErrors[field] = 'Required'
       }
     })
-
-    if (form.fromEmail && !/\S+@\S+\.\S+/.test(form.fromEmail)) {
-      newErrors.fromEmail = 'Invalid email format'
-    }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -82,15 +72,9 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
   const handleSubmit = () => {
     if (validate()) {
       const cleanPayload = {
+        // verificationPartnerCode: form.verificationPartnerCode,
         countryCode: form.countryCode,
-        templateCode: form.templateCode,
-        templateName: form.templateName,
-        emailSubject: form.emailSubject,
-        emailBodyHtml: form.emailBodyHtml,
-        emailBodyText: form.emailBodyText,
-        fromName: form.fromName,
-        fromEmail: form.fromEmail,
-        emailTemplateDescription: form.emailTemplateDescription || 'Email Template',
+        verificationPartnerDescription: form.verificationPartnerDescription,
         active: form.active,
         effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
         effectiveToDate: `${form.effectiveToDate}T23:59:59`,
@@ -100,20 +84,19 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
   }
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle sx={{ fontWeight: 'bold' }}>{editData ? 'Edit Email Template' : 'Add Email Template'}</DialogTitle>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle sx={{ fontWeight: 'bold' }}>{editData ? 'Edit Verification Partner' : 'Add Verification Partner'}</DialogTitle>
 
       <DialogContent dividers>
         <Grid container spacing={2} sx={{ mt: 0.5 }}>
-          {/* Searchable Country Autocomplete */}
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12}>
             <Autocomplete
               options={countries || []}
               filterOptions={filter}
               getOptionLabel={(option) => `${option.countryName} (${option.countryCode})`}
               value={countries?.find((c) => c.countryCode === form.countryCode) || null}
               disabled={!!editData}
-              onChange={(_event, newValue) => {
+              onChange={(_, newValue) => {
                 setForm({ ...form, countryCode: newValue ? newValue.countryCode : '' })
                 if (errors.countryCode) setErrors({ ...errors, countryCode: '' })
               }}
@@ -123,72 +106,36 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
             />
           </Grid>
 
-          {/* <Grid item xs={12} sm={6}>
+          {/* <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Template Code"
-              name="templateCode"
-              value={form.templateCode}
+              label="Partner Code"
+              name="verificationPartnerCode"
+              value={form.verificationPartnerCode}
               onChange={handleChange}
-              error={!!errors.templateCode}
-              helperText={errors.templateCode}
+              error={!!errors.verificationPartnerCode}
+              helperText={errors.verificationPartnerCode}
               disabled={!!editData}
             />
           </Grid> */}
 
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Template Name"
-              name="templateName"
-              value={form.templateName}
-              onChange={handleChange}
-              error={!!errors.templateName}
-              helperText={errors.templateName}
-            />
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextField fullWidth label="From Name" name="fromName" value={form.fromName} onChange={handleChange} />
-          </Grid>
-
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="From Email"
-              name="fromEmail"
-              value={form.fromEmail}
+              label="Partner Description"
+              name="verificationPartnerDescription"
+              value={form.verificationPartnerDescription}
               onChange={handleChange}
-              error={!!errors.fromEmail}
-              helperText={errors.fromEmail}
+              error={!!errors.verificationPartnerDescription}
+              helperText={errors.verificationPartnerDescription}
             />
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Subject"
-              name="emailSubject"
-              value={form.emailSubject}
-              onChange={handleChange}
-              error={!!errors.emailSubject}
-              helperText={errors.emailSubject}
-            />
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextField fullWidth multiline rows={4} label="HTML Body" name="emailBodyHtml" value={form.emailBodyHtml} onChange={handleChange} />
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextField fullWidth multiline rows={2} label="Text Body" name="emailBodyText" value={form.emailBodyText} onChange={handleChange} />
           </Grid>
 
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               type="date"
-              label="From Date"
+              label="Effective From"
               name="effectiveFromDate"
               InputLabelProps={{ shrink: true }}
               value={form.effectiveFromDate}
@@ -201,7 +148,7 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
             <TextField
               fullWidth
               type="date"
-              label="To Date"
+              label="Effective To"
               name="effectiveToDate"
               InputLabelProps={{ shrink: true }}
               value={form.effectiveToDate}
@@ -216,8 +163,9 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
           </Grid>
         </Grid>
       </DialogContent>
-      {/* <p style={{ textAlign: 'center', color: 'red' }}>{errMassage ? errMassage : ''}</p> */}
+
       <ErrorMessage errMessage={errMassage} />
+
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={onClose} sx={{ color: 'grey.600' }}>
           CANCEL

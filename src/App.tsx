@@ -71,6 +71,7 @@ import ForexCountryMaster from './pages/forex-country'
 import WhatsappTemplateManagement from './pages/whatsAppTemplateMaster'
 import SmsTemplateManagement from './pages/smsTemplateMaster'
 import EmailTemplateManagement from './pages/emailTemplateMaster'
+import VerificationPartnerManagement from './pages/verification-partner'
 import TermsConditionsPage from './pages/termscondition'
 
 function App() {
@@ -216,7 +217,8 @@ function App() {
               <Route path="whatsapp" element={<WhatsappTemplateManagement />} />
               <Route path="smsmanegement" element={<SmsTemplateManagement />} />
               <Route path="email-manegement" element={<EmailTemplateManagement />} />
-              {/* EmailTemplateManagement */}
+              <Route path="verification-partner" element={<VerificationPartnerManagement />} />
+              {/* VerificationPartnerManagement */}
               <Route path="subservice" element={<SubServiceManagement />} />
               <Route path="channel" element={<ChannelManagement />} />
               <Route path="screen" element={<ScreenMaster />} />
@@ -228,8 +230,8 @@ function App() {
               <Route path="business-railand-partner" element={<CountryBusinessPayoutPartner />} />
               <Route path="email-template" element={<EmailTemplateMasterPage />} />
               <Route path="business-railand-partner" element={<CountryBusinessPayoutPartner />} />
-        <Route path="forex-currency-master" element={<ForexCurrencyMaster />} />
-                <Route path="forex-country-master" element={<ForexCountryMaster />} />
+              <Route path="forex-currency-master" element={<ForexCurrencyMaster />} />
+              <Route path="forex-country-master" element={<ForexCountryMaster />} />
                   <Route path="terms-condition" element={<TermsConditionsPage />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
