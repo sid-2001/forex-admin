@@ -72,7 +72,7 @@ import Inventory2Icon from '@mui/icons-material/Inventory2'
 import ReportIcon from '@mui/icons-material/Report'
 import ReportOffIcon from '@mui/icons-material/ReportOff'
 // import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
 import { FolderIcon, LanguagesIcon, Menu, SettingsIcon } from 'lucide-react'
 import WebIcon from '@mui/icons-material/Web'
 const Item = styled(Paper)(({ theme }) => ({
@@ -276,14 +276,14 @@ const MASTER_MENU = [
     icon: <CardMembershipRounded fontSize="small" />,
     path: 'business-railand-partner',
   },
-    {
+  {
     label: 'Forex Currency',
     name: 'Forex Currency',
     icon: <AttachMoneyIcon fontSize="small" />,
     path: 'forex-currency-master',
   },
-  
-     {
+
+  {
     label: 'Forex Country',
     name: 'Forex Country',
     icon: <LanguageIcon fontSize="small" />,
@@ -302,18 +302,24 @@ const MASTER_MENU = [
     path: 'whatsapp',
   },
   {
-    label: 'Sms manegement Master',
+    label: 'Sms Master',
     name: 'Sms manegement master',
     icon: <WebIcon fontSize="small" />,
     path: 'smsmanegement',
   },
   {
-    label: 'Email manegement Master',
+    label: 'Email Master',
     name: 'Email manegement master',
     icon: <WebIcon fontSize="small" />,
     path: 'email-manegement',
   },
-  // smsmanegement
+  {
+    label: 'Verification Master',
+    name: 'Email manegement master',
+    icon: <WebIcon fontSize="small" />,
+    path: 'verification-partner',
+  },
+  // verification-partner
 ]
 
 // const chunkArray = (arr: any[], size: number) => {
