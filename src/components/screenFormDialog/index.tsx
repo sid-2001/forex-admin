@@ -7,121 +7,169 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
-  InputLabel,
-  Select,
-  MenuItem,
-  Typography,
-  FormControl,
-  FormHelperText,
+  Grid,
+  Autocomplete,
+  createFilterOptions,
 } from '@mui/material'
 import { useState, useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
 
-interface Props {
-  open: boolean
-  onClose: () => void
-  onSubmit: (data: any) => void
-  editData?: any
-}
+const filter = createFilterOptions({
+  matchFrom: 'any',
+  stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
+})
 
-export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: Props) {
-  const [screencode, setScreencode] = useState('')
-  const [description, setDescription] = useState('')
-  const [active, setActive] = useState(true)
-  const [selectedCountry, setSelectedCountry] = useState<string>('')
+export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: any) {
   const [countries] = useRecoilState(countyState)
+  const [form, setForm] = useState({
+    screencode: '',
+    description: '',
+    selectedCountry: '',
+    fromDate: '',
+    toDate: '',
+    active: true,
+  })
 
-  const [errors, setErrors] = useState<{ [key: string]: boolean }>({})
+  const [errors, setErrors] = useState<any>({})
 
   useEffect(() => {
-    if (editData) {
-      setScreencode(editData.screencode)
-      setDescription(editData.screendescription)
-      setActive(editData.active)
-      setSelectedCountry(editData.countrycode)
+    if (editData && open) {
+      const rawFrom = editData.effectivefromdate || editData.effectiveFromDate || ''
+      const rawTo = editData.effectivetodate || editData.effectiveToDate || ''
+
+      const formattedFrom = rawFrom.includes('T') ? rawFrom.split('T')[0] : rawFrom
+      const formattedTo = rawTo.includes('T') ? rawTo.split('T')[0] : rawTo
+
+      setForm({
+        screencode: editData.screencode || '',
+        description: editData.screendescription || '',
+        selectedCountry: editData.countrycode || '',
+        fromDate: formattedFrom,
+        toDate: formattedTo,
+        active: editData.active ?? true,
+      })
     } else {
-      setScreencode('')
-      setDescription('')
-      setActive(true)
-      setSelectedCountry('')
+      setForm({
+        screencode: '',
+        description: '',
+        selectedCountry: '',
+        fromDate: '',
+        toDate: '',
+        active: true,
+      })
     }
     setErrors({})
   }, [editData, open])
 
   const handleSubmit = () => {
-    const newErrors: { [key: string]: boolean } = {
-      screencode: !screencode.trim(),
-      description: !description.trim(),
-      selectedCountry: !selectedCountry,
-    }
+    const newErrors: any = {}
+    if (!form.screencode.trim()) newErrors.screencode = 'Required'
+    if (!form.description.trim()) newErrors.description = 'Required'
+    if (!form.selectedCountry) newErrors.selectedCountry = 'Required'
+    if (!form.fromDate) newErrors.fromDate = 'Required'
+    if (!form.toDate) newErrors.toDate = 'Required'
 
     setErrors(newErrors)
+    if (Object.keys(newErrors).length > 0) return
 
-    if (Object.values(newErrors).some((error) => error)) {
+    if (new Date(form.toDate) < new Date(form.fromDate)) {
+      onSubmit({ validationError: 'End Date cannot be less than Start Date' })
       return
     }
 
     onSubmit({
-      screencode,
-      screendescription: description,
-      active,
-      selectedCountry,
+      screencode: form.screencode,
+      screendescription: form.description,
+      active: form.active,
+      selectedCountry: form.selectedCountry,
+      fromDate: form.fromDate,
+      toDate: form.toDate,
     })
   }
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth>
-      <DialogTitle>{editData ? 'Update Screen' : 'Add Screen'}</DialogTitle>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update Screen' : 'Add Screen'}</DialogTitle>
 
-      <DialogContent>
-        <TextField
-          label="Screen Code"
-          fullWidth
-          margin="normal"
-          value={screencode}
-          disabled={!!editData}
-          onChange={(e) => setScreencode(e.target.value)}
-          error={errors.screencode}
-          helperText={errors.screencode ? 'Screen Code is required' : ''}
-        />
+      <DialogContent dividers>
+        <Grid container spacing={2} sx={{ mt: 0.5 }}>
+          <Grid item xs={12}>
+            <Autocomplete
+              options={countries?.filter((c) => c.status === 'A') || []}
+              filterOptions={filter}
+              getOptionLabel={(o) => `${o.countryName} (${o.countryCode})`}
+              value={countries?.find((c) => c.countryCode === form.selectedCountry) || null}
+              disabled={!!editData}
+              onChange={(_, val) => setForm({ ...form, selectedCountry: val ? val.countryCode : '' })}
+              renderInput={(p) => (
+                <TextField {...p} label="Destination Country" error={!!errors.selectedCountry} helperText={errors.selectedCountry} />
+              )}
+            />
+          </Grid>
 
-        <TextField
-          label="Description"
-          fullWidth
-          margin="normal"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          error={errors.description}
-          helperText={errors.description ? 'Description is required' : ''}
-        />
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Screen Code"
+              disabled={!!editData}
+              value={form.screencode}
+              onChange={(e) => setForm({ ...form, screencode: e.target.value })}
+              error={!!errors.screencode}
+              helperText={errors.screencode}
+            />
+          </Grid>
 
-        <FormControl fullWidth margin="normal" error={errors.selectedCountry}>
-          <InputLabel>Destination Country</InputLabel>
-          <Select
-            value={selectedCountry}
-            disabled={!!editData}
-            onChange={(e) => setSelectedCountry(e.target.value as string)}
-            label="Destination Country"
-          >
-            {countries
-              ?.filter((item) => item.status === 'A')
-              .map((country) => (
-                <MenuItem 
-                //@ts-ignore
-                key={country?.countryCode} value={country.countryCode}>
-                  {country?.countryName}
-                </MenuItem>
-              ))}
-          </Select>
-          {errors.selectedCountry && <FormHelperText>Please select a country</FormHelperText>}
-        </FormControl>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Description"
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              error={!!errors.description}
+              helperText={errors.description}
+            />
+          </Grid>
 
-        <FormControlLabel sx={{ mt: 1 }} control={<Checkbox checked={active} onChange={(e) => setActive(e.target.checked)} />} label="Active" />
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              type="date"
+              label="Effective From"
+              InputLabelProps={{ shrink: true }}
+              value={form.fromDate}
+              onChange={(e) => setForm({ ...form, fromDate: e.target.value })}
+              error={!!errors.fromDate}
+              helperText={errors.fromDate}
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              type="date"
+              label="Effective To"
+              InputLabelProps={{ shrink: true }}
+              value={form.toDate}
+              onChange={(e) => setForm({ ...form, toDate: e.target.value })}
+              error={!!errors.toDate}
+              helperText={errors.toDate}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={<Checkbox checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />}
+              label="Active Status"
+            />
+          </Grid>
+        </Grid>
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+      <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+        <Button onClick={onClose} color="inherit">
+          Cancel
+        </Button>
         <Button variant="contained" onClick={handleSubmit}>
           {editData ? 'Update' : 'Create'}
         </Button>

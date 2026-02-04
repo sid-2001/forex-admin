@@ -319,6 +319,12 @@ const MASTER_MENU = [
     icon: <WebIcon fontSize="small" />,
     path: 'verification-partner',
   },
+  {
+    label: 'Country Kyc Master',
+    name: 'Country Kyc master',
+    icon: <WebIcon fontSize="small" />,
+    path: 'country-Kyc-doc-management',
+  },
   // verification-partner
 ]
 
