@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import { Box, Button, IconButton, Stack } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
@@ -18,80 +18,61 @@ export default function ScreenMaster() {
   const [type, settype] = useRecoilState(alertTypeState)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [selectedRow, setSelectedRow] = useState<any>(null)
-  const local_service = new LocalStorageService()
   const [editData, setEditData] = useState<Screen | null>(null)
-  const screen_service = new ScreenService()
 
-  const fetchData = async () => {
+  const local_service = useMemo(() => new LocalStorageService(), [])
+  const screen_service = useMemo(() => new ScreenService(), [])
+
+  const fetchData = useCallback(async () => {
     const res = await screen_service.getScreenList()
-    // Assuming res returns an array or an object with a data array
-    //@ts-ignore
-    setRows(Array.isArray(res) ? res : res?.data || [])
-  }
+    // Normalizing API response
+    const responseData = res?.data || res
+    setRows(Array.isArray(responseData) ? responseData : [])
+  }, [screen_service])
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [fetchData])
 
-  const handleCreate = async (data: any) => {
-    const response = await screen_service.createScreen({
+  const showAlert = (alertType: 'Success' | 'Fail', alertText: string) => {
+    settype(alertType)
+    setText(alertText)
+    setOpen(true)
+  }
+
+  const handleAction = async (data: any, isUpdate: boolean) => {
+    if (data.validationError) {
+      showAlert('Fail', data.validationError)
+      return
+    }
+
+    const payload = {
       applicant_id: local_service?.get_staff_id() || 'admin',
       screencode: data.screencode,
       screendescription: data.screendescription,
       countrycode: data.selectedCountry,
       active: data.active,
-    })
-
-    //@ts-ignore
-    if (response?.success === true) {
-      setOpen(true)
-      settype('Success')
-      setText('Screen Created Successfully')
-    } else {
-      setOpen(true)
-      settype('Fail')
-      setText('Server Error')
+      effectiveFromDate: `${data.fromDate}T00:00:00.000Z`,
+      effectivefromdate: `${data.fromDate}T00:00:00.000Z`,
+      effectiveToDate: `${data.toDate}T23:59:59.000Z`,
+      effectivetodate: `${data.toDate}T23:59:59.000Z`,
     }
-    setDialogopen(false)
-    fetchData()
-  }
 
-  const handleUpdate = async (data: any) => {
-    const response = await screen_service.updateScreen({
-      applicant_id: local_service?.get_staff_id() || 'admin_user',
-      screencode: data.screencode,
-      countrycode: data.selectedCountry,
-      screendescription: data.screendescription,
-      active: data.active,
-    })
+    console.log('Sending Payload:', payload)
 
-    //@ts-ignore
-    if (response?.success === true) {
-      setOpen(true)
-      settype('Success')
-      setText('Screen Updated Successfully')
-    } else {
-      setOpen(true)
-      settype('Fail')
-      setText('Server Error')
+    try {
+      const response = isUpdate ? await screen_service.updateScreen(payload) : await screen_service.createScreen(payload)
+
+      if (response?.success === true || response?.status === 'Success') {
+        showAlert('Success', `Screen ${isUpdate ? 'Updated' : 'Created'} Successfully`)
+        setDialogopen(false)
+        fetchData()
+      } else {
+        showAlert('Fail', response?.message || 'Server Error (Check naming conventions)')
+      }
+    } catch (err) {
+      showAlert('Fail', 'Network or Server Error')
     }
-    setEditData(null)
-    setDialogopen(false)
-    fetchData()
-  }
-
-  //   const handleDelete = async (row: any) => {
-  //     if (window.confirm('Are you sure?')) {
-  //       await screen_service.deleteScreen({
-  //         screencode: row.screencode,
-  //         countrycode: row.countrycode,
-  //       })
-  //       fetchData()
-  //     }
-  //   }
-  const handleDeleteClick = (row: any) => {
-    setSelectedRow(row)
-    setDeleteModalOpen(true)
   }
 
   const handleConfirmDelete = async () => {
@@ -100,77 +81,63 @@ export default function ScreenMaster() {
         screencode: selectedRow.screencode,
         countrycode: selectedRow.countrycode,
       })
-
-      // Show Alert (Optional)
-      setOpen(true)
-      settype('Success')
-      setText('Screen Deleted Successfully')
-
+      showAlert('Success', 'Screen Deleted Successfully')
       setDeleteModalOpen(false)
       fetchData()
     }
   }
 
   const columns: GridColDef[] = [
+    { field: 'screencode', headerName: 'Screen Code', flex: 0.6, headerClassName: 'super-app-theme--header' },
+    { field: 'screendescription', headerName: 'Description', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'countrycode', headerName: 'Country', flex: 0.5, headerClassName: 'super-app-theme--header' },
     {
-      field: 'screencode',
-      headerName: 'Screen Code',
-      flex: 0.5,
+      field: 'effectivefromdate',
+      headerName: 'From Date',
+      flex: 0.7,
       headerClassName: 'super-app-theme--header',
+      valueFormatter: (params) => (params?.value ? params.value.split('T')[0] : ''),
     },
     {
-      field: 'screendescription',
-      headerName: 'Description',
-      flex: 1,
+      field: 'effectivetodate',
+      headerName: 'To Date',
+      flex: 0.7,
       headerClassName: 'super-app-theme--header',
+      valueFormatter: (params) => (params?.value ? params.value.split('T')[0] : ''),
     },
-    {
-      field: 'countrycode',
-      headerName: 'Country',
-      flex: 0.5,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'active',
-      headerName: 'Active',
-      width: 120,
-      renderCell: (params) => (params.value ? 'Yes' : 'No'),
-      headerClassName: 'super-app-theme--header',
-    },
+    { field: 'active', headerName: 'Active', width: 100, renderCell: (p) => (p.value ? 'Yes' : 'No'), headerClassName: 'super-app-theme--header' },
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 150,
+      width: 120,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
-        <>
+        <Stack direction="row" spacing={1}>
           <IconButton
             onClick={() => {
               setEditData(params.row)
               setDialogopen(true)
             }}
+            color="primary"
           >
             <EditIcon />
           </IconButton>
-
-          <IconButton onClick={() => handleDeleteClick(params.row)}>
-            <DeleteIcon color="error" />
-          </IconButton>
-        </>
+          {/* <IconButton
+            onClick={() => {
+              setSelectedRow(params.row)
+              setDeleteModalOpen(true)
+            }}
+            color="error"
+          >
+            <DeleteIcon />
+          </IconButton> */}
+        </Stack>
       ),
     },
   ]
 
   return (
-    <Box
-      p={2}
-      sx={{
-        width: '80vw',
-        '& .super-app-theme--header': {
-          backgroundColor: 'rgba(0, 0, 0, 0.05)',
-        },
-      }}
-    >
+    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { backgroundColor: 'rgba(0, 0, 0, 0.05)', fontWeight: 'bold' } }}>
       <Stack direction="row" justifyContent="space-between" mb={2}>
         <Button
           variant="contained"
@@ -183,14 +150,22 @@ export default function ScreenMaster() {
         </Button>
       </Stack>
 
-      <DataGrid rows={rows} columns={columns} getRowId={(row) => `${row.screencode}-${row.countrycode}`} autoHeight pageSizeOptions={[5, 10]} />
+      <div style={{ height: 600, width: '100%' }}>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={(row) => `${row.screencode}-${row.countrycode}`}
+          initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+        />
+      </div>
 
       <ScreenFormDialog
         open={dialogopen}
         onClose={() => setDialogopen(false)}
         editData={editData}
-        onSubmit={editData ? handleUpdate : handleCreate}
+        onSubmit={(data: any) => handleAction(data, !!editData)}
       />
+
       <ConfirmModal
         open={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}

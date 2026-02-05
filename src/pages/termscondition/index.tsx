@@ -13,7 +13,10 @@ import {
   Divider,
   TextField,
   Switch,
-  FormControlLabel
+  FormControlLabel,
+  Select,
+  MenuItem,
+  InputLabel
 } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import ReactQuill from "react-quill";
@@ -21,6 +24,11 @@ import "react-quill/dist/quill.snow.css";
 import TermsConditionsService, {
   TermsConditions
 } from "../../services/termsandcondition.service";
+import { countyState } from "@/states/state";
+import { useRecoilState } from "recoil";
+import staticdataService from "@/services/staticdata.service";
+import { LocalStorageService } from "@/helpers/local-storage-service";
+import ChannelService from "@/services/channel.servive";
 
 const termsService = new TermsConditionsService();
 
@@ -66,13 +74,14 @@ const QuillToolbar = () => (
 export default function TermsConditionsGridPage() {
   const [rows, setRows] = useState<TermsConditions[]>([]);
   const [loading, setLoading] = useState(true);
-
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<TermsConditions | null>(null);
-
+  const [selectedCountry, setSelectedCountry] = useState<string>('')
+   const [selectedChannel, setSelectedChannel] = useState<string>('')
   const [versions, setVersions] = useState<any[]>([]);
   const [editorValue, setEditorValue] = useState("");
-
+ const [countries, setCountries] = useRecoilState(countyState)
+  const [channels, setChannels] = useState([])
   const [form, setForm] = useState({
     countryCode: "",
     channel: "",
@@ -84,6 +93,12 @@ export default function TermsConditionsGridPage() {
     effectiveFromDate: "",
     effectiveToDate: "9999-12-31T00:00:00"
   });
+  const local_service = new LocalStorageService()
+    const userCountry = local_service?.get_staff_country()
+
+  const static_service = new staticdataService()
+  
+  
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -99,8 +114,94 @@ export default function TermsConditionsGridPage() {
 
   useEffect(() => {
     loadData();
+    fetchchannel()
   }, []);
 
+
+    const handleCountryChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+      const countryCode = event.target.value as string
+  
+      setSelectedCountry(countryCode)
+  
+      // Find the selected country
+      const selected = countries.find((country) => country.countryCode == countryCode)
+      console.log('selected', selected)
+  
+      static_service.getCountryCurrency(selected?.countryCode).then((data) => {
+        //@ts-ignore
+  
+        console.log(data)
+        //@ts-ignore
+        setCurrency(data?.currencyCode)
+  
+        if (selected) {
+          console.log(userCurrency)
+          console.log(data)
+          transaction_service
+            .getForexRate(
+              //@ts-ignore
+              userCurrency?.currencyCode,
+              //@ts-ignore
+              data?.currencyCode,
+            )
+            .then((data) => {
+              console.log(data)
+              setForexRate(data)
+            })
+          //@ts-ignore
+          // setCurrency(selected.currency)
+          //@ts-ignore
+          
+          setsendCountry(selected.countryCode)
+          //@ts-ignore
+          setSourceCountry(userCurrency?.currencyCode)
+        }
+      })
+    }
+
+       const handleChannelChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+      const channecode = event.target.value as string
+  
+     setSelectedChannel(channecode)
+  
+      // Find the selected country
+      const selected = channels.find((country) => country.countryCode == countryCode)
+      console.log('selected', selected)
+  
+      static_service.getCountryCurrency(selected?.countryCode).then((data) => {
+        //@ts-ignore
+  
+        console.log(data)
+        //@ts-ignore
+        setCurrency(data?.currencyCode)
+  
+        if (selected) {
+          console.log(userCurrency)
+          console.log(data)
+          transaction_service
+            .getForexRate(
+              //@ts-ignore
+              userCurrency?.currencyCode,
+              //@ts-ignore
+              data?.currencyCode,
+            )
+            .then((data) => {
+              console.log(data)
+              setForexRate(data)
+            })
+          //@ts-ignore
+          // setCurrency(selected.currency)
+          //@ts-ignore
+          
+          setsendCountry(selected.countryCode)
+          //@ts-ignore
+          setSourceCountry(userCurrency?.currencyCode)
+        }
+      })
+    }
+
+
+  
   const loadData = async () => {
     try {
       setLoading(true);
@@ -112,6 +213,24 @@ export default function TermsConditionsGridPage() {
     }
   };
 
+
+  const fetchchannel = async () => {
+    try {
+      const channel_service=new ChannelService()
+      setLoading(true);
+      channel_service.getChannelList().then(data=>{
+        console.log(data)
+ setChannels(data.data)
+
+      })
+    
+      // setRows(await termsService.getAll());
+    } catch {
+      showError("Failed to load Terms");
+    } finally {
+      setLoading(false);
+    }
+  };
   /* ---------- VIEW / EDIT ---------- */
   const handleView = (row: TermsConditions) => {
     const parsed = parseJsonContent(row.jsonContent);
@@ -252,11 +371,30 @@ export default function TermsConditionsGridPage() {
 
         <DialogContent dividers>
           <Stack spacing={2}>
-            <TextField
-              label="Country Code"
-              value={form.countryCode}
-              onChange={e => setForm({ ...form, countryCode: e.target.value })}
-            />
+            <InputLabel>Destination Country</InputLabel>
+                             <Select
+                               value={selectedCountry}
+                               //@ts-ignore
+                               onChange={handleCountryChange}
+                               displayEmpty
+                             >
+                               {
+                                 //(userCountry === 'IN' ? countries : countries)
+                                 countries
+                                   ?.filter((item) => item.status === 'A' && item.countryCode !== userCountry)
+                                   .map((country) => (
+                                     <MenuItem
+                                       //@ts-ignore
+                                       key={country?.countryCode}
+                                       value={country.countryCode}
+                                     >
+                                       <div style={{ display: 'flex', alignItems: 'center' }}>
+                                         <Typography>{country?.countryName}</Typography>
+                                       </div>
+                                     </MenuItem>
+                                   ))
+                               }
+                             </Select>
             <TextField
               label="Channel"
               value={form.channel}

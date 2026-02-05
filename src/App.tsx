@@ -72,6 +72,7 @@ import WhatsappTemplateManagement from './pages/whatsAppTemplateMaster'
 import SmsTemplateManagement from './pages/smsTemplateMaster'
 import EmailTemplateManagement from './pages/emailTemplateMaster'
 import VerificationPartnerManagement from './pages/verification-partner'
+import CountryKycDocManagement from './pages/country-kyc-doc'
 import TermsConditionsPage from './pages/termscondition'
 
 function App() {
@@ -218,7 +219,8 @@ function App() {
               <Route path="smsmanegement" element={<SmsTemplateManagement />} />
               <Route path="email-manegement" element={<EmailTemplateManagement />} />
               <Route path="verification-partner" element={<VerificationPartnerManagement />} />
-              {/* VerificationPartnerManagement */}
+              <Route path="country-Kyc-doc-management" element={<CountryKycDocManagement />} />
+              {/* CountryKycDocManagement */}
               <Route path="subservice" element={<SubServiceManagement />} />
               <Route path="channel" element={<ChannelManagement />} />
               <Route path="screen" element={<ScreenMaster />} />
