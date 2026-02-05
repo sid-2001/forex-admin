@@ -10,7 +10,7 @@ export interface Screen {
 }
 
 export default class ScreenService extends BaseService {
-  async getScreenList(): Promise<Screen[]> {
+  async getScreenList(p0: (e: any) => void): Promise<Screen[]> {
     const url = '/api/bop/screen/getAllscreens'; 
     try {
       const { data } = await api1.get(url);

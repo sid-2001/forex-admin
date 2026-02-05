@@ -73,7 +73,7 @@ import ReportIcon from '@mui/icons-material/Report'
 import ReportOffIcon from '@mui/icons-material/ReportOff'
 // import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
-import { FolderIcon, LanguagesIcon, Menu, SettingsIcon } from 'lucide-react'
+import { FolderIcon, GavelIcon, LanguagesIcon, Menu, SettingsIcon } from 'lucide-react'
 import WebIcon from '@mui/icons-material/Web'
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
@@ -324,6 +324,12 @@ const MASTER_MENU = [
     name: 'Country Kyc master',
     icon: <WebIcon fontSize="small" />,
     path: 'country-Kyc-doc-management',
+  },
+    {
+    label: 'Terms and Condition',
+    name: 'Terms and Condition',
+    icon: <GavelIcon fontSize="small" />,
+    path: 'terms-condition',
   },
   // verification-partner
 ]

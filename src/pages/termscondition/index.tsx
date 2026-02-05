@@ -16,7 +16,9 @@ import {
   FormControlLabel,
   Select,
   MenuItem,
-  InputLabel
+  InputLabel,
+  FormControl,
+  Grid
 } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import ReactQuill from "react-quill";
@@ -29,6 +31,7 @@ import { useRecoilState } from "recoil";
 import staticdataService from "@/services/staticdata.service";
 import { LocalStorageService } from "@/helpers/local-storage-service";
 import ChannelService from "@/services/channel.servive";
+import ScreenService from "@/services/screen.service";
 
 const termsService = new TermsConditionsService();
 
@@ -76,12 +79,14 @@ export default function TermsConditionsGridPage() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<TermsConditions | null>(null);
-  const [selectedCountry, setSelectedCountry] = useState<string>('')
-   const [selectedChannel, setSelectedChannel] = useState<string>('')
+  const [selectedCountry, setSelectedCountry] = useState<string>('');
+  const [selectedChannel, setSelectedChannel] = useState<string>('');
+  const [screens, setScreens] = useState([]);
+  const [selectedScreen, setSelectedScreen] = useState<string>('');
   const [versions, setVersions] = useState<any[]>([]);
   const [editorValue, setEditorValue] = useState("");
- const [countries, setCountries] = useRecoilState(countyState)
-  const [channels, setChannels] = useState([])
+  const [countries, setCountries] = useRecoilState(countyState);
+  const [channels, setChannels] = useState([]);
   const [form, setForm] = useState({
     countryCode: "",
     channel: "",
@@ -93,12 +98,10 @@ export default function TermsConditionsGridPage() {
     effectiveFromDate: "",
     effectiveToDate: "9999-12-31T00:00:00"
   });
-  const local_service = new LocalStorageService()
-    const userCountry = local_service?.get_staff_country()
-
-  const static_service = new staticdataService()
   
-  
+  const local_service = new LocalStorageService();
+  const userCountry = local_service?.get_staff_country();
+  const static_service = new staticdataService();
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -114,94 +117,31 @@ export default function TermsConditionsGridPage() {
 
   useEffect(() => {
     loadData();
-    fetchchannel()
+    fetchScreens();
+    fetchchannel();
   }, []);
 
+  const handleCountryChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    const countryCode = event.target.value as string;
+    setSelectedCountry(countryCode);
+    const selectedCountryObj = countries.find((country) => country.countryCode == countryCode);
+    console.log('selected', selectedCountryObj);
+  };
 
-    const handleCountryChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-      const countryCode = event.target.value as string
-  
-      setSelectedCountry(countryCode)
-  
-      // Find the selected country
-      const selected = countries.find((country) => country.countryCode == countryCode)
-      console.log('selected', selected)
-  
-      static_service.getCountryCurrency(selected?.countryCode).then((data) => {
-        //@ts-ignore
-  
-        console.log(data)
-        //@ts-ignore
-        setCurrency(data?.currencyCode)
-  
-        if (selected) {
-          console.log(userCurrency)
-          console.log(data)
-          transaction_service
-            .getForexRate(
-              //@ts-ignore
-              userCurrency?.currencyCode,
-              //@ts-ignore
-              data?.currencyCode,
-            )
-            .then((data) => {
-              console.log(data)
-              setForexRate(data)
-            })
-          //@ts-ignore
-          // setCurrency(selected.currency)
-          //@ts-ignore
-          
-          setsendCountry(selected.countryCode)
-          //@ts-ignore
-          setSourceCountry(userCurrency?.currencyCode)
-        }
-      })
-    }
+  const handleChannelChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    const channelCode = event.target.value as string;
+    setSelectedChannel(channelCode);
+    const selectedChannelObj = channels.find((channel) => channel.channel_code == channelCode);
+    console.log('selected', selectedChannelObj);
+  };
 
-       const handleChannelChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-      const channecode = event.target.value as string
-  
-     setSelectedChannel(channecode)
-  
-      // Find the selected country
-      const selected = channels.find((country) => country.countryCode == countryCode)
-      console.log('selected', selected)
-  
-      static_service.getCountryCurrency(selected?.countryCode).then((data) => {
-        //@ts-ignore
-  
-        console.log(data)
-        //@ts-ignore
-        setCurrency(data?.currencyCode)
-  
-        if (selected) {
-          console.log(userCurrency)
-          console.log(data)
-          transaction_service
-            .getForexRate(
-              //@ts-ignore
-              userCurrency?.currencyCode,
-              //@ts-ignore
-              data?.currencyCode,
-            )
-            .then((data) => {
-              console.log(data)
-              setForexRate(data)
-            })
-          //@ts-ignore
-          // setCurrency(selected.currency)
-          //@ts-ignore
-          
-          setsendCountry(selected.countryCode)
-          //@ts-ignore
-          setSourceCountry(userCurrency?.currencyCode)
-        }
-      })
-    }
+  const handleScreenChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    const screenCode = event.target.value as string;
+    setSelectedScreen(screenCode);
+    const selectedScreenObj = screens.find((screen) => screen.screencode == screenCode);
+    console.log('selected', selectedScreenObj);
+  };
 
-
-  
   const loadData = async () => {
     try {
       setLoading(true);
@@ -213,24 +153,35 @@ export default function TermsConditionsGridPage() {
     }
   };
 
-
-  const fetchchannel = async () => {
+  const fetchScreens = async () => {
     try {
-      const channel_service=new ChannelService()
+      const screen_service = new ScreenService();
+      screen_service.getScreenList().then((e) => {
+        setScreens(e);
+      });
       setLoading(true);
-      channel_service.getChannelList().then(data=>{
-        console.log(data)
- setChannels(data.data)
-
-      })
-    
-      // setRows(await termsService.getAll());
     } catch {
-      showError("Failed to load Terms");
+      showError("Failed to load Screens");
     } finally {
       setLoading(false);
     }
   };
+
+  const fetchchannel = async () => {
+    try {
+      const channel_service = new ChannelService();
+      setLoading(true);
+      channel_service.getChannelList().then(data => {
+        console.log(data);
+        setChannels(data);
+      });
+    } catch {
+      showError("Failed to load Channels");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   /* ---------- VIEW / EDIT ---------- */
   const handleView = (row: TermsConditions) => {
     const parsed = parseJsonContent(row.jsonContent);
@@ -240,16 +191,21 @@ export default function TermsConditionsGridPage() {
     setVersions(parsed.editorData || []);
     setEditorValue(active ? cleanHtml(active.data) : "");
 
+    // Update selected dropdowns
+    setSelectedCountry(row.countryCode || '');
+    setSelectedChannel(row.channel || '');
+    setSelectedScreen(row.screen || '');
+
     setForm({
-      countryCode: row.countryCode,
-      channel: row.channel,
-      screen: row.screen,
-      headerSectionCount: row.headerSectionCount,
+      countryCode: row.countryCode || '',
+      channel: row.channel || '',
+      screen: row.screen || '',
+      headerSectionCount: 23,
       contentCount: row.contentCount ?? 0,
       version: row.version,
       active: row.active,
-      effectiveFromDate: row.effectiveFromDate,
-      effectiveToDate: row.effectiveToDate
+      effectiveFromDate: row.effectiveFromDate || '',
+      effectiveToDate: row.effectiveToDate || "9999-12-31T00:00:00"
     });
 
     setOpen(true);
@@ -258,8 +214,17 @@ export default function TermsConditionsGridPage() {
   /* ---------- CREATE ---------- */
   const handleCreate = async () => {
     try {
+      // Validation
+      if (!selectedCountry || !selectedChannel || !selectedScreen || !form.effectiveFromDate) {
+        showError("Please fill all required fields");
+        return;
+      }
+
       const payload = {
         ...form,
+        countryCode: selectedCountry,
+        channel: selectedChannel,
+        screen: selectedScreen,
         jsonContent: JSON.stringify({
           editorData: [
             {
@@ -287,6 +252,12 @@ export default function TermsConditionsGridPage() {
     if (!selected) return;
 
     try {
+      // Validation
+      if (!selectedCountry || !selectedChannel || !selectedScreen || !form.effectiveFromDate) {
+        showError("Please fill all required fields");
+        return;
+      }
+
       const updatedVersions = versions.map(v => ({ ...v, active: false }));
       updatedVersions.push({
         id: `v${updatedVersions.length + 1}`,
@@ -298,6 +269,9 @@ export default function TermsConditionsGridPage() {
       await termsService.update(selected.termsCode!, {
         ...selected,
         ...form,
+        countryCode: selectedCountry,
+        channel: selectedChannel,
+        screen: selectedScreen,
         jsonContent: JSON.stringify({ editorData: updatedVersions }),
         modifiedBy: "ADMIN"
       });
@@ -312,14 +286,33 @@ export default function TermsConditionsGridPage() {
 
   /* ---------- GRID ---------- */
   const columns: GridColDef[] = [
-    { field: "termsCode", headerName: "Terms Code", flex: 1 },
-    { field: "countryCode", headerName: "Country", flex: 0.7 },
-    { field: "channel", headerName: "Channel", flex: 0.6 },
-    { field: "screen", headerName: "Screen", flex: 1 },
+    { field: "termsCode", headerName: "Terms Code", flex: 1, headerClassName: 'super-app-theme--header', },
+    { field: "countryCode", headerName: "Country", flex: 0.7, headerClassName: 'super-app-theme--header', },
+    { field: "channel", headerName: "Channel", flex: 0.6 , headerClassName: 'super-app-theme--header',},
+    { field: "screen", headerName: "Screen", flex: 1 , headerClassName: 'super-app-theme--header',},
+    // {
+    //   field: "effectiveFromDate",
+    //   headerName: "Effective From",
+    //   flex: 0.8,
+    //   valueFormatter: (params) => {
+    //     if (!params?.value) return '';
+    //     return(params?.value);
+    //   }
+    // },
+    // {
+    //   field: "effectiveToDate",
+    //   headerName: "Effective To",
+    //   flex: 0.8,
+    //   valueFormatter: (params) => {
+    //     if (!params.value || params.value === "9999-12-31T00:00:00") return 'N/A';
+    //     return (params.value)
+    //   }
+    // },
     {
       field: "action",
       headerName: "Action",
       flex: 1,
+       headerClassName: 'super-app-theme--header',
       renderCell: params => (
         <Button size="small" onClick={() => handleView(params.row)}>
           View / Edit
@@ -338,6 +331,9 @@ export default function TermsConditionsGridPage() {
             setSelected(null);
             setVersions([]);
             setEditorValue("");
+            setSelectedCountry('');
+            setSelectedChannel('');
+            setSelectedScreen('');
             setForm({
               countryCode: "",
               channel: "",
@@ -361,6 +357,14 @@ export default function TermsConditionsGridPage() {
         columns={columns}
         loading={loading}
         getRowId={r => r.termsCode!}
+         initialState={{
+    pagination: {
+      paginationModel: {
+        pageSize: 5,
+        page: 0,
+      },
+    },
+  }}
       />
 
       {/* ---------- DIALOG ---------- */}
@@ -370,42 +374,109 @@ export default function TermsConditionsGridPage() {
         </DialogTitle>
 
         <DialogContent dividers>
-          <Stack spacing={2}>
-            <InputLabel>Destination Country</InputLabel>
-                             <Select
-                               value={selectedCountry}
-                               //@ts-ignore
-                               onChange={handleCountryChange}
-                               displayEmpty
-                             >
-                               {
-                                 //(userCountry === 'IN' ? countries : countries)
-                                 countries
-                                   ?.filter((item) => item.status === 'A' && item.countryCode !== userCountry)
-                                   .map((country) => (
-                                     <MenuItem
-                                       //@ts-ignore
-                                       key={country?.countryCode}
-                                       value={country.countryCode}
-                                     >
-                                       <div style={{ display: 'flex', alignItems: 'center' }}>
-                                         <Typography>{country?.countryName}</Typography>
-                                       </div>
-                                     </MenuItem>
-                                   ))
-                               }
-                             </Select>
-            <TextField
-              label="Channel"
-              value={form.channel}
-              onChange={e => setForm({ ...form, channel: e.target.value })}
-            />
-            <TextField
-              label="Screen"
-              value={form.screen}
-              onChange={e => setForm({ ...form, screen: e.target.value })}
-            />
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            {/* Country Selection */}
+            <FormControl fullWidth>
+              <InputLabel>Destination Country *</InputLabel>
+              <Select
+                value={selectedCountry}
+                onChange={handleCountryChange}
+                label="Destination Country *"
+              >
+                {countries
+                  ?.filter((item) => item.status === 'A' && item.countryCode !== userCountry)
+                  .map((country) => (
+                    <MenuItem
+                      key={country.countryCode}
+                      value={country.countryCode}
+                    >
+                      <Typography>{country.countryName}</Typography>
+                    </MenuItem>
+                  ))}
+              </Select>
+            </FormControl>
 
+            {/* Channel Selection */}
+            <FormControl fullWidth>
+              <InputLabel>Channel *</InputLabel>
+              <Select
+                value={selectedChannel}
+                onChange={handleChannelChange}
+                label="Channel *"
+              >
+                {channels
+                  ?.filter((item) => item.active === true)
+                  .map((channel) => (
+                    <MenuItem
+                      key={channel.channel_code}
+                      value={channel.channel_code}
+                    >
+                      <Typography>{channel.channel_code}</Typography>
+                    </MenuItem>
+                  ))}
+              </Select>
+            </FormControl>
+
+            {/* Screen Selection */}
+            <FormControl fullWidth>
+              <InputLabel>Screen *</InputLabel>
+              <Select
+                value={selectedScreen}
+                onChange={handleScreenChange}
+                label="Screen *"
+              >
+                {screens
+                  ?.filter((item) => item.active === true)
+                  .map((screen) => (
+                    <MenuItem
+                      key={screen.screencode}
+                      value={screen.screencode}
+                    >
+                      <Typography>{screen.screencode}</Typography>
+                    </MenuItem>
+                  ))}
+              </Select>
+            </FormControl>
+
+            {/* Effective Date Fields */}
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <TextField
+                  fullWidth
+                  label="Effective From *"
+                  type="date"
+                  value={form.effectiveFromDate ? form.effectiveFromDate.split('T')[0] : ''}
+                  onChange={(e) => setForm({ ...form, effectiveFromDate: e.target.value + 'T00:00:00' })}
+                  InputLabelProps={{ shrink: true }}
+                  required
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  fullWidth
+                  label="Effective To"
+                  type="date"
+                  value={form.effectiveToDate && form.effectiveToDate !== "9999-12-31T00:00:00" 
+                    ? form.effectiveToDate.split('T')[0] 
+                    : ''}
+                  onChange={(e) => setForm({ 
+                    ...form, 
+                    effectiveToDate: e.target.value 
+                      ? e.target.value + 'T00:00:00' 
+                      : "9999-12-31T00:00:00" 
+                  })}
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{
+    min: form.effectiveFromDate
+      ? form.effectiveFromDate.split("T")[0]
+      : undefined,
+  }}
+               
+                />
+              </Grid>
+            </Grid>
+
+            {/* Active Switch */}
             <FormControlLabel
               control={
                 <Switch
@@ -420,6 +491,8 @@ export default function TermsConditionsGridPage() {
 
             <Divider />
 
+            {/* Rich Text Editor */}
+            <Typography variant="subtitle2">Content *</Typography>
             <QuillToolbar />
             <ReactQuill
               theme="snow"
@@ -442,12 +515,25 @@ export default function TermsConditionsGridPage() {
         </DialogActions>
       </Dialog>
 
+      {/* Centered Snackbar */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        sx={{ 
+          top: { xs: '10%', sm: '20%' },
+          '& .MuiAlert-root': {
+            fontSize: '0.9rem',
+            padding: '8px 16px'
+          }
+        }}
       >
-        <Alert severity={snackbar.severity} variant="filled">
+        <Alert 
+          severity={snackbar.severity} 
+          variant="filled"
+          elevation={6}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>
