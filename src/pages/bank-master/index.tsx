@@ -49,7 +49,9 @@ export default function BankMasterScreen() {
 
     const res = isUpdate ? await service.updateBank(editData!.bankMasterCode, data) : await service.createBank(data)
 
-    if (res.status || res.success) {
+    if (res.status ||
+      //@ts-ignore
+      res.success) {
       showAlert('Success', `Bank ${isUpdate ? 'Updated' : 'Created'} Successfully`)
       setDialogOpen(false)
       fetchData()

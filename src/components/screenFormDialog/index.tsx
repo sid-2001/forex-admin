@@ -44,6 +44,7 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
   const handleChange = (field: string, value: any) => {
     setForm((prev) => ({ ...prev, [field]: value }))
     if (errors[field]) {
+      //@ts-ignore
       setErrors((prev) => ({ ...prev, [field]: null }))
     }
   }

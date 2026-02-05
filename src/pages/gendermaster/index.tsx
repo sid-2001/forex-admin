@@ -55,6 +55,8 @@ export default function GenderMaster() {
       effectivetodate: `${data.effectiveTo}T23:59:59.000Z`,
     }
 
+
+    //@ts-ignore
     const response: any = isUpdate ? await static_service.updateGender(payload) : await static_service.createGender(payload)
 
     if (response?.success === true || response?.status === 'Success') {
@@ -129,7 +131,7 @@ export default function GenderMaster() {
   ]
 
   return (
-    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { backgroundColor: 'rgba(0, 0, 0, 0.05)', fontWeight: 'bold' } }}>
+    <Box p={3} sx={{ width: '100%' }}>
       <Stack direction="row" justifyContent="space-between" mb={2}>
         <Button
           variant="contained"

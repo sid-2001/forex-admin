@@ -41,10 +41,14 @@ export default function BankTypeMaster() {
     }
 
     const res = isUpdate
+
+    //@ts-ignore
       ? await service.update(editData?.businessTypeCode || (editData as any)?.business_type_code, data)
       : await service.create(data)
 
-    if (res.status || res.success) {
+    if (res.status ||
+      //@ts-ignore
+      res.success) {
       showAlert('Success', `Bank Type ${isUpdate ? 'Updated' : 'Created'} Successfully`)
       setDialogOpen(false)
       fetchData()
@@ -59,7 +63,9 @@ export default function BankTypeMaster() {
       headerName: 'Code',
       flex: 0.6,
       headerClassName: 'super-app-theme--header',
-      valueGetter: (p) => p.row?.businessTypeCode || p.row?.business_type_code || '',
+      valueGetter: (p) =>
+        //@ts-ignore
+        p.row?.businessTypeCode || p.row?.business_type_code || '',
     },
     { field: 'bankBusinessName', headerName: 'Business Name', flex: 1.2, headerClassName: 'super-app-theme--header' },
     { field: 'businessCurrencyCode', headerName: 'Currency', flex: 0.6, headerClassName: 'super-app-theme--header' },

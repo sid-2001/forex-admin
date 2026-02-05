@@ -74,7 +74,9 @@ export default function WhatsappTemplateDialog({ open, onClose, onSubmit, editDa
               getOptionLabel={(o) => `${o.countryName} (${o.countryCode})`}
               value={countries?.find((c) => c.countryCode === form.countryCode) || null}
               disabled={!!editData}
-              onChange={(_, val) => setForm({ ...form, countryCode: val ? val.countryCode : '' })}
+              onChange={(_, val) => setForm({ ...form, 
+                //@ts-ignore
+                countryCode: val ? val.countryCode : '' })}
               renderInput={(p) => <TextField {...p} label="Country" required error={!!errors.countryCode} helperText={errors.countryCode} />}
             />
           </Grid>

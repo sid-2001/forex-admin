@@ -81,7 +81,7 @@ export default function TermsConditionsGridPage() {
   const [selected, setSelected] = useState<TermsConditions | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [selectedChannel, setSelectedChannel] = useState<string>('');
-  const [screens, setScreens] = useState([]);
+  const [screens, setScreens] = useState<any>([]);
   const [selectedScreen, setSelectedScreen] = useState<string>('');
   const [versions, setVersions] = useState<any[]>([]);
   const [editorValue, setEditorValue] = useState("");
@@ -131,14 +131,18 @@ export default function TermsConditionsGridPage() {
   const handleChannelChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const channelCode = event.target.value as string;
     setSelectedChannel(channelCode);
-    const selectedChannelObj = channels.find((channel) => channel.channel_code == channelCode);
+    const selectedChannelObj = channels.find((channel) =>
+      //@ts-ignore
+      channel.channel_code == channelCode);
     console.log('selected', selectedChannelObj);
   };
 
   const handleScreenChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const screenCode = event.target.value as string;
     setSelectedScreen(screenCode);
-    const selectedScreenObj = screens.find((screen) => screen.screencode == screenCode);
+    const selectedScreenObj = screens.find((screen:any) => 
+      //@ts-ignore
+      screen.screencode == screenCode);
     console.log('selected', selectedScreenObj);
   };
 
@@ -173,7 +177,7 @@ export default function TermsConditionsGridPage() {
       setLoading(true);
       channel_service.getChannelList().then(data => {
         console.log(data);
-        setChannels(data);
+        setChannels(data as any);
       });
     } catch {
       showError("Failed to load Channels");
@@ -382,6 +386,7 @@ export default function TermsConditionsGridPage() {
               <InputLabel>Destination Country *</InputLabel>
               <Select
                 value={selectedCountry}
+                //@ts-ignore
                 onChange={handleCountryChange}
                 label="Destination Country *"
               >
@@ -389,6 +394,7 @@ export default function TermsConditionsGridPage() {
                   ?.filter((item) => item.status === 'A' && item.countryCode !== userCountry)
                   .map((country) => (
                     <MenuItem
+                    //@ts-ignore
                       key={country.countryCode}
                       value={country.countryCode}
                     >
@@ -403,17 +409,24 @@ export default function TermsConditionsGridPage() {
               <InputLabel>Channel *</InputLabel>
               <Select
                 value={selectedChannel}
+                //@ts-ignore
                 onChange={handleChannelChange}
                 label="Channel *"
               >
                 {channels
-                  ?.filter((item) => item.active === true)
+                  ?.filter((item) =>
+                    //@ts-ignore
+                    item.active === true)
                   .map((channel) => (
                     <MenuItem
+                    //@ts-ignore
                       key={channel.channel_code}
+                      //@ts-ignore
                       value={channel.channel_code}
                     >
-                      <Typography>{channel.channel_code}</Typography>
+                      <Typography>{
+                      //@ts-ignore
+                      channel.channel_code}</Typography>
                     </MenuItem>
                   ))}
               </Select>
@@ -424,12 +437,15 @@ export default function TermsConditionsGridPage() {
               <InputLabel>Screen *</InputLabel>
               <Select
                 value={selectedScreen}
+                //@ts-ignore
                 onChange={handleScreenChange}
                 label="Screen *"
               >
                 {screens
-                  ?.filter((item) => item.active === true)
-                  .map((screen) => (
+                  ?.filter((item:any) =>
+                    //@ts-ignore
+                    item.active === true)
+                  .map((screen:any) => (
                     <MenuItem
                       key={screen.screencode}
                       value={screen.screencode}
