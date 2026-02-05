@@ -1,39 +1,16 @@
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  MenuItem,
-  Select,
-  Typography,
-  InputLabel,
-} from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Checkbox, FormControlLabel, Grid, Autocomplete } from '@mui/material'
 import { useEffect, useState } from 'react'
 import ProductBusinessCountryMappingService from '@/services/productBusinessCountryMapping.service'
-import { useRecoilState } from 'recoil'
+import { useRecoilValue } from 'recoil'
+import { countyState } from '@/states/state'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
-import { countyState } from "@/states/state";
-import { LocalStorageService } from '@/helpers/local-storage-service';
 const service = new ProductBusinessCountryMappingService()
-const local_service=new LocalStorageService();
+const local_service = new LocalStorageService()
 
-interface Props {
-  open: boolean
-  handleClose: () => void
-  editData?: any
-  refreshList: () => void
-}
-
-const ProductBusinessCountryMappingDialog = ({
-  open,
-  handleClose,
-  editData,
-  refreshList,
-}: Props) => {
+export default function ProductBusinessCountryMappingDialog({ open, handleClose, editData, refreshList, showAlert }: any) {
+  const countries = useRecoilValue(countyState)
+  const [errors, setErrors] = useState<any>({})
   const [form, setForm] = useState<any>({
     productCode: '',
     recipientCountry: '',
@@ -42,203 +19,177 @@ const ProductBusinessCountryMappingDialog = ({
     effectiveFromDate: '',
     effectiveToDate: '',
   })
-const [selectedCountry, setSelectedCountry] = useState<string>('')
-const [countries, setCountries] = useRecoilState(countyState)
-const [errors, setErrors] = useState<any>({})
 
+  useEffect(() => {
+    if (editData && open) {
+      const formatToDateOnly = (dateStr: string) => {
+        if (!dateStr) return ''
+        return dateStr.split('T')[0]
+      }
 
-const validateForm = () => {
-  const newErrors: any = {}
+      setForm({
+        ...editData,
+        // Using || logic to handle variations in API field naming
+        productCode: editData.productCode || editData.businessMapCode || '',
+        recipientCountry: editData.recipientCountry || '',
+        paymentRail: editData.paymentRail || '',
+        active: editData.active ?? true,
+        effectiveFromDate: formatToDateOnly(editData.effectiveFromDate || editData.effective_from_date),
+        effectiveToDate: formatToDateOnly(editData.effectiveToDate || editData.effective_to_date),
+      })
+    } else {
+      setForm({
+        productCode: '',
+        recipientCountry: '',
+        paymentRail: '',
+        active: true,
+        effectiveFromDate: '',
+        effectiveToDate: '',
+      })
+    }
+    setErrors({})
+  }, [editData, open])
 
-  if (!form.productCode) newErrors.productCode = 'Product Code is required'
-  if (!selectedCountry) newErrors.recipientCountry = 'Destination Country is required'
-  if (!form.paymentRail) newErrors.paymentRail = 'Payment Rail is required'
-  if (!form.effectiveFromDate) newErrors.effectiveFromDate = 'Effective From date is required'
-  if (!form.effectiveToDate) newErrors.effectiveToDate = 'Effective To date is required'
-
-  if (
-    form.effectiveFromDate &&
-    form.effectiveToDate &&
-    new Date(form.effectiveToDate) < new Date(form.effectiveFromDate)
-  ) {
-    newErrors.effectiveToDate = 'Effective To must be after Effective From'
+  const handleChange = (field: string, value: any) => {
+    setForm((prev: any) => ({ ...prev, [field]: value }))
+    if (errors[field]) {
+      setErrors((prev: any) => ({ ...prev, [field]: null }))
+    }
   }
 
-  setErrors(newErrors)
-  return Object.keys(newErrors).length === 0
-}
+  const validate = () => {
+    const errs: any = {}
+    if (!form.productCode?.toString().trim()) errs.productCode = 'Required'
+    if (!form.recipientCountry) errs.recipientCountry = 'Required'
+    if (!form.paymentRail?.toString().trim()) errs.paymentRail = 'Required'
+    if (!form.effectiveFromDate) errs.effectiveFromDate = 'Required'
+    if (!form.effectiveToDate) errs.effectiveToDate = 'Required'
 
-
-    const handleCountryChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-        const countryCode = event.target.value as string
-      console.log(countryCode)
-        setSelectedCountry(countryCode)
-    
-      
-        const selected = countries.find((country) => country.countryCode == countryCode)
-      
-    
+    if (form.effectiveFromDate && form.effectiveToDate) {
+      if (new Date(form.effectiveToDate) < new Date(form.effectiveFromDate)) {
+        errs.effectiveToDate = 'End date cannot be earlier than start date'
       }
-  
-  useEffect(() => {
-    if (editData) {
-      setForm(editData)
-       setSelectedCountry(editData.recipientCountry)
     }
-  }, [editData])
+
+    setErrors(errs)
+    return Object.keys(errs).length === 0
+  }
 
   const handleSubmit = async () => {
-         console.log(selectedCountry)
-     if (!validateForm()) return
-     console.log(selectedCountry)
-    if (editData) {
-      await service.update(editData.businessMapCode, {
-        productCode: form.productCode,
-        recipientCountry: selectedCountry,
-        paymentRail: form.paymentRail,
-        active: form.active,
-        effectiveFromDate: form.effectiveFromDate,
-        effectiveToDate: form.effectiveToDate,
-        modifiedBy: local_service.get_staff_id(),
-      })
-      setSelectedCountry(form.recipientCountry)
-    } else {
-      await service.create({
-        productCode: form.productCode,
-        recipientCountry: selectedCountry,
-        paymentRail: form.paymentRail,
-        active: form.active,
-        effectiveFromDate: form.effectiveFromDate,
-        effectiveToDate: form.effectiveToDate,
-        createdBy: local_service.get_staff_id(),
-        modifiedBy: local_service.get_staff_id()
-      })
+    if (!validate()) return
+
+    const payload = {
+      ...form,
+      // Formatting to ISO for Backend
+      effectiveFromDate: `${form.effectiveFromDate}T00:00:00.000Z`,
+      effectiveToDate: `${form.effectiveToDate}T23:59:59.000Z`,
+      modifiedBy: local_service.get_staff_id(),
     }
 
-    refreshList()
-    handleClose()
+    try {
+      const res = editData
+        ? await service.update(editData.businessMapCode, payload)
+        : await service.create({ ...payload, createdBy: local_service.get_staff_id() })
+
+      if (res) {
+        showAlert('Success', `Mapping ${editData ? 'Updated' : 'Created'} Successfully`)
+        refreshList()
+        handleClose()
+      }
+    } catch (e) {
+      showAlert('Fail', 'Server Error')
+    }
   }
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-      <DialogTitle>
-        {editData ? 'Update' : 'Create'} Product Business Country Mapping
-      </DialogTitle>
+      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update Mapping' : 'Create Mapping'}</DialogTitle>
 
-      <DialogContent>
-        <TextField
-          label="Product Code"
-          fullWidth
-           error={!!errors.productCode}
-          required
-          margin="dense"
-          value={form.productCode}
-          onChange={(e) =>
-            setForm({ ...form, productCode: e.target.value })
-          }
-        />
-
-
-    <InputLabel>Destination Country</InputLabel>
-
-             <Select
-                                      required
-                                        value={selectedCountry}
-                                        
-                                        error={!!errors.recipientCountry}
-                                        fullWidth
-                                        style={{
-        
-                                          width:"100%"
-                                        }}
-                                        //@ts-ignore
-                                          disabled={!!editData}
-                                          //@ts-ignore
-                                        onChange={handleCountryChange}
-                                        displayEmpty
-                                      >
-                                        {
-                                          //(userCountry === 'IN' ? countries : countries)
-                                          countries
-                                            ?.filter((item) => item.status === 'A')
-                                            .map((country) => (
-                                              <MenuItem
-                                                //@ts-ignore
-                                                key={country?.countryCode}
-                                                value={country.countryCode}
-                                              >
-                                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                  <Typography>{country?.countryName}</Typography>
-                                                </div>
-                                              </MenuItem>
-                                            ))
-                                        }
-                                      </Select>
-
-        <TextField
-          label="Payment Rail"
-        error={!!errors.paymentRail}
-  helperText={errors.paymentRail}
-          fullWidth
-          margin="dense"
-          value={form.paymentRail}
-          onChange={(e) =>
-            setForm({ ...form, paymentRail: e.target.value })
-          }
-        />
-
-        <TextField
-          type="datetime-local"
-          label="Effective From"
-          fullWidth
-          error={!!errors.effectiveFromDate}
-  helperText={errors.effectiveFromDate}
-          margin="dense"
-          InputLabelProps={{ shrink: true }}
-          value={form.effectiveFromDate}
-          onChange={(e) =>
-            setForm({ ...form, effectiveFromDate: e.target.value })
-          }
-        />
-
-        <TextField
-          type="datetime-local"
-          label="Effective To"
-          fullWidth
-          margin="dense"
-           error={!!errors.effectiveToDate}
-  helperText={errors.effectiveToDate}
-          InputLabelProps={{ shrink: true ,
-            
-            //@ts-ignore
-            min:form.effectiveFromDate}}
-          value={form.effectiveToDate}
-          onChange={(e) =>
-            setForm({ ...form, effectiveToDate: e.target.value })
-          }
-        />
-
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={form.active}
-              onChange={(e) =>
-                setForm({ ...form, active: e.target.checked })
-              }
+      <DialogContent dividers>
+        <Grid container spacing={2} sx={{ mt: 1 }}>
+          <Grid item xs={12}>
+            <TextField
+              label="Product Code"
+              required
+              fullWidth
+              error={!!errors.productCode}
+              helperText={errors.productCode}
+              value={form.productCode}
+              disabled={!!editData}
+              onChange={(e) => handleChange('productCode', e.target.value.toUpperCase())}
             />
-          }
-          label="Active"
-        />
+          </Grid>
+
+          <Grid item xs={12}>
+            <Autocomplete
+              options={countries?.filter((c: any) => c.status === 'A') || []}
+              getOptionLabel={(o: any) => `${o.countryName} (${o.countryCode})`}
+              value={countries?.find((c: any) => c.countryCode === form.recipientCountry) || null}
+              onChange={(_, val) => handleChange('recipientCountry', val?.countryCode || '')}
+              renderInput={(p) => (
+                <TextField {...p} label="Destination Country" required error={!!errors.recipientCountry} helperText={errors.recipientCountry} />
+              )}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              label="Payment Rail"
+              required
+              fullWidth
+              error={!!errors.paymentRail}
+              helperText={errors.paymentRail}
+              value={form.paymentRail}
+              onChange={(e) => handleChange('paymentRail', e.target.value)}
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <TextField
+              type="date"
+              label="Effective From"
+              required
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              error={!!errors.effectiveFromDate}
+              helperText={errors.effectiveFromDate}
+              value={form.effectiveFromDate}
+              onChange={(e) => handleChange('effectiveFromDate', e.target.value)}
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <TextField
+              type="date"
+              label="Effective To"
+              required
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              error={!!errors.effectiveToDate}
+              helperText={errors.effectiveToDate}
+              value={form.effectiveToDate}
+              inputProps={{ min: form.effectiveFromDate }}
+              onChange={(e) => handleChange('effectiveToDate', e.target.value)}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={<Checkbox checked={form.active} onChange={(e) => handleChange('active', e.target.checked)} />}
+              label="Active Status"
+            />
+          </Grid>
+        </Grid>
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
+      <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+        <Button onClick={handleClose} color="inherit">
+          Cancel
+        </Button>
         <Button variant="contained" onClick={handleSubmit}>
-          {editData ? 'Update' : 'Create'}
+          {editData ? 'Update' : 'Save'}
         </Button>
       </DialogActions>
     </Dialog>
   )
 }
-
-export default ProductBusinessCountryMappingDialog

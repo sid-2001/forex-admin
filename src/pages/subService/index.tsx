@@ -53,7 +53,7 @@ export default function SubServiceManagement() {
     const id = editData?.subServiceCodeGenerated || editData?.id
     if (!id) return alert('ID missing')
 
-    await subService.updateSubService(id, {...data,subServiceCode:id, "modifiedBy": local_service.get_staff_id()})
+    await subService.updateSubService(id, { ...data, subServiceCode: id, modifiedBy: local_service.get_staff_id() })
     setOpen(false)
     fetchData()
   }
@@ -89,9 +89,9 @@ export default function SubServiceManagement() {
           >
             <EditIcon />
           </IconButton>
-          <IconButton color="error" onClick={() => handleDelete(params.row)}>
+          {/* <IconButton color="error" onClick={() => handleDelete(params.row)}>
             <DeleteIcon />
-          </IconButton>
+          </IconButton> */}
         </Stack>
       ),
     },
@@ -119,14 +119,14 @@ export default function SubServiceManagement() {
           getRowId={(row) => row.subServiceCodeGenerated || Math.random()}
           pageSizeOptions={[10, 20, 50]}
           disableRowSelectionOnClick
-                  initialState={{
-    pagination: {
-      paginationModel: {
-        page: 0,
-        pageSize: 5,
-      },
-    },
-  }}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                page: 0,
+                pageSize: 5,
+              },
+            },
+          }}
         />
       </div>
 

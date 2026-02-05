@@ -7,171 +7,154 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
-  InputLabel,
-  Select,
-  MenuItem,
-  Typography
-} from "@mui/material";
-import { useEffect, useState } from "react";
-import { useRecoilState } from "recoil";
-import { countyState } from "@/states/state";
-import { kMaxLength } from "buffer";
+  Grid,
+  Autocomplete,
+  createFilterOptions,
+} from '@mui/material'
+import { useEffect, useState } from 'react'
+import { useRecoilState } from 'recoil'
+import { countyState } from '@/states/state'
+
+const filter = createFilterOptions({
+  matchFrom: 'any',
+  stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
+})
 
 interface Props {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (data: any) => void;
-  editData?: any | null;
+  open: boolean
+  onClose: () => void
+  onSubmit: (data: any) => void
+  editData?: any | null
 }
 
-export default function StateFormDialog({
-  open,
-  onClose,
-  onSubmit,
-  editData
-}: Props) {
-  const [stateCode, setStateCode] = useState("");
-  const [description, setDescription] = useState("");
-  const [active, setActive] = useState(true);
-  const [countryCode, setCountryCode] = useState("");
-  const [applicantId, setApplicantId] = useState("");
-  const [effectiveFrom, setEffectiveFrom] = useState("");
-  const [effectiveTo, setEffectiveTo] = useState("");
-
-  const [countries] = useRecoilState(countyState);
+export default function StateFormDialog({ open, onClose, onSubmit, editData }: Props) {
+  const [form, setForm] = useState({
+    stateCode: '',
+    description: '',
+    countryCode: '',
+    effectiveFrom: '',
+    effectiveTo: '',
+    active: true,
+  })
+  const [errors, setErrors] = useState<any>({})
+  const [countries] = useRecoilState(countyState)
 
   useEffect(() => {
-    if (editData) {
-      console.log(editData);
-      setStateCode(editData.statecode);
-      setDescription(editData.statedescription);
-      setCountryCode(editData.countrycode);
-      setActive(editData.active);
-      setEffectiveFrom(editData?.effectivefromdate?.split("T")[0]);
-      setEffectiveTo(editData?.effectivetodate?.split("T")[0]);
-      // setEffectiveFrom()
-      // setEffectiveTo()
+    if (editData && open) {
+      setForm({
+        stateCode: editData.statecode || '',
+        description: editData.statedescription || '',
+        countryCode: editData.countrycode || '',
+        effectiveFrom: editData.effectivefromdate ? editData.effectivefromdate.split('T')[0] : '',
+        effectiveTo: editData.effectivetodate ? editData.effectivetodate.split('T')[0] : '',
+        active: editData.active ?? true,
+      })
     } else {
-      setStateCode("");
-      setDescription("");
-      setCountryCode("");
-      setActive(true);
-      setApplicantId("");
-      setEffectiveFrom("");
-      setEffectiveTo("");
+      setForm({ stateCode: '', description: '', countryCode: '', effectiveFrom: '', effectiveTo: '', active: true })
     }
-  }, [editData]);
+    setErrors({})
+  }, [editData, open])
 
   const handleSubmit = () => {
-    onSubmit({
-      applicantId,
-      stateCode,
-      description,
-      countryCode,
-      active,
-      effectiveFrom,
-      effectiveTo
-    });
-  };
+    const newErrors: any = {}
+    if (!form.stateCode.trim()) newErrors.stateCode = 'Required'
+    if (!form.description.trim()) newErrors.description = 'Required'
+    if (!form.countryCode) newErrors.countryCode = 'Required'
+    if (!form.effectiveFrom) newErrors.effectiveFrom = 'Required'
+    if (!form.effectiveTo) newErrors.effectiveTo = 'Required'
+
+    setErrors(newErrors)
+    if (Object.keys(newErrors).length > 0) return
+
+    if (new Date(form.effectiveTo) < new Date(form.effectiveFrom)) {
+      onSubmit({ validationError: 'End Date cannot be earlier than Start Date' })
+      return
+    }
+
+    onSubmit(form)
+  }
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth>
-      <DialogTitle>
-        {editData ? "Update State" : "Create State"}
-      </DialogTitle>
-
-      <DialogContent>
-        {/* <TextField
-          label="Applicant ID"
-          fullWidth
-          margin="normal"
-          value={applicantId}
-          onChange={(e) => setApplicantId(e.target.value)}
-        /> */}
-
-        <TextField
-          label="State Code"
-          fullWidth
-required
-           inputProps={{ maxLength: 2 }}
-          margin="normal"
-          value={stateCode}
-          disabled={!!editData}
-          onChange={(e) => setStateCode(e.target.value)}
-        />
-
-        <TextField
-          label="State Description"
-          required
-          fullWidth
-          margin="normal"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-
-        <InputLabel>Country</InputLabel>
-        <Select
-        required
-          fullWidth
-           disabled={!!editData}
-          value={countryCode}
-          onChange={(e) => setCountryCode(e.target.value as string)}
-        >
-          {countries
-            ?.filter((c) => c.status === "A")
-            .map((c) => (
-              <MenuItem
-              //@ts-ignore
-              key={c.countryCode} value={c.countryCode}>
-                <Typography>{c.countryName}</Typography>
-              </MenuItem>
-            ))}
-        </Select>
-
-      
-          <>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update State' : 'Create State'}</DialogTitle>
+      <DialogContent dividers>
+        <Grid container spacing={2} sx={{ mt: 0.5 }}>
+          <Grid item xs={12}>
+            <Autocomplete
+              options={countries?.filter((c: any) => c.status === 'A') || []}
+              filterOptions={filter}
+              getOptionLabel={(o: any) => `${o.countryName} (${o.countryCode})`}
+              value={countries?.find((c: any) => c.countryCode === form.countryCode) || null}
+              disabled={!!editData}
+              onChange={(_, val) => setForm({ ...form, countryCode: val ? val.countryCode : '' })}
+              renderInput={(p) => <TextField {...p} label="Country" error={!!errors.countryCode} helperText={errors.countryCode} required />}
+            />
+          </Grid>
+          <Grid item xs={12}>
             <TextField
-              type="date"
+              fullWidth
+              label="State Code"
+              inputProps={{ maxLength: 2 }}
+              value={form.stateCode}
+              disabled={!!editData}
+              onChange={(e) => setForm({ ...form, stateCode: e.target.value.toUpperCase() })}
+              error={!!errors.stateCode}
+              helperText={errors.stateCode}
               required
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="State Description"
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              error={!!errors.description}
+              helperText={errors.description}
+              required
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              type="date"
               label="Effective From"
-              fullWidth
-              margin="normal"
               InputLabelProps={{ shrink: true }}
-              value={effectiveFrom}
-              onChange={(e) => setEffectiveFrom(e.target.value)}
-            />
-
-            <TextField
-              type="date"
+              value={form.effectiveFrom}
+              onChange={(e) => setForm({ ...form, effectiveFrom: e.target.value })}
+              error={!!errors.effectiveFrom}
               required
-              label="Effective To"
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
               fullWidth
-              margin="normal"
-              //@ts-ignore
-              InputLabelProps={{ shrink: true ,min:effectiveFrom}}
-              value={effectiveTo}
-              onChange={(e) => setEffectiveTo(e.target.value)}
+              type="date"
+              label="Effective To"
+              InputLabelProps={{ shrink: true }}
+              value={form.effectiveTo}
+              onChange={(e) => setForm({ ...form, effectiveTo: e.target.value })}
+              error={!!errors.effectiveTo}
+              inputProps={{ min: form.effectiveFrom }}
+              required
             />
-          </>
-       
-
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={active}
-              onChange={(e) => setActive(e.target.checked)}
+          </Grid>
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={<Checkbox checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />}
+              label="Active Status"
             />
-          }
-          label="Active"
-        />
+          </Grid>
+        </Grid>
       </DialogContent>
-
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+      <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+        <Button onClick={onClose} color="inherit">
+          Cancel
+        </Button>
         <Button variant="contained" onClick={handleSubmit}>
-          {editData ? "Update" : "Create"}
+          {editData ? 'Update' : 'Create'}
         </Button>
       </DialogActions>
     </Dialog>
-  );
+  )
 }

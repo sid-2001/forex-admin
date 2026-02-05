@@ -1,73 +1,70 @@
-import { useEffect, useState } from "react";
-import { Box, Button, IconButton, Stack } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { useEffect, useState } from 'react'
+import { Box, Button, IconButton, Stack } from '@mui/material'
+import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 
-import ForexCurrencyService, {
-  ForexCurrency
-} from "@/services/forex-currency.service";
-import ForexCurrencyDialog from "@/components/forex-currency-dialog";
+import ForexCurrencyService, { ForexCurrency } from '@/services/forex-currency.service'
+import ForexCurrencyDialog from '@/components/forex-currency-dialog'
 
 export default function ForexCurrencyMaster() {
-  const service = new ForexCurrencyService();
+  const service = new ForexCurrencyService()
 
-  const [rows, setRows] = useState<ForexCurrency[]>([]);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editData, setEditData] = useState<ForexCurrency | null>(null);
+  const [rows, setRows] = useState<ForexCurrency[]>([])
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [editData, setEditData] = useState<ForexCurrency | null>(null)
 
   const fetchData = async () => {
-    const res = await service.getAll();
-    setRows(res);
-  };
+    const res = await service.getAll()
+    setRows(res)
+  }
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData()
+  }, [])
 
   const handleCreate = async (data: any) => {
-    await service.create(data);
-    setDialogOpen(false);
-    fetchData();
-  };
+    await service.create(data)
+    setDialogOpen(false)
+    fetchData()
+  }
 
   const handleUpdate = async (data: any) => {
-    if (!editData) return;
-    await service.update(editData.countryCode, data);
-    setEditData(null);
-    setDialogOpen(false);
-    fetchData();
-  };
+    if (!editData) return
+    await service.update(editData.countryCode, data)
+    setEditData(null)
+    setDialogOpen(false)
+    fetchData()
+  }
 
-const handleDelete = async (row: ForexCurrency) => {
-  const res = await service.delete(row.countryCode);
+  const handleDelete = async (row: ForexCurrency) => {
+    const res = await service.delete(row.countryCode)
 
-
-  fetchData();
-};
+    fetchData()
+  }
 
   const columns: GridColDef[] = [
-    { field: "countryCode", headerName: "Country", flex: 0.5 , headerClassName: 'super-app-theme--header',},
-    { field: "currencyCode", headerName: "Currency Code", flex: 0.6 , headerClassName: 'super-app-theme--header'},
-    { field: "currencyName", headerName: "Currency Name", flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: "currencySymbol", headerName: "Symbol", flex: 0.4, headerClassName: 'super-app-theme--header'},
+    { field: 'countryCode', headerName: 'Country', flex: 0.5, headerClassName: 'super-app-theme--header' },
+    { field: 'currencyCode', headerName: 'Currency Code', flex: 0.6, headerClassName: 'super-app-theme--header' },
+    { field: 'currencyName', headerName: 'Currency Name', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'currencySymbol', headerName: 'Symbol', flex: 0.4, headerClassName: 'super-app-theme--header' },
     {
-      field: "active",
-      headerName: "Active",
+      field: 'active',
+      headerName: 'Active',
       width: 100,
-      renderCell: (params) => (params.value ? "Yes" : "No"),
-       headerClassName: 'super-app-theme--header',
+      renderCell: (params) => (params.value ? 'Yes' : 'No'),
+      headerClassName: 'super-app-theme--header',
     },
     {
-      field: "actions",
-      headerName: "Actions",
+      field: 'actions',
+      headerName: 'Actions',
       width: 150,
       renderCell: (params) => (
         <>
           <IconButton
             onClick={() => {
-              setEditData(params.row);
-              setDialogOpen(true);
+              setEditData(params.row)
+              setDialogOpen(true)
             }}
           >
             <EditIcon />
@@ -78,18 +75,18 @@ const handleDelete = async (row: ForexCurrency) => {
           </IconButton> */}
         </>
       ),
-       headerClassName: 'super-app-theme--header',
-    }
-  ];
+      headerClassName: 'super-app-theme--header',
+    },
+  ]
 
   return (
-    <Box p={2} sx={{ width: "85vw" }}>
+    <Box p={2} sx={{ width: '85vw' }}>
       <Stack direction="row" justifyContent="space-between" mb={2}>
         <Button
           variant="contained"
           onClick={() => {
-            setEditData(null);
-            setDialogOpen(true);
+            setEditData(null)
+            setDialogOpen(true)
           }}
         >
           Add Currency
@@ -103,7 +100,7 @@ const handleDelete = async (row: ForexCurrency) => {
         autoHeight
         pageSizeOptions={[5]}
         initialState={{
-          pagination: { paginationModel: { page: 0, pageSize: 5 } }
+          pagination: { paginationModel: { page: 0, pageSize: 5 } },
         }}
       />
 
@@ -114,5 +111,5 @@ const handleDelete = async (row: ForexCurrency) => {
         onSubmit={editData ? handleUpdate : handleCreate}
       />
     </Box>
-  );
+  )
 }

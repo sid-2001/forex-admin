@@ -1,47 +1,51 @@
-import { Button, Stack, IconButton } from '@mui/material'
+import { Button, Stack, IconButton, Box, Typography } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
-import { useEffect, useState, useMemo } from 'react'
-
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import WhatsappTemplateDialog from '../../components/whatsAppDialog'
 import WhatsappTemplateService from '../../services/whatsapp.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
+import { useRecoilState } from 'recoil'
+import { alertState, alertTextState, alertTypeState } from '@/states/state'
 
 export default function WhatsappTemplateManagement() {
   const [open, setOpen] = useState(false)
   const [editData, setEditData] = useState<any | null>(null)
   const [rows, setRows] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
-  const [errMassage, setErrMasage] = useState(null)
+
+  const [, setAlertOpen] = useRecoilState(alertState)
+  const [, setAlertText] = useRecoilState(alertTextState)
+  const [, setAlertType] = useRecoilState(alertTypeState)
 
   const templateService = useMemo(() => new WhatsappTemplateService(), [])
   const local_service = useMemo(() => new LocalStorageService(), [])
 
-  const fetchData = async () => {
+  const showAlert = (type: 'Success' | 'Fail', text: string) => {
+    setAlertType(type)
+    setAlertText(text)
+    setAlertOpen(true)
+  }
+
+  const fetchData = useCallback(async () => {
     setLoading(true)
     try {
       const res = await templateService.getTemplateList()
       const responseData = res?.data || res
-      if (Array.isArray(responseData)) {
-        setRows(responseData)
-        console.log(responseData, 'jdhgvydg')
-      } else {
-        setRows([])
-      }
+      console.log(responseData, 'dknhicb')
+      setRows(Array.isArray(responseData) ? responseData : [])
     } catch (error) {
-      console.error('Error fetching templates:', error)
       setRows([])
     } finally {
       setLoading(false)
     }
-  }
+  }, [templateService])
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [fetchData])
 
-  const handleCreate = async (data: any) => {
+  const handleAction = async (data: any, isUpdate: boolean) => {
     try {
       const payload = {
         countryCode: data.countryCode,
@@ -49,110 +53,89 @@ export default function WhatsappTemplateManagement() {
         active: data.active,
         effectiveFromDate: data.effectiveFromDate,
         effectiveToDate: data.effectiveToDate,
-        createdBy: local_service?.get_staff_id() || 'APSNGGGN3624',
+        [isUpdate ? 'modifiedBy' : 'createdBy']: local_service?.get_staff_id() || 'admin',
       }
-      const res = await templateService.createTemplate(payload)
-      if (res.status == false) {
-        setErrMasage(res.message)
-        return
+
+      const res = isUpdate
+        ? await templateService.updateTemplate(editData?.whatsappTemplateCode, payload)
+        : await templateService.createTemplate(payload)
+
+      if (res.status !== false) {
+        showAlert('Success', `Template ${isUpdate ? 'Updated' : 'Created'} Successfully`)
+        setOpen(false)
+        fetchData()
+      } else {
+        showAlert('Fail', res.message || 'Server Error')
       }
-      setOpen(false)
-      fetchData()
     } catch (e) {
-      console.error(e)
+      showAlert('Fail', 'Connection Error')
     }
   }
 
-  // const handleUpdate = async (data: any) => {
-  //   const id = editData?.whatsappTemplateCode
-
-  //   const payload = {
-  //     whatsappTemplateDescription: data.whatsappTemplateDescription,
-  //     active: data.active,
-  //     effectiveFromDate: data.effectiveFromDate,
-  //     effectiveToDate: data.effectiveToDate,
-  //     modifiedBy: local_service?.get_staff_id() || 'APSNGGGN3624',
-  //   }
-
-  //   try {
-  //     await templateService.updateTemplate(id, payload)
-  //     setOpen(false)
-  //     fetchData()
-  //   } catch (err) {
-  //     console.error('Update failed:', err)
-  //   }
-  // }
-  const handleUpdate = async (data: any) => {
-    const id = editData?.whatsappTemplateCode
-
-    const payload = {
-      countryCode: data.countryCode,
-      whatsappTemplateDescription: data.whatsappTemplateDescription,
-      active: data.active,
-      effectiveFromDate: data.effectiveFromDate,
-      effectiveToDate: data.effectiveToDate,
-      modifiedBy: local_service?.get_staff_id() || 'APSNGGGN3624',
-    }
-
-    try {
-      await templateService.updateTemplate(id, payload)
-      setOpen(false)
-      fetchData()
-    } catch (err) {
-      console.error('Update failed:', err)
-    }
-  }
-
-  const handleDelete = async (row: any) => {
-    const id = row.whatsappTemplateCode
-    try {
-      await templateService.deleteTemplate(id, false)
-      fetchData()
-    } catch (e) {
-      console.error('Delete failed:', e)
-    }
+  const formatDateForTable = (dateStr: any) => {
+    if (!dateStr) return '-'
+    const date = new Date(dateStr)
+    return isNaN(date.getTime()) ? '-' : date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
   }
 
   const columns: GridColDef[] = [
-    { field: 'whatsappTemplateCode', headerName: 'Template Code', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'whatsappTemplateDescription', headerName: 'Description', flex: 2, headerClassName: 'super-app-theme--header' },
-    { field: 'countryCode', headerName: 'Country', flex: 0.8, headerClassName: 'super-app-theme--header' },
+    { field: 'whatsappTemplateCode', headerName: 'Template Code', flex: 0.8, headerClassName: 'super-app-theme--header' },
+    { field: 'whatsappTemplateDescription', headerName: 'Description', flex: 1.5, headerClassName: 'super-app-theme--header' },
+    { field: 'countryCode', headerName: 'Country', flex: 0.5, headerClassName: 'super-app-theme--header' },
+    {
+      field: 'effectiveFromDate',
+      headerName: 'Effective From',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => {
+        const val = params.row?.effectiveFromDate
+        return val ? val.split('T')[0] : ''
+      },
+    },
+    {
+      field: 'effectiveToDate',
+      headerName: 'Effective To',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => {
+        const val = params.row?.effectiveToDate
+        return val ? val.split('T')[0] : ''
+      },
+    },
     {
       field: 'active',
       headerName: 'Active',
-      flex: 0.7,
-      renderCell: (p) => (p.value ? 'Yes' : 'No'),
+      flex: 0.4,
       headerClassName: 'super-app-theme--header',
+      renderCell: (p) => (p.value ? 'Yes' : 'No'),
     },
-    { field: 'effectiveFromDate', headerName: 'From', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'effectiveToDate', headerName: 'To', flex: 1, headerClassName: 'super-app-theme--header' },
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 120,
+      width: 80,
       headerClassName: 'super-app-theme--header',
+      sortable: false,
       renderCell: (params) => (
-        <Stack direction="row">
-          <IconButton
-            color="primary"
-            onClick={() => {
-              setEditData(params.row)
-              setOpen(true)
-            }}
-          >
-            <EditIcon />
-          </IconButton>
-          {/* <IconButton color="error" onClick={() => handleDelete(params.row)}>
-            <DeleteIcon />
-          </IconButton> */}
-        </Stack>
+        <IconButton
+          color="primary"
+          size="small"
+          onClick={() => {
+            setEditData(params.row)
+            setOpen(true)
+          }}
+        >
+          <EditIcon fontSize="small" />
+        </IconButton>
       ),
     },
   ]
 
   return (
-    <>
-      <Stack direction="row" justifyContent="flex-start" mb={2} mt={2}>
+    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { backgroundColor: '#f5f5f5', fontWeight: 'bold' } }}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+          WhatsApp Template Management
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {
@@ -160,33 +143,29 @@ export default function WhatsappTemplateManagement() {
             setOpen(true)
           }}
         >
-          Add WhatsApp Template
+          Add Template
         </Button>
       </Stack>
 
-      <div style={{ height: 500, width: '80vw' }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          loading={loading}
-          getRowId={(row) => row.whatsappTemplateCode}
-          pageSizeOptions={[5, 10, 20]}
-          disableRowSelectionOnClick
-          initialState={{
-            pagination: { paginationModel: { page: 0, pageSize: 5 } },
-          }}
-        />
-      </div>
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        loading={loading}
+        getRowId={(row) => row.whatsappTemplateCode}
+        autoHeight
+        disableRowSelectionOnClick
+        initialState={{
+          pagination: { paginationModel: { pageSize: 10 } },
+        }}
+        pageSizeOptions={[5, 10, 20]}
+      />
 
-      {open && (
-        <WhatsappTemplateDialog
-          open={open}
-          onClose={() => setOpen(false)}
-          editData={editData}
-          errMassage={errMassage}
-          onSubmit={editData ? handleUpdate : handleCreate}
-        />
-      )}
-    </>
+      <WhatsappTemplateDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        editData={editData}
+        onSubmit={(data: any) => handleAction(data, !!editData)}
+      />
+    </Box>
   )
 }

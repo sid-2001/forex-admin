@@ -14,18 +14,14 @@ import { HelperService } from '@/helpers/helper'
 import { Link, useNavigate } from 'react-router-dom'
 import { AgChartOptions } from 'ag-charts-community'
 import TransactionModal from '@/components/transaction-panel'
-import {
-  DataGrid, GridToolbarContainer,
-  GridToolbarColumnsButton,
-  GridToolbarFilterButton,
-  GridFilterModel,
-} from '@mui/x-data-grid'
+import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridFilterModel } from '@mui/x-data-grid'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
 import DownloadIcon from '@mui/icons-material/Download'
 import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { ApplicantService } from '@/services/applicant.service'
+import CompactLocationBar from '@/components/location'
 
 const Dashboard = () => {
   // Sample dashboard data
@@ -70,7 +66,7 @@ const Dashboard = () => {
   const [text, setText] = useRecoilState(alertTextState)
   const [type, settype] = useRecoilState(alertTypeState)
   const getGatewayList = () => {
-    console.log("Hello i am ",local_service?.get_staff_country())
+    console.log('Hello i am ', local_service?.get_staff_country())
     static_service.getStaticPaymentGateway(local_service?.get_staff_country()).then((data: any) => {
       setCards(data?.data?.sort((e: any) => e.costFee))
     })
@@ -106,35 +102,34 @@ const Dashboard = () => {
     {
       name: 'ICICI ',
       balance,
-      image_url:
-        'https://pbs.twimg.com/profile_images/1477924435969462272/ZQADGPv5_400x400.png  ',
+      image_url: 'https://pbs.twimg.com/profile_images/1477924435969462272/ZQADGPv5_400x400.png  ',
       country: 'In',
     },
     {
       name: 'SB ',
-      balance:"No Data",
+      balance: 'No Data',
       image_url:
         'https://media.licdn.com/dms/image/v2/C4D0BAQEMo-EgURgpnA/company-logo_200_200/company-logo_200_200/0/1630561374295/standard_bank_group_logo?e=1763596800&v=beta&t=SA9TooJjIAO9AO3sO0Y_bMebCjTauJ4XnBz2gI8JTtI',
       country: 'In',
     },
 
-        {
+    {
       name: 'SA ',
-      balance:"No Data",
+      balance: 'No Data',
       image_url:
         'https://media.licdn.com/dms/image/v2/C4D0BAQEMo-EgURgpnA/company-logo_200_200/company-logo_200_200/0/1630561374295/standard_bank_group_logo?e=1763596800&v=beta&t=SA9TooJjIAO9AO3sO0Y_bMebCjTauJ4XnBz2gI8JTtI',
       country: 'SA',
     },
-     {
+    {
       name: 'Standard Bank ',
-      balance:"No Data",
+      balance: 'No Data',
       image_url:
         'https://media.licdn.com/dms/image/v2/C4D0BAQEMo-EgURgpnA/company-logo_200_200/company-logo_200_200/0/1630561374295/standard_bank_group_logo?e=1763596800&v=beta&t=SA9TooJjIAO9AO3sO0Y_bMebCjTauJ4XnBz2gI8JTtI',
       country: 'NG',
     },
-       {
+    {
       name: 'Tatum Bank ',
-      balance:"No Data",
+      balance: 'No Data',
       image_url:
         'https://media.licdn.com/dms/image/v2/C4D0BAQEMo-EgURgpnA/company-logo_200_200/company-logo_200_200/0/1630561374295/standard_bank_group_logo?e=1763596800&v=beta&t=SA9TooJjIAO9AO3sO0Y_bMebCjTauJ4XnBz2gI8JTtI',
       country: 'NG',
@@ -212,8 +207,6 @@ const Dashboard = () => {
       flex: 1,
       renderCell: (params: any) => (
         <Link to={`/transaction?flow=outwards&id=${params?.row?.transactionId}`}>
-
-       
           <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>View more</span>
         </Link>
       ),
@@ -221,127 +214,98 @@ const Dashboard = () => {
   ]
 
   // ✅ Custom Toolbar (same as ApplicantDataGrid)
- const handleExportCSV = () => {
-  if (!recentTransaction || recentTransaction.length === 0) return
+  const handleExportCSV = () => {
+    if (!recentTransaction || recentTransaction.length === 0) return
 
-  // Get all column definitions
-  const visibleCols = RECENT_TRANSACTIONS_COLUMNS.filter(
-    (col) => columnVisibilityModel[col.field] !== false
-  )
+    // Get all column definitions
+    const visibleCols = RECENT_TRANSACTIONS_COLUMNS.filter((col) => columnVisibilityModel[col.field] !== false)
 
-  const headers = visibleCols.map((col) => col.headerName).join(',')
+    const headers = visibleCols.map((col) => col.headerName).join(',')
 
-  const rows = recentTransaction.map((transaction: any, index: number) => {
-    const rowData: Record<string, any> = {
-      sno: index + 1,
-      transactionId: transaction?.transactionOutward?.transactionNumber,
-      sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
-      receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
-      amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
-      reported:
-        transaction?.transactionOutward?.reportingStatus === 'Completed'
-          ? 'Yes'
-          : transaction?.transactionOutward?.reportingStatus,
-      date: helper.convertDateAndTime(transaction?.transactionOutward?.owCreatedDate),
-      status: transaction?.transactionOutward?.reportingStatus,
-    }
+    const rows = recentTransaction.map((transaction: any, index: number) => {
+      const rowData: Record<string, any> = {
+        sno: index + 1,
+        transactionId: transaction?.transactionOutward?.transactionNumber,
+        sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
+        receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
+        amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
+        reported: transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
+        date: helper.convertDateAndTime(transaction?.transactionOutward?.owCreatedDate),
+        status: transaction?.transactionOutward?.reportingStatus,
+      }
 
-    return visibleCols.map((col) => rowData[col.field]).join(',')
-  })
+      return visibleCols.map((col) => rowData[col.field]).join(',')
+    })
 
-  const csv = [headers, ...rows].join('\n')
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-  const link = document.createElement('a')
-  link.href = URL.createObjectURL(blob)
-  link.setAttribute('download', 'Recent_Transactions.csv')
-  link.click()
-}
+    const csv = [headers, ...rows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.setAttribute('download', 'Recent_Transactions.csv')
+    link.click()
+  }
 
- const handleExportPDF = () => {
-  if (!recentTransaction || recentTransaction.length === 0) return
+  const handleExportPDF = () => {
+    if (!recentTransaction || recentTransaction.length === 0) return
 
-  const visibleCols = RECENT_TRANSACTIONS_COLUMNS.filter(
-    (col) => columnVisibilityModel[col.field] !== false
-  )
+    const visibleCols = RECENT_TRANSACTIONS_COLUMNS.filter((col) => columnVisibilityModel[col.field] !== false)
 
-  const headers = visibleCols.map((col) => col.headerName)
-  const data = recentTransaction.map((transaction: any, index: number) => {
-    const rowData: Record<string, any> = {
-      sno: index + 1,
-      transactionId: transaction?.transactionOutward?.transactionNumber,
-      sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
-      receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
-      amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
-      reported:
-        transaction?.transactionOutward?.reportingStatus === 'Completed'
-          ? 'Yes'
-          : transaction?.transactionOutward?.reportingStatus,
-      date: helper.convertDateAndTime(transaction?.transactionOutward?.owCreatedDate),
-      status: transaction?.transactionOutward?.reportingStatus,
-    }
+    const headers = visibleCols.map((col) => col.headerName)
+    const data = recentTransaction.map((transaction: any, index: number) => {
+      const rowData: Record<string, any> = {
+        sno: index + 1,
+        transactionId: transaction?.transactionOutward?.transactionNumber,
+        sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
+        receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
+        amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
+        reported: transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
+        date: helper.convertDateAndTime(transaction?.transactionOutward?.owCreatedDate),
+        status: transaction?.transactionOutward?.reportingStatus,
+      }
 
-    return visibleCols.map((col) => rowData[col.field])
-  })
+      return visibleCols.map((col) => rowData[col.field])
+    })
 
-  const doc = new jsPDF({ unit: 'pt' })
-  doc.setFontSize(14)
-  doc.text('Recent Transactions Report', 40, 40)
-  doc.setFontSize(10)
-  doc.text(`Generated: ${new Date().toLocaleString()}`, 40, 56)
+    const doc = new jsPDF({ unit: 'pt' })
+    doc.setFontSize(14)
+    doc.text('Recent Transactions Report', 40, 40)
+    doc.setFontSize(10)
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 40, 56)
 
-  autoTable(doc, {
-    head: [headers],
-    body: data,
-    startY: 72,
-    margin: { left: 40, right: 40 },
-    styles: { fontSize: 9, cellPadding: 6 },
-    headStyles: { fillColor: [0, 80, 153], textColor: 255 },
-    didDrawPage: () => {
+    autoTable(doc, {
+      head: [headers],
+      body: data,
+      startY: 72,
+      margin: { left: 40, right: 40 },
+      styles: { fontSize: 9, cellPadding: 6 },
+      headStyles: { fillColor: [0, 80, 153], textColor: 255 },
+      didDrawPage: () => {
+        //@ts-ignore
+        const pageCount = doc.internal.getNumberOfPages()
+        const pageSize = doc.internal.pageSize
+        const w = pageSize.width
+        const h = pageSize.height
+        doc.text(`Page ${pageCount}`, w - 60, h - 20)
+      },
+    })
 
-      //@ts-ignore
-      const pageCount = doc.internal.getNumberOfPages()
-      const pageSize = doc.internal.pageSize
-      const w = pageSize.width
-      const h = pageSize.height
-      doc.text(`Page ${pageCount}`, w - 60, h - 20)
-    },
-  })
-
-  doc.save(`Recent_Transactions_${new Date().toISOString().slice(0, 10)}.pdf`)
-}
+    doc.save(`Recent_Transactions_${new Date().toISOString().slice(0, 10)}.pdf`)
+  }
 
   const CustomToolbar = () => (
     <GridToolbarContainer sx={{ justifyContent: 'flex-start', gap: 1, py: 1 }}>
       <GridToolbarColumnsButton />
       <GridToolbarFilterButton />
 
-      <Button
-        variant="outlined"
-        color="primary"
-        size="small"
-        startIcon={<DownloadIcon />}
-        onClick={handleExportCSV}
-      >
+      <Button variant="outlined" color="primary" size="small" startIcon={<DownloadIcon />} onClick={handleExportCSV}>
         CSV
       </Button>
 
-      <Button
-        variant="outlined"
-        color="primary"
-        size="small"
-        startIcon={<PictureAsPdfIcon />}
-        onClick={handleExportPDF}
-      >
+      <Button variant="outlined" color="primary" size="small" startIcon={<PictureAsPdfIcon />} onClick={handleExportPDF}>
         PDF
       </Button>
 
-      <Button
-        variant="outlined"
-        color="primary"
-        size="small"
-        startIcon={<FindReplaceIcon />}
-        onClick={() => setFilterModel({ items: [] })}
-      >
+      <Button variant="outlined" color="primary" size="small" startIcon={<FindReplaceIcon />} onClick={() => setFilterModel({ items: [] })}>
         Reset Filters
       </Button>
     </GridToolbarContainer>
@@ -397,30 +361,29 @@ const Dashboard = () => {
     description,
   }) => {
     return (
-      <Box sx={{p:1}}>
-
-    
-      <Card
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          p: 1.2,
-          height: '90%',
-          borderRadius: 3,
-          boxShadow: 3,
-          opacity: status ? 1 : 0.5, // dim when disabled
-          pointerEvents: status ? 'auto' : 'auto', // disable interactions
-          border: '1px solid',
-          borderColor: 'primary.light',
-        }}
-      >
-        <CardMedia component="img" image={image_url} alt={title} sx={{ width: 'auto', height: '3vh', borderRadius: 2 }} />
-        <CardContent sx={{ ml: 2, flexGrow: 1 }}>
-       
+      <Box sx={{ p: 1 }}>
+        <Card
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            p: 1.2,
+            height: '90%',
+            borderRadius: 3,
+            boxShadow: 3,
+            opacity: status ? 1 : 0.5, // dim when disabled
+            pointerEvents: status ? 'auto' : 'auto', // disable interactions
+            border: '1px solid',
+            borderColor: 'primary.light',
+          }}
+        >
+          <CardMedia component="img" image={image_url} alt={title} sx={{ width: 'auto', height: '3vh', borderRadius: 2 }} />
+          <CardContent sx={{ ml: 2, flexGrow: 1 }}>
             <Switch
-            sx={{
-              // ml:20
-            }}
+              sx={
+                {
+                  // ml:20
+                }
+              }
               checked={status}
               value={status}
               onChange={(e: any) => {
@@ -428,10 +391,9 @@ const Dashboard = () => {
                 handleToggle(id, !status)
               }}
             />
-        
-        </CardContent>
-      </Card>
-        </Box>
+          </CardContent>
+        </Card>
+      </Box>
     )
   }
 
@@ -538,8 +500,9 @@ const Dashboard = () => {
                 title={card?.company}
                 description=""
                 status={card?.activeStatus}
-                image_url={card?.imageUrl?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')
-  .replace('http://64.227.139.142/', 'https://api.impronics.com/')}
+                image_url={card?.imageUrl
+                  ?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')
+                  .replace('http://64.227.139.142/', 'https://api.impronics.com/')}
                 //@ts-ignore
                 status={card?.activeStatus}
               />
@@ -561,89 +524,76 @@ const Dashboard = () => {
       <Typography variant="h4" gutterBottom sx={{ mt: 0, mb: 1 }}>
         <b>Dashboard </b>
       </Typography>
-
+      <CompactLocationBar />
       <Grid container spacing={2}>
         {/* LEFT SIDE (Balances + Consumers + Volume + Recent Transactions) */}
         <Grid item xs={12} md={12}>
           <Grid container spacing={2}>
-            <Grid item xs={12} md={5} >
+            <Grid item xs={12} md={5}>
               {/* Available Balances */}
-              <Card sx={{ border: '2px solid', borderColor: '#79CBF0', mb: 2,p:1 }}>
-                <CardContent sx={{
-                
-                }}>
+              <Card sx={{ border: '2px solid', borderColor: '#79CBF0', mb: 2, p: 1 }}>
+                <CardContent sx={{}}>
                   {/* <Typography variant="subtitle1" fontWeight={800} gutterBottom>
                   Payment Gateways
                   </Typography> */}
 
                   <Grid container spacing={2}>
+                    <HorizontalCardCarousel></HorizontalCardCarousel>
 
-<HorizontalCardCarousel></HorizontalCardCarousel>
+                    {bankAccounts
+                      .filter((e) => e.country == userCountry)
+                      .map((bank, index) => {
+                        const colors = ['green', 'red', 'goldenrod'] // cycle
+                        const borderColor = colors[index % colors.length]
+                        const isActive = bank.name.toLowerCase().includes('icici')
 
-                    {bankAccounts.filter(e=>e.country==userCountry).map((bank, index) => {
-                      const colors = ['green', 'red', 'goldenrod'] // cycle
-                      const borderColor = colors[index % colors.length]
-                      const isActive = bank.name.toLowerCase().includes('icici')
+                        return (
+                          <Grid item xs={6} key={index}>
+                            <Box
+                              sx={{
+                                border: `3px solid ${borderColor}`,
+                                borderRadius: 2,
+                                p: 2,
+                                mb: 0,
+                                display: 'flex',
+                                justifyContent: 'space-between',
 
-                      return (
-                
-                      
-                        <Grid item xs={6} key={index}>
-                         
-                          <Box
-                            sx={{
-                              border: `3px solid ${borderColor}`,
-                              borderRadius: 2,
-                              p: 2,
-                              mb: 0,
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              
-                              flexDirection:"column",
-                              // alignItems: 'center',
-                              opacity: isActive ? 1 : 0.5,
-                          
-                              pointerEvents: isActive ? 'auto' : 'none',
-                            }}
-                          >
-                            {/* Left side: Country + Bank */}
-                            <Box sx={{
-minWidth:"40%",
-display:"flex",
-justifyContent:"space-between",
-flexDirection:"row"
+                                flexDirection: 'column',
+                                // alignItems: 'center',
+                                opacity: isActive ? 1 : 0.5,
 
-                            }}>
-                           
-
+                                pointerEvents: isActive ? 'auto' : 'none',
+                              }}
+                            >
+                              {/* Left side: Country + Bank */}
+                              <Box
+                                sx={{
+                                  minWidth: '40%',
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  flexDirection: 'row',
+                                }}
+                              >
                                 <Typography variant="body2" color="text.secondary">
-                             <strong> {bank.name}</strong>  
+                                  <strong> {bank.name}</strong>
+                                </Typography>
+                                <Typography variant="body2" fontWeight="bold" sx={{ color: 'primary.main' }}>
+                                  {bank.country}
+                                </Typography>
+                              </Box>
 
-                              </Typography>
-                                 <Typography variant="body2" fontWeight="bold" sx={{ color: 'primary.main' }}>
-                                {bank.country}
-                              </Typography>
-
-                           
-                        
+                              <Box>
+                                <Typography fontWeight="bold" variant="body1" sx={{ textAlign: 'center', mt: 1 }}>
+                                  {
+                                    //@ts-ignore
+                                    bank.balance.toLocaleString('en-IN')
+                                  }
+                                </Typography>
+                              </Box>
                             </Box>
-                         
-
-                            <Box>
-
-                                      <Typography fontWeight="bold" variant="body1" sx={{textAlign:"center",mt:1}}>
-                              {
-                              //@ts-ignore
-                              bank.balance.toLocaleString('en-IN')
-                              }
-                            </Typography>
-                            </Box>
-                         
-                            
-                          </Box>
-                        </Grid>
-                      )
-                    })}
+                          </Grid>
+                        )
+                      })}
                   </Grid>
                 </CardContent>
               </Card>
@@ -717,7 +667,6 @@ flexDirection:"row"
               </Card>
             </Grid>
 
-            
             <Grid item xs={12} md={7}>
               <Card sx={{ border: '2px solid', borderColor: '#79CBF0', height: '100%' }}>
                 <CardContent>
@@ -757,17 +706,15 @@ flexDirection:"row"
                       receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
                       amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
                       reported:
-                        transaction?.transactionOutward?.reportingStatus === 'Completed'
-                          ? 'Yes'
-                          : transaction?.transactionOutward?.reportingStatus,
+                        transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
                       date: helper.convertDateAndTime(transaction?.transactionOutward?.owCreatedDate),
                       status: transaction?.transactionOutward?.reportingStatus,
                     }))}
                     columns={RECENT_TRANSACTIONS_COLUMNS}
                     filterModel={filterModel}
                     onFilterModelChange={(model) => setFilterModel(model)}
-                     columnVisibilityModel={columnVisibilityModel}
-  onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
+                    columnVisibilityModel={columnVisibilityModel}
+                    onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
                     initialState={{
                       pagination: { paginationModel: { pageSize: 10, page: 0 } },
                     }}
@@ -789,23 +736,14 @@ flexDirection:"row"
                   />
                 )}
               </Box>
-
             </Box>
           </Grid>
         </Grid>
 
         {/* RIGHT SIDE (Active Channels + Integrations) */}
-       
       </Grid>
 
-
-      <Grid spacing={2}>
-
-
-      </Grid>
-
-
-
+      <Grid spacing={2}></Grid>
     </Box>
   )
 }

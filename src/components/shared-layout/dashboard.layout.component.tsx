@@ -30,6 +30,7 @@ import Person2Icon from '@mui/icons-material/Person2'
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
 import { menuHistoryState, themeModeState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
+import CompactLocationBar from '../location'
 import {
   ArrowBack,
   Brightness4,

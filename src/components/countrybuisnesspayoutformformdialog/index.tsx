@@ -1,275 +1,197 @@
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  InputLabel,
-  Select,
-  MenuItem,
-  Typography,
-  FormHelperText,
-  Box,
-} from "@mui/material";
-import { useEffect, useState } from "react";
-import CountryBusinessPayoutPartnerService from "@/services/countryBusinessPayoutPartner.service";
-import ProductBusinessCountryMappingService from "@/services/productBusinessCountryMapping.service";
-import { LocalStorageService } from "@/helpers/local-storage-service";
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Checkbox, FormControlLabel, Grid, Autocomplete } from '@mui/material'
+import { useEffect, useState } from 'react'
+import CountryBusinessPayoutPartnerService from '@/services/countryBusinessPayoutPartner.service'
+import ProductBusinessCountryMappingService from '@/services/productBusinessCountryMapping.service'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
-interface Props {
-  open: boolean;
-  handleClose: () => void;
-  editData?: any;
-  refreshList: () => void;
-}
+const service = new CountryBusinessPayoutPartnerService()
+const productBusinessService = new ProductBusinessCountryMappingService()
+const local_service = new LocalStorageService()
 
-const CountryBusinessPayoutPartnerFormDialog = ({
-  open,
-  handleClose,
-  editData,
-  refreshList,
-}: Props) => {
-  const CountryBusinessPayoutPartnerServic =
-    new CountryBusinessPayoutPartnerService();
-
-  const productBusinessService =
-    new ProductBusinessCountryMappingService();
-  const localService = new LocalStorageService();
-
-  const [bussismessmapcode, setBussisnessmapcode] = useState<any[]>([]);
-  const [selectedbussismessmapcode, setSelectedBussisnessmapcode] =
-    useState<string>("");
-
+export default function CountryBusinessPayoutPartnerFormDialog({ open, handleClose, editData, refreshList, showAlert }: any) {
+  const [bussismessmapcode, setBussisnessmapcode] = useState<any[]>([])
+  const [errors, setErrors] = useState<any>({})
   const [form, setForm] = useState<any>({
-    businessTypeCode: "",
-    payoutPartner: "",
+    countryCorridorBusinessMapCode: '',
+    businessTypeCode: '',
+    payoutPartner: '',
     active: true,
-    effective_from_date: "",
-    effective_to_date: "",
-  });
+    effective_from_date: '',
+    effective_to_date: '',
+  })
 
-  const [errors, setErrors] = useState<any>({});
-
-  /* ------------------ Fetch dropdown ------------------ */
+  /* ------------------ Fetch Mapping Dropdown ------------------ */
   useEffect(() => {
-    productBusinessService.getList().then((data: any[]) => {
-      if (data?.length > 0) {
-        setBussisnessmapcode(data);
-      }
-    });
-  }, []);
+    if (open) {
+      productBusinessService.getList().then((data: any) => {
+        const list = Array.isArray(data) ? data : data?.data || []
+        setBussisnessmapcode(list.filter((item: any) => item.active === true))
+      })
+    }
+  }, [open])
 
-  /* ------------------ Edit mode ------------------ */
+  /* ------------------ Edit mode & Data Reset ------------------ */
   useEffect(() => {
-    if (editData) {
-      setSelectedBussisnessmapcode(
-        editData.countryCorridorBusinessMapCode
-      );
-      setForm(editData);
-    }
-  }, [editData]);
+    if (editData && open) {
+      // Split T to ensure datetime-local/date pickers pre-fill correctly
+      const formatDate = (d: string) => (d && d.includes('T') ? d.split('T')[0] : d)
 
-  /* ------------------ Validation ------------------ */
-  const validate = () => {
-    const newErrors: any = {};
-
-    if (!selectedbussismessmapcode) {
-      newErrors.countryCorridorBusinessMapCode =
-        "Country Corridor Business Map Code is required";
-    }
-
-    if (!form.businessTypeCode?.trim()) {
-      newErrors.businessTypeCode = "Business Type Code is required";
-    }
-
-    if (!form.payoutPartner?.trim()) {
-      newErrors.payoutPartner = "Payout Partner is required";
-    }
-
-    if (!form.effective_from_date) {
-      newErrors.effective_from_date = "Effective From Date is required";
-    }
-
-    if (!form.effective_to_date) {
-      newErrors.effective_to_date = "Effective To Date is required";
-    }
-
-    if (
-      form.effective_from_date &&
-      form.effective_to_date &&
-      new Date(form.effective_to_date) <
-        new Date(form.effective_from_date)
-    ) {
-      newErrors.effective_to_date =
-        "Effective To Date cannot be before Effective From Date";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  /* ------------------ Submit ------------------ */
-  const handleSubmit = async () => {
-    if (!validate()) return;
-
-    if (editData) {
-      await CountryBusinessPayoutPartnerServic.update(
-        editData.countryBusinessPayoutPartnerCode,
-        {
-          ...form,
-          countryCorridorBusinessMapCode: selectedbussismessmapcode,
-          modified_by: localService.get_staff_id(),
-        }
-      );
+      setForm({
+        ...editData,
+        countryCorridorBusinessMapCode: editData.countryCorridorBusinessMapCode || '',
+        effective_from_date: formatDate(editData.effective_from_date || editData.effectiveFromDate),
+        effective_to_date: formatDate(editData.effective_to_date || editData.effectiveToDate),
+      })
     } else {
-      await CountryBusinessPayoutPartnerServic.create({
-        ...form,
-        countryCorridorBusinessMapCode: selectedbussismessmapcode,
-        created_by: localService.get_staff_id(),
-      });
+      setForm({
+        countryCorridorBusinessMapCode: '',
+        businessTypeCode: '',
+        payoutPartner: '',
+        active: true,
+        effective_from_date: '',
+        effective_to_date: '',
+      })
+    }
+    setErrors({})
+  }, [editData, open])
+
+  const validate = () => {
+    const errs: any = {}
+    if (!form.countryCorridorBusinessMapCode) errs.countryCorridorBusinessMapCode = 'Required'
+    if (!form.businessTypeCode) errs.businessTypeCode = 'Required'
+    if (!form.payoutPartner) errs.payoutPartner = 'Required'
+    if (!form.effective_from_date) errs.effective_from_date = 'Required'
+    if (!form.effective_to_date) errs.effective_to_date = 'Required'
+
+    if (new Date(form.effective_to_date) < new Date(form.effective_from_date)) {
+      errs.effective_to_date = 'End date cannot be earlier than start date'
     }
 
-    refreshList();
-    handleClose();
-  };
+    setErrors(errs)
+    return Object.keys(errs).length === 0
+  }
+
+  const handleSubmit = async () => {
+    if (!validate()) return
+
+    const payload = {
+      ...form,
+      // Format to ISO strings for backend consistency
+      effective_from_date: `${form.effective_from_date}T00:00:00.000Z`,
+      effective_to_date: `${form.effective_to_date}T23:59:59.000Z`,
+    }
+
+    try {
+      const res = editData
+        ? await service.update(editData.countryBusinessPayoutPartnerCode, { ...payload, modified_by: local_service.get_staff_id() })
+        : await service.create({ ...payload, created_by: local_service.get_staff_id() })
+
+      if (res) {
+        showAlert('Success', `Partner ${editData ? 'Updated' : 'Created'} Successfully`)
+        refreshList()
+        handleClose()
+      }
+    } catch (e) {
+      showAlert('Fail', 'Server Error')
+    }
+  }
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-      <DialogTitle>
-        {editData ? "Update" : "Create"} Country Business Payout Partner
-      </DialogTitle>
+      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update Payout Partner' : 'Create Payout Partner'}</DialogTitle>
 
-      <DialogContent>
-        {/* ----------- Country Corridor Map Code ----------- */}
-        <Box mt={1}>
-          <InputLabel required>
-            Country Corridor Business Map Code
-          </InputLabel>
-
-          <Select
-            fullWidth
-            value={selectedbussismessmapcode}
-            disabled={!!editData}
-            onChange={(e) =>
-              setSelectedBussisnessmapcode(e.target.value as string)
-            }
-            error={!!errors.countryCorridorBusinessMapCode}
-          >
-            {bussismessmapcode
-              ?.filter((item) => item.active === true)
-              .map((mapcode) => (
-                <MenuItem
-                  key={mapcode.businessMapCode}
-                  value={mapcode.businessMapCode}
-                >
-                  <Typography>{mapcode.businessMapCode}</Typography>
-                </MenuItem>
-              ))}
-          </Select>
-
-          {errors.countryCorridorBusinessMapCode && (
-            <FormHelperText error>
-              {errors.countryCorridorBusinessMapCode}
-            </FormHelperText>
-          )}
-        </Box>
-
-        {/* ----------- Business Type Code ----------- */}
-        <TextField
-          label="Business Type Code"
-          fullWidth
-          required
-          margin="dense"
-          value={form.businessTypeCode}
-          error={!!errors.businessTypeCode}
-          helperText={errors.businessTypeCode}
-          onChange={(e) =>
-            setForm({ ...form, businessTypeCode: e.target.value })
-          }
-        />
-
-        {/* ----------- Payout Partner ----------- */}
-        <TextField
-          label="Payout Partner"
-          fullWidth
-          required
-          margin="dense"
-          value={form.payoutPartner}
-          error={!!errors.payoutPartner}
-          helperText={errors.payoutPartner}
-          onChange={(e) =>
-            setForm({ ...form, payoutPartner: e.target.value })
-          }
-        />
-
-        {/* ----------- Effective From ----------- */}
-        <TextField
-          type="datetime-local"
-          label="Effective From"
-          fullWidth
-          required
-          margin="dense"
-          InputLabelProps={{ shrink: true }}
-          value={form.effective_from_date}
-          error={!!errors.effective_from_date}
-          helperText={errors.effective_from_date}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              effective_from_date: e.target.value,
-            })
-          }
-        />
-
-        {/* ----------- Effective To ----------- */}
-        <TextField
-          type="datetime-local"
-          label="Effective To"
-          fullWidth
-          required
-          margin="dense"
-          InputLabelProps={{
-            shrink: true,
-          }}
-          inputProps={{
-            min: form.effective_from_date,
-          }}
-          value={form.effective_to_date}
-          error={!!errors.effective_to_date}
-          helperText={errors.effective_to_date}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              effective_to_date: e.target.value,
-            })
-          }
-        />
-
-        {/* ----------- Active ----------- */}
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={form.active}
-              onChange={(e) =>
-                setForm({ ...form, active: e.target.checked })
-              }
+      <DialogContent dividers>
+        <Grid container spacing={2} sx={{ mt: 1 }}>
+          {/* Corridor Map Code - Searchable Autocomplete */}
+          <Grid item xs={12}>
+            <Autocomplete
+              options={bussismessmapcode}
+              disabled={!!editData}
+              getOptionLabel={(o: any) => o.businessMapCode || ''}
+              value={bussismessmapcode.find((m) => m.businessMapCode === form.countryCorridorBusinessMapCode) || null}
+              onChange={(_, val) => setForm({ ...form, countryCorridorBusinessMapCode: val?.businessMapCode || '' })}
+              renderInput={(p) => (
+                <TextField
+                  {...p}
+                  label="Country Corridor Business Map Code"
+                  required
+                  error={!!errors.countryCorridorBusinessMapCode}
+                  helperText={errors.countryCorridorBusinessMapCode}
+                />
+              )}
             />
-          }
-          label="Active"
-        />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              label="Business Type Code"
+              required
+              fullWidth
+              error={!!errors.businessTypeCode}
+              helperText={errors.businessTypeCode}
+              value={form.businessTypeCode}
+              onChange={(e) => setForm({ ...form, businessTypeCode: e.target.value.toUpperCase() })}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              label="Payout Partner"
+              required
+              fullWidth
+              error={!!errors.payoutPartner}
+              helperText={errors.payoutPartner}
+              value={form.payoutPartner}
+              onChange={(e) => setForm({ ...form, payoutPartner: e.target.value })}
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <TextField
+              type="date"
+              label="Effective From"
+              required
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              error={!!errors.effective_from_date}
+              helperText={errors.effective_from_date}
+              value={form.effective_from_date}
+              onChange={(e) => setForm({ ...form, effective_from_date: e.target.value })}
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <TextField
+              type="date"
+              label="Effective To"
+              required
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              error={!!errors.effective_to_date}
+              helperText={errors.effective_to_date}
+              value={form.effective_to_date}
+              inputProps={{ min: form.effective_from_date }}
+              onChange={(e) => setForm({ ...form, effective_to_date: e.target.value })}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={<Checkbox checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />}
+              label="Active Status"
+            />
+          </Grid>
+        </Grid>
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
+      <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+        <Button onClick={handleClose} color="inherit">
+          Cancel
+        </Button>
         <Button variant="contained" onClick={handleSubmit}>
-          {editData ? "Update" : "Create"}
+          {editData ? 'Update' : 'Save'}
         </Button>
       </DialogActions>
     </Dialog>
-  );
-};
-
-export default CountryBusinessPayoutPartnerFormDialog;
+  )
+}

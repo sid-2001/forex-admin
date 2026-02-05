@@ -1,111 +1,128 @@
-import { useEffect, useState } from "react";
-import { Box, Button, IconButton, Stack } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import BankTypeDialog from "../../components/bank-type-dialog"
-import BankBusinessTypeService, {
-  BankBusinessType
-} from "../../services/bantypemaster.service";
-import { useRecoilState } from "recoil";
-import { alertState, alertTextState, alertTypeState } from "@/states/state";
+import { useEffect, useState, useMemo, useCallback } from 'react'
+import { Box, Button, IconButton, Stack } from '@mui/material'
+import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
+import BankTypeDialog from '../../components/bank-type-dialog'
+import BankBusinessTypeService, { BankBusinessType } from '../../services/bantypemaster.service'
+import { useRecoilState } from 'recoil'
+import { alertState, alertTextState, alertTypeState } from '@/states/state'
 
 export default function BankTypeMaster() {
-  const service = new BankBusinessTypeService();
+  const service = useMemo(() => new BankBusinessTypeService(), [])
+  const [rows, setRows] = useState<BankBusinessType[]>([])
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [editData, setEditData] = useState<BankBusinessType | null>(null)
 
-  const [rows, setRows] = useState<BankBusinessType[]>([]);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editData, setEditData] = useState<BankBusinessType | null>(null);
+  const [open, setOpen] = useRecoilState(alertState)
+  const [text, setText] = useRecoilState(alertTextState)
+  const [type, setType] = useRecoilState(alertTypeState)
 
-  const [open, setOpen] = useRecoilState(alertState);
-  const [text, setText] = useRecoilState(alertTextState);
-  const [type, setType] = useRecoilState(alertTypeState);
+  const showAlert = (alertType: 'Success' | 'Fail', alertText: string) => {
+    setType(alertType)
+    setText(alertText)
+    setOpen(true)
+  }
 
-  const fetchData = async () => {
-    const res = await service.getList();
-    console.log(res)
-    
-    setRows(res as any)
-    // if (res?.status) setRows(res.data);
-  };
+  const fetchData = useCallback(async () => {
+    const res: any = await service.getList()
+    const responseData = res?.data || res
+    setRows(Array.isArray(responseData) ? responseData : [])
+  }, [service])
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData()
+  }, [fetchData])
 
-  const handleCreate = async (data: any) => {
-    const res = await service.create(data);
-    setOpen(true);
-    setType(res.status ? "Success" : "Fail");
-    setText(res.message);
-    setDialogOpen(false);
-    fetchData();
-  };
+  const handleAction = async (data: any, isUpdate: boolean) => {
+    if (data.validationError) {
+      showAlert('Fail', data.validationError)
+      return
+    }
 
-  const handleUpdate = async (data: any) => {
-    console.log("the edit data",editData)
-    const res = await service.update(
-      //@ts-ignore
-      editData?.businessTypeCode,
-      data
-    );
-    setOpen(true);
-    setType(res.status ? "Success" : "Fail");
-    setText(res.message);
-    setEditData(null);
-    setDialogOpen(false);
-    fetchData();
-  };
+    const res = isUpdate
+      ? await service.update(editData?.businessTypeCode || (editData as any)?.business_type_code, data)
+      : await service.create(data)
 
-  const handleDelete = async (row: BankBusinessType) => {
-    await service.delete(row.business_type_code, false);
-    fetchData();
-  };
+    if (res.status || res.success) {
+      showAlert('Success', `Bank Type ${isUpdate ? 'Updated' : 'Created'} Successfully`)
+      setDialogOpen(false)
+      fetchData()
+    } else {
+      showAlert('Fail', res.message || 'Server Error')
+    }
+  }
 
   const columns: GridColDef[] = [
-    { field: "businessTypeCode", headerName: "Code", flex: 0.6,headerClassName: 'super-app-theme--header' },
-    { field: "bankBusinessName", headerName: "Business Name", flex: 1.2,headerClassName: 'super-app-theme--header' },
-    { field: "businessCurrencyCode", headerName: "Currency", flex: 0.6 ,headerClassName: 'super-app-theme--header'},
-    { field: "countryCode", headerName: "Country", flex: 0.6,headerClassName: 'super-app-theme--header' },
     {
-      field: "active",
-      headerName: "Active",
-      width: 120,
-      renderCell: (params) => (params.value ? "Yes" : "No")
-      ,headerClassName: 'super-app-theme--header'
+      field: 'businessTypeCode',
+      headerName: 'Code',
+      flex: 0.6,
+      headerClassName: 'super-app-theme--header',
+      valueGetter: (p) => p.row?.businessTypeCode || p.row?.business_type_code || '',
+    },
+    { field: 'bankBusinessName', headerName: 'Business Name', flex: 1.2, headerClassName: 'super-app-theme--header' },
+    { field: 'businessCurrencyCode', headerName: 'Currency', flex: 0.6, headerClassName: 'super-app-theme--header' },
+    { field: 'countryCode', headerName: 'Country', flex: 0.6, headerClassName: 'super-app-theme--header' },
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => {
+        const val = params.row?.effective_from_date || params.row?.effectivefromdate
+        return val ? val.split('T')[0] : ''
+      },
     },
     {
-      field: "actions",
-      headerName: "Actions",
-      width: 150,
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => {
+        const val = params.row?.effective_to_date || params.row?.effectivetodate
+        return val ? val.split('T')[0] : ''
+      },
+    },
+    {
+      field: 'active',
+      headerName: 'Active',
+      width: 100,
+      renderCell: (params) => (params.value ? 'Yes' : 'No'),
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      width: 120,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
-        <>
+        <Stack direction="row" spacing={1}>
           <IconButton
+            color="primary"
             onClick={() => {
-              setEditData(params.row);
-              setDialogOpen(true);
+              setEditData(params.row)
+              setDialogOpen(true)
             }}
           >
             <EditIcon />
           </IconButton>
-
-          <IconButton onClick={() => handleDelete(params.row)}>
-            <DeleteIcon color="error" />
-          </IconButton>
-        </>
-      )
-    }
-  ];
+          {/* <IconButton color="error" onClick={() => service.delete(params.row.business_type_code, false).then(fetchData)}>
+            <DeleteIcon />
+          </IconButton> */}
+        </Stack>
+      ),
+    },
+  ]
 
   return (
-    <Box p={2} sx={{ width: "85vw" }}>
+    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { backgroundColor: 'rgba(0, 0, 0, 0.05)', fontWeight: 'bold' } }}>
       <Stack direction="row" justifyContent="space-between" mb={2}>
         <Button
           variant="contained"
           onClick={() => {
-            setEditData(null);
-            setDialogOpen(true);
+            setEditData(null)
+            setDialogOpen(true)
           }}
         >
           Add Bank Type
@@ -114,30 +131,18 @@ export default function BankTypeMaster() {
 
       <DataGrid
         rows={rows}
-        getRowId={(row) =>
-    `${row.business_type_code}-${row.created_at ?? Math.random()}`
-  }
+        getRowId={(row) => `${row.business_type_code || row.businessTypeCode}-${row.countryCode || Math.random()}`}
         columns={columns}
-        // getRowId={(row) => row.business_type_code}
         autoHeight
-         pageSizeOptions={[5]}
-          initialState={{
-    pagination: {
-      paginationModel: {
-        page: 0,
-        pageSize: 5,
-      },
-    },
-  }}
-        // pageSizeOptions={[5, 10]}
+        disableRowSelectionOnClick
       />
 
       <BankTypeDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         editData={editData}
-        onSubmit={editData ? handleUpdate : handleCreate}
+        onSubmit={(data: any) => handleAction(data, !!editData)}
       />
     </Box>
-  );
+  )
 }

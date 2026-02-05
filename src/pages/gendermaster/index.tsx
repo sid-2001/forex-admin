@@ -1,199 +1,168 @@
-import { useEffect, useState } from "react";
-import {
-  Box,
-  Button,
-  IconButton,
-  Stack
-} from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import GenderFormDialog from "../../components/genderFormDialog";
-import staticdataService from "@/services/staticdata.service";
-import GenderService from "@/services/gender.service";
-import { LocalStorageService } from "@/helpers/local-storage-service";
-import { useRecoilState } from "recoil";
-import { alertState, alertTextState, alertTypeState } from "@/states/state";
+import { useEffect, useState, useMemo, useCallback } from 'react'
+import { Box, Button, IconButton, Stack } from '@mui/material'
+import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
+import GenderFormDialog from '../../components/genderFormDialog'
+import GenderService from '@/services/gender.service'
+import { LocalStorageService } from '@/helpers/local-storage-service'
+import { useRecoilState } from 'recoil'
+import { alertState, alertTextState, alertTypeState } from '@/states/state'
+import ConfirmModal from '@/components/ConfirmModal'
 
-interface Gender {
-  gendercode: string;
-  description: string;
-  active: boolean;
-}
 export default function GenderMaster() {
-  const [rows, setRows] = useState<Gender[]>([]);
-  const [dialogopen, setDialogopen] = useState(false);
-    const [open, setOpen] = useRecoilState(alertState)
-    const [text, setText] = useRecoilState(alertTextState)
-    const [type, settype] = useRecoilState(alertTypeState)
-  const local_service=new LocalStorageService();
+  const [rows, setRows] = useState<any[]>([])
+  const [dialogopen, setDialogopen] = useState(false)
+  const [open, setOpen] = useRecoilState(alertState)
+  const [text, setText] = useRecoilState(alertTextState)
+  const [type, settype] = useRecoilState(alertTypeState)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [selectedRow, setSelectedRow] = useState<any>(null)
+  const [editData, setEditData] = useState<any>(null)
 
-  const [editData, setEditData] = useState<Gender | null>(null);
-   const static_service=new GenderService();
+  const local_service = useMemo(() => new LocalStorageService(), [])
+  const static_service = useMemo(() => new GenderService(), [])
 
-  const fetchData = async () => {
-    const res = await static_service.getGenderList()
-    //@ts-ignore
-    setRows(res);
-  };
-
+  const fetchData = useCallback(async () => {
+    const res: any = await static_service.getGenderList()
+    const responseData = res?.data || res
+    setRows(Array.isArray(responseData) ? responseData : [])
+  }, [static_service])
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData()
+  }, [fetchData])
 
-  const handleCreate = async (data: any) => {
- const genderresponse=   await static_service.createGender({
+  const showAlert = (alertType: 'Success' | 'Fail', alertText: string) => {
+    settype(alertType)
+    setText(alertText)
+    setOpen(true)
+  }
+
+  const handleAction = async (data: any, isUpdate: boolean) => {
+    if (data.validationError) {
+      showAlert('Fail', data.validationError)
+      return
+    }
+
+    const payload = {
       applicant_id: local_service?.get_staff_id(),
       gendercode: data.gendercode,
       description: data.description,
-      countrycode: data?.selectedCountry,
-      active: data?.active,
-      effectivefromdate: data?.effectiveFrom,
-      effectivetodate: data?. effectiveTo
-    });
-  
-    if(
-      //@ts-ignore
-      genderresponse?.success==true){
-
-      setOpen(true);
-      settype("Success");
-      setText("Gender Created Successfully")
+      countrycode: data.selectedCountry,
+      active: data.active,
+      effectivefromdate: `${data.effectiveFrom}T00:00:00.000Z`,
+      effectivetodate: `${data.effectiveTo}T23:59:59.000Z`,
     }
-    else{
 
-      setOpen(true);
-      settype("Fail");
-      setText("Server Error")
+    const response: any = isUpdate ? await static_service.updateGender(payload) : await static_service.createGender(payload)
 
-
+    if (response?.success === true || response?.status === 'Success') {
+      showAlert('Success', `Gender ${isUpdate ? 'Updated' : 'Created'} Successfully`)
+      setDialogopen(false)
+      fetchData()
+    } else {
+      showAlert('Fail', response?.message || 'Server Error')
     }
-    setDialogopen(false);
-    fetchData();
-  };
-
-  const handleUpdate = async (data: any) => {
-    console.log("the data to be updated is ",data);
-    const genderresponse=  await static_service.updateGender({
-      //@ts-ignore
-      applicant_id:local_service?.get_staff_id(),
-      gendercode: data?.gendercode,
-      countrycode: data?.selectedCountry,
-      description: data.description,
-      effectivefromdate: data?.effectiveFrom,
-      effectivetodate: data?. effectiveTo
-      
-    });
-
-
-        if(
-          //@ts-ignore
-          genderresponse?.success==true){
-
-      setOpen(true);
-      settype("Success");
-      setText("Gender Updated Succesfully");
-    }
-    else{
-
-      setOpen(true);
-      settype("Fail");
-      setText("Server Error")
-
-
-    }
-    setEditData(null);
-    setDialogopen(false);
-    fetchData();
-  };
-
-  const handleDelete = async (row: Gender) => {
-    await static_service.deleteGender({
-      gendercode: row.gendercode,
-      //@ts-ignore
-      countrycode: row?.countrycode
-    });
-    fetchData();
-  };
+  }
 
   const columns: GridColDef[] = [
-    { field: "gendercode", headerName: "Gender Code", flex: 0.5
-
-
-      , headerClassName: 'super-app-theme--header' 
-    },
-    { field: "description", headerName: "Description", flex: 1 , headerClassName: 'super-app-theme--header' },
+    { field: 'gendercode', headerName: 'Code', width: 80, headerClassName: 'super-app-theme--header' },
+    { field: 'description', headerName: 'Description', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'countrycode', headerName: 'Country', width: 100, headerClassName: 'super-app-theme--header' },
     {
-      field: "active",
-      headerName: "Active",
+      field: 'effectivefromdate',
+      headerName: 'Effective From',
+      flex: 0.7,
+      headerClassName: 'super-app-theme--header',
+      // We use renderCell instead of valueFormatter for maximum reliability
+      renderCell: (params) => {
+        const val = params.row?.effectivefromdate
+        return val ? val.split('T')[0] : ''
+      },
+    },
+    {
+      field: 'effectivetodate',
+      headerName: 'Effective To',
+      flex: 0.7,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => {
+        const val = params.row?.effectivetodate
+        return val ? val.split('T')[0] : ''
+      },
+    },
+    {
+      field: 'active',
+      headerName: 'Active',
+      width: 100,
+      renderCell: (params) => (params.value ? 'Yes' : 'No'),
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'actions',
+      headerName: 'Actions',
       width: 120,
-      renderCell: (params) => (params.value ? "Yes" : "No"), headerClassName: 'super-app-theme--header' 
-    },
-
-       { field: "effectivefromdate", headerName: "Effective From", flex: 0.5, headerClassName: 'super-app-theme--header'  },
-   { field: "effectivetodate", headerName: "Effective To", flex: 0.5, headerClassName: 'super-app-theme--header'  },
-
-    {
-      field: "actions",
-      headerName: "Actions",
-      width: 150,
-       headerClassName: 'super-app-theme--header' ,
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
-        <>
+        <Stack direction="row" spacing={1}>
           <IconButton
             onClick={() => {
-              console.log(params.row)
-              setEditData(params.row);
-              setDialogopen(true);
+              setEditData(params.row)
+              setDialogopen(true)
             }}
+            color="primary"
           >
             <EditIcon />
           </IconButton>
-
-          <IconButton onClick={() => handleDelete(params.row)}>
-            <DeleteIcon color="error" />
-          </IconButton>
-        </>
-      )
-    }
-    
-  ];
+          {/* <IconButton
+            onClick={() => {
+              setSelectedRow(params.row)
+              setDeleteModalOpen(true)
+            }}
+            color="error"
+          >
+            <DeleteIcon />
+          </IconButton> */}
+        </Stack>
+      ),
+    },
+  ]
 
   return (
-    <Box p={2} sx={{
-      width:"80vw"
-    }}>
+    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { backgroundColor: 'rgba(0, 0, 0, 0.05)', fontWeight: 'bold' } }}>
       <Stack direction="row" justifyContent="space-between" mb={2}>
         <Button
           variant="contained"
           onClick={() => {
-            setEditData(null);
-            setDialogopen(true);
-          
+            setEditData(null)
+            setDialogopen(true)
           }}
         >
           Add Gender
         </Button>
       </Stack>
 
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        getRowId={(row) => row.gendercode}
-        autoHeight
-        pageSizeOptions={[5, 10]}
-      />
+      <DataGrid rows={rows} columns={columns} getRowId={(row: any) => `${row.gendercode}-${row.countrycode}`} autoHeight disableRowSelectionOnClick />
 
       <GenderFormDialog
         open={dialogopen}
-        
-        //@ts-ignore
         onClose={() => setDialogopen(false)}
-        //@ts-ignore
         editData={editData}
-        onSubmit={editData ? handleUpdate : handleCreate}
+        onSubmit={(data: any) => handleAction(data, !!editData)}
+      />
+
+      <ConfirmModal
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={async () => {
+          await static_service.deleteGender({ gendercode: selectedRow.gendercode, countrycode: selectedRow.countrycode })
+          showAlert('Success', 'Deleted Successfully')
+          setDeleteModalOpen(false)
+          fetchData()
+        }}
+        title="Delete Gender?"
+        message={`Delete ${selectedRow?.gendercode}?`}
       />
     </Box>
-  );
+  )
 }
