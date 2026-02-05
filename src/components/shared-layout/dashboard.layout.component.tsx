@@ -372,12 +372,12 @@ const MasterDropdownIcon = ({ setSelectedApp, addToHistory, selectedApp }: any) 
     handleClose()
   }
 
-  const menuChunks = chunkArray(MASTER_MENU, 6)
+  const menuChunks = chunkArray(MASTER_MENU, 10)
 
   return (
     <>
       <IconButton onClick={() => setOpen(true)}>
-        <BubbleChartIcon sx={{ color: 'white' }} />
+     
         <BubbleChartIcon color="primary" sx={{ color: 'white', fontColor: 'white' }} />
       </IconButton>
 

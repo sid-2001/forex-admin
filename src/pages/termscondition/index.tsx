@@ -351,7 +351,7 @@ export default function TermsConditionsGridPage() {
           + Create Terms
         </Button>
       </Stack>
-
+   <Box sx={{ height: 500, width: '100%' }}>
       <DataGrid
         rows={rows}
         columns={columns}
@@ -361,11 +361,13 @@ export default function TermsConditionsGridPage() {
     pagination: {
       paginationModel: {
         pageSize: 5,
-        page: 0,
+      
       },
     },
   }}
       />
+      </Box>
+ 
 
       {/* ---------- DIALOG ---------- */}
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
