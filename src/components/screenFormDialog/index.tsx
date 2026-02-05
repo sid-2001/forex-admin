@@ -1,24 +1,7 @@
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  Grid,
-  Autocomplete,
-  createFilterOptions,
-} from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Checkbox, FormControlLabel, Grid, Autocomplete } from '@mui/material'
 import { useState, useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
-
-const filter = createFilterOptions({
-  matchFrom: 'any',
-  stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
-})
 
 export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: any) {
   const [countries] = useRecoilState(countyState)
@@ -34,49 +17,57 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
   const [errors, setErrors] = useState<any>({})
 
   useEffect(() => {
-    if (editData && open) {
-      const rawFrom = editData.effectivefromdate || editData.effectiveFromDate || ''
-      const rawTo = editData.effectivetodate || editData.effectiveToDate || ''
-
-      const formattedFrom = rawFrom.includes('T') ? rawFrom.split('T')[0] : rawFrom
-      const formattedTo = rawTo.includes('T') ? rawTo.split('T')[0] : rawTo
-
-      setForm({
-        screencode: editData.screencode || '',
-        description: editData.screendescription || '',
-        selectedCountry: editData.countrycode || '',
-        fromDate: formattedFrom,
-        toDate: formattedTo,
-        active: editData.active ?? true,
-      })
-    } else {
-      setForm({
-        screencode: '',
-        description: '',
-        selectedCountry: '',
-        fromDate: '',
-        toDate: '',
-        active: true,
-      })
+    if (open) {
+      if (editData) {
+        setForm({
+          screencode: editData.screencode || '',
+          description: editData.screendescription || '',
+          selectedCountry: editData.countrycode || '',
+          fromDate: editData.effectivefromdate?.split('T')[0] || '',
+          toDate: editData.effectivetodate?.split('T')[0] || '',
+          active: editData.active ?? true,
+        })
+      } else {
+        setForm({
+          screencode: '',
+          description: '',
+          selectedCountry: '',
+          fromDate: '',
+          toDate: '',
+          active: true,
+        })
+      }
+      setErrors({})
     }
-    setErrors({})
   }, [editData, open])
 
-  const handleSubmit = () => {
+  const handleChange = (field: string, value: any) => {
+    setForm((prev) => ({ ...prev, [field]: value }))
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: null }))
+    }
+  }
+
+  const validate = () => {
     const newErrors: any = {}
+    if (!form.selectedCountry) newErrors.selectedCountry = 'Required'
     if (!form.screencode.trim()) newErrors.screencode = 'Required'
     if (!form.description.trim()) newErrors.description = 'Required'
-    if (!form.selectedCountry) newErrors.selectedCountry = 'Required'
     if (!form.fromDate) newErrors.fromDate = 'Required'
     if (!form.toDate) newErrors.toDate = 'Required'
 
-    setErrors(newErrors)
-    if (Object.keys(newErrors).length > 0) return
-
-    if (new Date(form.toDate) < new Date(form.fromDate)) {
-      onSubmit({ validationError: 'End Date cannot be less than Start Date' })
-      return
+    if (form.fromDate && form.toDate) {
+      if (new Date(form.toDate) < new Date(form.fromDate)) {
+        newErrors.toDate = 'End date cannot be earlier than start date'
+      }
     }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = () => {
+    if (!validate()) return
 
     onSubmit({
       screencode: form.screencode,
@@ -93,17 +84,16 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
       <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update Screen' : 'Add Screen'}</DialogTitle>
 
       <DialogContent dividers>
-        <Grid container spacing={2} sx={{ mt: 0.5 }}>
+        <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12}>
             <Autocomplete
               options={countries?.filter((c) => c.status === 'A') || []}
-              filterOptions={filter}
               getOptionLabel={(o) => `${o.countryName} (${o.countryCode})`}
               value={countries?.find((c) => c.countryCode === form.selectedCountry) || null}
               disabled={!!editData}
-              onChange={(_, val) => setForm({ ...form, selectedCountry: val ? val.countryCode : '' })}
+              onChange={(_, val) => handleChange('selectedCountry', val ? val.countryCode : '')}
               renderInput={(p) => (
-                <TextField {...p} label="Destination Country" error={!!errors.selectedCountry} helperText={errors.selectedCountry} />
+                <TextField {...p} label="Destination Country" required error={!!errors.selectedCountry} helperText={errors.selectedCountry} />
               )}
             />
           </Grid>
@@ -112,9 +102,10 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
             <TextField
               fullWidth
               label="Screen Code"
+              required
               disabled={!!editData}
               value={form.screencode}
-              onChange={(e) => setForm({ ...form, screencode: e.target.value })}
+              onChange={(e) => handleChange('screencode', e.target.value.toUpperCase())}
               error={!!errors.screencode}
               helperText={errors.screencode}
             />
@@ -124,8 +115,9 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
             <TextField
               fullWidth
               label="Description"
+              required
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(e) => handleChange('description', e.target.value)}
               error={!!errors.description}
               helperText={errors.description}
             />
@@ -136,9 +128,10 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
               fullWidth
               type="date"
               label="Effective From"
+              required
               InputLabelProps={{ shrink: true }}
               value={form.fromDate}
-              onChange={(e) => setForm({ ...form, fromDate: e.target.value })}
+              onChange={(e) => handleChange('fromDate', e.target.value)}
               error={!!errors.fromDate}
               helperText={errors.fromDate}
             />
@@ -149,9 +142,11 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
               fullWidth
               type="date"
               label="Effective To"
+              required
               InputLabelProps={{ shrink: true }}
+              inputProps={{ min: form.fromDate }}
               value={form.toDate}
-              onChange={(e) => setForm({ ...form, toDate: e.target.value })}
+              onChange={(e) => handleChange('toDate', e.target.value)}
               error={!!errors.toDate}
               helperText={errors.toDate}
             />
@@ -159,7 +154,7 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
 
           <Grid item xs={12}>
             <FormControlLabel
-              control={<Checkbox checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />}
+              control={<Checkbox checked={form.active} onChange={(e) => handleChange('active', e.target.checked)} />}
               label="Active Status"
             />
           </Grid>
@@ -171,7 +166,7 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
           Cancel
         </Button>
         <Button variant="contained" onClick={handleSubmit}>
-          {editData ? 'Update' : 'Create'}
+          {editData ? 'Update' : 'Save'}
         </Button>
       </DialogActions>
     </Dialog>

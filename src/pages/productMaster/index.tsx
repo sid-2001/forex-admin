@@ -1,68 +1,72 @@
-import { Button, Stack, IconButton } from '@mui/material'
+import { Button, Stack, IconButton, Box } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 
 import ProductFormDialog from '../../components/productDialog'
 import ProductService from '../../services/product.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
+import { useRecoilState } from 'recoil'
+import { alertState, alertTextState, alertTypeState } from '@/states/state'
 
 export default function ProductManagement() {
+  const productService = useMemo(() => new ProductService(), [])
+  const local_service = useMemo(() => new LocalStorageService(), [])
+
   const [open, setOpen] = useState(false)
   const [editData, setEditData] = useState<any | null>(null)
   const [rows, setRows] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
 
-  const productService = new ProductService()
-  const local_service = new LocalStorageService()
+  const [alertOpen, setAlertOpen] = useRecoilState(alertState)
+  const [alertText, setAlertText] = useRecoilState(alertTextState)
+  const [alertType, setAlertType] = useRecoilState(alertTypeState)
 
-  const fetchData = async () => {
+  const showAlert = (type: 'Success' | 'Fail', text: string) => {
+    setAlertType(type)
+    setAlertText(text)
+    setAlertOpen(true)
+  }
+
+  const fetchData = useCallback(async () => {
     setLoading(true)
     try {
       const res = await productService.getProductList()
-
-      setRows(res.filter((r: any) => r.active))
+      // Note: Removed the .filter(active) so we can see all records,
+      // similar to other master screens.
+      setRows(Array.isArray(res) ? res : [])
     } finally {
       setLoading(false)
     }
-  }
+  }, [productService])
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [fetchData])
 
-  const handleCreate = async (data: any) => {
-    const payload = {
-      productCode: data.productCode,
-      productName: data.productName,
-      effectiveFromDate: `${data.effectiveFromDate}`,
-      effectiveToDate: `${data.effectiveToDate}`,
-      createdBy: local_service?.get_staff_id() || 'APSNGGGN3654',
+  const handleAction = async (data: any) => {
+    if (data.validationError) {
+      showAlert('Fail', data.validationError)
+      return
     }
 
-    const res = await productService.createProduct(payload)
+    const isUpdate = !!editData
+    const res = isUpdate
+      ? await productService.updateProduct(editData.countryProductCode, {
+          ...data,
+          modifiedBy: local_service.get_staff_id(),
+          modifiedLocalDateTime: new Date().toISOString().split('.')[0],
+          modifiedTimezone: 'Asia/Kolkata',
+          modifiedOffset: '+05:30',
+        })
+      : await productService.createProduct({
+          ...data,
+          createdBy: local_service.get_staff_id(),
+        })
+
     if (res) {
-      setOpen(false)
-      fetchData()
-    }
-  }
-
-  const handleUpdate = async (data: any) => {
-    const payload = {
-      productCode: data.productCode,
-      productName: data.productName,
-      active: data.active,
-      effectiveFromDate: `${data.effectiveFromDate}T00:00:00`,
-      effectiveToDate: `${data.effectiveToDate}T00:00:00`,
-      modifiedBy: local_service?.get_staff_id() || 'APSNGGGN3624',
-      modifiedLocalDateTime: new Date().toISOString().split('.')[0],
-      modifiedTimezone: 'Asia/Kolkata',
-      modifiedOffset: '+05:30',
-    }
-
-    const res = await productService.updateProduct(editData.countryProductCode, payload)
-    if (res) {
+      showAlert('Success', `Product ${isUpdate ? 'Updated' : 'Created'} Successfully`)
       setOpen(false)
       fetchData()
     }
@@ -71,41 +75,51 @@ export default function ProductManagement() {
   const handleDelete = async (row: any) => {
     try {
       await productService.deleteProduct(row.countryProductCode, false)
-      console.log('Deleted successfully')
+      showAlert('Success', 'Product deleted successfully')
       fetchData()
     } catch (err) {
-      console.error('Delete failed', err)
+      showAlert('Fail', 'Delete failed')
     }
   }
 
   const columns: GridColDef[] = [
+    // {
+    //   field: 'productCode',
+    //   headerName: 'Product Code',
+    //   flex: 1,
+    //   headerClassName: 'super-app-theme--header',
+    //   valueGetter: (p) => p.row?.productCode || '',
+    // },
     { field: 'productCode', headerName: 'Product Code', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'productName', headerName: 'Description', flex: 2, headerClassName: 'super-app-theme--header' },
     {
-      field: 'active',
-      headerName: 'Active',
-      flex: 1,
-      renderCell: (p) => (p.value ? 'Yes' : 'No'),
-      headerClassName: 'super-app-theme--header',
-    },
-    {
       field: 'effectiveFromDate',
-      headerName: 'EffectiveFrom',
+      headerName: 'Effective From',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      renderCell: (p) => p.row?.effectiveFromDate?.split('T')[0] || '',
     },
     {
       field: 'effectiveToDate',
-      headerName: 'EffectiveTo',
+      headerName: 'Effective To',
       flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (p) => p.row?.effectiveToDate?.split('T')[0] || '',
+    },
+    {
+      field: 'active',
+      headerName: 'Active',
+      flex: 0.8,
+      renderCell: (p) => (p.row?.active ? 'Yes' : 'No'),
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'actions',
       headerName: 'Actions',
       width: 120,
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
-        <>
+        <Stack direction="row" spacing={1}>
           <IconButton
             color="primary"
             onClick={() => {
@@ -115,32 +129,16 @@ export default function ProductManagement() {
           >
             <EditIcon />
           </IconButton>
-
-          {/* <IconButton
-            color="error"
-            onClick={() => {
-              handleDelete(params.row)
-              console.log('content is deleted')
-            }}
-          >
+          {/* <IconButton color="error" onClick={() => handleDelete(params.row)}>
             <DeleteIcon />
           </IconButton> */}
-          <IconButton
-            color="error"
-            onClick={async () => {
-              await handleDelete(params.row)
-            }}
-          >
-            <DeleteIcon />
-          </IconButton>
-        </>
+        </Stack>
       ),
-      headerClassName: 'super-app-theme--header',
     },
   ]
 
   return (
-    <>
+    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { backgroundColor: 'rgba(0, 0, 0, 0.05)', fontWeight: 'bold' } }}>
       <Stack direction="row" justifyContent="flex-start" mb={2}>
         <Button
           variant="contained"
@@ -153,26 +151,18 @@ export default function ProductManagement() {
         </Button>
       </Stack>
 
-      <div style={{ width: '80vw' }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          loading={loading}
-          getRowId={(row) => row.countryProductCode}
-          pageSizeOptions={[10, 20, 50]}
-          disableRowSelectionOnClick
-                  initialState={{
-    pagination: {
-      paginationModel: {
-        page: 0,
-        pageSize: 5,
-      },
-    },
-  }}
-        />
-      </div>
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        loading={loading}
+        getRowId={(row) => row.countryProductCode || Math.random()}
+        autoHeight
+        initialState={{
+          pagination: { paginationModel: { page: 0, pageSize: 5 } },
+        }}
+      />
 
-      <ProductFormDialog open={open} onClose={() => setOpen(false)} editData={editData} onSubmit={editData ? handleUpdate : handleCreate} />
-    </>
+      <ProductFormDialog open={open} onClose={() => setOpen(false)} editData={editData} onSubmit={handleAction} />
+    </Box>
   )
 }

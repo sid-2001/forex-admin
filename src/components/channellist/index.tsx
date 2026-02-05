@@ -7,185 +7,164 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
-  InputLabel,
-  Select,
-  MenuItem,
-  Typography
-} from "@mui/material";
-import { useEffect, useState } from "react";
-import { useRecoilState } from "recoil";
-import { countyState } from "@/states/state";
-import { LocalStorageService } from "@/helpers/local-storage-service";
+  Grid,
+  Autocomplete,
+  createFilterOptions,
+} from '@mui/material'
+import { useEffect, useState } from 'react'
+import { useRecoilState } from 'recoil'
+import { countyState } from '@/states/state'
 
-export interface Channel {
-  channel_code: string;
-  country_code: string;
-  channel_description: string;
-  active: boolean;
-}
-
+const filter = createFilterOptions({
+  matchFrom: 'any',
+  stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
+})
 
 interface Props {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (data: any) => void;
-  editData?: any | null;
+  open: boolean
+  onClose: () => void
+  onSubmit: (data: any) => void
+  editData?: any | null
 }
 
-export default function ChannelFormDialog({
-  open,
-  onClose,
-  onSubmit,
-  editData
-}: Props) {
-  const [channelCode, setChannelCode] = useState("");
-  const [description, setDescription] = useState("");
-  const [active, setActive] = useState(true);
-  const [selectedCountry, setSelectedCountry] = useState("");
-  const [applicantId, setApplicantId] = useState("");
-  const [effectiveFrom, setEffectiveFrom] = useState("");
-  const [effectiveTo, setEffectiveTo] = useState("");
-
-  const [countries] = useRecoilState(countyState);
-  const local_service =new LocalStorageService()
+export default function ChannelFormDialog({ open, onClose, onSubmit, editData }: Props) {
+  const [form, setForm] = useState({
+    channelCode: '',
+    description: '',
+    selectedCountry: '',
+    effectiveFrom: '',
+    effectiveTo: '',
+    active: true,
+  })
+  const [errors, setErrors] = useState<any>({})
+  const [countries] = useRecoilState(countyState)
 
   useEffect(() => {
-    if (editData) {
-      setChannelCode(editData.channel_code);
-      setDescription(editData.channel_description);
-      setSelectedCountry(editData.country_code);
-      setActive(editData.active);
-       setApplicantId(editData?.applicant_id);
-      setEffectiveFrom(editData?.effective_from_date?.split("T")[0]);
-      setEffectiveTo(editData?.effective_to_date?.split("T")[0]);
+    if (editData && open) {
+      // Map both potential underscore and lowercase keys from API
+      const fDate = editData.effective_from_date || editData.effectivefromdate || ''
+      const tDate = editData.effective_to_date || editData.effectivetodate || ''
 
+      setForm({
+        channelCode: editData.channel_code || '',
+        description: editData.channel_description || '',
+        selectedCountry: editData.country_code || '',
+        effectiveFrom: fDate.includes('T') ? fDate.split('T')[0] : fDate,
+        effectiveTo: tDate.includes('T') ? tDate.split('T')[0] : tDate,
+        active: editData.active ?? true,
+      })
     } else {
-      setChannelCode("");
-      setDescription("");
-      setSelectedCountry("");
-      setActive(active);
-      setApplicantId("");
-      setEffectiveFrom("");
-      setEffectiveTo("");
+      setForm({ channelCode: '', description: '', selectedCountry: '', effectiveFrom: '', effectiveTo: '', active: true })
     }
-  }, [editData]);
+    setErrors({})
+  }, [editData, open])
 
   const handleSubmit = () => {
-    onSubmit({
-      applicantId,
-      channelCode,
-      description,
-      selectedCountry,
-      active,
-      effectiveFrom,
-      effectiveTo
-    });
-  };
+    const newErrors: any = {}
+    if (!form.channelCode.trim()) newErrors.channelCode = 'Required'
+    if (!form.description.trim()) newErrors.description = 'Required'
+    if (!form.selectedCountry) newErrors.selectedCountry = 'Required'
+    if (!form.effectiveFrom) newErrors.effectiveFrom = 'Required'
+    if (!form.effectiveTo) newErrors.effectiveTo = 'Required'
+
+    setErrors(newErrors)
+    if (Object.keys(newErrors).length > 0) return
+
+    // Logical Date Validation
+    if (new Date(form.effectiveTo) < new Date(form.effectiveFrom)) {
+      onSubmit({ validationError: 'End Date cannot be earlier than Start Date' })
+      return
+    }
+
+    onSubmit(form)
+  }
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth>
-      <DialogTitle>
-        {editData ? "Update Channel" : "Create Channel"}
-      </DialogTitle>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update Channel' : 'Create Channel'}</DialogTitle>
+      <DialogContent dividers>
+        <Grid container spacing={2} sx={{ mt: 0.5 }}>
+          <Grid item xs={12}>
+            <Autocomplete
+              options={countries?.filter((c: any) => c.status === 'A') || []}
+              filterOptions={filter}
+              getOptionLabel={(o: any) => `${o.countryName} (${o.countryCode})`}
+              value={countries?.find((c: any) => c.countryCode === form.selectedCountry) || null}
+              disabled={!!editData}
+              onChange={(_, val) => setForm({ ...form, selectedCountry: val ? val.countryCode : '' })}
+              renderInput={(p) => <TextField {...p} label="Country" error={!!errors.selectedCountry} helperText={errors.selectedCountry} required />}
+            />
+          </Grid>
 
-      <DialogContent>
-        {/* <TextField
-          label="Applicant ID"
-          fullWidth
-          di
-          margin="normal"
-          value={applicantId}
-          onChange={(e) => setApplicantId(e.target.value)}
-        /> */}
-
-        <TextField
-          label="Channel Code"
-          fullWidth
-          required
-          margin="normal"
-          inputProps={{maxlength:1}}
-          value={channelCode}
-          disabled={!!editData}
-          onChange={(e) => setChannelCode(e.target.value)}
-        />
-
-        <TextField
-          label="Channel Description"
-          required
-          fullWidth
-          margin="normal"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-
-        <InputLabel>Country</InputLabel>
-        <Select
-        required
-
-          disabled={!!editData}
-          fullWidth
-          value={selectedCountry}
-          onChange={(e) => setSelectedCountry(e.target.value as string)}
-        >
-          {countries
-            ?.filter((c) => c.status === "A")
-            .map((country) => (
-              <MenuItem
-              //@ts-ignore
-                key={country.countryCode}
-                value={country.countryCode}
-              >
-                <Typography>{country.countryName}</Typography>
-              </MenuItem>
-            ))}
-        </Select>
-
-        
-          <>
+          <Grid item xs={12}>
             <TextField
+              fullWidth
+              label="Channel Code"
+              inputProps={{ maxLength: 1 }}
+              value={form.channelCode}
+              disabled={!!editData}
+              onChange={(e) => setForm({ ...form, channelCode: e.target.value.toUpperCase() })}
+              error={!!errors.channelCode}
+              helperText={errors.channelCode}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Channel Description"
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              error={!!errors.description}
+              helperText={errors.description}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
               type="date"
               label="Effective From"
-              required
-              fullWidth
-              margin="normal"
               InputLabelProps={{ shrink: true }}
-              value={effectiveFrom}
-              onChange={(e) => setEffectiveFrom(e.target.value)}
+              value={form.effectiveFrom}
+              onChange={(e) => setForm({ ...form, effectiveFrom: e.target.value })}
+              error={!!errors.effectiveFrom}
+              required
             />
+          </Grid>
 
+          <Grid item xs={6}>
             <TextField
+              fullWidth
               type="date"
               label="Effective To"
-              required
-              fullWidth
-              margin="normal"
               InputLabelProps={{ shrink: true }}
-              value={effectiveTo}
-              onChange={(e) => setEffectiveTo(e.target.value)}
+              value={form.effectiveTo}
+              onChange={(e) => setForm({ ...form, effectiveTo: e.target.value })}
+              error={!!errors.effectiveTo}
+              inputProps={{ min: form.effectiveFrom }}
+              required
             />
-          </>
-     
+          </Grid>
 
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={active}
-              onChange={(e) => {  
-              console.log("the new check vali is ",(e.target.checked));
-                 
-                setActive(e.target.checked)}}
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={<Checkbox checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />}
+              label="Active Status"
             />
-          }
-          label="Active"
-        />
+          </Grid>
+        </Grid>
       </DialogContent>
-
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+      <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+        <Button onClick={onClose} color="inherit">
+          Cancel
+        </Button>
         <Button variant="contained" onClick={handleSubmit}>
-          {editData ? "Update" : "Create"}
+          {editData ? 'Update' : 'Create'}
         </Button>
       </DialogActions>
     </Dialog>
-  );
+  )
 }

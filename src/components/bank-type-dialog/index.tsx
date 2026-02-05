@@ -7,215 +7,170 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography
-} from "@mui/material";
-import { useEffect, useState } from "react";
-import { LocalStorageService } from "@/helpers/local-storage-service";
-import { BankBusinessType } from "../../services/bantypemaster.service";
-import { useRecoilState } from "recoil";
-import { countyState } from "@/states/state";
+  Grid,
+  Autocomplete,
+  createFilterOptions,
+  Box,
+} from '@mui/material'
+import { useEffect, useState } from 'react'
+import { LocalStorageService } from '@/helpers/local-storage-service'
+import { useRecoilState } from 'recoil'
+import { countyState } from '@/states/state'
 
-interface Props {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (data: any) => void;
-  editData?: any | null;
-}
+// Custom filter to search by both Name and Code
+const filter = createFilterOptions({
+  matchFrom: 'any',
+  stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
+})
 
-export default function BankTypeDialog({
-  open,
-  onClose,
-  onSubmit,
-  editData
-}: Props) {
-  const localService = new LocalStorageService();
-const [selectedCountry, setSelectedCountry] = useState<string>('')
-const [countries, setCountries] = useRecoilState(countyState)
+export default function BankTypeDialog({ open, onClose, onSubmit, editData }: any) {
+  const localService = new LocalStorageService()
+  const [countries] = useRecoilState(countyState)
+  const [errors, setErrors] = useState<any>({})
 
   const [form, setForm] = useState<any>({
-    countryCode: "",
-    businessCurrencyCode: "",
-    bankBusinessName: "",
+    countryCode: '',
+    businessCurrencyCode: 'INR',
+    bankBusinessName: '',
     active: true,
-    effective_from_date: "",
-    effective_to_date: ""
-  });
+    effective_from_date: '',
+    effective_to_date: '',
+  })
 
   useEffect(() => {
-    if (editData) {
-      console.log(editData);
+    if (editData && open) {
+      const fDate = editData.effective_from_date || editData.effectivefromdate || ''
+      const tDate = editData.effective_to_date || editData.effectivetodate || ''
+
       setForm({
-        countryCode: editData.countryCode,
-        businessCurrencyCode: editData.businessCurrencyCode,
-        bankBusinessName: editData.bankBusinessName,
-        active: editData.active,
-        effective_from_date: editData.effective_from_date.split("T")[0],
-        effective_to_date: editData.effective_to_date.split("T")[0]
-      });
-
-
-      setSelectedCountry(editData.countryCode)
+        countryCode: editData.countryCode || '',
+        businessCurrencyCode: editData.businessCurrencyCode || 'INR',
+        bankBusinessName: editData.bankBusinessName || '',
+        active: editData.active ?? true,
+        effective_from_date: fDate.split('T')[0],
+        effective_to_date: tDate.split('T')[0],
+      })
     } else {
       setForm({
-        countryCode: "",
-        businessCurrencyCode: "INR",
-        bankBusinessName: "",
+        countryCode: '',
+        businessCurrencyCode: 'INR',
+        bankBusinessName: '',
         active: true,
-        effective_from_date: "",
-        effective_to_date: ""
-      });
+        effective_from_date: '',
+        effective_to_date: '',
+      })
     }
-  }, [editData]);
-
-  const handleChange = (key: string, value: any) => {
-    setForm({ ...form, [key]: value });
-  };
+    setErrors({})
+  }, [editData, open])
 
   const handleSubmit = () => {
+    const newErrors: any = {}
+    if (!form.bankBusinessName?.trim()) newErrors.bankBusinessName = 'Required'
+    if (!form.countryCode) newErrors.countryCode = 'Required'
+    if (!form.effective_from_date) newErrors.effective_from_date = 'Required'
+    if (!form.effective_to_date) newErrors.effective_to_date = 'Required'
 
-    console.log({...form})
+    setErrors(newErrors)
+    if (Object.keys(newErrors).length > 0) return
+
+    if (new Date(form.effective_to_date) < new Date(form.effective_from_date)) {
+      onSubmit({ validationError: 'End Date cannot be less than Start Date' })
+      return
+    }
+
     onSubmit({
       ...form,
       created_by: localService.get_staff_id(),
       modified_by: editData ? localService.get_staff_id() : undefined,
-      effective_from_date: `${form.effective_from_date}T00:00:00`,
-      effective_to_date: `${form.effective_to_date}T23:59:59`
-    });
-  };
-      const handleCountryChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-        const countryCode = event.target.value as string
-      console.log(countryCode)
-        setSelectedCountry(countryCode)
-        handleChange("countryCode", countryCode)
-    
-      
-        const selected = countries.find((country) => country.countryCode == countryCode)
-      
-    
-      }
+      effective_from_date: `${form.effective_from_date}T00:00:00.000Z`,
+      effective_to_date: `${form.effective_to_date}T23:59:59.000Z`,
+    })
+  }
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>
-        {editData ? "Update Bank Type" : "Add Bank Type"}
-      </DialogTitle>
+      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update Bank Type' : 'Add Bank Type'}</DialogTitle>
 
-      <DialogContent>
-        <TextField
-          label="Business Name"
-          fullWidth
-          margin="dense"
-          value={form.bankBusinessName}
-          onChange={(e) =>
-            handleChange("bankBusinessName", e.target.value)
-          }
-        />
-
-        <TextField
-          label="Currency"
-          fullWidth
-          margin="dense"
-          value={form.businessCurrencyCode}
-          onChange={(e) =>
-            handleChange("businessCurrencyCode", e.target.value)
-          }
-        />
-
-        {/* <TextField
-          label="Country"
-          fullWidth
-          margin="dense"
-          value={form.countryCode}
-          onChange={(e) =>
-            handleChange("countryCode", e.target.value)
-          }
-        /> */}
-
-
-               <InputLabel>Destination Country</InputLabel>
-                                    
-                                      <Select
-                                        value={selectedCountry}
-                                        fullWidth
-                                        style={{
-        
-                                          width:"100%"
-                                        }}
-                                        //@ts-ignore
-                                          // disabled={!!editData}
-                                          //@ts-ignore
-                                        onChange={handleCountryChange}
-                                        displayEmpty
-                                      >
-                                        {
-                                          //(userCountry === 'IN' ? countries : countries)
-                                          countries
-                                            ?.filter((item) => item.status === 'A')
-                                            .map((country) => (
-                                              <MenuItem
-                                                //@ts-ignore
-                                                key={country?.countryCode}
-                                                value={country.countryCode}
-                                              >
-                                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                  <Typography>{country?.countryName}</Typography>
-                                                            <Typography>{country?.countryCode}</Typography>
-                                               
-                                                </div>
-                                              </MenuItem>
-                                            ))
-                                        }
-                                      </Select>
-        
-
-        <TextField
-          type="date"
-          label="Effective From"
-          fullWidth
-          margin="dense"
-          InputLabelProps={{ shrink: true }}
-          value={form.effective_from_date}
-        //   inputProps={{ readOnly: true }}
-          onChange={(e) =>
-            handleChange("effective_from_date", e.target.value)
-          }
-        />
-
-        <TextField
-          type="date"
-          label="Effective To"
-          fullWidth
-          margin="dense"
-          InputLabelProps={{ shrink: true }}
-          value={form.effective_to_date}
-        //   inputProps={{ readOnly: true }}
-          onChange={(e) =>
-            handleChange("effective_to_date", e.target.value)
-          }
-        />
-
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={form.active}
-              onChange={(e) =>
-                handleChange("active", e.target.checked)
-              }
+      <DialogContent dividers>
+        <Grid container spacing={2} sx={{ mt: 0.5 }}>
+          <Grid item xs={12}>
+            <TextField
+              label="Business Name"
+              fullWidth
+              required
+              value={form.bankBusinessName}
+              onChange={(e) => setForm({ ...form, bankBusinessName: e.target.value })}
+              error={!!errors.bankBusinessName}
+              helperText={errors.bankBusinessName}
             />
-          }
-          label="Active"
-        />
+          </Grid>
+
+          <Grid item xs={12}>
+            {/* Searchable Country Selector */}
+            <Autocomplete
+              options={countries?.filter((c: any) => c.status === 'A') || []}
+              filterOptions={filter}
+              getOptionLabel={(o: any) => `${o.countryName} (${o.countryCode})`}
+              // Find the full country object based on the code stored in state
+              value={countries?.find((c: any) => c.countryCode === form.countryCode) || null}
+              onChange={(_, val) => setForm({ ...form, countryCode: val ? val.countryCode : '' })}
+              renderInput={(p) => <TextField {...p} label="Country" required error={!!errors.countryCode} helperText={errors.countryCode} />}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              label="Currency"
+              fullWidth
+              value={form.businessCurrencyCode}
+              onChange={(e) => setForm({ ...form, businessCurrencyCode: e.target.value.toUpperCase() })}
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <TextField
+              type="date"
+              label="Effective From"
+              fullWidth
+              required
+              InputLabelProps={{ shrink: true }}
+              value={form.effective_from_date}
+              onChange={(e) => setForm({ ...form, effective_from_date: e.target.value })}
+              error={!!errors.effective_from_date}
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <TextField
+              type="date"
+              label="Effective To"
+              fullWidth
+              required
+              InputLabelProps={{ shrink: true }}
+              value={form.effective_to_date}
+              onChange={(e) => setForm({ ...form, effective_to_date: e.target.value })}
+              error={!!errors.effective_to_date}
+              inputProps={{ min: form.effective_from_date }}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={<Checkbox checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />}
+              label="Active Status"
+            />
+          </Grid>
+        </Grid>
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+      <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+        <Button onClick={onClose} color="inherit">
+          Cancel
+        </Button>
         <Button variant="contained" onClick={handleSubmit}>
-          {editData ? "Update" : "Create"}
+          {editData ? 'Update' : 'Create'}
         </Button>
       </DialogActions>
     </Dialog>
-  );
+  )
 }

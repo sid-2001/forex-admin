@@ -1,4 +1,4 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Checkbox, FormControlLabel, Box } from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Checkbox, FormControlLabel, Box, Grid } from '@mui/material'
 import { useEffect, useState } from 'react'
 
 interface Props {
@@ -9,98 +9,144 @@ interface Props {
 }
 
 export default function ProductFormDialog({ open, onClose, onSubmit, editData }: Props) {
-  const [productCode, setProductCode] = useState('')
-  const [productName, setProductName] = useState('')
-  const [active, setActive] = useState(true)
-  const [effectiveFromDate, setEffectiveFromDate] = useState('')
-  const [effectiveToDate, setEffectiveToDate] = useState('')
+  const [form, setForm] = useState({
+    productCode: '',
+    productName: '',
+    active: true,
+    effectiveFromDate: '',
+    effectiveToDate: '',
+  })
+
+  const [errors, setErrors] = useState<any>({})
 
   useEffect(() => {
-    if (editData) {
-      setProductCode(editData.productCode || '')
-      setProductName(editData.productName || '')
-      setActive(editData.active ?? true)
-      setEffectiveFromDate(editData.effectiveFromDate ? editData.effectiveFromDate.split('T')[0] : '')
-      setEffectiveToDate(editData.effectiveToDate ? editData.effectiveToDate.split('T')[0] : '')
+    if (editData && open) {
+      // Safe splitting for pre-filling HTML5 date inputs
+      const fDate = editData.effectiveFromDate || editData.effectivefromdate || ''
+      const tDate = editData.effectiveToDate || editData.effectivetodate || ''
+
+      setForm({
+        productCode: editData.productCode || '',
+        productName: editData.productName || '',
+        active: editData.active ?? true,
+        effectiveFromDate: fDate.split('T')[0],
+        effectiveToDate: tDate.split('T')[0],
+      })
     } else {
-      setProductCode('')
-      setProductName('')
-      setActive(true)
-      setEffectiveFromDate('')
-      setEffectiveToDate('')
+      setForm({
+        productCode: '',
+        productName: '',
+        active: true,
+        effectiveFromDate: '',
+        effectiveToDate: '',
+      })
     }
+    setErrors({})
   }, [editData, open])
 
   const handleSubmit = () => {
+    const newErrors: any = {}
+    if (!form.productCode.trim()) newErrors.productCode = 'Required'
+    if (!form.productName.trim()) newErrors.productName = 'Required'
+    if (!form.effectiveFromDate) newErrors.effectiveFromDate = 'Required'
+    if (!form.effectiveToDate) newErrors.effectiveToDate = 'Required'
+
+    setErrors(newErrors)
+    if (Object.keys(newErrors).length > 0) return
+
+    // Validation: To Date cannot be before From Date
+    if (new Date(form.effectiveToDate) < new Date(form.effectiveFromDate)) {
+      onSubmit({ validationError: 'Effective To Date cannot be earlier than From Date' })
+      return
+    }
+
     onSubmit({
-      productCode,
-      productName,
-      active,
-      effectiveFromDate: effectiveFromDate ? `${effectiveFromDate}T00:00:00` : null,
-      effectiveToDate: effectiveToDate ? `${effectiveToDate}T00:00:00` : null,
+      ...form,
+      effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
+      effectiveToDate: `${form.effectiveToDate}T23:59:59`,
     })
+  }
+
+  const handleChange = (field: string, value: any) => {
+    setForm((prev) => ({ ...prev, [field]: value }))
   }
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle sx={{ fontWeight: 'bold' }}>{editData ? 'Update Product' : 'Create New Product'}</DialogTitle>
+      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update Product' : 'Create New Product'}</DialogTitle>
 
       <DialogContent dividers>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 1 }}>
-          <TextField
-            label="Product Code"
-            fullWidth
-            margin="dense"
-            variant="outlined"
-            value={productCode}
-            disabled={!!editData}
-            onChange={(e) => setProductCode(e.target.value.toUpperCase())}
-            placeholder="e.g., RMOW"
-          />
+        <Grid container spacing={2} sx={{ mt: 0.5 }}>
+          <Grid item xs={12}>
+            <TextField
+              label="Product Code"
+              fullWidth
+              required
+              disabled={!!editData}
+              value={form.productCode}
+              onChange={(e) => handleChange('productCode', e.target.value.toUpperCase())}
+              error={!!errors.productCode}
+              helperText={errors.productCode}
+              placeholder="e.g., RMOW"
+            />
+          </Grid>
 
-          <TextField
-            label="Product Name"
-            fullWidth
-            margin="dense"
-            variant="outlined"
-            value={productName}
-            onChange={(e) => setProductName(e.target.value)}
-            placeholder="e.g., Remittance - Outward"
-          />
+          <Grid item xs={12}>
+            <TextField
+              label="Product Name"
+              fullWidth
+              required
+              value={form.productName}
+              onChange={(e) => handleChange('productName', e.target.value)}
+              error={!!errors.productName}
+              helperText={errors.productName}
+              placeholder="e.g., Remittance - Outward"
+            />
+          </Grid>
 
-          <TextField
-            type="date"
-            label="Effective From"
-            fullWidth
-            margin="dense"
-            InputLabelProps={{ shrink: true }}
-            value={effectiveFromDate}
-            onChange={(e) => setEffectiveFromDate(e.target.value)}
-          />
+          <Grid item xs={6}>
+            <TextField
+              type="date"
+              label="Effective From"
+              fullWidth
+              required
+              InputLabelProps={{ shrink: true }}
+              value={form.effectiveFromDate}
+              onChange={(e) => handleChange('effectiveFromDate', e.target.value)}
+              error={!!errors.effectiveFromDate}
+              helperText={errors.effectiveFromDate}
+            />
+          </Grid>
 
-          <TextField
-            type="date"
-            label="Effective To"
-            fullWidth
-            margin="dense"
-            InputLabelProps={{ shrink: true }}
-            value={effectiveToDate}
-            onChange={(e) => setEffectiveToDate(e.target.value)}
-          />
+          <Grid item xs={6}>
+            <TextField
+              type="date"
+              label="Effective To"
+              fullWidth
+              required
+              InputLabelProps={{ shrink: true }}
+              value={form.effectiveToDate}
+              onChange={(e) => handleChange('effectiveToDate', e.target.value)}
+              error={!!errors.effectiveToDate}
+              helperText={errors.effectiveToDate}
+              inputProps={{ min: form.effectiveFromDate }}
+            />
+          </Grid>
 
-          <FormControlLabel
-            sx={{ mt: 1 }}
-            control={<Checkbox checked={active} onChange={(e) => setActive(e.target.checked)} color="primary" />}
-            label="Active Status"
-          />
-        </Box>
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={<Checkbox checked={form.active} onChange={(e) => handleChange('active', e.target.checked)} color="primary" />}
+              label="Active Status"
+            />
+          </Grid>
+        </Grid>
       </DialogContent>
 
-      <DialogActions sx={{ p: 2 }}>
+      <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
         <Button onClick={onClose} color="inherit">
           Cancel
         </Button>
-        <Button variant="contained" onClick={handleSubmit} disabled={!productCode || !productName}>
+        <Button variant="contained" onClick={handleSubmit}>
           {editData ? 'Update Product' : 'Save Product'}
         </Button>
       </DialogActions>

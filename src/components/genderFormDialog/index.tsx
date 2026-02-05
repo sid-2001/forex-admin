@@ -1,5 +1,3 @@
-import { LocalStorageService } from "@/helpers/local-storage-service";
-import { countyState } from "@/states/state";
 import {
   Dialog,
   DialogTitle,
@@ -9,209 +7,156 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
-  InputLabel,
-  Select,
-  MenuItem,
-  Typography
-} from "@mui/material";
-import { useState, useEffect } from "react";
-import { useRecoilState } from "recoil";
-interface Gender {
-  gendercode: string;
-  description: string;
-  active: boolean;
-   created_by:any;
-   effectivefromdate:any,
-    effectivetodate:any,
-   countrycode:any
-}
-interface Props {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (data: any) => void;
-  editData?: Gender | null;
-}
+  Grid,
+  Autocomplete,
+  createFilterOptions,
+} from '@mui/material'
+import { useState, useEffect } from 'react'
+import { useRecoilState } from 'recoil'
+import { countyState } from '@/states/state'
 
-export default function GenderFormDialog({
-  open,
-  onClose,
-  onSubmit,
-  editData
-}: Props) {
-  const [gendercode, setGendercode] = useState("");
-  const [description, setDescription] = useState("");
-  const [active, setActive] = useState(true);
-  const local_service =new LocalStorageService();
-  const [username, setUsername] = useState(local_service?.get_staff_id());
-const [effectiveFrom, setEffectiveFrom] = useState("");
-const [effectiveTo, setEffectiveTo] = useState("");
-const [selectedCountry, setSelectedCountry] = useState<string>('')
-const [countries, setCountries] = useRecoilState(countyState)
+const filter = createFilterOptions({
+  matchFrom: 'any',
+  stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
+})
 
-
+export default function GenderFormDialog({ open, onClose, onSubmit, editData }: any) {
+  const [countries] = useRecoilState(countyState)
+  const [form, setForm] = useState({
+    gendercode: '',
+    description: '',
+    selectedCountry: '',
+    effectiveFrom: '',
+    effectiveTo: '',
+    active: true,
+  })
+  const [errors, setErrors] = useState<any>({})
 
   useEffect(() => {
-    if (editData) {
-      setGendercode(editData.gendercode);
-      setDescription(editData.description);
-      setActive(editData.active);
+    if (editData && open) {
+      // Map multiple naming conventions to local form state
+      const fDate = editData.effectivefromdate || editData.effectiveFromDate || ''
+      const tDate = editData.effectivetodate || editData.effectiveToDate || ''
 
-    setUsername(editData?.created_by);
-    setEffectiveFrom(editData?.effectivefromdate.split("T")[0]);
-    setEffectiveTo(editData?.effectivetodate.split("T")[0]);
-    setSelectedCountry(editData?.countrycode);
+      setForm({
+        gendercode: editData.gendercode || '',
+        description: editData.description || '',
+        selectedCountry: editData.countrycode || '',
+        effectiveFrom: fDate.includes('T') ? fDate.split('T')[0] : fDate,
+        effectiveTo: tDate.includes('T') ? tDate.split('T')[0] : tDate,
+        active: editData.active ?? true,
+      })
     } else {
-       setGendercode("");
-    setDescription("");
-    setActive(true);
-    setUsername("");
-    setEffectiveFrom("");
-    setEffectiveTo("");
+      setForm({ gendercode: '', description: '', selectedCountry: '', effectiveFrom: '', effectiveTo: '', active: true })
     }
-  }, [editData]);
+    setErrors({})
+  }, [editData, open])
 
   const handleSubmit = () => {
-    onSubmit({
-       gendercode,
-    description,
-    active,
-    selectedCountry,
-    username,
-    effectiveFrom,
-    effectiveTo
-    });
-  };
+    const newErrors: any = {}
+    if (!form.gendercode.trim()) newErrors.gendercode = 'Required'
+    if (!form.description.trim()) newErrors.description = 'Required'
+    if (!form.selectedCountry) newErrors.selectedCountry = 'Required'
+    if (!form.effectiveFrom) newErrors.effectiveFrom = 'Required'
+    if (!form.effectiveTo) newErrors.effectiveTo = 'Required'
 
-    const handleCountryChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-        const countryCode = event.target.value as string
-      console.log(countryCode)
-        setSelectedCountry(countryCode)
-    
-      
-        const selected = countries.find((country) => country.countryCode == countryCode)
-      
-    
-      }
-  
+    setErrors(newErrors)
+    if (Object.keys(newErrors).length > 0) return
+
+    // Validate that 'To Date' is after 'From Date'
+    if (new Date(form.effectiveTo) < new Date(form.effectiveFrom)) {
+      onSubmit({ validationError: 'End Date cannot be less than Start Date' })
+      return
+    }
+
+    onSubmit(form)
+  }
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth>
-      <DialogTitle>{editData ? "Update Gender" : "Add Gender"}</DialogTitle>
-
-      <DialogContent>
-        <TextField
-          label="Gender Code"
-          fullWidth
-         inputProps={{ maxLength: 1 }}
-          margin="normal"
-          required
-          value={gendercode}
-          disabled={!!editData}
-          onChange={(e) => setGendercode(e.target.value)}
-        />
-
-        <TextField
-          label="Description"
-          fullWidth
-          required
-            inputProps={{ maxLength: 15 }}
-          margin="normal"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-
-         
-                         
-                              <InputLabel>Destination Country</InputLabel>
-                            
-                              <Select
-                              required
-                                value={selectedCountry}
-                                fullWidth
-                                style={{
-
-                                  width:"100%"
-                                }}
-                                //@ts-ignore
-                                  disabled={!!editData}
-                                  //@ts-ignore
-                              onChange={handleCountryChange}
-                                displayEmpty
-                              >
-                                {
-                                  //(userCountry === 'IN' ? countries : countries)
-                                  countries
-                                    ?.filter((item) => item.status === 'A')
-                                    .map((country) => (
-                                      <MenuItem
-                                        //@ts-ignore
-                                        key={country?.countryCode}
-                                        value={country.countryCode}
-                                      >
-                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                          <Typography>{country?.countryName}</Typography>
-                                        </div>
-                                      </MenuItem>
-                                    ))
-                                }
-                              </Select>
-
-
-<TextField
-  label="Effective From Date"
-  type="date"
-  required
-  fullWidth
-  margin="normal"
-  InputLabelProps={{ shrink: true }}
-  value={effectiveFrom}
-  defaultValue={effectiveFrom}
-  onChange={(e) => setEffectiveFrom(e.target.value)}
-  //   inputProps={{
-  //   readOnly: true,   // ⬅️ prevents manual typing
-  // }}
-   inputProps={{
-    min: effectiveFrom, // 👈 prevents selecting earlier date
-  }}
-/>
-
-<TextField
-  label="Effective To Date"
-  type="date"
-  fullWidth
-  required
-  margin="normal"
-  InputLabelProps={{ shrink: true }}
-  value={effectiveTo}
-  defaultValue={effectiveTo}
-  onChange={(e) => setEffectiveTo(e.target.value)}
-    inputProps={{
-    // readOnly: true, 
-    min:effectiveFrom
-  }}
-
-/>
-
-        
-          
-
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={active}
-              onChange={(e) => setActive(e.target.checked)}
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update Gender' : 'Add Gender'}</DialogTitle>
+      <DialogContent dividers>
+        <Grid container spacing={2} sx={{ mt: 0.5 }}>
+          <Grid item xs={12}>
+            <Autocomplete
+              options={countries?.filter((c: any) => c.status === 'A') || []}
+              filterOptions={filter}
+              getOptionLabel={(o: any) => `${o.countryName} (${o.countryCode})`}
+              value={countries?.find((c: any) => c.countryCode === form.selectedCountry) || null}
+              disabled={!!editData}
+              onChange={(_, val) => setForm({ ...form, selectedCountry: val ? val.countryCode : '' })}
+              renderInput={(p) => <TextField {...p} label="Country" error={!!errors.selectedCountry} helperText={errors.selectedCountry} />}
             />
-          }
-          label="Active"
-        />
-      </DialogContent>
+          </Grid>
 
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Gender Code"
+              inputProps={{ maxLength: 1 }}
+              value={form.gendercode}
+              disabled={!!editData}
+              onChange={(e) => setForm({ ...form, gendercode: e.target.value.toUpperCase() })}
+              error={!!errors.gendercode}
+              helperText={errors.gendercode}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Description"
+              inputProps={{ maxLength: 15 }}
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              error={!!errors.description}
+              helperText={errors.description}
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              type="date"
+              label="Effective From"
+              InputLabelProps={{ shrink: true }}
+              value={form.effectiveFrom}
+              onChange={(e) => setForm({ ...form, effectiveFrom: e.target.value })}
+              error={!!errors.effectiveFrom}
+              helperText={errors.effectiveFrom}
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              type="date"
+              label="Effective To"
+              InputLabelProps={{ shrink: true }}
+              value={form.effectiveTo}
+              onChange={(e) => setForm({ ...form, effectiveTo: e.target.value })}
+              error={!!errors.effectiveTo}
+              helperText={errors.effectiveTo}
+              inputProps={{ min: form.effectiveFrom }}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={<Checkbox checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />}
+              label="Active Status"
+            />
+          </Grid>
+        </Grid>
+      </DialogContent>
+      <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+        <Button onClick={onClose} color="inherit">
+          Cancel
+        </Button>
         <Button variant="contained" onClick={handleSubmit}>
-          {editData ? "Update" : "Create"}
+          {editData ? 'Update' : 'Create'}
         </Button>
       </DialogActions>
     </Dialog>
-  );
+  )
 }

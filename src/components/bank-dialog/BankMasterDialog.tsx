@@ -7,264 +7,256 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
-  MenuItem
-} from "@mui/material";
-import { useEffect, useState } from "react";
-import { LocalStorageService } from "@/helpers/local-storage-service";
-import { BankMaster } from "../../services/bankmaster.service";
-import { useRecoilValue } from "recoil";
-import { countyState } from "@/states/state";
+  Grid,
+  Autocomplete,
+  createFilterOptions,
+} from '@mui/material'
+import { useEffect, useState } from 'react'
+import { LocalStorageService } from '@/helpers/local-storage-service'
+import { useRecoilValue } from 'recoil'
+import { countyState } from '@/states/state'
 
-interface Props {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (data: any) => void;
-  editData?: BankMaster | null;
-}
+const filter = createFilterOptions({
+  matchFrom: 'any',
+  stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
+})
 
-export default function BankMasterDialog({
-  open,
-  onClose,
-  onSubmit,
-  editData
-}: Props) {
-  const localService = new LocalStorageService();
-  const countries = useRecoilValue(countyState);
+export default function BankMasterDialog({ open, onClose, onSubmit, editData }: any) {
+  const localService = new LocalStorageService()
+  const countries = useRecoilValue(countyState)
+  const [errors, setErrors] = useState<any>({})
 
   const [form, setForm] = useState<any>({
-    countryCode: "",
-    currencyCode: "INR",
-    bankCode: "",
-    bankName: "",
-    bankBranchCode: "",
-    bankIfscBicCode: "",
-    bankStateProvinceCode: "",
-    bankCity: "",
-    bankPostalCode: "",
+    countryCode: '',
+    currencyCode: 'INR',
+    bankCode: '',
+    bankName: '',
+    bankBranchCode: '',
+    bankIfscBicCode: '',
+    bankStateProvinceCode: '',
+    bankCity: '',
+    bankPostalCode: '',
     active: true,
-    effective_from_date: "",
-    effective_to_date: ""
-  });
-
-  const [errors, setErrors] = useState<any>({});
+    effective_from_date: '',
+    effective_to_date: '',
+  })
 
   useEffect(() => {
-    if (editData) {
+    if (editData && open) {
+      // Safe Date parsing to handle ISO strings from API
+      const fDate = editData.effective_from_date || editData.effectiveFromDate || editData.effectivefromdate || ''
+      const tDate = editData.effective_to_date || editData.effectiveToDate || editData.effectivetodate || ''
+
       setForm({
         ...editData,
-        effective_from_date: editData.effective_from_date?.split("T")[0],
-        effective_to_date: editData.effective_to_date?.split("T")[0]
-      });
+        // Ensure format is YYYY-MM-DD for the HTML5 date picker
+        effective_from_date: fDate.includes('T') ? fDate.split('T')[0] : fDate,
+        effective_to_date: tDate.includes('T') ? tDate.split('T')[0] : tDate,
+      })
     } else {
-      resetForm();
+      setForm({
+        countryCode: '',
+        currencyCode: 'INR',
+        bankCode: '',
+        bankName: '',
+        bankBranchCode: '',
+        bankIfscBicCode: '',
+        bankStateProvinceCode: '',
+        bankCity: '',
+        bankPostalCode: '',
+        active: true,
+        effective_from_date: '',
+        effective_to_date: '',
+      })
     }
-    setErrors({});
-  }, [editData, open]);
-
-  const resetForm = () => {
-    setForm({
-      countryCode: "",
-      currencyCode: "INR",
-      bankCode: "",
-      bankName: "",
-      bankBranchCode: "",
-      bankIfscBicCode: "",
-      bankStateProvinceCode: "",
-      bankCity: "",
-      bankPostalCode: "",
-      active: true,
-      effective_from_date: "",
-      effective_to_date: ""
-    });
-  };
-
-  const handleChange = (key: string, value: any) => {
-    setForm({ ...form, [key]: value });
-  };
-
-  const validate = () => {
-    const newErrors: any = {};
-
-    if (!form.countryCode) newErrors.countryCode = "Country is required";
-    if (!form.bankCode) newErrors.bankCode = "Bank Code is required";
-    if (!form.bankName) newErrors.bankName = "Bank Name is required";
-    if (!form.bankBranchCode) newErrors.bankBranchCode = "Branch Code is required";
-    if (!form.bankIfscBicCode) newErrors.bankIfscBicCode = "IFSC / BIC is required";
-    if (!form.bankCity) newErrors.bankCity = "City is required";
-    if (!form.bankStateProvinceCode) newErrors.bankStateProvinceCode = "State is required";
-    if (!form.bankPostalCode) newErrors.bankPostalCode = "Postal Code is required";
-    if (!form.effective_from_date) newErrors.effective_from_date = "Effective From is required";
-    if (!form.effective_to_date) newErrors.effective_to_date = "Effective To is required";
-
-    if (
-      form.effective_from_date &&
-      form.effective_to_date &&
-      new Date(form.effective_from_date) > new Date(form.effective_to_date)
-    ) {
-      newErrors.effective_to_date = "Effective To must be after Effective From";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    setErrors({})
+  }, [editData, open])
 
   const handleSubmit = () => {
-    if (!validate()) return;
+    const newErrors: any = {}
+    const requiredFields = [
+      'countryCode',
+      'bankCode',
+      'bankName',
+      'bankBranchCode',
+      'bankIfscBicCode',
+      'bankCity',
+      'bankStateProvinceCode',
+      'bankPostalCode',
+      'effective_from_date',
+      'effective_to_date',
+    ]
+
+    requiredFields.forEach((field) => {
+      if (!form[field]) newErrors[field] = 'Required'
+    })
+
+    setErrors(newErrors)
+    if (Object.keys(newErrors).length > 0) return
+
+    // Date Validation
+    if (new Date(form.effective_to_date) < new Date(form.effective_from_date)) {
+      onSubmit({ validationError: 'End Date cannot be earlier than Start Date' })
+      return
+    }
 
     onSubmit({
       ...form,
       created_by: localService.get_staff_id(),
       modified_by: editData ? localService.get_staff_id() : undefined,
-      effective_from_date: `${form.effective_from_date}T00:00:00`,
-      effective_to_date: `${form.effective_to_date}T23:59:59`
-    });
-  };
+      effective_from_date: `${form.effective_from_date}T00:00:00.000Z`,
+      effective_to_date: `${form.effective_to_date}T23:59:59.000Z`,
+    })
+  }
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle>{editData ? "Update Bank" : "Add Bank"}</DialogTitle>
+      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update Bank' : 'Add Bank'}</DialogTitle>
 
-      <DialogContent>
-        {/* Country */}
-        <TextField
-          select
-          label="Country"
-          required
-          fullWidth
-          margin="dense"
-          value={form.countryCode}
-          error={!!errors.countryCode}
-          helperText={errors.countryCode}
-          onChange={(e) => handleChange("countryCode", e.target.value)}
-        >
-          {countries?.map((c: any) => (
-            <MenuItem key={c.countryCode} value={c.countryCode}>
-              {c.countryName}
-            </MenuItem>
-          ))}
-        </TextField>
-
-        <TextField
-          label="Bank Code"
-          fullWidth
-          margin="dense"
-          required
-          disabled={!!editData}
-          value={form.bankCode}
-          error={!!errors.bankCode}
-          helperText={errors.bankCode}
-          onChange={(e) => handleChange("bankCode", e.target.value)}
-        />
-
-        <TextField
-          label="Bank Name"
-          fullWidth
-          margin="dense"
-          required
-          value={form.bankName}
-          error={!!errors.bankName}
-          helperText={errors.bankName}
-          onChange={(e) => handleChange("bankName", e.target.value)}
-        />
-
-        <TextField
-          label="Branch Code"
-          fullWidth
-          margin="dense"
-          required
-          value={form.bankBranchCode}
-          error={!!errors.bankBranchCode}
-          helperText={errors.bankBranchCode}
-          onChange={(e) => handleChange("bankBranchCode", e.target.value)}
-        />
-
-        <TextField
-          label="IFSC / BIC"
-          fullWidth
-          margin="dense"
-          required
-          value={form.bankIfscBicCode}
-          error={!!errors.bankIfscBicCode}
-          helperText={errors.bankIfscBicCode}
-          onChange={(e) => handleChange("bankIfscBicCode", e.target.value)}
-        />
-
-        <TextField
-          label="City"
-          fullWidth
-          margin="dense"
-          required
-          value={form.bankCity}
-          error={!!errors.bankCity}
-          helperText={errors.bankCity}
-          onChange={(e) => handleChange("bankCity", e.target.value)}
-        />
-
-        <TextField
-          label="State"
-          fullWidth
-          margin="dense"
-          required
-          value={form.bankStateProvinceCode}
-          error={!!errors.bankStateProvinceCode}
-          helperText={errors.bankStateProvinceCode}
-          onChange={(e) => handleChange("bankStateProvinceCode", e.target.value)}
-        />
-
-        <TextField
-          label="Postal Code"
-          fullWidth
-          margin="dense"
-          required
-          value={form.bankPostalCode}
-          error={!!errors.bankPostalCode}
-          helperText={errors.bankPostalCode}
-          onChange={(e) => handleChange("bankPostalCode", e.target.value)}
-        />
-
-        <TextField
-          label="Effective From"
-          type="date"
-          fullWidth
-          margin="dense"
-          required
-          InputLabelProps={{ shrink: true }}
-          value={form.effective_from_date}
-          error={!!errors.effective_from_date}
-          helperText={errors.effective_from_date}
-          onChange={(e) => handleChange("effective_from_date", e.target.value)}
-        />
-
-        <TextField
-          label="Effective To"
-          type="date"
-          fullWidth
-          margin="dense"
-          required
-          InputLabelProps={{ shrink: true }}
-          value={form.effective_to_date}
-          error={!!errors.effective_to_date}
-          helperText={errors.effective_to_date}
-          onChange={(e) => handleChange("effective_to_date", e.target.value)}
-        />
-
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={form.active}
-              onChange={(e) => handleChange("active", e.target.checked)}
+      <DialogContent dividers>
+        <Grid container spacing={2} sx={{ mt: 0.5 }}>
+          <Grid item xs={6}>
+            <Autocomplete
+              options={countries?.filter((c: any) => c.status === 'A') || []}
+              filterOptions={filter}
+              getOptionLabel={(o: any) => `${o.countryName} (${o.countryCode})`}
+              value={countries?.find((c: any) => c.countryCode === form.countryCode) || null}
+              onChange={(_, val) => setForm({ ...form, countryCode: val ? val.countryCode : '' })}
+              renderInput={(p) => <TextField {...p} label="Country" required error={!!errors.countryCode} helperText={errors.countryCode} />}
             />
-          }
-          label="Active"
-        />
+          </Grid>
+
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              label="Bank Code"
+              required
+              disabled={!!editData}
+              value={form.bankCode}
+              onChange={(e) => setForm({ ...form, bankCode: e.target.value })}
+              error={!!errors.bankCode}
+              helperText={errors.bankCode}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Bank Name"
+              required
+              value={form.bankName}
+              onChange={(e) => setForm({ ...form, bankName: e.target.value })}
+              error={!!errors.bankName}
+              helperText={errors.bankName}
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              label="Branch Code"
+              required
+              value={form.bankBranchCode}
+              onChange={(e) => setForm({ ...form, bankBranchCode: e.target.value })}
+              error={!!errors.bankBranchCode}
+              helperText={errors.bankBranchCode}
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              label="IFSC / BIC"
+              required
+              value={form.bankIfscBicCode}
+              onChange={(e) => setForm({ ...form, bankIfscBicCode: e.target.value })}
+              error={!!errors.bankIfscBicCode}
+              helperText={errors.bankIfscBicCode}
+            />
+          </Grid>
+
+          <Grid item xs={4}>
+            <TextField
+              fullWidth
+              label="City"
+              required
+              value={form.bankCity}
+              onChange={(e) => setForm({ ...form, bankCity: e.target.value })}
+              error={!!errors.bankCity}
+              helperText={errors.bankCity}
+            />
+          </Grid>
+
+          <Grid item xs={4}>
+            <TextField
+              fullWidth
+              label="State"
+              required
+              value={form.bankStateProvinceCode}
+              onChange={(e) => setForm({ ...form, bankStateProvinceCode: e.target.value })}
+              error={!!errors.bankStateProvinceCode}
+              helperText={errors.bankStateProvinceCode}
+            />
+          </Grid>
+
+          <Grid item xs={4}>
+            <TextField
+              fullWidth
+              label="Postal Code"
+              required
+              value={form.bankPostalCode}
+              onChange={(e) => setForm({ ...form, bankPostalCode: e.target.value })}
+              error={!!errors.bankPostalCode}
+              helperText={errors.bankPostalCode}
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              type="date"
+              label="Effective From"
+              required
+              InputLabelProps={{ shrink: true }}
+              value={form.effective_from_date}
+              onChange={(e) => setForm({ ...form, effective_from_date: e.target.value })}
+              error={!!errors.effective_from_date}
+              helperText={errors.effective_from_date}
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              type="date"
+              label="Effective To"
+              required
+              InputLabelProps={{ shrink: true }}
+              value={form.effective_to_date}
+              onChange={(e) => setForm({ ...form, effective_to_date: e.target.value })}
+              error={!!errors.effective_to_date}
+              helperText={errors.effective_to_date}
+              inputProps={{ min: form.effective_from_date }}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={<Checkbox checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />}
+              label="Active Status"
+            />
+          </Grid>
+        </Grid>
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+      <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+        <Button onClick={onClose} color="inherit">
+          Cancel
+        </Button>
         <Button variant="contained" onClick={handleSubmit}>
-          {editData ? "Update" : "Create"}
+          {editData ? 'Update' : 'Create'}
         </Button>
       </DialogActions>
     </Dialog>
-  );
+  )
 }
