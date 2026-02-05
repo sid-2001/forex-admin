@@ -41,14 +41,15 @@ export default function BankTypeMaster() {
     }
 
     const res = isUpdate
-
-    //@ts-ignore
-      ? await service.update(editData?.businessTypeCode || (editData as any)?.business_type_code, data)
+      ? //@ts-ignore
+        await service.update(editData?.businessTypeCode || (editData as any)?.business_type_code, data)
       : await service.create(data)
 
-    if (res.status ||
+    if (
+      res.status ||
       //@ts-ignore
-      res.success) {
+      res.success
+    ) {
       showAlert('Success', `Bank Type ${isUpdate ? 'Updated' : 'Created'} Successfully`)
       setDialogOpen(false)
       fetchData()
@@ -122,7 +123,7 @@ export default function BankTypeMaster() {
   ]
 
   return (
-    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { backgroundColor: 'rgba(0, 0, 0, 0.05)', fontWeight: 'bold' } }}>
+    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
       <Stack direction="row" justifyContent="space-between" mb={2}>
         <Button
           variant="contained"

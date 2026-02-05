@@ -138,7 +138,7 @@ export default function ProductManagement() {
   ]
 
   return (
-    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { backgroundColor: 'rgba(0, 0, 0, 0.05)', fontWeight: 'bold' } }}>
+    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
       <Stack direction="row" justifyContent="flex-start" mb={2}>
         <Button
           variant="contained"

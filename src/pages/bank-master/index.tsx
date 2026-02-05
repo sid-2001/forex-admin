@@ -49,9 +49,11 @@ export default function BankMasterScreen() {
 
     const res = isUpdate ? await service.updateBank(editData!.bankMasterCode, data) : await service.createBank(data)
 
-    if (res.status ||
+    if (
+      res.status ||
       //@ts-ignore
-      res.success) {
+      res.success
+    ) {
       showAlert('Success', `Bank ${isUpdate ? 'Updated' : 'Created'} Successfully`)
       setDialogOpen(false)
       fetchData()
@@ -118,7 +120,7 @@ export default function BankMasterScreen() {
   ]
 
   return (
-    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { backgroundColor: 'rgba(0, 0, 0, 0.05)', fontWeight: 'bold' } }}>
+    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
       <Stack direction="row" justifyContent="space-between" mb={2}>
         <Button
           variant="contained"

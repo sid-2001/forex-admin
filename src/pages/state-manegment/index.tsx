@@ -154,7 +154,7 @@ export default function StateManagement() {
         </Button>
       </Stack>
 
-      <Box sx={{ height: 500, width: '100%', '& .super-app-theme--header': { backgroundColor: 'rgba(0, 0, 0, 0.05)', fontWeight: 'bold' } }}>
+      <Box sx={{ height: 500, width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
         <DataGrid
           rows={rows}
           columns={columns}

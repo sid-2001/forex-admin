@@ -123,7 +123,7 @@ export default function ScreenMaster() {
   ]
 
   return (
-    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { backgroundColor: '#f5f5f5', fontWeight: 'bold' } }}>
+    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
           Screen Master
