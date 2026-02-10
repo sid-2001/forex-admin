@@ -74,6 +74,7 @@ import EmailTemplateManagement from './pages/emailTemplateMaster'
 import VerificationPartnerManagement from './pages/verification-partner'
 import CountryKycDocManagement from './pages/country-kyc-doc'
 import TermsConditionsPage from './pages/termscondition'
+import VendorApiMaster from './pages/VendorApiMaster'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -220,7 +221,8 @@ function App() {
               <Route path="email-manegement" element={<EmailTemplateManagement />} />
               <Route path="verification-partner" element={<VerificationPartnerManagement />} />
               <Route path="country-Kyc-doc-management" element={<CountryKycDocManagement />} />
-              {/* CountryKycDocManagement */}
+              <Route path="vendorapimaster" element={<VendorApiMaster />} />
+              {/* VendorApiMaster */}
               <Route path="subservice" element={<SubServiceManagement />} />
               <Route path="channel" element={<ChannelManagement />} />
               <Route path="screen" element={<ScreenMaster />} />
@@ -234,7 +236,7 @@ function App() {
               <Route path="business-railand-partner" element={<CountryBusinessPayoutPartner />} />
               <Route path="forex-currency-master" element={<ForexCurrencyMaster />} />
               <Route path="forex-country-master" element={<ForexCountryMaster />} />
-                  <Route path="terms-condition" element={<TermsConditionsPage />} />
+              <Route path="terms-condition" element={<TermsConditionsPage />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 

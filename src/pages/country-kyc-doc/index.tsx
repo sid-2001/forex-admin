@@ -116,7 +116,6 @@ export default function CountryKycDocManagement() {
         component="h1"
         sx={{
           fontWeight: 700,
-          // color: 'text.primary',
           letterSpacing: '-0.02em',
           display: 'grid',
           placeItems: 'center',
