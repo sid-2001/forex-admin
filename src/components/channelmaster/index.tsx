@@ -58,7 +58,7 @@ export default function ChannelManagement() {
       const config = JSON.parse(storedConfig)
       format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
     }
-    return dayjs(dateString).format(format)
+    return dayjs(dateString).format(format.toUpperCase())
   }
 
   const handleAction = async (data: any, isUpdate: boolean) => {

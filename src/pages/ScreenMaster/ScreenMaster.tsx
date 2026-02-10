@@ -170,7 +170,7 @@ export default function ScreenMaster() {
             },
           },
         }}
-        pageSizeOptions={[5, 10, 20]}
+        // pageSizeOptions={[5, 10, 20]}
       />
 
       <ScreenFormDialog

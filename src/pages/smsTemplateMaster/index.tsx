@@ -168,7 +168,7 @@ export default function SmsTemplateManagement() {
           columns={columns}
           loading={loading}
           getRowId={(row) => row.smsTemplateCode}
-          pageSizeOptions={[5, 10, 20]}
+          // pageSizeOptions={[5, 10, 20]}
           disableRowSelectionOnClick
           initialState={{ pagination: { paginationModel: { page: 0, pageSize: 5 } } }}
         />

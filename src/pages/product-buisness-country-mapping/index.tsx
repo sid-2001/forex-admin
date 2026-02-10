@@ -160,7 +160,7 @@ export default function ProductBusinessCountryMapping() {
             },
           },
         }}
-        pageSizeOptions={[5, 10, 20]}
+        // pageSizeOptions={[5, 10, 20]}
         sx={{
           boxShadow: 2,
           border: 2,

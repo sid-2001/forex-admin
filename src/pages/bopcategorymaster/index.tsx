@@ -322,7 +322,7 @@ export default function BopCategoryMaster() {
         getRowId={(row) => row.bopPurposeCategoryCode}
         autoHeight
         // initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
-        pageSizeOptions={[5, 10, 20]}
+        // pageSizeOptions={[5, 10, 20]}
         initialState={{
           pagination: {
             paginationModel: {

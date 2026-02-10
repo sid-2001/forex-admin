@@ -183,7 +183,7 @@ export default function WhatsappTemplateManagement() {
             },
           },
         }}
-        pageSizeOptions={[5, 10, 20]}
+        // pageSizeOptions={[5, 10, 20]}
       />
 
       <WhatsappTemplateDialog

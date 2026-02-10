@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
-import { Box, Button, IconButton, Stack } from '@mui/material'
+import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -9,6 +9,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import ConfirmModal from '@/components/ConfirmModal'
+import dayjs from 'dayjs'
 
 export default function StateManagement() {
   const [rows, setRows] = useState<any[]>([])
@@ -78,6 +79,17 @@ export default function StateManagement() {
       showAlert('Fail', 'Connection Error')
     }
   }
+  const formatTableDate = (dateString: string) => {
+    if (!dateString) return ''
+    const storedConfig = localStorage.getItem('countryConfig')
+    let format = 'YYYY-MM-DD'
+
+    if (storedConfig) {
+      const config = JSON.parse(storedConfig)
+      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
+    }
+    return dayjs(dateString).format(format.toUpperCase())
+  }
 
   const columns: GridColDef[] = [
     { field: 'statecode', headerName: 'State Code', flex: 1, headerClassName: 'super-app-theme--header' },
@@ -90,7 +102,7 @@ export default function StateManagement() {
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => {
         const val = params.row?.effectivefromdate
-        return val ? val.split('T')[0] : ''
+        return formatTableDate(val) ? formatTableDate(val.split('T')[0]) : ''
       },
     },
     {
@@ -100,7 +112,7 @@ export default function StateManagement() {
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => {
         const val = params.row?.effectivetodate
-        return val ? val.split('T')[0] : ''
+        return formatTableDate(val) ? formatTableDate(val.split('T')[0]) : ''
       },
     },
     {
@@ -142,6 +154,21 @@ export default function StateManagement() {
 
   return (
     <Box p={3}>
+      <Typography
+        variant="h4"
+        component="h1"
+        sx={{
+          fontWeight: 700,
+          // color: 'text.primary',
+          letterSpacing: '-0.02em',
+          display: 'grid',
+          placeItems: 'center',
+          mb: 5,
+          color: '#0061B1',
+        }}
+      >
+        {'State Master'.toUpperCase()}
+      </Typography>
       <Stack direction="row" justifyContent="flex-end" mb={2}>
         <Button
           variant="contained"
@@ -161,6 +188,13 @@ export default function StateManagement() {
           loading={loading}
           getRowId={(row) => `${row.statecode}-${row.countrycode}`}
           disableRowSelectionOnClick
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5,
+              },
+            },
+          }}
         />
       </Box>
 
