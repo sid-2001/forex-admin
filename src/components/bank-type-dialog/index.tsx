@@ -33,22 +33,24 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
     businessCurrencyCode: 'INR',
     bankBusinessName: '',
     active: true,
-    effective_from_date: '',
-    effective_to_date: '',
+    effectiveFromDate: '',
+    effectiveToDate: '',
   })
+
+  console.log(editData, 'editData')
 
   useEffect(() => {
     if (editData && open) {
-      const fDate = editData.effective_from_date || editData.effectivefromdate || ''
-      const tDate = editData.effective_to_date || editData.effectivetodate || ''
+      const fDate = editData.effectiveFromDate || editData.effectivefromdate || ''
+      const tDate = editData.effectiveToDate || editData.effectivetodate || ''
 
       setForm({
         countryCode: editData.countryCode || '',
         businessCurrencyCode: editData.businessCurrencyCode || 'INR',
         bankBusinessName: editData.bankBusinessName || '',
         active: editData.active ?? true,
-        effective_from_date: fDate.split('T')[0],
-        effective_to_date: tDate.split('T')[0],
+        effectiveFromDate: fDate.split('T')[0],
+        effectiveToDate: tDate.split('T')[0],
       })
     } else {
       setForm({
@@ -56,8 +58,8 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
         businessCurrencyCode: 'INR',
         bankBusinessName: '',
         active: true,
-        effective_from_date: '',
-        effective_to_date: '',
+        effectiveFromDate: '',
+        effectiveToDate: '',
       })
     }
     setErrors({})
@@ -67,13 +69,13 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
     const newErrors: any = {}
     if (!form.bankBusinessName?.trim()) newErrors.bankBusinessName = 'Required'
     if (!form.countryCode) newErrors.countryCode = 'Required'
-    if (!form.effective_from_date) newErrors.effective_from_date = 'Required'
-    if (!form.effective_to_date) newErrors.effective_to_date = 'Required'
+    if (!form.effectiveFromDate) newErrors.effectiveFromDate = 'Required'
+    if (!form.effectiveToDate) newErrors.effectiveToDate = 'Required'
 
     setErrors(newErrors)
     if (Object.keys(newErrors).length > 0) return
 
-    if (new Date(form.effective_to_date) < new Date(form.effective_from_date)) {
+    if (new Date(form.effectiveToDate) < new Date(form.effectiveFromDate)) {
       onSubmit({ validationError: 'End Date cannot be less than Start Date' })
       return
     }
@@ -82,8 +84,8 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
       ...form,
       created_by: localService.get_staff_id(),
       modified_by: editData ? localService.get_staff_id() : undefined,
-      effective_from_date: `${form.effective_from_date}T00:00:00.000Z`,
-      effective_to_date: `${form.effective_to_date}T23:59:59.000Z`,
+      effectiveFromDate: `${form.effectiveFromDate}T00:00:00.000Z`,
+      effectiveToDate: `${form.effectiveToDate}T23:59:59.000Z`,
     })
   }
 
@@ -134,7 +136,7 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
               fullWidth
               required
               InputLabelProps={{ shrink: true }}
-              value={form.effective_from_date}
+              value={form.effectiveFromDate}
               onChange={(e) => setForm({ ...form, effective_from_date: e.target.value })}
               error={!!errors.effective_from_date}
             />
@@ -147,9 +149,9 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
               fullWidth
               required
               InputLabelProps={{ shrink: true }}
-              value={form.effective_to_date}
-              onChange={(e) => setForm({ ...form, effective_to_date: e.target.value })}
-              error={!!errors.effective_to_date}
+              value={form.effectiveToDate}
+              onChange={(e) => setForm({ ...form, effectiveToDate: e.target.value })}
+              error={!!errors.effectiveToDate}
               inputProps={{ min: form.effective_from_date }}
             />
           </Grid>

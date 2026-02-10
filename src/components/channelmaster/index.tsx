@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
-import { Box, Button, IconButton, Stack } from '@mui/material'
+import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -9,6 +9,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import ConfirmModal from '@/components/ConfirmModal'
+import dayjs from 'dayjs'
 
 export default function ChannelManagement() {
   const [rows, setRows] = useState<any[]>([])
@@ -48,6 +49,18 @@ export default function ChannelManagement() {
     fetchData()
   }, [fetchData])
 
+  const formatTableDate = (dateString: string) => {
+    if (!dateString) return ''
+    const storedConfig = localStorage.getItem('countryConfig')
+    let format = 'YYYY-MM-DD'
+
+    if (storedConfig) {
+      const config = JSON.parse(storedConfig)
+      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
+    }
+    return dayjs(dateString).format(format)
+  }
+
   const handleAction = async (data: any, isUpdate: boolean) => {
     if (data.validationError) {
       showAlert('Fail', data.validationError)
@@ -84,20 +97,22 @@ export default function ChannelManagement() {
       headerName: 'Effective From',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => {
-        const val = params.row?.effective_from_date || params.row?.effectivefromdate
-        return val ? val.split('T')[0] : ''
-      },
+      renderCell: (params) => formatTableDate(params.row?.effective_from_date || params.row?.effectiveFromDate),
+      // renderCell: (params) => {
+      //   const val = params.row?.effective_from_date || params.row?.effectivefromdate
+      //   return val ? val.split('T')[0] : ''
+      // },
     },
     {
       field: 'effective_to_date',
       headerName: 'Effective To',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => {
-        const val = params.row?.effective_to_date || params.row?.effectivetodate
-        return val ? val.split('T')[0] : ''
-      },
+      renderCell: (params) => formatTableDate(params.row?.effective_to_date || params.row?.effectiveToDate),
+      // renderCell: (params) => {
+      //   const val = params.row?.effective_to_date || params.row?.effectivetodate
+      //   return val ? val.split('T')[0] : ''
+      // },
     },
     {
       field: 'active',
@@ -138,7 +153,22 @@ export default function ChannelManagement() {
 
   return (
     <Box p={3}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
+      <Typography
+        variant="h4"
+        component="h1"
+        sx={{
+          fontWeight: 700,
+          // color: 'text.primary',
+          letterSpacing: '-0.02em',
+          display: 'grid',
+          placeItems: 'center',
+          mb: 5,
+          color: '#0061B1',
+        }}
+      >
+        {'Channel Master'.toUpperCase()}
+      </Typography>
+      <Stack direction="row" justifyContent="flex-end" mb={2}>
         <Button
           variant="contained"
           onClick={() => {
@@ -146,17 +176,24 @@ export default function ChannelManagement() {
             setOpen(true)
           }}
         >
-          Add Channel
+          Add
         </Button>
       </Stack>
 
-      <Box sx={{ height: 500, width: '100%', '& .super-app-theme--header': { backgroundColor: 'rgba(0, 0, 0, 0.05)', fontWeight: 'bold' } }}>
+      <Box sx={{ height: 500, width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
         <DataGrid
           rows={rows}
           columns={columns}
           loading={loading}
           getRowId={(row) => `${row.channel_code}-${row.country_code}`}
           disableRowSelectionOnClick
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5,
+              },
+            },
+          }}
         />
       </Box>
 

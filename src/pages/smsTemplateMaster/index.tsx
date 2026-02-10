@@ -1,4 +1,4 @@
-import { Button, Stack, IconButton, Box } from '@mui/material'
+import { Button, Stack, IconButton, Box, Typography } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import { useEffect, useState, useMemo, useCallback } from 'react'
@@ -6,6 +6,7 @@ import { useEffect, useState, useMemo, useCallback } from 'react'
 import SmsTemplateDialog from '../../components/smsDialog'
 import SmsTemplateService from '../../services/sms.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
+import dayjs from 'dayjs'
 
 export default function SmsTemplateManagement() {
   const [open, setOpen] = useState(false)
@@ -74,6 +75,18 @@ export default function SmsTemplateManagement() {
       console.error('Update failed:', err)
     }
   }
+  const formatTableDate = (dateString: string) => {
+    if (!dateString) return ''
+    const storedConfig = localStorage.getItem('countryConfig')
+    let format = 'YYYY-MM-DD'
+
+    if (storedConfig) {
+      const config = JSON.parse(storedConfig)
+      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
+    }
+    console.log(format, 'dkjhbcvy')
+    return dayjs(dateString).format(format.toUpperCase())
+  }
 
   const columns: GridColDef[] = [
     { field: 'smsTemplateCode', headerName: 'SMS Code', flex: 1, headerClassName: 'super-app-theme--header' },
@@ -86,8 +99,22 @@ export default function SmsTemplateManagement() {
       headerClassName: 'super-app-theme--header',
       renderCell: (p) => (p.value ? 'Yes' : 'No'),
     },
-    { field: 'effectiveFromDate', headerName: 'From', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'effectiveToDate', headerName: 'To', flex: 1, headerClassName: 'super-app-theme--header' },
+    // { field: 'effectiveFromDate', headerName: 'Effective From', flex: 1, headerClassName: 'super-app-theme--header' },
+    // { field: 'effectiveToDate', headerName: 'Effective To', flex: 1, headerClassName: 'super-app-theme--header' },
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
+    },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -109,7 +136,21 @@ export default function SmsTemplateManagement() {
 
   return (
     <Box sx={{ p: 0 }}>
-      <Stack direction="row" justifyContent="flex-start" mb={2}>
+      <Typography
+        variant="h4"
+        component="h1"
+        sx={{
+          fontWeight: 700,
+          letterSpacing: '-0.02em',
+          display: 'grid',
+          placeItems: 'center',
+          mb: 5,
+          color: '#0061B1',
+        }}
+      >
+        {'sms master'.toUpperCase()}
+      </Typography>
+      <Stack direction="row" justifyContent="flex-end" mb={2}>
         <Button
           variant="contained"
           onClick={() => {
@@ -117,7 +158,7 @@ export default function SmsTemplateManagement() {
             setOpen(true)
           }}
         >
-          Add SMS Template
+          Add
         </Button>
       </Stack>
 

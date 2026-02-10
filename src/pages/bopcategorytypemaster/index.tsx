@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Box, Button, IconButton, Stack } from '@mui/material'
+import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -14,7 +14,7 @@ import { BopCategoryType } from '../../types/bop.type'
 export default function BopCategoryTypeMaster() {
   const [rows, setRows] = useState<BopCategoryType[]>([])
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [editData, setEditData] = useState<BopCategoryType | null>(null)
+  const [editData, setEditData] = useState<BopCategoryType | any>(null)
 
   const [open, setOpen] = useRecoilState(alertState)
   const [text, setText] = useRecoilState(alertTextState)
@@ -110,7 +110,22 @@ export default function BopCategoryTypeMaster() {
 
   return (
     <Box p={2} sx={{ width: '85vw' }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
+      <Typography
+        variant="h4"
+        component="h1"
+        sx={{
+          fontWeight: 700,
+          // color: 'text.primary',
+          letterSpacing: '-0.02em',
+          display: 'grid',
+          placeItems: 'center',
+          mb: 5,
+          color: '#0061B1',
+        }}
+      >
+        {'Bop Category Master'.toUpperCase()}
+      </Typography>
+      <Stack direction="row" justifyContent="flex-end" mb={2}>
         <Button
           variant="contained"
           onClick={() => {
@@ -118,11 +133,24 @@ export default function BopCategoryTypeMaster() {
             setDialogOpen(true)
           }}
         >
-          Add Category Type
+          Add
         </Button>
       </Stack>
 
-      <DataGrid rows={rows} columns={columns} getRowId={(row) => row.bopCategoryTypeCode} autoHeight pageSizeOptions={[5, 10]} />
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.bopCategoryTypeCode}
+        autoHeight
+        pageSizeOptions={[5, 10]}
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: 5,
+            },
+          },
+        }}
+      />
 
       <BopCategoryTypeFormDialog
         open={dialogOpen}

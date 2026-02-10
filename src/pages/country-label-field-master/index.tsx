@@ -196,8 +196,8 @@ export default function CountryLabelFieldsGridPage() {
     try {
       const payload = {
         ...form,
-        createdBy: user?.userId || "ADMIN",
-        modifiedBy: selected ? user?.userId || "ADMIN" : undefined,
+        createdBy: local_service.get_staff_id || "ADMIN",
+        modifiedBy: selected ? local_service.get_staff_id || "ADMIN" : undefined,
         effectiveFromDate: form.effectiveFromDate ? 
           new Date(form.effectiveFromDate ).toISOString() : null,
         effectiveToDate: form.effectiveToDate ? 
@@ -206,6 +206,8 @@ export default function CountryLabelFieldsGridPage() {
 
       if (selected) {
         // Update
+
+        //@ts-ignore
         const result = await countryLabelFieldsService.update(selected.fieldLabelCode!, payload);
         if (result.status) {
           showSuccess("Field updated successfully");
@@ -216,7 +218,9 @@ export default function CountryLabelFieldsGridPage() {
         }
       } else {
         // Create
-        const result = await countryLabelFieldsService.create(payload);
+        const result = await countryLabelFieldsService.create(
+          //@ts-ignore
+          payload);
         if (result.status) {
           showSuccess("Field created successfully");
           setOpen(false);

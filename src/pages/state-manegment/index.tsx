@@ -142,7 +142,7 @@ export default function StateManagement() {
 
   return (
     <Box p={3}>
-      <Stack direction="row" justifyContent="flex-start" mb={2}>
+      <Stack direction="row" justifyContent="flex-end" mb={2}>
         <Button
           variant="contained"
           onClick={() => {
@@ -150,7 +150,7 @@ export default function StateManagement() {
             setOpen(true)
           }}
         >
-          Add State
+          Add
         </Button>
       </Stack>
 

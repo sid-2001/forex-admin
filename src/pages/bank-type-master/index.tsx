@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
-import { Box, Button, IconButton, Stack } from '@mui/material'
+import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -7,6 +7,7 @@ import BankTypeDialog from '../../components/bank-type-dialog'
 import BankBusinessTypeService, { BankBusinessType } from '../../services/bantypemaster.service'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
+import dayjs from 'dayjs'
 
 export default function BankTypeMaster() {
   const service = useMemo(() => new BankBusinessTypeService(), [])
@@ -27,12 +28,24 @@ export default function BankTypeMaster() {
   const fetchData = useCallback(async () => {
     const res: any = await service.getList()
     const responseData = res?.data || res
+    console.log(responseData, 'responseData')
     setRows(Array.isArray(responseData) ? responseData : [])
   }, [service])
 
   useEffect(() => {
     fetchData()
   }, [fetchData])
+  const formatTableDate = (dateString: string) => {
+    if (!dateString) return ''
+    const storedConfig = localStorage.getItem('countryConfig')
+    let format = 'YYYY-MM-DD'
+
+    if (storedConfig) {
+      const config = JSON.parse(storedConfig)
+      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
+    }
+    return dayjs(dateString).format(format.toUpperCase())
+  }
 
   const handleAction = async (data: any, isUpdate: boolean) => {
     if (data.validationError) {
@@ -64,9 +77,7 @@ export default function BankTypeMaster() {
       headerName: 'Code',
       flex: 0.6,
       headerClassName: 'super-app-theme--header',
-      valueGetter: (p) =>
-        //@ts-ignore
-        p.row?.businessTypeCode || p.row?.business_type_code || '',
+      renderCell: (p) => p.row?.businessTypeCode || p.row?.businessTypeCode || '',
     },
     { field: 'bankBusinessName', headerName: 'Business Name', flex: 1.2, headerClassName: 'super-app-theme--header' },
     { field: 'businessCurrencyCode', headerName: 'Currency', flex: 0.6, headerClassName: 'super-app-theme--header' },
@@ -76,20 +87,14 @@ export default function BankTypeMaster() {
       headerName: 'Effective From',
       flex: 0.8,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => {
-        const val = params.row?.effective_from_date || params.row?.effectivefromdate
-        return val ? val.split('T')[0] : ''
-      },
+      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
     },
     {
       field: 'effective_to_date',
       headerName: 'Effective To',
       flex: 0.8,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => {
-        const val = params.row?.effective_to_date || params.row?.effectivetodate
-        return val ? val.split('T')[0] : ''
-      },
+      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
     },
     {
       field: 'active',
@@ -124,7 +129,22 @@ export default function BankTypeMaster() {
 
   return (
     <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
+      <Typography
+        variant="h4"
+        component="h1"
+        sx={{
+          fontWeight: 700,
+          // color: 'text.primary',
+          letterSpacing: '-0.02em',
+          display: 'grid',
+          placeItems: 'center',
+          mb: 5,
+          color: '#0061B1',
+        }}
+      >
+        {'Bank Type Master'.toUpperCase()}
+      </Typography>
+      <Stack direction="row" justifyContent="flex-end" mb={2}>
         <Button
           variant="contained"
           onClick={() => {
@@ -132,7 +152,7 @@ export default function BankTypeMaster() {
             setDialogOpen(true)
           }}
         >
-          Add Bank Type
+          Add
         </Button>
       </Stack>
 
@@ -142,6 +162,13 @@ export default function BankTypeMaster() {
         columns={columns}
         autoHeight
         disableRowSelectionOnClick
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: 5,
+            },
+          },
+        }}
       />
 
       <BankTypeDialog

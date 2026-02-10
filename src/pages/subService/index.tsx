@@ -1,4 +1,4 @@
-import { Button, Stack, IconButton } from '@mui/material'
+import { Button, Stack, IconButton, Typography } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -7,6 +7,7 @@ import { useEffect, useState, useMemo } from 'react'
 import SubServiceFormDialog from '../../components/subServiceDialog'
 import SubServiceService from '../../services/sub-service.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
+import dayjs from 'dayjs'
 
 export default function SubServiceManagement() {
   const [open, setOpen] = useState(false)
@@ -22,6 +23,7 @@ export default function SubServiceManagement() {
     try {
       const res = await subService.getSubServiceList()
       const responseData = res?.data || res
+      console.log(responseData)
       setRows(Array.isArray(responseData) ? responseData : [])
     } catch (error) {
       console.error('Error fetching sub-services:', error)
@@ -65,14 +67,37 @@ export default function SubServiceManagement() {
       fetchData()
     }
   }
+  const formatTableDate = (dateString: string) => {
+    if (!dateString) return ''
+    const storedConfig = localStorage.getItem('countryConfig')
+    let format = 'YYYY-MM-DD'
+
+    if (storedConfig) {
+      const config = JSON.parse(storedConfig)
+      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
+    }
+    console.log(format, 'dkjhbcvy')
+    return dayjs(dateString).format(format.toUpperCase())
+  }
 
   const columns: GridColDef[] = [
     { field: 'subServiceCodeGenerated', headerName: 'Sub Service Code', flex: 1, headerClassName: 'super-app-theme--header' },
-    // { field: 'subServiceName', headerName: 'Sub Service Name', flex: 2, headerClassName: 'super-app-theme--header' },
     { field: 'countryCode', headerName: 'Country', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'active', headerName: 'Active', flex: 0.7, renderCell: (p) => (p.value ? 'Yes' : 'No'), headerClassName: 'super-app-theme--header' },
-    { field: 'effectiveFromDate', headerName: 'From', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'effectiveToDate', headerName: 'To', flex: 1, headerClassName: 'super-app-theme--header' },
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
+    },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -99,7 +124,22 @@ export default function SubServiceManagement() {
 
   return (
     <>
-      <Stack direction="row" justifyContent="flex-start" mb={2} mt={2}>
+      <Typography
+        variant="h4"
+        component="h1"
+        sx={{
+          fontWeight: 700,
+          // color: 'text.primary',
+          letterSpacing: '-0.02em',
+          display: 'grid',
+          placeItems: 'center',
+          mb: 5,
+          color: '#0061B1',
+        }}
+      >
+        {'Sub Service Master'.toUpperCase()}
+      </Typography>
+      <Stack direction="row" justifyContent="flex-end" mb={2} mt={2} style={{ marginRight: -75 }}>
         <Button
           variant="contained"
           onClick={() => {
@@ -107,7 +147,7 @@ export default function SubServiceManagement() {
             setOpen(true)
           }}
         >
-          Add Sub Service
+          Add
         </Button>
       </Stack>
 

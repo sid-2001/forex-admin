@@ -1,13 +1,25 @@
 import React, { useEffect, useState } from 'react'
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, FormControlLabel, Switch, Grid, FormHelperText } from '@mui/material'
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  FormControlLabel,
+  Switch,
+  Grid,
+  FormHelperText,
+  Checkbox,
+} from '@mui/material'
 
 export interface BopCategoryType {
   bopCategoryTypeCode: string
   bopCategoryType: string
   bopCategoryDescription: string
   active: boolean
-  effective_from_date: string
-  effective_to_date: string
+  effectiveFromDate: string
+  effectiveToDate: string
 }
 
 interface Props {
@@ -22,29 +34,28 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
     bopCategoryType: '',
     bopCategoryDescription: '',
     active: true,
-    effective_from_date: '',
-    effective_to_date: '',
+    effectiveFromDate: '',
+    effectiveToDate: '',
   })
 
   const [errors, setErrors] = useState<any>({})
-
-  /* ------------------ Edit Mode ------------------ */
+  console.log(editData, 'djbnchvy')
   useEffect(() => {
     if (editData) {
       setFormData({
         bopCategoryType: editData.bopCategoryType,
         bopCategoryDescription: editData.bopCategoryDescription,
         active: editData.active,
-        effective_from_date: editData.effective_from_date?.slice(0, 10),
-        effective_to_date: editData.effective_to_date?.slice(0, 10),
+        effectiveFromDate: editData.effectiveFromDate?.slice(0, 10),
+        effectiveToDate: editData.effectiveToDate?.slice(0, 10),
       })
     } else {
       setFormData({
         bopCategoryType: '',
         bopCategoryDescription: '',
         active: true,
-        effective_from_date: '',
-        effective_to_date: '',
+        effectiveFromDate: '',
+        effectiveToDate: '',
       })
       setErrors({})
     }
@@ -64,12 +75,12 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
 
     if (!formData.bopCategoryDescription.trim()) newErrors.bopCategoryDescription = 'Category Description is required'
 
-    if (!formData.effective_from_date) newErrors.effective_from_date = 'Effective From date is required'
+    if (!formData.effectiveFromDate) newErrors.effectiveFromDate = 'Effective From date is required'
 
-    if (!formData.effective_to_date) newErrors.effective_to_date = 'Effective To date is required'
+    if (!formData.effectiveToDate) newErrors.effectiveToDate = 'Effective To date is required'
 
-    if (formData.effective_from_date && formData.effective_to_date && new Date(formData.effective_to_date) < new Date(formData.effective_from_date)) {
-      newErrors.effective_to_date = 'Effective To date cannot be before Effective From'
+    if (formData.effectiveFromDate && formData.effectiveToDate && new Date(formData.effectiveToDate) < new Date(formData.effectiveFromDate)) {
+      newErrors.effectiveToDate = 'Effective To date cannot be before Effective From'
     }
 
     setErrors(newErrors)
@@ -82,8 +93,8 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
 
     onSubmit({
       ...formData,
-      effectiveFromDate: `${formData.effective_from_date}T00:00:00`,
-      effectiveToDate: `${formData.effective_to_date}T23:59:59`,
+      effectiveFromDate: `${formData.effectiveFromDate}T00:00:00`,
+      effectiveToDate: `${formData.effectiveToDate}T23:59:59`,
     })
   }
 
@@ -123,13 +134,13 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
             <TextField
               label="Effective From"
               type="date"
-              name="effective_from_date"
+              name="effectiveFromDate"
               fullWidth
               required
               InputLabelProps={{ shrink: true }}
-              value={formData.effective_from_date}
-              error={!!errors.effective_from_date}
-              helperText={errors.effective_from_date}
+              value={formData.effectiveFromDate}
+              error={!!errors.effectiveFromDate}
+              helperText={errors.effectiveFromDate}
               onChange={handleChange}
             />
           </Grid>
@@ -138,19 +149,19 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
             <TextField
               label="Effective To"
               type="date"
-              name="effective_to_date"
+              name="effectiveToDate"
               fullWidth
               required
               InputLabelProps={{ shrink: true }}
-              inputProps={{ min: formData.effective_from_date }}
-              value={formData.effective_to_date}
-              error={!!errors.effective_to_date}
-              helperText={errors.effective_to_date}
+              inputProps={{ min: formData.effectiveFromDate }}
+              value={formData.effectiveToDate}
+              error={!!errors.effectiveToDate}
+              helperText={errors.effectiveToDate}
               onChange={handleChange}
             />
           </Grid>
 
-          <Grid item xs={12}>
+          {/* <Grid item xs={12}>
             <FormControlLabel
               control={
                 <Switch
@@ -164,6 +175,22 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
                 />
               }
               label="Active"
+            />
+          </Grid> */}
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={formData.active}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      active: e.target.checked,
+                    }))
+                  }
+                />
+              }
+              label="Active Status"
             />
           </Grid>
         </Grid>

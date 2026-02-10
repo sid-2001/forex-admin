@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import {
-  Grid,
-  TextField,
-  Button,
-  Box,
-  Typography,
-  InputAdornment,
-  IconButton,
-  Snackbar,
-} from '@mui/material'
+import { Grid, TextField, Button, Box, Typography, InputAdornment, IconButton, Snackbar } from '@mui/material'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import { AuthService } from '@/services/auth.service'
@@ -34,20 +25,19 @@ const LoginPage = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-const[logintype,setLogintype]=useState("email")
+  const [logintype, setLogintype] = useState('email')
   const [text, setText] = useState('')
   const [type, setType] = useState('')
   const [open, setOpen] = useState(false)
   const [commonloader, setcommonloader] = useRecoilState(loaderState)
-  const[userAccesCountry,setuserAccesCountry]=useRecoilState(userAccessCountry)
+  const [userAccesCountry, setuserAccesCountry] = useRecoilState(userAccessCountry)
   // userAccessCountry
-  const [selecteCountryState, setselectedCountryState] =
-    useRecoilState(selectedCountryState)
+  const [selecteCountryState, setselectedCountryState] = useRecoilState(selectedCountryState)
   const [selectedTab, setSelectedTab] = useRecoilState(selectedAppState)
   const [county, setCountry] = useRecoilState(countyState)
   const [error, setError] = useState('')
   const [userCurrency, setUserCurrency] = useRecoilState(userCurrencyState)
-  const[inactivitytiming,setinactivityTiming]=useRecoilState(inactivityTiming)
+  const [inactivitytiming, setinactivityTiming] = useRecoilState(inactivityTiming)
 
   const auth_service = new AuthService()
   const local_service = new LocalStorageService()
@@ -61,38 +51,37 @@ const[logintype,setLogintype]=useState("email")
     // input = input.toLowerCase()
     // setEmail(input)
 
-     const value = e.target.value;
-  setEmail(value);
-  setLogintype(value)
+    const value = e.target.value
+    setEmail(value)
+    setLogintype(value)
 
-  const type = checkType(value);
+    const type = checkType(value)
 
-  setLogintype(type);
+    setLogintype(type)
 
-  if (type === "invalid") {
-    setError("Enter valid email, phone number, or username");
-  } else {
-    setError("");
-    console.log("Input type:", type); // email | phone | username
+    if (type === 'invalid') {
+      setError('Enter valid email, phone number, or username')
+    } else {
+      setError('')
+      console.log('Input type:', type) // email | phone | username
+    }
   }
-  }
-const checkType = (value: string) => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const phoneRegex = /^[6-9]\d{9}$/; // Indian 10-digit mobile
-  const usernameRegex = /^[a-zA-Z0-9_.]{3,20}$/;
+  const checkType = (value: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const phoneRegex = /^[6-9]\d{9}$/ // Indian 10-digit mobile
+    const usernameRegex = /^[a-zA-Z0-9_.]{3,20}$/
 
-  if (emailRegex.test(value)) return "email";
-  if (phoneRegex.test(value)) return "phone";
-  if (usernameRegex.test(value)) return "username";
-  return "invalid";
-};
+    if (emailRegex.test(value)) return 'email'
+    if (phoneRegex.test(value)) return 'phone'
+    if (usernameRegex.test(value)) return 'username'
+    return 'invalid'
+  }
   const getCountryList = async () => {
     try {
       const data = await static_service.getCountryList()
-      console.log("the login data is here",data);
-      setCountry(data);
+      console.log('the login data is here', data)
+      setCountry(data)
       return
-      
     } catch (err) {
       console.log(err)
     }
@@ -117,8 +106,7 @@ const checkType = (value: string) => {
       if (response) {
         let moduleObj: any = {}
         response.forEach((item: any) => {
-          moduleObj[item.moduleName.replace(/\s+/g, '_').toUpperCase()] =
-            item.moduleName
+          moduleObj[item.moduleName.replace(/\s+/g, '_').toUpperCase()] = item.moduleName
         })
         localStorage.setItem('modules', JSON.stringify(moduleObj))
       }
@@ -129,9 +117,7 @@ const checkType = (value: string) => {
 
   const fetchAllValidations = async (country: any) => {
     try {
-      const response: any = await transaction_service.getAllValidationsList(
-        country,
-      )
+      const response: any = await transaction_service.getAllValidationsList(country)
       localStorage.setItem('validations', JSON.stringify(response?.data))
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error)
@@ -144,8 +130,8 @@ const checkType = (value: string) => {
       setSelectedTab('Price')
       auth_service
         .loginStaff({
-            "usernameOrEmailOrPhone": logintype ,
-    "value":email,
+          usernameOrEmailOrPhone: logintype,
+          value: email,
           // username: email,
           // loginStaff:email,
 
@@ -163,27 +149,23 @@ const checkType = (value: string) => {
                 '"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImVtYWlsIjoic2hpdmFuc2hAaW1wcm9uaWNzLmNvbSIsInVzZXJfaWQiOiJjYmMzZDg3OS1iMTM2LTQyYTAtODY3Yy1mYjg2YTQ4MmI3ODciLCJyb2xlIjoiYWRtaW4ifSwiZXhwIjoxNzM4NTk3ODk1LCJqdGkiOiIwZTMxMDA1OS02ZTIyLTQ1MjgtYTliYS04OTA3MTNhZDZiMmYiLCJyZWZyZXNoIjpmYWxzZX0.06XT7DA3cs13hOIDyqlXcHElSXpFzHFO2L0y507Z0YQ"',
               )
               local_service.set_staff_access(data)
-              static_service
-                .getCountryCurrency(data?.staffCountry)
-                .then((currency) => {
-                  setUserCurrency(currency as any)
-                })
-              local_service.set_role(data?.roleDescription)
-              getCountryList().then(()=>{
-
-              fetchAllValidations(data?.staffCountry)
-              setuserAccesCountry(data?.staffCountries)
-              setinactivityTiming(data?.inactivityTime)
-              navigate('/dashboard')
+              static_service.getCountryCurrency(data?.staffCountry).then((currency) => {
+                setUserCurrency(currency as any)
               })
-
+              local_service.set_role(data?.roleDescription)
+              getCountryList().then(() => {
+                fetchAllValidations(data?.staffCountry)
+                setuserAccesCountry(data?.staffCountries)
+                setinactivityTiming(data?.inactivityTime)
+                navigate('/dashboard')
+              })
             }, 500)
           } else {
             setText(response?.message)
             setType('error')
             setOpen(true)
           }
-            setcommonloader(false)
+          setcommonloader(false)
         })
         .catch((err) => {
           console.error(err)
@@ -200,18 +182,18 @@ const checkType = (value: string) => {
   return (
     <Grid container sx={{ height: '100vh' }}>
       {/* Left Section */}
-<Grid
-      item
-      xs={12}
-      md={4}
-      sx={{
-        backgroundColor: 'white',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        px: 4,
-      }}
-    >
+      <Grid
+        item
+        xs={12}
+        md={4}
+        sx={{
+          backgroundColor: 'white',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          px: 4,
+        }}
+      >
         <Box sx={{ width: '100%', maxWidth: 600 }}>
           {/* Logo + Title */}
           <Box
@@ -225,7 +207,6 @@ const checkType = (value: string) => {
           >
             <img src={Logo} alt="Logo" style={{ height: '100px', display: 'flex', alignItems: 'flex-start' }} />
             <img src={SecondLogo} alt="Logo" style={{ height: '30px', display: 'flex', alignItems: 'flex-start' }} />
-
           </Box>
 
           {/* Heading */}
@@ -248,18 +229,18 @@ const checkType = (value: string) => {
             error={!!error}
             helperText={error}
             sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "8px",
-                backgroundColor: "#fff",
-                "& fieldset": {
-                  borderColor: "#79CBF0", // light sky blue default
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '8px',
+                backgroundColor: '#fff',
+                '& fieldset': {
+                  borderColor: '#79CBF0', // light sky blue default
                 },
-                "&:hover fieldset": {
-                  borderColor: "#0361B1", // dark blue on hover
+                '&:hover fieldset': {
+                  borderColor: '#0361B1', // dark blue on hover
                 },
-                "&.Mui-focused fieldset": {
-                  borderColor: "#024a87", // darker blue on focus
-                  borderWidth: "1.5px",
+                '&.Mui-focused fieldset': {
+                  borderColor: '#024a87', // darker blue on focus
+                  borderWidth: '1.5px',
                 },
               },
             }}
@@ -271,7 +252,7 @@ const checkType = (value: string) => {
             variant="outlined"
             fullWidth
             margin="normal"
-            type={showPassword ? "text" : "password"}
+            type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             InputProps={{
@@ -284,18 +265,18 @@ const checkType = (value: string) => {
               ),
             }}
             sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "8px",
-                backgroundColor: "#fff",
-                "& fieldset": {
-                  borderColor: "#79CBF0", // light sky blue default
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '8px',
+                backgroundColor: '#fff',
+                '& fieldset': {
+                  borderColor: '#79CBF0', // light sky blue default
                 },
-                "&:hover fieldset": {
-                  borderColor: "#0361B1", // dark blue on hover
+                '&:hover fieldset': {
+                  borderColor: '#0361B1', // dark blue on hover
                 },
-                "&.Mui-focused fieldset": {
-                  borderColor: "#024a87", // darker blue on focus
-                  borderWidth: "1.5px",
+                '&.Mui-focused fieldset': {
+                  borderColor: '#024a87', // darker blue on focus
+                  borderWidth: '1.5px',
                 },
               },
             }}
@@ -319,7 +300,7 @@ const checkType = (value: string) => {
             disabled={email.length > 0 && password.length > 0 ? false : true}
             variant="contained"
             fullWidth
-            type='submit'
+            type="submit"
             sx={{
               mt: 3,
               py: 1.5,
@@ -345,25 +326,22 @@ const checkType = (value: string) => {
               fontSize: '16px',
             }}
           >
-            <span style={{ color: '#0361B1', fontWeight: 400, fontSize: "20px" }}>www.</span>
-            <span style={{ color: '#0361B1', fontWeight: 'bold', fontSize: "30px" }}>impropay.global</span>
+            <span style={{ color: '#0361B1', fontWeight: 400, fontSize: '20px' }}>www.</span>
+            <span style={{ color: '#0361B1', fontWeight: 'bold', fontSize: '30px' }}>impropay.global</span>
           </Typography>
-
-
         </Box>
       </Grid>
 
       {/* Right Section */}
       <Grid
-            item
-      xs={false}
-      md={8}
+        item
+        xs={false}
+        md={8}
         sx={{
           display: { xs: 'none', md: 'block' },
           background: 'linear-gradient(to bottom, #004080, #0361B1)',
         }}
       />
-
 
       {/* Loader + Snackbar */}
       <LoaderUI.LoaderBackdrop openloader={commonloader} />

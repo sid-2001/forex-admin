@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Box, Button, IconButton, Stack } from '@mui/material'
+import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -81,7 +81,21 @@ export default function ForexCurrencyMaster() {
 
   return (
     <Box p={2} sx={{ width: '85vw' }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
+      <Typography
+        variant="h4"
+        component="h1"
+        sx={{
+          fontWeight: 700,
+          letterSpacing: '-0.02em',
+          display: 'grid',
+          placeItems: 'center',
+          mb: 5,
+          color: '#0061B1',
+        }}
+      >
+        {'Currency master'.toUpperCase()}
+      </Typography>
+      <Stack direction="row" justifyContent="flex-end" mb={2}>
         <Button
           variant="contained"
           onClick={() => {
@@ -89,7 +103,7 @@ export default function ForexCurrencyMaster() {
             setDialogOpen(true)
           }}
         >
-          Add Currency
+          Add
         </Button>
       </Stack>
 
