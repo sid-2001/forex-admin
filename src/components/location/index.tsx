@@ -133,7 +133,7 @@ const CompactLocationBar = () => {
 
   const fetchProductConfig = async (countryCode: any) => {
     try {
-      const response = await fetch(`http://64.227.139.142:9091/api/static-table/countryCorridorProduct/getByCountryCode/${countryCode}`, {
+      const response = await fetch(`https://api.impronics.com/api/static-table/countryCorridorProduct/getByCountryCode/${countryCode}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       })

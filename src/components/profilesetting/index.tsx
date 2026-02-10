@@ -223,10 +223,9 @@ const ProfileMenu = () => {
   const staff = local_service?.get_staff_access()
   const navigate = useNavigate()
 
-  /** 🔹 Helper to fetch and store Country Specific Formats (Dates, Currency, etc.) */
   const updateCountryConfig = async (countryCode: string) => {
     try {
-      const response = await fetch(`http://64.227.139.142:9091/api/static-table/countryCorridorProduct/getByCountryCode/${countryCode}`, {
+      const response = await fetch(`https://api.impronics.com/api/static-table/countryCorridorProduct/getByCountryCode/${countryCode}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       })
