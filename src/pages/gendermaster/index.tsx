@@ -391,8 +391,9 @@ export default function GenderMaster() {
       const config = JSON.parse(storedConfig)
       // Convert backend "dd-MM-yyyy" to dayjs "DD-MM-YYYY"
       format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
+      console.log(format, 'bahnu')
     }
-    return dayjs(dateString).format(format)
+    return dayjs(dateString).format(format.toUpperCase())
   }
 
   const fetchData = useCallback(async () => {
