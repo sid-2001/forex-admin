@@ -332,6 +332,26 @@ const MASTER_MENU = [
     icon: <GavelIcon fontSize="small" />,
     path: 'terms-condition',
   },
+
+      {
+    label: 'Country Label Code Master',
+    name: 'Country Label Code Master',
+    icon: <GavelIcon fontSize="small" />,
+    path: 'country-label-code-master',
+  },
+      {
+    label: 'Country label Master',
+    name: 'Country label Master',
+    icon: <GavelIcon fontSize="small" />,
+    path: 'country-label-master',
+  },
+      {
+    label: 'Country Reporting Label Master',
+    name: 'Country Reporting Label Master',
+    icon: <GavelIcon fontSize="small" />,
+    path: 'country-reporting-label-master',
+  }
+     
   // verification-partner
 ]
 

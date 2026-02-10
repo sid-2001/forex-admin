@@ -74,6 +74,9 @@ import EmailTemplateManagement from './pages/emailTemplateMaster'
 import VerificationPartnerManagement from './pages/verification-partner'
 import CountryKycDocManagement from './pages/country-kyc-doc'
 import TermsConditionsPage from './pages/termscondition'
+import CountryLabelFieldsGridPage from './pages/country-label-field-master'
+import CountryReportingMappingsGridPage from './pages/country-reporting-label-mapping'
+import CountryLabelCodesGridPage from './pages/country-label-codes'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -235,6 +238,9 @@ function App() {
               <Route path="forex-currency-master" element={<ForexCurrencyMaster />} />
               <Route path="forex-country-master" element={<ForexCountryMaster />} />
                   <Route path="terms-condition" element={<TermsConditionsPage />} />
+                   <Route path="country-label-code-master" element={<CountryLabelCodesGridPage />} />
+                    <Route path="country-label-master" element={<CountryLabelFieldsGridPage />} />
+                    <Route path="country-reporting-label-master" element={<CountryReportingMappingsGridPage />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 
