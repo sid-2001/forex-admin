@@ -1,4 +1,4 @@
-import { Button, Stack, IconButton } from '@mui/material'
+import { Button, Stack, IconButton, Typography } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -7,6 +7,7 @@ import { useEffect, useState, useMemo } from 'react'
 import ServiceFormDialog from '../../components/serviceDialog'
 import ServiceMasterService from '../../services/service-master.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
+import dayjs from 'dayjs'
 
 export default function ServiceManagement() {
   const [open, setOpen] = useState(false)
@@ -23,7 +24,7 @@ export default function ServiceManagement() {
       const res = await serviceService.getServiceList()
       const responseData = res?.data || res
       if (Array.isArray(responseData)) {
-        setRows(responseData.filter((res) => res.active))
+        setRows(responseData)
       } else {
         setRows([])
       }
@@ -99,16 +100,26 @@ export default function ServiceManagement() {
       return
     }
 
-  
-      try {
-        console.log('Calling API with ID:', id)
-        const res = await serviceService.deleteService(id, false)
-        console.log('Delete Response:', res)
-        fetchData()
-      } catch (e) {
-        console.error('Network Error during delete:', e)
-      }
-    
+    try {
+      console.log('Calling API with ID:', id)
+      const res = await serviceService.deleteService(id, false)
+      console.log('Delete Response:', res)
+      fetchData()
+    } catch (e) {
+      console.error('Network Error during delete:', e)
+    }
+  }
+  const formatTableDate = (dateString: string) => {
+    if (!dateString) return ''
+    const storedConfig = localStorage.getItem('countryConfig')
+    let format = 'YYYY-MM-DD'
+
+    if (storedConfig) {
+      const config = JSON.parse(storedConfig)
+      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
+    }
+    console.log(format, 'dkjhbcvy')
+    return dayjs(dateString).format(format.toUpperCase())
   }
 
   const columns: GridColDef[] = [
@@ -122,8 +133,20 @@ export default function ServiceManagement() {
       renderCell: (p) => (p.value ? 'Yes' : 'No'),
       headerClassName: 'super-app-theme--header',
     },
-    { field: 'effectiveFromDate', headerName: 'From', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'effectiveToDate', headerName: 'To', flex: 1, headerClassName: 'super-app-theme--header' },
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
+    },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -140,9 +163,9 @@ export default function ServiceManagement() {
           >
             <EditIcon />
           </IconButton>
-          <IconButton color="error" onClick={() => handleDelete(params.row)}>
+          {/* <IconButton color="error" onClick={() => handleDelete(params.row)}>
             <DeleteIcon />
-          </IconButton>
+          </IconButton> */}
         </Stack>
       ),
     },
@@ -150,7 +173,22 @@ export default function ServiceManagement() {
 
   return (
     <>
-      <Stack direction="row" justifyContent="flex-start" mb={2} mt={2}>
+      <Typography
+        variant="h4"
+        component="h1"
+        sx={{
+          fontWeight: 700,
+          // color: 'text.primary',
+          letterSpacing: '-0.02em',
+          display: 'grid',
+          placeItems: 'center',
+          mb: 5,
+          color: '#0061B1',
+        }}
+      >
+        {'Service Master'.toUpperCase()}
+      </Typography>
+      <Stack direction="row" justifyContent="flex-end" mb={2} style={{ marginRight: -75 }}>
         <Button
           variant="contained"
           onClick={() => {
@@ -158,7 +196,7 @@ export default function ServiceManagement() {
             setOpen(true)
           }}
         >
-          Add Service
+          Add
         </Button>
       </Stack>
 
@@ -170,14 +208,14 @@ export default function ServiceManagement() {
           getRowId={(row) => row.serviceCodeGenerated}
           pageSizeOptions={[10, 20, 50]}
           disableRowSelectionOnClick
-                  initialState={{
-    pagination: {
-      paginationModel: {
-        page: 0,
-        pageSize: 5,
-      },
-    },
-  }}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                page: 0,
+                pageSize: 5,
+              },
+            },
+          }}
         />
       </div>
 

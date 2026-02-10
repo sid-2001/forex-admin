@@ -7,6 +7,7 @@ import WhatsappTemplateService from '../../services/whatsapp.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
+import dayjs from 'dayjs'
 
 export default function WhatsappTemplateManagement() {
   const [open, setOpen] = useState(false)
@@ -71,6 +72,18 @@ export default function WhatsappTemplateManagement() {
       showAlert('Fail', 'Connection Error')
     }
   }
+  const formatTableDate = (dateString: string) => {
+    if (!dateString) return ''
+    const storedConfig = localStorage.getItem('countryConfig')
+    let format = 'YYYY-MM-DD'
+
+    if (storedConfig) {
+      const config = JSON.parse(storedConfig)
+      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
+    }
+    console.log(format, 'dkjhbcvy')
+    return dayjs(dateString).format(format.toUpperCase())
+  }
 
   const formatDateForTable = (dateStr: any) => {
     if (!dateStr) return '-'
@@ -83,25 +96,20 @@ export default function WhatsappTemplateManagement() {
     { field: 'whatsappTemplateDescription', headerName: 'Description', flex: 1.5, headerClassName: 'super-app-theme--header' },
     { field: 'countryCode', headerName: 'Country', flex: 0.5, headerClassName: 'super-app-theme--header' },
     {
-      field: 'effectiveFromDate',
+      field: 'effective_from_date',
       headerName: 'Effective From',
       flex: 0.8,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => {
-        const val = params.row?.effectiveFromDate
-        return val ? val.split('T')[0] : ''
-      },
+      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
     },
     {
-      field: 'effectiveToDate',
+      field: 'effective_to_date',
       headerName: 'Effective To',
       flex: 0.8,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => {
-        const val = params.row?.effectiveToDate
-        return val ? val.split('T')[0] : ''
-      },
+      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
     },
+
     {
       field: 'active',
       headerName: 'Active',
@@ -132,10 +140,24 @@ export default function WhatsappTemplateManagement() {
 
   return (
     <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+      <Typography
+        variant="h4"
+        component="h1"
+        sx={{
+          fontWeight: 700,
+          letterSpacing: '-0.02em',
+          display: 'grid',
+          placeItems: 'center',
+          mb: 5,
+          color: '#0061B1',
+        }}
+      >
+        {'whatsApp master'.toUpperCase()}
+      </Typography>
+      <Stack direction="row" justifyContent="flex-end" alignItems="center" mb={2}>
+        {/* <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
           WhatsApp Template Management
-        </Typography>
+        </Typography> */}
         <Button
           variant="contained"
           onClick={() => {
@@ -143,7 +165,7 @@ export default function WhatsappTemplateManagement() {
             setOpen(true)
           }}
         >
-          Add Template
+          Add
         </Button>
       </Stack>
 
@@ -155,7 +177,11 @@ export default function WhatsappTemplateManagement() {
         autoHeight
         disableRowSelectionOnClick
         initialState={{
-          pagination: { paginationModel: { pageSize: 10 } },
+          pagination: {
+            paginationModel: {
+              pageSize: 5,
+            },
+          },
         }}
         pageSizeOptions={[5, 10, 20]}
       />

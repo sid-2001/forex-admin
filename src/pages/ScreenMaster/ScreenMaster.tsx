@@ -7,6 +7,7 @@ import ScreenService, { Screen } from '@/services/screen.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
+import dayjs from 'dayjs'
 
 export default function ScreenMaster() {
   const [rows, setRows] = useState<Screen[]>([])
@@ -67,32 +68,36 @@ export default function ScreenMaster() {
     const date = new Date(dateStr)
     return isNaN(date.getTime()) ? '-' : date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
   }
+  const formatTableDate = (dateString: string) => {
+    if (!dateString) return ''
+    const storedConfig = localStorage.getItem('countryConfig')
+    let format = 'YYYY-MM-DD'
+
+    if (storedConfig) {
+      const config = JSON.parse(storedConfig)
+      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
+    }
+    console.log(format, 'dkjhbcvy')
+    return dayjs(dateString).format(format.toUpperCase())
+  }
 
   const columns: GridColDef[] = [
     { field: 'screencode', headerName: 'Screen Code', flex: 0.6, headerClassName: 'super-app-theme--header' },
     { field: 'screendescription', headerName: 'Description', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'countrycode', headerName: 'Country', flex: 0.4, headerClassName: 'super-app-theme--header' },
     {
-      field: 'effectiveFromDate',
+      field: 'effective_from_date',
       headerName: 'Effective From',
       flex: 0.8,
       headerClassName: 'super-app-theme--header',
-
-      renderCell: (params) => {
-        const val = params.row?.effectivefromdate
-        return val ? val.split('T')[0] : ''
-      },
+      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
     },
     {
-      field: 'effectiveToDate',
+      field: 'effective_to_date',
       headerName: 'Effective To',
       flex: 0.8,
       headerClassName: 'super-app-theme--header',
-
-      renderCell: (params) => {
-        const val = params.row?.effectivetodate
-        return val ? val.split('T')[0] : ''
-      },
+      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
     },
     {
       field: 'active',
@@ -124,10 +129,21 @@ export default function ScreenMaster() {
 
   return (
     <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-          Screen Master
-        </Typography>
+      <Typography
+        variant="h4"
+        component="h1"
+        sx={{
+          fontWeight: 700,
+          letterSpacing: '-0.02em',
+          display: 'grid',
+          placeItems: 'center',
+          mb: 5,
+          color: '#0061B1',
+        }}
+      >
+        {'Screen master'.toUpperCase()}
+      </Typography>
+      <Stack direction="row" justifyContent="flex-end" alignItems="center" mb={3}>
         <Button
           variant="contained"
           onClick={() => {
@@ -135,7 +151,7 @@ export default function ScreenMaster() {
             setDialogopen(true)
           }}
         >
-          Add Screen
+          Add
         </Button>
       </Stack>
 
@@ -146,7 +162,14 @@ export default function ScreenMaster() {
         autoHeight
         density="standard"
         disableRowSelectionOnClick
-        initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+        // initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: 5,
+            },
+          },
+        }}
         pageSizeOptions={[5, 10, 20]}
       />
 

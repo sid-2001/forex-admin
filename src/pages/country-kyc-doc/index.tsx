@@ -1,4 +1,4 @@
-import { Button, Stack, IconButton, Box } from '@mui/material'
+import { Button, Stack, IconButton, Box, Typography } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import { useEffect, useState, useMemo, useCallback } from 'react'
@@ -111,7 +111,22 @@ export default function CountryKycDocManagement() {
 
   return (
     <Box p={3}>
-      <Stack direction="row" mb={2}>
+      <Typography
+        variant="h4"
+        component="h1"
+        sx={{
+          fontWeight: 700,
+          // color: 'text.primary',
+          letterSpacing: '-0.02em',
+          display: 'grid',
+          placeItems: 'center',
+          mb: 5,
+          color: '#0061B1',
+        }}
+      >
+        {'kyc master'.toUpperCase()}
+      </Typography>
+      <Stack direction="row" mb={2} justifyContent={'flex-end'}>
         <Button
           variant="contained"
           onClick={() => {
@@ -120,7 +135,7 @@ export default function CountryKycDocManagement() {
             setErrMassage(null)
           }}
         >
-          Add KYC Document
+          Add
         </Button>
       </Stack>
       <div style={{ height: 500, width: '100%' }}>
@@ -131,7 +146,9 @@ export default function CountryKycDocManagement() {
           getRowId={(r) => r.countryKycDocCode}
           initialState={{
             pagination: {
-              paginationModel: { page: 0, pageSize: 10 },
+              paginationModel: {
+                pageSize: 5,
+              },
             },
           }}
         />

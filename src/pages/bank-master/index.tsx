@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
-import { Box, Button, IconButton, Stack } from '@mui/material'
+import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -8,6 +8,7 @@ import BankMasterService, { BankMaster } from '../../services/bankmaster.service
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import ConfirmModal from '@/components/ConfirmModal'
+import dayjs from 'dayjs'
 
 export default function BankMasterScreen() {
   const service = useMemo(() => new BankMasterService(), [])
@@ -61,6 +62,18 @@ export default function BankMasterScreen() {
       showAlert('Fail', res.message || 'Server Error')
     }
   }
+  const formatTableDate = (dateString: string) => {
+    if (!dateString) return ''
+    const storedConfig = localStorage.getItem('countryConfig')
+    let format = 'YYYY-MM-DD'
+
+    if (storedConfig) {
+      const config = JSON.parse(storedConfig)
+      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
+    }
+    console.log(format, 'dkjhbcvy')
+    return dayjs(dateString).format(format.toUpperCase())
+  }
 
   const columns: GridColDef[] = [
     // {
@@ -81,6 +94,20 @@ export default function BankMasterScreen() {
     { field: 'bankBranchCode', headerName: 'Branch Code', flex: 0.8, headerClassName: 'super-app-theme--header' },
     { field: 'bankIfscBicCode', headerName: 'IFSC/BIC', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'bankCity', headerName: 'City', flex: 0.7, headerClassName: 'super-app-theme--header' },
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
+    },
     { field: 'countryCode', headerName: 'Country', flex: 0.6, headerClassName: 'super-app-theme--header' },
     {
       field: 'active',
@@ -121,7 +148,22 @@ export default function BankMasterScreen() {
 
   return (
     <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
+      <Typography
+        variant="h4"
+        component="h1"
+        sx={{
+          fontWeight: 700,
+          // color: 'text.primary',
+          letterSpacing: '-0.02em',
+          display: 'grid',
+          placeItems: 'center',
+          mb: 5,
+          color: '#0061B1',
+        }}
+      >
+        {'Bank Master'.toUpperCase()}
+      </Typography>
+      <Stack direction="row" justifyContent="flex-end" mb={2}>
         <Button
           variant="contained"
           onClick={() => {
@@ -129,11 +171,24 @@ export default function BankMasterScreen() {
             setDialogOpen(true)
           }}
         >
-          Add Bank
+          Add
         </Button>
       </Stack>
 
-      <DataGrid rows={rows} columns={columns} getRowId={(row) => row.bankMasterCode || Math.random()} autoHeight disableRowSelectionOnClick />
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.bankMasterCode || Math.random()}
+        autoHeight
+        disableRowSelectionOnClick
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: 5,
+            },
+          },
+        }}
+      />
 
       <BankMasterDialog
         open={dialogOpen}

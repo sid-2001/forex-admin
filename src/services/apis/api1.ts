@@ -168,7 +168,10 @@ const put = async (url: string, object: any) => {
 //
 const patch = async (url: string, object: any) => {
   try {
+    console.log("i hav alld data1",url,object)
+
     const { data } = await instance.patch(url, object)
+    console.log("i hav alld data",url,object)
     return data
   } catch (error) {
     throw error

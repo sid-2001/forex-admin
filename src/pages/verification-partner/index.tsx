@@ -1,4 +1,4 @@
-import { Button, Stack, IconButton, Box } from '@mui/material'
+import { Button, Stack, IconButton, Box, Typography } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import { useEffect, useState, useMemo, useCallback } from 'react'
@@ -99,7 +99,21 @@ export default function VerificationPartnerManagement() {
 
   return (
     <Box p={3}>
-      <Stack direction="row" mb={2}>
+      <Typography
+        variant="h4"
+        component="h1"
+        sx={{
+          fontWeight: 700,
+          letterSpacing: '-0.02em',
+          display: 'grid',
+          placeItems: 'center',
+          mb: 5,
+          color: '#0061B1',
+        }}
+      >
+        {'Verification master'.toUpperCase()}
+      </Typography>
+      <Stack direction="row" mb={2} justifyContent={'flex-end'}>
         <Button
           variant="contained"
           onClick={() => {
@@ -108,11 +122,23 @@ export default function VerificationPartnerManagement() {
             setErrMassage(null)
           }}
         >
-          Add Verification Partner
+          Add
         </Button>
       </Stack>
       <div style={{ height: 600, width: '100%' }}>
-        <DataGrid rows={rows} columns={columns} loading={loading} getRowId={(row) => row.verificationPartnerCode} />
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          loading={loading}
+          getRowId={(row) => row.verificationPartnerCode}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5,
+              },
+            },
+          }}
+        />
       </div>
       {open && (
         <VerificationPartnerMasterDialog

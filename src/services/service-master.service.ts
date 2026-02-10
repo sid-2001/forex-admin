@@ -35,7 +35,7 @@ export default class ServiceMasterService extends BaseService {
   async updateService(id: string, payload: any) {
     const url = `${this.baseUrl}/update/${id}`;
     try {
-      const { data } = await api1.patch(url, payload);
+      const { data } = await api1.put(url, payload);
       return data;
     } catch (err) { return err as any; }
   }
