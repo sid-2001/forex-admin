@@ -383,15 +383,19 @@ export default function GenderMaster() {
 
   const formatTableDate = (dateString: string) => {
     if (!dateString) return ''
+
+    // 🔴 Remove time & timezone completely
+    const cleanDate = String(dateString).split('T')[0]
+
     const storedConfig = localStorage.getItem('countryConfig')
     let format = 'YYYY-MM-DD'
 
     if (storedConfig) {
       const config = JSON.parse(storedConfig)
       format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-      console.log(format, 'bahnu')
     }
-    return dayjs(dateString).format(format.toUpperCase())
+
+    return dayjs(cleanDate).format(format.toUpperCase())
   }
 
   const fetchData = useCallback(async () => {

@@ -177,6 +177,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
 import dayjs from 'dayjs'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 const filter = createFilterOptions({
   matchFrom: 'any',
@@ -216,9 +217,8 @@ export default function GenderFormDialog({ open, onClose, onSubmit, editData }: 
         gendercode: editData.gendercode || '',
         description: editData.description || '',
         selectedCountry: editData.countrycode || '',
-        // HTML5 Date input strictly requires YYYY-MM-DD
-        effectiveFrom: fDate ? dayjs(fDate).format('YYYY-MM-DD') : '',
-        effectiveTo: tDate ? dayjs(tDate).format('YYYY-MM-DD') : '',
+        effectiveFrom: fDate ? String(fDate).split('T')[0] : '',
+        effectiveTo: tDate ? String(tDate).split('T')[0] : '',
         active: editData.active ?? true,
       })
     } else {
@@ -288,7 +288,7 @@ export default function GenderFormDialog({ open, onClose, onSubmit, editData }: 
             />
           </Grid>
 
-          <Grid item xs={6}>
+          {/* <Grid item xs={6}>
             <TextField
               fullWidth
               type="date"
@@ -313,6 +313,29 @@ export default function GenderFormDialog({ open, onClose, onSubmit, editData }: 
               error={!!errors.effectiveTo}
               helperText={errors.effectiveTo || `Format: ${displayDateFormat}`}
               inputProps={{ min: form.effectiveFrom }}
+            />
+          </Grid> */}
+          <Grid item xs={6}>
+            <DynamicDatePicker
+              label="Effective From"
+              value={form.effectiveFrom}
+              onChange={(val: string) => setForm({ ...form, effectiveFrom: val })}
+              error={!!errors.effectiveFrom}
+              helperText={errors.effectiveFrom}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <DynamicEndDatePicker
+              label="Effective To"
+              value={form.effectiveTo}
+              // minDate ensures the End Date cannot be before Start Date
+              minDate={form.effectiveFrom}
+              onChange={(val: string) => setForm({ ...form, effectiveTo: val })}
+              error={!!errors.effectiveTo}
+              helperText={errors.effectiveTo}
+              required
             />
           </Grid>
 

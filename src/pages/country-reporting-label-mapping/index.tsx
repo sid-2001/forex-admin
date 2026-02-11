@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react'
 import {
   Box,
   Button,
@@ -24,12 +24,12 @@ import {
   InputAdornment,
   Tooltip,
   CircularProgress,
-  Paper
-} from "@mui/material";
-import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import { 
-  Delete as DeleteIcon, 
-  Edit as EditIcon, 
+  Paper,
+} from '@mui/material'
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
+import {
+  Delete as DeleteIcon,
+  Edit as EditIcon,
   Info as InfoIcon,
   Search as SearchIcon,
   Visibility as VisibilityIcon,
@@ -37,93 +37,92 @@ import {
   Business as BusinessIcon,
   AccountBalance as AccountBalanceIcon,
   Category as CategoryIcon,
-  Refresh as RefreshIcon
-} from "@mui/icons-material";
+  Refresh as RefreshIcon,
+} from '@mui/icons-material'
 import CountryReportingMappingsService, {
   CountryReportingMapping,
   CountryLabelOption,
-  FieldLabelOption
-} from "../../services/country-reporting-mapping.service";
-import CountryLabelCodesService from "../../services/country-label-codes.service";
-import { LocalStorageService } from "@/helpers/local-storage-service";
+  FieldLabelOption,
+} from '../../services/country-reporting-mapping.service'
+import CountryLabelCodesService from '../../services/country-label-codes.service'
+import { LocalStorageService } from '@/helpers/local-storage-service'
+import dayjs from 'dayjs'
 
-const countryReportingMappingsService = new CountryReportingMappingsService();
-const countryLabelCodesService = new CountryLabelCodesService();
+const countryReportingMappingsService = new CountryReportingMappingsService()
+const countryLabelCodesService = new CountryLabelCodesService()
 
 export default function CountryReportingMappingsGridPage() {
-  const [rows, setRows] = useState<CountryReportingMapping[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<CountryReportingMapping | null>(null);
-  const [countryLabelOptions, setCountryLabelOptions] = useState<CountryLabelOption[]>([]);
-  const [fieldLabelOptions, setFieldLabelOptions] = useState<FieldLabelOption[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [loadingCountryLabels, setLoadingCountryLabels] = useState(false);
-  const [loadingFieldLabels, setLoadingFieldLabels] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  
+  const [rows, setRows] = useState<CountryReportingMapping[]>([])
+  const [loading, setLoading] = useState(true)
+  const [open, setOpen] = useState(false)
+  const [selected, setSelected] = useState<CountryReportingMapping | null>(null)
+  const [countryLabelOptions, setCountryLabelOptions] = useState<CountryLabelOption[]>([])
+  const [fieldLabelOptions, setFieldLabelOptions] = useState<FieldLabelOption[]>([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const [loadingCountryLabels, setLoadingCountryLabels] = useState(false)
+  const [loadingFieldLabels, setLoadingFieldLabels] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
+
   const [form, setForm] = useState({
-    countryLabelCode: "",
-    fieldLabelCode: "",
-    requirementLevels: "M" as "M" | "O" | "C",
-    visibility: "Y" as "Y" | "N",
+    countryLabelCode: '',
+    fieldLabelCode: '',
+    requirementLevels: 'M' as 'M' | 'O' | 'C',
+    visibility: 'Y' as 'Y' | 'N',
     active: true,
-    effectiveFromDate: "",
-    effectiveToDate: "2026-12-31T23:59:59"
-  });
+    effectiveFromDate: '',
+    effectiveToDate: '2026-12-31T23:59:59',
+  })
 
   const [snackbar, setSnackbar] = useState({
     open: false,
-    message: "",
-    severity: "success" as "success" | "error"
-  });
+    message: '',
+    severity: 'success' as 'success' | 'error',
+  })
 
-  const local_service = new LocalStorageService();
-  const user = local_service?.get_user();
+  const local_service = new LocalStorageService()
+  const user = local_service?.get_user()
 
-  const showSuccess = (msg: string) =>
-    setSnackbar({ open: true, message: msg, severity: "success" });
+  const showSuccess = (msg: string) => setSnackbar({ open: true, message: msg, severity: 'success' })
 
-  const showError = (msg: string) =>
-    setSnackbar({ open: true, message: msg, severity: "error" });
+  const showError = (msg: string) => setSnackbar({ open: true, message: msg, severity: 'error' })
 
   useEffect(() => {
-    loadData();
-    loadOptions();
-  }, []);
+    loadData()
+    loadOptions()
+  }, [])
 
   const loadData = async () => {
     try {
-      setLoading(true);
-      const data = await countryReportingMappingsService.getAll();
-      setRows(data);
+      setLoading(true)
+      const data = await countryReportingMappingsService.getAll()
+      setRows(data)
     } catch (error) {
-      showError("Failed to load country reporting mappings");
+      showError('Failed to load country reporting mappings')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const loadOptions = async () => {
     try {
       // Load country label options from API
-      await loadCountryLabelOptions();
-      
+      await loadCountryLabelOptions()
+
       // Load field label options
-      await loadFieldLabelOptions();
+      await loadFieldLabelOptions()
     } catch (error) {
-      showError("Failed to load options");
+      showError('Failed to load options')
     }
-  };
+  }
 
   const loadCountryLabelOptions = async () => {
     try {
-      setLoadingCountryLabels(true);
+      setLoadingCountryLabels(true)
       // Fetch country label codes from API using CountryLabelCodesService
-      const countryLabelCodes = await countryLabelCodesService.getAll();
-      
-      console.log("API Response from CountryLabelCodesService.getAll():", countryLabelCodes);
-      
+      const countryLabelCodes = await countryLabelCodesService.getAll()
+
+      console.log('API Response from CountryLabelCodesService.getAll():', countryLabelCodes)
+
       // Transform the data to match CountryLabelOption interface
       const options: CountryLabelOption[] = countryLabelCodes.map((code: any) => {
         // Generate display name based on available fields
@@ -131,175 +130,174 @@ export default function CountryReportingMappingsGridPage() {
           code.countryCode || '',
           code.railPayoutMappingCode || '',
           code.countryReportingCode || '',
-          code.channel ? `(${code.channel})` : ''
-        ].filter(Boolean).join(' - ');
-        
+          code.channel ? `(${code.channel})` : '',
+        ]
+          .filter(Boolean)
+          .join(' - ')
+
         return {
           countryLabelCode: code.countryLabelCode || '',
           countryCode: code.countryCode || '',
           railPayoutMappingCode: code.railPayoutMappingCode || '',
           countryReportingCode: code.countryReportingCode || '',
           channel: code.channel || '',
-          displayName: displayName || code.countryLabelCode || 'Unknown'
-        };
-      });
-      
+          displayName: displayName || code.countryLabelCode || 'Unknown',
+        }
+      })
+
       // Filter out invalid options (empty countryLabelCode)
-      const validOptions = options.filter(opt => opt.countryLabelCode);
-      
-      setCountryLabelOptions(validOptions);
-      console.log("Loaded country label options:", validOptions.length, validOptions);
+      const validOptions = options.filter((opt) => opt.countryLabelCode)
+
+      setCountryLabelOptions(validOptions)
+      console.log('Loaded country label options:', validOptions.length, validOptions)
     } catch (error) {
-      console.error("Error loading country label options:", error);
-      showError("Failed to load country label options from API");
-      setCountryLabelOptions([]);
+      console.error('Error loading country label options:', error)
+      showError('Failed to load country label options from API')
+      setCountryLabelOptions([])
     } finally {
-      setLoadingCountryLabels(false);
+      setLoadingCountryLabels(false)
     }
-  };
+  }
 
   const loadFieldLabelOptions = async () => {
     try {
-      setLoadingFieldLabels(true);
+      setLoadingFieldLabels(true)
       // Load field label options
-      const fieldLabels = await countryReportingMappingsService.getFieldLabelOptions();
-      setFieldLabelOptions(fieldLabels);
-      console.log("Loaded field label options:", fieldLabels.length, fieldLabels);
+      const fieldLabels = await countryReportingMappingsService.getFieldLabelOptions()
+      setFieldLabelOptions(fieldLabels)
+      console.log('Loaded field label options:', fieldLabels.length, fieldLabels)
     } catch (error) {
-      console.error("Error loading field label options:", error);
-      showError("Failed to load field label options");
-      setFieldLabelOptions([]);
+      console.error('Error loading field label options:', error)
+      showError('Failed to load field label options')
+      setFieldLabelOptions([])
     } finally {
-      setLoadingFieldLabels(false);
+      setLoadingFieldLabels(false)
     }
-  };
+  }
 
   const handleRefresh = async () => {
     try {
-      setRefreshing(true);
-      await loadData();
-      await loadOptions();
-      showSuccess("Data refreshed successfully");
+      setRefreshing(true)
+      await loadData()
+      await loadOptions()
+      showSuccess('Data refreshed successfully')
     } catch (error) {
-      showError("Failed to refresh data");
+      showError('Failed to refresh data')
     } finally {
-      setRefreshing(false);
+      setRefreshing(false)
     }
-  };
+  }
 
   const handleCreate = () => {
-    setSelected(null);
+    setSelected(null)
     setForm({
-      countryLabelCode: "",
-      fieldLabelCode: "",
-      requirementLevels: "M",
-      visibility: "Y",
+      countryLabelCode: '',
+      fieldLabelCode: '',
+      requirementLevels: 'M',
+      visibility: 'Y',
       active: true,
-      effectiveFromDate: "",
-      effectiveToDate: "2026-12-31T23:59:59"
-    });
-    setOpen(true);
-  };
+      effectiveFromDate: '',
+      effectiveToDate: '2026-12-31T23:59:59',
+    })
+    setOpen(true)
+  }
 
   const handleEdit = (row: CountryReportingMapping) => {
-    setSelected(row);
+    setSelected(row)
     setForm({
-      countryLabelCode: row.countryLabelCode || "",
-      fieldLabelCode: row.fieldLabelCode || "",
-      requirementLevels: row.requirementLevels || "M",
-      visibility: row.visibility || "Y",
+      countryLabelCode: row.countryLabelCode || '',
+      fieldLabelCode: row.fieldLabelCode || '',
+      requirementLevels: row.requirementLevels || 'M',
+      visibility: row.visibility || 'Y',
       active: row.active ?? true,
-      effectiveFromDate: row.effectiveFromDate || "",
-      effectiveToDate: row.effectiveToDate || "2026-12-31T23:59:59"
-    });
-    setOpen(true);
-  };
+      effectiveFromDate: row.effectiveFromDate || '',
+      effectiveToDate: row.effectiveToDate || '2026-12-31T23:59:59',
+    })
+    setOpen(true)
+  }
 
   const handleDelete = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this mapping?")) {
+    if (window.confirm('Are you sure you want to delete this mapping?')) {
       try {
-        const result = await countryReportingMappingsService.delete(id, false);
+        const result = await countryReportingMappingsService.delete(id, false)
         if (result.status) {
-          showSuccess("Mapping deleted successfully");
-          loadData();
+          showSuccess('Mapping deleted successfully')
+          loadData()
         } else {
-          showError(result.message);
+          showError(result.message)
         }
       } catch (error) {
-        showError("Failed to delete mapping");
+        showError('Failed to delete mapping')
       }
     }
-  };
+  }
 
   const handleSubmit = async () => {
     // Validation
 
     console.log(form)
     if (!form.countryLabelCode || !form.fieldLabelCode || !form.effectiveFromDate) {
-      showError("Please fill all required fields");
-      return;
+      showError('Please fill all required fields')
+      return
     }
 
     if (new Date(form.effectiveFromDate) > new Date(form.effectiveToDate)) {
-      showError("Effective From date cannot be after Effective To date");
-      return;
+      showError('Effective From date cannot be after Effective To date')
+      return
     }
 
     try {
       const payload = {
         ...form,
-        createdBy: selected ? undefined : local_service.get_staff_id() || "ADMIN",
-        modifiedBy: selected ? local_service.get_staff_id() || "ADMIN" : undefined,
-        effectiveFromDate: new Date(form.effectiveFromDate ).toISOString(),
-        effectiveToDate: new Date(form.effectiveToDate ).toISOString()}
+        createdBy: selected ? undefined : local_service.get_staff_id() || 'ADMIN',
+        modifiedBy: selected ? local_service.get_staff_id() || 'ADMIN' : undefined,
+        effectiveFromDate: new Date(form.effectiveFromDate).toISOString(),
+        effectiveToDate: new Date(form.effectiveToDate).toISOString(),
+      }
 
       if (selected) {
         // Update
         const updatePayload = {
           ...payload,
-          id: selected.id
-        };
+          id: selected.id,
+        }
 
         console.log(updatePayload)
 
-        const result = await countryReportingMappingsService.update(updatePayload);
+        const result = await countryReportingMappingsService.update(updatePayload)
         if (result.status) {
-          showSuccess("Mapping updated successfully");
-          setOpen(false);
-          loadData();
+          showSuccess('Mapping updated successfully')
+          setOpen(false)
+          loadData()
         } else {
-          showError(result.message);
+          showError(result.message)
         }
       } else {
         // Create
-        const result = await countryReportingMappingsService.create(payload);
+        const result = await countryReportingMappingsService.create(payload)
         if (result.status) {
-          showSuccess("Mapping created successfully");
-          setOpen(false);
-          loadData();
+          showSuccess('Mapping created successfully')
+          setOpen(false)
+          loadData()
         } else {
-          showError(result.message);
+          showError(result.message)
         }
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
-      showError(selected ? "Failed to update mapping" : "Failed to create mapping");
+      console.error('Error submitting form:', error)
+      showError(selected ? 'Failed to update mapping' : 'Failed to create mapping')
     }
-  };
+  }
 
   // Filter rows based on search term
-  const filteredRows = rows.filter(row => {
-    if (!searchTerm) return true;
-    
-    const searchLower = searchTerm.toLowerCase();
-    const countryLabel = countryLabelOptions.find(
-      opt => opt.countryLabelCode === row.countryLabelCode
-    )?.displayName?.toLowerCase() || '';
-    
-    const fieldLabel = fieldLabelOptions.find(
-      opt => opt.fieldLabelCode === row.fieldLabelCode
-    )?.displayName?.toLowerCase() || '';
-    
+  const filteredRows = rows.filter((row) => {
+    if (!searchTerm) return true
+
+    const searchLower = searchTerm.toLowerCase()
+    const countryLabel = countryLabelOptions.find((opt) => opt.countryLabelCode === row.countryLabelCode)?.displayName?.toLowerCase() || ''
+
+    const fieldLabel = fieldLabelOptions.find((opt) => opt.fieldLabelCode === row.fieldLabelCode)?.displayName?.toLowerCase() || ''
+
     return (
       row.id?.toLowerCase().includes(searchLower) ||
       row.countryLabelCode?.toLowerCase().includes(searchLower) ||
@@ -308,25 +306,23 @@ export default function CountryReportingMappingsGridPage() {
       fieldLabel.includes(searchLower) ||
       row.requirementLevels.toLowerCase().includes(searchLower) ||
       row.visibility.toLowerCase().includes(searchLower)
-    );
-  });
+    )
+  })
 
   const columns: GridColDef[] = [
-    { 
-      field: "id", 
-      headerName: "Mapping ID", 
-      flex: 1, 
-      headerClassName: 'super-app-theme--header' 
+    {
+      field: 'id',
+      headerName: 'Mapping ID',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
     },
-    { 
-      field: "countryLabelCode", 
-      headerName: "Country Label", 
-      flex: 1.5, 
+    {
+      field: 'countryLabelCode',
+      headerName: 'Country Label',
+      flex: 1.5,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: GridRenderCellParams) => {
-        const countryLabel = countryLabelOptions.find(
-          opt => opt.countryLabelCode === params.value
-        );
+        const countryLabel = countryLabelOptions.find((opt) => opt.countryLabelCode === params.value)
         return (
           <Box>
             <Typography variant="body2" noWrap>
@@ -337,41 +333,42 @@ export default function CountryReportingMappingsGridPage() {
             </Typography>
             {(countryLabel as any) && (
               <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
-                <Chip 
-                  size="small" 
+                <Chip
+                  size="small"
                   label={`Country: ${
                     //@ts-ignore
-                    countryLabel.countryCode}`}
+                    countryLabel.countryCode
+                  }`}
                   variant="outlined"
                   color="primary"
                 />
                 {
-                //@ts-ignore
-                countryLabel.channel && (
-                  <Chip 
-                    size="small" 
-                    label={`Channel: ${
-                      //@ts-ignore
-                      countryLabel.channel}`}
-                    variant="outlined"
-                    color="secondary"
-                  />
-                )}
+                  //@ts-ignore
+                  countryLabel.channel && (
+                    <Chip
+                      size="small"
+                      label={`Channel: ${
+                        //@ts-ignore
+                        countryLabel.channel
+                      }`}
+                      variant="outlined"
+                      color="secondary"
+                    />
+                  )
+                }
               </Box>
             )}
           </Box>
-        );
-      }
+        )
+      },
     },
-    { 
-      field: "fieldLabelCode", 
-      headerName: "Field Label", 
-      flex: 1.5, 
+    {
+      field: 'fieldLabelCode',
+      headerName: 'Field Label',
+      flex: 1.5,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: GridRenderCellParams) => {
-        const fieldLabel = fieldLabelOptions.find(
-          opt => opt.fieldLabelCode === params.value
-        );
+        const fieldLabel = fieldLabelOptions.find((opt) => opt.fieldLabelCode === params.value)
         return (
           <Box>
             <Typography variant="body2" noWrap>
@@ -386,92 +383,93 @@ export default function CountryReportingMappingsGridPage() {
               </Typography>
             )}
           </Box>
-        );
-      }
+        )
+      },
     },
-    { 
-      field: "requirementLevels", 
-      headerName: "Requirement", 
-      flex: 0.8, 
+    {
+      field: 'requirementLevels',
+      headerName: 'Requirement',
+      flex: 0.8,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: GridRenderCellParams) => (
-        <Tooltip title={
-          params.value === "M" ? "Mandatory - Field is required" :
-          params.value === "O" ? "Optional - Field is not required" : 
-          "Conditional - Field is required based on conditions"
-        }>
-          <Chip 
-            label={
-              params.value === "M" ? "Mandatory" :
-              params.value === "O" ? "Optional" : "Conditional"
-            } 
-            size="small" 
-            color={
-              params.value === "M" ? "error" :
-              params.value === "O" ? "warning" : "info"
-            }
+        <Tooltip
+          title={
+            params.value === 'M'
+              ? 'Mandatory - Field is required'
+              : params.value === 'O'
+                ? 'Optional - Field is not required'
+                : 'Conditional - Field is required based on conditions'
+          }
+        >
+          <Chip
+            label={params.value === 'M' ? 'Mandatory' : params.value === 'O' ? 'Optional' : 'Conditional'}
+            size="small"
+            color={params.value === 'M' ? 'error' : params.value === 'O' ? 'warning' : 'info'}
             variant="outlined"
           />
         </Tooltip>
-      )
+      ),
     },
-    { 
-      field: "visibility", 
-      headerName: "Visibility", 
-      flex: 0.7, 
+    {
+      field: 'visibility',
+      headerName: 'Visibility',
+      flex: 0.7,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: GridRenderCellParams) => (
-        <Tooltip title={params.value === "Y" ? "Visible - Field is shown to users" : "Hidden - Field is not shown to users"}>
+        <Tooltip title={params.value === 'Y' ? 'Visible - Field is shown to users' : 'Hidden - Field is not shown to users'}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {params.value === "Y" ? 
-              <VisibilityIcon color="success" /> : 
-              <VisibilityOffIcon color="action" />
-            }
+            {params.value === 'Y' ? <VisibilityIcon color="success" /> : <VisibilityOffIcon color="action" />}
             <Typography variant="caption" sx={{ ml: 0.5 }}>
-              {params.value === "Y" ? "Visible" : "Hidden"}
+              {params.value === 'Y' ? 'Visible' : 'Hidden'}
             </Typography>
           </Box>
         </Tooltip>
-      )
-    },
-    { 
-      field: "active", 
-      headerName: "Status", 
-      flex: 0.7, 
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: GridRenderCellParams) => (
-        <Tooltip title={params.value ? "Active mapping" : "Inactive mapping"}>
-          <Chip 
-            label={params.value ? "Active" : "Inactive"} 
-            size="small" 
-            color={params.value ? "success" : "error"}
-            variant="outlined"
-          />
-        </Tooltip>
-      )
+      ),
     },
     {
-      field: "actions",
-      headerName: "Actions",
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
+    },
+    {
+      field: 'active',
+      headerName: 'Status',
+      flex: 0.7,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: GridRenderCellParams) => (
+        <Tooltip title={params.value ? 'Active mapping' : 'Inactive mapping'}>
+          <Chip label={params.value ? 'Active' : 'Inactive'} size="small" color={params.value ? 'success' : 'error'} variant="outlined" />
+        </Tooltip>
+      ),
+    },
+    {
+      field: 'actions',
+      headerName: 'Actions',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       sortable: false,
       renderCell: (params: GridRenderCellParams) => (
         <Stack direction="row" spacing={1}>
           <Tooltip title="Edit mapping">
-            <IconButton 
-              size="small" 
-              color="primary" 
-              onClick={() => handleEdit(params.row)}
-            >
+            <IconButton size="small" color="primary" onClick={() => handleEdit(params.row)}>
               <EditIcon />
             </IconButton>
           </Tooltip>
-         
-          <Tooltip 
+
+          <Tooltip
             //@ts-ignore
             //@ts-ignore
-            title="Delete mapping" children={undefined}         
+            title="Delete mapping"
+            children={undefined}
           >
             {/* <IconButton 
               size="small" 
@@ -482,40 +480,52 @@ export default function CountryReportingMappingsGridPage() {
             </IconButton> */}
           </Tooltip>
         </Stack>
-      )
-    }
-  ];
+      ),
+    },
+  ]
 
   const requirementLevels = [
-    { value: "M", label: "Mandatory", description: "Field is required" },
-    { value: "O", label: "Optional", description: "Field is not required" },
-    { value: "C", label: "Conditional", description: "Field is required based on conditions" }
-  ];
+    { value: 'M', label: 'Mandatory', description: 'Field is required' },
+    { value: 'O', label: 'Optional', description: 'Field is not required' },
+    { value: 'C', label: 'Conditional', description: 'Field is required based on conditions' },
+  ]
 
   const visibilityOptions = [
-    { value: "Y", label: "Visible", description: "Field is shown to users" },
-    { value: "N", label: "Hidden", description: "Field is not shown to users" }
-  ];
+    { value: 'Y', label: 'Visible', description: 'Field is shown to users' },
+    { value: 'N', label: 'Hidden', description: 'Field is not shown to users' },
+  ]
 
   // Get selected country label details
   const getSelectedCountryLabelDetails = () => {
-    if (!form.countryLabelCode) return null;
-    return countryLabelOptions.find(opt => opt.countryLabelCode === form.countryLabelCode);
-  };
+    if (!form.countryLabelCode) return null
+    return countryLabelOptions.find((opt) => opt.countryLabelCode === form.countryLabelCode)
+  }
 
   // Get selected field label details
   const getSelectedFieldLabelDetails = () => {
-    if (!form.fieldLabelCode) return null;
-    return fieldLabelOptions.find(opt => opt.fieldLabelCode === form.fieldLabelCode);
-  };
+    if (!form.fieldLabelCode) return null
+    return fieldLabelOptions.find((opt) => opt.fieldLabelCode === form.fieldLabelCode)
+  }
+  const formatTableDate = (dateString: string) => {
+    if (!dateString) return ''
+    const storedConfig = localStorage.getItem('countryConfig')
+    let format = 'YYYY-MM-DD'
+
+    if (storedConfig) {
+      const config = JSON.parse(storedConfig)
+      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
+    }
+    console.log(format, 'dkjhbcvy')
+    return dayjs(dateString).format(format.toUpperCase())
+  }
 
   return (
-    <Box sx={{ height: "100vh", p: 3 }}>
+    <Box sx={{ height: '100vh', p: 3 }}>
       <Stack direction="row" justifyContent="space-between" mb={2}>
         <Typography variant="h5">Country Reporting Mappings</Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button 
-            variant="outlined" 
+          <Button
+            variant="outlined"
             onClick={handleRefresh}
             startIcon={refreshing ? <CircularProgress size={20} /> : <RefreshIcon />}
             disabled={refreshing}
@@ -538,23 +548,19 @@ export default function CountryReportingMappingsGridPage() {
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'success.light', color: 'white' }}>
-            <Typography variant="h6">{rows.filter(r => r.active).length}</Typography>
+            <Typography variant="h6">{rows.filter((r) => r.active).length}</Typography>
             <Typography variant="body2">Active Mappings</Typography>
           </Paper>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'info.light', color: 'white' }}>
-            <Typography variant="h6">
-              {[...new Set(rows.map(r => r.countryLabelCode))].length}
-            </Typography>
+            <Typography variant="h6">{[...new Set(rows.map((r) => r.countryLabelCode))].length}</Typography>
             <Typography variant="body2">Country Labels</Typography>
           </Paper>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'warning.light', color: 'white' }}>
-            <Typography variant="h6">
-              {[...new Set(rows.map(r => r.fieldLabelCode))].length}
-            </Typography>
+            <Typography variant="h6">{[...new Set(rows.map((r) => r.fieldLabelCode))].length}</Typography>
             <Typography variant="body2">Field Labels</Typography>
           </Paper>
         </Grid>
@@ -575,7 +581,7 @@ export default function CountryReportingMappingsGridPage() {
           ),
         }}
       />
-      
+
       <Box sx={{ height: 500, width: '100%' }}>
         <DataGrid
           rows={filteredRows}
@@ -595,12 +601,12 @@ export default function CountryReportingMappingsGridPage() {
       {/* Create/Edit Dialog */}
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
         <DialogTitle>
-          {selected ? "Edit Mapping" : "Create New Mapping"}
+          {selected ? 'Edit Mapping' : 'Create New Mapping'}
           <Typography variant="caption" display="block" color="textSecondary">
             ID: {selected?.id || 'New'}
           </Typography>
         </DialogTitle>
-        
+
         <DialogContent dividers>
           <Stack spacing={2} sx={{ mt: 1 }}>
             {/* Country Label Code */}
@@ -609,7 +615,7 @@ export default function CountryReportingMappingsGridPage() {
               <Select
                 value={form.countryLabelCode}
                 label="Country Label Code *"
-                onChange={(e) => setForm({...form, countryLabelCode: e.target.value})}
+                onChange={(e) => setForm({ ...form, countryLabelCode: e.target.value })}
                 startAdornment={
                   form.countryLabelCode && (
                     <InputAdornment position="start">
@@ -628,43 +634,34 @@ export default function CountryReportingMappingsGridPage() {
                   </MenuItem>
                 ) : countryLabelOptions.length === 0 ? (
                   <MenuItem disabled>
-                    <Typography color="textSecondary">
-                      No country label codes found. Please check API connection.
-                    </Typography>
+                    <Typography color="textSecondary">No country label codes found. Please check API connection.</Typography>
                   </MenuItem>
                 ) : (
                   countryLabelOptions.map((option) => (
-                    <MenuItem 
-                      key={option.countryLabelCode} 
-                      value={option.countryLabelCode}
-                    >
+                    <MenuItem key={option.countryLabelCode} value={option.countryLabelCode}>
                       <Box sx={{ width: '100%' }}>
                         <Typography variant="body2" fontWeight="medium">
                           {option.displayName}
                         </Typography>
                         <Box sx={{ display: 'flex', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>
-                          <Chip 
-                            size="small" 
-                            label={`Country: ${option.countryCode}`}
-                            variant="outlined"
-                            color="primary"
-                          />
+                          <Chip size="small" label={`Country: ${option.countryCode}`} variant="outlined" color="primary" />
                           {
-                          //@ts-ignore
-                          option.channel && (
-                            <Chip 
-                              size="small" 
-                              label={`Channel: ${
-                                //@ts-ignore
-                                option.channel}`}
-                              variant="outlined"
-                              color="secondary"
-                            />
-                          )}
+                            //@ts-ignore
+                            option.channel && (
+                              <Chip
+                                size="small"
+                                label={`Channel: ${
+                                  //@ts-ignore
+                                  option.channel
+                                }`}
+                                variant="outlined"
+                                color="secondary"
+                              />
+                            )
+                          }
                         </Box>
                         <Typography variant="caption" color="textSecondary" display="block" sx={{ mt: 0.5 }}>
-                          Rail Payout: {option.railPayoutMappingCode} | 
-                          Reporting: {option.countryReportingCode}
+                          Rail Payout: {option.railPayoutMappingCode} | Reporting: {option.countryReportingCode}
                         </Typography>
                         <Typography variant="caption" color="textSecondary" display="block">
                           Code: {option.countryLabelCode}
@@ -685,7 +682,7 @@ export default function CountryReportingMappingsGridPage() {
               <Select
                 value={form.fieldLabelCode}
                 label="Field Label Code *"
-                onChange={(e) => setForm({...form, fieldLabelCode: e.target.value})}
+                onChange={(e) => setForm({ ...form, fieldLabelCode: e.target.value })}
                 disabled={loadingFieldLabels}
               >
                 {loadingFieldLabels ? (
@@ -697,16 +694,11 @@ export default function CountryReportingMappingsGridPage() {
                   </MenuItem>
                 ) : fieldLabelOptions.length === 0 ? (
                   <MenuItem disabled>
-                    <Typography color="textSecondary">
-                      No field label codes found. Please check API connection.
-                    </Typography>
+                    <Typography color="textSecondary">No field label codes found. Please check API connection.</Typography>
                   </MenuItem>
                 ) : (
-                  fieldLabelOptions.map((option:any) => (
-                    <MenuItem 
-                      key={option.fieldLabelCode} 
-                      value={option.fieldLabelCode}
-                    >
+                  fieldLabelOptions.map((option: any) => (
+                    <MenuItem key={option.fieldLabelCode} value={option.fieldLabelCode}>
                       <Box sx={{ width: '100%' }}>
                         <Typography variant="body2" fontWeight="medium">
                           {option.displayName}
@@ -738,7 +730,7 @@ export default function CountryReportingMappingsGridPage() {
                   <Select
                     value={form.requirementLevels}
                     label="Requirement Level *"
-                    onChange={(e) => setForm({...form, requirementLevels: e.target.value as "M" | "O" | "C"})}
+                    onChange={(e) => setForm({ ...form, requirementLevels: e.target.value as 'M' | 'O' | 'C' })}
                   >
                     {requirementLevels.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
@@ -759,7 +751,7 @@ export default function CountryReportingMappingsGridPage() {
                   <Select
                     value={form.visibility}
                     label="Visibility *"
-                    onChange={(e) => setForm({...form, visibility: e.target.value as "Y" | "N"})}
+                    onChange={(e) => setForm({ ...form, visibility: e.target.value as 'Y' | 'N' })}
                   >
                     {visibilityOptions.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
@@ -786,7 +778,7 @@ export default function CountryReportingMappingsGridPage() {
                   type="date"
                   label="Effective From *"
                   value={form.effectiveFromDate ? form.effectiveFromDate.split('T')[0] : ''}
-                  onChange={(e) => setForm({...form, effectiveFromDate: e.target.value})}
+                  onChange={(e) => setForm({ ...form, effectiveFromDate: e.target.value })}
                   InputLabelProps={{ shrink: true }}
                   required
                 />
@@ -796,15 +788,16 @@ export default function CountryReportingMappingsGridPage() {
                   fullWidth
                   type="date"
                   label="Effective To"
-                  value={form.effectiveToDate  ? form.effectiveToDate.split('T')[0] 
-                    : ''}
-                  onChange={(e) => setForm({ 
-                    ...form, 
-                    effectiveToDate: e.target.value 
-                  })}
+                  value={form.effectiveToDate ? form.effectiveToDate.split('T')[0] : ''}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      effectiveToDate: e.target.value,
+                    })
+                  }
                   InputLabelProps={{ shrink: true }}
                   inputProps={{
-                    min: form.effectiveFromDate ? form.effectiveFromDate.split("T")[0] : undefined
+                    min: form.effectiveFromDate ? form.effectiveFromDate.split('T')[0] : undefined,
                   }}
                 />
               </Grid>
@@ -812,12 +805,7 @@ export default function CountryReportingMappingsGridPage() {
 
             {/* Active Status */}
             <FormControlLabel
-              control={
-                <Switch
-                  checked={form.active}
-                  onChange={(e) => setForm({...form, active: e.target.checked})}
-                />
-              }
+              control={<Switch checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />}
               label="Active"
             />
 
@@ -829,7 +817,7 @@ export default function CountryReportingMappingsGridPage() {
                   <Typography variant="subtitle2" gutterBottom color="primary">
                     Mapping Details:
                   </Typography>
-                  
+
                   <Grid container spacing={2}>
                     {/* Country Label Details */}
                     <Grid item xs={12} md={6}>
@@ -853,9 +841,11 @@ export default function CountryReportingMappingsGridPage() {
                               <strong>Reporting:</strong> {getSelectedCountryLabelDetails()?.countryReportingCode}
                             </Typography>
                             <Typography variant="body2">
-                              <strong>Channel:</strong> {
-                               //@ts-ignore
-                              getSelectedCountryLabelDetails()?.channel || 'N/A'}
+                              <strong>Channel:</strong>{' '}
+                              {
+                                //@ts-ignore
+                                getSelectedCountryLabelDetails()?.channel || 'N/A'
+                              }
                             </Typography>
                           </Stack>
                         ) : (
@@ -865,7 +855,7 @@ export default function CountryReportingMappingsGridPage() {
                         )}
                       </Paper>
                     </Grid>
-                    
+
                     {/* Field Label Details */}
                     <Grid item xs={12} md={6}>
                       <Paper variant="outlined" sx={{ p: 1.5 }}>
@@ -898,7 +888,7 @@ export default function CountryReportingMappingsGridPage() {
                         )}
                       </Paper>
                     </Grid>
-                    
+
                     {/* Mapping Configuration */}
                     <Grid item xs={12}>
                       <Paper variant="outlined" sx={{ p: 1.5 }}>
@@ -909,23 +899,23 @@ export default function CountryReportingMappingsGridPage() {
                         <Grid container spacing={2}>
                           <Grid item xs={12} sm={6}>
                             <Typography variant="body2">
-                              <strong>Requirement:</strong> {requirementLevels.find(r => r.value === form.requirementLevels)?.label}
+                              <strong>Requirement:</strong> {requirementLevels.find((r) => r.value === form.requirementLevels)?.label}
                             </Typography>
                             <Typography variant="caption" color="textSecondary">
-                              {requirementLevels.find(r => r.value === form.requirementLevels)?.description}
+                              {requirementLevels.find((r) => r.value === form.requirementLevels)?.description}
                             </Typography>
                           </Grid>
                           <Grid item xs={12} sm={6}>
                             <Typography variant="body2">
-                              <strong>Visibility:</strong> {visibilityOptions.find(v => v.value === form.visibility)?.label}
+                              <strong>Visibility:</strong> {visibilityOptions.find((v) => v.value === form.visibility)?.label}
                             </Typography>
                             <Typography variant="caption" color="textSecondary">
-                              {visibilityOptions.find(v => v.value === form.visibility)?.description}
+                              {visibilityOptions.find((v) => v.value === form.visibility)?.description}
                             </Typography>
                           </Grid>
                           <Grid item xs={12}>
                             <Typography variant="body2">
-                              <strong>Status:</strong> {form.active ? "Active" : "Inactive"}
+                              <strong>Status:</strong> {form.active ? 'Active' : 'Inactive'}
                             </Typography>
                           </Grid>
                           <Grid item xs={12}>
@@ -933,7 +923,8 @@ export default function CountryReportingMappingsGridPage() {
                               <strong>Effective From:</strong> {form.effectiveFromDate || 'Not set'}
                             </Typography>
                             <Typography variant="body2">
-                              <strong>Effective To:</strong> {form.effectiveToDate === "2026-12-31T23:59:59" ? 'Default (2026-12-31)' : form.effectiveToDate}
+                              <strong>Effective To:</strong>{' '}
+                              {form.effectiveToDate === '2026-12-31T23:59:59' ? 'Default (2026-12-31)' : form.effectiveToDate}
                             </Typography>
                           </Grid>
                         </Grid>
@@ -948,12 +939,12 @@ export default function CountryReportingMappingsGridPage() {
 
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             onClick={handleSubmit}
             disabled={!form.countryLabelCode || !form.fieldLabelCode || !form.effectiveFromDate || loadingCountryLabels || loadingFieldLabels}
           >
-            {selected ? "Update" : "Create"}
+            {selected ? 'Update' : 'Create'}
           </Button>
         </DialogActions>
       </Dialog>
@@ -964,22 +955,18 @@ export default function CountryReportingMappingsGridPage() {
         autoHideDuration={3000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        sx={{ 
+        sx={{
           top: { xs: '10%', sm: '20%' },
           '& .MuiAlert-root': {
             fontSize: '0.9rem',
-            padding: '8px 16px'
-          }
+            padding: '8px 16px',
+          },
         }}
       >
-        <Alert 
-          severity={snackbar.severity} 
-          variant="filled"
-          elevation={6}
-        >
+        <Alert severity={snackbar.severity} variant="filled" elevation={6}>
           {snackbar.message}
         </Alert>
       </Snackbar>
     </Box>
-  );
+  )
 }
