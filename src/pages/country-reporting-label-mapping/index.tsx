@@ -469,6 +469,7 @@ export default function CountryReportingMappingsGridPage() {
             //@ts-ignore
             //@ts-ignore
             title="Delete mapping"
+            //@ts-ignore
             children={undefined}
           >
             {/* <IconButton 

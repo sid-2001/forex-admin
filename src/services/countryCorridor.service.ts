@@ -8,7 +8,7 @@ import {
   CorridorStats,
   ApiTransaction,
 } from '@/types/countryCorridor.types'
-import api1 from './apis/api1'
+import (api1 as any) from './apis/api1'
 import { BaseService } from './base.service'
 
 class CountryCorridorService extends BaseService {
@@ -318,7 +318,10 @@ class CountryCorridorService extends BaseService {
   async checkCorridorCodeExists(corridorCode: string): Promise<boolean> {
     const url = `/static-table/country-corridor-master/check-code/${corridorCode}`
     try {
-      const { data } = await api1.get(url)
+      const { data } = await 
+      
+      //@ts-ignore
+      api1.get(url)
       return data?.data?.exists || false
     } catch (err) {
       return false

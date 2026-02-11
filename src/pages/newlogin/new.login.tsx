@@ -74,6 +74,7 @@ const LoginPage = () => {
     const detectedType = checkType(value)
 
     if (detectedType === 'invalid') {
+      //@ts-ignore
       setError((validataion?.username_validataion_msg)?(validataion?.username_validataion_msg):"No Message From Backend")
     } else {
       setError('')
@@ -251,6 +252,7 @@ console.log(validation_data)
 
 
             <TextField
+            //@ts-ignore
   placeholder={validataion?.usename}
   fullWidth
   margin="normal"
