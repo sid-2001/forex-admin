@@ -381,15 +381,13 @@ export default function GenderMaster() {
   const local_service = useMemo(() => new LocalStorageService(), [])
   const static_service = useMemo(() => new GenderService(), [])
 
-  // 1. Dynamic Date Formatter based on LocalStorage
   const formatTableDate = (dateString: string) => {
     if (!dateString) return ''
     const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD' // Default fallback
+    let format = 'YYYY-MM-DD'
 
     if (storedConfig) {
       const config = JSON.parse(storedConfig)
-      // Convert backend "dd-MM-yyyy" to dayjs "DD-MM-YYYY"
       format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
       console.log(format, 'bahnu')
     }
@@ -535,14 +533,13 @@ export default function GenderMaster() {
         pageSizeOptions={[5]}
         sx={{
           '& .super-app-theme--header': {
-            // backgroundColor: 'rgba(0, 0, 0, 0.05)',
             fontWeight: 'bold',
           },
         }}
         initialState={{
           pagination: {
             paginationModel: {
-              pageSize: 5, // Default to 5
+              pageSize: 5,
             },
           },
         }}
