@@ -351,6 +351,12 @@ const MASTER_MENU = [
     icon: <GavelIcon fontSize="small" />,
     path: 'country-reporting-label-master',
   }
+  ,{
+    label: 'Country Corridor Page',
+    name: 'Country Corridor Page',
+    icon: <GavelIcon fontSize="small" />,
+    path: 'country-corridor-page',
+  }
      
   // verification-partner
 ]
