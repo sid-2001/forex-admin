@@ -122,6 +122,7 @@
 import React, { useState, useEffect } from 'react'
 import { Box, Typography } from '@mui/material'
 import LanguageIcon from '@mui/icons-material/Language'
+import ProductConfigService from '@/services/product.config.service'
 
 const CompactLocationBar = () => {
   const [data, setData] = useState({
@@ -131,17 +132,32 @@ const CompactLocationBar = () => {
     tzInfo: '',
   })
 
-  const fetchProductConfig = async (countryCode: any) => {
+  // const fetchProductConfig = async (countryCode: any) => {
+  //   try {
+  //     const response = await fetch(`https://api.impronics.com/api/static-table/countryCorridorProduct/getByCountryCode/${countryCode}`, {
+  //       method: 'GET',
+  //       headers: { 'Content-Type': 'application/json' },
+  //     })
+
+  //     const result = await response.json()
+
+  //     if (result.status && result.data && result.data.length > 0) {
+  //       localStorage.setItem('countryConfig', JSON.stringify(result.data[0]))
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching product config:', error)
+  //   }
+  // }
+  const fetchProductConfig = async (countryCode: string) => {
     try {
-      const response = await fetch(`https://api.impronics.com/api/static-table/countryCorridorProduct/getByCountryCode/${countryCode}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      })
-
-      const result = await response.json()
-
-      if (result.status && result.data && result.data.length > 0) {
-        localStorage.setItem('countryConfig', JSON.stringify(result.data[0]))
+      // const res = await ProductConfigService.getByCountryCode(countryCode)
+      const service = new ProductConfigService()
+      const res = await service.getByCountryCode(countryCode)
+      console.log('jdbchy')
+      if (res?.status && res?.data?.length > 0) {
+        console.log(res.data[0], 'res.data[0]')
+        alert(res.data[0])
+        localStorage.setItem('countryConfig', JSON.stringify(res.data[0]))
       }
     } catch (error) {
       console.error('Error fetching product config:', error)

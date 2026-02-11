@@ -22,6 +22,7 @@ import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { ApplicantService } from '@/services/applicant.service'
 import CompactLocationBar from '@/components/location'
+import ProductConfigService from '@/services/product.config.service'
 
 const Dashboard = () => {
   // Sample dashboard data
@@ -72,6 +73,38 @@ const Dashboard = () => {
     })
   }
 
+  // const fetchProductConfig = async (countryCode: any) => {
+  //   try {
+  //     const response = await fetch(`https://api.impronics.com/api/static-table/countryCorridorProduct/getByCountryCode/${countryCode}`, {
+  //       method: 'GET',
+  //       headers: { 'Content-Type': 'application/json' },
+  //     })
+
+  //     const result = await response.json()
+
+  //     if (result.status && result.data && result.data.length > 0) {
+  //       localStorage.setItem('countryConfig', JSON.stringify(result.data[0]))
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching product config:', error)
+  //   }
+  // }
+  const fetchProductConfig = async (countryCode: string) => {
+    try {
+      // const res = await ProductConfigService.getByCountryCode(countryCode)
+      const service = new ProductConfigService()
+      const res = await service.getByCountryCode(countryCode)
+      console.log('jdbchy')
+      if (res?.status && res?.data?.length > 0) {
+        console.log(res.data[0], 'res.data[0]')
+        alert(res.data[0])
+        localStorage.setItem('countryConfig', JSON.stringify(res.data[0]))
+      }
+    } catch (error) {
+      console.error('Error fetching product config:', error)
+    }
+  }
+
   const getOutwardTransactionsList = useCallback(async () => {
     const data = await transaction_service.getOutwardAllTransaction(userCountry, 0, 20)
     setrecentTransaction(data || [])
@@ -89,6 +122,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     getGatewayList()
+    fetchProductConfig('IN')
     fetchConsumersData()
     setIsLoading(true)
     getOutwardTransactionsList()
