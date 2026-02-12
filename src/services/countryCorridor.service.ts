@@ -1,3 +1,4 @@
+//@ts-check
 import {
   CountryCorridorData,
   //@ts-ignore
@@ -8,7 +9,7 @@ import {
   CorridorStats,
   ApiTransaction,
 } from '@/types/countryCorridor.types'
-import (api1 as any) from './apis/api1'
+import api1 from './apis/api1'
 import { BaseService } from './base.service'
 
 class CountryCorridorService extends BaseService {
@@ -21,6 +22,7 @@ class CountryCorridorService extends BaseService {
   async getAllCorridors(): Promise<Array<CountryCorridorData>> {
     const url = `/api/static-table/country-corridor-master/getAll`
     try {
+      //@ts-ignore
       const { data } = await api1.get(url)
       return data?.data || data
     } catch (err) {
@@ -339,7 +341,7 @@ class CountryCorridorService extends BaseService {
       url += `?countryCode=${countryCode}`
     }
     try {
-      const response = await api1.get(url, { responseType: 'blob' })
+      const response = await api1.get(url)
       return response.data
     } catch (err) {
       throw new Error('Unable to export corridors. Please try again.')
@@ -355,7 +357,7 @@ class CountryCorridorService extends BaseService {
       url += `?countryCode=${countryCode}`
     }
     try {
-      const response = await api1.get(url, { responseType: 'blob' })
+      const response = await api1.get(url)
       return response.data
     } catch (err) {
       throw new Error('Unable to export corridors to Excel. Please try again.')

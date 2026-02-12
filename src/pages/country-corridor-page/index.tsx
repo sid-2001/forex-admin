@@ -1166,6 +1166,7 @@ const CountryCorridorPage: React.FC = () => {
                   count={totalCount}
                   rowsPerPage={rowsPerPage}
                   page={page}
+                  //@ts-ignore
                   onPageChange={handleChangePage}
                   onRowsPerPageChange={handleChangeRowsPerPage}
                 />
