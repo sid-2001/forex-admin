@@ -78,6 +78,8 @@ import VendorApiMaster from './pages/VendorApiMaster'
 import CountryLabelFieldsGridPage from './pages/country-label-field-master'
 import CountryReportingMappingsGridPage from './pages/country-reporting-label-mapping'
 import CountryLabelCodesGridPage from './pages/country-label-codes'
+import UrlTypeMaster from './pages/UrlTypeMaster'
+import VendorApiMasterTable from './pages/VendorApiMasterTable'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -223,9 +225,11 @@ function App() {
               <Route path="smsmanegement" element={<SmsTemplateManagement />} />
               <Route path="email-manegement" element={<EmailTemplateManagement />} />
               <Route path="verification-partner" element={<VerificationPartnerManagement />} />
+              <Route path="urlmaster" element={<UrlTypeMaster />} />
               <Route path="country-Kyc-doc-management" element={<CountryKycDocManagement />} />
               <Route path="vendorapimaster" element={<VendorApiMaster />} />
-              {/* VendorApiMaster */}
+              <Route path="vendorapimastertable" element={<VendorApiMasterTable />} />
+              {/* VendorApiMasterTable */}
               <Route path="subservice" element={<SubServiceManagement />} />
               <Route path="channel" element={<ChannelManagement />} />
               <Route path="screen" element={<ScreenMaster />} />
@@ -240,9 +244,9 @@ function App() {
               <Route path="forex-currency-master" element={<ForexCurrencyMaster />} />
               <Route path="forex-country-master" element={<ForexCountryMaster />} />
               <Route path="terms-condition" element={<TermsConditionsPage />} />
-                   <Route path="country-label-code-master" element={<CountryLabelCodesGridPage />} />
-                    <Route path="country-label-master" element={<CountryLabelFieldsGridPage />} />
-                    <Route path="country-reporting-label-master" element={<CountryReportingMappingsGridPage />} />
+              <Route path="country-label-code-master" element={<CountryLabelCodesGridPage />} />
+              <Route path="country-label-master" element={<CountryLabelFieldsGridPage />} />
+              <Route path="country-reporting-label-master" element={<CountryReportingMappingsGridPage />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 

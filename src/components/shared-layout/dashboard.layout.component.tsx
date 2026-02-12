@@ -326,32 +326,44 @@ const MASTER_MENU = [
     icon: <WebIcon fontSize="small" />,
     path: 'country-Kyc-doc-management',
   },
-    {
+  {
     label: 'Terms and Condition',
     name: 'Terms and Condition',
     icon: <GavelIcon fontSize="small" />,
     path: 'terms-condition',
   },
 
-      {
+  {
     label: 'Country Label Code Master',
     name: 'Country Label Code Master',
     icon: <GavelIcon fontSize="small" />,
     path: 'country-label-code-master',
   },
-      {
+  {
     label: 'Country label Master',
     name: 'Country label Master',
     icon: <GavelIcon fontSize="small" />,
     path: 'country-label-master',
   },
-      {
+  {
     label: 'Country Reporting Label Master',
     name: 'Country Reporting Label Master',
     icon: <GavelIcon fontSize="small" />,
     path: 'country-reporting-label-master',
-  }
-     
+  },
+  {
+    label: 'Vendor Master',
+    name: 'Vendor Master',
+    icon: <GavelIcon fontSize="small" />,
+    path: 'vendorapimaster',
+  },
+  {
+    label: 'Vendor Url Master',
+    name: 'Vendor Url Master',
+    icon: <GavelIcon fontSize="small" />,
+    path: 'urlmaster',
+  },
+
   // verification-partner
 ]
 
@@ -397,7 +409,6 @@ const MasterDropdownIcon = ({ setSelectedApp, addToHistory, selectedApp }: any) 
   return (
     <>
       <IconButton onClick={() => setOpen(true)}>
-     
         <BubbleChartIcon color="primary" sx={{ color: 'white', fontColor: 'white' }} />
       </IconButton>
 
