@@ -187,7 +187,9 @@ const CompactLocationBar = () => {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
           try {
-            const res = await fetch(`https://geocode.maps.co/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`)
+            const res = await fetch(
+              `https://geocode.maps.co/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&api_key=698ec1956567a901751989bigfafd1d`,
+            )
             const locResult = await res.json()
 
             // Extracts City, State Code, and Full Country Name
@@ -200,6 +202,7 @@ const CompactLocationBar = () => {
               ...prev,
               location: `${city}, ${state}, ${country}`,
             }))
+            console.log(city, state, country, 'bhanu')
 
             fetchProductConfig(countryCode)
           } catch {

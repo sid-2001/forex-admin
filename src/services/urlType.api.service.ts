@@ -30,15 +30,15 @@ export default class UrlTypeApiService {
   }
 
   async create(payload: IUrlType) {
-    return await api1.post("/api/static-table/url-type/create", payload, { headers: this.getHeaders() });
+    return await api1.post("/api/static-table/url-type/create", payload,);
   }
 
   async update(urlCode: string, payload: IUrlType) {
-    return await api1.put(`/api/static-table/url-type/update/${urlCode}`, payload, { headers: this.getHeaders() });
+    return await api1.put(`/api/static-table/url-type/update/${urlCode}`, payload,);
   }
 
   async delete(urlCode: string) {
-    return await api1.delete(`/api/static-table/url-type/delete/${urlCode}`, {
+    return await api1.del(`/api/static-table/url-type/delete/${urlCode}`, {
       params: { active: false },
       headers: this.getHeaders()
     });

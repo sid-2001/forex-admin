@@ -8,7 +8,7 @@ import VendorApiConfigService from '../../services/vendorApiConfig.service'
 export default function VendorApiConfigDialog({ open, onClose, editData, refreshList, showAlert, vendors, urlTypes }: any) {
   const service = new VendorApiConfigService()
   const [countries] = useRecoilState(countyState)
-
+  console.log(editData)
   const [form, setForm] = useState<any>({
     vendorCode: '',
     urlCode: '',
@@ -32,6 +32,8 @@ export default function VendorApiConfigDialog({ open, onClose, editData, refresh
         effectiveFromDate: editData.effectiveFromDate ? String(editData.effectiveFromDate).split('T')[0] : '',
         effectiveToDate: editData.effectiveToDate ? String(editData.effectiveToDate).split('T')[0] : '',
         active: editData.active ?? true,
+        // urlType: editData.urlType.urlType,
+        // vendor: editData.vendor.vendorCode,
       })
     } else {
       setForm({
@@ -102,7 +104,7 @@ export default function VendorApiConfigDialog({ open, onClose, editData, refresh
             <Autocomplete
               options={vendors || []}
               getOptionLabel={(o: any) => `${o.vendorName} (${o.vendorCode})`}
-              value={vendors?.find((v: any) => v.vendorCode === form.vendorCode) || null}
+              value={form.vendor || null}
               onChange={(_, val) => setForm({ ...form, vendorCode: val ? val.vendorCode : '' })}
               renderInput={(p) => <TextField {...p} label="Vendor" error={!!errors.vendorCode} helperText={errors.vendorCode} required />}
             />
@@ -113,7 +115,7 @@ export default function VendorApiConfigDialog({ open, onClose, editData, refresh
             <Autocomplete
               options={urlTypes || []}
               getOptionLabel={(o: any) => `${o.urlType} (${o.urlCode})`}
-              value={urlTypes?.find((u: any) => u.urlCode === form.urlCode) || null}
+              value={form.urlType || null}
               onChange={(_, val) => setForm({ ...form, urlCode: val ? val.urlCode : '' })}
               renderInput={(p) => <TextField {...p} label="URL Type" error={!!errors.urlCode} helperText={errors.urlCode} required />}
             />

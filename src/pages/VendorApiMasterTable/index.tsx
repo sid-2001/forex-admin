@@ -64,29 +64,41 @@ export default function VendorApiMasterTable() {
   }, [])
 
   const columns: GridColDef[] = [
-    { field: 'vendorCode', headerName: 'Vendor', flex: 1, headerClassName: 'header-bg' },
-    { field: 'urlCode', headerName: 'URL Type', flex: 1, headerClassName: 'header-bg' },
-    { field: 'serviceCountry', headerName: 'Country', flex: 0.7, headerClassName: 'header-bg' },
-    { field: 'serviceCurrency', headerName: 'Currency', flex: 0.7, headerClassName: 'header-bg' },
+    {
+      field: 'vendorCode',
+      headerName: 'Vendor',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      valueGetter: (_: any, row: any) => row?.vendor?.vendorCode || '',
+    },
+    {
+      field: 'urlCode',
+      headerName: 'URL Type',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      valueGetter: (_: any, row: any) => row?.urlType?.urlCode || '',
+    },
+    { field: 'serviceCountry', headerName: 'Country', flex: 0.7, headerClassName: 'super-app-theme--header' },
+    { field: 'serviceCurrency', headerName: 'Currency', flex: 0.7, headerClassName: 'super-app-theme--header' },
     {
       field: 'apiKey',
       headerName: 'API Key',
       flex: 1.2,
-      headerClassName: 'header-bg',
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) => (params.value ? `****${String(params.value).slice(-4)}` : '-'),
     },
     {
       field: 'effectiveFromDate',
       headerName: 'From Date',
       flex: 1,
-      headerClassName: 'header-bg',
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) => (params.value ? String(params.value).split('T')[0] : '-'),
     },
     {
       field: 'active',
       headerName: 'Status',
       flex: 0.6,
-      headerClassName: 'header-bg',
+      headerClassName: 'super-app-theme--header',
       renderCell: (p) => (p.value ? 'Active' : 'Inactive'),
     },
     {
@@ -94,7 +106,7 @@ export default function VendorApiMasterTable() {
       headerName: 'Actions',
       width: 80,
       sortable: false,
-      headerClassName: 'header-bg',
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <IconButton
           color="primary"
@@ -110,9 +122,9 @@ export default function VendorApiMasterTable() {
     },
   ]
 
-  const filteredRows = rows.filter((row: any) =>
-    Object.values(row).some((val) => val !== null && String(val).toLowerCase().includes(searchQuery.toLowerCase())),
-  )
+  const filteredRows = rows.filter((row: any) => {
+    return Object.values(row).some((val) => val !== null && String(val).toLowerCase().includes(searchQuery.toLowerCase()))
+  })
 
   return (
     <Box p={3} sx={{ width: '100%', '& .header-bg': { fontWeight: 'bold', bgcolor: '#f5f5f5' } }}>
@@ -146,8 +158,8 @@ export default function VendorApiMasterTable() {
       <VendorApiConfigDialog
         open={dialogOpen}
         editData={editData}
-        vendors={vendors} // Passing pre-fetched vendors
-        urlTypes={urlTypes} // Passing pre-fetched URL types
+        vendors={vendors}
+        urlTypes={urlTypes}
         onClose={() => setDialogOpen(false)}
         refreshList={fetchData}
         showAlert={showAlert}

@@ -5,7 +5,7 @@ export default class VendorApiConfigService {
     return {
       'timezone': 'Asia/Kolkata',
       'offset': '+05:30',
-      'localdatetime': new Date().toISOString().split('.')[0], // Current time in YYYY-MM-DDTHH:mm:ss
+      'localdatetime': new Date().toISOString().split('.')[0], 
       'Content-Type': 'application/json'
     };
   }
@@ -19,10 +19,10 @@ export default class VendorApiConfigService {
   async create(payload: any) {
     // Note: URL params required as per your CURL: ?vendorCode=...&urlCode=...
     const url = `/api/static-table/vendor-api/create?vendorCode=${payload.vendorCode}&urlCode=${payload.urlCode}`;
-    return await api1.post(url, payload, { headers: this.getHeaders() });
+    return await api1.post(url, payload,);
   }
 
   async update(id: number | string, payload: any) {
-    return await api1.put(`/api/static-table/vendor-api/update/${id}`, payload, { headers: this.getHeaders() });
+    return await api1.put(`/api/static-table/vendor-api/update/${id}`, payload, );
   }
 }

@@ -363,8 +363,14 @@ const MASTER_MENU = [
     icon: <GavelIcon fontSize="small" />,
     path: 'urlmaster',
   },
+  {
+    label: 'vendor master table ',
+    name: 'vendorapi master table ',
+    icon: <GavelIcon fontSize="small" />,
+    path: 'vendorapimastertable',
+  },
 
-  // verification-partner
+  // vendorapimastertable
 ]
 
 // const chunkArray = (arr: any[], size: number) => {
