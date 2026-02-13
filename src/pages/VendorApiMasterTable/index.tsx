@@ -150,7 +150,14 @@ export default function VendorApiMasterTable() {
         loading={loading}
         getRowId={(row) => row.id || `${row.vendorCode}-${row.urlCode}`}
         autoHeight
-        initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+        // initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: 5,
+            },
+          },
+        }}
         sx={{ bgcolor: 'white' }}
       />
 

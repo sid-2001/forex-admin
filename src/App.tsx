@@ -80,6 +80,7 @@ import CountryReportingMappingsGridPage from './pages/country-reporting-label-ma
 import CountryLabelCodesGridPage from './pages/country-label-codes'
 import UrlTypeMaster from './pages/UrlTypeMaster'
 import VendorApiMasterTable from './pages/VendorApiMasterTable'
+import CountryCorridorPage from './pages/country-corridor-page'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -247,6 +248,10 @@ function App() {
               <Route path="country-label-code-master" element={<CountryLabelCodesGridPage />} />
               <Route path="country-label-master" element={<CountryLabelFieldsGridPage />} />
               <Route path="country-reporting-label-master" element={<CountryReportingMappingsGridPage />} />
+              <Route path="country-label-code-master" element={<CountryLabelCodesGridPage />} />
+              <Route path="country-label-master" element={<CountryLabelFieldsGridPage />} />
+              <Route path="country-reporting-label-master" element={<CountryReportingMappingsGridPage />} />
+              <Route path="country-corridor-page" element={<CountryCorridorPage />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 

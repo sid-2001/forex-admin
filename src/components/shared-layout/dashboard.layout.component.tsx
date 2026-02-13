@@ -369,8 +369,14 @@ const MASTER_MENU = [
     icon: <GavelIcon fontSize="small" />,
     path: 'vendorapimastertable',
   },
+  {
+    label: 'Country Corridor Page',
+    name: 'Country Corridor Page',
+    icon: <GavelIcon fontSize="small" />,
+    path: 'country-corridor-page',
+  },
 
-  // vendorapimastertable
+  // verification-partner
 ]
 
 // const chunkArray = (arr: any[], size: number) => {

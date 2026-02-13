@@ -1,5 +1,6 @@
 import { BaseService } from './base.service'
 import api1 from './apis/api1'
+import { CountryLabelApiResponse } from '@/types/field.validation.type'
 
 export class FieldValidationService extends BaseService {
   async getFieldValidationListing(countryCode: string): Promise<any> {
@@ -36,6 +37,16 @@ export class FieldValidationService extends BaseService {
     let url = `/api/transactions/field-validations/delete/${id}`
     try {
       let data = await api1.del(url, {})
+      return data
+    } catch (err) {
+      throw new Error(err as any)
+    }
+  }
+
+    async getScreenFieldvalidation(screen: string,country:String,channel:String): Promise<CountryLabelApiResponse> {
+    let url = `/api/static-table/country-label-codes/filterByCountryCodeScreenAndChannel?countryCode=${country}&screen=${screen}&channel=${channel}`
+    try {
+      let data = await api1.get(url)
       return data
     } catch (err) {
       throw new Error(err as any)
