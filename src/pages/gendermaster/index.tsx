@@ -56,63 +56,145 @@ export default function GenderMaster() {
     setOpen(true)
   }
 
+  // const handleAction = async (data: any, isUpdate: boolean) => {
+  //   if (data.validationError) {
+  //     showAlert('Fail', data.validationError)
+  //     return
+  //   }
+
+  //   navigator.geolocation.getCurrentPosition(
+  //     async (pos) => {
+  //       const audit = await getLiveAuditData(pos.coords.latitude, pos.coords.longitude)
+
+  //       if (!audit) {
+  //         showAlert('Fail', 'Could not retrieve location/time data.')
+  //         return
+  //       }
+
+  //       const payload = {
+  //         applicant_id: local_service?.get_staff_id(),
+  //         gendercode: data.gendercode,
+  //         description: data.description,
+  //         countrycode: data.selectedCountry,
+  //         active: data.active,
+  //         effectivefromdate: `${data.effectiveFrom}T00:00:00.000Z`,
+  //         effectivetodate: `${data.effectiveTo}T00:00:00.000Z`,
+
+  //         ...(isUpdate
+  //           ? {
+  //               modified_loc: new Date(Date.now()).toLocaleString(),
+  //               modified_time: audit.timeZone,
+  //               modified_off: audit.offset,
+  //               Modified_UTCDateTime: audit.utcDateTime,
+  //               modified_loc_time: audit.localDateTime,
+  //             }
+  //           : {
+  //               created_loc: new Date(Date.now()).toLocaleString(),
+  //               created_time: audit.timeZone,
+  //               created_off: audit.offset,
+  //               Created_UTCDateTime: audit.utcDateTime,
+  //               created_loc_time: audit.localDateTime,
+  //             }),
+  //       }
+
+  //       //@ts-ignore
+  //       console.log(payload, 'jdhbcyh')
+  //       const response: any = isUpdate ? await static_service.updateGender(payload as any) : await static_service.createGender(payload)
+
+  //       if (response?.success === true || response?.status === 'Success') {
+  //         showAlert('Success', `Gender ${isUpdate ? 'Updated' : 'Created'} Successfully`)
+  //         setDialogopen(false)
+  //         fetchData()
+  //       } else {
+  //         showAlert('Fail', response?.message || 'Server Error')
+  //       }
+  //     },
+  //     () => {
+  //       showAlert('Fail', 'Location access is required for auditing.')
+  //     },
+  //   )
+  // }
   const handleAction = async (data: any, isUpdate: boolean) => {
     if (data.validationError) {
       showAlert('Fail', data.validationError)
       return
     }
 
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const audit = await getLiveAuditData(pos.coords.latitude, pos.coords.longitude)
+    // 1. Create a Default Audit object immediately (Fallback)
+    // This ensures that even if geolocation fails, we have valid data for the API
+    const now = dayjs()
+    const ianaTZ = Intl.DateTimeFormat().resolvedOptions().timeZone
+    let audit = {
+      location: 'GURUGRAM, HARYANA, INDIA', // Default
+      timeZone: ianaTZ,
+      offset: now.format('Z'),
+      utcDateTime: dayjs.utc().format('YYYY-MM-DD HH:mm:ss'),
+      localDateTime: now.format('YYYY-MM-DD HH:mm:ss'),
+    }
 
-        if (!audit) {
-          showAlert('Fail', 'Could not retrieve location/time data.')
-          return
-        }
+    // 2. Helper function to actually hit the API
+    const submitPayload = async (finalAudit: typeof audit) => {
+      const payload = {
+        applicant_id: local_service?.get_staff_id(),
+        gendercode: data.gendercode,
+        description: data.description,
+        countrycode: data.selectedCountry,
+        active: data.active,
+        effectivefromdate: `${data.effectiveFrom}T00:00:00.000Z`,
+        effectivetodate: `${data.effectiveTo}T00:00:00.000Z`,
 
-        const payload = {
-          applicant_id: local_service?.get_staff_id(),
-          gendercode: data.gendercode,
-          description: data.description,
-          countrycode: data.selectedCountry,
-          active: data.active,
-          effectivefromdate: `${data.effectiveFrom}T00:00:00.000Z`,
-          effectivetodate: `${data.effectiveTo}T00:00:00.000Z`,
+        ...(isUpdate
+          ? {
+              modified_loc: finalAudit.location,
+              modified_time: finalAudit.timeZone,
+              modified_off: finalAudit.offset,
+              Modified_UTCDateTime: finalAudit.utcDateTime,
+              modified_loc_time: finalAudit.localDateTime,
+              modifiedby: local_service?.get_staff_id(),
+            }
+          : {
+              created_loc: finalAudit.location,
+              created_time: finalAudit.timeZone,
+              created_off: finalAudit.offset,
+              Created_UTCDateTime: finalAudit.utcDateTime,
+              created_loc_time: finalAudit.localDateTime,
+              createdby: local_service?.get_staff_id(),
+            }),
+      }
 
-          ...(isUpdate
-            ? {
-                modified_loc: new Date(Date.now()).toLocaleString(),
-                modified_time: audit.timeZone,
-                modified_off: audit.offset,
-                Modified_UTCDateTime: audit.utcDateTime,
-                modified_loc_time: audit.localDateTime,
-              }
-            : {
-                created_loc: new Date(Date.now()).toLocaleString(),
-                created_time: audit.timeZone,
-                created_off: audit.offset,
-                Created_UTCDateTime: audit.utcDateTime,
-                created_loc_time: audit.localDateTime,
-              }),
-        }
+      console.log('Sending Payload:', payload)
 
-        //@ts-ignore
-        console.log(payload, 'jdhbcyh')
-        const response: any = isUpdate ? await static_service.updateGender(payload as any) : await static_service.createGender(payload)
+      const response: any = isUpdate ? await static_service.updateGender(payload as any) : await static_service.createGender(payload)
 
-        if (response?.success === true || response?.status === 'Success') {
-          showAlert('Success', `Gender ${isUpdate ? 'Updated' : 'Created'} Successfully`)
-          setDialogopen(false)
-          fetchData()
-        } else {
-          showAlert('Fail', response?.message || 'Server Error')
-        }
-      },
-      () => {
-        showAlert('Fail', 'Location access is required for auditing.')
-      },
-    )
+      if (response?.success === true || response?.status === 'Success' || response?.status === true) {
+        showAlert('Success', `Gender ${isUpdate ? 'Updated' : 'Created'} Successfully`)
+        setDialogopen(false)
+        fetchData()
+      } else {
+        showAlert('Fail', response?.message || 'Server Error')
+      }
+    }
+
+    // 3. Try Geolocation, but don't let it block the app
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const liveAudit = await getLiveAuditData(pos.coords.latitude, pos.coords.longitude)
+          if (liveAudit) {
+            await submitPayload(liveAudit)
+          } else {
+            await submitPayload(audit) // Use fallback if API fails
+          }
+        },
+        async (_) => {
+          console.warn('Location denied, using fallback.')
+          await submitPayload(audit) // Use fallback if user denies
+        },
+        { timeout: 5000 }, // Wait max 5 seconds for location
+      )
+    } else {
+      await submitPayload(audit)
+    }
   }
 
   const columns: GridColDef[] = [
