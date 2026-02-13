@@ -256,7 +256,6 @@ const ProfileMenu = () => {
 
     const selectedCountry = local_service.get_staff_country()
 
-    /** 🔹 Auto select first country and fetch its config if nothing is set */
     useEffect(() => {
       if (!selectedCountry && staff.staffCountries?.length) {
         const firstCountry = staff.staffCountries[0]
@@ -276,7 +275,7 @@ const ProfileMenu = () => {
               // console.log(newCountry, 'jdb')
               await updateCountryConfig(newCountry)
               local_service.set_usercountry(newCountry)
-              // window.location.reload()
+              window.location.reload()
             }}
             sx={{
               fontSize: { xs: '11px', md: '1.4vh' },

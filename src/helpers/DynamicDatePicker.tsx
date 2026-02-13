@@ -32,7 +32,6 @@ export function DynamicDatePicker({ label, value, onChange, error, helperText, r
         minDate={minDate ? dayjs(String(minDate).split('T')[0]) : undefined}
         onChange={(newValue: Dayjs | null) => {
           if (newValue && newValue.isValid()) {
-            // Get the year, month, date from the local picker selection
             const y = newValue.year()
             const m = String(newValue.month() + 1).padStart(2, '0')
             const d = String(newValue.date()).padStart(2, '0')
@@ -58,7 +57,7 @@ export function DynamicDatePicker({ label, value, onChange, error, helperText, r
 
 interface DynamicEndDatePickerProps {
   label: string
-  value: string // Expects "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm:ss"
+  value: string
   onChange: (isoDate: string) => void
   error?: boolean
   helperText?: string
@@ -72,10 +71,15 @@ export function DynamicEndDatePicker({ label, value, onChange, error, helperText
     return (config.dateFormat || 'MM/DD/YYYY').toUpperCase()
   }, [])
 
+  //   const dateValue = useMemo(() => {
+  //     if (!value) return null
+  //     const cleanDate = String(value).split('T')[0]
+  //     return dayjs(cleanDate)
+  //   }, [value])
   const dateValue = useMemo(() => {
     if (!value) return null
-    const cleanDate = String(value).split('T')[0]
-    return dayjs(cleanDate)
+    const localDateString = typeof value === 'string' ? value.split('T')[0] : value
+    return dayjs(localDateString)
   }, [value])
 
   return (
@@ -91,8 +95,8 @@ export function DynamicEndDatePicker({ label, value, onChange, error, helperText
             const m = String(newValue.month() + 1).padStart(2, '0')
             const d = String(newValue.date()).padStart(2, '0')
 
-            // FIX: Send only YYYY-MM-DD (No UTC)
             const finalPayload = `${y}-${m}-${d}`
+            console.log(finalPayload, 'njdbcvhyh')
 
             onChange(finalPayload)
           } else {

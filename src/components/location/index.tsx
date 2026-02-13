@@ -202,7 +202,7 @@ const CompactLocationBar = () => {
               ...prev,
               location: `${city}, ${state}, ${country}`,
             }))
-            console.log(city, state, country, 'bhanu')
+            console.log(city, state, country, 'bhanu', window)
 
             fetchProductConfig(countryCode)
           } catch {
@@ -224,12 +224,12 @@ const CompactLocationBar = () => {
   return (
     <Box
       sx={{
-        width: 400, // Kept at 400px to fit City, State, and Country
+        width: 400,
         height: 20,
         display: 'flex',
         alignItems: 'center',
         px: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.04)',
+        backgroundColor: 'lightgray',
         borderRadius: '4px',
         border: '1px solid rgba(0,0,0,0.1)',
         boxSizing: 'border-box',
