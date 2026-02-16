@@ -319,7 +319,10 @@ export default function GenderFormDialog({ open, onClose, onSubmit, editData }: 
             <DynamicDatePicker
               label="Effective From"
               value={form.effectiveFrom}
-              onChange={(val: string) => setForm({ ...form, effectiveFrom: val })}
+              onChange={(val: string) => {
+                console.log(val, 'kdjhchdvy')
+                setForm({ ...form, effectiveFrom: val })
+              }}
               error={!!errors.effectiveFrom}
               helperText={errors.effectiveFrom}
               required
@@ -330,9 +333,10 @@ export default function GenderFormDialog({ open, onClose, onSubmit, editData }: 
             <DynamicEndDatePicker
               label="Effective To"
               value={form.effectiveTo}
-              // minDate ensures the End Date cannot be before Start Date
               minDate={form.effectiveFrom}
-              onChange={(val: string) => setForm({ ...form, effectiveTo: val })}
+              onChange={(val: string) => {
+                setForm({ ...form, effectiveTo: val })
+              }}
               error={!!errors.effectiveTo}
               helperText={errors.effectiveTo}
               required
