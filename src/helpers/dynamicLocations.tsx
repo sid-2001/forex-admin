@@ -35,8 +35,8 @@ export const getLiveAuditData = async (latitude: any, longitude: any) => {
 
     return {
       location: fullLocation,
-      localDateTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-      utcDateTime: dayjs.utc().format('YYYY-MM-DD HH:mm:ss'),
+      localDateTime: dayjs().format('YYYY-MM-DD HH:mm:ss.SSS'),
+      utcDateTime: dayjs.utc().format('YYYY-MM-DD HH:mm:ss.SSS'),
       timeZone: ianaTZ,
       offset: formattedOffset,
     }
