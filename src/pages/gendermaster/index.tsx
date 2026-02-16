@@ -56,64 +56,6 @@ export default function GenderMaster() {
     setOpen(true)
   }
 
-  // const handleAction = async (data: any, isUpdate: boolean) => {
-  //   if (data.validationError) {
-  //     showAlert('Fail', data.validationError)
-  //     return
-  //   }
-
-  //   navigator.geolocation.getCurrentPosition(
-  //     async (pos) => {
-  //       const audit = await getLiveAuditData(pos.coords.latitude, pos.coords.longitude)
-
-  //       if (!audit) {
-  //         showAlert('Fail', 'Could not retrieve location/time data.')
-  //         return
-  //       }
-
-  //       const payload = {
-  //         applicant_id: local_service?.get_staff_id(),
-  //         gendercode: data.gendercode,
-  //         description: data.description,
-  //         countrycode: data.selectedCountry,
-  //         active: data.active,
-  //         effectivefromdate: `${data.effectiveFrom}T00:00:00.000Z`,
-  //         effectivetodate: `${data.effectiveTo}T00:00:00.000Z`,
-
-  //         ...(isUpdate
-  //           ? {
-  //               modified_loc: new Date(Date.now()).toLocaleString(),
-  //               modified_time: audit.timeZone,
-  //               modified_off: audit.offset,
-  //               Modified_UTCDateTime: audit.utcDateTime,
-  //               modified_loc_time: audit.localDateTime,
-  //             }
-  //           : {
-  //               created_loc: new Date(Date.now()).toLocaleString(),
-  //               created_time: audit.timeZone,
-  //               created_off: audit.offset,
-  //               Created_UTCDateTime: audit.utcDateTime,
-  //               created_loc_time: audit.localDateTime,
-  //             }),
-  //       }
-
-  //       //@ts-ignore
-  //       console.log(payload, 'jdhbcyh')
-  //       const response: any = isUpdate ? await static_service.updateGender(payload as any) : await static_service.createGender(payload)
-
-  //       if (response?.success === true || response?.status === 'Success') {
-  //         showAlert('Success', `Gender ${isUpdate ? 'Updated' : 'Created'} Successfully`)
-  //         setDialogopen(false)
-  //         fetchData()
-  //       } else {
-  //         showAlert('Fail', response?.message || 'Server Error')
-  //       }
-  //     },
-  //     () => {
-  //       showAlert('Fail', 'Location access is required for auditing.')
-  //     },
-  //   )
-  // }
   const handleAction = async (data: any, isUpdate: boolean) => {
     if (data.validationError) {
       showAlert('Fail', data.validationError)
@@ -123,14 +65,13 @@ export default function GenderMaster() {
     const now = dayjs()
     const ianaTZ = Intl.DateTimeFormat().resolvedOptions().timeZone
     let audit = {
-      location: 'GURUGRAM, HARYANA, INDIA', // Default
+      location: 'GURUGRAM, HARYANA, INDIA',
       timeZone: ianaTZ,
       offset: now.format('Z'),
-      utcDateTime: dayjs.utc().format('YYYY-MM-DD HH:mm:ss'),
-      localDateTime: now.format('YYYY-MM-DD HH:mm:ss'),
+      utcDateTime: dayjs.utc().format('YYYY-MM-DD HH:mm:ss.SSS'),
+      localDateTime: now.format('YYYY-MM-DD HH:mm:ss.SSS'),
     }
 
-    // 2. Helper function to actually hit the API
     const submitPayload = async (finalAudit: typeof audit) => {
       const payload = {
         applicant_id: local_service?.get_staff_id(),
@@ -150,8 +91,9 @@ export default function GenderMaster() {
                 hour: '2-digit',
                 minute: '2-digit',
                 second: '2-digit',
+                fractionalSecondDigits: 3,
                 hour12: false,
-              }),
+              } as any),
               modified_time: finalAudit.timeZone,
               modified_off: finalAudit.offset,
               Modified_UTCDateTime: finalAudit.utcDateTime,
@@ -166,8 +108,9 @@ export default function GenderMaster() {
                 hour: '2-digit',
                 minute: '2-digit',
                 second: '2-digit',
+                fractionalSecondDigits: 3,
                 hour12: false,
-              }),
+              } as any),
               created_time: finalAudit.timeZone,
               created_off: finalAudit.offset,
               Created_UTCDateTime: finalAudit.utcDateTime,
@@ -189,7 +132,6 @@ export default function GenderMaster() {
       }
     }
 
-    // 3. Try Geolocation, but don't let it block the app
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
@@ -197,14 +139,14 @@ export default function GenderMaster() {
           if (liveAudit) {
             await submitPayload(liveAudit)
           } else {
-            await submitPayload(audit) // Use fallback if API fails
+            await submitPayload(audit)
           }
         },
         async (_) => {
           console.warn('Location denied, using fallback.')
-          await submitPayload(audit) // Use fallback if user denies
+          await submitPayload(audit)
         },
-        { timeout: 5000 }, // Wait max 5 seconds for location
+        { timeout: 5000 },
       )
     } else {
       await submitPayload(audit)
@@ -264,7 +206,6 @@ export default function GenderMaster() {
         component="h1"
         sx={{
           fontWeight: 700,
-          // color: 'text.primary',
           letterSpacing: '-0.02em',
           display: 'grid',
           placeItems: 'center',
