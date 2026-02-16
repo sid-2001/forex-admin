@@ -750,7 +750,7 @@ const DashboardLayout = () => {
               width: '100%',
             }}
           >
-            <div style={{ position: 'absolute', top: 60, left: 40 }}>
+            <div style={{ position: 'absolute', top: 45, left: 40 }}>
               <CompactLocationBar />
             </div>
             {/* Left side - Logo + Dark/Light Mode (UNCHANGED) */}

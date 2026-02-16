@@ -120,8 +120,6 @@ export default function GenderMaster() {
       return
     }
 
-    // 1. Create a Default Audit object immediately (Fallback)
-    // This ensures that even if geolocation fails, we have valid data for the API
     const now = dayjs()
     const ianaTZ = Intl.DateTimeFormat().resolvedOptions().timeZone
     let audit = {
@@ -145,7 +143,15 @@ export default function GenderMaster() {
 
         ...(isUpdate
           ? {
-              modified_loc: finalAudit.location,
+              modified_loc: new Date().toLocaleString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false,
+              }),
               modified_time: finalAudit.timeZone,
               modified_off: finalAudit.offset,
               Modified_UTCDateTime: finalAudit.utcDateTime,
@@ -153,7 +159,15 @@ export default function GenderMaster() {
               modifiedby: local_service?.get_staff_id(),
             }
           : {
-              created_loc: finalAudit.location,
+              created_loc: new Date().toLocaleString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false,
+              }),
               created_time: finalAudit.timeZone,
               created_off: finalAudit.offset,
               Created_UTCDateTime: finalAudit.utcDateTime,

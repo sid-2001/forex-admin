@@ -44,6 +44,7 @@
     "moment-timezone": "^0.5.48",
     "npm": "^10.8.1",
     "nvm": "^0.0.4",
+    "opencage-api-client": "^2.1.0",
     "path": "^0.12.7",
     "public-ip": "^8.0.0",
     "random": "^4.1.0",
