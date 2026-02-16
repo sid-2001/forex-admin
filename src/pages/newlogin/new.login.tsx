@@ -121,7 +121,7 @@ const LoginPage = () => {
         setType('success')
         setOpen(true)
 
-        navigate('/dashboard')
+        // navigate('/dashboard')
       } else {
         setText(response?.message || 'Login failed')
         setType('error')

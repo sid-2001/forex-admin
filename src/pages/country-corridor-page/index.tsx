@@ -80,7 +80,6 @@ import {
   Clear as ClearIcon,
   Done as DoneIcon,
   Info as InfoIcon,
-  ViewModuleSharp,
 } from '@mui/icons-material'
 
 // Services and Types
@@ -91,7 +90,7 @@ import {
   UpdateCorridorPayload,
   CorridorStats,
 } from '@/types/countryCorridor.types'
-import { TableIcon } from 'lucide-react'
+import { TableIcon, ViewIcon } from 'lucide-react'
 
 const corridorService = new CountryCorridorService()
 
@@ -200,8 +199,7 @@ const CountryCorridorPage: React.FC = () => {
   })
   
   // Dialog states
-  const [openCreateDialog, 
-    setOpenCreateDialog] = useState(false)
+  const [openCreateDialog, setOpenCreateDialog] = useState(false)
   const [openEditDialog, setOpenEditDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [openHistoryDialog, setOpenHistoryDialog] = useState(false)
@@ -460,15 +458,13 @@ const CountryCorridorPage: React.FC = () => {
   }
 
   // Handle tab change
-  const handleTabChange = (
-    //@ts-ignore
-    event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue)
     setPage(0)
   }
 
   // Handle page change
-  const handleChangePage = ( newPage: number) => {
+  const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
   }
 
@@ -536,7 +532,7 @@ const CountryCorridorPage: React.FC = () => {
   const fetchCorridorHistory = async (corridorCode: string) => {
     setLoading(true)
     try {
-      const history = await corridorService.getAllCorridors()
+      const history = await corridorService.getCorridorHistory(corridorCode)
       setCorridorHistory(history)
       setOpenHistoryDialog(true)
     } catch (err: any) {
@@ -776,7 +772,6 @@ const CountryCorridorPage: React.FC = () => {
         count={totalCount}
         rowsPerPage={rowsPerPage}
         page={page}
-        //@ts-ignore
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
@@ -1104,7 +1099,7 @@ const CountryCorridorPage: React.FC = () => {
                     color={viewMode === 'card' ? 'primary' : 'default'}
                     sx={{ borderRadius: 40 }}
                   >
-                    <ViewModuleSharp />
+                    <ViewIcon />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Refresh">
@@ -1166,7 +1161,6 @@ const CountryCorridorPage: React.FC = () => {
                   count={totalCount}
                   rowsPerPage={rowsPerPage}
                   page={page}
-                  //@ts-ignore
                   onPageChange={handleChangePage}
                   onRowsPerPageChange={handleChangeRowsPerPage}
                 />

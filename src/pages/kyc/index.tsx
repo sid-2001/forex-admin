@@ -37,6 +37,8 @@ import DownloadIcon from '@mui/icons-material/Download'
 import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import { FieldValidationService } from '@/services/fieldvalidstion.service'
+import { CountryLabelData } from '@/types/field.validation.type'
 
 const KYCPage = () => {
   const [open, setOpen] = useState(false)
@@ -56,14 +58,23 @@ const KYCPage = () => {
   const { id: kycIdFromRoute } = useParams()
   const [isLoading, setIsLoading] = useState(false) // ✅ Add this
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
+  const[filevalidation,setFieldValidation]=useState<CountryLabelData>()
 
   const navigate = useNavigate()
   const theme = useTheme()
   const local_service = new LocalStorageService()
   let applicant_service = new ApplicantService()
   let kycservice = new KycService()
+  let validiation=new FieldValidationService()
   const helper_service = new HelperService()
   const userCountry = local_service?.get_staff_country()
+  useEffect(()=>{
+validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W").then(data=>{
+
+  setFieldValidation(data?.data)
+})
+
+  },[])
 
   const KycColumns = [
     {
