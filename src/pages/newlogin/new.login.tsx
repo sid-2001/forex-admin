@@ -81,6 +81,21 @@ const LoginPage = () => {
       setLoginType(detectedType)
     }
   }
+    const fetchAllModulesList = async () => {
+    try {
+      const response: any = await user_service.getAllModulesData()
+      if (response) {
+        let moduleObj: any = {}
+        response.forEach((item: any) => {
+          moduleObj[item.moduleName.replace(/\s+/g, '_').toUpperCase()] =
+            item.moduleName
+        })
+        localStorage.setItem('modules', JSON.stringify(moduleObj))
+      }
+    } catch (error) {
+      console.error('There was a problem with the fetch operation:', error)
+    }
+  }
 
   const handleLogin = async () => {
     if (!email || !password || error) return
@@ -88,6 +103,7 @@ const LoginPage = () => {
     try {
       setCommonLoader(true)
       setSelectedTab('Price')
+      fetchAllModulesList();
 
       const response: any = await auth_service.loginStaff({
         usernameOrEmailOrPhone: loginType,
@@ -121,7 +137,7 @@ const LoginPage = () => {
         setType('success')
         setOpen(true)
 
-        // navigate('/dashboard')
+        navigate('/dashboard')
       } else {
         setText(response?.message || 'Login failed')
         setType('error')
@@ -213,96 +229,70 @@ console.log(validation_data)
 
           {/* FORM → ENTER KEY WORKS HERE */}
   
+         
+
+
           <form
-            onSubmit={(e) => {
-              e.preventDefault()
-              handleLogin()
-            }}
-          >
-            {/* <TextField
-              placeholder={validataion?.usename}
-              fullWidth
-              margin="normal"
-              value={email}
-              onChange={handleChange}
-              error={!!error}
-              helperText={error}
-            />
-
-            <TextField
-              placeholder={validataion?.password}
-              fullWidth
-              margin="normal"
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <Visibility /> : <VisibilityOff />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            /> */}
-
-
-
-            <TextField
-            //@ts-ignore
-  placeholder={validataion?.usename}
-  fullWidth
-  margin="normal"
-  value={email}
-  onChange={handleChange}
-  // error={validataion?.username_validataion_msg}
-  helperText={validataion?.username_validataion_msg}
-  inputProps={{
-    minLength: validataion?.username_minimum_legth,
-    maxLength: validataion?.username_max_length,
+  onSubmit={(e) => {
+    e.preventDefault()
+    handleLogin()
+        console.log('Form submitted!') // Add this line
+  }}
+>
+  <TextField
+  //@ts-ignore
+    placeholder={validataion?.usename || "Username/Email/Phone"}
+    fullWidth
+    margin="normal"
+    value={email}
+    onChange={handleChange}
+    error={!!error} // Show error state when there's an error
+    helperText={error || validataion?.username_validataion_msg} // Show validation message
+    inputProps={{
+      minLength: validataion?.username_minimum_legth,
+      maxLength: validataion?.username_max_length,
       pattern: validataion?.username_regx
-  }}
-/>
+    }}
+  />
 
-<TextField
-  placeholder="Password"
-  fullWidth
-  margin="normal"
-  type={showPassword ? 'text' : 'password'}
-  value={password}
-   onChange={(e) => setPassword(e.target.value)}
-  // error={validataion?.Password_validataion_msg}
-  helperText={validataion?.Password_validataion_msg}
-  inputProps={{
-    minLength: validataion?.Password_minimum_legth,
-    maxLength: validataion?.Password_max_length,
-     pattern: validataion?.Password_regx
-  }}
-  InputProps={{
-    endAdornment: (
-      <InputAdornment position="end">
-        <IconButton onClick={() => setShowPassword(!showPassword)}>
-          {showPassword ? <Visibility /> : <VisibilityOff />}
-        </IconButton>
-      </InputAdornment>
-    ),
-  }}
-/>
+  <TextField
+   //@ts-ignore
+    placeholder={validataion?.password || "Password"}
+    fullWidth
+    margin="normal"
+    type={showPassword ? 'text' : 'password'}
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    
+//@ts-ignore
+    error={!!password && password.length < (validataion?.Password_minimum_legth || 1)} // Add validation
+    helperText={validataion?.Password_validataion_msg}
+    inputProps={{
+      minLength: validataion?.Password_minimum_legth,
+      maxLength: validataion?.Password_max_length,
+      pattern: validataion?.Password_regx
+    }}
+    InputProps={{
+      endAdornment: (
+        <InputAdornment position="end">
+          <IconButton onClick={() => setShowPassword(!showPassword)}>
+            {showPassword ? <Visibility /> : <VisibilityOff />}
+          </IconButton>
+        </InputAdornment>
+      ),
+    }}
+  />
 
-
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              disabled={!email || !password || !!error}
-              sx={{ mt: 3, py: 1.5, backgroundColor: '#0361B1' }}
-            >
-              Sign In
-            </Button>
-          </form>
+  <Button
+    type="submit" // This is important - makes the button submit the form
+    fullWidth
+    variant="contained"
+    disabled={!email || !password || !!error}
+    sx={{ mt: 3, py: 1.5, backgroundColor: '#0361B1' }}
+  >
+    Sign In
+  </Button>
+</form>
 
           <Typography
             variant="body2"

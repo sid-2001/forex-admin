@@ -27,7 +27,7 @@ import TermsConditionsService, {
   TermsConditions
 } from "../../services/termsandcondition.service";
 import { countyState } from "@/states/state";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import staticdataService from "@/services/staticdata.service";
 import { LocalStorageService } from "@/helpers/local-storage-service";
 import ChannelService from "@/services/channel.servive";
@@ -85,7 +85,8 @@ export default function TermsConditionsGridPage() {
   const [selectedScreen, setSelectedScreen] = useState<string>('');
   const [versions, setVersions] = useState<any[]>([]);
   const [editorValue, setEditorValue] = useState("");
-  const [countries, setCountries] = useRecoilState(countyState);
+  // const [countries, setCountries] = useRecoilState(countyState);
+    const countries = useRecoilValue(countyState)
   const [channels, setChannels] = useState([]);
   const [form, setForm] = useState({
     countryCode: "",

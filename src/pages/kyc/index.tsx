@@ -653,7 +653,8 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
                           textAlign: 'center',
                         }}
                       >
-                        <a href={`${proofType?.documentUrl}`} target="_blank" rel="noopener noreferrer">
+                        <a href={`${proofType?.documentFrontUrl}`} target="_blank" rel="noopener noreferrer">
+                        
                           View More
                         </a>
                       </Typography>

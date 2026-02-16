@@ -288,7 +288,7 @@ const MASTER_MENU = [
     label: 'Forex Country',
     name: 'Forex Country',
     icon: <LanguageIcon fontSize="small" />,
-    path: 'forex-currency-master',
+    path: 'forex-country-master',
   },
   {
     label: 'Screen Master',
