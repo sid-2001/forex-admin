@@ -85,6 +85,8 @@ import KycLimitTypeMaster from './pages/kyc-limit'
 import ResidentTypeFormDialog from './components/residenttypeformDialog'
 import ResidentTypeMaster from './pages/resident-type-master'
 import KycDocumentTypeMaster from './pages/kycDocumentTypeMaster'
+import CountryLimitTypeWiseLimitMaster from './pages/country-limit-type-wise-limit-master'
+import CountryKycDocumentMaster from './pages/CountryKycDocumentMaster'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -259,6 +261,12 @@ function App() {
                  <Route path="kyc-limit-type" element={<KycLimitTypeMaster />} />
                    <Route path="resident-type" element={<ResidentTypeMaster />} />
                       <Route path="kyc-document-type" element={<KycDocumentTypeMaster />} />
+                         <Route path="kyc-document-type" element={<KycDocumentTypeMaster />} />
+
+                            <Route path="country-limit-type-wise" element={<CountryLimitTypeWiseLimitMaster />} />
+                            
+                              <Route path="country-kyc-doc-master" element={<CountryKycDocumentMaster />} />
+
               <Route path="*" element={<Dashboard />} />
             </Route>
 

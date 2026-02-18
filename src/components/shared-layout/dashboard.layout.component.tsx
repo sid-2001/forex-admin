@@ -393,6 +393,13 @@ const MASTER_MENU = [
     icon: <GavelIcon fontSize="small" />,
     path: 'kyc-document-type',
   },
+     {
+    label: 'Country Limit Type Wise',
+    name: 'Country Limit Type Wise',
+    icon: <GavelIcon fontSize="small" />,
+    path: 'country-limit-type-wise',
+  },
+  
 
   // verification-partner
 ]

@@ -178,7 +178,7 @@ export default function TermsConditionsGridPage() {
       setLoading(true);
       channel_service.getChannelList().then(data => {
         console.log(data);
-        setChannels(data as any);
+        setChannels(data);
       });
     } catch {
       showError("Failed to load Channels");
@@ -414,7 +414,10 @@ export default function TermsConditionsGridPage() {
                 onChange={handleChannelChange}
                 label="Channel *"
               >
-                {channels
+                {
+              
+              channels?(
+                channels
                   ?.filter((item) =>
                     //@ts-ignore
                     item.active === true)
@@ -429,7 +432,15 @@ export default function TermsConditionsGridPage() {
                       //@ts-ignore
                       channel.channel_code}</Typography>
                     </MenuItem>
-                  ))}
+                  ))
+                ):<>
+                
+                
+                
+                </>
+      
+                
+              }
               </Select>
             </FormControl>
 
