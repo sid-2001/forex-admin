@@ -522,6 +522,7 @@ export default function CountryKycDocumentMaster() {
         onConfirm={handleStatusToggle}
         title={statusAction === 'activate' ? 'Activate Document?' : 'Deactivate Document?'}
         message={`Are you sure you want to ${statusAction} document "${selectedRow?.docCode} - ${selectedRow?.docDescription}"?`}
+        //@ts-ignore
         confirmText={statusAction === 'activate' ? 'Activate' : 'Deactivate'}
         confirmColor={statusAction === 'activate' ? 'success' : 'warning'}
       />

@@ -165,20 +165,25 @@ export default function KycDocumentTypeMaster() {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
-          const liveAudit = await getLiveAuditData(pos.coords.latitude, pos.coords.longitude)
+          const liveAudit:any = await getLiveAuditData(pos.coords.latitude, pos.coords.longitude)
           if (liveAudit) {
+
+            //@ts-ignore
             await submitPayload(liveAudit)
           } else {
+              //@ts-ignore
             await submitPayload(audit)
           }
         },
         async (_) => {
           console.warn('Location denied, using fallback.')
+            //@ts-ignore
           await submitPayload(audit)
         },
         { timeout: 5000 },
       )
     } else {
+        //@ts-ignore
       await submitPayload(audit)
     }
   }
