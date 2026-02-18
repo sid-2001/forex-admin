@@ -42,12 +42,12 @@ export default function StateFormDialog({ open, onClose, onSubmit, editData }: P
   useEffect(() => {
     if (editData && open) {
       setForm({
-        stateCode: editData.statecode || '',
-        description: editData.statedescription || '',
-        countryCode: editData.countrycode || '',
-        effectiveFrom: editData.effectivefromdate ? editData.effectivefromdate.split('T')[0] : '',
-        effectiveTo: editData.effectivetodate ? editData.effectivetodate.split('T')[0] : '',
-        active: editData.active ?? true,
+        stateCode: editData.StateCode || '',
+        description: editData.StateDescription || '',
+        countryCode: editData.CountryCode || '',
+        effectiveFrom: editData.EffectiveFromDate ? editData.EffectiveFromDate.split('T')[0] : '',
+        effectiveTo: editData.EffectiveToDate ? editData.EffectiveToDate.split('T')[0] : '',
+        active: editData.Active ?? true,
       })
     } else {
       setForm({ stateCode: '', description: '', countryCode: '', effectiveFrom: '', effectiveTo: '', active: true })

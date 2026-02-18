@@ -2,7 +2,6 @@ import { useEffect, useState, useMemo, useCallback } from 'react'
 import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
 import ChannelFormDialog from '../channellist'
 import ChannelService from '@/services/channel.servive'
 import { LocalStorageService } from '@/helpers/local-storage-service'
@@ -10,6 +9,10 @@ import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import ConfirmModal from '@/components/ConfirmModal'
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import { getLiveAuditData } from '@/helpers/dynamicLocations'
+
+dayjs.extend(utc)
 
 export default function ChannelManagement() {
   const [rows, setRows] = useState<any[]>([])
@@ -67,24 +70,52 @@ export default function ChannelManagement() {
       return
     }
 
-    const payload = {
-      applicant_id: local_service?.get_staff_id(),
-      channel_code: data.channelCode,
-      country_code: data.selectedCountry,
-      channel_description: data.description,
-      active: data.active,
-      effective_from_date: `${data.effectiveFrom}T00:00:00.000Z`,
-      effective_to_date: `${data.effectiveTo}T23:59:59.000Z`,
+    const now = dayjs()
+    const auditTime = {
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      offset: now.format('Z'),
+      utcDateTime: now.utc().format('YYYY-MM-DD HH:mm:ss.SSS'),
+      localDateTime: now.format('YYYY-MM-DD HH:mm:ss.SSS'),
     }
 
-    const response: any = isUpdate ? await static_service.updateChannel(payload) : await static_service.createChannel(payload)
+    const payload = {
+      applicant_id: local_service?.get_staff_id(),
+      channel_code: data.channelCode?.substring(0, 1).toUpperCase(),
+      country_code: data.selectedCountry?.substring(0, 3).toUpperCase(),
+      channel_description: data.description?.substring(0, 25),
+      active: data.active,
+      effective_from_date: `${data.effectiveFrom}T00:00:00.000Z`,
+      effective_to_date: `${data.effectiveTo}T00:00:00.000Z`,
 
-    if (response?.success === true || response?.status === 'Success') {
-      showAlert('Success', `Channel ${isUpdate ? 'Updated' : 'Created'} Successfully`)
-      setOpen(false)
-      fetchData()
-    } else {
-      showAlert('Fail', response?.message || 'Server Error')
+      ...(isUpdate
+        ? {
+            modified_time: auditTime.timeZone,
+            modified_off: auditTime.offset,
+            Modified_UTCDateTime: auditTime.utcDateTime,
+            modified_local_date_time: auditTime.localDateTime,
+            modified_by: local_service?.get_staff_id(),
+          }
+        : {
+            created_time: auditTime.timeZone,
+            created_off: auditTime.offset,
+            Created_UTCDateTime: auditTime.utcDateTime,
+            created_local_date_time: auditTime.localDateTime,
+            created_by: local_service?.get_staff_id(),
+          }),
+    }
+
+    try {
+      const response: any = isUpdate ? await static_service.updateChannel(payload) : await static_service.createChannel(payload)
+
+      if (response?.success === true || response?.status === 'Success' || response?.status === true) {
+        showAlert('Success', `Channel ${isUpdate ? 'Updated' : 'Created'} Successfully`)
+        setOpen(false)
+        fetchData()
+      } else {
+        showAlert('Fail', response?.error || response?.message || 'Server Error')
+      }
+    } catch (err: any) {
+      showAlert('Fail', err.message || 'Network Error')
     }
   }
 
@@ -98,10 +129,6 @@ export default function ChannelManagement() {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => formatTableDate(params.row?.effective_from_date || params.row?.effectiveFromDate),
-      // renderCell: (params) => {
-      //   const val = params.row?.effective_from_date || params.row?.effectivefromdate
-      //   return val ? val.split('T')[0] : ''
-      // },
     },
     {
       field: 'effective_to_date',
@@ -109,10 +136,6 @@ export default function ChannelManagement() {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => formatTableDate(params.row?.effective_to_date || params.row?.effectiveToDate),
-      // renderCell: (params) => {
-      //   const val = params.row?.effective_to_date || params.row?.effectivetodate
-      //   return val ? val.split('T')[0] : ''
-      // },
     },
     {
       field: 'active',
@@ -137,15 +160,6 @@ export default function ChannelManagement() {
           >
             <EditIcon />
           </IconButton>
-          {/* <IconButton
-            color="error"
-            onClick={() => {
-              setSelectedRow(params.row)
-              setDeleteModalOpen(true)
-            }}
-          >
-            <DeleteIcon />
-          </IconButton> */}
         </Stack>
       ),
     },
@@ -158,7 +172,6 @@ export default function ChannelManagement() {
         component="h1"
         sx={{
           fontWeight: 700,
-          // color: 'text.primary',
           letterSpacing: '-0.02em',
           display: 'grid',
           placeItems: 'center',
@@ -187,12 +200,9 @@ export default function ChannelManagement() {
           loading={loading}
           getRowId={(row) => `${row.channel_code}-${row.country_code}`}
           disableRowSelectionOnClick
+          pageSizeOptions={[5, 10, 20]}
           initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 5,
-              },
-            },
+            pagination: { paginationModel: { pageSize: 5 } },
           }}
         />
       </Box>

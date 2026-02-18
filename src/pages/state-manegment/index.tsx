@@ -55,28 +55,52 @@ export default function StateManagement() {
       return
     }
 
+    const now = dayjs()
+    const auditTime = {
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      offset: now.format('Z'),
+      utcDateTime: now.utc().format('YYYY-MM-DD HH:mm:ss.SSS'),
+      localDateTime: now.format('YYYY-MM-DD HH:mm:ss.SSS'),
+    }
+
     const payload = {
       applicant_id: local_service?.get_staff_id(),
-      statecode: data.stateCode,
-      statedescription: data.description,
-      countrycode: data.countryCode,
-      active: data.active,
-      effectivefromdate: `${data.effectiveFrom}T00:00:00.000Z`,
-      effectivetodate: `${data.effectiveTo}T23:59:59.000Z`,
+      StateCode: data.stateCode?.toUpperCase(),
+      StateDescription: data.description,
+      CountryCode: data.countryCode?.toUpperCase(),
+      Active: data.active,
+      EffectiveFromDate: `${data.effectiveFrom}T00:00:00.000Z`,
+      EffectiveToDate: `${data.effectiveTo}T23:59:59.000Z`,
+
+      ...(isUpdate
+        ? {
+            ModifiedBy: local_service?.get_staff_id(),
+            Modified_TimeZone: auditTime.timeZone,
+            Modified_Offset: auditTime.offset,
+            Modified_UTCDateTime: auditTime.utcDateTime,
+            Modified_LocalDateTime: auditTime.localDateTime,
+          }
+        : {
+            CreatedBy: local_service?.get_staff_id(),
+            Created_TimeZone: auditTime.timeZone,
+            Created_Offset: auditTime.offset,
+            Created_UTCDateTime: auditTime.utcDateTime,
+            Created_LocalDateTime: auditTime.localDateTime,
+          }),
     }
 
     try {
-      const response: any = isUpdate ? await stateService.updateState(payload) : await stateService.createState(payload)
+      const response: any = isUpdate ? await stateService.updateState(payload as any) : await stateService.createState(payload as any)
 
-      if (response?.success === true || response?.status === 'Success') {
+      if (response?.success || response?.status === 'Success' || response?.status === true) {
         showAlert('Success', `State ${isUpdate ? 'Updated' : 'Created'} Successfully`)
         setOpen(false)
         fetchData()
       } else {
         showAlert('Fail', response?.message || 'Server Error')
       }
-    } catch (error) {
-      showAlert('Fail', 'Connection Error')
+    } catch (error: any) {
+      showAlert('Fail', error.message || 'Connection Error')
     }
   }
   const formatTableDate = (dateString: string) => {
@@ -92,31 +116,25 @@ export default function StateManagement() {
   }
 
   const columns: GridColDef[] = [
-    { field: 'statecode', headerName: 'State Code', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'statedescription', headerName: 'Description', flex: 2, headerClassName: 'super-app-theme--header' },
-    { field: 'countrycode', headerName: 'Country', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'StateCode', headerName: 'State Code', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'StateDescription', headerName: 'Description', flex: 2, headerClassName: 'super-app-theme--header' },
+    { field: 'CountryCode', headerName: 'Country', flex: 1, headerClassName: 'super-app-theme--header' },
     {
-      field: 'effectivefromdate',
+      field: 'EffectiveFromDate',
       headerName: 'Effective From',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => {
-        const val = params.row?.effectivefromdate
-        return formatTableDate(val) ? formatTableDate(val.split('T')[0]) : ''
-      },
+      renderCell: (params) => formatTableDate(params.value),
     },
     {
-      field: 'effectivetodate',
+      field: 'EffectiveToDate',
       headerName: 'Effective To',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => {
-        const val = params.row?.effectivetodate
-        return formatTableDate(val) ? formatTableDate(val.split('T')[0]) : ''
-      },
+      renderCell: (params) => formatTableDate(params.value),
     },
     {
-      field: 'active',
+      field: 'Active',
       headerName: 'Active',
       flex: 0.7,
       headerClassName: 'super-app-theme--header',
@@ -138,15 +156,6 @@ export default function StateManagement() {
           >
             <EditIcon />
           </IconButton>
-          {/* <IconButton
-            color="error"
-            onClick={() => {
-              setSelectedRow(params.row)
-              setDeleteModalOpen(true)
-            }}
-          >
-            <DeleteIcon />
-          </IconButton> */}
         </Stack>
       ),
     },
@@ -159,7 +168,6 @@ export default function StateManagement() {
         component="h1"
         sx={{
           fontWeight: 700,
-          // color: 'text.primary',
           letterSpacing: '-0.02em',
           display: 'grid',
           placeItems: 'center',
@@ -186,7 +194,7 @@ export default function StateManagement() {
           rows={rows}
           columns={columns}
           loading={loading}
-          getRowId={(row) => `${row.statecode}-${row.countrycode}`}
+          getRowId={(row) => `${row.StateCode}-${row.CountryCode}`}
           disableRowSelectionOnClick
           initialState={{
             pagination: {

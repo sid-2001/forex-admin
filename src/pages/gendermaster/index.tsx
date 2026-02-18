@@ -9,6 +9,13 @@ import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import ConfirmModal from '@/components/ConfirmModal'
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
+
+dayjs.extend(utc)
 import { getLiveAuditData } from '@/helpers/dynamicLocations'
 
 export default function GenderMaster() {
@@ -63,93 +70,55 @@ export default function GenderMaster() {
     }
 
     const now = dayjs()
-    const ianaTZ = Intl.DateTimeFormat().resolvedOptions().timeZone
-    let audit = {
-      location: 'GURUGRAM, HARYANA, INDIA',
-      timeZone: ianaTZ,
-      offset: now.format('Z'),
-      utcDateTime: dayjs.utc().format('YYYY-MM-DD HH:mm:ss.SSS'),
-      localDateTime: now.format('YYYY-MM-DD HH:mm:ss.SSS'),
+
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
+    const auditTime = {
+      timeZone: userTimeZone,
+      offset: dayjs().tz(userTimeZone).format('Z'),
+      utcDateTime: dayjs().utc().format('YYYY-MM-DD HH:mm:ss.SSS'),
+      localDateTime: dayjs().tz(userTimeZone).format('YYYY-MM-DD HH:mm:ss.SSS'),
+    }
+    console.log(auditTime, 'bhanu', auditTime.localDateTime)
+
+    const payload = {
+      applicant_id: local_service?.get_staff_id(),
+      gendercode: data.gendercode?.substring(0, 1).toUpperCase(),
+      countrycode: data.selectedCountry?.substring(0, 3).toUpperCase(),
+      description: data.description?.substring(0, 25),
+      active: data.active,
+      effectivefromdate: `${data.effectiveFrom}T00:00:00.000Z`,
+      effectivetodate: `${data.effectiveTo}T00:00:00.000Z`,
+
+      ...(isUpdate
+        ? {
+            modified_time: auditTime.timeZone,
+            modified_off: auditTime.offset,
+            Modified_UTCDateTime: auditTime.utcDateTime,
+            modified_local_date_time: auditTime.localDateTime,
+            modifiedby: local_service?.get_staff_id(),
+          }
+        : {
+            created_time: auditTime.timeZone,
+            created_off: auditTime.offset,
+            Created_UTCDateTime: auditTime.utcDateTime,
+            created_local_date_time: auditTime.localDateTime, // Correct Local Time
+            createdby: local_service?.get_staff_id(),
+          }),
     }
 
-    const submitPayload = async (finalAudit: typeof audit) => {
-      const payload = {
-        applicant_id: local_service?.get_staff_id(),
-        gendercode: data.gendercode,
-        description: data.description,
-        countrycode: data.selectedCountry,
-        active: data.active,
-        effectivefromdate: `${data.effectiveFrom}T00:00:00.000Z`,
-        effectivetodate: `${data.effectiveTo}T00:00:00.000Z`,
-
-        ...(isUpdate
-          ? {
-              modified_loc: new Date().toLocaleString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                fractionalSecondDigits: 3,
-                hour12: false,
-              } as any),
-              modified_time: finalAudit.timeZone,
-              modified_off: finalAudit.offset,
-              Modified_UTCDateTime: finalAudit.utcDateTime,
-              modified_loc_time: finalAudit.localDateTime,
-              modifiedby: local_service?.get_staff_id(),
-            }
-          : {
-              created_loc: new Date().toLocaleString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                fractionalSecondDigits: 3,
-                hour12: false,
-              } as any),
-              created_time: finalAudit.timeZone,
-              created_off: finalAudit.offset,
-              Created_UTCDateTime: finalAudit.utcDateTime,
-              created_loc_time: finalAudit.localDateTime,
-              createdby: local_service?.get_staff_id(),
-            }),
-      }
-
-      console.log('Sending Payload:', payload)
-
+    try {
       const response: any = isUpdate ? await static_service.updateGender(payload as any) : await static_service.createGender(payload)
 
-      if (response?.success === true || response?.status === 'Success' || response?.status === true) {
+      if (response?.success || response?.status === 'Success' || response?.status === true) {
         showAlert('Success', `Gender ${isUpdate ? 'Updated' : 'Created'} Successfully`)
         setDialogopen(false)
         fetchData()
       } else {
-        showAlert('Fail', response?.message || 'Server Error')
+        showAlert('Fail', response?.error || response?.message || 'Server Error')
       }
-    }
-
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          const liveAudit = await getLiveAuditData(pos.coords.latitude, pos.coords.longitude)
-          if (liveAudit) {
-            await submitPayload(liveAudit)
-          } else {
-            await submitPayload(audit)
-          }
-        },
-        async (_) => {
-          console.warn('Location denied, using fallback.')
-          await submitPayload(audit)
-        },
-        { timeout: 5000 },
-      )
-    } else {
-      await submitPayload(audit)
+    } catch (err: any) {
+      showAlert('Fail', err.message || 'Network Error')
     }
   }
 

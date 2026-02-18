@@ -41,25 +41,74 @@ export default function ScreenMaster() {
     setAlertOpen(true)
   }
 
+  // const handleAction = async (data: any, isUpdate: boolean) => {
+  //   const payload = {
+  //     applicant_id: local_service?.get_staff_id() || 'admin',
+  //     screencode: data.screencode,
+  //     screendescription: data.screendescription,
+  //     countrycode: data.selectedCountry,
+  //     active: data.active,
+  //     effectivefromdate: `${data.fromDate}T00:00:00`,
+  //     effectivetodate: `${data.toDate}T23:59:59`,
+  //   }
+
+  //   const response: any = isUpdate ? await screen_service.updateScreen(payload) : await screen_service.createScreen(payload)
+
+  //   if (response?.success === true || response?.status === 'Success') {
+  //     showAlert('Success', `Screen ${isUpdate ? 'Updated' : 'Created'} Successfully`)
+  //     setDialogopen(false)
+  //     fetchData()
+  //   } else {
+  //     showAlert('Fail', response?.message || 'Server Error')
+  //   }
+  // }
   const handleAction = async (data: any, isUpdate: boolean) => {
-    const payload = {
-      applicant_id: local_service?.get_staff_id() || 'admin',
-      screencode: data.screencode,
-      screendescription: data.screendescription,
-      countrycode: data.selectedCountry,
-      active: data.active,
-      effectivefromdate: `${data.fromDate}T00:00:00`,
-      effectivetodate: `${data.toDate}T23:59:59`,
+    const now = dayjs()
+    const auditTime = {
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      offset: now.format('Z'),
+      utcDateTime: now.utc().format('YYYY-MM-DD HH:mm:ss.SSS'),
+      localDateTime: now.format('YYYY-MM-DD HH:mm:ss.SSS'),
     }
 
-    const response: any = isUpdate ? await screen_service.updateScreen(payload) : await screen_service.createScreen(payload)
+    const payload = {
+      applicant_id: local_service?.get_staff_id(),
+      ScreenCode: data.screencode?.toUpperCase(),
+      ScreenDescription: data.screendescription,
+      CountryCode: data.selectedCountry?.toUpperCase(),
+      Active: data.active,
+      EffectiveFromDate: `${data.fromDate}T00:00:00.000Z`,
+      EffectiveToDate: `${data.toDate}T23:59:59.000Z`,
 
-    if (response?.success === true || response?.status === 'Success') {
-      showAlert('Success', `Screen ${isUpdate ? 'Updated' : 'Created'} Successfully`)
-      setDialogopen(false)
-      fetchData()
-    } else {
-      showAlert('Fail', response?.message || 'Server Error')
+      ...(isUpdate
+        ? {
+            ModifiedBy: local_service?.get_staff_id(),
+            Modified_TimeZone: auditTime.timeZone,
+            Modified_Offset: auditTime.offset,
+            Modified_UTCDateTime: auditTime.utcDateTime,
+            Modified_LocalDateTime: auditTime.localDateTime,
+          }
+        : {
+            CreatedBy: local_service?.get_staff_id(),
+            Created_TimeZone: auditTime.timeZone,
+            Created_Offset: auditTime.offset,
+            Created_UTCDateTime: auditTime.utcDateTime,
+            Created_LocalDateTime: auditTime.localDateTime,
+          }),
+    }
+
+    try {
+      const response: any = isUpdate ? await screen_service.updateScreen(payload as any) : await screen_service.createScreen(payload as any)
+
+      if (response?.success || response?.status === 'Success') {
+        showAlert('Success', `Screen ${isUpdate ? 'Updated' : 'Created'} Successfully`)
+        setDialogopen(false)
+        fetchData()
+      } else {
+        showAlert('Fail', response?.message || 'Server Error')
+      }
+    } catch (error: any) {
+      showAlert('Fail', error.message || 'Connection Error')
     }
   }
 
@@ -81,26 +130,86 @@ export default function ScreenMaster() {
     return dayjs(dateString).format(format.toUpperCase())
   }
 
+  // const columns: GridColDef[] = [
+  //   { field: 'screencode', headerName: 'Screen Code', flex: 0.6, headerClassName: 'super-app-theme--header' },
+  //   { field: 'screendescription', headerName: 'Description', flex: 1, headerClassName: 'super-app-theme--header' },
+  //   { field: 'countrycode', headerName: 'Country', flex: 0.4, headerClassName: 'super-app-theme--header' },
+  //   {
+  //     field: 'effective_from_date',
+  //     headerName: 'Effective From',
+  //     flex: 0.8,
+  //     headerClassName: 'super-app-theme--header',
+  //     renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
+  //   },
+  //   {
+  //     field: 'effective_to_date',
+  //     headerName: 'Effective To',
+  //     flex: 0.8,
+  //     headerClassName: 'super-app-theme--header',
+  //     renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
+  //   },
+  //   {
+  //     field: 'active',
+  //     headerName: 'Active',
+  //     flex: 0.4,
+  //     headerClassName: 'super-app-theme--header',
+  //     renderCell: (p) => (p.value ? 'Yes' : 'No'),
+  //   },
+  //   {
+  //     field: 'actions',
+  //     headerName: 'Actions',
+  //     width: 80,
+  //     headerClassName: 'super-app-theme--header',
+  //     sortable: false,
+  //     renderCell: (params) => (
+  //       <IconButton
+  //         onClick={() => {
+  //           setEditData(params.row)
+  //           setDialogopen(true)
+  //         }}
+  //         color="primary"
+  //         size="small"
+  //       >
+  //         <EditIcon fontSize="small" />
+  //       </IconButton>
+  //     ),
+  //   },
+  // ]
   const columns: GridColDef[] = [
-    { field: 'screencode', headerName: 'Screen Code', flex: 0.6, headerClassName: 'super-app-theme--header' },
-    { field: 'screendescription', headerName: 'Description', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'countrycode', headerName: 'Country', flex: 0.4, headerClassName: 'super-app-theme--header' },
     {
-      field: 'effective_from_date',
+      field: 'ScreenCode',
+      headerName: 'Screen Code',
+      flex: 0.6,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'ScreenDescription',
+      headerName: 'Description',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'CountryCode',
+      headerName: 'Country',
+      flex: 0.4,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'EffectiveFromDate',
       headerName: 'Effective From',
       flex: 0.8,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
+      renderCell: (params) => formatTableDate(params.value),
     },
     {
-      field: 'effective_to_date',
+      field: 'EffectiveToDate',
       headerName: 'Effective To',
       flex: 0.8,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
+      renderCell: (params) => formatTableDate(params.value),
     },
     {
-      field: 'active',
+      field: 'Active',
       headerName: 'Active',
       flex: 0.4,
       headerClassName: 'super-app-theme--header',
@@ -111,7 +220,6 @@ export default function ScreenMaster() {
       headerName: 'Actions',
       width: 80,
       headerClassName: 'super-app-theme--header',
-      sortable: false,
       renderCell: (params) => (
         <IconButton
           onClick={() => {
@@ -119,7 +227,6 @@ export default function ScreenMaster() {
             setDialogopen(true)
           }}
           color="primary"
-          size="small"
         >
           <EditIcon fontSize="small" />
         </IconButton>
@@ -158,11 +265,10 @@ export default function ScreenMaster() {
       <DataGrid
         rows={rows}
         columns={columns}
-        getRowId={(row: any) => `${row.screencode}-${row.countrycode}`}
+        getRowId={(row: any) => `${row.ScreenCode}-${row.CountryCode}`}
         autoHeight
         density="standard"
         disableRowSelectionOnClick
-        // initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
         initialState={{
           pagination: {
             paginationModel: {

@@ -22,7 +22,7 @@ export default class StateService extends BaseService {
     count: number
     data: StateMaster[]
   }> {
-    const url = '/api/bop/state/getAllStates'
+    const url = '/bop/state/getAllStates'
     try {
       const { data } = await api1.get(url)
       return data
@@ -43,7 +43,7 @@ export default class StateService extends BaseService {
     effectivefromdate: string
     effectivetodate: string
   }): Promise<{ status: boolean; message: string }> {
-    const url = '/api/bop/state/create'
+    const url = '/bop/state/create'
     try {
       const { data } = await api1.post(url, payload)
       return data
@@ -61,7 +61,7 @@ export default class StateService extends BaseService {
     statedescription: string
     countrycode: string
   }): Promise<{ status: boolean; message: string }> {
-    const url = '/api/bop/state/update'
+    const url = '/bop/state/update'
     try {
       const { data } = await api1.put(url, payload)
       return data
@@ -77,7 +77,7 @@ export default class StateService extends BaseService {
     statecode: string
     countrycode: string
   }): Promise<{ status: boolean; message: string }> {
-    const url = '/api/bop/state/delete'
+    const url = '/bop/state/delete'
     try {
 
         //@ts-ignore

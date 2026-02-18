@@ -19,13 +19,14 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
   useEffect(() => {
     if (open) {
       if (editData) {
+        // Update these keys to match your PascalCase API response
         setForm({
-          screencode: editData.screencode || '',
-          description: editData.screendescription || '',
-          selectedCountry: editData.countrycode || '',
-          fromDate: editData.effectivefromdate?.split('T')[0] || '',
-          toDate: editData.effectivetodate?.split('T')[0] || '',
-          active: editData.active ?? true,
+          screencode: editData.ScreenCode || '',
+          description: editData.ScreenDescription || '',
+          selectedCountry: editData.CountryCode || '',
+          fromDate: editData.EffectiveFromDate?.split('T')[0] || '',
+          toDate: editData.EffectiveToDate?.split('T')[0] || '',
+          active: editData.Active ?? true,
         })
       } else {
         setForm({
