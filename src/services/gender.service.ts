@@ -30,7 +30,7 @@ export default class GenderService extends BaseService {
     count: number
     data: Gender[]
   }> {
-    const url = '/bop/gender/getGenderList'
+    const url = '/api/bop/gender/getGenderList'
     try {
       const { data } = await api1.get(url)
       return data
@@ -54,7 +54,7 @@ export default class GenderService extends BaseService {
     status: boolean
     message: string
   }> {
-    const url = '/bop/gender/create'
+    const url = '/api/bop/gender/create'
     try {
       const { data } = await api1.post(url, payload)
       return data
@@ -75,7 +75,7 @@ export default class GenderService extends BaseService {
     status: boolean
     message: string
   }> {
-    const url = '/bop/gender/update'
+    const url = '/api/bop/gender/update'
     try {
       const { data } = await api1.put(url, payload)
       return data
@@ -94,7 +94,7 @@ export default class GenderService extends BaseService {
     status: boolean
     message: string
   }> {
-    const url = '/bop/gender/delete'
+    const url = '/api/bop/gender/delete'
     try {
       const { data } = await api1.del(url, payload)
       return data

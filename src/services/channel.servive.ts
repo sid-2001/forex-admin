@@ -18,7 +18,7 @@ export interface Channel {
   modified_off: string | null
   utcdatetime: string | null
 }
- const url = '/bop/channel/getAllchannels'
+ const url = '/api/bop/channel/getAllchannels'
 
 export default class ChannelService extends BaseService {
   /**
@@ -30,7 +30,7 @@ export default class ChannelService extends BaseService {
     data: Channel[]
   }> {
     // const url = '/api/bop/channel/getAllchannels'
-    const url = '/bop/channel/getAllchannels'
+    const url = '/api/bop/channel/getAllchannels'
     try {
       const { data } = await api1.get(url)
       return data
@@ -55,7 +55,7 @@ export default class ChannelService extends BaseService {
     message: string
   }> {
     // const url = '/api/bop/channel/create'
-    const url = '/bop/channel/create'
+    const url = '/api/bop/channel/create'
     try {
       const { data } = await api1.post(url, payload)
       return data
@@ -76,7 +76,7 @@ export default class ChannelService extends BaseService {
     status: boolean
     message: string
   }> {
-    const url = '/bop/channel/update'
+    const url = '/api/bop/channel/update'
     // const url = '/api/bop/channel/update'
     try {
       const { data } = await api1.put(url, payload)
@@ -97,7 +97,7 @@ export default class ChannelService extends BaseService {
     message: string
   }> {
     // const url = '/api/bop/channel/delete'
-    const url = '/bop/channel/delete'
+    const url = '/api/bop/channel/delete'
     try {
       const { data } = await api1.del(url,  payload )
       return data

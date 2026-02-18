@@ -11,7 +11,7 @@ export interface Screen {
 
 export default class ScreenService extends BaseService {
   async getScreenList(): Promise<Screen[]> {
-    const url = '/bop/screen/getAllscreens'; 
+    const url = '/api/bop/screen/getAllscreens'; 
     try {
       const { data } = await api1.get(url);
       return data.data || data; 
@@ -21,7 +21,7 @@ export default class ScreenService extends BaseService {
   }
 
   async createScreen(payload: Screen) {
-    const url = '/bop/screen/create';
+    const url = '/api/bop/screen/create';
     try {
       const { data } = await api1.post(url, payload);
       return data;
@@ -29,7 +29,7 @@ export default class ScreenService extends BaseService {
   }
 
   async updateScreen(payload: Screen) {
-    const url = '/bop/screen/update';
+    const url = '/api/bop/screen/update';
     try {
       const { data } = await api1.put(url, payload);
       return data;
@@ -37,7 +37,7 @@ export default class ScreenService extends BaseService {
   }
 
   async deleteScreen(payload: { screencode: string; countrycode: string }) {
-    const url = '/bop/screen/delete';
+    const url = '/api/bop/screen/delete';
     try {
       const { data } = await api1.del(url, { ... payload }); 
       return data;
