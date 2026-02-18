@@ -100,7 +100,7 @@ export default function ResidentTypeMaster() {
       localDateTime: now.format('YYYY-MM-DD HH:mm:ss.SSS'),
     }
 
-    const submitPayload = async (finalAudit: typeof audit) => {
+    const submitPayload = async () => {
       if (isUpdate && editData) {
         const payload = {
           residentTypeCode: editData.residentTypeCode,
@@ -151,9 +151,9 @@ export default function ResidentTypeMaster() {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
-          const liveAudit = await getLiveAuditData(pos.coords.latitude, pos.coords.longitude)
+          const liveAudit:any = await getLiveAuditData(pos.coords.latitude, pos.coords.longitude)
           if (liveAudit) {
-            await submitPayload(liveAudit)
+            await submitPayload(liveAudit )
           } else {
             await submitPayload(audit)
           }

@@ -178,7 +178,7 @@ export default function TermsConditionsGridPage() {
       setLoading(true);
       channel_service.getChannelList().then(data => {
         console.log(data);
-        setChannels(data);
+        setChannels(data as any);
       });
     } catch {
       showError("Failed to load Channels");

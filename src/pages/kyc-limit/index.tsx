@@ -108,7 +108,7 @@ export default function KycLimitTypeMaster() {
       localDateTime: now.format('YYYY-MM-DD HH:mm:ss.SSS'),
     }
 
-    const submitPayload = async (finalAudit: typeof audit) => {
+    const submitPayload = async () => {
       if (isUpdate && editData) {
         // Update existing
         const payload = {

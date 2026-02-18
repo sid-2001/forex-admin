@@ -156,7 +156,10 @@ export default function CountryKycDocumentMaster() {
       localDateTime: now.format('YYYY-MM-DD HH:mm:ss.SSS'),
     }
 
-    const submitPayload = async (finalAudit: typeof audit) => {
+    const submitPayload = async (
+        
+        //@ts-ignore
+        finalAudit: any) => {
       if (isUpdate && editData) {
         // Update existing
         const payload = {
