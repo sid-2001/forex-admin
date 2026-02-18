@@ -43,13 +43,11 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
 
   useEffect(() => {
     if (editData && open) {
-      // Safe Date parsing to handle ISO strings from API
       const fDate = editData.effective_from_date || editData.effectiveFromDate || editData.effectivefromdate || ''
       const tDate = editData.effective_to_date || editData.effectiveToDate || editData.effectivetodate || ''
 
       setForm({
         ...editData,
-        // Ensure format is YYYY-MM-DD for the HTML5 date picker
         effective_from_date: fDate.includes('T') ? fDate.split('T')[0] : fDate,
         effective_to_date: tDate.includes('T') ? tDate.split('T')[0] : tDate,
       })

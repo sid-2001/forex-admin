@@ -130,51 +130,6 @@ export default function ScreenMaster() {
     return dayjs(dateString).format(format.toUpperCase())
   }
 
-  // const columns: GridColDef[] = [
-  //   { field: 'screencode', headerName: 'Screen Code', flex: 0.6, headerClassName: 'super-app-theme--header' },
-  //   { field: 'screendescription', headerName: 'Description', flex: 1, headerClassName: 'super-app-theme--header' },
-  //   { field: 'countrycode', headerName: 'Country', flex: 0.4, headerClassName: 'super-app-theme--header' },
-  //   {
-  //     field: 'effective_from_date',
-  //     headerName: 'Effective From',
-  //     flex: 0.8,
-  //     headerClassName: 'super-app-theme--header',
-  //     renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
-  //   },
-  //   {
-  //     field: 'effective_to_date',
-  //     headerName: 'Effective To',
-  //     flex: 0.8,
-  //     headerClassName: 'super-app-theme--header',
-  //     renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
-  //   },
-  //   {
-  //     field: 'active',
-  //     headerName: 'Active',
-  //     flex: 0.4,
-  //     headerClassName: 'super-app-theme--header',
-  //     renderCell: (p) => (p.value ? 'Yes' : 'No'),
-  //   },
-  //   {
-  //     field: 'actions',
-  //     headerName: 'Actions',
-  //     width: 80,
-  //     headerClassName: 'super-app-theme--header',
-  //     sortable: false,
-  //     renderCell: (params) => (
-  //       <IconButton
-  //         onClick={() => {
-  //           setEditData(params.row)
-  //           setDialogopen(true)
-  //         }}
-  //         color="primary"
-  //         size="small"
-  //       >
-  //         <EditIcon fontSize="small" />
-  //       </IconButton>
-  //     ),
-  //   },
-  // ]
   const columns: GridColDef[] = [
     {
       field: 'ScreenCode',
