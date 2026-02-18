@@ -414,7 +414,10 @@ export default function TermsConditionsGridPage() {
                 onChange={handleChannelChange}
                 label="Channel *"
               >
-                {channels
+                {
+              
+              channels?(
+                channels
                   ?.filter((item) =>
                     //@ts-ignore
                     item.active === true)
@@ -429,7 +432,15 @@ export default function TermsConditionsGridPage() {
                       //@ts-ignore
                       channel.channel_code}</Typography>
                     </MenuItem>
-                  ))}
+                  ))
+                ):<>
+                
+                
+                
+                </>
+      
+                
+              }
               </Select>
             </FormControl>
 

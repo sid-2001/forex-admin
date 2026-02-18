@@ -375,10 +375,36 @@ const MASTER_MENU = [
     icon: <GavelIcon fontSize="small" />,
     path: 'country-corridor-page',
   },
+   {
+    label: 'Kyc Limit Type',
+    name: 'Kyc Limit Type',
+    icon: <GavelIcon fontSize="small" />,
+    path: 'kyc-limit-type',
+  },
+   {
+    label: 'Resident Type',
+    name: 'Resident Type',
+    icon: <GavelIcon fontSize="small" />,
+    path: 'resident-type',
+  },
+   {
+    label: 'KYC Document Type',
+    name: 'KYC Document Type',
+    icon: <GavelIcon fontSize="small" />,
+    path: 'kyc-document-type',
+  },
+     {
+    label: 'Country Limit Type Wise',
+    name: 'Country Limit Type Wise',
+    icon: <GavelIcon fontSize="small" />,
+    path: 'country-limit-type-wise',
+  },
+  
 
   // verification-partner
 ]
 
+ 
 // const chunkArray = (arr: any[], size: number) => {
 //   const chunks = []
 //   for (let i = 0; i < arr.length; i += size) {
