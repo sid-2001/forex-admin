@@ -78,7 +78,7 @@ export default function ScreenMaster() {
       CountryCode: data.selectedCountry?.toUpperCase(),
       Active: data.active,
       EffectiveFromDate: `${data.fromDate}T00:00:00.000Z`,
-      EffectiveToDate: `${data.toDate}T23:59:59.000Z`,
+      EffectiveToDate: `${data.toDate}T00:00:00.000Z`,
 
       ...(isUpdate
         ? {
