@@ -6,6 +6,7 @@ import { useEffect, useState, useMemo, useCallback } from 'react'
 import EmailTemplateMasterDialog from '../../components/emailTemplateMasterDialog'
 import EmailTemplateService from '../../services/email-template.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
+import { formatTableDate } from '@/helpers/dateformate'
 
 export default function EmailTemplateManagement() {
   const [open, setOpen] = useState(false)
@@ -69,6 +70,20 @@ export default function EmailTemplateManagement() {
     { field: 'templateName', headerName: 'Name', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'emailSubject', headerName: 'Subject', flex: 1.5, headerClassName: 'super-app-theme--header' },
     { field: 'fromEmail', headerName: 'From', flex: 1.2, headerClassName: 'super-app-theme--header' },
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
+    },
     { field: 'active', headerName: 'Active', flex: 0.6, renderCell: (p) => (p.value ? 'Yes' : 'No'), headerClassName: 'super-app-theme--header' },
     {
       field: 'actions',

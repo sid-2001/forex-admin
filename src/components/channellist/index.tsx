@@ -14,6 +14,7 @@ import {
 import { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 const filter = createFilterOptions({
   matchFrom: 'any',
@@ -123,28 +124,29 @@ export default function ChannelFormDialog({ open, onClose, onSubmit, editData }:
           </Grid>
 
           <Grid item xs={6}>
-            <TextField
-              fullWidth
-              type="date"
+            <DynamicDatePicker
               label="Effective From"
-              InputLabelProps={{ shrink: true }}
               value={form.effectiveFrom}
-              onChange={(e) => setForm({ ...form, effectiveFrom: e.target.value })}
+              onChange={(val: string) => {
+                console.log(val, 'kdjhchdvy')
+                setForm({ ...form, effectiveFrom: val })
+              }}
               error={!!errors.effectiveFrom}
+              helperText={errors.effectiveFrom}
               required
             />
           </Grid>
 
           <Grid item xs={6}>
-            <TextField
-              fullWidth
-              type="date"
+            <DynamicEndDatePicker
               label="Effective To"
-              InputLabelProps={{ shrink: true }}
               value={form.effectiveTo}
-              onChange={(e) => setForm({ ...form, effectiveTo: e.target.value })}
+              minDate={form.effectiveFrom}
+              onChange={(val: string) => {
+                setForm({ ...form, effectiveTo: val })
+              }}
               error={!!errors.effectiveTo}
-              inputProps={{ min: form.effectiveFrom }}
+              helperText={errors.effectiveTo}
               required
             />
           </Grid>

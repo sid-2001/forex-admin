@@ -1001,7 +1001,7 @@ const DashboardLayout = () => {
                         justifyContent: 'center',
                       }}
                     >
-                      <LogoutIcon sx={{ color: 'white' }} /> {/* Adjust color if needed */}
+                      <LogoutIcon sx={{ color: 'white' }} />
                     </ListItemIcon>
                   </Item>
                 </Stack>

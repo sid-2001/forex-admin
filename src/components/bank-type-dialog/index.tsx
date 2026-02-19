@@ -16,6 +16,7 @@ import { useEffect, useState } from 'react'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 // Custom filter to search by both Name and Code
 const filter = createFilterOptions({
@@ -129,7 +130,7 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
             />
           </Grid>
 
-          <Grid item xs={6}>
+          {/* <Grid item xs={6}>
             <TextField
               type="date"
               label="Effective From"
@@ -140,9 +141,36 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
               onChange={(e) => setForm({ ...form, effective_from_date: e.target.value })}
               error={!!errors.effective_from_date}
             />
+          </Grid> */}
+          <Grid item xs={6}>
+            <DynamicDatePicker
+              label="Effective From"
+              value={form.effectiveFromDate}
+              onChange={(val: string) => {
+                console.log(val, 'kdjhchdvy')
+                setForm({ ...form, effectiveFromDate: val })
+              }}
+              error={!!errors.effective_from_date}
+              helperText={errors.effective_from_date}
+              required
+            />
           </Grid>
 
           <Grid item xs={6}>
+            <DynamicEndDatePicker
+              label="Effective To"
+              value={form.effectiveToDate}
+              minDate={form.effectiveFromDate}
+              onChange={(val: string) => {
+                setForm({ ...form, effectiveToDate: val })
+              }}
+              error={!!errors.effectiveToDate}
+              helperText={errors.effectiveToDate}
+              required
+            />
+          </Grid>
+
+          {/* <Grid item xs={6}>
             <TextField
               type="date"
               label="Effective To"
@@ -154,7 +182,7 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
               error={!!errors.effectiveToDate}
               inputProps={{ min: form.effective_from_date }}
             />
-          </Grid>
+          </Grid> */}
 
           <Grid item xs={12}>
             <FormControlLabel

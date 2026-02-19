@@ -2,6 +2,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, C
 import { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 export default function WhatsappTemplateDialog({ open, onClose, onSubmit, editData }: any) {
   const [countries] = useRecoilState(countyState)
@@ -74,9 +75,13 @@ export default function WhatsappTemplateDialog({ open, onClose, onSubmit, editDa
               getOptionLabel={(o) => `${o.countryName} (${o.countryCode})`}
               value={countries?.find((c) => c.countryCode === form.countryCode) || null}
               disabled={!!editData}
-              onChange={(_, val) => setForm({ ...form, 
-                //@ts-ignore
-                countryCode: val ? val.countryCode : '' })}
+              onChange={(_, val) =>
+                setForm({
+                  ...form,
+                  //@ts-ignore
+                  countryCode: val ? val.countryCode : '',
+                })
+              }
               renderInput={(p) => <TextField {...p} label="Country" required error={!!errors.countryCode} helperText={errors.countryCode} />}
             />
           </Grid>
@@ -92,6 +97,33 @@ export default function WhatsappTemplateDialog({ open, onClose, onSubmit, editDa
             />
           </Grid>
           <Grid item xs={6}>
+            <DynamicDatePicker
+              label="Effective From"
+              value={form.fromDate}
+              onChange={(val: string) => {
+                console.log(val, 'kdjhchdvy')
+                setForm({ ...form, fromDate: val })
+              }}
+              error={!!errors.fromDate}
+              helperText={errors.fromDate}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <DynamicEndDatePicker
+              label="Effective To"
+              value={form.toDate}
+              minDate={form.fromDate}
+              onChange={(val: string) => {
+                setForm({ ...form, toDate: val })
+              }}
+              error={!!errors.effectiveTo}
+              helperText={errors.effectiveTo}
+              required
+            />
+          </Grid>
+          {/* <Grid item xs={6}>
             <TextField
               type="date"
               label="Effective From"
@@ -117,7 +149,7 @@ export default function WhatsappTemplateDialog({ open, onClose, onSubmit, editDa
               error={!!errors.toDate}
               helperText={errors.toDate}
             />
-          </Grid>
+          </Grid> */}
           <Grid item xs={12}>
             <FormControlLabel
               control={<Checkbox checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />}

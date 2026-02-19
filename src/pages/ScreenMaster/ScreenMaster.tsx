@@ -8,6 +8,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import dayjs from 'dayjs'
+import { getLiveAuditData } from '@/helpers/dynamicLocations'
 
 export default function ScreenMaster() {
   const [rows, setRows] = useState<Screen[]>([])
@@ -41,75 +42,67 @@ export default function ScreenMaster() {
     setAlertOpen(true)
   }
 
-  // const handleAction = async (data: any, isUpdate: boolean) => {
-  //   const payload = {
-  //     applicant_id: local_service?.get_staff_id() || 'admin',
-  //     screencode: data.screencode,
-  //     screendescription: data.screendescription,
-  //     countrycode: data.selectedCountry,
-  //     active: data.active,
-  //     effectivefromdate: `${data.fromDate}T00:00:00`,
-  //     effectivetodate: `${data.toDate}T23:59:59`,
-  //   }
-
-  //   const response: any = isUpdate ? await screen_service.updateScreen(payload) : await screen_service.createScreen(payload)
-
-  //   if (response?.success === true || response?.status === 'Success') {
-  //     showAlert('Success', `Screen ${isUpdate ? 'Updated' : 'Created'} Successfully`)
-  //     setDialogopen(false)
-  //     fetchData()
-  //   } else {
-  //     showAlert('Fail', response?.message || 'Server Error')
-  //   }
-  // }
   const handleAction = async (data: any, isUpdate: boolean) => {
-    const now = dayjs()
-    const auditTime = {
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      offset: now.format('Z'),
-      utcDateTime: now.utc().format('YYYY-MM-DD HH:mm:ss.SSS'),
-      localDateTime: now.format('YYYY-MM-DD HH:mm:ss.SSS'),
+    if (data.validationError) {
+      showAlert('Fail', data.validationError)
+      return
     }
 
-    const payload = {
-      applicant_id: local_service?.get_staff_id(),
-      ScreenCode: data.screencode?.toUpperCase(),
-      ScreenDescription: data.screendescription,
-      CountryCode: data.selectedCountry?.toUpperCase(),
-      Active: data.active,
-      EffectiveFromDate: `${data.fromDate}T00:00:00.000Z`,
-      EffectiveToDate: `${data.toDate}T00:00:00.000Z`,
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const audit = await getLiveAuditData(pos.coords.latitude, pos.coords.longitude)
+        const staffId = local_service?.get_staff_id()
 
-      ...(isUpdate
-        ? {
-            ModifiedBy: local_service?.get_staff_id(),
-            Modified_TimeZone: auditTime.timeZone,
-            Modified_Offset: auditTime.offset,
-            Modified_UTCDateTime: auditTime.utcDateTime,
-            Modified_LocalDateTime: auditTime.localDateTime,
+        if (!audit) {
+          showAlert('Fail', 'Audit trail generation failed.')
+          return
+        }
+
+        const payload = {
+          applicant_id: staffId,
+          ScreenCode: data.screencode?.toUpperCase(),
+          ScreenDescription: data.screendescription,
+          CountryCode: data.selectedCountry?.toUpperCase(),
+          Active: data.active,
+          EffectiveFromDate: `${data.fromDate}T00:00:00.000Z`,
+          EffectiveToDate: `${data.toDate}T00:00:00.000Z`,
+
+          ...(isUpdate
+            ? {
+                ModifiedBy: staffId,
+                Modified_TimeZone: audit.timeZone,
+                Modified_Offset: audit.offset,
+                Modified_UTCDateTime: audit.utcDateTime,
+                Modified_LocalDateTime: audit.localDateTime,
+              }
+            : {
+                CreatedBy: staffId,
+                Created_TimeZone: audit.timeZone,
+                Created_Offset: audit.offset,
+                Created_UTCDateTime: audit.utcDateTime,
+                Created_LocalDateTime: audit.localDateTime,
+              }),
+        }
+
+        try {
+          const response: any = isUpdate ? await screen_service.updateScreen(payload as any) : await screen_service.createScreen(payload as any)
+
+          if (response?.success || response?.status === 'Success') {
+            showAlert('Success', `Screen ${isUpdate ? 'Updated' : 'Created'} Successfully`)
+            setDialogopen(false)
+            fetchData()
+          } else {
+            showAlert('Fail', response?.message || 'Server Error')
           }
-        : {
-            CreatedBy: local_service?.get_staff_id(),
-            Created_TimeZone: auditTime.timeZone,
-            Created_Offset: auditTime.offset,
-            Created_UTCDateTime: auditTime.utcDateTime,
-            Created_LocalDateTime: auditTime.localDateTime,
-          }),
-    }
-
-    try {
-      const response: any = isUpdate ? await screen_service.updateScreen(payload as any) : await screen_service.createScreen(payload as any)
-
-      if (response?.success || response?.status === 'Success') {
-        showAlert('Success', `Screen ${isUpdate ? 'Updated' : 'Created'} Successfully`)
-        setDialogopen(false)
-        fetchData()
-      } else {
-        showAlert('Fail', response?.message || 'Server Error')
-      }
-    } catch (error: any) {
-      showAlert('Fail', error.message || 'Connection Error')
-    }
+        } catch (error: any) {
+          showAlert('Fail', error.message || 'Connection Error')
+        }
+      },
+      (geoError) => {
+        showAlert('Fail', 'Location permission is required for audit compliance.')
+        console.error('Geo Error:', geoError)
+      },
+    )
   }
 
   const formatDateForTable = (dateStr: any) => {

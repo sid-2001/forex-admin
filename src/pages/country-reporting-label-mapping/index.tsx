@@ -47,6 +47,7 @@ import CountryReportingMappingsService, {
 import CountryLabelCodesService from '../../services/country-label-codes.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import dayjs from 'dayjs'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 const countryReportingMappingsService = new CountryReportingMappingsService()
 const countryLabelCodesService = new CountryLabelCodesService()
@@ -772,7 +773,7 @@ export default function CountryReportingMappingsGridPage() {
 
             {/* Effective Dates */}
             <Grid container spacing={2}>
-              <Grid item xs={6}>
+              {/* <Grid item xs={6}>
                 <TextField
                   fullWidth
                   type="date"
@@ -782,8 +783,35 @@ export default function CountryReportingMappingsGridPage() {
                   InputLabelProps={{ shrink: true }}
                   required
                 />
-              </Grid>
+              </Grid> */}
               <Grid item xs={6}>
+                <DynamicDatePicker
+                  label="Effective From"
+                  value={form.effectiveFromDate}
+                  onChange={(val: string) => {
+                    console.log(val, 'kdjhchdvy')
+                    setForm({ ...form, effectiveFromDate: val })
+                  }}
+                  // error={!!errors.effectiveFromDate}
+                  // helperText={errors.effectiveFromDate}
+                  required
+                />
+              </Grid>
+
+              <Grid item xs={6}>
+                <DynamicEndDatePicker
+                  label="Effective To"
+                  value={form.effectiveToDate}
+                  minDate={form.effectiveFromDate}
+                  onChange={(val: string) => {
+                    setForm({ ...form, effectiveToDate: val })
+                  }}
+                  // error={!!errors.effectiveToDate}
+                  // helperText={errors.effectiveToDate}
+                  required
+                />
+              </Grid>
+              {/* <Grid item xs={6}>
                 <TextField
                   fullWidth
                   type="date"
@@ -800,7 +828,7 @@ export default function CountryReportingMappingsGridPage() {
                     min: form.effectiveFromDate ? form.effectiveFromDate.split('T')[0] : undefined,
                   }}
                 />
-              </Grid>
+              </Grid> */}
             </Grid>
 
             {/* Active Status */}

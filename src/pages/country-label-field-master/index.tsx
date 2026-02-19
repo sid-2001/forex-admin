@@ -29,6 +29,7 @@ import ChannelService from '@/services/channel.servive'
 import ScreenService from '@/services/screen.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import dayjs from 'dayjs'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 const countryLabelFieldsService = new CountryLabelFieldsService()
 
@@ -249,6 +250,20 @@ export default function CountryLabelFieldsGridPage() {
     { field: 'screen', headerName: 'Screen', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'fieldName', headerName: 'Field Name', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'label', headerName: 'Label', flex: 1, headerClassName: 'super-app-theme--header' },
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
+    },
     {
       field: 'dataType',
       headerName: 'Data Type',
@@ -479,7 +494,7 @@ export default function CountryLabelFieldsGridPage() {
             {/* Effective Dates */}
             <Divider>Effective Dates</Divider>
             <Grid container spacing={2}>
-              <Grid item xs={6}>
+              {/* <Grid item xs={6}>
                 <TextField
                   fullWidth
                   type="date"
@@ -488,8 +503,35 @@ export default function CountryLabelFieldsGridPage() {
                   onChange={(e) => setForm({ ...form, effectiveFromDate: e.target.value })}
                   InputLabelProps={{ shrink: true }}
                 />
-              </Grid>
+              </Grid> */}
               <Grid item xs={6}>
+                <DynamicDatePicker
+                  label="Effective From"
+                  value={form.effectiveFromDate}
+                  onChange={(val: string) => {
+                    console.log(val, 'kdjhchdvy')
+                    setForm({ ...form, effectiveFromDate: val })
+                  }}
+                  // error={!!errors.effectiveFrom}
+                  // helperText={errors.effectiveFrom}
+                  required
+                />
+              </Grid>
+
+              <Grid item xs={6}>
+                <DynamicEndDatePicker
+                  label="Effective To"
+                  value={form.effectiveToDate}
+                  minDate={form.effectiveFromDate}
+                  onChange={(val: string) => {
+                    setForm({ ...form, effectiveToDate: val })
+                  }}
+                  // error={!!errors.effectiveToDate}
+                  // helperText={errors.effectiveToDate}
+                  required
+                />
+              </Grid>
+              {/* <Grid item xs={6}>
                 <TextField
                   fullWidth
                   type="date"
@@ -506,7 +548,7 @@ export default function CountryLabelFieldsGridPage() {
                     min: form.effectiveFromDate ? form.effectiveFromDate.split('T')[0] : undefined,
                   }}
                 />
-              </Grid>
+              </Grid> */}
             </Grid>
 
             {/* Active Status */}
