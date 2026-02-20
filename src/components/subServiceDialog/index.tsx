@@ -1,25 +1,10 @@
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  Box,
-  MenuItem
-} from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Checkbox, FormControlLabel, Box, MenuItem } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { countyState } from '@/states/state'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
-export default function SubServiceFormDialog({
-  open,
-  onClose,
-  onSubmit,
-  editData
-}: any) {
+export default function SubServiceFormDialog({ open, onClose, onSubmit, editData }: any) {
   const countries = useRecoilValue(countyState)
 
   const [countryCode, setCountryCode] = useState('')
@@ -58,11 +43,7 @@ export default function SubServiceFormDialog({
     if (!effectiveFromDate) newErrors.effectiveFromDate = 'Effective From date is required'
     if (!effectiveToDate) newErrors.effectiveToDate = 'Effective To date is required'
 
-    if (
-      effectiveFromDate &&
-      effectiveToDate &&
-      new Date(effectiveFromDate) > new Date(effectiveToDate)
-    ) {
+    if (effectiveFromDate && effectiveToDate && new Date(effectiveFromDate) > new Date(effectiveToDate)) {
       newErrors.effectiveToDate = 'Effective To must be after Effective From'
     }
 
@@ -78,19 +59,16 @@ export default function SubServiceFormDialog({
       subServiceName,
       active,
       effectiveFromDate: `${effectiveFromDate}T00:00:00`,
-      effectiveToDate: `${effectiveToDate}T23:59:59`
+      effectiveToDate: `${effectiveToDate}T00:00:00`,
     })
   }
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>
-        {editData ? 'Update Sub Service' : 'Create Sub Service'}
-      </DialogTitle>
+      <DialogTitle>{editData ? 'Update Sub Service' : 'Create Sub Service'}</DialogTitle>
 
       <DialogContent dividers>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-          
           {/* Country from Recoil */}
           <TextField
             select
@@ -102,14 +80,13 @@ export default function SubServiceFormDialog({
             helperText={errors.countryCode}
             fullWidth
           >
-            {countries?.filter((item) => item.status === 'A').map((c: any) => (
-              <MenuItem
-                key={c.countryCode}
-                value={c.countryCode}
-              >
-                {c.countryName}
-              </MenuItem>
-            ))}
+            {countries
+              ?.filter((item) => item.status === 'A')
+              .map((c: any) => (
+                <MenuItem key={c.countryCode} value={c.countryCode}>
+                  {c.countryName}
+                </MenuItem>
+              ))}
           </TextField>
 
           <TextField
@@ -121,7 +98,7 @@ export default function SubServiceFormDialog({
             helperText={errors.subServiceName}
             fullWidth
           />
-
+          {/* 
           <TextField
             required
             type="date"
@@ -132,9 +109,32 @@ export default function SubServiceFormDialog({
             error={!!errors.effectiveFromDate}
             helperText={errors.effectiveFromDate}
             fullWidth
+          /> */}
+          <DynamicDatePicker
+            label="Effective From"
+            value={effectiveFromDate}
+            onChange={(val: string) => {
+              console.log(val, 'kdjhchdvy')
+              setEffectiveFromDate(val)
+            }}
+            error={!!errors.effectiveFromDate}
+            helperText={errors.effectiveFromDate}
+            required
           />
 
-          <TextField
+          <DynamicEndDatePicker
+            label="Effective To"
+            value={effectiveToDate}
+            minDate={effectiveFromDate}
+            onChange={(val: string) => {
+              setEffectiveToDate(val)
+            }}
+            error={!!errors.effectiveToDate}
+            helperText={errors.effectiveToDate}
+            required
+          />
+
+          {/* <TextField
             required
             type="date"
             label="Effective To"
@@ -144,17 +144,9 @@ export default function SubServiceFormDialog({
             error={!!errors.effectiveToDate}
             helperText={errors.effectiveToDate}
             fullWidth
-          />
+          /> */}
 
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={active}
-                onChange={(e) => setActive(e.target.checked)}
-              />
-            }
-            label="Active"
-          />
+          <FormControlLabel control={<Checkbox checked={active} onChange={(e) => setActive(e.target.checked)} />} label="Active" />
         </Box>
       </DialogContent>
 

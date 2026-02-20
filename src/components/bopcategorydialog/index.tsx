@@ -217,6 +217,7 @@ import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
 import BopCategoryService from '@/services/bop.category.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 export default function BopCategoryFormDialog({ open, onClose, editData, categorylist, refreshList, showAlert }: any) {
   const [countries] = useRecoilState(countyState)
@@ -294,7 +295,7 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
     const payload = {
       ...form,
       effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
-      effectiveToDate: `${form.effectiveToDate}T23:59:59`,
+      effectiveToDate: `${form.effectiveToDate}T00:00:00`,
     }
 
     try {
@@ -370,7 +371,7 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
               onChange={(e) => setForm({ ...form, bopPurposeSubDescription: e.target.value })}
             />
           </Grid>
-          <Grid item xs={6}>
+          {/* <Grid item xs={6}>
             <TextField
               type="date"
               label="Effective From"
@@ -380,8 +381,35 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
               onChange={(e) => setForm({ ...form, effectiveFromDate: e.target.value })}
               error={!!errors.effectiveFromDate}
             />
-          </Grid>
+          </Grid> */}
           <Grid item xs={6}>
+            <DynamicDatePicker
+              label="Effective From"
+              value={form.effectiveFromDate}
+              onChange={(val: string) => {
+                console.log(val, 'kdjhchdvy')
+                setForm({ ...form, effectiveFromDate: val })
+              }}
+              error={!!errors.effectiveFromDate}
+              helperText={errors.effectiveFromDate}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <DynamicEndDatePicker
+              label="Effective To"
+              value={form.effectiveToDate}
+              minDate={form.effectiveFromDate}
+              onChange={(val: string) => {
+                setForm({ ...form, effectiveToDate: val })
+              }}
+              error={!!errors.effectiveToDate}
+              helperText={errors.effectiveToDate}
+              required
+            />
+          </Grid>
+          {/* <Grid item xs={6}>
             <TextField
               type="date"
               label="Effective To"
@@ -392,7 +420,7 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
               onChange={(e) => setForm({ ...form, effectiveToDate: e.target.value })}
               error={!!errors.effectiveToDate}
             />
-          </Grid>
+          </Grid> */}
           <Grid item xs={12}>
             <FormControlLabel
               control={<Checkbox checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />}
