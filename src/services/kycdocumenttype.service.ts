@@ -48,7 +48,8 @@ export class KycDocumentTypeService extends BaseService {
    */
   async getAllDocumentTypes(): Promise<any[]> {
     try {
-      const response = await api1.get(`${this.baseUrl}/getAll`)
+      const response = await api1.get(`/api/static-table/kyc-document-type-master/getAll`)
+      console.log(response)
       return response.data || []
     } catch (err) {
       console.error('Error fetching document types:', err)

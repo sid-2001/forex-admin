@@ -310,33 +310,7 @@ export default function KycDocumentTypeMaster() {
             <EditIcon fontSize="small" />
           </IconButton>
           
-          {params.row.active ? (
-            <IconButton
-              onClick={() => {
-                setSelectedRow(params.row)
-                setStatusAction('deactivate')
-                setStatusModalOpen(true)
-              }}
-              color="warning"
-              size="small"
-              title="Deactivate"
-            >
-              <CancelIcon fontSize="small" />
-            </IconButton>
-          ) : (
-            <IconButton
-              onClick={() => {
-                setSelectedRow(params.row)
-                setStatusAction('activate')
-                setStatusModalOpen(true)
-              }}
-              color="success"
-              size="small"
-              title="Activate"
-            >
-              <CheckCircleIcon fontSize="small" />
-            </IconButton>
-          )}
+    
         </Stack>
       ),
     },

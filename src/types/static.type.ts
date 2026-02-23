@@ -3,6 +3,7 @@ interface CountryData {
   "countryName": String,
   "status": String,
   "countryFlag": String
+  "active":Boolean
 }
  interface PaymentGateway {
   id: string;

@@ -87,6 +87,7 @@ import ResidentTypeMaster from './pages/resident-type-master'
 import KycDocumentTypeMaster from './pages/kycDocumentTypeMaster'
 import CountryLimitTypeWiseLimitMaster from './pages/country-limit-type-wise-limit-master'
 import CountryKycDocumentMaster from './pages/CountryKycDocumentMaster'
+import CountryResProductChannelDocRequiredMaster from './pages/contryresproductchanneldoc'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -266,6 +267,10 @@ function App() {
                             <Route path="country-limit-type-wise" element={<CountryLimitTypeWiseLimitMaster />} />
                             
                               <Route path="country-kyc-doc-master" element={<CountryKycDocumentMaster />} />
+
+   
+
+  <Route path="kyc-doc-mapping" element={<CountryResProductChannelDocRequiredMaster />} />
 
               <Route path="*" element={<Dashboard />} />
             </Route>

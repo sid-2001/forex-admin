@@ -399,6 +399,14 @@ const MASTER_MENU = [
     icon: <GavelIcon fontSize="small" />,
     path: 'country-limit-type-wise',
   },
+
+   {
+    label: 'KYC Document Mapping',
+    name: 'Kyc Document Mapping',
+    icon: <GavelIcon fontSize="small" />,
+    path: 'kyc-doc-mapping',
+  },
+ 
   
 
   // verification-partner
@@ -776,9 +784,10 @@ const DashboardLayout = () => {
               width: '100%',
             }}
           >
-            <div style={{ position: 'absolute', top: 45, left: 40 }}>
-              <CompactLocationBar />
-            </div>
+           
+
+        
+          
             {/* Left side - Logo + Dark/Light Mode (UNCHANGED) */}
 
             <Box sx={{ display: 'flex', alignItems: 'left', gap: 2 }}>
@@ -825,6 +834,11 @@ const DashboardLayout = () => {
               >
                 {mode === 'dark' ? <ArrowBack /> : <ArrowBack />}
               </IconButton>
+                    {/* <Box sx={{ display: 'flex', alignItems: 'center', justifyContent:"center",  gap: 2 }}>
+
+                    <CompactLocationBar />
+              </Box> */}
+          
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, textAlign: 'center' }}>

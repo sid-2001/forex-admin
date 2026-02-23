@@ -126,7 +126,7 @@ const LoginPage = () => {
         setUserCurrency(currency as any)
 
         const countries = await static_service.getCountryList()
-        setCountry(countries)
+        setCountry(countries?.filter(e=>e.active==true));
 
         await transaction_service.getAllValidationsList(data?.staffCountry)
 

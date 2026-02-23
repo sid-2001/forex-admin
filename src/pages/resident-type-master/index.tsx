@@ -168,8 +168,10 @@ export default function ResidentTypeMaster() {
         { timeout: 5000 },
       )
     } else {
-       //@ts-ignore
-      await submitPayload(audit)
+       //@ts-i
+      await submitPayload(
+        //@ts-ignore
+        audit)
     }
   }
 
@@ -204,6 +206,7 @@ export default function ResidentTypeMaster() {
       field: 'residentTypeCode', 
       headerName: 'Type Code', 
       width: 130,
+       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Chip 
           label={params.value} 
@@ -221,6 +224,7 @@ export default function ResidentTypeMaster() {
       field: 'residenceCode', 
       headerName: 'Residence', 
       width: 100,
+       headerClassName: 'super-app-theme--header',
       renderCell: (params) => {
         const code = RESIDENCE_CODES.find(c => c.value === params.value)
         return (
@@ -232,6 +236,7 @@ export default function ResidentTypeMaster() {
       field: 'countryCode', 
       headerName: 'Country', 
       width: 120,
+          headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Stack direction="row" spacing={0.5} alignItems="center">
           <PublicIcon sx={{ fontSize: 16, color: '#666' }} />
@@ -242,11 +247,13 @@ export default function ResidentTypeMaster() {
     { 
       field: 'residentTypeDescription', 
       headerName: 'Description', 
+          headerClassName: 'super-app-theme--header',
       flex: 1
     },
     {
       field: 'active',
       headerName: 'Status',
+          headerClassName: 'super-app-theme--header',
       width: 100,
       renderCell: (params) => (
         <Chip
@@ -265,18 +272,21 @@ export default function ResidentTypeMaster() {
     {
       field: 'effectiveFromDate',
       headerName: 'From',
+          headerClassName: 'super-app-theme--header',
       width: 100,
       renderCell: (params) => formatTableDate(params.value),
     },
     {
       field: 'effectiveToDate',
       headerName: 'To',
+          headerClassName: 'super-app-theme--header',
       width: 100,
       renderCell: (params) => params.value === '9999-12-31T23:59:59' ? '∞' : formatTableDate(params.value),
     },
     {
       field: 'actions',
       headerName: 'Actions',
+          headerClassName: 'super-app-theme--header',
       width: 120,
       renderCell: (params) => (
         <Stack direction="row" spacing={1}>
@@ -292,33 +302,7 @@ export default function ResidentTypeMaster() {
             <EditIcon fontSize="small" />
           </IconButton>
           
-          {params.row.active ? (
-            <IconButton
-              onClick={() => {
-                setSelectedRow(params.row)
-                setStatusAction('deactivate')
-                setStatusModalOpen(true)
-              }}
-              color="warning"
-              size="small"
-              title="Deactivate"
-            >
-              <CancelIcon fontSize="small" />
-            </IconButton>
-          ) : (
-            <IconButton
-              onClick={() => {
-                setSelectedRow(params.row)
-                setStatusAction('activate')
-                setStatusModalOpen(true)
-              }}
-              color="success"
-              size="small"
-              title="Activate"
-            >
-              <CheckCircleIcon fontSize="small" />
-            </IconButton>
-          )}
+       
         </Stack>
       ),
     },
@@ -326,17 +310,17 @@ export default function ResidentTypeMaster() {
 
   return (
     <Box p={3}>
-      <Paper elevation={0} sx={{ p: 3, mb: 3, backgroundColor: '#f5f5f5' }}>
-        <Typography
+         <Typography
           variant="h5"
           sx={{
-            fontWeight: 600,
+            textAlign:"center",
+            fontWeight: 800,
             color: '#0061B1',
           }}
         >
           Resident Type Master
         </Typography>
-      </Paper>
+     
 
       <Stack direction="row" justifyContent="flex-end" mb={2}>
         <Button

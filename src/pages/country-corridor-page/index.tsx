@@ -145,8 +145,9 @@ const StatusChip: React.FC<{ active: boolean }> = ({ active }) => (
 )
 
 // Timezone Chip Component
+
 const TimezoneChip: React.FC<{ timezone: string; offset: string }> = ({ timezone, offset }) => {
-  const displayName = timezone.split('/').pop()?.replace('_', ' ') || timezone
+  const displayName = timezone?.split('/').pop()?.replace('_', ' ') || timezone
   return (
     <Tooltip title={`Timezone: ${timezone} (${offset})`}>
       <Chip

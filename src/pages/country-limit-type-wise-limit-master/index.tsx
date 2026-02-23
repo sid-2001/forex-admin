@@ -258,6 +258,7 @@ export default function CountryLimitTypeWiseLimitMaster() {
       field: 'countryLimitTypeLimitCode', 
       headerName: 'Limit Code', 
       width: 130,
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Chip 
           label={params.value} 
@@ -275,6 +276,7 @@ export default function CountryLimitTypeWiseLimitMaster() {
       field: 'countryCode', 
       headerName: 'Country', 
       width: 120,
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Stack direction="row" spacing={0.5} alignItems="center">
           <PublicIcon sx={{ fontSize: 16, color: '#666' }} />
@@ -286,6 +288,7 @@ export default function CountryLimitTypeWiseLimitMaster() {
       field: 'limitTypeCode', 
       headerName: 'Limit Type', 
       width: 150,
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Tooltip title={getLimitTypeDescription(params.value)}>
           <Chip 
@@ -304,6 +307,7 @@ export default function CountryLimitTypeWiseLimitMaster() {
       field: 'limitAmount', 
       headerName: 'Limit Amount', 
       width: 130,
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Stack direction="row" spacing={0.5} alignItems="center">
           <AttachMoneyIcon sx={{ fontSize: 16, color: '#4caf50' }} />
@@ -315,6 +319,7 @@ export default function CountryLimitTypeWiseLimitMaster() {
       field: 'active',
       headerName: 'Status',
       width: 100,
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Chip
           icon={params.value ? <CheckCircleIcon sx={{ fontSize: 16 }} /> : <CancelIcon sx={{ fontSize: 16 }} />}
@@ -333,23 +338,27 @@ export default function CountryLimitTypeWiseLimitMaster() {
       field: 'effectiveFromDate',
       headerName: 'From',
       width: 100,
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) => formatTableDate(params.value),
     },
     {
       field: 'effectiveToDate',
       headerName: 'To',
       width: 100,
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) => params.value === '9999-12-31T23:59:59' ? '∞' : formatTableDate(params.value),
     },
     {
       field: 'createdBy',
       headerName: 'Created By',
+      headerClassName: 'super-app-theme--header',
       width: 120,
     },
     {
       field: 'actions',
       headerName: 'Actions',
       width: 120,
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Stack direction="row" spacing={1}>
           <IconButton
@@ -364,33 +373,7 @@ export default function CountryLimitTypeWiseLimitMaster() {
             <EditIcon fontSize="small" />
           </IconButton>
           
-          {params.row.active ? (
-            <IconButton
-              onClick={() => {
-                setSelectedRow(params.row)
-                setStatusAction('deactivate')
-                setStatusModalOpen(true)
-              }}
-              color="warning"
-              size="small"
-              title="Deactivate"
-            >
-              <CancelIcon fontSize="small" />
-            </IconButton>
-          ) : (
-            <IconButton
-              onClick={() => {
-                setSelectedRow(params.row)
-                setStatusAction('activate')
-                setStatusModalOpen(true)
-              }}
-              color="success"
-              size="small"
-              title="Activate"
-            >
-              <CheckCircleIcon fontSize="small" />
-            </IconButton>
-          )}
+    
         </Stack>
       ),
     },
@@ -398,7 +381,7 @@ export default function CountryLimitTypeWiseLimitMaster() {
 
   return (
     <Box p={3}>
-      <Paper elevation={0} sx={{ p: 3, mb: 3, backgroundColor: '#f5f5f5' }}>
+     
         <Typography
           variant="h5"
           sx={{
@@ -411,7 +394,7 @@ export default function CountryLimitTypeWiseLimitMaster() {
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
           Configure country-specific limits for different KYC limit types
         </Typography>
-      </Paper>
+     
 
       <Stack direction="row" justifyContent="flex-end" mb={2}>
         <Button
