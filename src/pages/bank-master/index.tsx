@@ -137,7 +137,7 @@ export default function BankMasterScreen() {
   return (
     //@ts-ignore
     <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
+      <Stack direction="row" justifyContent="right" mb={2}>
         <Button
           variant="contained"
           onClick={() => {
@@ -145,7 +145,7 @@ export default function BankMasterScreen() {
             setDialogOpen(true)
           }}
         >
-          Add Bank
+          Add
         </Button>
       </Stack>
 
