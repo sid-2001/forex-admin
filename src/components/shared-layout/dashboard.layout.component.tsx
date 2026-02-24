@@ -76,6 +76,26 @@ import ReportOffIcon from '@mui/icons-material/ReportOff'
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
 import { FolderIcon, GavelIcon, LanguagesIcon, Menu, SettingsIcon } from 'lucide-react'
 import WebIcon from '@mui/icons-material/Web'
+import MonitorIcon from '@mui/icons-material/Monitor'
+import WhatsAppIcon from '@mui/icons-material/WhatsApp'
+import SmsIcon from '@mui/icons-material/Sms'
+import EmailIcon from '@mui/icons-material/Email'
+import VerifiedIcon from '@mui/icons-material/Verified'
+import FactCheckIcon from '@mui/icons-material/FactCheck'
+import DescriptionIcon from '@mui/icons-material/Description'
+import PublicIcon from '@mui/icons-material/Public'
+import LocationOnIcon from '@mui/icons-material/LocationOn'
+import BusinessIcon from '@mui/icons-material/Business'
+import AssessmentIcon from '@mui/icons-material/Assessment'
+import LinkIcon from '@mui/icons-material/Link'
+import HandshakeIcon from '@mui/icons-material/Handshake'
+import AltRouteIcon from '@mui/icons-material/AltRoute'
+import SpeedIcon from '@mui/icons-material/Speed'
+import HomeIcon from '@mui/icons-material/Home'
+import BadgeIcon from '@mui/icons-material/Badge'
+import RuleIcon from '@mui/icons-material/Rule'
+import AccountTreeIcon from '@mui/icons-material/AccountTree'
+
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
   padding: theme.spacing(1),
@@ -293,126 +313,123 @@ const MASTER_MENU = [
   {
     label: 'Screen Master',
     name: 'Screen master',
-    icon: <WebIcon fontSize="small" />,
+    icon: <MonitorIcon fontSize="small" />,
     path: 'screen',
   },
   {
     label: 'WhatsApp Master',
     name: 'WhatsApp master',
-    icon: <WebIcon fontSize="small" />,
+    icon: <WhatsAppIcon fontSize="small" />,
     path: 'whatsapp',
   },
   {
     label: 'Sms Master',
     name: 'Sms manegement master',
-    icon: <WebIcon fontSize="small" />,
+    icon: <SmsIcon fontSize="small" />,
     path: 'smsmanegement',
   },
   {
     label: 'Email Master',
     name: 'Email manegement master',
-    icon: <WebIcon fontSize="small" />,
+    icon: <EmailIcon fontSize="small" />,
     path: 'email-manegement',
   },
   {
     label: 'Verification Master',
     name: 'Email manegement master',
-    icon: <WebIcon fontSize="small" />,
+    icon: <VerifiedIcon fontSize="small" />,
     path: 'verification-partner',
   },
   {
     label: 'Country Kyc Master',
     name: 'Country Kyc master',
-    icon: <WebIcon fontSize="small" />,
+    icon: <FactCheckIcon fontSize="small" />,
     path: 'country-Kyc-doc-management',
   },
   {
     label: 'Terms and Condition',
     name: 'Terms and Condition',
-    icon: <GavelIcon fontSize="small" />,
+    icon: <DescriptionIcon fontSize="small" />,
     path: 'terms-condition',
   },
 
   {
     label: 'Country Label Code Master',
     name: 'Country Label Code Master',
-    icon: <GavelIcon fontSize="small" />,
+    icon: <PublicIcon fontSize="small" />,
     path: 'country-label-code-master',
   },
   {
     label: 'Country label Master',
     name: 'Country label Master',
-    icon: <GavelIcon fontSize="small" />,
+    icon: <LocationOnIcon fontSize="small" />,
     path: 'country-label-master',
   },
   {
     label: 'Country Reporting Label Master',
     name: 'Country Reporting Label Master',
-    icon: <GavelIcon fontSize="small" />,
+    icon: <AssessmentIcon fontSize="small" />,
     path: 'country-reporting-label-master',
   },
   {
     label: 'Vendor Master',
     name: 'Vendor Master',
-    icon: <GavelIcon fontSize="small" />,
+    icon: <BusinessIcon fontSize="small" />,
     path: 'vendorapimaster',
   },
   {
     label: 'Vendor Url Master',
     name: 'Vendor Url Master',
-    icon: <GavelIcon fontSize="small" />,
+    icon: <LinkIcon fontSize="small" />,
     path: 'urlmaster',
   },
   {
-    label: 'vendor master table ',
+    label: 'vendor master table',
     name: 'vendorapi master table ',
-    icon: <GavelIcon fontSize="small" />,
+    icon: <HandshakeIcon fontSize="small" />,
     path: 'vendorapimastertable',
   },
   {
     label: 'Country Corridor Page',
     name: 'Country Corridor Page',
-    icon: <GavelIcon fontSize="small" />,
+    icon: <AltRouteIcon fontSize="small" />,
     path: 'country-corridor-page',
   },
-   {
+  {
     label: 'Kyc Limit Type',
     name: 'Kyc Limit Type',
-    icon: <GavelIcon fontSize="small" />,
+    icon: <SpeedIcon fontSize="small" />,
     path: 'kyc-limit-type',
   },
-   {
+  {
     label: 'Resident Type',
     name: 'Resident Type',
-    icon: <GavelIcon fontSize="small" />,
+    icon: <HomeIcon fontSize="small" />,
     path: 'resident-type',
   },
-   {
+  {
     label: 'KYC Document Type',
     name: 'KYC Document Type',
-    icon: <GavelIcon fontSize="small" />,
+    icon: <BadgeIcon fontSize="small" />,
     path: 'kyc-document-type',
   },
-     {
+  {
     label: 'Country Limit Type Wise',
     name: 'Country Limit Type Wise',
-    icon: <GavelIcon fontSize="small" />,
+    icon: <RuleIcon fontSize="small" />,
     path: 'country-limit-type-wise',
   },
 
-   {
+  {
     label: 'KYC Document Mapping',
     name: 'Kyc Document Mapping',
-    icon: <GavelIcon fontSize="small" />,
+    icon: <AccountTreeIcon fontSize="small" />,
     path: 'kyc-doc-mapping',
   },
- 
-  
 
   // verification-partner
 ]
 
- 
 // const chunkArray = (arr: any[], size: number) => {
 //   const chunks = []
 //   for (let i = 0; i < arr.length; i += size) {
@@ -470,7 +487,7 @@ const MasterDropdownIcon = ({ setSelectedApp, addToHistory, selectedApp }: any) 
             <Box
               key={index}
               sx={{
-                minWidth: 220,
+                minWidth: 300,
                 borderRight: index !== menuChunks.length - 1 ? '1px solid #eee' : 'none',
                 pr: 1,
               }}
@@ -784,10 +801,6 @@ const DashboardLayout = () => {
               width: '100%',
             }}
           >
-           
-
-        
-          
             {/* Left side - Logo + Dark/Light Mode (UNCHANGED) */}
 
             <Box sx={{ display: 'flex', alignItems: 'left', gap: 2 }}>
@@ -834,11 +847,10 @@ const DashboardLayout = () => {
               >
                 {mode === 'dark' ? <ArrowBack /> : <ArrowBack />}
               </IconButton>
-                    {/* <Box sx={{ display: 'flex', alignItems: 'center', justifyContent:"center",  gap: 2 }}>
+              {/* <Box sx={{ display: 'flex', alignItems: 'center', justifyContent:"center",  gap: 2 }}>
 
                     <CompactLocationBar />
               </Box> */}
-          
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, textAlign: 'center' }}>
