@@ -74,13 +74,14 @@ export default function VerificationPartnerManagement() {
   }
 
   const columns: GridColDef[] = [
-    { field: 'verificationPartnerCode', headerName: 'Partner Code', flex: 1 },
-    { field: 'verificationPartnerDescription', headerName: 'Description', flex: 1.5 },
-    { field: 'countryCode', headerName: 'Country', flex: 0.8 },
-    { field: 'active', headerName: 'Active', flex: 0.6, renderCell: (p) => (p.value ? 'Yes' : 'No') },
+    { field: 'verificationPartnerCode', headerName: 'Partner Code', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'verificationPartnerDescription', headerName: 'Description', flex: 1.5, headerClassName: 'super-app-theme--header' },
+    { field: 'countryCode', headerName: 'Country', flex: 0.8, headerClassName: 'super-app-theme--header' },
+    { field: 'active', headerName: 'Active', headerClassName: 'super-app-theme--header', flex: 0.6, renderCell: (p) => (p.value ? 'Yes' : 'No') },
     {
       field: 'actions',
       headerName: 'Actions',
+      headerClassName: 'super-app-theme--header',
       width: 80,
       renderCell: (params) => (
         <IconButton
