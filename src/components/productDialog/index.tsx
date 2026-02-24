@@ -1,3 +1,4 @@
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Checkbox, FormControlLabel, Box, Grid } from '@mui/material'
 import { useEffect, useState } from 'react'
 
@@ -63,7 +64,7 @@ export default function ProductFormDialog({ open, onClose, onSubmit, editData }:
     onSubmit({
       ...form,
       effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
-      effectiveToDate: `${form.effectiveToDate}T23:59:59`,
+      effectiveToDate: `${form.effectiveToDate}T00:00:00`,
     })
   }
 
@@ -104,7 +105,7 @@ export default function ProductFormDialog({ open, onClose, onSubmit, editData }:
             />
           </Grid>
 
-          <Grid item xs={6}>
+          {/* <Grid item xs={6}>
             <TextField
               type="date"
               label="Effective From"
@@ -116,9 +117,31 @@ export default function ProductFormDialog({ open, onClose, onSubmit, editData }:
               error={!!errors.effectiveFromDate}
               helperText={errors.effectiveFromDate}
             />
+          </Grid> */}
+          <Grid item xs={6}>
+            <DynamicDatePicker
+              label="Effective From"
+              value={form.effectiveFromDate}
+              onChange={(val: string) => handleChange('effectiveFromDate', val)}
+              error={!!errors.effectiveFromDate}
+              helperText={errors.effectiveFromDate}
+              required
+            />
           </Grid>
 
           <Grid item xs={6}>
+            <DynamicEndDatePicker
+              label="Effective To"
+              value={form.effectiveToDate}
+              minDate={form.effectiveFromDate}
+              onChange={(val: string) => handleChange('effectiveToDate', val)}
+              error={!!errors.effectiveToDate}
+              helperText={errors.effectiveToDate}
+              required
+            />
+          </Grid>
+
+          {/* <Grid item xs={6}>
             <TextField
               type="date"
               label="Effective To"
@@ -131,7 +154,7 @@ export default function ProductFormDialog({ open, onClose, onSubmit, editData }:
               helperText={errors.effectiveToDate}
               inputProps={{ min: form.effectiveFromDate }}
             />
-          </Grid>
+          </Grid> */}
 
           <Grid item xs={12}>
             <FormControlLabel

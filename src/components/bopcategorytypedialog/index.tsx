@@ -12,6 +12,7 @@ import {
   FormHelperText,
   Checkbox,
 } from '@mui/material'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 export interface BopCategoryType {
   bopCategoryTypeCode: string
@@ -94,7 +95,7 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
     onSubmit({
       ...formData,
       effectiveFromDate: `${formData.effectiveFromDate}T00:00:00`,
-      effectiveToDate: `${formData.effectiveToDate}T23:59:59`,
+      effectiveToDate: `${formData.effectiveToDate}T00:00:00`,
     })
   }
 
@@ -130,7 +131,7 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
             />
           </Grid>
 
-          <Grid item xs={6}>
+          {/* <Grid item xs={6}>
             <TextField
               label="Effective From"
               type="date"
@@ -143,9 +144,35 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
               helperText={errors.effectiveFromDate}
               onChange={handleChange}
             />
+          </Grid> */}
+          <Grid item xs={6}>
+            <DynamicDatePicker
+              label="Effective From"
+              value={formData.effectiveFromDate}
+              onChange={(val: string) => {
+                setFormData({ ...formData, effectiveFromDate: val })
+              }}
+              error={!!errors.effectiveFromDate}
+              helperText={errors.effectiveFromDate}
+              required
+            />
           </Grid>
 
           <Grid item xs={6}>
+            <DynamicEndDatePicker
+              label="Effective To"
+              value={formData.effectiveToDate}
+              minDate={formData.effectiveFromDate}
+              onChange={(val: string) => {
+                setFormData({ ...formData, effectiveToDate: val })
+              }}
+              error={!!errors.effectiveToDate}
+              helperText={errors.effectiveToDate}
+              required
+            />
+          </Grid>
+
+          {/* <Grid item xs={6}>
             <TextField
               label="Effective To"
               type="date"
@@ -159,7 +186,7 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
               helperText={errors.effectiveToDate}
               onChange={handleChange}
             />
-          </Grid>
+          </Grid> */}
 
           {/* <Grid item xs={12}>
             <FormControlLabel

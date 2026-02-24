@@ -2,6 +2,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, C
 import { useState, useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: any) {
   const [countries] = useRecoilState(countyState)
@@ -125,7 +126,7 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
             />
           </Grid>
 
-          <Grid item xs={6}>
+          {/* <Grid item xs={6}>
             <TextField
               fullWidth
               type="date"
@@ -137,9 +138,36 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
               error={!!errors.fromDate}
               helperText={errors.fromDate}
             />
+          </Grid> */}
+          <Grid item xs={6}>
+            <DynamicDatePicker
+              label="Effective From"
+              value={form.fromDate}
+              onChange={(val: string) => {
+                console.log(val, 'kdjhchdvy')
+                setForm({ ...form, fromDate: val })
+              }}
+              error={!!errors.fromDate}
+              helperText={errors.fromDate}
+              required
+            />
           </Grid>
 
           <Grid item xs={6}>
+            <DynamicEndDatePicker
+              label="Effective To"
+              value={form.toDate}
+              minDate={form.fromDate}
+              onChange={(val: string) => {
+                setForm({ ...form, toDate: val })
+              }}
+              error={!!errors.toDate}
+              helperText={errors.toDate}
+              required
+            />
+          </Grid>
+
+          {/* <Grid item xs={6}>
             <TextField
               fullWidth
               type="date"
@@ -152,7 +180,7 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
               error={!!errors.toDate}
               helperText={errors.toDate}
             />
-          </Grid>
+          </Grid> */}
 
           <Grid item xs={12}>
             <FormControlLabel

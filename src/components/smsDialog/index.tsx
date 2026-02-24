@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
 import ErrorMessage from '../errorMessage'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 const filter = createFilterOptions({
   matchFrom: 'any',
@@ -67,7 +68,7 @@ export default function SmsTemplateDialog({ open, onClose, onSubmit, editData, e
       smsTemplateDescription,
       active,
       effectiveFromDate: `${effectiveFromDate}T00:00:00`,
-      effectiveToDate: `${effectiveToDate}T23:59:59`,
+      effectiveToDate: `${effectiveToDate}T00:00:00`,
     })
   }
 
@@ -99,7 +100,7 @@ export default function SmsTemplateDialog({ open, onClose, onSubmit, editData, e
             helperText={errors.smsTemplateDescription}
           />
 
-          <TextField
+          {/* <TextField
             type="date"
             label="Effective From"
             fullWidth
@@ -109,9 +110,32 @@ export default function SmsTemplateDialog({ open, onClose, onSubmit, editData, e
             onChange={(e) => setEffectiveFromDate(e.target.value)}
             error={!!errors.effectiveFromDate}
             helperText={errors.effectiveFromDate}
+          /> */}
+          <DynamicDatePicker
+            label="Effective From"
+            value={effectiveFromDate}
+            onChange={(val: string) => {
+              console.log(val, 'kdjhchdvy')
+              setEffectiveFromDate(val)
+            }}
+            error={!!errors.effectiveFrom}
+            helperText={errors.effectiveFrom}
+            required
           />
 
-          <TextField
+          <DynamicEndDatePicker
+            label="Effective To"
+            value={effectiveToDate}
+            minDate={effectiveFromDate}
+            onChange={(val: string) => {
+              setEffectiveToDate(val)
+            }}
+            error={!!errors.effectiveTo}
+            helperText={errors.effectiveTo}
+            required
+          />
+
+          {/* <TextField
             type="date"
             label="Effective To"
             fullWidth
@@ -121,7 +145,7 @@ export default function SmsTemplateDialog({ open, onClose, onSubmit, editData, e
             onChange={(e) => setEffectiveToDate(e.target.value)}
             error={!!errors.effectiveToDate}
             helperText={errors.effectiveToDate}
-          />
+          /> */}
 
           <FormControlLabel control={<Checkbox checked={active} onChange={(e) => setActive(e.target.checked)} />} label="Active" />
         </Box>

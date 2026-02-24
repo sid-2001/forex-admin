@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
 import ErrorMessage from '../errorMessage'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 const filter = createFilterOptions({
   matchFrom: 'any',
@@ -131,7 +132,7 @@ export default function VerificationPartnerMasterDialog({ open, onClose, onSubmi
             />
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          {/* <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               type="date"
@@ -143,8 +144,35 @@ export default function VerificationPartnerMasterDialog({ open, onClose, onSubmi
               error={!!errors.effectiveFromDate}
               helperText={errors.effectiveFromDate}
             />
+          </Grid> */}
+          <Grid item xs={6}>
+            <DynamicDatePicker
+              label="Effective From"
+              value={form.effectiveFromDate}
+              onChange={(val: string) => {
+                console.log(val, 'kdjhchdvy')
+                setForm({ ...form, effectiveFromDate: val })
+              }}
+              error={!!errors.effectiveFrom}
+              helperText={errors.effectiveFrom}
+              required
+            />
           </Grid>
-          <Grid item xs={12} sm={6}>
+
+          <Grid item xs={6}>
+            <DynamicEndDatePicker
+              label="Effective To"
+              value={form.effectiveToDate}
+              minDate={form.effectiveFromDate}
+              onChange={(val: string) => {
+                setForm({ ...form, effectiveToDate: val })
+              }}
+              error={!!errors.effectiveToDate}
+              helperText={errors.effectiveToDate}
+              required
+            />
+          </Grid>
+          {/* <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               type="date"
@@ -156,7 +184,7 @@ export default function VerificationPartnerMasterDialog({ open, onClose, onSubmi
               error={!!errors.effectiveToDate}
               helperText={errors.effectiveToDate}
             />
-          </Grid>
+          </Grid> */}
 
           <Grid item xs={12}>
             <FormControlLabel control={<Checkbox name="active" checked={form.active} onChange={handleChange} color="primary" />} label="Active" />

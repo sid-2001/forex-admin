@@ -120,7 +120,6 @@ export default function UrlTypeMaster() {
         loading={loading}
         getRowId={(row) => row.urlCode}
         autoHeight
-        // initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
         initialState={{
           pagination: {
             paginationModel: {

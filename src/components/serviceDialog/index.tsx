@@ -12,105 +12,85 @@ import {
   MenuItem,
   InputLabel,
   FormHelperText,
-} from "@mui/material";
-import { useEffect, useState } from "react";
-import { useRecoilState } from "recoil";
-import { countyState } from "@/states/state";
+} from '@mui/material'
+import { useEffect, useState } from 'react'
+import { useRecoilState } from 'recoil'
+import { countyState } from '@/states/state'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
-export default function ServiceFormDialog({
-  open,
-  onClose,
-  onSubmit,
-  editData,
-}: any) {
-  const [countries] = useRecoilState(countyState);
+export default function ServiceFormDialog({ open, onClose, onSubmit, editData }: any) {
+  const [countries] = useRecoilState(countyState)
 
-  const [countryCode, setCountryCode] = useState("");
-  const [serviceDescription, setServiceDescription] = useState("");
-  const [active, setActive] = useState(true);
-  const [effectiveFromDate, setEffectiveFromDate] = useState("");
-  const [effectiveToDate, setEffectiveToDate] = useState("");
+  const [countryCode, setCountryCode] = useState('')
+  const [serviceDescription, setServiceDescription] = useState('')
+  const [active, setActive] = useState(true)
+  const [effectiveFromDate, setEffectiveFromDate] = useState('')
+  const [effectiveToDate, setEffectiveToDate] = useState('')
 
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<any>({})
 
   /* ------------------ Populate Edit Data ------------------ */
   useEffect(() => {
     if (editData) {
-      setCountryCode(editData.countryCode || "");
-      setServiceDescription(editData.serviceDescription || "");
-      setActive(editData.active ?? true);
-      setEffectiveFromDate(editData.effectiveFromDate?.split("T")[0] || "");
-      setEffectiveToDate(editData.effectiveToDate?.split("T")[0] || "");
+      setCountryCode(editData.countryCode || '')
+      setServiceDescription(editData.serviceDescription || '')
+      setActive(editData.active ?? true)
+      setEffectiveFromDate(editData.effectiveFromDate?.split('T')[0] || '')
+      setEffectiveToDate(editData.effectiveToDate?.split('T')[0] || '')
     } else {
-      setCountryCode("");
-      setServiceDescription("");
-      setActive(true);
-      setEffectiveFromDate("");
-      setEffectiveToDate("");
-      setErrors({});
+      setCountryCode('')
+      setServiceDescription('')
+      setActive(true)
+      setEffectiveFromDate('')
+      setEffectiveToDate('')
+      setErrors({})
     }
-  }, [editData, open]);
+  }, [editData, open])
 
   /* ------------------ Validation ------------------ */
   const validate = () => {
-    const newErrors: any = {};
+    const newErrors: any = {}
 
-    if (!countryCode) newErrors.countryCode = "Country is required";
+    if (!countryCode) newErrors.countryCode = 'Country is required'
 
-    if (!serviceDescription.trim())
-      newErrors.serviceDescription = "Service Description is required";
+    if (!serviceDescription.trim()) newErrors.serviceDescription = 'Service Description is required'
 
-    if (!effectiveFromDate)
-      newErrors.effectiveFromDate = "Effective From date is required";
+    if (!effectiveFromDate) newErrors.effectiveFromDate = 'Effective From date is required'
 
-    if (!effectiveToDate)
-      newErrors.effectiveToDate = "Effective To date is required";
+    if (!effectiveToDate) newErrors.effectiveToDate = 'Effective To date is required'
 
-    if (
-      effectiveFromDate &&
-      effectiveToDate &&
-      new Date(effectiveToDate) < new Date(effectiveFromDate)
-    ) {
-      newErrors.effectiveToDate =
-        "Effective To date cannot be before Effective From";
+    if (effectiveFromDate && effectiveToDate && new Date(effectiveToDate) < new Date(effectiveFromDate)) {
+      newErrors.effectiveToDate = 'Effective To date cannot be before Effective From'
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   /* ------------------ Submit ------------------ */
   const handleSubmit = () => {
-    if (!validate()) return;
+    if (!validate()) return
 
     onSubmit({
       countryCode,
       serviceDescription,
       active,
       effectiveFromDate: `${effectiveFromDate}T00:00:00`,
-      effectiveToDate: `${effectiveToDate}T23:59:59`,
-    });
-  };
+      effectiveToDate: `${effectiveToDate}T00:00:00`,
+    })
+  }
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>
-        {editData ? "Update Service" : "Create Service"}
-      </DialogTitle>
+      <DialogTitle>{editData ? 'Update Service' : 'Create Service'}</DialogTitle>
 
       <DialogContent dividers>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           {/* Country */}
           <InputLabel required>Country</InputLabel>
-          <Select
-            value={countryCode}
-            fullWidth
-            disabled={!!editData}
-            error={!!errors.countryCode}
-            onChange={(e) => setCountryCode(e.target.value)}
-          >
+          <Select value={countryCode} fullWidth disabled={!!editData} error={!!errors.countryCode} onChange={(e) => setCountryCode(e.target.value)}>
             {countries
-              ?.filter((c) => c.status === "A")
+              ?.filter((c) => c.status === 'A')
               .map((c) => (
                 <MenuItem
                   //@ts-ignore
@@ -121,9 +101,7 @@ export default function ServiceFormDialog({
                 </MenuItem>
               ))}
           </Select>
-          {errors.countryCode && (
-            <FormHelperText error>{errors.countryCode}</FormHelperText>
-          )}
+          {errors.countryCode && <FormHelperText error>{errors.countryCode}</FormHelperText>}
 
           {/* Service Description */}
           <TextField
@@ -137,7 +115,7 @@ export default function ServiceFormDialog({
           />
 
           {/* Effective From */}
-          <TextField
+          {/* <TextField
             required
             type="date"
             label="Effective From"
@@ -147,10 +125,34 @@ export default function ServiceFormDialog({
             error={!!errors.effectiveFromDate}
             helperText={errors.effectiveFromDate}
             onChange={(e) => setEffectiveFromDate(e.target.value)}
+          /> */}
+          <DynamicDatePicker
+            label="Effective From"
+            value={effectiveFromDate}
+            onChange={(val: string) => {
+              console.log(val, 'kdjhchdvy')
+              setEffectiveFromDate(val)
+            }}
+            error={!!errors.effectiveFromDate}
+            helperText={errors.effectiveFromDate}
+            required
+          />
+
+          <DynamicEndDatePicker
+            label="Effective To"
+            value={effectiveToDate}
+            minDate={effectiveFromDate}
+            onChange={(val: string) => {
+              setEffectiveToDate(val)
+              // setForm({ ...form, effectiveTo: val })
+            }}
+            error={!!errors.effectiveToDate}
+            helperText={errors.effectiveToDate}
+            required
           />
 
           {/* Effective To */}
-          <TextField
+          {/* <TextField
             required
             type="date"
             label="Effective To"
@@ -161,27 +163,19 @@ export default function ServiceFormDialog({
             error={!!errors.effectiveToDate}
             helperText={errors.effectiveToDate}
             onChange={(e) => setEffectiveToDate(e.target.value)}
-          />
+          /> */}
 
           {/* Active */}
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={active}
-                onChange={(e) => setActive(e.target.checked)}
-              />
-            }
-            label="Active"
-          />
+          <FormControlLabel control={<Checkbox checked={active} onChange={(e) => setActive(e.target.checked)} />} label="Active" />
         </Box>
       </DialogContent>
 
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
         <Button variant="contained" onClick={handleSubmit}>
-          {editData ? "Update" : "Save"}
+          {editData ? 'Update' : 'Save'}
         </Button>
       </DialogActions>
     </Dialog>
-  );
+  )
 }

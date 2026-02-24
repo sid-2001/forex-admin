@@ -14,6 +14,7 @@ export interface BankBusinessType {
   effective_to_date: string
   created_by: string | null
   modified_by: string | null
+  businessTypeCode:string|null
 }
 
 /**

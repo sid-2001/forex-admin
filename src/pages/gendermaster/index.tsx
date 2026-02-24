@@ -63,65 +63,129 @@ export default function GenderMaster() {
     setOpen(true)
   }
 
+  // const handleAction = async (data: any, isUpdate: boolean) => {
+  //   if (data.validationError) {
+  //     showAlert('Fail', data.validationError)
+  //     return
+  //   }
+
+  //   const now = dayjs()
+
+  //   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
+  //   const auditTime = {
+  //     timeZone: userTimeZone,
+  //     offset: dayjs().tz(userTimeZone).format('Z'),
+  //     utcDateTime: dayjs().utc().format('YYYY-MM-DD HH:mm:ss.SSS'),
+  //     localDateTime: dayjs().tz(userTimeZone).format('YYYY-MM-DD HH:mm:ss.SSS'),
+  //   }
+  //   console.log(auditTime, 'bhanu', auditTime.localDateTime)
+
+  //   const payload = {
+  //     applicant_id: local_service?.get_staff_id(),
+  //     gendercode: data.gendercode?.substring(0, 1).toUpperCase(),
+  //     countrycode: data.selectedCountry?.substring(0, 3).toUpperCase(),
+  //     description: data.description?.substring(0, 25),
+  //     active: data.active,
+  //     effectivefromdate: `${data.effectiveFrom}T00:00:00.000Z`,
+  //     effectivetodate: `${data.effectiveTo}T00:00:00.000Z`,
+
+  //     ...(isUpdate
+  //       ? {
+  //           modified_time: auditTime.timeZone,
+  //           modified_off: auditTime.offset,
+  //           Modified_UTCDateTime: auditTime.utcDateTime,
+  //           modified_local_date_time: auditTime.localDateTime,
+  //           modifiedby: local_service?.get_staff_id(),
+  //         }
+  //       : {
+  //           created_time: auditTime.timeZone,
+  //           created_off: auditTime.offset,
+  //           Created_UTCDateTime: auditTime.utcDateTime,
+  //           created_local_date_time: auditTime.localDateTime, // Correct Local Time
+  //           createdby: local_service?.get_staff_id(),
+  //         }),
+  //   }
+
+  //   try {
+  //     const response: any = isUpdate ? await static_service.updateGender(payload as any) : await static_service.createGender(payload)
+
+  //     if (response?.success || response?.status === 'Success' || response?.status === true) {
+  //       showAlert('Success', `Gender ${isUpdate ? 'Updated' : 'Created'} Successfully`)
+  //       setDialogopen(false)
+  //       fetchData()
+  //     } else {
+  //       showAlert('Fail', response?.error || response?.message || 'Server Error')
+  //     }
+  //   } catch (err: any) {
+  //     showAlert('Fail', err.message || 'Network Error')
+  //   }
+  // }
   const handleAction = async (data: any, isUpdate: boolean) => {
     if (data.validationError) {
       showAlert('Fail', data.validationError)
       return
     }
 
-    const now = dayjs()
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords
 
-    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+        const audit = await getLiveAuditData(latitude, longitude)
 
-    const auditTime = {
-      timeZone: userTimeZone,
-      offset: dayjs().tz(userTimeZone).format('Z'),
-      utcDateTime: dayjs().utc().format('YYYY-MM-DD HH:mm:ss.SSS'),
-      localDateTime: dayjs().tz(userTimeZone).format('YYYY-MM-DD HH:mm:ss.SSS'),
-    }
-    console.log(auditTime, 'bhanu', auditTime.localDateTime)
+        if (!audit) {
+          showAlert('Fail', 'Failed to generate audit trail. Please check your connection.')
+          return
+        }
 
-    const payload = {
-      applicant_id: local_service?.get_staff_id(),
-      gendercode: data.gendercode?.substring(0, 1).toUpperCase(),
-      countrycode: data.selectedCountry?.substring(0, 3).toUpperCase(),
-      description: data.description?.substring(0, 25),
-      active: data.active,
-      effectivefromdate: `${data.effectiveFrom}T00:00:00.000Z`,
-      effectivetodate: `${data.effectiveTo}T00:00:00.000Z`,
+        const staffId = local_service?.get_staff_id()
 
-      ...(isUpdate
-        ? {
-            modified_time: auditTime.timeZone,
-            modified_off: auditTime.offset,
-            Modified_UTCDateTime: auditTime.utcDateTime,
-            modified_local_date_time: auditTime.localDateTime,
-            modifiedby: local_service?.get_staff_id(),
+        const payload = {
+          applicant_id: staffId,
+          gendercode: data.gendercode?.substring(0, 1).toUpperCase(),
+          countrycode: data.selectedCountry?.substring(0, 3).toUpperCase(),
+          description: data.description?.substring(0, 25),
+          active: data.active,
+          effectivefromdate: `${data.effectiveFrom}T00:00:00.000Z`,
+          effectivetodate: `${data.effectiveTo}T00:00:00.000Z`,
+
+          ...(isUpdate
+            ? {
+                modifiedby: staffId,
+                modified_local_date_time: audit.localDateTime,
+                Modified_UTCDateTime: audit.utcDateTime,
+                modified_time: audit.timeZone,
+                modified_off: audit.offset,
+              }
+            : {
+                createdby: staffId,
+                created_local_date_time: audit.localDateTime,
+                Created_UTCDateTime: audit.utcDateTime,
+                created_time: audit.timeZone,
+                created_off: audit.offset,
+              }),
+        }
+
+        try {
+          const response: any = isUpdate ? await static_service.updateGender(payload as any) : await static_service.createGender(payload)
+
+          if (response?.success || response?.status === 'Success' || response?.status === true) {
+            showAlert('Success', `Gender ${isUpdate ? 'Updated' : 'Created'} Successfully`)
+            setDialogopen(false)
+            fetchData()
+          } else {
+            showAlert('Fail', response?.error || response?.message || 'Server Error')
           }
-        : {
-            created_time: auditTime.timeZone,
-            created_off: auditTime.offset,
-            Created_UTCDateTime: auditTime.utcDateTime,
-            created_local_date_time: auditTime.localDateTime, // Correct Local Time
-            createdby: local_service?.get_staff_id(),
-          }),
-    }
-
-    try {
-      const response: any = isUpdate ? await static_service.updateGender(payload as any) : await static_service.createGender(payload)
-
-      if (response?.success || response?.status === 'Success' || response?.status === true) {
-        showAlert('Success', `Gender ${isUpdate ? 'Updated' : 'Created'} Successfully`)
-        setDialogopen(false)
-        fetchData()
-      } else {
-        showAlert('Fail', response?.error || response?.message || 'Server Error')
-      }
-    } catch (err: any) {
-      showAlert('Fail', err.message || 'Network Error')
-    }
+        } catch (err: any) {
+          showAlert('Fail', err.message || 'Network Error')
+        }
+      },
+      (geoError) => {
+        showAlert('Fail', 'Location access is required for audit purposes.')
+        console.error('Geolocation Error:', geoError)
+      },
+    )
   }
-
   const columns: GridColDef[] = [
     { field: 'gendercode', headerName: 'Code', width: 80, headerClassName: 'super-app-theme--header' },
     { field: 'description', headerName: 'Description', flex: 1, headerClassName: 'super-app-theme--header' },

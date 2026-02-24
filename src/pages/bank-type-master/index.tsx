@@ -8,13 +8,15 @@ import BankBusinessTypeService, { BankBusinessType } from '../../services/bantyp
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import dayjs from 'dayjs'
+import { getLiveAuditData } from '@/helpers/dynamicLocations'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
 export default function BankTypeMaster() {
   const service = useMemo(() => new BankBusinessTypeService(), [])
   const [rows, setRows] = useState<BankBusinessType[]>([])
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editData, setEditData] = useState<BankBusinessType | null>(null)
-
+  const local_service = useMemo(() => new LocalStorageService(), [])
   const [open, setOpen] = useRecoilState(alertState)
   const [text, setText] = useRecoilState(alertTextState)
   const [type, setType] = useRecoilState(alertTypeState)

@@ -4,6 +4,7 @@ import EditIcon from '@mui/icons-material/Edit'
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import CountryKycDocDialog from '../../components/countryKycDocDialog'
 import CountryKycDocService from '../../services/country-kyc-doc.service'
+import { formatTableDate } from '@/helpers/dateformate'
 
 export default function CountryKycDocManagement() {
   const [open, setOpen] = useState(false)
@@ -81,6 +82,20 @@ export default function CountryKycDocManagement() {
       headerName: 'Description',
       flex: 1.5,
       headerClassName: 'super-app-theme--header', // Added for Blue Header
+    },
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
     },
     {
       field: 'active',

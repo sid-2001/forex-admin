@@ -13,6 +13,7 @@ import UrlTypeApiService from '../../services/urlType.api.service'
 
 // Dialog Component
 import VendorApiConfigDialog from '../../components/VendorApiConfigDialog'
+import { formatTableDate } from '@/helpers/dateformate'
 
 export default function VendorApiMasterTable() {
   const [rows, setRows] = useState([])
@@ -88,11 +89,18 @@ export default function VendorApiMasterTable() {
       renderCell: (params) => (params.value ? `****${String(params.value).slice(-4)}` : '-'),
     },
     {
-      field: 'effectiveFromDate',
-      headerName: 'From Date',
-      flex: 1,
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 0.8,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => (params.value ? String(params.value).split('T')[0] : '-'),
+      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
     },
     {
       field: 'active',

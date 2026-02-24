@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useRecoilValue } from 'recoil'
 import { countyState } from '@/states/state'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 const filter = createFilterOptions({
   matchFrom: 'any',
@@ -103,7 +104,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
       created_by: localService.get_staff_id(),
       modified_by: editData ? localService.get_staff_id() : undefined,
       effective_from_date: `${form.effective_from_date}T00:00:00.000Z`,
-      effective_to_date: `${form.effective_to_date}T23:59:59.000Z`,
+      effective_to_date: `${form.effective_to_date}T00:00:00.000Z`,
     })
   }
 
@@ -209,7 +210,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
             />
           </Grid>
 
-          <Grid item xs={6}>
+          {/* <Grid item xs={6}>
             <TextField
               fullWidth
               type="date"
@@ -221,9 +222,36 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
               error={!!errors.effective_from_date}
               helperText={errors.effective_from_date}
             />
+          </Grid> */}
+          <Grid item xs={6}>
+            <DynamicDatePicker
+              label="Effective From"
+              value={form.effective_from_date}
+              onChange={(val: string) => {
+                console.log(val, 'kdjhchdvy')
+                setForm({ ...form, effective_from_date: val })
+              }}
+              error={!!errors.effective_from_date}
+              helperText={errors.effective_from_date}
+              required
+            />
           </Grid>
 
           <Grid item xs={6}>
+            <DynamicEndDatePicker
+              label="Effective To"
+              value={form.effective_to_date}
+              minDate={form.effective_from_date}
+              onChange={(val: string) => {
+                setForm({ ...form, effective_to_date: val })
+              }}
+              error={!!errors.effective_to_date}
+              helperText={errors.effective_to_date}
+              required
+            />
+          </Grid>
+
+          {/* <Grid item xs={6}>
             <TextField
               fullWidth
               type="date"
@@ -235,8 +263,8 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
               error={!!errors.effective_to_date}
               helperText={errors.effective_to_date}
               inputProps={{ min: form.effective_from_date }}
-            />
-          </Grid>
+            /> */}
+          {/* </Grid> */}
 
           <Grid item xs={12}>
             <FormControlLabel

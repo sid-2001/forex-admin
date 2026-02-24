@@ -4,6 +4,7 @@ import ProductBusinessCountryMappingService from '@/services/productBusinessCoun
 import { useRecoilValue } from 'recoil'
 import { countyState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 const service = new ProductBusinessCountryMappingService()
 const local_service = new LocalStorageService()
@@ -82,7 +83,7 @@ export default function ProductBusinessCountryMappingDialog({ open, handleClose,
       ...form,
       // Formatting to ISO for Backend
       effectiveFromDate: `${form.effectiveFromDate}T00:00:00.000Z`,
-      effectiveToDate: `${form.effectiveToDate}T23:59:59.000Z`,
+      effectiveToDate: `${form.effectiveToDate}T00:00:00.000Z`,
       modifiedBy: local_service.get_staff_id(),
     }
 
@@ -144,7 +145,7 @@ export default function ProductBusinessCountryMappingDialog({ open, handleClose,
             />
           </Grid>
 
-          <Grid item xs={6}>
+          {/* <Grid item xs={6}>
             <TextField
               type="date"
               label="Effective From"
@@ -156,9 +157,36 @@ export default function ProductBusinessCountryMappingDialog({ open, handleClose,
               value={form.effectiveFromDate}
               onChange={(e) => handleChange('effectiveFromDate', e.target.value)}
             />
+          </Grid> */}
+          <Grid item xs={6}>
+            <DynamicDatePicker
+              label="Effective From"
+              value={form.effectiveFromDate}
+              onChange={(val: string) => {
+                console.log(val, 'kdjhchdvy')
+                setForm({ ...form, effectiveFromDate: val })
+              }}
+              error={!!errors.effectiveFromDate}
+              helperText={errors.effectiveFromDate}
+              required
+            />
           </Grid>
 
           <Grid item xs={6}>
+            <DynamicEndDatePicker
+              label="Effective To"
+              value={form.effectiveToDate}
+              minDate={form.effectiveFromDate}
+              onChange={(val: string) => {
+                setForm({ ...form, effectiveToDate: val })
+              }}
+              error={!!errors.effectiveToDate}
+              helperText={errors.effectiveToDate}
+              required
+            />
+          </Grid>
+
+          {/* <Grid item xs={6}>
             <TextField
               type="date"
               label="Effective To"
@@ -171,7 +199,7 @@ export default function ProductBusinessCountryMappingDialog({ open, handleClose,
               inputProps={{ min: form.effectiveFromDate }}
               onChange={(e) => handleChange('effectiveToDate', e.target.value)}
             />
-          </Grid>
+          </Grid> */}
 
           <Grid item xs={12}>
             <FormControlLabel

@@ -70,53 +70,62 @@ export default function ChannelManagement() {
       return
     }
 
-    const now = dayjs()
-    const auditTime = {
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      offset: now.format('Z'),
-      utcDateTime: now.utc().format('YYYY-MM-DD HH:mm:ss.SSS'),
-      localDateTime: now.format('YYYY-MM-DD HH:mm:ss.SSS'),
-    }
+    // 1. Get Geolocation
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        // 2. Fetch rich audit data using your utility
+        const audit = await getLiveAuditData(pos.coords.latitude, pos.coords.longitude)
+        const staffId = local_service?.get_staff_id()
 
-    const payload = {
-      applicant_id: local_service?.get_staff_id(),
-      channel_code: data.channelCode?.substring(0, 1).toUpperCase(),
-      country_code: data.selectedCountry?.substring(0, 3).toUpperCase(),
-      channel_description: data.description?.substring(0, 25),
-      active: data.active,
-      effective_from_date: `${data.effectiveFrom}T00:00:00.000Z`,
-      effective_to_date: `${data.effectiveTo}T00:00:00.000Z`,
+        if (!audit) {
+          showAlert('Fail', 'Audit data generation failed.')
+          return
+        }
 
-      ...(isUpdate
-        ? {
-            modified_time: auditTime.timeZone,
-            modified_off: auditTime.offset,
-            Modified_UTCDateTime: auditTime.utcDateTime,
-            modified_local_date_time: auditTime.localDateTime,
-            modified_by: local_service?.get_staff_id(),
+        const payload = {
+          applicant_id: staffId,
+          channel_code: data.channelCode?.substring(0, 1).toUpperCase(),
+          country_code: data.selectedCountry?.substring(0, 3).toUpperCase(),
+          channel_description: data.description?.substring(0, 25),
+          active: data.active,
+          effective_from_date: `${data.effectiveFrom}T00:00:00.000Z`,
+          effective_to_date: `${data.effectiveTo}T00:00:00.000Z`,
+
+          ...(isUpdate
+            ? {
+                modified_by: staffId,
+                modified_time: audit.timeZone,
+                modified_off: audit.offset,
+                Modified_UTCDateTime: audit.utcDateTime,
+                modified_local_date_time: audit.localDateTime,
+              }
+            : {
+                created_by: staffId,
+                created_time: audit.timeZone,
+                created_off: audit.offset,
+                Created_UTCDateTime: audit.utcDateTime,
+                created_local_date_time: audit.localDateTime,
+              }),
+        }
+
+        try {
+          const response: any = isUpdate ? await static_service.updateChannel(payload) : await static_service.createChannel(payload)
+
+          if (response?.success || response?.status === 'Success' || response?.status === true) {
+            showAlert('Success', `Channel ${isUpdate ? 'Updated' : 'Created'} Successfully`)
+            setOpen(false)
+            fetchData()
+          } else {
+            showAlert('Fail', response?.error || response?.message || 'Server Error')
           }
-        : {
-            created_time: auditTime.timeZone,
-            created_off: auditTime.offset,
-            Created_UTCDateTime: auditTime.utcDateTime,
-            created_local_date_time: auditTime.localDateTime,
-            created_by: local_service?.get_staff_id(),
-          }),
-    }
-
-    try {
-      const response: any = isUpdate ? await static_service.updateChannel(payload) : await static_service.createChannel(payload)
-
-      if (response?.success === true || response?.status === 'Success' || response?.status === true) {
-        showAlert('Success', `Channel ${isUpdate ? 'Updated' : 'Created'} Successfully`)
-        setOpen(false)
-        fetchData()
-      } else {
-        showAlert('Fail', response?.error || response?.message || 'Server Error')
-      }
-    } catch (err: any) {
-      showAlert('Fail', err.message || 'Network Error')
-    }
+        } catch (err: any) {
+          showAlert('Fail', err.message || 'Network Error')
+        }
+      },
+      (_) => {
+        showAlert('Fail', 'Location access denied. Audit trail is required to save.')
+      },
+    )
   }
 
   const columns: GridColDef[] = [
