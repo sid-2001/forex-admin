@@ -472,7 +472,7 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
     objectFit: 'cover',  // ensures image fills circle properly
   }}
 />
-              </Grid>
+            </Grid>
               <Grid item xs={10}>
                 <Typography variant="h6" gutterBottom color={theme.palette.secondary.main}>
                   <strong> Applicant Details</strong>
@@ -480,6 +480,7 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
                 <Grid container spacing={2}>
                   <Grid item xs={3}>
                     <TextField
+                  
                       label="Applicant ID"
                       variant="filled"
                       fullWidth
@@ -834,6 +835,7 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
         <ConfirmationModal
           showIcon={false}
           //@ts-ignore
+        
           confirmBtnText={prooftype?.verificationStatus === 'va' ? 'Unverify' : 'Verify'}
           isOpen={checkboxOpen}
           //@ts-ignore
