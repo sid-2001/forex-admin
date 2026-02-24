@@ -174,7 +174,8 @@ export default function GenderMaster() {
             setDialogopen(false)
             fetchData()
           } else {
-            showAlert('Fail', response?.error || response?.message || 'Server Error')
+            console.error(response)
+            showAlert('Fail', 'Please select unique gender code')
           }
         } catch (err: any) {
           showAlert('Fail', err.message || 'Network Error')
