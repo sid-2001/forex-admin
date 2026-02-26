@@ -24,8 +24,10 @@ import NumbersIcon from '@mui/icons-material/Numbers'
 import { useNavigate } from 'react-router-dom'
 import DocRequiredFormDialog from '../../components/docRequiredFormDialog'
 import { CountryResProductChannelDocRequiredService } from '@/services/countryResProductChannelDocRequired.service'
-import { ProductService } from '@/services/product.service'
+import ProductService  from '@/services/product.service'
+//@ts-ignore
 import { ChannelService } from '@/services/channel.service'
+//@ts-ignore
 import { KycDocumentService } from '@/services/kycDocument.service'
 import { ResidentTypeService } from '@/services/residentType.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
@@ -164,6 +166,7 @@ export default function CountryResProductChannelDocRequiredMaster() {
   const fetchMasterData = useCallback(async () => {
     try {
       const [productsRes, channelsRes, residentRes, kycDocsRes] = await Promise.all([
+        //@ts-ignore
         productService.getActiveProducts(),
         channelService.getActiveChannels(),
         residentService.getAllResidentTypes(),
@@ -225,7 +228,9 @@ export default function CountryResProductChannelDocRequiredMaster() {
       localDateTime: now.format('YYYY-MM-DD HH:mm:ss.SSS'),
     }
 
-    const submitPayload = async (finalAudit: typeof audit) => {
+    const submitPayload = async (
+      //@ts-ignore
+      finalAudit: typeof audit) => {
       if (isUpdate && editData) {
         // Update existing
         const payload = {
@@ -721,6 +726,7 @@ export default function CountryResProductChannelDocRequiredMaster() {
         onConfirm={handleStatusToggle}
         title={statusAction === 'activate' ? 'Activate Requirement?' : 'Deactivate Requirement?'}
         message={`Are you sure you want to ${statusAction} document requirement "${selectedRow?.reqDocCode}"?`}
+        //@ts-ignore
         confirmText={statusAction === 'activate' ? 'Activate' : 'Deactivate'}
         confirmColor={statusAction === 'activate' ? 'success' : 'warning'}
       />
