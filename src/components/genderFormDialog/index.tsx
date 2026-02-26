@@ -108,7 +108,13 @@ export default function GenderFormDialog({ open, onClose, onSubmit, editData }: 
               inputProps={{ maxLength: 1 }}
               value={form.gendercode}
               disabled={!!editData}
-              onChange={(e) => setForm({ ...form, gendercode: e.target.value.toUpperCase() })}
+              // onChange={(e) => setForm({ ...form, gendercode: e.target.value.toUpperCase() })}
+              onChange={(e) => {
+                const val = e.target.value.toUpperCase()
+                if (val === '' || /^[A-Z]$/.test(val)) {
+                  setForm({ ...form, gendercode: val })
+                }
+              }}
               error={!!errors.gendercode}
               helperText={errors.gendercode}
             />

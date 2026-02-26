@@ -86,7 +86,7 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
       created_by: localService.get_staff_id(),
       modified_by: editData ? localService.get_staff_id() : undefined,
       effectiveFromDate: `${form.effectiveFromDate}T00:00:00.000Z`,
-      effectiveToDate: `${form.effectiveToDate}T23:59:59.000Z`,
+      effectiveToDate: `${form.effectiveToDate}T00:00:00.000Z`,
     })
   }
 
@@ -114,7 +114,6 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
               options={countries?.filter((c: any) => c.status === 'A') || []}
               filterOptions={filter}
               getOptionLabel={(o: any) => `${o.countryName} (${o.countryCode})`}
-              // Find the full country object based on the code stored in state
               value={countries?.find((c: any) => c.countryCode === form.countryCode) || null}
               onChange={(_, val) => setForm({ ...form, countryCode: val ? val.countryCode : '' })}
               renderInput={(p) => <TextField {...p} label="Country" required error={!!errors.countryCode} helperText={errors.countryCode} />}
@@ -150,6 +149,7 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
                 console.log(val, 'kdjhchdvy')
                 setForm({ ...form, effectiveFromDate: val })
               }}
+              minDate={new Date().toISOString().split('T')[0]}
               error={!!errors.effective_from_date}
               helperText={errors.effective_from_date}
               required

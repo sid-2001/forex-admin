@@ -31,6 +31,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import ChannelService from '@/services/channel.servive'
 import ScreenService from '@/services/screen.service'
 import { formatTableDate } from '@/helpers/dateformate'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 const termsService = new TermsConditionsService()
 
@@ -98,6 +99,7 @@ export default function TermsConditionsGridPage() {
     effectiveFromDate: '',
     effectiveToDate: '9999-12-31T00:00:00',
   })
+  const [errors, setErrors] = useState<any>({})
 
   const local_service = new LocalStorageService()
   const userCountry = local_service?.get_staff_country()
@@ -478,7 +480,7 @@ export default function TermsConditionsGridPage() {
 
             {/* Effective Date Fields */}
             <Grid container spacing={2}>
-              <Grid item xs={6}>
+              {/* <Grid item xs={6}>
                 <TextField
                   fullWidth
                   label="Effective From *"
@@ -488,8 +490,39 @@ export default function TermsConditionsGridPage() {
                   InputLabelProps={{ shrink: true }}
                   required
                 />
+              </Grid> */}
+              <Grid item xs={6}>
+                <DynamicDatePicker
+                  label="Effective From"
+                  value={form.effectiveFromDate ? form.effectiveFromDate.split('T')[0] : ''}
+                  onChange={(val: string) => {
+                    console.log(val, 'kdjhchdvy')
+                    setForm({
+                      ...form,
+                      effectiveFromDate: val ? `${val}T00:00:00` : '',
+                    })
+                  }}
+                  error={!!errors.effectiveFromDate}
+                  helperText={errors.effectiveFromDate}
+                  required
+                />
               </Grid>
               <Grid item xs={6}>
+                <DynamicEndDatePicker
+                  label="Effective To"
+                  value={form.effectiveToDate && form.effectiveToDate !== '9999-12-31T00:00:00' ? form.effectiveToDate.split('T')[0] : ''}
+                  minDate={form.effectiveFromDate ? form.effectiveFromDate.split('T')[0] : undefined}
+                  onChange={(val: string) => {
+                    setForm({
+                      ...form,
+                      effectiveToDate: val ? `${val}T00:00:00` : '9999-12-31T00:00:00',
+                    })
+                  }}
+                  required
+                />
+              </Grid>
+
+              {/* <Grid item xs={6}>
                 <TextField
                   fullWidth
                   label="Effective To"
@@ -506,7 +539,7 @@ export default function TermsConditionsGridPage() {
                     min: form.effectiveFromDate ? form.effectiveFromDate.split('T')[0] : undefined,
                   }}
                 />
-              </Grid>
+              </Grid> */}
             </Grid>
 
             {/* Active Switch */}

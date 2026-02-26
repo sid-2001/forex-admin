@@ -92,7 +92,7 @@ export default function ScreenMaster() {
             setDialogopen(false)
             fetchData()
           } else {
-            showAlert('Fail', response?.message || 'Server Error')
+            showAlert('Fail', response?.message || 'Please select unique screen code')
           }
         } catch (error: any) {
           showAlert('Fail', error.message || 'Connection Error')

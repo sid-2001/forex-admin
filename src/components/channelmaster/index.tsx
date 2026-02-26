@@ -116,7 +116,8 @@ export default function ChannelManagement() {
             setOpen(false)
             fetchData()
           } else {
-            showAlert('Fail', response?.error || response?.message || 'Server Error')
+            console.log(response, 'bhanuy')
+            showAlert('Fail', response?.error !== undefined ? response.error : 'channel_code must be unique')
           }
         } catch (err: any) {
           showAlert('Fail', err.message || 'Network Error')

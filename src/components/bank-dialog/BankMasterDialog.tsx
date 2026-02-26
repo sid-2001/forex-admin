@@ -103,8 +103,8 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
       ...form,
       created_by: localService.get_staff_id(),
       modified_by: editData ? localService.get_staff_id() : undefined,
-      effective_from_date: `${form.effective_from_date}T00:00:00.000Z`,
-      effective_to_date: `${form.effective_to_date}T00:00:00.000Z`,
+      effectiveFromDate: `${form.effective_from_date}T00:00:00.000Z`,
+      effectiveToDate: `${form.effective_to_date}T00:00:00.000Z`,
     })
   }
 

@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
 import ErrorMessage from '../errorMessage'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 const filter = createFilterOptions({
   matchFrom: 'any',
@@ -93,7 +94,7 @@ export default function CountryKycDocDialog({ open, onClose, onSubmit, editData,
               error={!!errors.countryKycDocDescription}
             />
           </Grid>
-          <Grid item xs={6}>
+          {/* <Grid item xs={6}>
             <TextField
               fullWidth
               type="date"
@@ -112,6 +113,33 @@ export default function CountryKycDocDialog({ open, onClose, onSubmit, editData,
               InputLabelProps={{ shrink: true }}
               value={form.effectiveToDate}
               onChange={(e) => setForm({ ...form, effectiveToDate: e.target.value })}
+            />
+          </Grid> */}
+          <Grid item xs={6}>
+            <DynamicDatePicker
+              label="Effective From"
+              value={form.effectiveFromDate}
+              onChange={(val: string) => {
+                console.log(val, 'kdjhchdvy')
+                setForm({ ...form, effectiveFromDate: val })
+              }}
+              error={!!errors.effectiveFromDate}
+              helperText={errors.effectiveFromDate}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <DynamicEndDatePicker
+              label="Effective To"
+              value={form.effectiveToDate}
+              minDate={form.effectiveFromDate}
+              onChange={(val: string) => {
+                setForm({ ...form, effectiveToDate: val })
+              }}
+              error={!!errors.effectiveToDate}
+              helperText={errors.effectiveToDate}
+              required
             />
           </Grid>
           <Grid item xs={12}>

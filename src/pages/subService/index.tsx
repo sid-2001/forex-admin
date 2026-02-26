@@ -8,6 +8,8 @@ import SubServiceFormDialog from '../../components/subServiceDialog'
 import SubServiceService from '../../services/sub-service.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import dayjs from 'dayjs'
+import { useRecoilState } from 'recoil'
+import { alertState, alertTextState, alertTypeState } from '@/states/state'
 
 export default function SubServiceManagement() {
   const [open, setOpen] = useState(false)
@@ -17,6 +19,16 @@ export default function SubServiceManagement() {
 
   const subService = useMemo(() => new SubServiceService(), [])
   const local_service = useMemo(() => new LocalStorageService(), [])
+
+  const [alertOpen, setAlertOpen] = useRecoilState(alertState)
+  const [alertText, setAlertText] = useRecoilState(alertTextState)
+  const [alertType, setAlertType] = useRecoilState(alertTypeState)
+
+  const showAlert = (type: 'Success' | 'Fail', text: string) => {
+    setAlertType(type)
+    setAlertText(text)
+    setAlertOpen(true)
+  }
 
   const fetchData = async () => {
     setLoading(true)
@@ -45,9 +57,11 @@ export default function SubServiceManagement() {
       }
       await subService.createSubService(payload)
       setOpen(false)
+      showAlert('Success', '✨ Sub-Service added to successfully')
       fetchData()
     } catch (e) {
       console.error(e)
+      showAlert('Fail', 'Creation failed' + ' ' + e)
     }
   }
 
@@ -57,6 +71,7 @@ export default function SubServiceManagement() {
 
     await subService.updateSubService(id, { ...data, subServiceCode: id, modifiedBy: local_service.get_staff_id() })
     setOpen(false)
+    showAlert('Success', 'Changes saved successfully')
     fetchData()
   }
 
