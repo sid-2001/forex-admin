@@ -7,6 +7,9 @@ import SmsTemplateDialog from '../../components/smsDialog'
 import SmsTemplateService from '../../services/sms.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import dayjs from 'dayjs'
+import { useRecoilState } from 'recoil'
+import { alertState, alertTextState, alertTypeState } from '@/states/state'
+import { Success } from '@/assets/images'
 
 export default function SmsTemplateManagement() {
   const [open, setOpen] = useState(false)
@@ -17,6 +20,16 @@ export default function SmsTemplateManagement() {
 
   const smsService = useMemo(() => new SmsTemplateService(), [])
   const local_service = useMemo(() => new LocalStorageService(), [])
+  const [alertOpen, setAlertOpen] = useRecoilState(alertState)
+  const [alertText, setAlertText] = useRecoilState(alertTextState)
+  const [alertType, setAlertType] = useRecoilState(alertTypeState)
+
+  // Then add the helper function
+  const showAlert = (type: 'Success' | 'Fail', text: string) => {
+    setAlertType(type)
+    setAlertText(text)
+    setAlertOpen(true)
+  }
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -49,10 +62,12 @@ export default function SmsTemplateManagement() {
       const res = await smsService.createTemplate(payload)
       if (res.status == false) {
         setErrMasage(res.message)
+        showAlert('Fail', res.message)
         return
       }
       setOpen(false)
       setEditData(null)
+      showAlert('Success', 'Created Successfully')
       fetchData()
     } catch (e) {
       console.error(e)
@@ -68,11 +83,13 @@ export default function SmsTemplateManagement() {
 
     try {
       await smsService.updateTemplate(id, payload)
+      showAlert('Success', 'Updated Successfully')
       setOpen(false)
       setEditData(null)
       fetchData()
     } catch (err) {
       console.error('Update failed:', err)
+      showAlert('Fail', 'Please see the fields are correct' + ' ' + err)
     }
   }
   const formatTableDate = (dateString: string) => {
@@ -136,21 +153,21 @@ export default function SmsTemplateManagement() {
 
   return (
     <Box sx={{ p: 0 }}>
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{
-          fontWeight: 700,
-          letterSpacing: '-0.02em',
-          display: 'grid',
-          placeItems: 'center',
-          mb: 5,
-          color: '#0061B1',
-        }}
-      >
-        {'sms master'.toUpperCase()}
-      </Typography>
-      <Stack direction="row" justifyContent="flex-end" mb={2}>
+      <Stack direction="row" justifyContent="space-between" mb={2}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            display: 'grid',
+            placeItems: 'center',
+            // mb: 5,
+            color: '#0061B1',
+          }}
+        >
+          {'sms master'.toUpperCase()}
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {

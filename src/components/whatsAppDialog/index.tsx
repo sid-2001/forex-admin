@@ -47,6 +47,7 @@ export default function WhatsappTemplateDialog({ open, onClose, onSubmit, editDa
 
     if (form.fromDate && form.toDate && new Date(form.toDate) < new Date(form.fromDate)) {
       newErrors.toDate = 'End date cannot be earlier than start date'
+      alert(newErrors.toDate)
     }
 
     setErrors(newErrors)

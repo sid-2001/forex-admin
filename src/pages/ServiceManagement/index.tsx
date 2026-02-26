@@ -191,22 +191,22 @@ export default function ServiceManagement() {
 
   return (
     <>
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{
-          fontWeight: 700,
-          // color: 'text.primary',
-          letterSpacing: '-0.02em',
-          display: 'grid',
-          placeItems: 'center',
-          mb: 5,
-          color: '#0061B1',
-        }}
-      >
-        {'Service Master'.toUpperCase()}
-      </Typography>
-      <Stack direction="row" justifyContent="flex-end" mb={2} style={{ marginRight: -75 }}>
+      <Stack direction="row" justifyContent="space-between" mb={2} style={{ marginRight: -75 }}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            // color: 'text.primary',
+            letterSpacing: '-0.02em',
+            display: 'grid',
+            placeItems: 'center',
+            // mb: 5,
+            color: '#0061B1',
+          }}
+        >
+          {'Service Master'.toUpperCase()}
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {

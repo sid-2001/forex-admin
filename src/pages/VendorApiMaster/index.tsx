@@ -294,11 +294,10 @@ export default function VendorApiMaster() {
 
   return (
     <Box p={3} sx={{ width: '100%', '& .header-bg': { fontWeight: 'bold', bgcolor: '#f5f5f5' } }}>
-      <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 3, color: '#0061B1', textAlign: 'center' }}>
-        VENDOR MASTER
-      </Typography>
-
-      <Stack direction="row" justifyContent="right" mb={2}>
+      <Stack direction="row" justifyContent="space-between" mb={2}>
+        <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
+          VENDOR MASTER
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {

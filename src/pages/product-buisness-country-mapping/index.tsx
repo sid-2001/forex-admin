@@ -119,22 +119,21 @@ export default function ProductBusinessCountryMapping() {
 
   return (
     <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { backgroundColor: '#f5f5f5', fontWeight: 'bold' } }}>
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{
-          fontWeight: 700,
-          // color: 'text.primary',
-          letterSpacing: '-0.02em',
-          display: 'grid',
-          placeItems: 'center',
-          mb: 5,
-          color: '#0061B1',
-        }}
-      >
-        {'Product Master'.toUpperCase()}
-      </Typography>
-      <Stack direction="row" justifyContent="flex-end" alignItems="center" mb={2}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            // color: 'text.primary',
+            letterSpacing: '-0.02em',
+            display: 'grid',
+            placeItems: 'center',
+            color: '#0061B1',
+          }}
+        >
+          {'Product Master'.toUpperCase()}
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {
