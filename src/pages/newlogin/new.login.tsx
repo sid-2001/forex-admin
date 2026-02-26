@@ -20,21 +20,18 @@ import { UserService } from '@/services/user.service'
 import staticdataService from '@/services/staticdata.service'
 import LoaderUI from '@/components/loader/loader'
 import { TransactionService } from '@/services/transaction.service'
-import {FieldValidationService} from '@/services/fieldvalidstion.service'
+import { FieldValidationService } from '@/services/fieldvalidstion.service'
 import { CountryLabelData, LoginPageLabel } from '@/types/field.validation.type'
 
 const LoginPage = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [loginType, setLoginType] = useState<'email' | 'phone' | 'username'>(
-    'email',
-  )
+  const [loginType, setLoginType] = useState<'email' | 'phone' | 'username'>('email')
   const [error, setError] = useState('')
   const [text, setText] = useState('')
   const [type, setType] = useState('')
   const [open, setOpen] = useState(false)
-  
 
   const [commonloader, setCommonLoader] = useRecoilState(loaderState)
   const [, setUserAccessCountry] = useRecoilState(userAccessCountry)
@@ -43,18 +40,15 @@ const LoginPage = () => {
   const [, setCountry] = useRecoilState(countyState)
   const [, setUserCurrency] = useRecoilState(userCurrencyState)
   const [, setInactivityTiming] = useRecoilState(inactivityTiming)
-  const[validataion,setValidation]=useState<LoginPageLabel>()
-  
+  const [validataion, setValidation] = useState<LoginPageLabel>()
 
   const auth_service = new AuthService()
   const local_service = new LocalStorageService()
   const user_service = new UserService()
   const static_service = new staticdataService()
   const transaction_service = new TransactionService()
-  const field_validataion_service=new FieldValidationService();
+  const field_validataion_service = new FieldValidationService()
   const navigate = useNavigate()
-
-
 
   const checkType = (value: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -75,20 +69,19 @@ const LoginPage = () => {
 
     if (detectedType === 'invalid') {
       //@ts-ignore
-      setError((validataion?.username_validataion_msg)?(validataion?.username_validataion_msg):"No Message From Backend")
+      setError(validataion?.username_validataion_msg ? validataion?.username_validataion_msg : 'No Message From Backend')
     } else {
       setError('')
       setLoginType(detectedType)
     }
   }
-    const fetchAllModulesList = async () => {
+  const fetchAllModulesList = async () => {
     try {
       const response: any = await user_service.getAllModulesData()
       if (response) {
         let moduleObj: any = {}
         response.forEach((item: any) => {
-          moduleObj[item.moduleName.replace(/\s+/g, '_').toUpperCase()] =
-            item.moduleName
+          moduleObj[item.moduleName.replace(/\s+/g, '_').toUpperCase()] = item.moduleName
         })
         localStorage.setItem('modules', JSON.stringify(moduleObj))
       }
@@ -103,7 +96,7 @@ const LoginPage = () => {
     try {
       setCommonLoader(true)
       setSelectedTab('Price')
-      fetchAllModulesList();
+      fetchAllModulesList()
 
       const response: any = await auth_service.loginStaff({
         usernameOrEmailOrPhone: loginType,
@@ -114,19 +107,15 @@ const LoginPage = () => {
       if (response?.data) {
         const { data } = response
 
-        local_service.set_accesstoken(
-          '"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."',
-        )
+        local_service.set_accesstoken('"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."')
         local_service.set_staff_access(data)
         local_service.set_role(data?.roleDescription)
 
-        const currency = await static_service.getCountryCurrency(
-          data?.staffCountry,
-        )
+        const currency = await static_service.getCountryCurrency(data?.staffCountry)
         setUserCurrency(currency as any)
 
         const countries = await static_service.getCountryList()
-        setCountry(countries?.filter(e=>e.active==true));
+        setCountry(countries)
 
         await transaction_service.getAllValidationsList(data?.staffCountry)
 
@@ -158,36 +147,31 @@ const LoginPage = () => {
       navigate('/dashboard')
       setTimeout(() => window.location.reload(), 100)
     }
-field_validataion_service.getScreenFieldvalidation("LOGIN","IN","W").then(data=>{
-console.log(data)
+    field_validataion_service.getScreenFieldvalidation('LOGIN', 'IN', 'W').then((data) => {
+      console.log(data)
 
-let username_data= data?.data?.countryReportingLabelDTO?.filter(e=>e.countryLabelFieldNameAndValidation?.fieldName=="username")
-let password_data= data?.data?.countryReportingLabelDTO?.filter(e=>e.countryLabelFieldNameAndValidation?.fieldName=="password")
-let validation_data:LoginPageLabel={
-usename:username_data.length>0?(username_data[0].countryLabelFieldNameAndValidation?.label):"username",
-password:password_data.length>0?(password_data[0].countryLabelFieldNameAndValidation?.label):"password",
-username_validataion_msg:username_data.length>0?(username_data[0].countryLabelFieldNameAndValidation.validationMessageMandatory):"Enter Valid Username",
-Password_validataion_msg:password_data.length>0?(password_data[0].countryLabelFieldNameAndValidation.validationMessageMandatory):"Enter Valid Password",
+      let username_data = data?.data?.countryReportingLabelDTO?.filter((e) => e.countryLabelFieldNameAndValidation?.fieldName == 'username')
+      let password_data = data?.data?.countryReportingLabelDTO?.filter((e) => e.countryLabelFieldNameAndValidation?.fieldName == 'password')
+      let validation_data: LoginPageLabel = {
+        usename: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.label : 'username',
+        password: password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation?.label : 'password',
+        username_validataion_msg:
+          username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation.validationMessageMandatory : 'Enter Valid Username',
+        Password_validataion_msg:
+          password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation.validationMessageMandatory : 'Enter Valid Password',
 
+        username_minimum_legth: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.minLength : 1,
 
-username_minimum_legth:username_data.length>0?(username_data[0].countryLabelFieldNameAndValidation?.minLength):1,
-
-username_max_length:username_data.length>0?(username_data[0].countryLabelFieldNameAndValidation?.maxLength):40,
-username_regx:username_data.length>0?(username_data[0].countryLabelFieldNameAndValidation?.validationRegex):"^.*$",
-Password_minimum_legth:password_data.length>0?(password_data[0].countryLabelFieldNameAndValidation?.minLength):1,
-Password_max_length:password_data.length>0?(password_data[0].countryLabelFieldNameAndValidation?.maxLength):40,
-Password_regx:password_data.length>0?(password_data[0].countryLabelFieldNameAndValidation?.validationRegex):"^.*$",
-
-
-}
-setValidation(validation_data)
-console.log(validation_data)
-// setValidation(data?.data);
-
-
-
-})
-  
+        username_max_length: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.maxLength : 40,
+        username_regx: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.validationRegex : '^.*$',
+        Password_minimum_legth: password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation?.minLength : 1,
+        Password_max_length: password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation?.maxLength : 40,
+        Password_regx: password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation?.validationRegex : '^.*$',
+      }
+      setValidation(validation_data)
+      console.log(validation_data)
+      // setValidation(data?.data);
+    })
   }, [])
 
   return (
@@ -228,76 +212,67 @@ console.log(validation_data)
           </Typography>
 
           {/* FORM → ENTER KEY WORKS HERE */}
-  
-         
-
 
           <form
-  onSubmit={(e) => {
-    e.preventDefault()
-    handleLogin()
-        console.log('Form submitted!') // Add this line
-  }}
->
-  <TextField
-  //@ts-ignore
-    placeholder={validataion?.usename || "Username/Email/Phone"}
-    fullWidth
-    margin="normal"
-    value={email}
-    onChange={handleChange}
-    error={!!error} // Show error state when there's an error
-    helperText={error || validataion?.username_validataion_msg} // Show validation message
-    inputProps={{
-      minLength: validataion?.username_minimum_legth,
-      maxLength: validataion?.username_max_length,
-      pattern: validataion?.username_regx
-    }}
-  />
-
-  <TextField
-   //@ts-ignore
-    placeholder={validataion?.password || "Password"}
-    fullWidth
-    margin="normal"
-    type={showPassword ? 'text' : 'password'}
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-    
-//@ts-ignore
-    error={!!password && password.length < (validataion?.Password_minimum_legth || 1)} // Add validation
-    helperText={validataion?.Password_validataion_msg}
-    inputProps={{
-      minLength: validataion?.Password_minimum_legth,
-      maxLength: validataion?.Password_max_length,
-      pattern: validataion?.Password_regx
-    }}
-    InputProps={{
-      endAdornment: (
-        <InputAdornment position="end">
-          <IconButton onClick={() => setShowPassword(!showPassword)}>
-            {showPassword ? <Visibility /> : <VisibilityOff />}
-          </IconButton>
-        </InputAdornment>
-      ),
-    }}
-  />
-
-  <Button
-    type="submit" // This is important - makes the button submit the form
-    fullWidth
-    variant="contained"
-    disabled={!email || !password || !!error}
-    sx={{ mt: 3, py: 1.5, backgroundColor: '#0361B1' }}
-  >
-    Sign In
-  </Button>
-</form>
-
-          <Typography
-            variant="body2"
-            sx={{ mt: 20, color: '#0361B1', fontSize: 16 }}
+            onSubmit={(e) => {
+              e.preventDefault()
+              handleLogin()
+              console.log('Form submitted!') // Add this line
+            }}
           >
+            <TextField
+              //@ts-ignore
+              placeholder={validataion?.usename || 'Username/Email/Phone'}
+              fullWidth
+              margin="normal"
+              value={email}
+              onChange={handleChange}
+              error={!!error} // Show error state when there's an error
+              helperText={error || validataion?.username_validataion_msg} // Show validation message
+              inputProps={{
+                minLength: validataion?.username_minimum_legth,
+                maxLength: validataion?.username_max_length,
+                pattern: validataion?.username_regx,
+              }}
+            />
+
+            <TextField
+              //@ts-ignore
+              placeholder={validataion?.password || 'Password'}
+              fullWidth
+              margin="normal"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              //@ts-ignore
+              error={!!password && password.length < (validataion?.Password_minimum_legth || 1)} // Add validation
+              helperText={validataion?.Password_validataion_msg}
+              inputProps={{
+                minLength: validataion?.Password_minimum_legth,
+                maxLength: validataion?.Password_max_length,
+                pattern: validataion?.Password_regx,
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword(!showPassword)}>{showPassword ? <Visibility /> : <VisibilityOff />}</IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <Button
+              type="submit" // This is important - makes the button submit the form
+              fullWidth
+              variant="contained"
+              disabled={!email || !password || !!error}
+              sx={{ mt: 3, py: 1.5, backgroundColor: '#0361B1' }}
+            >
+              Sign In
+            </Button>
+          </form>
+
+          <Typography variant="body2" sx={{ mt: 20, color: '#0361B1', fontSize: 16 }}>
             www.<strong style={{ fontSize: 22 }}>impropay.global</strong>
           </Typography>
         </Box>
