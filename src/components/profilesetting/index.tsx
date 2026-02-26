@@ -265,7 +265,7 @@ const ProfileMenu = () => {
     }, [staff, selectedCountry])
 
     return (
-      <Stack direction="row" alignItems="center" spacing={0.6} sx={{ mt: '2px' }}>
+      <Stack   id="Menu_Item_Selector"  direction="row" alignItems="center" spacing={0.6} sx={{ mt: '2px' }}>
         {staff.staffCountries?.length > 1 ? (
           <Select
             size="small"
@@ -287,8 +287,8 @@ const ProfileMenu = () => {
             }}
           >
             {staff.staffCountries.map((code: string) => (
-              <MenuItem key={code} value={code}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <MenuItem key={code} value={code} >
+                <Box id={"imp-"+code} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <span>{getFlag(code)}</span>
                   <span>{countryNames[code] || code}</span>
                 </Box>
@@ -325,7 +325,8 @@ const ProfileMenu = () => {
 
   return (
     <>
-      <Box
+      <Box 
+      id="Profile-Menu-Box"
         onClick={handleOpen}
         sx={{
           display: 'flex',
@@ -390,7 +391,7 @@ const ProfileMenu = () => {
 
         <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
 
-        <MenuItem disableRipple sx={{ cursor: 'default', '&:hover': { bgcolor: 'transparent' } }}>
+        <MenuItem  disableRipple sx={{ cursor: 'default', '&:hover': { bgcolor: 'transparent' } }}>
           <CountrySelector />
         </MenuItem>
 
