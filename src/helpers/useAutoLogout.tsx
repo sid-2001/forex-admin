@@ -9,6 +9,7 @@ export const useAutoLogout = (
 
   useEffect(() => {
     const startTimer = () => {
+      console.log(timerRef.current)
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
@@ -20,8 +21,10 @@ export const useAutoLogout = (
         console.log(
           `⏱️ Inactive for ${inactiveFor} ms (limit ${inactivity_time})`
         );
-
-        if (inactiveFor >= inactivity_time) {
+console.log(inactiveFor+"/"+inactiveFor)
+        if (inactiveFor >= inactiveFor) {
+          console.log(inactiveFor)
+          console.log(inactivity_time)
           console.log("🔴 Inactivity limit reached → Auto logout");
           logout();
         }
@@ -29,6 +32,8 @@ export const useAutoLogout = (
     };
 
     const resetTimer = (event?: Event) => {
+
+      console.log("resting",lastActivityRef.current)
       lastActivityRef.current = Date.now();
 
       if (event?.type === "mousemove") {

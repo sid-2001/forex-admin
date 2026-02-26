@@ -12,6 +12,8 @@ import ReferralTransactions from '@/components/referralTransactionTable'
 import DocumentsListComponent from '../document-tab'
 import BeneficiaryTable from '@/components/beneficiary-table'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import { FieldValidationService } from '@/services/fieldvalidstion.service'
+import { CountryLabelData, CountryReportingLabelDTO } from '@/types/field.validation.type'
 
 const ApplicantPage = () => {
   const navigate = useNavigate()
@@ -21,6 +23,8 @@ const ApplicantPage = () => {
   const helper = new HelperService()
   const local_service = new LocalStorageService()
   const kyc_service = new KycService()
+  const validation = new FieldValidationService()
+  
   const [selectedTab, setSelectedTab] = useState(0)
   const [transactions, setTransactions] = useState<any[]>([])
   const [utilizedLimit, setutilizedLimit] = useState(0)
@@ -30,9 +34,60 @@ const ApplicantPage = () => {
   const [applicantImage, setApplicantImage] = useState<string>('')
   const [applicantDocuments, setApplicantDocuments] = useState<any[]>([])
   const [applicantDetails, setApplicantDetails] = useState<any>({})
+  const [kycId, setKycId] = useState<string | null>(null)
+  
+  // Field validation states
+  const [fieldValidations, setFieldValidations] = useState<CountryLabelData>()
+  const [fieldLabels, setFieldLabels] = useState<Record<string, string>>({})
+  const [fieldMessages, setFieldMessages] = useState<Record<string, string>>({})
+
   const parseData = local_service.get_staff_access()
 
-  const [kycId, setKycId] = useState<string | null>(null)
+  // Helper function to get label by field name
+  const getLabel = (fieldName: string): string => {
+    return fieldLabels[fieldName] || fieldName.replace(/_/g, ' ')
+  }
+
+  // Helper function to get validation message by field name
+  const getValidationMessage = (fieldName: string): string => {
+    return fieldMessages[fieldName] || ''
+  }
+
+  // Fetch field validations from API
+  useEffect(() => {
+    const fetchFieldValidations = async () => {
+      try {
+        const response = await validation.getScreenFieldvalidation(
+          "APPLICANT",
+          local_service.get_staff_country(),
+          "W"
+        )
+        
+        if (response?.data) {
+          setFieldValidations(response.data)
+          
+          // Create lookup maps for labels and messages
+          const labelsMap: Record<string, string> = {}
+          const messagesMap: Record<string, string> = {}
+          
+          response.data.countryReportingLabelDTO?.forEach((item: CountryReportingLabelDTO) => {
+            const fieldName = item.countryLabelFieldNameAndValidation?.fieldName?.trim()
+            if (fieldName) {
+              labelsMap[fieldName] = item.countryLabelFieldNameAndValidation?.label
+              messagesMap[fieldName] = item.countryLabelFieldNameAndValidation?.validationMessageMandatory
+            }
+          })
+          
+          setFieldLabels(labelsMap)
+          setFieldMessages(messagesMap)
+        }
+      } catch (error) {
+        console.error("Error fetching field validations:", error)
+      }
+    }
+
+    fetchFieldValidations()
+  }, [])
 
   function LimitPieChart() {
     const utilized = Math.abs(utilizedLimit)
@@ -47,17 +102,17 @@ const ApplicantPage = () => {
                 {
                   id: 0,
                   value: utilized,
-                  label: 'Utilized Limit',
+                  label: getLabel('Utilized_Limit') || 'Utilized Limit',
                   color: '#FF6B6B',
                 },
                 {
                   id: 1,
                   value: available,
-                  label: 'Available Limit',
+                  label: getLabel('Available_Limit') || 'Available Limit',
                   color: '#4ECDC4',
                 },
               ],
-              innerRadius: 35, // donut shape
+              innerRadius: 35,
               outerRadius: 50,
             },
           ]}
@@ -70,7 +125,7 @@ const ApplicantPage = () => {
 
   const MemoizedPieChart = useMemo(() => {
     return <LimitPieChart />
-  }, [utilizedLimit, availableLimit])
+  }, [utilizedLimit, availableLimit, fieldLabels])
 
   useEffect(() => {
     fetchComplianceLimitData()
@@ -93,6 +148,7 @@ const ApplicantPage = () => {
       console.error('Error fetching applicant data:', error)
     }
   }
+  
   const fetchApplicantData = async () => {
     if (!applicantId) {
       console.error('Applicant ID is missing in the URL')
@@ -177,15 +233,16 @@ const ApplicantPage = () => {
       console.error('Error fetching data:', error)
     }
   }, [applicantId])
+  
   const getdocumentlistByApplicantId = useCallback(async () => {
     if (!applicantId) return
     try {
-      const  data  = await applicant_service.getDocumentByApplicantId(applicantId)
+      const data = await applicant_service.getDocumentByApplicantId(applicantId)
       console.log(data)
       if (data.length > 0) {
         const imageRecord = data.find((doc: any) => doc.documentName === 'image')
         setApplicantImage(imageRecord?.docUrl || '')
-        setApplicantDocuments(data) // ✅ store all documents
+        setApplicantDocuments(data)
       }
     } catch (error) {
       console.error('Error fetching documents:', error)
@@ -205,7 +262,7 @@ const ApplicantPage = () => {
   }
 
   const renderNameInitials = () => {
-    return applicantDetails?.firstName.charAt(0) + '' + applicantDetails?.lastName.charAt(0)
+    return applicantDetails?.firstName?.charAt(0) + '' + applicantDetails?.lastName?.charAt(0)
   }
 
   return (
@@ -213,11 +270,11 @@ const ApplicantPage = () => {
       <Box sx={{ width: '80vw' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
-            Applicant Details
+            {getLabel('Applicant') || 'Applicant Details'}
           </Typography>
 
           <Button variant="outlined" startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)}>
-            Back
+            {getLabel('Back') || 'Back'}
           </Button>
         </Box>
 
@@ -233,7 +290,7 @@ const ApplicantPage = () => {
               paddingInline: 1,
             }}
           >
-            Applicant Id - {applicantId}
+            {getLabel('Applicant_ID') || 'Applicant Id'} - {applicantId}
           </Typography>
           {applicantDetails?.kycStatus === 'v' && (
             <Typography
@@ -258,7 +315,7 @@ const ApplicantPage = () => {
                 },
               }}
             >
-              {`KYC ID - ${kycId}`}
+              {`${getLabel('KYC_ID') || 'KYC ID'} - ${kycId}`}
             </Typography>
           )}
         </Box>
@@ -269,15 +326,17 @@ const ApplicantPage = () => {
             <Grid item xs={12} sm={2} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
               <Box width={150} height={150} border="4px solid green" borderRadius="50%" display="flex" alignItems="center" justifyContent="center">
                 <Avatar
-                  src={applicantImage?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')
-  .replace('http://64.227.139.142/', 'https://api.impronics.com/')}
+                  src={applicantImage
+                    ?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')
+                    .replace('http://64.227.139.142/', 'https://api.impronics.com/')
+                  }
                   style={{
                     width: '100%',
                     height: '100%',
                     objectFit: 'cover',
                   }}
                 >
-                  {applicantDetails && applicantDetails?.fistname && renderNameInitials()}
+                  {applicantDetails && applicantDetails?.firstName && renderNameInitials()}
                 </Avatar>
               </Box>
             </Grid>
@@ -285,7 +344,7 @@ const ApplicantPage = () => {
               <Grid container spacing={2} marginBottom={1}>
                 <Grid item xs={12} sm={4}>
                   <TextField
-                    label="Applicant first Name"
+                    label={getLabel('First_Name') || 'Applicant First Name'}
                     variant="filled"
                     value={applicantDetails?.firstName || ''}
                     fullWidth
@@ -295,7 +354,7 @@ const ApplicantPage = () => {
                 {applicantDetails?.middleName && (
                   <Grid item xs={12} sm={4}>
                     <TextField
-                      label="Applicant Middle Name"
+                      label={getLabel('Middle_Name') || 'Applicant Middle Name'}
                       variant="filled"
                       value={applicantDetails?.middleName || ''}
                       fullWidth
@@ -305,7 +364,7 @@ const ApplicantPage = () => {
                 )}
                 <Grid item xs={12} sm={4}>
                   <TextField
-                    label="Applicant Last Name"
+                    label={getLabel('Last_Name') || 'Applicant Last Name'}
                     variant="filled"
                     value={applicantDetails?.lastName || ''}
                     fullWidth
@@ -314,7 +373,7 @@ const ApplicantPage = () => {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="Nationality"
+                    label={getLabel('Nationality') || 'Nationality'}
                     variant="filled"
                     value={applicantDetails?.nationality || ''}
                     fullWidth
@@ -323,7 +382,7 @@ const ApplicantPage = () => {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="Residence Country"
+                    label={getLabel('Country_of_Residence') || 'Residence Country'}
                     variant="filled"
                     value={applicantDetails?.residentialAddressCountry || ''}
                     fullWidth
@@ -332,7 +391,7 @@ const ApplicantPage = () => {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="Phone"
+                    label={getLabel('Phone') || 'Phone'}
                     variant="filled"
                     value={applicantDetails?.phone || ''}
                     fullWidth
@@ -341,7 +400,7 @@ const ApplicantPage = () => {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="Email"
+                    label={getLabel('Email') || 'Email'}
                     variant="filled"
                     value={applicantDetails?.email || ''}
                     fullWidth
@@ -356,17 +415,17 @@ const ApplicantPage = () => {
           </Grid>
         </Box>
 
-        {/* Permanent Address Section */}
+        {/* Postal Address Section */}
         <Box>
           <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}>
-            <strong>Postal Address</strong>
+            <strong>{getLabel('Postal_Address') || 'Postal Address'}</strong>
           </Typography>
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={12} sm={6}>
               <TextField
                 variant="filled"
                 fullWidth
-                label="Address Line 1"
+                label={getLabel('Address_Line_1') || 'Address Line 1'}
                 value={applicantDetails?.postalAddressLine1 || ''}
                 InputProps={{ readOnly: true, sx: { color: 'grey' } }}
               />
@@ -375,7 +434,7 @@ const ApplicantPage = () => {
               <TextField
                 variant="filled"
                 fullWidth
-                label="Address Line 2"
+                label={getLabel('Address_Line_2') || 'Address Line 2'}
                 value={applicantDetails?.postalAddressLine2 || ''}
                 InputProps={{ readOnly: true, sx: { color: 'grey' } }}
               />
@@ -388,7 +447,7 @@ const ApplicantPage = () => {
                 <TextField
                   variant="filled"
                   fullWidth
-                  label="Suburb"
+                  label={getLabel('Suburb') || 'Suburb'}
                   value={applicantDetails?.postalAddressSuburb || ''}
                   InputProps={{ readOnly: true, sx: { color: 'grey' } }}
                 />
@@ -399,7 +458,7 @@ const ApplicantPage = () => {
               <TextField
                 variant="filled"
                 fullWidth
-                label="city"
+                label={getLabel('City') || 'City'}
                 value={applicantDetails?.postalAddressCity || ''}
                 InputProps={{ readOnly: true, sx: { color: 'grey' } }}
               />
@@ -409,7 +468,7 @@ const ApplicantPage = () => {
               <TextField
                 variant="filled"
                 fullWidth
-                label="State"
+                label={getLabel('State') || 'State'}
                 value={applicantDetails?.postalAddressStateProvince || ''}
                 InputProps={{ readOnly: true, sx: { color: 'grey' } }}
               />
@@ -419,7 +478,7 @@ const ApplicantPage = () => {
               <TextField
                 variant="filled"
                 fullWidth
-                label="Postal Code"
+                label={getLabel('Postal_Code') || 'Postal Code'}
                 value={applicantDetails?.postalAddressPostalCode || ''}
                 InputProps={{ readOnly: true, sx: { color: 'grey' } }}
               />
@@ -428,16 +487,16 @@ const ApplicantPage = () => {
               <TextField
                 variant="filled"
                 fullWidth
-                label="Country"
+                label={getLabel('Country') || 'Country'}
                 value={applicantDetails?.postalAddressCountry || ''}
                 InputProps={{ readOnly: true, sx: { color: 'grey' } }}
               />
             </Grid>
           </Grid>
 
-          {/* Physical Address Section */}
+          {/* Residential Address Section */}
           <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}>
-            <strong>Residential Address</strong>
+            <strong>{getLabel('Residential_Address') || 'Residential Address'}</strong>
           </Typography>
 
           <Grid container spacing={2} marginBottom={2}>
@@ -445,7 +504,7 @@ const ApplicantPage = () => {
               <TextField
                 variant="filled"
                 fullWidth
-                label="Address Line 1"
+                label={getLabel('Address_Line_1') || 'Address Line 1'}
                 value={applicantDetails?.residentialAddressLine1 || ''}
                 InputProps={{ readOnly: true, sx: { color: 'grey' } }}
               />
@@ -454,7 +513,7 @@ const ApplicantPage = () => {
               <TextField
                 variant="filled"
                 fullWidth
-                label="Address Line 2"
+                label={getLabel('Address_Line_2') || 'Address Line 2'}
                 value={applicantDetails?.residentialAddressLine2 || ''}
                 InputProps={{ readOnly: true, sx: { color: 'grey' } }}
               />
@@ -467,7 +526,7 @@ const ApplicantPage = () => {
                 <TextField
                   variant="filled"
                   fullWidth
-                  label="Suburb"
+                  label={getLabel('Suburb') || 'Suburb'}
                   value={applicantDetails?.residentialAddressSuburb || ''}
                   InputProps={{ readOnly: true, sx: { color: 'grey' } }}
                 />
@@ -478,7 +537,7 @@ const ApplicantPage = () => {
               <TextField
                 variant="filled"
                 fullWidth
-                label="City"
+                label={getLabel('City') || 'City'}
                 value={applicantDetails?.residentialAddressCity || ''}
                 InputProps={{ readOnly: true, sx: { color: 'grey' } }}
               />
@@ -487,7 +546,7 @@ const ApplicantPage = () => {
               <TextField
                 variant="filled"
                 fullWidth
-                label="State"
+                label={getLabel('State') || 'State'}
                 value={applicantDetails?.residentialAddressStateProvince || ''}
                 InputProps={{ readOnly: true, sx: { color: 'grey' } }}
               />
@@ -496,7 +555,7 @@ const ApplicantPage = () => {
               <TextField
                 variant="filled"
                 fullWidth
-                label="Zip Code"
+                label={getLabel('Postal_Code') || 'Zip Code'}
                 value={applicantDetails?.residentialAddressPostalCode || ''}
                 InputProps={{ readOnly: true, sx: { color: 'grey' } }}
               />
@@ -505,7 +564,7 @@ const ApplicantPage = () => {
               <TextField
                 variant="filled"
                 fullWidth
-                label="Country"
+                label={getLabel('Country') || 'Country'}
                 value={applicantDetails?.residentialAddressCountry || ''}
                 InputProps={{ readOnly: true, sx: { color: 'grey' } }}
               />
@@ -516,13 +575,14 @@ const ApplicantPage = () => {
         <Box marginBottom={8}>
           {/* Tab Component */}
           <Tabs sx={{ marginBottom: '10px' }} value={selectedTab} onChange={handleTabChange} aria-label="Customer data tabs">
-            <Tab label="Documents" sx={{ marginRight: '2px' }} />
-            <Tab label="Beneficiaries" sx={{ marginRight: '2px' }} />
-            <Tab label="Transactions" sx={{ marginRight: '2px' }} />
-            <Tab label="Referral Redeemed Transactions" sx={{ marginRight: '2px' }} />
-            <Tab label="Referral Credited Transactions" sx={{ marginRight: '2px' }} />
+            <Tab label={getLabel('Documents') || 'Documents'} sx={{ marginRight: '2px' }} />
+            <Tab label={getLabel('Beneficiaries') || 'Beneficiaries'} sx={{ marginRight: '2px' }} />
+            <Tab label={getLabel('Transactions') || 'Transactions'} sx={{ marginRight: '2px' }} />
+            <Tab label={getLabel('Referral_Redeemed') || 'Referral Redeemed Transactions'} sx={{ marginRight: '2px' }} />
+            <Tab label={getLabel('Referral_Credited') || 'Referral Credited Transactions'} sx={{ marginRight: '2px' }} />
           </Tabs>
-          {/* ✅ Uploaded Documents Section */}
+          
+          {/* Content Sections */}
           {selectedTab === 0 && <DocumentsListComponent documentRecords={applicantDocuments || []} />}
           {selectedTab === 1 && <BeneficiaryTable beneficiary={applicantDetails?.beneficiaryList || []} />}
           {selectedTab === 2 && (
@@ -533,11 +593,9 @@ const ApplicantPage = () => {
               transaction={transactions}
             />
           )}
-
           {selectedTab === 3 && <ReferralTransactions referralRecords={referralRedeemTransaction || []} referralType={'Redeemed'} />}
           {selectedTab === 4 && <ReferralTransactions referralRecords={referralCreditedTransaction || []} referralType={'Credited'} />}
         </Box>
-        <Box></Box>
       </Box>
     </HasPermission>
   )
