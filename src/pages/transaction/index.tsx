@@ -988,9 +988,9 @@ console.log(transactionDetails)
       <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'} sx={{ width: '80vw' }}>
         <Box>
           <ToggleButtonGroup value={transactionType} color="primary" exclusive onChange={handleToggleTransactionType} sx={{ mb: 2 }}>
-            <ToggleButton value="inwards">Inwards</ToggleButton>
+            <ToggleButton id='imp-inward-button'  value="inwards">Inwards</ToggleButton>
 
-            <ToggleButton value="outwards">Outwards</ToggleButton>
+            <ToggleButton  id="imp-outward-button" value="outwards">Outwards</ToggleButton>
           </ToggleButtonGroup>
         </Box>
 

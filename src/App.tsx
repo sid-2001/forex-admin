@@ -268,9 +268,7 @@ function App() {
                             
                               <Route path="country-kyc-doc-master" element={<CountryKycDocumentMaster />} />
 
-   
-
-  <Route path="kyc-doc-mapping" element={<CountryResProductChannelDocRequiredMaster />} />
+                                      <Route path="kyc-doc-mapping" element={<CountryResProductChannelDocRequiredMaster />} />
 
               <Route path="*" element={<Dashboard />} />
             </Route>
