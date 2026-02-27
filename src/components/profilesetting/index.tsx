@@ -14,6 +14,23 @@ const avatarColors = [
   '#F1948A', '#82E0AA', '#F5B041', '#5DADE2', '#E8DAEF'
 ]
 
+const avatarStyles = [
+  // 'lorelei',     // animals / creatures 🐻🦊
+  'micah',       // clean professional 👔
+  // 'avataaars',   // human formal 👩‍💼
+  // 'bottts',      // robot creatures 🤖
+]
+
+const getAvatarUrl = (seed: string) => {
+  let hash = 0
+  for (let i = 0; i < seed.length; i++) {
+    hash = seed.charCodeAt(i) + ((hash << 5) - hash)
+  }
+
+  const style = avatarStyles[Math.abs(hash) % avatarStyles.length]
+  return `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}`
+}
+
 // Function to generate consistent color based on staff ID or name
 const getAvatarColor = (staffId: string) => {
   if (!staffId) return avatarColors[0]
@@ -254,26 +271,23 @@ const ProfileMenu = () => {
           '&:hover': { backgroundColor: 'rgba(255,255,255,0.08)' },
         }}
       >
+    
+
+
+
         <Avatar
-          sx={{
-            bgcolor: avatarColor,
-            width: 42,
-            height: 42,
-            fontWeight: 600,
-          }}
-          src={!avatarError && avatarSeed ? getRandomAvatarUrl(avatarSeed) : undefined}
-          imgProps={{
-            onError: () => setAvatarError(true)
-          }}
-        >
-          {/* Fallback to initials if avatar fails to load */}
-          {avatarError && (
-            <>
-              {staff?.staffFirstName?.[0]?.toUpperCase()}
-              {staff?.staffLastName?.[0]?.toUpperCase()}
-            </>
-          )}
-        </Avatar>
+  src={getAvatarUrl(
+    `${staff.staffId}-${staff.staffFirstName}-${staff.staffLastName}`
+  )}
+  sx={{
+    width: 42,
+    height: 42,
+    bgcolor: avatarColor,
+  }}
+>
+  {staff.staffFirstName?.[0]}
+  {staff.staffLastName?.[0]}
+</Avatar>
 
         <Box sx={{ display: { xs: 'none', sm: 'flex' }, flexDirection: 'column' }}>
           <Typography sx={{ color: 'white', fontWeight: 600, fontSize: '14px' }}>
@@ -301,19 +315,20 @@ const ProfileMenu = () => {
         }}
       >
         <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Avatar
-            sx={{
-              bgcolor: avatarColor,
-              width: 48,
-              height: 48,
-              fontWeight: 600,
-              fontSize: '1.2rem',
-            }}
-            src={!avatarError && avatarSeed ? getRandomAvatarUrl(avatarSeed) : undefined}
-            imgProps={{
-              onError: () => setAvatarError(true)
-            }}
-          >
+         <>
+
+           <Avatar
+           //@ts-ignore
+   
+  src={getAvatarUrl(
+    `${staff.staffId}-${staff.staffFirstName}-${staff.staffLastName}`
+  )}
+  sx={{
+    width: 42,
+    height: 42,
+    bgcolor: avatarColor,
+  }}
+>
             {/* Fallback to initials if avatar fails to load */}
             {avatarError && (
               <>
@@ -322,6 +337,8 @@ const ProfileMenu = () => {
               </>
             )}
           </Avatar>
+         </>
+       
           <Box>
             <Typography fontWeight={600}>
               {staff?.staffFirstName} {staff?.staffLastName}
