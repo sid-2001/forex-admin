@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import ScreenFormDialog from '../../components/screenFormDialog'
 import ScreenService, { Screen } from '@/services/screen.service'
@@ -216,6 +216,9 @@ export default function ScreenMaster() {
         getRowId={(row: any) => `${row.ScreenCode}-${row.CountryCode}`}
         autoHeight
         density="standard"
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
+        disableColumnMenu
         disableRowSelectionOnClick
         initialState={{
           pagination: {

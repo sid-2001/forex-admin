@@ -11,6 +11,7 @@ import ConfirmModal from '@/components/ConfirmModal'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
+import { GridToolbar } from '@mui/x-data-grid'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -268,6 +269,9 @@ export default function GenderMaster() {
         autoHeight
         disableRowSelectionOnClick
         pageSizeOptions={[5]}
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: false } }}
+        disableColumnMenu
         sx={{
           '& .super-app-theme--header': {
             fontWeight: 'bold',

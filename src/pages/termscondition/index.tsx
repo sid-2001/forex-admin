@@ -20,7 +20,7 @@ import {
   FormControl,
   Grid,
 } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import TermsConditionsService, { TermsConditions } from '../../services/termsandcondition.service'
@@ -378,6 +378,9 @@ export default function TermsConditionsGridPage() {
           rows={rows}
           columns={columns}
           loading={loading}
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
           getRowId={(r) => r.termsCode!}
           initialState={{
             pagination: {

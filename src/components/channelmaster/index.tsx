@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import ChannelFormDialog from '../channellist'
 import ChannelService from '@/services/channel.servive'
@@ -209,6 +209,9 @@ export default function ChannelManagement() {
           columns={columns}
           loading={loading}
           getRowId={(row) => `${row.channel_code}-${row.country_code}`}
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
           disableRowSelectionOnClick
           pageSizeOptions={[5, 10, 20]}
           initialState={{

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 
@@ -168,6 +168,9 @@ export default function BopCategoryTypeMaster() {
         columns={columns}
         getRowId={(row) => row.bopCategoryTypeCode}
         autoHeight
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
+        disableColumnMenu
         // pageSizeOptions={[5, 10]}
         initialState={{
           pagination: {

@@ -1,5 +1,5 @@
 import { Button, Stack, IconButton, Box, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useEffect, useState, useCallback, useMemo } from 'react'
@@ -184,6 +184,9 @@ export default function ProductManagement() {
         columns={columns}
         loading={loading}
         getRowId={(row) => row.countryProductCode || Math.random()}
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
+        disableColumnMenu
         autoHeight
         initialState={{
           pagination: { paginationModel: { page: 0, pageSize: 5 } },
