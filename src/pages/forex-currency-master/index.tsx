@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 
@@ -146,6 +146,9 @@ export default function ForexCurrencyMaster() {
         getRowId={(row) => row.countryCode}
         columns={columns}
         autoHeight
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
+        disableColumnMenu
         pageSizeOptions={[5]}
         initialState={{
           pagination: { paginationModel: { page: 0, pageSize: 5 } },

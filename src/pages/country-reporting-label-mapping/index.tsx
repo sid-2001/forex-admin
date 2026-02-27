@@ -26,7 +26,7 @@ import {
   CircularProgress,
   Paper,
 } from '@mui/material'
-import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid'
 import {
   Delete as DeleteIcon,
   Edit as EditIcon,
@@ -589,6 +589,9 @@ export default function CountryReportingMappingsGridPage() {
           columns={columns}
           loading={loading}
           getRowId={(row) => row.id || `${row.countryLabelCode}-${row.fieldLabelCode}`}
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
           initialState={{
             pagination: {
               paginationModel: { pageSize: 10 },

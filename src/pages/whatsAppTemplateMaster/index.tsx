@@ -1,5 +1,5 @@
 import { Button, Stack, IconButton, Box, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import WhatsappTemplateDialog from '../../components/whatsAppDialog'
@@ -176,6 +176,9 @@ export default function WhatsappTemplateManagement() {
         getRowId={(row) => row.whatsappTemplateCode}
         autoHeight
         disableRowSelectionOnClick
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
+        disableColumnMenu
         initialState={{
           pagination: {
             paginationModel: {

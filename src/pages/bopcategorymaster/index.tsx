@@ -183,7 +183,7 @@
 // }
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Box, Button, IconButton, Stack, Typography, TextField, InputAdornment } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import SearchIcon from '@mui/icons-material/Search'
 import BopCategoryFormDialog from '../../components/bopcategorydialog'
@@ -320,6 +320,9 @@ export default function BopCategoryMaster() {
         loading={loading}
         getRowId={(row) => row.bopPurposeCategoryCode}
         autoHeight
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
+        disableColumnMenu
         // initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
         // pageSizeOptions={[5, 10, 20]}
         initialState={{

@@ -1,5 +1,5 @@
 import { Button, Stack, IconButton, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useEffect, useState, useMemo } from 'react'
@@ -226,6 +226,9 @@ export default function ServiceManagement() {
           getRowId={(row) => row.serviceCodeGenerated}
           pageSizeOptions={[10, 20, 50]}
           disableRowSelectionOnClick
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
           initialState={{
             pagination: {
               paginationModel: {

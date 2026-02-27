@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import BankMasterDialog from '../../components/bank-dialog/BankMasterDialog'
@@ -170,6 +170,9 @@ export default function BankMasterScreen() {
         getRowId={(row) => row.bankMasterCode || Math.random()}
         autoHeight
         disableRowSelectionOnClick
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
+        disableColumnMenu
         initialState={{
           pagination: {
             paginationModel: {
