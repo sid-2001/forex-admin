@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Box, Button, IconButton, Stack, Chip, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import ProductBusinessCountryMappingDialog from '../../components/product-buisness-country-mapping-dialog'
 import ProductBusinessCountryMappingService from '@/services/productBusinessCountryMapping.service'
@@ -151,6 +151,9 @@ export default function ProductBusinessCountryMapping() {
         getRowId={(row) => row.businessMapCode || Math.random()}
         autoHeight
         disableRowSelectionOnClick
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
+        disableColumnMenu
         density="standard"
         initialState={{
           pagination: {
