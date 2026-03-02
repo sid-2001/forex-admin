@@ -806,6 +806,7 @@ const DashboardLayout = () => {
             <Box sx={{ display: 'flex', alignItems: 'left', gap: 2 }}>
               <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
                 <IconButton
+              id="imp-change-appearence"
                   onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
                   color="inherit"
                   sx={{
