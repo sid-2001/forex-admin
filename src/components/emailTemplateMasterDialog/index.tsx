@@ -109,7 +109,7 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
           {/* Searchable Country Autocomplete */}
           <Grid item xs={12} sm={6}>
             <Autocomplete
-              options={countries || []}
+              options={countries?.filter((c) => c.status === 'A') || []}
               filterOptions={filter}
               getOptionLabel={(option) => `${option.countryName} (${option.countryCode})`}
               value={countries?.find((c) => c.countryCode === form.countryCode) || null}

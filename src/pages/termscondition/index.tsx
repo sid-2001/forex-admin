@@ -19,6 +19,7 @@ import {
   InputLabel,
   FormControl,
   Grid,
+  IconButton,
 } from '@mui/material'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import ReactQuill from 'react-quill'
@@ -32,6 +33,7 @@ import ChannelService from '@/services/channel.servive'
 import ScreenService from '@/services/screen.service'
 import { formatTableDate } from '@/helpers/dateformate'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
+import EditIcon from '@mui/icons-material/Edit'
 
 const termsService = new TermsConditionsService()
 
@@ -166,6 +168,7 @@ export default function TermsConditionsGridPage() {
       const screen_service = new ScreenService()
       screen_service.getScreenList().then((e) => {
         setScreens(e)
+        console.log(e, 'bhanu')
       })
       setLoading(true)
     } catch {
@@ -331,16 +334,27 @@ export default function TermsConditionsGridPage() {
       renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
     },
     {
-      field: 'action',
-      headerName: 'Action',
-      flex: 1,
+      field: 'actions',
+      headerName: 'Actions',
+      width: 80,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
-        <Button size="small" onClick={() => handleView(params.row)}>
-          View / Edit
-        </Button>
+        <IconButton color="primary" onClick={() => handleView(params.row)}>
+          <EditIcon />
+        </IconButton>
       ),
     },
+    // {
+    //   field: 'action',
+    //   headerName: 'Action',
+    //   flex: 1,
+    //   headerClassName: 'super-app-theme--header',
+    //   renderCell: (params) => (
+    //     <Button size="small" onClick={() => handleView(params.row)}>
+    //       View / Edit
+    //     </Button>
+    //   ),
+    // },
   ]
 
   return (
@@ -471,11 +485,11 @@ export default function TermsConditionsGridPage() {
                   ?.filter(
                     (item: any) =>
                       //@ts-ignore
-                      item.active === true,
+                      item.Active === true,
                   )
                   .map((screen: any) => (
-                    <MenuItem key={screen.screencode} value={screen.screencode}>
-                      <Typography>{screen.screencode}</Typography>
+                    <MenuItem key={screen.ScreenCode} value={screen.ScreenCode}>
+                      <Typography>{screen.ScreenCode}</Typography>
                     </MenuItem>
                   ))}
               </Select>
