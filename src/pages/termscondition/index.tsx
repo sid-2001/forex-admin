@@ -32,6 +32,7 @@ import ChannelService from '@/services/channel.servive'
 import ScreenService from '@/services/screen.service'
 import { formatTableDate } from '@/helpers/dateformate'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
+import { Edit3Icon, EditIcon } from 'lucide-react'
 
 const termsService = new TermsConditionsService()
 
@@ -165,6 +166,7 @@ export default function TermsConditionsGridPage() {
     try {
       const screen_service = new ScreenService()
       screen_service.getScreenList().then((e) => {
+        console.log(e)
         setScreens(e)
       })
       setLoading(true)
@@ -336,8 +338,10 @@ export default function TermsConditionsGridPage() {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
+   
         <Button size="small" onClick={() => handleView(params.row)}>
-          View / Edit
+          <Edit3Icon></Edit3Icon>
+        
         </Button>
       ),
     },
@@ -471,11 +475,11 @@ export default function TermsConditionsGridPage() {
                   ?.filter(
                     (item: any) =>
                       //@ts-ignore
-                      item.active === true,
+                      item.Active === true,
                   )
                   .map((screen: any) => (
-                    <MenuItem key={screen.screencode} value={screen.screencode}>
-                      <Typography>{screen.screencode}</Typography>
+                    <MenuItem key={screen.ScreenCode} value={screen.ScreenCode}>
+                      <Typography>{screen.ScreenCode}-{screen?.ScreenDescription}</Typography>
                     </MenuItem>
                   ))}
               </Select>

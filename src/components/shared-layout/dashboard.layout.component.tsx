@@ -972,6 +972,7 @@ const DashboardLayout = () => {
 
               <ListItem
                 button
+                id="imp-logout-menu-parent"
                 key="logout"
                 sx={{
                   textAlign: 'center',
@@ -998,6 +999,7 @@ const DashboardLayout = () => {
               <ListItem
                 button
                 key="logout"
+                id="imp-logout"
                 sx={{
                   textAlign: 'center',
                   alignItems: 'center',
@@ -1019,6 +1021,7 @@ const DashboardLayout = () => {
                   </Item> */}
                   {isDrawerOpen && (
                     <Item
+                    id="imp-logout-menu"
                       style={{
                         color: 'white',
                         padding: '1%',
