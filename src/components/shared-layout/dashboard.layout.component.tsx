@@ -929,7 +929,7 @@ const DashboardLayout = () => {
                   selected={selectedApp === item.label}
                   key={index}
                   // id={}
-                  id={ "imp-"+item.label}
+                  id={'imp-' + item.label}
                   sx={{
                     justifyContent: isDrawerOpen ? 'flex-start' : 'center',
                     textAlign: 'center',
@@ -1041,6 +1041,7 @@ const DashboardLayout = () => {
               }}
             >
               <ListItem
+                id="imp-logout-parent"
                 button
                 key="logout"
                 sx={{
