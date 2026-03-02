@@ -972,7 +972,7 @@ const DashboardLayout = () => {
 
               <ListItem
                 button
-                id="imp-logout-menu-parent"
+                id="imp-master-data"
                 key="logout"
                 sx={{
                   textAlign: 'center',
