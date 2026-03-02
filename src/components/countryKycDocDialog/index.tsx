@@ -77,7 +77,7 @@ export default function CountryKycDocDialog({ open, onClose, onSubmit, editData,
         <Grid container spacing={2} sx={{ mt: 0.5 }}>
           <Grid item xs={12}>
             <Autocomplete
-              options={countries || []}
+              options={countries?.filter((c: any) => c.status === 'A') || []}
               filterOptions={filter}
               getOptionLabel={(o) => `${o.countryName} (${o.countryCode})`}
               value={countries?.find((c) => c.countryCode === form.countryCode) || null}

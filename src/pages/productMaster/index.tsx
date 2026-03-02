@@ -65,8 +65,9 @@ export default function ProductManagement() {
           ...data,
           createdBy: local_service.get_staff_id(),
         })
-
-    if (res) {
+    if (res.status == false) {
+      showAlert('Fail', `${res.message}`)
+    } else if (res) {
       showAlert('Success', `Product ${isUpdate ? 'Updated' : 'Created'} Successfully`)
       setOpen(false)
       fetchData()

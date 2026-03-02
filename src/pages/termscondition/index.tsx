@@ -19,6 +19,7 @@ import {
   InputLabel,
   FormControl,
   Grid,
+  IconButton,
 } from '@mui/material'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import ReactQuill from 'react-quill'
@@ -32,7 +33,8 @@ import ChannelService from '@/services/channel.servive'
 import ScreenService from '@/services/screen.service'
 import { formatTableDate } from '@/helpers/dateformate'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
-import { Edit3Icon, EditIcon } from 'lucide-react'
+import EditIcon from '@mui/icons-material/Edit'
+import { Edit3Icon } from 'lucide-react'
 
 const termsService = new TermsConditionsService()
 
@@ -168,6 +170,7 @@ export default function TermsConditionsGridPage() {
       screen_service.getScreenList().then((e) => {
         console.log(e)
         setScreens(e)
+        console.log(e, 'bhanu')
       })
       setLoading(true)
     } catch {
@@ -333,18 +336,29 @@ export default function TermsConditionsGridPage() {
       renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
     },
     {
-      field: 'action',
-      headerName: 'Action',
-      flex: 1,
+      field: 'actions',
+      headerName: 'Actions',
+      width: 80,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
    
-        <Button size="small" onClick={() => handleView(params.row)}>
-          <Edit3Icon></Edit3Icon>
-        
-        </Button>
+        <IconButton color="primary" onClick={() => handleView(params.row)}>
+          <EditIcon />
+        </IconButton>
       ),
     },
+    // {
+    //   field: 'action',
+    //   headerName: 'Action',
+    //   flex: 1,
+    //   headerClassName: 'super-app-theme--header',
+    //   renderCell: (params) => (
+    //     <Button size="small" onClick={() => handleView(params.row)}>
+    //       <Edit3Icon></Edit3Icon>
+        
+    //     </Button>
+    //   ),
+    // },
   ]
 
   return (
@@ -476,10 +490,12 @@ export default function TermsConditionsGridPage() {
                     (item: any) =>
                       //@ts-ignore
                       item.Active === true,
+                      //@ts-ignore
+                      item.Active === true,
                   )
                   .map((screen: any) => (
                     <MenuItem key={screen.ScreenCode} value={screen.ScreenCode}>
-                      <Typography>{screen.ScreenCode}-{screen?.ScreenDescription}</Typography>
+                      <Typography>{screen.ScreenCode}</Typography>
                     </MenuItem>
                   ))}
               </Select>

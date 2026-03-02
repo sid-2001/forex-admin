@@ -72,7 +72,7 @@ export default function WhatsappTemplateDialog({ open, onClose, onSubmit, editDa
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12}>
             <Autocomplete
-              options={countries || []}
+              options={countries?.filter((c) => c.status === 'A') || []}
               getOptionLabel={(o) => `${o.countryName} (${o.countryCode})`}
               value={countries?.find((c) => c.countryCode === form.countryCode) || null}
               disabled={!!editData}
