@@ -17,7 +17,7 @@ import { countyState } from '@/states/state'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 import VendorApiService from '../../services/vendor.api.service'
 import ForexCurrencyService from '@/services/forex-currency.service'
-
+import StateService from '@/services/state.service'
 const filter = createFilterOptions({
   matchFrom: 'any',
   stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
@@ -27,7 +27,7 @@ export default function VendorApiFormDialog({ open, onClose, editData, refreshLi
   const [countries] = useRecoilState(countyState)
   const service = new VendorApiService()
   const forexService = new ForexCurrencyService()
-
+  const stateService = new StateService()
   const [currencies, setCurrencies] = useState<any[]>([])
   const [form, setForm] = useState({
     vendorCode: '',
@@ -47,6 +47,29 @@ export default function VendorApiFormDialog({ open, onClose, editData, refreshLi
   })
 
   const [errors, setErrors] = useState<any>({})
+  const [statesList, setStatesList] = useState<any[]>([]) // Add this
+  const [loadingStates, setLoadingStates] = useState(false)
+
+  const fetchStates = async () => {
+    setLoadingStates(true)
+    try {
+      // Replace with your actual service call
+      const res = await stateService.getStateList()
+      const data = res?.data || res
+      setStatesList(Array.isArray(data) ? data : [])
+    } catch (err) {
+      console.error('Error fetching states', err)
+    } finally {
+      setLoadingStates(false)
+    }
+  }
+
+  useEffect(() => {
+    if (open) {
+      fetchCurrencies()
+      fetchStates()
+    }
+  }, [open])
 
   const fetchCurrencies = async () => {
     try {
@@ -112,7 +135,7 @@ export default function VendorApiFormDialog({ open, onClose, editData, refreshLi
     const newErrors: any = {}
     if (!form.selectedCountry) newErrors.selectedCountry = 'Required'
     if (!form.currencyCode) newErrors.currencyCode = 'Required'
-    if (!form.vendorCode.trim()) newErrors.vendorCode = 'Required'
+    // if (!form.vendorCode.trim()) newErrors.vendorCode = 'Required'
     if (!form.vendorName.trim()) newErrors.vendorName = 'Required'
     if (!form.vendorEmail.trim()) newErrors.vendorEmail = 'Required'
     if (!form.vendorMobile.trim()) newErrors.vendorMobile = 'Required'
@@ -200,7 +223,7 @@ export default function VendorApiFormDialog({ open, onClose, editData, refreshLi
             />
           </Grid>
 
-          <Grid item xs={12} sm={4}>
+          {/* <Grid item xs={12} sm={4}>
             <TextField
               fullWidth
               label="Vendor Code"
@@ -211,8 +234,8 @@ export default function VendorApiFormDialog({ open, onClose, editData, refreshLi
               helperText={errors.vendorCode}
               required
             />
-          </Grid>
-          <Grid item xs={12} sm={8}>
+          </Grid> */}
+          <Grid item xs={12} sm={12}>
             <TextField
               fullWidth
               label="Vendor Name"
@@ -267,8 +290,21 @@ export default function VendorApiFormDialog({ open, onClose, editData, refreshLi
             />
           </Grid>
 
-          <Grid item xs={12} sm={4}>
+          {/* <Grid item xs={12} sm={4}>
             <TextField fullWidth label="State" value={form.vendorState} onChange={(e) => setForm({ ...form, vendorState: e.target.value })} />
+          </Grid> */}
+          <Grid item xs={12} sm={4}>
+            <Autocomplete
+              options={statesList}
+              loading={loadingStates}
+              value={statesList.find((s) => s.StateCode === form.vendorState) || null}
+              getOptionLabel={(option) => option.StateDescription || ''}
+              isOptionEqualToValue={(option, value) => option.StateCode === value.StateCode}
+              onChange={(_, newValue) => {
+                setForm({ ...form, vendorState: newValue ? newValue.StateCode : '' })
+              }}
+              renderInput={(params) => <TextField {...params} label="State" fullWidth />}
+            />
           </Grid>
           <Grid item xs={12} sm={4}>
             <TextField fullWidth label="Zip Code" value={form.vendorZipCode} onChange={(e) => setForm({ ...form, vendorZipCode: e.target.value })} />

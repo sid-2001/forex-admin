@@ -270,7 +270,7 @@ export default function GenderMaster() {
         disableRowSelectionOnClick
         pageSizeOptions={[5]}
         slots={{ toolbar: GridToolbar }}
-        slotProps={{ toolbar: { showQuickFilter: false } }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
         disableColumnMenu
         sx={{
           '& .super-app-theme--header': {
