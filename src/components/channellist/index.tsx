@@ -104,7 +104,13 @@ export default function ChannelFormDialog({ open, onClose, onSubmit, editData }:
               inputProps={{ maxLength: 1 }}
               value={form.channelCode}
               disabled={!!editData}
-              onChange={(e) => setForm({ ...form, channelCode: e.target.value.toUpperCase() })}
+              // onChange={(e) => setForm({ ...form, channelCode: e.target.value.toUpperCase() })}
+              onChange={(e) => {
+                const val = e.target.value.toUpperCase()
+                if (val === '' || /^[A-Z]$/.test(val)) {
+                  setForm({ ...form, channelCode: val })
+                }
+              }}
               error={!!errors.channelCode}
               helperText={errors.channelCode}
               required
@@ -131,6 +137,7 @@ export default function ChannelFormDialog({ open, onClose, onSubmit, editData }:
                 console.log(val, 'kdjhchdvy')
                 setForm({ ...form, effectiveFrom: val })
               }}
+              minDate={new Date().toISOString().split('T')[0]}
               error={!!errors.effectiveFrom}
               helperText={errors.effectiveFrom}
               required

@@ -95,10 +95,15 @@ export default function StateFormDialog({ open, onClose, onSubmit, editData }: P
             <TextField
               fullWidth
               label="State Code"
-              inputProps={{ maxLength: 2 }}
+              inputProps={{ maxLength: 10 }}
               value={form.stateCode}
               disabled={!!editData}
-              onChange={(e) => setForm({ ...form, stateCode: e.target.value.toUpperCase() })}
+              onChange={(e) => {
+                const val = e.target.value.toUpperCase()
+                if (/^[A-Z]{0,10}$/.test(val)) {
+                  setForm({ ...form, stateCode: val })
+                }
+              }}
               error={!!errors.stateCode}
               helperText={errors.stateCode}
               required
@@ -124,6 +129,7 @@ export default function StateFormDialog({ open, onClose, onSubmit, editData }: P
                 console.log(val, 'kdjhchdvy')
                 setForm({ ...form, effectiveFrom: val })
               }}
+              minDate={new Date().toISOString().split('T')[0]}
               error={!!errors.effectiveFrom}
               helperText={errors.effectiveFrom}
               required

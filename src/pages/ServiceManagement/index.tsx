@@ -1,5 +1,5 @@
 import { Button, Stack, IconButton, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useEffect, useState, useMemo } from 'react'
@@ -8,6 +8,8 @@ import ServiceFormDialog from '../../components/serviceDialog'
 import ServiceMasterService from '../../services/service-master.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import dayjs from 'dayjs'
+import { useRecoilState } from 'recoil'
+import { alertState, alertTextState, alertTypeState } from '@/states/state'
 
 export default function ServiceManagement() {
   const [open, setOpen] = useState(false)
@@ -17,6 +19,17 @@ export default function ServiceManagement() {
 
   const serviceService = useMemo(() => new ServiceMasterService(), [])
   const local_service = useMemo(() => new LocalStorageService(), [])
+  // Inside your function component at the top
+  const [alertOpen, setAlertOpen] = useRecoilState(alertState)
+  const [alertText, setAlertText] = useRecoilState(alertTextState)
+  const [alertType, setAlertType] = useRecoilState(alertTypeState)
+
+  // Then add the helper function
+  const showAlert = (type: 'Success' | 'Fail', text: string) => {
+    setAlertType(type)
+    setAlertText(text)
+    setAlertOpen(true)
+  }
 
   const fetchData = async () => {
     setLoading(true)
@@ -48,12 +61,15 @@ export default function ServiceManagement() {
         effectiveFromDate: `${data.effectiveFromDate}`,
         effectiveToDate: `${data.effectiveToDate}`,
         createdBy: local_service?.get_staff_id() || 'APSNGGGN3624',
+        active: data.active || true,
       }
       await serviceService.createService(payload)
+      showAlert('Success', '✨ Service created successfully!')
       setOpen(false)
       fetchData()
-    } catch (e) {
+    } catch (e: any) {
       console.error(e)
+      showAlert('Fail', e.message || 'Operation failed')
     }
   }
 
@@ -82,10 +98,12 @@ export default function ServiceManagement() {
       const res = await serviceService.updateService(id, payload)
       if (res) {
         setOpen(false)
+        showAlert('Success', 'Service updated successfully!')
         fetchData()
       }
     } catch (err) {
       console.error('Update API failed:', err)
+      showAlert('Fail', 'Unable to update record' + ' ' + err)
     }
   }
 
@@ -173,22 +191,22 @@ export default function ServiceManagement() {
 
   return (
     <>
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{
-          fontWeight: 700,
-          // color: 'text.primary',
-          letterSpacing: '-0.02em',
-          display: 'grid',
-          placeItems: 'center',
-          mb: 5,
-          color: '#0061B1',
-        }}
-      >
-        {'Service Master'.toUpperCase()}
-      </Typography>
-      <Stack direction="row" justifyContent="flex-end" mb={2} style={{ marginRight: -75 }}>
+      <Stack direction="row" justifyContent="space-between" mb={2} style={{ marginRight: -75 }}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            // color: 'text.primary',
+            letterSpacing: '-0.02em',
+            display: 'grid',
+            placeItems: 'center',
+            // mb: 5,
+            color: '#0061B1',
+          }}
+        >
+          {'Service Master'.toUpperCase()}
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {
@@ -208,6 +226,9 @@ export default function ServiceManagement() {
           getRowId={(row) => row.serviceCodeGenerated}
           pageSizeOptions={[10, 20, 50]}
           disableRowSelectionOnClick
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
           initialState={{
             pagination: {
               paginationModel: {

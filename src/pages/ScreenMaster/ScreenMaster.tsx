@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import ScreenFormDialog from '../../components/screenFormDialog'
 import ScreenService, { Screen } from '@/services/screen.service'
@@ -92,7 +92,7 @@ export default function ScreenMaster() {
             setDialogopen(false)
             fetchData()
           } else {
-            showAlert('Fail', response?.message || 'Server Error')
+            showAlert('Fail', response?.message || 'Please select unique screen code')
           }
         } catch (error: any) {
           showAlert('Fail', error.message || 'Connection Error')
@@ -184,21 +184,21 @@ export default function ScreenMaster() {
 
   return (
     <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{
-          fontWeight: 700,
-          letterSpacing: '-0.02em',
-          display: 'grid',
-          placeItems: 'center',
-          mb: 5,
-          color: '#0061B1',
-        }}
-      >
-        {'Screen master'.toUpperCase()}
-      </Typography>
-      <Stack direction="row" justifyContent="flex-end" alignItems="center" mb={3}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            display: 'grid',
+            placeItems: 'center',
+            // mb: 5,
+            color: '#0061B1',
+          }}
+        >
+          {'Screen master'.toUpperCase()}
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {
@@ -216,6 +216,9 @@ export default function ScreenMaster() {
         getRowId={(row: any) => `${row.ScreenCode}-${row.CountryCode}`}
         autoHeight
         density="standard"
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
+        disableColumnMenu
         disableRowSelectionOnClick
         initialState={{
           pagination: {

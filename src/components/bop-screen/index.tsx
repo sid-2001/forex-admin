@@ -12,6 +12,8 @@ import ConfirmationModal from '../logout/logout.component'
 import { useTheme } from '@emotion/react'
 import { BopService } from '@/services/bop.services'
 import { TransactionService } from '@/services/transaction.service'
+import { FieldValidationService } from '@/services/fieldvalidstion.service'
+import { CountryLabelData, CountryReportingLabelDTO } from '@/types/field.validation.type'
 
 const countryCodes = {
   India: 'IN',
@@ -63,48 +65,95 @@ const BopScreen: React.FC = () => {
   const helper = new HelperService()
   const bopService = new BopService()
   const transaction_Service = new TransactionService()
+  const validation = new FieldValidationService()
   const [isEditing, setIsEditing] = useState(false)
+  const [bopCategorySelected, setBopCategorySelected] = useState(null)
 
-
-  const[bopCategorySelected,setBopCategorySelected]=useState(null);
+  // Field validation states
+  const [fieldValidations, setFieldValidations] = useState<CountryLabelData>()
+  const [fieldLabels, setFieldLabels] = useState<Record<string, string>>({})
+  const [fieldMessages, setFieldMessages] = useState<Record<string, string>>({})
 
   const parseData = local_service.get_staff_access()
   const disableFormFieldsViaStatus =
     stpErrors?.length === 0 &&
     formData.transaction_status === 'RELEASED' &&
     helper.checkUserHasPermission(local_service.get_modules()?.BOP, 'canUpdate')
-  // &&
-  // formData.status === 'Pending'
-
-  //@ts-ignore
+//@ts-ignore
   const userLoggedInCountry = countryCodes[parseData?.staffCountry]
+
+  // Helper function to get label by field name
+  const getLabel = (fieldName: string): string => {
+    return fieldLabels[fieldName] || fieldName.replace(/_/g, ' ')
+  }
+
+  // Helper function to get validation message by field name
+  const getValidationMessage = (fieldName: string): string => {
+    return fieldMessages[fieldName] || ''
+  }
+
+  // Fetch field validations from API
+  useEffect(() => {
+    const fetchFieldValidations = async () => {
+      try {
+        const response = await validation.getScreenFieldvalidation(
+          "BOP",
+          local_service.get_staff_country(),
+          "W"
+        )
+        
+        if (response?.data) {
+          setFieldValidations(response.data)
+          
+          // Create lookup maps for labels and messages
+          const labelsMap: Record<string, string> = {}
+          const messagesMap: Record<string, string> = {}
+          
+          response.data.countryReportingLabelDTO?.forEach((item: CountryReportingLabelDTO) => {
+            const fieldName = item.countryLabelFieldNameAndValidation?.fieldName?.trim()
+            if (fieldName) {
+              labelsMap[fieldName] = item.countryLabelFieldNameAndValidation?.label
+              messagesMap[fieldName] = item.countryLabelFieldNameAndValidation?.validationMessageMandatory
+            }
+          })
+          
+          setFieldLabels(labelsMap)
+          setFieldMessages(messagesMap)
+        }
+      } catch (error) {
+        console.error("Error fetching field validations:", error)
+      }
+    }
+
+    fetchFieldValidations()
+  }, [])
 
   const validateForm = (formData: any) => {
     const errors: any = {}
 
     for (const [key, value] of Object.entries(formData)) {
-      // find eleemt in array
       const validRule = validationRules.find((item: any) => {
         return item.fieldName === fieldNamesMapping[key]
       })
       if (validRule) {
-        const pattern = validRule.specialCharacterList.slice(1, -1) // remove slashes
+        const pattern = validRule.specialCharacterList.slice(1, -1)
         const regex = new RegExp(pattern)
-        // required fields check
+        
         if (requiredFormFields.includes(key) && value === '') {
-          errors[key] = `Field is required.`
+          errors[key] = getValidationMessage(key) || `Field is required.`
         }
         //@ts-ignore
         else if (value !== '' && (value.length < validRule.minLength || value.length > validRule.maxLength)) {
-          errors[key] = `Must be between ${validRule.minLength} and ${validRule.maxLength} characters.`
+          errors[key] = `${getLabel(key)} must be between ${validRule.minLength} and ${validRule.maxLength} characters.`
         }
+
         //@ts-ignore
         else if (value !== '' && !regex.test(value)) {
           errors[key] = validRule.errorMessage
         }
       }
     }
-    return errors // empty object if no errors
+    return errors
   }
 
   const handleSubmit = async (e: any) => {
@@ -120,23 +169,10 @@ const BopScreen: React.FC = () => {
           : `${formData.first_name} ${formData.last_name}`,
         physicalAddressLine1: formData?.physical_address_line1,
         physicalAddressLine2: formData?.physical_address_line2,
-        // suburb: formData?.suburb,
-        // city: formData?.city,
-        // postcode: formData?.postcode,
         postalAddressLine1: formData?.postal_address_line1,
         postalAddressLine2: formData?.postal_address_line1,
-        // postalSuburb: formData?.postal_suburb,
-        // postalCity: formData?.postal_city,
-        // postalPostcode: formData?.postal_postcode,
-        // postalCountry: formData?.postal_country,
-        // idType: formData?.id_type,
-        // idDetails: formData?.id_details,
         contactType: formData?.contact_type,
         contactDetails: formData?.contact_details,
-        // dob: formData?.dob,
-        // residenceCountry: formData?.residence_country,
-        // residenceState: formData?.residence_state,
-        // postalState: formData?.postal_state,
       }
 
       const payload = {
@@ -156,14 +192,12 @@ const BopScreen: React.FC = () => {
       }
 
       try {
-        const stpResponse = await bopService.validateAndUpdateStpRules(stp_validation_payload)
-        const response = await bopService.updateBopData(payload, formData.id)
+        await bopService.validateAndUpdateStpRules(stp_validation_payload)
+        await bopService.updateBopData(payload, formData.id)
         window.location.reload()
       } catch (error) {
         console.error(error)
       }
-    } else {
-      return
     }
   }
 
@@ -174,20 +208,20 @@ const BopScreen: React.FC = () => {
       [name]: value,
     }))
   }
-  // need to check zero stp rules and trx should be released means funds collected.
+
   const handleReleaseBopData = async () => {
     const payload = {
       ...bopData,
       ...bopCat,
     }
     try {
-      const response = await bopService.releaseBopData(payload)
+      await bopService.releaseBopData(payload)
       window.location.reload()
     } catch (error) {
       console.error(error)
     }
   }
-  // need to update this api
+
   const handleCancelReplaceBopFunc = async () => {
     delete formData.id
     delete bopCat.id
@@ -200,7 +234,7 @@ const BopScreen: React.FC = () => {
       newbopCategoryData: { ...bopCat },
     }
     try {
-      const reponse = await bopService.cancelReplaceBop(payload)
+      await bopService.cancelReplaceBop(payload)
       window.location.reload()
     } catch (error) {
       console.error(error)
@@ -233,7 +267,6 @@ const BopScreen: React.FC = () => {
         settlement_amount: helper.roundToTwoFixed(response?.settlement_amount) || 0,
       })
 
-      console.log(response?.bop_category)
       setBopCategorySelected(response?.bop_category)
 
       if (response?.bop_category) {
@@ -250,7 +283,6 @@ const BopScreen: React.FC = () => {
 
     try {
       const { data } = await bopService.getStaticTableBopData(countryCode)
-      //Mapping of bop data
 
       if (userLoggedInCountry === data.countryCode) {
         setbopCat((prev: any) => ({
@@ -263,13 +295,6 @@ const BopScreen: React.FC = () => {
           bop_category: bopCategoryValue,
         }))
       }
-
-      // if (data.key2 === userLoggedInCountry && data.value1 === bopCategoryValue) {
-      //   setbopCat((prev: any) => ({
-      //     ...prev,
-      //     bop_category: data.value2,
-      //   }))
-      // }
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -312,7 +337,7 @@ const BopScreen: React.FC = () => {
       <Box style={{ width: '80vw', height: '80vh', overflowY: 'scroll', padding: '10px 20px' }}>
         <Box sx={{ textAlign: 'right', marginBottom: '10px' }}>
           <Button variant="contained" sx={{ marginRight: '0.8%' }} onClick={() => setIsEditing(true)} disabled={isEditing}>
-            Edit
+            {getLabel('Edit') || 'Edit'}
           </Button>
           <Button
             variant="outlined"
@@ -329,7 +354,7 @@ const BopScreen: React.FC = () => {
               )
             }
           >
-            Release
+            {getLabel('Release') || 'Release'}
           </Button>
           <Button
             variant="contained"
@@ -338,36 +363,29 @@ const BopScreen: React.FC = () => {
             disabled={!(bopData?.sap_status === 'Nack')}
             onClick={() => handleCancelReplaceBopFunc()}
           >
-            Cancel Replace
+            {getLabel('Cancel_Replace') || 'Cancel Replace'}
           </Button>
         </Box>
 
         {stpErrors?.length > 0 && (
           <Box mb={2} border={'1px solid'} borderRadius={2} padding={'6px'}>
-            <Typography
-              variant="h5"
-              gutterBottom
-              // @ts-ignore
-            >
-              STP Errors
+            <Typography variant="h5" gutterBottom>
+              {getLabel('STP_Errors') || 'STP Errors'}
             </Typography>
             <Typography variant="body1" color={'red'}>
-              Note: These errors need to be fixed before releasing a transaction.
+              {getLabel('STP_Error_Note') || 'Note: These errors need to be fixed before releasing a transaction.'}
             </Typography>
             {stpErrors.map((item: any) => (
               <Typography variant="body2" key={item.id}>
-                * Field[{item.fieldName}] : {item.errorMessage}
+                * {getLabel('Field') || 'Field'}[{item.fieldName}] : {item.errorMessage}
               </Typography>
             ))}
           </Box>
         )}
+        
         <Box>
-          <Typography
-            variant="h5"
-            gutterBottom
-            //@ts-ignore
-          >
-            Reporting Details
+          <Typography variant="h5" gutterBottom>
+            {getLabel('Reporting_Details') || 'Reporting Details'}
           </Typography>
         </Box>
 
@@ -376,7 +394,7 @@ const BopScreen: React.FC = () => {
             <Grid item xs={2.3}>
               <TextField
                 size="small"
-                label="Transaction Number"
+                label={getLabel('Transaction_No.') || 'Transaction Number'}
                 variant="outlined"
                 name="transaction_number"
                 value={formData.transaction_number || ''}
@@ -387,7 +405,7 @@ const BopScreen: React.FC = () => {
             <Grid item xs={2.3}>
               <TextField
                 size="small"
-                label="Transaction Attempt"
+                label={getLabel('Transaction_Attempt_No') || 'Transaction Attempt'}
                 variant="outlined"
                 name="transaction_attempt"
                 value={formData.transaction_attempt || 0}
@@ -398,7 +416,7 @@ const BopScreen: React.FC = () => {
             <Grid item xs={2.3}>
               <TextField
                 size="small"
-                label="Transaction Status"
+                label={getLabel('Transaction_Status') || 'Transaction Status'}
                 disabled
                 variant="outlined"
                 name="transaction_status"
@@ -406,69 +424,71 @@ const BopScreen: React.FC = () => {
                 fullWidth
               />
             </Grid>
-            {/* <Grid item xs={2.3}>
-              <TextField size="small" label="Bop Status" disabled variant="outlined" name="status" value={formData.status || ''} fullWidth />
-            </Grid> */}
             <Grid item xs={2.3}>
-              <TextField size="small" label="Reserve Bank Status" disabled variant="outlined" name="sap_status" value={formData.sap_status || ''} fullWidth />
+              <TextField
+                size="small"
+                label={getLabel('SARB_Status') || 'Reserve Bank Status'}
+                disabled
+                variant="outlined"
+                name="sap_status"
+                value={formData.sap_status || ''}
+                fullWidth
+              />
             </Grid>
           </Grid>
 
           <Box mt={3}>
-            <Typography
-              variant="h5"
-              gutterBottom
-              // @ts-ignore
-            >
-              {userLoggedInCountry === 'IN'||"NG" ? 'Purpose Code Details' : 'Bop Category Details'}
+            <Typography variant="h5" gutterBottom>
+              {userLoggedInCountry === 'IN' || userLoggedInCountry === 'NG' 
+                ? (getLabel('Purpose_Code_Details') || 'Purpose Code Details')
+                : (getLabel('BOP_Category_Details') || 'BOP Category Details')}
             </Typography>
           </Box>
 
           <Grid container spacing={2} mt={1}>
             <Grid item xs={3}>
               <FormControl fullWidth>
-                {/* <InputLabel>{userLoggedInCountry === 'IN' ? 'Purpose Code' : 'Bop Category'}</InputLabel> */}
-                {bopCategorySelected?<>
-                <TextField 
-                  size='small'
-                  label={userLoggedInCountry === 'IN'||"NG" ? 'Purpose Code' : 'Bop Category'}
-                  disabled
-                  
-                  value={bopCategorySelected}></TextField>
-                </>:<>
-                
-                      <Select
-                  label={userLoggedInCountry === 'IN' ? 'Purpose Code' : 'Bop Category'}
-                  variant="outlined"
-                  name="bop_category"
-                  value={bopCat?.bop_category || ''}
-                  size="small"
-                  disabled={disableFormFieldsViaStatus || !isEditing}
-                  onChange={(e) => {
-                    const { value } = e.target
-                    const bopItem = bopCategory.find((item: any) => item.bopCategoryCd === value)
-                    setbopCat((prev: any) => ({
-                      ...prev,
-                      bop_category: value,
-                      bop_sub_category: bopItem.bopSubCategoryCd,
-                      bop_description: bopItem.categoryDescription,
-                    }))
-                  }}
-                >
-                  {bopCategory.map((item: any, ind: any) => (
-                    <MenuItem key={ind} value={item.bopCategoryCd}>
-                      {item.bopCategoryCd}
-                    </MenuItem>
-                  ))}
-                </Select>
-                </>}
-          
+                {bopCategorySelected ? (
+                  <TextField 
+                    size='small'
+                    label={userLoggedInCountry === 'IN' || userLoggedInCountry === 'NG' 
+                      ? (getLabel('Purpose_Code') || 'Purpose Code')
+                      : (getLabel('BOP_Category') || 'BOP Category')}
+                    disabled
+                    value={bopCategorySelected}
+                  />
+                ) : (
+                  <Select
+                    label={userLoggedInCountry === 'IN' ? (getLabel('Purpose_Code') || 'Purpose Code') : (getLabel('BOP_Category') || 'BOP Category')}
+                    variant="outlined"
+                    name="bop_category"
+                    value={bopCat?.bop_category || ''}
+                    size="small"
+                    disabled={disableFormFieldsViaStatus || !isEditing}
+                    onChange={(e) => {
+                      const { value } = e.target
+                      const bopItem = bopCategory.find((item: any) => item.bopCategoryCd === value)
+                      setbopCat((prev: any) => ({
+                        ...prev,
+                        bop_category: value,
+                        bop_sub_category: bopItem.bopSubCategoryCd,
+                        bop_description: bopItem.categoryDescription,
+                      }))
+                    }}
+                  >
+                    {bopCategory.map((item: any, ind: any) => (
+                      <MenuItem key={ind} value={item.bopCategoryCd}>
+                        {item.bopCategoryCd}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
               </FormControl>
             </Grid>
             <Grid item xs={3}>
               <TextField
                 size="small"
-                label="Sub Category"
+                label={getLabel('Sub_Category') || 'Sub Category'}
                 variant="outlined"
                 name="bop_sub_category"
                 value={bopCat?.bop_sub_category || ''}
@@ -480,7 +500,7 @@ const BopScreen: React.FC = () => {
             <Grid item xs={6}>
               <TextField
                 size="small"
-                label="Category Description"
+                label={getLabel('Category_Description') || 'Category Description'}
                 variant="outlined"
                 name="bop_description"
                 value={bopCat?.bop_description || ''}
@@ -492,7 +512,7 @@ const BopScreen: React.FC = () => {
             <Grid item xs={3}>
               <TextField
                 size="small"
-                label="Principal Amount"
+                label={getLabel('Principal_Amount') || 'Principal Amount'}
                 variant="outlined"
                 name="principal_amount"
                 value={bopCat?.principal_amount || ''}
@@ -503,7 +523,7 @@ const BopScreen: React.FC = () => {
             <Grid item xs={3}>
               <TextField
                 size="small"
-                label="Principal Currency"
+                label={getLabel('Principal_Currency') || 'Principal Currency'}
                 variant="outlined"
                 name="principal_currency"
                 value={bopCat?.principal_currency || ''}
@@ -514,7 +534,7 @@ const BopScreen: React.FC = () => {
             <Grid item xs={3}>
               <TextField
                 size="small"
-                label="Settlement Amount"
+                label={getLabel('Settlement_Amount') || 'Settlement Amount'}
                 variant="outlined"
                 name="settlement_amount"
                 value={bopCat?.settlement_amount || ''}
@@ -525,7 +545,7 @@ const BopScreen: React.FC = () => {
             <Grid item xs={3}>
               <TextField
                 size="small"
-                label="Settlement Currency"
+                label={getLabel('Settlement_Currency') || 'Settlement Currency'}
                 variant="outlined"
                 name="settlement_currency"
                 value={bopCat?.settlement_currency || ''}
@@ -539,7 +559,7 @@ const BopScreen: React.FC = () => {
                 <Grid item xs={3}>
                   <TextField
                     size="small"
-                    label="Excon Ruling Indicator"
+                    label={getLabel('Excon_Ruling_Indicator') || 'Excon Ruling Indicator'}
                     variant="outlined"
                     name="excon_ruling_indicator"
                     value={bopCat?.excon_ruling_indicator || ''}
@@ -550,7 +570,7 @@ const BopScreen: React.FC = () => {
                 <Grid item xs={3}>
                   <TextField
                     size="small"
-                    label="Excon Ruling Section"
+                    label={getLabel('Excon_Ruling_Section') || 'Excon Ruling Section'}
                     variant="outlined"
                     name="excon_ruling_section"
                     value={bopCat?.excon_ruling_section || ''}
@@ -561,7 +581,7 @@ const BopScreen: React.FC = () => {
                 <Grid item xs={3}>
                   <TextField
                     size="small"
-                    label="Adhoc Subject"
+                    label={getLabel('Adhoc_Subject') || 'Adhoc Subject'}
                     variant="outlined"
                     name="adhoc_subject"
                     value={bopCat?.adhoc_subject || ''}
@@ -572,7 +592,7 @@ const BopScreen: React.FC = () => {
                 <Grid item xs={3}>
                   <TextField
                     size="small"
-                    label="Subject Description"
+                    label={getLabel('Subject_Description') || 'Subject Description'}
                     variant="outlined"
                     name="subject_description"
                     value={bopCat?.subject_description || ''}
@@ -585,12 +605,8 @@ const BopScreen: React.FC = () => {
           </Grid>
 
           <Box mt={3}>
-            <Typography
-              variant="h5"
-              gutterBottom
-              //@ts-ignore
-            >
-              Resident Details
+            <Typography variant="h5" gutterBottom>
+              {getLabel('Resident_Details') || 'Resident Details'}
             </Typography>
 
             <Grid container spacing={2} mt={1}>
@@ -598,7 +614,7 @@ const BopScreen: React.FC = () => {
                 <FormControl fullWidth>
                   <TextField
                     size="small"
-                    label="First Name"
+                    label={getLabel('First_Name') || 'First Name'}
                     variant="outlined"
                     name="first_name"
                     value={formData.first_name || ''}
@@ -614,7 +630,7 @@ const BopScreen: React.FC = () => {
                 <FormControl fullWidth>
                   <TextField
                     size="small"
-                    label="Middle Name"
+                    label={getLabel('Middle_Name') || 'Middle Name'}
                     variant="outlined"
                     name="middle_name"
                     value={formData.middle_name || ''}
@@ -629,7 +645,7 @@ const BopScreen: React.FC = () => {
                 <FormControl fullWidth>
                   <TextField
                     size="small"
-                    label="Last Name"
+                    label={getLabel('Last_Name') || 'Last Name'}
                     variant="outlined"
                     name="last_name"
                     value={formData.last_name || ''}
@@ -643,9 +659,9 @@ const BopScreen: React.FC = () => {
               </Grid>
               <Grid item xs={2.3}>
                 <FormControl fullWidth>
-                  <InputLabel>Gender</InputLabel>
+                  <InputLabel>{getLabel('Gender') || 'Gender'}</InputLabel>
                   <Select
-                    label="Gender"
+                    label={getLabel('Gender') || 'Gender'}
                     variant="outlined"
                     name="gender"
                     value={formData.gender || ''}
@@ -669,8 +685,7 @@ const BopScreen: React.FC = () => {
               <Grid item xs={2.3}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
-                    label="Date Of Birth"
-                    //@ts-ignore
+                    label={getLabel('Date_Of_Birth') || 'Date Of Birth'}
                     format="YYYY-MM-DD"
                     value={formData.dob ? dayjs(formData.dob) : null}
                     onChange={(newDate: any) => {
@@ -680,59 +695,16 @@ const BopScreen: React.FC = () => {
                       }))
                     }}
                     disabled={disableFormFieldsViaStatus || !isEditing}
-                    slotProps={{ textField: { size: 'small' } }}
-                    //@ts-ignore
-                    renderInput={(params) => <TextField {...params} fullWidth variant="outlined" />}
+                    slotProps={{ textField: { size: 'small', fullWidth: true } }}
                   />
                 </LocalizationProvider>
               </Grid>
-              {/* <Grid item xs={2}>
-                <TextField
-                  size="small"
-                  label="Id Type"
-                  variant="outlined"
-                  name="id_type"
-                  fullWidth
-                  value={formData.id_type || ''}
-                  onChange={handleChange}
-                  error={Boolean(formErrors.id_type)}
-                  helperText={formErrors.id_type}
-                  disabled={disableFormFieldsViaStatus || !isEditing}
-                />
-              </Grid>
-              <Grid item xs={2.5}>
-                <TextField
-                  size="small"
-                  label="Id Details"
-                  variant="outlined"
-                  name="id_details"
-                  fullWidth
-                  value={formData.id_details || ''}
-                  onChange={handleChange}
-                  error={Boolean(formErrors.id_details)}
-                  helperText={formErrors.id_details}
-                  disabled={disableFormFieldsViaStatus || !isEditing}
-                />
-              </Grid> */}
-              {/* <Grid item xs={1.5}>
-                <TextField
-                  size="small"
-                  label="Contact Type"
-                  variant="outlined"
-                  name="contact_type"
-                  fullWidth
-                  value={formData.contact_type || ''}
-                  onChange={handleChange}
-                  error={Boolean(formErrors.contact_type)}
-                  helperText={formErrors.contact_type}
-                  disabled={disableFormFieldsViaStatus || !isEditing}
-                />
-              </Grid> */}
+
               <Grid item xs={2}>
                 <TextField
                   size="small"
                   type="number"
-                  label="Phone Number"
+                  label={getLabel('Phone_Number') || 'Phone Number'}
                   variant="outlined"
                   name="contact_details"
                   fullWidth
@@ -745,13 +717,21 @@ const BopScreen: React.FC = () => {
                 />
               </Grid>
               <Grid item xs={2}>
-                <TextField size="small" label="Email Address" variant="outlined" name="email" fullWidth value={formData.email || ''} disabled />
+                <TextField 
+                  size="small" 
+                  label={getLabel('Email_Address') || 'Email Address'} 
+                  variant="outlined" 
+                  name="email" 
+                  fullWidth 
+                  value={formData.email || ''} 
+                  disabled 
+                />
               </Grid>
               {userLoggedInCountry === 'ZA' && (
                 <Grid item xs={2}>
                   <TextField
                     size="small"
-                    label="Account Identifier"
+                    label={getLabel('Account_Identifier') || 'Account Identifier'}
                     variant="outlined"
                     name="account_identifier"
                     fullWidth
@@ -763,12 +743,8 @@ const BopScreen: React.FC = () => {
             </Grid>
 
             <Box mt={3}>
-              <Typography
-                variant="h6"
-                gutterBottom
-                //@ts-ignore
-              >
-                Physical Address
+              <Typography variant="h6" gutterBottom>
+                {getLabel('Physical_Address') || 'Physical Address'}
               </Typography>
             </Box>
 
@@ -776,7 +752,7 @@ const BopScreen: React.FC = () => {
               <Grid item xs={6}>
                 <FormControl fullWidth>
                   <TextField
-                    label="Address Line 1"
+                    label={getLabel('Address_Line_1') || 'Address Line 1'}
                     size="small"
                     name="physical_address_line1"
                     variant="outlined"
@@ -792,7 +768,7 @@ const BopScreen: React.FC = () => {
               <Grid item xs={6}>
                 <FormControl fullWidth>
                   <TextField
-                    label="Address Line 2"
+                    label={getLabel('Address_Line_2') || 'Address Line 2'}
                     size="small"
                     name="physical_address_line2"
                     variant="outlined"
@@ -808,7 +784,7 @@ const BopScreen: React.FC = () => {
               {userLoggedInCountry === 'ZA' && (
                 <Grid item xs={2.3}>
                   <TextField
-                    label="Suburb"
+                    label={getLabel('Suburb') || 'Suburb'}
                     fullWidth
                     size="small"
                     name="suburb"
@@ -823,7 +799,7 @@ const BopScreen: React.FC = () => {
               )}
               <Grid item xs={2.3}>
                 <TextField
-                  label="City"
+                  label={getLabel('City') || 'City'}
                   size="small"
                   fullWidth
                   name="city"
@@ -837,7 +813,7 @@ const BopScreen: React.FC = () => {
               </Grid>
               <Grid item xs={2.3}>
                 <TextField
-                  label="State/Province"
+                  label={getLabel('State_Province') || 'State/Province'}
                   fullWidth
                   size="small"
                   name="residence_state"
@@ -851,7 +827,7 @@ const BopScreen: React.FC = () => {
               </Grid>
               <Grid item xs={2.3}>
                 <TextField
-                  label="Postal Code"
+                  label={getLabel('Postal_Code') || 'Postal Code'}
                   size="small"
                   fullWidth
                   name="postcode"
@@ -865,7 +841,7 @@ const BopScreen: React.FC = () => {
               </Grid>
               <Grid item xs={2.3}>
                 <TextField
-                  label="Country"
+                  label={getLabel('Country') || 'Country'}
                   size="small"
                   fullWidth
                   name="residence_country"
@@ -881,7 +857,7 @@ const BopScreen: React.FC = () => {
 
             <Box mt={3}>
               <Typography variant="h6" gutterBottom>
-                Residential Address
+                {getLabel('Residential_Address') || 'Residential Address'}
               </Typography>
             </Box>
 
@@ -890,7 +866,7 @@ const BopScreen: React.FC = () => {
                 <FormControl fullWidth>
                   <TextField
                     size="small"
-                    label=" Address Line 1"
+                    label={getLabel('Address_Line_1') || 'Address Line 1'}
                     name="postal_address_line1"
                     variant="outlined"
                     value={formData.postal_address_line1 || ''}
@@ -905,7 +881,7 @@ const BopScreen: React.FC = () => {
               <Grid item xs={6}>
                 <FormControl fullWidth>
                   <TextField
-                    label=" Address Line 2"
+                    label={getLabel('Address_Line_2') || 'Address Line 2'}
                     size="small"
                     name="postal_address_line2"
                     variant="outlined"
@@ -922,7 +898,7 @@ const BopScreen: React.FC = () => {
               {userLoggedInCountry === 'ZA' && (
                 <Grid item xs={2.3}>
                   <TextField
-                    label=" Suburb"
+                    label={getLabel('Suburb') || 'Suburb'}
                     fullWidth
                     size="small"
                     name="postal_suburb"
@@ -937,7 +913,7 @@ const BopScreen: React.FC = () => {
               )}
               <Grid item xs={2.3}>
                 <TextField
-                  label=" City"
+                  label={getLabel('City') || 'City'}
                   fullWidth
                   size="small"
                   name="postal_city"
@@ -951,7 +927,7 @@ const BopScreen: React.FC = () => {
               </Grid>
               <Grid item xs={2.3}>
                 <TextField
-                  label=" State/Province"
+                  label={getLabel('State_Province') || 'State/Province'}
                   fullWidth
                   size="small"
                   name="postal_state"
@@ -965,7 +941,7 @@ const BopScreen: React.FC = () => {
               </Grid>
               <Grid item xs={2.3}>
                 <TextField
-                  label=" Zipcode"
+                  label={getLabel('Zip_Code') || 'Zip Code'}
                   fullWidth
                   size="small"
                   name="postal_postcode"
@@ -979,7 +955,7 @@ const BopScreen: React.FC = () => {
               </Grid>
               <Grid item xs={2.3}>
                 <TextField
-                  label=" Country"
+                  label={getLabel('Country') || 'Country'}
                   fullWidth
                   size="small"
                   name="postal_country"
@@ -995,12 +971,8 @@ const BopScreen: React.FC = () => {
           </Box>
 
           <Box mt={3}>
-            <Typography
-              variant="h5"
-              gutterBottom
-              //@ts-ignore
-            >
-            Beneficary Details
+            <Typography variant="h5" gutterBottom>
+              {getLabel('Beneficiary_Details') || 'Beneficiary Details'}
             </Typography>
           </Box>
 
@@ -1008,34 +980,31 @@ const BopScreen: React.FC = () => {
             <Grid item xs={2.3}>
               <TextField
                 size="small"
-                label="Non Resident first Name"
+                label={getLabel('Non_Resident_First_Name') || 'Non Resident First Name'}
                 variant="outlined"
                 name="benificiary_first_name"
                 value={formData.benificiary_first_name || ''}
                 disabled
                 fullWidth
               />
-            </Grid>'
-            {formData.benificiary_middle_name?<>
-               <Grid item xs={2.3}>
-              <TextField
-                size="small"
-                label="Non Resident Middle Name"
-                variant="outlined"
-                name="benificiary_middle_name"
-                value={formData.benificiary_middle_name || ''}
-                disabled
-                fullWidth
-              />
             </Grid>
-            </>:<>
-            
-            </> }
-         
+            {formData.benificiary_middle_name && (
+              <Grid item xs={2.3}>
+                <TextField
+                  size="small"
+                  label={getLabel('Non_Resident_Middle_Name') || 'Non Resident Middle Name'}
+                  variant="outlined"
+                  name="benificiary_middle_name"
+                  value={formData.benificiary_middle_name || ''}
+                  disabled
+                  fullWidth
+                />
+              </Grid>
+            )}
             <Grid item xs={2.3}>
               <TextField
                 size="small"
-                label="Non Resident Last Name"
+                label={getLabel('Non_Resident_Last_Name') || 'Non Resident Last Name'}
                 variant="outlined"
                 name="benificiary_last_name"
                 value={formData.benificiary_last_name || ''}
@@ -1045,7 +1014,7 @@ const BopScreen: React.FC = () => {
             </Grid>
             <Grid item xs={2.3}>
               <TextField
-                label="Address Line 1"
+                label={getLabel('Address_Line_1') || 'Address Line 1'}
                 fullWidth
                 size="small"
                 name="benificiary_physical_address_line1"
@@ -1056,7 +1025,7 @@ const BopScreen: React.FC = () => {
             </Grid>
             <Grid item xs={2.3}>
               <TextField
-                label="Address Line 2"
+                label={getLabel('Address_Line_2') || 'Address Line 2'}
                 fullWidth
                 size="small"
                 name="benificiary_physical_address_line2"
@@ -1068,7 +1037,7 @@ const BopScreen: React.FC = () => {
 
             <Grid item xs={2.3}>
               <TextField
-                label="City"
+                label={getLabel('City') || 'City'}
                 size="small"
                 fullWidth
                 name="benificiary_city"
@@ -1079,7 +1048,7 @@ const BopScreen: React.FC = () => {
             </Grid>
             <Grid item xs={2.3}>
               <TextField
-                label="State/Province"
+                label={getLabel('State_Province') || 'State/Province'}
                 fullWidth
                 size="small"
                 name="benificiary_state"
@@ -1090,7 +1059,7 @@ const BopScreen: React.FC = () => {
             </Grid>
             <Grid item xs={2.3}>
               <TextField
-                label="Postal Code"
+                label={getLabel('Postal_Code') || 'Postal Code'}
                 size="small"
                 fullWidth
                 name="benificiary_post_code"
@@ -1101,7 +1070,7 @@ const BopScreen: React.FC = () => {
             </Grid>
             <Grid item xs={2.3}>
               <TextField
-                label="Country"
+                label={getLabel('Country') || 'Country'}
                 size="small"
                 fullWidth
                 name="benificiary_country"
@@ -1114,7 +1083,7 @@ const BopScreen: React.FC = () => {
               <Grid item xs={2.3}>
                 <TextField
                   size="small"
-                  label="Non Resident Account Identifier"
+                  label={getLabel('Non_Resident_Identifier') || 'Non Resident Account Identifier'}
                   variant="outlined"
                   name="non_resident_identifier"
                   fullWidth
@@ -1127,14 +1096,14 @@ const BopScreen: React.FC = () => {
 
           <Box mt={3}>
             <Button variant="contained" color="primary" type="submit" disabled={disableFormFieldsViaStatus}>
-              Save
+              {getLabel('Save') || 'Save'}
             </Button>
           </Box>
         </form>
       </Box>
 
       <ConfirmationModal
-        message="You want to Release the transaction?"
+        message={getLabel('Release_Confirmation') || 'You want to Release the transaction?'}
         handleClose={() => {
           setConfirmReleaseModal(!confirmReleaseModal)
         }}
@@ -1142,7 +1111,7 @@ const BopScreen: React.FC = () => {
           handleReleaseBopData()
         }}
         showIcon={false}
-        confirmBtnText={'Release'}
+        confirmBtnText={getLabel('Release') || 'Release'}
         isOpen={confirmReleaseModal}
       />
     </HasPermission>

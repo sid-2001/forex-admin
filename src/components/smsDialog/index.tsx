@@ -78,7 +78,7 @@ export default function SmsTemplateDialog({ open, onClose, onSubmit, editData, e
       <DialogContent dividers>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <Autocomplete
-            options={countries || []}
+            options={countries?.filter((c) => c.status === 'A') || []}
             filterOptions={filter}
             getOptionLabel={(o) => `${o.countryName} (${o.countryCode})`}
             value={countries?.find((c) => c.countryCode === countryCode) || null}

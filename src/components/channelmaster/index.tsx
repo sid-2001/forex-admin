@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import ChannelFormDialog from '../channellist'
 import ChannelService from '@/services/channel.servive'
@@ -116,7 +116,8 @@ export default function ChannelManagement() {
             setOpen(false)
             fetchData()
           } else {
-            showAlert('Fail', response?.error || response?.message || 'Server Error')
+            console.log(response, 'bhanuy')
+            showAlert('Fail', response?.error !== undefined ? response.error : 'channel_code must be unique')
           }
         } catch (err: any) {
           showAlert('Fail', err.message || 'Network Error')
@@ -176,21 +177,21 @@ export default function ChannelManagement() {
 
   return (
     <Box p={3}>
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{
-          fontWeight: 700,
-          letterSpacing: '-0.02em',
-          display: 'grid',
-          placeItems: 'center',
-          mb: 5,
-          color: '#0061B1',
-        }}
-      >
-        {'Channel Master'.toUpperCase()}
-      </Typography>
-      <Stack direction="row" justifyContent="flex-end" mb={2}>
+      <Stack direction="row" justifyContent="space-between" mb={2}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            display: 'grid',
+            placeItems: 'center',
+            // mb: 5,
+            color: '#0061B1',
+          }}
+        >
+          {'Channel Master'.toUpperCase()}
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {
@@ -208,6 +209,9 @@ export default function ChannelManagement() {
           columns={columns}
           loading={loading}
           getRowId={(row) => `${row.channel_code}-${row.country_code}`}
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
           disableRowSelectionOnClick
           pageSizeOptions={[5, 10, 20]}
           initialState={{

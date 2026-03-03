@@ -38,7 +38,7 @@ import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { FieldValidationService } from '@/services/fieldvalidstion.service'
-import { CountryLabelData } from '@/types/field.validation.type'
+import { CountryLabelData, CountryReportingLabelDTO } from '@/types/field.validation.type'
 
 const KYCPage = () => {
   const [open, setOpen] = useState(false)
@@ -53,60 +53,106 @@ const KYCPage = () => {
   const [newComment, setNewComment] = useState('')
   const [loading, setLoading] = useState(false)
   const [comments, setComments] = useState<any>([])
-  const [prooftype, setProoftype] = useState()
+  const [prooftype, setProoftype] = useState<any>()
   const [imageUrl, setImageUrl] = useState('')
   const { id: kycIdFromRoute } = useParams()
-  const [isLoading, setIsLoading] = useState(false) // ✅ Add this
+  const [isLoading, setIsLoading] = useState(false)
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
-  const[filevalidation,setFieldValidation]=useState<CountryLabelData>()
+  const [fieldValidations, setFieldValidations] = useState<CountryLabelData>()
+  const [fieldLabels, setFieldLabels] = useState<Record<string, string>>({})
+  const [fieldMessages, setFieldMessages] = useState<Record<string, string>>({})
 
   const navigate = useNavigate()
   const theme = useTheme()
   const local_service = new LocalStorageService()
   let applicant_service = new ApplicantService()
   let kycservice = new KycService()
-  let validiation=new FieldValidationService()
+  let validation = new FieldValidationService()
   const helper_service = new HelperService()
   const userCountry = local_service?.get_staff_country()
-  useEffect(()=>{
-validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W").then(data=>{
 
-  setFieldValidation(data?.data)
-})
+  // Helper function to get label by field name
+  const getLabel = (fieldName: string): string => {
+    return fieldLabels[fieldName] || fieldName.replace(/_/g, ' ')
+  }
 
-  },[])
+  // Helper function to get validation message by field name
+  const getValidationMessage = (fieldName: string): string => {
+    return fieldMessages[fieldName] || ''
+  }
 
+  // Fetch field validations from API
+  useEffect(() => {
+    const fetchFieldValidations = async () => {
+      try {
+        const response = await validation.getScreenFieldvalidation(
+          "KYC",
+          local_service.get_staff_country(),
+          "W"
+        )
+        
+        if (response?.data) {
+          setFieldValidations(response.data)
+          
+          // Create lookup maps for labels and messages
+          const labelsMap: Record<string, string> = {}
+          const messagesMap: Record<string, string> = {}
+          
+          response.data.countryReportingLabelDTO?.forEach((item: CountryReportingLabelDTO) => {
+            const fieldName = item.countryLabelFieldNameAndValidation?.fieldName
+            if (fieldName) {
+
+              console.log(fieldName,"===>",item.countryLabelFieldNameAndValidation?.label)
+              labelsMap[fieldName] = item.countryLabelFieldNameAndValidation?.label
+              messagesMap[fieldName] = item.countryLabelFieldNameAndValidation?.validationMessageMandatory
+            }
+          })
+        
+          console.log("i m gettin here");
+        console.log(  labelsMap['Applicant_ID'])
+          console.log(labelsMap)
+          setFieldLabels(labelsMap)
+          setFieldMessages(messagesMap)
+        }
+      } catch (error) {
+        console.error("Error fetching field validations:", error)
+      }
+    }
+
+    fetchFieldValidations()
+  }, [])
+
+  // Dynamic column generation based on API labels
   const KycColumns = [
     {
       field: 'kycId',
-      headerName: 'KYC ID',
+      headerName: getLabel('KYC_ID') || 'KYC ID',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'applicantName',
-      headerName: 'Customer Name',
+      headerName: getLabel('Customer_Name') || 'Customer Name',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'nationality',
-      headerName: 'Nationality',
+      headerName: getLabel('Nationality') || 'Nationality',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'kycCountry',
-      headerName: 'Resident Country',
+      headerName: getLabel('Country_of_Residence') || 'Resident Country',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'applicantId',
-      headerName: 'Applicant ID',
+      headerName: getLabel('Applicant_ID') || 'Applicant ID',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-
       renderCell: (params: any) => {
         return (
           <a
@@ -122,7 +168,7 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
     },
     {
       field: 'kycStatus',
-      headerName: 'Verification Status',
+      headerName: getLabel('Verification_Status') || 'Verification Status',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
@@ -130,17 +176,21 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
         if (params.value === '') color = 'warning'
         else if (params.value === 'Rejected') color = 'error'
 
-        return <Chip label={params.value == 'v' ? 'Verified' : 'Unverified'} color={params.value == 'v' ? 'success' : 'warning'} variant="filled" />
+        return <Chip 
+          label={params.value == 'v' ? getLabel('Verified') || 'Verified' : getLabel('Unverified') || 'Unverified'} 
+          color={params.value == 'v' ? 'success' : 'warning'} 
+          variant="filled" 
+        />
       },
     },
     {
       field: 'action',
-      headerName: 'Action',
+      headerName: getLabel('Action') || 'Action',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <Button variant="outlined" style={{ color: theme.palette.text.primary }} onClick={() => openDrawer(params.row)}>
-          View More
+          {getLabel('View_More') || 'View More'}
         </Button>
       ),
     },
@@ -152,19 +202,16 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
         <GridToolbarColumnsButton />
         <GridToolbarFilterButton />
 
-        {/* Export CSV */}
         <Button variant="outlined" size="small" startIcon={<DownloadIcon />} onClick={downloadCSV}>
           CSV
         </Button>
 
-        {/* Export PDF */}
         <Button variant="outlined" size="small" startIcon={<DownloadIcon />} onClick={downloadPDF}>
           PDF
         </Button>
 
-        {/* Reset Filters */}
         <Button variant="outlined" size="small" startIcon={<FindReplaceIcon />} onClick={() => setFilterModel({ items: [] })}>
-          Reset Filters
+          {getLabel('Reset_Filters') || 'Reset Filters'}
         </Button>
       </GridToolbarContainer>
     )
@@ -173,11 +220,9 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
   const getApplicantKYCData = async () => {
     try {
       setIsLoading(true)
-      // setCommonLoader(true)
       const data: any = await applicant_service.getApplicantKyc(userCountry)
       console.log(data?.data)
       setMockData(data?.data)
-      // setCommonLoader(false)
 
       if (kycIdFromRoute) {
         const filtered: any = data.filter((item: any) => item.kycId === kycIdFromRoute)
@@ -195,29 +240,30 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
 
   useEffect(() => {
     getApplicantKYCData()
-  }, [userCountry, kycIdFromRoute]) // include kycIdFromRoute in dependencies
+  }, [userCountry, kycIdFromRoute])
 
-  // Function to download data as CSV
   const downloadCSV = () => {
     if (!filteredData || filteredData.length === 0) return
 
-    // Create CSV headers
-    const headers = ['KYC ID', 'Customer Name', 'Nationality', 'Resident Country', 'Applicant ID', 'Verification Status']
+    const headers = [
+      getLabel('KYC_ID') || 'KYC ID',
+      getLabel('Customer_Name') || 'Customer Name',
+      getLabel('Nationality') || 'Nationality',
+      getLabel('Country_of_Residence') || 'Resident Country',
+      getLabel('Applicant_ID') || 'Applicant ID',
+      getLabel('Verification_Status') || 'Verification Status'
+    ]
 
-    // Create CSV rows
     const rows = filteredData.map((item) => [
       item.kycId,
       item?.applicantName,
       item.nationality,
       item?.kycCountry,
       item?.applicantId,
-      item?.kycStatus === 'v' ? 'Verified' : 'Unverified',
+      item?.kycStatus === 'v' ? (getLabel('Verified') || 'Verified') : (getLabel('Unverified') || 'Unverified'),
     ])
 
-    // Combine headers and rows
     const csvContent = [headers, ...rows].map((row) => row.join(',')).join('\n')
-
-    // Create download link
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
@@ -229,30 +275,34 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
     document.body.removeChild(link)
   }
 
-  // Function to download data as PDF
   const downloadPDF = () => {
     if (!filteredData || filteredData.length === 0) return
 
     const doc = new jsPDF()
 
-    // Add title
     doc.setFontSize(16)
-    doc.text('KYC Data Report', 14, 15)
+    doc.text(getLabel('KYC_Data_Report') || 'KYC Data Report', 14, 15)
     doc.setFontSize(10)
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 22)
+    doc.text(`${getLabel('Generated_On') || 'Generated on'}: ${new Date().toLocaleDateString()}`, 14, 22)
 
-    // Prepare table data
-    const tableColumn = ['KYC ID', 'Customer Name', 'Nationality', 'Resident Country', 'Applicant ID', 'Status']
+    const tableColumn = [
+      getLabel('KYC_ID') || 'KYC ID',
+      getLabel('Customer_Name') || 'Customer Name',
+      getLabel('Nationality') || 'Nationality',
+      getLabel('Country_of_Residence') || 'Resident Country',
+      getLabel('Applicant_ID') || 'Applicant ID',
+      getLabel('Status') || 'Status'
+    ]
+    
     const tableRows = filteredData.map((item) => [
       item.kycId,
       item.applicantName,
       item.nationality,
       item.kycCountry,
       item.applicantId,
-      item.kycStatus === 'v' ? 'Verified' : 'Unverified',
+      item.kycStatus === 'v' ? (getLabel('Verified') || 'Verified') : (getLabel('Unverified') || 'Unverified'),
     ])
 
-    // Add table to PDF
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
@@ -261,7 +311,6 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
       headStyles: { fillColor: [41, 128, 185] },
     })
 
-    // Save the PDF
     doc.save('kyc_data_report.pdf')
   }
 
@@ -270,7 +319,7 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
 
     const payload = {
       commentText: newComment,
-      user: selectedKYC?.applicantName, // Replace with the actual user info
+      user: selectedKYC?.applicantName,
       kycId: selectedKYC?.kycId,
     }
 
@@ -289,15 +338,11 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
 
   const getKycDetailsById = async (kycId: string) => {
     try {
-      const response = await kycservice.getKycById(kycId)
-      //@ts-ignore
+      const response:any = await kycservice.getKycById(kycId)
       let image = response?.documents.find((doc: any) => doc?.documentType === 'image')?.documentUrl
-
       setImageUrl(image)
-
       setSelectedKYC(response)
       console.log(response)
-      //@ts-ignore
       setComments(response?.comments || [])
       if (checkboxOpen) {
         setCheckboxOpen(!checkboxOpen)
@@ -351,19 +396,12 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
     getApplicantKYCData()
   }
 
-  const renderUserImage = () => {
-    const record = selectedKYC?.documents.find((doc: any) => doc?.document?.documentType === 'image')
-    console.log(record?.documentUrl)
-    setImageUrl(record?.documentUrl)
-    // return record?.documentUrl
-  }
-
   return (
     <Box sx={{ width: '80vw', height: '70vh' }}>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.KYC}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h4" gutterBottom>
-            <strong>Know Your Customer</strong>
+            <strong>{getLabel('Know_Your_Customer') || 'Know Your Customer'}</strong>
           </Typography>
         </Box>
 
@@ -378,8 +416,8 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
             rows={filteredData || []}
             getRowId={(row) => row.kycId}
             columns={KycColumns || []}
-            filterModel={filterModel} // 🔹 Add this
-            onFilterModelChange={(model) => setFilterModel(model)} // 🔹 Add this
+            filterModel={filterModel}
+            onFilterModelChange={(model) => setFilterModel(model)}
             initialState={{
               pagination: {
                 paginationModel: { pageSize: 20, page: 0 },
@@ -389,15 +427,12 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
             loading={isLoading}
             slots={{
               loadingOverlay: LoaderUI.LoadingOverlay,
-              toolbar: CustomToolbar, // 🔹 Add the custom toolbar
+              toolbar: CustomToolbar,
             }}
             disableColumnMenu
           />
         </Box>
       </HasPermission>
-
-      {/* Rest of the component remains the same */}
-      {/* Full-Screen Drawer */}
 
       <Drawer
         anchor="right"
@@ -418,7 +453,7 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
                   color: 'white',
                 }}
               >
-                KYC ID : {selectedKYC?.kycId}
+                {getLabel('KYC_ID') || 'KYC ID'} : {selectedKYC?.kycId}
               </Typography>
 
               <Typography
@@ -437,10 +472,11 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
                   fontWeight: 'bold',
                 }}
               >
-                {selectedKYC?.kycStatus === 'v' ? 'Verified' : 'Unverified'}
+                {selectedKYC?.kycStatus === 'v' 
+                  ? (getLabel('Verified') || 'Verified') 
+                  : (getLabel('Unverified') || 'Unverified')}
               </Typography>
 
-              {/* Close button with space only before itself */}
               <Button
                 variant="contained"
                 color="success"
@@ -450,103 +486,123 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
                   height: 50,
                 }}
               >
-                Close
+                {getLabel('Close') || 'Close'}
               </Button>
             </Box>
 
-            {/* Applicant Details Section */}
             <Grid container>
               <Grid item xs={2} p={3}>
-        <Avatar
-  src={imageUrl
-    ?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')
-    .replace('http://64.227.139.142/', 'https://api.impronics.com/')
-  }
-  
-  sx={{
-    width: 100,          // fixed size
-    height: 100,         // must be equal to width
-    borderRadius: '50%', // makes it round
-    border: '4px solid',
-    borderColor: selectedKYC?.kycStatus === 'v' ? 'green' : 'red',
-    objectFit: 'cover',  // ensures image fills circle properly
-  }}
-/>
-            </Grid>
+                <Avatar
+                  src={imageUrl
+                    ?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')
+                    .replace('http://64.227.139.142/', 'https://api.impronics.com/')
+                  }
+                  sx={{
+                    width: 100,
+                    height: 100,
+                    borderRadius: '50%',
+                    border: '4px solid',
+                    borderColor: selectedKYC?.kycStatus === 'v' ? 'green' : 'red',
+                    objectFit: 'cover',
+                  }}
+                />
+              </Grid>
               <Grid item xs={10}>
                 <Typography variant="h6" gutterBottom color={theme.palette.secondary.main}>
-                  <strong> Applicant Details</strong>
+                  <strong>{getLabel('Applicant_Details') || 'Applicant Details'}</strong>
                 </Typography>
                 <Grid container spacing={2}>
                   <Grid item xs={3}>
                     <TextField
-                  
-                      label="Applicant ID"
+                      label={getLabel('Applicant_ID') }
                       variant="filled"
                       fullWidth
-                      //@ts-ignore
                       defaultValue={selectedKYC?.applicantId}
                       disabled
                     />
                   </Grid>
                   <Grid item xs={3}>
                     <TextField
-                      label="Customer Name"
+                      label={getLabel('Customer_Name') || 'Customer Name Test'}
                       variant="filled"
                       fullWidth
-                      //@ts-ignore
                       defaultValue={selectedKYC?.applicantName}
                       disabled
                     />
                   </Grid>
                   <Grid item xs={3}>
                     <TextField
-                      label="Nationality"
+                      label={getLabel('Nationality') || 'Nationality'}
                       variant="filled"
-                      defaultValue="Indian"
                       fullWidth
-                      //@ts-ignore
                       defaultValue={selectedKYC?.nationality}
                       disabled
                     />
                   </Grid>
-
-                     <Grid item xs={3}>
+                  <Grid item xs={3}>
                     <TextField
-                      label="Date"
+                      label={getLabel('Date') || 'Date'}
                       variant="filled"
-                      defaultValue={selectedKYC?.utcDatetime}
                       fullWidth
-                      //@ts-ignore
                       defaultValue={selectedKYC?.utcDatetime}
                       disabled
                     />
                   </Grid>
                   <Grid item xs={3}>
-                    <TextField fullWidth label="Residence Country" variant="filled" defaultValue={selectedKYC?.residentialAddressCountry} disabled />
+                    <TextField 
+                      fullWidth 
+                      label={getLabel('Country_of_Residence') || 'Residence Country'} 
+                      variant="filled" 
+                      defaultValue={selectedKYC?.residentialAddressCountry} 
+                      disabled 
+                    />
                   </Grid>
 
                   <Grid item xs={12}>
                     <Typography variant="caption" sx={{ color: 'grey', marginBottom: '1000px' }}>
-                      Permanent Address
+                      {getLabel('Permanent_Address') || 'Permanent Address'}
                     </Typography>
 
                     <Grid container spacing={2}>
                       <Grid item xs={6}>
-                        <TextField label="Address Line 1" variant="filled" fullWidth defaultValue={selectedKYC?.residentialAddressLine1} disabled />
+                        <TextField 
+                          label={getLabel('Address_Line_1') || 'Address Line 1'} 
+                          variant="filled" 
+                          fullWidth 
+                          defaultValue={selectedKYC?.residentialAddressLine1} 
+                          disabled 
+                        />
                       </Grid>
                       <Grid item xs={6}>
-                        <TextField label="Address Line 2" variant="filled" fullWidth defaultValue={selectedKYC?.residentialAddressLine2} disabled />
+                        <TextField 
+                          label={getLabel('Address_Line_2') || 'Address Line 2'} 
+                          variant="filled" 
+                          fullWidth 
+                          defaultValue={selectedKYC?.residentialAddressLine2} 
+                          disabled 
+                        />
                       </Grid>
                       <Grid item xs={2.3}>
-                        <TextField label="Suburb" variant="filled" fullWidth defaultValue={selectedKYC?.residentialAddressSuburb} disabled />
+                        <TextField 
+                          label={getLabel('Suburb') || 'Suburb'} 
+                          variant="filled" 
+                          fullWidth 
+                          defaultValue={selectedKYC?.residentialAddressSuburb} 
+                          disabled 
+                        />
                       </Grid>
                       <Grid item xs={2.3}>
-                        <TextField label="City" variant="filled" fullWidth defaultValue={selectedKYC?.residentialAddressCity} disabled />
+                        <TextField 
+                          label={getLabel('City') || 'City'} 
+                          variant="filled" 
+                          fullWidth 
+                          defaultValue={selectedKYC?.residentialAddressCity} 
+                          disabled 
+                        />
                       </Grid>
                       <Grid item xs={2.3}>
                         <TextField
-                          label="State/Province"
+                          label={getLabel('State_Province') || 'State/Province'}
                           variant="filled"
                           fullWidth
                           defaultValue={selectedKYC?.residentialAddressStateProvince}
@@ -554,13 +610,26 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
                         />
                       </Grid>
                       <Grid item xs={2.3}>
-                        <TextField label="Postal Code" variant="filled" fullWidth defaultValue={selectedKYC?.residentialAddressPostalCode} disabled />
+                        <TextField 
+                          label={getLabel('Postal_Code') || 'Postal Code'} 
+                          variant="filled" 
+                          fullWidth 
+                          defaultValue={selectedKYC?.residentialAddressPostalCode} 
+                          disabled 
+                        />
                       </Grid>
                       <Grid item xs={2.3}>
-                        <TextField label="Country" variant="filled" fullWidth defaultValue={selectedKYC?.residentialAddressCountry} disabled />
+                        <TextField 
+                          label={getLabel('Country') || 'Country'} 
+                          variant="filled" 
+                          fullWidth 
+                          defaultValue={selectedKYC?.residentialAddressCountry} 
+                          disabled 
+                        />
                       </Grid>
                     </Grid>
                   </Grid>
+                  
                   <Grid item xs={12}>
                     <Typography
                       variant="caption"
@@ -568,52 +637,70 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
                         color: 'grey',
                       }}
                     >
-                      Postal Address
+                      {getLabel('Postal_Address') || 'Postal Address'}
                     </Typography>
 
                     <Grid container spacing={2}>
                       <Grid item xs={6}>
-                        <TextField label="Address Line 1" disabled fullWidth defaultValue={selectedKYC?.postalAddressLine1} variant="filled" />
+                        <TextField 
+                          label={getLabel('Address_Line_1') || 'Address Line 1'} 
+                          disabled 
+                          fullWidth 
+                          defaultValue={selectedKYC?.postalAddressLine1} 
+                          variant="filled" 
+                        />
                       </Grid>
                       <Grid item xs={6}>
-                        <TextField label="Address Line 2" disabled fullWidth defaultValue={selectedKYC?.postalAddressLine2} variant="filled" />
+                        <TextField 
+                          label={getLabel('Address_Line_2') || 'Address Line 2'} 
+                          disabled 
+                          fullWidth 
+                          defaultValue={selectedKYC?.postalAddressLine2} 
+                          variant="filled" 
+                        />
                       </Grid>
                       <Grid item xs={2.3}>
-                        <TextField label="Suburb" variant="filled" fullWidth defaultValue={selectedKYC?.postalAddressSuburb} disabled />
+                        <TextField 
+                          label={getLabel('Suburb') || 'Suburb'} 
+                          variant="filled" 
+                          fullWidth 
+                          defaultValue={selectedKYC?.postalAddressSuburb} 
+                          disabled 
+                        />
                       </Grid>
                       <Grid item xs={2.3}>
-                        <TextField label="City" fullWidth defaultValue={selectedKYC?.postalAddressCity} variant="filled" disabled />
+                        <TextField 
+                          label={getLabel('City') || 'City'} 
+                          fullWidth 
+                          defaultValue={selectedKYC?.postalAddressCity} 
+                          variant="filled" 
+                          disabled 
+                        />
                       </Grid>
                       <Grid item xs={2.3}>
                         <TextField
-                          label="State/Province"
+                          label={getLabel('State_Province') || 'State/Province'}
                           fullWidth
-                          defaultValue="South Africa"
                           variant="filled"
                           disabled
-                          //@ts-ignore
                           defaultValue={selectedKYC?.postalAddressStateProvince}
                         />
                       </Grid>
                       <Grid item xs={2.3}>
                         <TextField
-                          label="Postal Code"
+                          label={getLabel('Postal_Code') || 'Postal Code'}
                           fullWidth
-                          defaultValue="South Africa"
                           variant="filled"
                           disabled
-                          //@ts-ignore
                           defaultValue={selectedKYC?.postalAddressPostalCode}
                         />
                       </Grid>
                       <Grid item xs={2.3}>
                         <TextField
-                          label="Country"
+                          label={getLabel('Country') || 'Country'}
                           fullWidth
-                          defaultValue="South Africa"
                           variant="filled"
                           disabled
-                          //@ts-ignore
                           defaultValue={selectedKYC?.postalAddressCountry}
                         />
                       </Grid>
@@ -623,29 +710,36 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
               </Grid>
             </Grid>
 
-            {/* KYC Status Section */}
             <Box mt={4}>
               <Typography variant="h6" gutterBottom color={theme.palette.secondary.main}>
-                <strong>KYC Documents</strong>
+                <strong>{getLabel('KYC_Documents') || 'KYC Documents'}</strong>
               </Typography>
               {selectedKYC?.documents?.map(
-                //@ts-ignore
-                (proofType) => (
+                (proofType: any) => (
                   <Grid container spacing={2} alignItems="center" mt={1} key={proofType}>
                     <Grid item xs={2}>
-                      <TextField label="Document Name" fullWidth defaultValue={proofType?.document?.documentType} disabled />
+                      <TextField 
+                        label={getLabel('Document_Name') || 'Document Name'} 
+                        fullWidth 
+                        defaultValue={proofType?.document?.documentType} 
+                        disabled 
+                      />
                     </Grid>
                     <Grid item xs={2}>
                       <TextField
-                        label="Verification Type"
+                        label={getLabel('Verification_Type') || 'Verification Type'}
                         fullWidth
                         defaultValue={proofType?.document?.complianceProcess === 'A' ? 'Auto' : 'Manual'}
                         disabled
                       />
                     </Grid>
-
                     <Grid item xs={2}>
-                      <TextField label="Document Status" fullWidth defaultValue="Uploaded" disabled />
+                      <TextField 
+                        label={getLabel('Document_Status') || 'Document Status'} 
+                        fullWidth 
+                        defaultValue="Uploaded" 
+                        disabled 
+                      />
                     </Grid>
                     <Grid item xs={2}>
                       <Typography
@@ -655,12 +749,10 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
                         }}
                       >
                         <a href={`${proofType?.documentFrontUrl}`} target="_blank" rel="noopener noreferrer">
-                        
-                          View More
+                          {getLabel('View_More') || 'View More'}
                         </a>
                       </Typography>
                     </Grid>
-
                     <Grid item xs={2}>
                       <Typography
                         style={{
@@ -675,7 +767,7 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
                       >
                         {proofType.verificationStatus === 'va' ? (
                           <>
-                            Verified
+                            {getLabel('Verified') || 'Verified'}
                             <IconButton
                               onClick={async () => {
                                 setCheckboxOpen(true)
@@ -691,7 +783,7 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
                           </>
                         ) : (
                           <>
-                            Pending
+                            {getLabel('Pending') || 'Pending'}
                             <IconButton
                               onClick={async () => {
                                 setCheckboxOpen(true)
@@ -712,7 +804,6 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
                       <IconButton
                         onClick={() => {
                           setOpen(true)
-                          // getKycDetailsById(selectedKYC?.kycId)
                         }}
                       >
                         <Comment />
@@ -726,9 +817,7 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
         </Box>
       </Drawer>
 
-      <Modal open={open} onClose={() =>{ 
-        
-        setOpen(false)}}>
+      <Modal open={open} onClose={() => setOpen(false)}>
         <Box
           sx={{
             position: 'absolute',
@@ -744,9 +833,8 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
             overflowY: 'auto',
           }}
         >
-          {/* Modal Header */}
           <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6">Comments</Typography>
+            <Typography variant="h6">{getLabel('Comments') || 'Comments'}</Typography>
             <IconButton onClick={() => setOpen(false)}>
               <Close />
             </IconButton>
@@ -754,11 +842,10 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
 
           <Divider sx={{ my: 2 }} />
 
-          {/* Comments List */}
           <List sx={{ maxHeight: '50vh', overflowY: 'auto' }}>
             {comments.length === 0 ? (
               <Typography variant="body2" align="center" color="text.secondary" sx={{ py: 2 }}>
-                No comments available
+                {getLabel('No_Comments') || 'No comments available'}
               </Typography>
             ) : (
               comments.map((comment: any, index: any) => (
@@ -800,8 +887,6 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
                           {dayjs(comment?.commentDate).format('DD/MM/YYYY hh:mm')}
                         </Typography>
                       </Box>
-
-                      {/* Comment Text */}
                       <Typography variant="body2" sx={{ color: 'text.primary', mt: 0.5 }}>
                         {comment?.commentText}
                       </Typography>
@@ -814,13 +899,12 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
 
           <Divider sx={{ my: 2 }} />
 
-          {/* Add Comment Section */}
           <Box display="flex" alignItems="center" gap={1}>
             <TextField
               fullWidth
               variant="outlined"
               size="small"
-              placeholder="Add a comment..."
+              placeholder={getLabel('Add_Comment') || 'Add a comment...'}
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
             />
@@ -834,14 +918,14 @@ validiation.getScreenFieldvalidation("KYC",local_service.get_staff_country(),"W"
       {checkboxOpen && (
         <ConfirmationModal
           showIcon={false}
-          //@ts-ignore
-        
-          confirmBtnText={prooftype?.verificationStatus === 'va' ? 'Unverify' : 'Verify'}
+          confirmBtnText={prooftype?.verificationStatus === 'va' 
+            ? (getLabel('Unverify') || 'Unverify') 
+            : (getLabel('Verify') || 'Verify')}
           isOpen={checkboxOpen}
-          //@ts-ignore
-          message={prooftype?.verificationStatus === 'va' ? 'Do you want to unverify this document?' : 'Do you want to verify this document?'}
+          message={prooftype?.verificationStatus === 'va' 
+            ? (getLabel('Unverify_Confirmation') || 'Do you want to unverify this document?') 
+            : (getLabel('Verify_Confirmation') || 'Do you want to verify this document?')}
           handleConfirm={() => {
-            //@ts-ignore
             prooftype?.verificationStatus === 'va' ? unverifyProofType(prooftype) : verifyProofType(prooftype)
           }}
           handleClose={() => setCheckboxOpen(false)}

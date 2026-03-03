@@ -39,6 +39,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ confirmBtnText = 
           <Button
             variant="contained"
             color="primary"
+            id="imp-logout-popup"
             sx={{ mr: 1 }}
             onClick={() => { handleConfirm() }}
           >
@@ -46,6 +47,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ confirmBtnText = 
           </Button>
           <Button
             variant="outlined"
+            id="imp-logout-cancel"
             color="secondary"
             onClick={() => { handleClose() }}
             sx={{color:theme.palette.text.primary , borderColor:theme.palette.text.primary}}

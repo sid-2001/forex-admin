@@ -110,7 +110,7 @@
 // export default CountryBusinessPayoutPartner
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
@@ -221,22 +221,22 @@ const CountryBusinessPayoutPartner = () => {
 
   return (
     <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{
-          fontWeight: 700,
-          // color: 'text.primary',
-          letterSpacing: '-0.02em',
-          display: 'grid',
-          placeItems: 'center',
-          mb: 5,
-          color: '#0061B1',
-        }}
-      >
-        {'Country Business Payout Partner'.toUpperCase()}
-      </Typography>
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            // color: 'text.primary',
+            letterSpacing: '-0.02em',
+            display: 'grid',
+            placeItems: 'center',
+            // mb: 5,
+            color: '#0061B1',
+          }}
+        >
+          {'Country Business Payout Partner'.toUpperCase()}
+        </Typography>
         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
           {/* Country Business Payout Partner */}
         </Typography>
@@ -256,6 +256,9 @@ const CountryBusinessPayoutPartner = () => {
         columns={columns}
         loading={loading}
         autoHeight
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
+        disableColumnMenu
         getRowId={(row) => row.countryBusinessPayoutPartnerCode}
         // initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
         initialState={{

@@ -1,181 +1,3 @@
-// import React, { useEffect, useState } from 'react'
-// import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, FormControlLabel, Grid, Checkbox } from '@mui/material'
-// // import { IVendor } from './types'
-// import VendorApiService from '../../services/vendor.api.service'
-// interface IVendor {
-//   vendorCode: string
-//   vendorName: string
-//   countryCode: string
-//   currencyCode: string
-//   vendorAddress1: string
-//   vendorAddress2: string
-//   vendorCountry: string
-//   vendorState: string
-//   vendorZipCode: string
-//   vendorMobile: string
-//   vendorEmail: string
-//   vendorType: string
-//   active: boolean
-// }
-
-// interface FormProps {
-//   open: boolean
-//   editData: IVendor | null
-//   onClose: () => void
-//   refreshList: () => void
-//   showAlert: (type: string, message: string) => void
-// }
-
-// const emptyForm: IVendor = {
-//   vendorCode: '',
-//   vendorName: '',
-//   countryCode: '',
-//   currencyCode: '',
-//   vendorAddress1: '',
-//   vendorAddress2: '',
-//   vendorCountry: '',
-//   vendorState: '',
-//   vendorZipCode: '',
-//   vendorMobile: '',
-//   vendorEmail: '',
-//   vendorType: '',
-//   active: true,
-// }
-
-// export default function VendorApiFormDialog({ open, editData, onClose, refreshList, showAlert }: FormProps) {
-//   const service = new VendorApiService()
-//   const [formData, setFormData] = useState<IVendor>(emptyForm)
-//   const [errors, setErrors] = useState<Partial<Record<keyof IVendor, string>>>({})
-
-//   useEffect(() => {
-//     if (editData && open) {
-//       setFormData({ ...editData })
-//     } else {
-//       setFormData(emptyForm)
-//       setErrors({})
-//     }
-//   }, [editData, open])
-
-//   const handleChange = (field: keyof IVendor, value: any) => {
-//     setFormData((prev) => ({ ...prev, [field]: value }))
-//   }
-
-//   const validate = (): boolean => {
-//     const errs: Partial<Record<keyof IVendor, string>> = {}
-//     if (!formData.vendorCode) errs.vendorCode = 'Required'
-//     if (!formData.vendorName) errs.vendorName = 'Required'
-//     if (!formData.vendorEmail) errs.vendorEmail = 'Required'
-//     setErrors(errs)
-//     return Object.keys(errs).length === 0
-//   }
-
-//   const handleSubmit = async () => {
-//     if (!validate()) return
-//     try {
-//       if (editData) {
-//         await service.update(editData.vendorCode, formData)
-//       } else {
-//         await service.create(formData)
-//       }
-//       showAlert('success', `Vendor ${editData ? 'Updated' : 'Created'} Successfully`)
-//       refreshList()
-//       onClose()
-//     } catch (e) {
-//       showAlert('error', 'Server Error occurred')
-//     }
-//   }
-
-//   return (
-//     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-//       <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Edit Vendor Master' : 'Create Vendor Master'}</DialogTitle>
-//       <DialogContent dividers>
-//         <Grid container spacing={2} mt={1}>
-//           <Grid item xs={4}>
-//             <TextField
-//               label="Vendor Code"
-//               fullWidth
-//               required
-//               disabled={!!editData}
-//               value={formData.vendorCode}
-//               error={!!errors.vendorCode}
-//               helperText={errors.vendorCode}
-//               onChange={(e) => handleChange('vendorCode', e.target.value.toUpperCase())}
-//             />
-//           </Grid>
-//           <Grid item xs={8}>
-//             <TextField
-//               label="Vendor Name"
-//               fullWidth
-//               required
-//               value={formData.vendorName}
-//               error={!!errors.vendorName}
-//               onChange={(e) => handleChange('vendorName', e.target.value)}
-//             />
-//           </Grid>
-//           <Grid item xs={4}>
-//             <TextField
-//               label="Country Code"
-//               fullWidth
-//               value={formData.countryCode}
-//               onChange={(e) => handleChange('countryCode', e.target.value.toUpperCase())}
-//             />
-//           </Grid>
-//           <Grid item xs={4}>
-//             <TextField
-//               label="Currency Code"
-//               fullWidth
-//               value={formData.currencyCode}
-//               onChange={(e) => handleChange('currencyCode', e.target.value.toUpperCase())}
-//             />
-//           </Grid>
-//           <Grid item xs={4}>
-//             <TextField label="Vendor Type" fullWidth value={formData.vendorType} onChange={(e) => handleChange('vendorType', e.target.value)} />
-//           </Grid>
-//           <Grid item xs={6}>
-//             <TextField label="Email" fullWidth value={formData.vendorEmail} onChange={(e) => handleChange('vendorEmail', e.target.value)} />
-//           </Grid>
-//           <Grid item xs={6}>
-//             <TextField label="Mobile" fullWidth value={formData.vendorMobile} onChange={(e) => handleChange('vendorMobile', e.target.value)} />
-//           </Grid>
-//           <Grid item xs={6}>
-//             <TextField label="Address 1" fullWidth value={formData.vendorAddress1} onChange={(e) => handleChange('vendorAddress1', e.target.value)} />
-//           </Grid>
-//           <Grid item xs={6}>
-//             <TextField label="Address 2" fullWidth value={formData.vendorAddress2} onChange={(e) => handleChange('vendorAddress2', e.target.value)} />
-//           </Grid>
-//           <Grid item xs={4}>
-//             <TextField label="State" fullWidth value={formData.vendorState} onChange={(e) => handleChange('vendorState', e.target.value)} />
-//           </Grid>
-//           <Grid item xs={4}>
-//             <TextField label="Zip Code" fullWidth value={formData.vendorZipCode} onChange={(e) => handleChange('vendorZipCode', e.target.value)} />
-//           </Grid>
-//           <Grid item xs={4}>
-//             <TextField
-//               label="Country"
-//               fullWidth
-//               value={formData.vendorCountry}
-//               onChange={(e) => handleChange('vendorCountry', e.target.value.toUpperCase())}
-//             />
-//           </Grid>
-//           <Grid item xs={12}>
-//             <FormControlLabel
-//               control={<Checkbox checked={formData.active} onChange={(e) => handleChange('active', e.target.checked)} />}
-//               label="Active Status"
-//             />
-//           </Grid>
-//         </Grid>
-//       </DialogContent>
-//       <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
-//         <Button onClick={onClose} color="inherit">
-//           Cancel
-//         </Button>
-//         <Button variant="contained" onClick={handleSubmit}>
-//           {editData ? 'Update' : 'Save'}
-//         </Button>
-//       </DialogActions>
-//     </Dialog>
-//   )
-// }
 import {
   Dialog,
   DialogTitle,
@@ -193,8 +15,9 @@ import { useState, useEffect } from 'react'
 import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
-import VendorApiService, { IVendor } from '../../services/vendor.api.service'
-
+import VendorApiService from '../../services/vendor.api.service'
+import ForexCurrencyService from '@/services/forex-currency.service'
+import StateService from '@/services/state.service'
 const filter = createFilterOptions({
   matchFrom: 'any',
   stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
@@ -203,7 +26,9 @@ const filter = createFilterOptions({
 export default function VendorApiFormDialog({ open, onClose, editData, refreshList, showAlert }: any) {
   const [countries] = useRecoilState(countyState)
   const service = new VendorApiService()
-
+  const forexService = new ForexCurrencyService()
+  const stateService = new StateService()
+  const [currencies, setCurrencies] = useState<any[]>([])
   const [form, setForm] = useState({
     vendorCode: '',
     vendorName: '',
@@ -222,6 +47,50 @@ export default function VendorApiFormDialog({ open, onClose, editData, refreshLi
   })
 
   const [errors, setErrors] = useState<any>({})
+  const [statesList, setStatesList] = useState<any[]>([]) // Add this
+  const [loadingStates, setLoadingStates] = useState(false)
+
+  const fetchStates = async () => {
+    setLoadingStates(true)
+    try {
+      // Replace with your actual service call
+      const res = await stateService.getStateList()
+      const data = res?.data || res
+      setStatesList(Array.isArray(data) ? data : [])
+    } catch (err) {
+      console.error('Error fetching states', err)
+    } finally {
+      setLoadingStates(false)
+    }
+  }
+
+  useEffect(() => {
+    if (open) {
+      fetchCurrencies()
+      fetchStates()
+    }
+  }, [open])
+
+  const fetchCurrencies = async () => {
+    try {
+      const res = await forexService.getAll()
+      console.log(res, 'bhanu')
+
+      if (res && Array.isArray(res)) {
+        setCurrencies(res)
+      } else if (res && (res as any).data) {
+        setCurrencies((res as any).data)
+      }
+    } catch (err) {
+      console.error('Error fetching currencies', err)
+    }
+  }
+
+  useEffect(() => {
+    if (open) {
+      fetchCurrencies()
+    }
+  }, [open])
 
   useEffect(() => {
     if (editData && open) {
@@ -264,9 +133,9 @@ export default function VendorApiFormDialog({ open, onClose, editData, refreshLi
 
   const validate = () => {
     const newErrors: any = {}
-    // Required Field Validations
     if (!form.selectedCountry) newErrors.selectedCountry = 'Required'
-    if (!form.vendorCode.trim()) newErrors.vendorCode = 'Required'
+    if (!form.currencyCode) newErrors.currencyCode = 'Required'
+    // if (!form.vendorCode.trim()) newErrors.vendorCode = 'Required'
     if (!form.vendorName.trim()) newErrors.vendorName = 'Required'
     if (!form.vendorEmail.trim()) newErrors.vendorEmail = 'Required'
     if (!form.vendorMobile.trim()) newErrors.vendorMobile = 'Required'
@@ -274,13 +143,11 @@ export default function VendorApiFormDialog({ open, onClose, editData, refreshLi
     if (!form.effectiveFromDate) newErrors.effectiveFromDate = 'Required'
     if (!form.effectiveToDate) newErrors.effectiveToDate = 'Required'
 
-    // Email format check
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (form.vendorEmail && !emailRegex.test(form.vendorEmail)) {
       newErrors.vendorEmail = 'Invalid Email'
     }
 
-    // Date logic check (from your reference)
     if (form.effectiveFromDate && form.effectiveToDate) {
       if (new Date(form.effectiveToDate) < new Date(form.effectiveFromDate)) {
         newErrors.effectiveToDate = 'End Date cannot be before Start Date'
@@ -295,17 +162,14 @@ export default function VendorApiFormDialog({ open, onClose, editData, refreshLi
     if (!validate()) return
 
     try {
-      // Construct the payload and format the dates
       const payload = {
         ...form,
         countryCode: form.selectedCountry,
         vendorCountry: form.selectedCountry,
-        // Append the time string to match YYYY-MM-DDTHH:mm:ss
         effectiveFromDate: form.effectiveFromDate ? `${form.effectiveFromDate}T00:00:00` : null,
         effectiveToDate: form.effectiveToDate ? `${form.effectiveToDate}T00:00:00` : null,
       }
 
-      // Remove the helper field 'selectedCountry' if the API doesn't expect it
       delete (payload as any).selectedCountry
 
       if (editData) {
@@ -341,11 +205,25 @@ export default function VendorApiFormDialog({ open, onClose, editData, refreshLi
               renderInput={(p) => <TextField {...p} label="Country" error={!!errors.selectedCountry} helperText={errors.selectedCountry} required />}
             />
           </Grid>
+
           <Grid item xs={12} sm={6}>
-            <TextField fullWidth label="Currency Code" value={form.currencyCode} />
+            <Autocomplete
+              disablePortal // Important: ensures the list renders on top of the Dialog
+              options={currencies || []}
+              getOptionLabel={(option) => (option.currencyCode ? `${option.currencyCode} - ${option.currencyName}` : '')}
+              isOptionEqualToValue={(option, value) => option.currencyCode === value.currencyCode}
+              // Correctly finds the object in the list based on the string code in form state
+              value={currencies.find((c) => c.currencyCode === form.currencyCode) || null}
+              onChange={(_, newValue) => {
+                setForm({ ...form, currencyCode: newValue ? newValue.currencyCode : '' })
+              }}
+              renderInput={(params) => (
+                <TextField {...params} label="Currency Code" required error={!!errors.currencyCode} helperText={errors.currencyCode} />
+              )}
+            />
           </Grid>
 
-          <Grid item xs={12} sm={4}>
+          {/* <Grid item xs={12} sm={4}>
             <TextField
               fullWidth
               label="Vendor Code"
@@ -356,8 +234,8 @@ export default function VendorApiFormDialog({ open, onClose, editData, refreshLi
               helperText={errors.vendorCode}
               required
             />
-          </Grid>
-          <Grid item xs={12} sm={8}>
+          </Grid> */}
+          <Grid item xs={12} sm={12}>
             <TextField
               fullWidth
               label="Vendor Name"
@@ -412,8 +290,21 @@ export default function VendorApiFormDialog({ open, onClose, editData, refreshLi
             />
           </Grid>
 
-          <Grid item xs={12} sm={4}>
+          {/* <Grid item xs={12} sm={4}>
             <TextField fullWidth label="State" value={form.vendorState} onChange={(e) => setForm({ ...form, vendorState: e.target.value })} />
+          </Grid> */}
+          <Grid item xs={12} sm={4}>
+            <Autocomplete
+              options={statesList}
+              loading={loadingStates}
+              value={statesList.find((s) => s.StateCode === form.vendorState) || null}
+              getOptionLabel={(option) => option.StateDescription || ''}
+              isOptionEqualToValue={(option, value) => option.StateCode === value.StateCode}
+              onChange={(_, newValue) => {
+                setForm({ ...form, vendorState: newValue ? newValue.StateCode : '' })
+              }}
+              renderInput={(params) => <TextField {...params} label="State" fullWidth />}
+            />
           </Grid>
           <Grid item xs={12} sm={4}>
             <TextField fullWidth label="Zip Code" value={form.vendorZipCode} onChange={(e) => setForm({ ...form, vendorZipCode: e.target.value })} />

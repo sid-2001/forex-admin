@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 
 import ForexCurrencyService, { ForexCurrency } from '@/services/forex-currency.service'
 import ForexCurrencyDialog from '@/components/forex-currency-dialog'
 import { formatTableDate } from '@/helpers/dateformate'
+import { useRecoilState } from 'recoil'
+import { alertState, alertTextState, alertTypeState } from '@/states/state'
 
 export default function ForexCurrencyMaster() {
   const service = new ForexCurrencyService()
@@ -14,6 +16,17 @@ export default function ForexCurrencyMaster() {
   const [rows, setRows] = useState<ForexCurrency[]>([])
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editData, setEditData] = useState<ForexCurrency | null>(null)
+  // Inside your function component at the top
+  const [alertOpen, setAlertOpen] = useRecoilState(alertState)
+  const [alertText, setAlertText] = useRecoilState(alertTextState)
+  const [alertType, setAlertType] = useRecoilState(alertTypeState)
+
+  // Then add the helper function
+  const showAlert = (type: 'Success' | 'Fail', text: string) => {
+    setAlertType(type)
+    setAlertText(text)
+    setAlertOpen(true)
+  }
 
   const fetchData = async () => {
     const res = await service.getAll()
@@ -25,14 +38,20 @@ export default function ForexCurrencyMaster() {
   }, [])
 
   const handleCreate = async (data: any) => {
-    await service.create(data)
-    setDialogOpen(false)
-    fetchData()
+    try {
+      await service.create(data)
+      setDialogOpen(false)
+      showAlert('Success', 'Currency created successfully')
+      fetchData()
+    } catch (e) {
+      showAlert('Fail', 'Please check the fields')
+    }
   }
 
   const handleUpdate = async (data: any) => {
     if (!editData) return
     await service.update(editData.countryCode, data)
+    showAlert('Success', 'Currency Updated successfully')
     setEditData(null)
     setDialogOpen(false)
     fetchData()
@@ -56,20 +75,20 @@ export default function ForexCurrencyMaster() {
       renderCell: (params) => (params.value ? 'Yes' : 'No'),
       headerClassName: 'super-app-theme--header',
     },
-    // {
-    //   field: 'effective_from_date',
-    //   headerName: 'Effective From',
-    //   flex: 0.8,
-    //   headerClassName: 'super-app-theme--header',
-    //   renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
-    // },
-    // {
-    //   field: 'effective_to_date',
-    //   headerName: 'Effective To',
-    //   flex: 0.8,
-    //   headerClassName: 'super-app-theme--header',
-    //   renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
-    // },
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 0.8,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
+    },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -96,21 +115,21 @@ export default function ForexCurrencyMaster() {
 
   return (
     <Box p={2} sx={{ width: '85vw' }}>
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{
-          fontWeight: 700,
-          letterSpacing: '-0.02em',
-          display: 'grid',
-          placeItems: 'center',
-          mb: 5,
-          color: '#0061B1',
-        }}
-      >
-        {'Currency master'.toUpperCase()}
-      </Typography>
-      <Stack direction="row" justifyContent="flex-end" mb={2}>
+      <Stack direction="row" justifyContent="space-between" mb={2}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            display: 'grid',
+            placeItems: 'center',
+            // mb: 5,
+            color: '#0061B1',
+          }}
+        >
+          {'Currency master'.toUpperCase()}
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {
@@ -127,6 +146,9 @@ export default function ForexCurrencyMaster() {
         getRowId={(row) => row.countryCode}
         columns={columns}
         autoHeight
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
+        disableColumnMenu
         pageSizeOptions={[5]}
         initialState={{
           pagination: { paginationModel: { page: 0, pageSize: 5 } },

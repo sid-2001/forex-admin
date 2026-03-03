@@ -14,7 +14,7 @@ export default class ScreenService extends BaseService {
     const url = '/api/bop/screen/getAllscreens'; 
     try {
       const { data } = await api1.get(url);
-      return data.data || data; 
+      return data  
     } catch (err) {
       return [];
     }

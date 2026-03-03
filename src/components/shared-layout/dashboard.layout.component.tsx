@@ -813,6 +813,7 @@ const DashboardLayout = () => {
             <Box sx={{ display: 'flex', alignItems: 'left', gap: 2 }}>
               <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
                 <IconButton
+              id="imp-change-appearence"
                   onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
                   color="inherit"
                   sx={{
@@ -934,6 +935,8 @@ const DashboardLayout = () => {
                   button
                   selected={selectedApp === item.label}
                   key={index}
+                  // id={}
+                  id={'imp-' + item.label}
                   sx={{
                     justifyContent: isDrawerOpen ? 'flex-start' : 'center',
                     textAlign: 'center',
@@ -977,6 +980,7 @@ const DashboardLayout = () => {
 
               <ListItem
                 button
+                id="imp-master-data"
                 key="logout"
                 sx={{
                   textAlign: 'center',
@@ -1003,6 +1007,7 @@ const DashboardLayout = () => {
               <ListItem
                 button
                 key="logout"
+                id="imp-logout"
                 sx={{
                   textAlign: 'center',
                   alignItems: 'center',
@@ -1024,6 +1029,7 @@ const DashboardLayout = () => {
                   </Item> */}
                   {isDrawerOpen && (
                     <Item
+                    id="imp-logout-menu"
                       style={{
                         color: 'white',
                         padding: '1%',
@@ -1042,6 +1048,7 @@ const DashboardLayout = () => {
               }}
             >
               <ListItem
+                id="imp-logout-parent"
                 button
                 key="logout"
                 sx={{

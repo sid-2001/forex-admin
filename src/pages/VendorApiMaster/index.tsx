@@ -195,7 +195,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react'
 import { Box, Button, IconButton, Stack, Typography, TextField, InputAdornment } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SearchIcon from '@mui/icons-material/Search'
@@ -294,11 +294,10 @@ export default function VendorApiMaster() {
 
   return (
     <Box p={3} sx={{ width: '100%', '& .header-bg': { fontWeight: 'bold', bgcolor: '#f5f5f5' } }}>
-      <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 3, color: '#0061B1', textAlign: 'center' }}>
-        VENDOR MASTER
-      </Typography>
-
-      <Stack direction="row" justifyContent="right" mb={2}>
+      <Stack direction="row" justifyContent="space-between" mb={2}>
+        <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
+          VENDOR MASTER
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {
@@ -316,6 +315,9 @@ export default function VendorApiMaster() {
         loading={loading}
         getRowId={(row) => row.vendorCode}
         autoHeight
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
+        disableColumnMenu
         // initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
         initialState={{
           pagination: {

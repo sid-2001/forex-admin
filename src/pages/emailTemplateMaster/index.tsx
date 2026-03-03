@@ -1,5 +1,5 @@
 import { Button, Stack, IconButton, Box, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import { useEffect, useState, useMemo, useCallback } from 'react'
 
@@ -7,6 +7,8 @@ import EmailTemplateMasterDialog from '../../components/emailTemplateMasterDialo
 import EmailTemplateService from '../../services/email-template.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { formatTableDate } from '@/helpers/dateformate'
+import { useRecoilState } from 'recoil'
+import { alertState, alertTextState, alertTypeState } from '@/states/state'
 
 export default function EmailTemplateManagement() {
   const [open, setOpen] = useState(false)
@@ -17,6 +19,16 @@ export default function EmailTemplateManagement() {
 
   const emailService = useMemo(() => new EmailTemplateService(), [])
   const local_service = useMemo(() => new LocalStorageService(), [])
+  const [alertOpen, setAlertOpen] = useRecoilState(alertState)
+  const [alertText, setAlertText] = useRecoilState(alertTextState)
+  const [alertType, setAlertType] = useRecoilState(alertTypeState)
+
+  // Then add the helper function
+  const showAlert = (type: 'Success' | 'Fail', text: string) => {
+    setAlertType(type)
+    setAlertText(text)
+    setAlertOpen(true)
+  }
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -44,9 +56,11 @@ export default function EmailTemplateManagement() {
     const id = editData?.emailTemplateCode
     try {
       await emailService.updateTemplate(id, { ...data, modifiedBy: local_service?.get_staff_id() || 'APSNGGGN3624' })
+      showAlert('Success', 'Updated successfully')
       setOpen(false)
       fetchData()
     } catch (err) {
+      showAlert('Fail', 'Please see the fields' + err)
       console.error(err)
     }
   }
@@ -58,10 +72,12 @@ export default function EmailTemplateManagement() {
         setErrMasage(res.message)
         return
       }
+      showAlert('Success', 'Created successfully')
       setOpen(false)
       fetchData()
     } catch (err) {
       console.error(err)
+      showAlert('Fail', 'Please see the fields' + err)
     }
   }
 
@@ -106,21 +122,21 @@ export default function EmailTemplateManagement() {
 
   return (
     <Box>
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{
-          fontWeight: 700,
-          letterSpacing: '-0.02em',
-          display: 'grid',
-          placeItems: 'center',
-          mb: 5,
-          color: '#0061B1',
-        }}
-      >
-        {'Email master'.toUpperCase()}
-      </Typography>
-      <Stack direction="row" mb={2} mt={2} justifyContent={'flex-end'}>
+      <Stack direction="row" mb={2} mt={2} justifyContent={'space-between'}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            display: 'grid',
+            placeItems: 'center',
+            // mb: 5,
+            color: '#0061B1',
+          }}
+        >
+          {'Email master'.toUpperCase()}
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {
@@ -137,6 +153,9 @@ export default function EmailTemplateManagement() {
           columns={columns}
           loading={loading}
           getRowId={(row) => row.emailTemplateCode}
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
           initialState={{ pagination: { paginationModel: { page: 0, pageSize: 5 } } }}
         />
       </div>

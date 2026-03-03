@@ -1,5 +1,5 @@
 import { Button, Stack, IconButton, Box, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import WhatsappTemplateDialog from '../../components/whatsAppDialog'
@@ -140,24 +140,24 @@ export default function WhatsappTemplateManagement() {
 
   return (
     <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{
-          fontWeight: 700,
-          letterSpacing: '-0.02em',
-          display: 'grid',
-          placeItems: 'center',
-          mb: 5,
-          color: '#0061B1',
-        }}
-      >
-        {'whatsApp master'.toUpperCase()}
-      </Typography>
-      <Stack direction="row" justifyContent="flex-end" alignItems="center" mb={2}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
         {/* <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
           WhatsApp Template Management
         </Typography> */}
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            display: 'grid',
+            placeItems: 'center',
+            // mb: 5,
+            color: '#0061B1',
+          }}
+        >
+          {'whatsApp master'.toUpperCase()}
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {
@@ -176,6 +176,9 @@ export default function WhatsappTemplateManagement() {
         getRowId={(row) => row.whatsappTemplateCode}
         autoHeight
         disableRowSelectionOnClick
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
+        disableColumnMenu
         initialState={{
           pagination: {
             paginationModel: {

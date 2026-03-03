@@ -1,5 +1,5 @@
 import { Button, Stack, IconButton, Box, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useEffect, useState, useCallback, useMemo } from 'react'
@@ -65,8 +65,9 @@ export default function ProductManagement() {
           ...data,
           createdBy: local_service.get_staff_id(),
         })
-
-    if (res) {
+    if (res.status == false) {
+      showAlert('Fail', `${res.message}`)
+    } else if (res) {
       showAlert('Success', `Product ${isUpdate ? 'Updated' : 'Created'} Successfully`)
       setOpen(false)
       fetchData()
@@ -152,22 +153,22 @@ export default function ProductManagement() {
 
   return (
     <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{
-          fontWeight: 700,
-          // color: 'text.primary',
-          letterSpacing: '-0.02em',
-          display: 'grid',
-          placeItems: 'center',
-          mb: 5,
-          color: '#0061B1',
-        }}
-      >
-        {'Product Master'.toUpperCase()}
-      </Typography>
-      <Stack direction="row" justifyContent="flex-end" mb={2}>
+      <Stack direction="row" justifyContent="space-between" mb={2}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            // color: 'text.primary',
+            letterSpacing: '-0.02em',
+            display: 'grid',
+            placeItems: 'center',
+            // mb: 5,
+            color: '#0061B1',
+          }}
+        >
+          {'Product Master'.toUpperCase()}
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {
@@ -184,6 +185,9 @@ export default function ProductManagement() {
         columns={columns}
         loading={loading}
         getRowId={(row) => row.countryProductCode || Math.random()}
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
+        disableColumnMenu
         autoHeight
         initialState={{
           pagination: { paginationModel: { page: 0, pageSize: 5 } },

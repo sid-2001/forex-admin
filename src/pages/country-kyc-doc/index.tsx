@@ -1,5 +1,5 @@
 import { Button, Stack, IconButton, Box, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import CountryKycDocDialog from '../../components/countryKycDocDialog'
@@ -126,21 +126,20 @@ export default function CountryKycDocManagement() {
 
   return (
     <Box p={3}>
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{
-          fontWeight: 700,
-          letterSpacing: '-0.02em',
-          display: 'grid',
-          placeItems: 'center',
-          mb: 5,
-          color: '#0061B1',
-        }}
-      >
-        {'kyc master'.toUpperCase()}
-      </Typography>
-      <Stack direction="row" mb={2} justifyContent={'flex-end'}>
+      <Stack direction="row" mb={2} justifyContent={'space-between'}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            display: 'grid',
+            placeItems: 'center',
+            color: '#0061B1',
+          }}
+        >
+          {'kyc master'.toUpperCase()}
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {
@@ -158,6 +157,9 @@ export default function CountryKycDocManagement() {
           columns={columns}
           loading={loading}
           getRowId={(r) => r.countryKycDocCode}
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
           initialState={{
             pagination: {
               paginationModel: {

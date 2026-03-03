@@ -1,5 +1,5 @@
 import { Button, Stack, IconButton, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useEffect, useState, useMemo } from 'react'
@@ -8,6 +8,8 @@ import SubServiceFormDialog from '../../components/subServiceDialog'
 import SubServiceService from '../../services/sub-service.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import dayjs from 'dayjs'
+import { useRecoilState } from 'recoil'
+import { alertState, alertTextState, alertTypeState } from '@/states/state'
 
 export default function SubServiceManagement() {
   const [open, setOpen] = useState(false)
@@ -17,6 +19,16 @@ export default function SubServiceManagement() {
 
   const subService = useMemo(() => new SubServiceService(), [])
   const local_service = useMemo(() => new LocalStorageService(), [])
+
+  const [alertOpen, setAlertOpen] = useRecoilState(alertState)
+  const [alertText, setAlertText] = useRecoilState(alertTextState)
+  const [alertType, setAlertType] = useRecoilState(alertTypeState)
+
+  const showAlert = (type: 'Success' | 'Fail', text: string) => {
+    setAlertType(type)
+    setAlertText(text)
+    setAlertOpen(true)
+  }
 
   const fetchData = async () => {
     setLoading(true)
@@ -45,9 +57,11 @@ export default function SubServiceManagement() {
       }
       await subService.createSubService(payload)
       setOpen(false)
+      showAlert('Success', '✨ Sub-Service added  successfully')
       fetchData()
     } catch (e) {
       console.error(e)
+      showAlert('Fail', 'Creation failed' + ' ' + e)
     }
   }
 
@@ -57,6 +71,7 @@ export default function SubServiceManagement() {
 
     await subService.updateSubService(id, { ...data, subServiceCode: id, modifiedBy: local_service.get_staff_id() })
     setOpen(false)
+    showAlert('Success', 'Sub Service saved successfully')
     fetchData()
   }
 
@@ -82,6 +97,7 @@ export default function SubServiceManagement() {
 
   const columns: GridColDef[] = [
     { field: 'subServiceCodeGenerated', headerName: 'Sub Service Code', flex: 1, headerClassName: 'super-app-theme--header' },
+     { field: 'subServiceName', headerName: 'Sub Service Name', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'countryCode', headerName: 'Country', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'active', headerName: 'Active', flex: 0.7, renderCell: (p) => (p.value ? 'Yes' : 'No'), headerClassName: 'super-app-theme--header' },
     {
@@ -124,22 +140,22 @@ export default function SubServiceManagement() {
 
   return (
     <>
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{
-          fontWeight: 700,
-          // color: 'text.primary',
-          letterSpacing: '-0.02em',
-          display: 'grid',
-          placeItems: 'center',
-          mb: 5,
-          color: '#0061B1',
-        }}
-      >
-        {'Sub Service Master'.toUpperCase()}
-      </Typography>
-      <Stack direction="row" justifyContent="flex-end" mb={2} mt={2} style={{ marginRight: -75 }}>
+      <Stack direction="row" justifyContent="space-between" mb={2} mt={2} style={{ marginRight: -75 }}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            // color: 'text.primary',
+            letterSpacing: '-0.02em',
+            display: 'grid',
+            placeItems: 'center',
+            // mb: 5,
+            color: '#0061B1',
+          }}
+        >
+          {'Sub Service Master'.toUpperCase()}
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {
@@ -159,6 +175,9 @@ export default function SubServiceManagement() {
           getRowId={(row) => row.subServiceCodeGenerated || Math.random()}
           pageSizeOptions={[10, 20, 50]}
           disableRowSelectionOnClick
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
           initialState={{
             pagination: {
               paginationModel: {

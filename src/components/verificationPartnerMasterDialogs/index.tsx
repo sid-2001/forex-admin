@@ -92,7 +92,7 @@ export default function VerificationPartnerMasterDialog({ open, onClose, onSubmi
         <Grid container spacing={2} sx={{ mt: 0.5 }}>
           <Grid item xs={12}>
             <Autocomplete
-              options={countries || []}
+              options={countries?.filter((c) => c.status === 'A') || []}
               filterOptions={filter}
               getOptionLabel={(option) => `${option.countryName} (${option.countryCode})`}
               value={countries?.find((c) => c.countryCode === form.countryCode) || null}

@@ -183,7 +183,7 @@
 // }
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Box, Button, IconButton, Stack, Typography, TextField, InputAdornment } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import SearchIcon from '@mui/icons-material/Search'
 import BopCategoryFormDialog from '../../components/bopcategorydialog'
@@ -287,23 +287,22 @@ export default function BopCategoryMaster() {
 
   return (
     <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{
-          fontWeight: 700,
-          // color: 'text.primary',
-          letterSpacing: '-0.02em',
-          display: 'grid',
-          placeItems: 'center',
-          mb: 5,
-          color: '#0061B1',
-        }}
-      >
-        {'Bop Category Master'.toUpperCase()}
-      </Typography>
-
-      <Stack direction="row" justifyContent="flex-end" mb={2}>
+      <Stack direction="row" justifyContent="space-between" mb={2}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            // color: 'text.primary',
+            letterSpacing: '-0.02em',
+            display: 'grid',
+            placeItems: 'center',
+            // mb: 5,
+            color: '#0061B1',
+          }}
+        >
+          {'Bop Category Master'.toUpperCase()}
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {
@@ -321,6 +320,9 @@ export default function BopCategoryMaster() {
         loading={loading}
         getRowId={(row) => row.bopPurposeCategoryCode}
         autoHeight
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
+        disableColumnMenu
         // initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
         // pageSizeOptions={[5, 10, 20]}
         initialState={{

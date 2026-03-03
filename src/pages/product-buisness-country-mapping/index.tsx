@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Box, Button, IconButton, Stack, Chip, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import ProductBusinessCountryMappingDialog from '../../components/product-buisness-country-mapping-dialog'
 import ProductBusinessCountryMappingService from '@/services/productBusinessCountryMapping.service'
@@ -119,22 +119,21 @@ export default function ProductBusinessCountryMapping() {
 
   return (
     <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { backgroundColor: '#f5f5f5', fontWeight: 'bold' } }}>
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{
-          fontWeight: 700,
-          // color: 'text.primary',
-          letterSpacing: '-0.02em',
-          display: 'grid',
-          placeItems: 'center',
-          mb: 5,
-          color: '#0061B1',
-        }}
-      >
-        {'Product Master'.toUpperCase()}
-      </Typography>
-      <Stack direction="row" justifyContent="flex-end" alignItems="center" mb={2}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            // color: 'text.primary',
+            letterSpacing: '-0.02em',
+            display: 'grid',
+            placeItems: 'center',
+            color: '#0061B1',
+          }}
+        >
+          {'Product Master'.toUpperCase()}
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {
@@ -152,6 +151,9 @@ export default function ProductBusinessCountryMapping() {
         getRowId={(row) => row.businessMapCode || Math.random()}
         autoHeight
         disableRowSelectionOnClick
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
+        disableColumnMenu
         density="standard"
         initialState={{
           pagination: {

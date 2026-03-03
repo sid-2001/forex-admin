@@ -5,15 +5,70 @@ import { BeneficiaryService } from '@/services/beneficiary.service'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { HelperService } from '@/helpers/helper'
-const beneficiary_service = new BeneficiaryService()
-const local_service = new LocalStorageService()
-const helper_service = new HelperService()
+import { FieldValidationService } from '@/services/fieldvalidstion.service'
+import { CountryLabelData, CountryReportingLabelDTO } from '@/types/field.validation.type'
 
 const BeneficiaryDetailPage = () => {
   const navigate = useNavigate()
   const { beneficiaryId } = useParams()
+  
+  const beneficiary_service = new BeneficiaryService()
+  const local_service = new LocalStorageService()
+  const helper_service = new HelperService()
+  const validation = new FieldValidationService()
 
   const [beneficiaryData, setBeneficiaryData] = useState<any>({})
+  
+  // Field validation states
+  const [fieldValidations, setFieldValidations] = useState<CountryLabelData>()
+  const [fieldLabels, setFieldLabels] = useState<Record<string, string>>({})
+  const [fieldMessages, setFieldMessages] = useState<Record<string, string>>({})
+
+  // Helper function to get label by field name
+  const getLabel = (fieldName: string): string => {
+    return fieldLabels[fieldName] || fieldName.replace(/_/g, ' ')
+  }
+
+  // Helper function to get validation message by field name
+  const getValidationMessage = (fieldName: string): string => {
+    return fieldMessages[fieldName] || ''
+  }
+
+  // Fetch field validations from API
+  useEffect(() => {
+    const fetchFieldValidations = async () => {
+      try {
+        const response = await validation.getScreenFieldvalidation(
+          "BENEFICIARY",
+          local_service.get_staff_country(),
+          "W"
+        )
+        
+        if (response?.data) {
+          setFieldValidations(response.data)
+          
+          // Create lookup maps for labels and messages
+          const labelsMap: Record<string, string> = {}
+          const messagesMap: Record<string, string> = {}
+          
+          response.data.countryReportingLabelDTO?.forEach((item: CountryReportingLabelDTO) => {
+            const fieldName = item.countryLabelFieldNameAndValidation?.fieldName?.trim()
+            if (fieldName) {
+              labelsMap[fieldName] = item.countryLabelFieldNameAndValidation?.label
+              messagesMap[fieldName] = item.countryLabelFieldNameAndValidation?.validationMessageMandatory
+            }
+          })
+          
+          setFieldLabels(labelsMap)
+          setFieldMessages(messagesMap)
+        }
+      } catch (error) {
+        console.error("Error fetching field validations:", error)
+      }
+    }
+
+    fetchFieldValidations()
+  }, [])
 
   const fetchBeneficiaryData = async () => {
     if (!beneficiaryId) {
@@ -43,7 +98,7 @@ const BeneficiaryDetailPage = () => {
       <Box sx={{ width: '80vw' }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
-            Beneficiary Details
+            {getLabel('Beneficiaries') || 'Beneficiary Details'}
           </Typography>
           {beneficiaryData?.kycStatus === 'v' && (
             <Button
@@ -51,16 +106,17 @@ const BeneficiaryDetailPage = () => {
               onClick={() => navigate(`/sendmoney?applicantId=${beneficiaryData?.applicant}&beneficiaryId=${beneficiaryId}`)}
               disabled={!helper_service.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
             >
-              Add Transaction +
+              {getLabel('Add_Beneficiary') || 'Add Transaction +'}
             </Button>
           )}
         </Box>
+        
         {/* Beneficiary Information Form */}
         <Box mt={2}>
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={12} sm={4}>
               <TextField
-                label="Applicant ID"
+                label={getLabel('Applicant_ID') || 'Applicant ID'}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -80,7 +136,7 @@ const BeneficiaryDetailPage = () => {
                   color: 'white',
                 }}
               >
-                Beneficiary Id - {beneficiaryId}
+                {getLabel('Beneficiary_ID') || 'Beneficiary Id'} - {beneficiaryId}
               </Typography>
             </Grid>
           </Grid>
@@ -88,7 +144,7 @@ const BeneficiaryDetailPage = () => {
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={12} sm={2.3}>
               <TextField
-                label="Beneficiary First Name"
+                label={getLabel('First_Name_As_Per_The_Bank') || 'Beneficiary First Name'}
                 variant="filled"
                 name="beneficiaryFirstName"
                 fullWidth
@@ -101,7 +157,7 @@ const BeneficiaryDetailPage = () => {
             </Grid>
             <Grid item xs={12} sm={2.3}>
               <TextField
-                label="Beneficiary Middle Name"
+                label={getLabel('Middle_Name') || 'Beneficiary Middle Name'}
                 variant="filled"
                 name="beneficiaryMiddleName"
                 size="small"
@@ -114,7 +170,7 @@ const BeneficiaryDetailPage = () => {
             </Grid>
             <Grid item xs={12} sm={2.3}>
               <TextField
-                label="Beneficiary Last Name"
+                label={getLabel('Last_Name_As_Per_The_Bank') || 'Beneficiary Last Name'}
                 variant="filled"
                 name="beneficiaryLastName"
                 size="small"
@@ -127,7 +183,7 @@ const BeneficiaryDetailPage = () => {
             </Grid>
             <Grid item xs={12} sm={2.3}>
               <TextField
-                label="Nationality"
+                label={getLabel('Nationality') || 'Nationality'}
                 size="small"
                 variant="filled"
                 InputProps={{
@@ -140,7 +196,7 @@ const BeneficiaryDetailPage = () => {
             </Grid>
             <Grid item xs={12} sm={2.3}>
               <TextField
-                label="Resident Country"
+                label={getLabel('Country_Of_Residence') || 'Resident Country'}
                 size="small"
                 variant="filled"
                 name="residenceCountry"
@@ -157,7 +213,7 @@ const BeneficiaryDetailPage = () => {
         {/* Address Section */}
         <Box mb={3}>
           <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 2 }}>
-            <strong>Address</strong>
+            <strong>{getLabel('Beneficiary_Address_Details') || 'Address'}</strong>
           </Typography>
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={12} sm={6}>
@@ -165,7 +221,7 @@ const BeneficiaryDetailPage = () => {
                 size="small"
                 fullWidth
                 variant="filled"
-                label="Address Line 1"
+                label={getLabel('Address_Line_1') || 'Address Line 1'}
                 name="physicalAddressLine1"
                 value={beneficiaryData?.physicalAddressLine1 || ''}
                 InputProps={{
@@ -178,7 +234,7 @@ const BeneficiaryDetailPage = () => {
                 variant="filled"
                 size="small"
                 fullWidth
-                label="Address Line 2"
+                label={getLabel('Address_Line_2') || 'Address Line 2'}
                 name="addressLine2"
                 value={beneficiaryData?.physicalAddressLine2 || ''}
                 InputProps={{
@@ -196,7 +252,7 @@ const BeneficiaryDetailPage = () => {
                   readOnly: true,
                 }}
                 fullWidth
-                label="Suburb"
+                label={getLabel('Suburb') || 'Suburb'}
                 name="suburb"
                 value={beneficiaryData?.suburb || ''}
               />
@@ -209,7 +265,7 @@ const BeneficiaryDetailPage = () => {
                   readOnly: true,
                 }}
                 fullWidth
-                label="City"
+                label={getLabel('City') || 'City'}
                 name="city"
                 value={beneficiaryData?.city || ''}
               />
@@ -219,7 +275,7 @@ const BeneficiaryDetailPage = () => {
                 variant="filled"
                 size="small"
                 fullWidth
-                label="State/Province"
+                label={getLabel('Province_State') || 'State/Province'}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -235,7 +291,7 @@ const BeneficiaryDetailPage = () => {
                 }}
                 size="small"
                 fullWidth
-                label="ZipCode"
+                label={getLabel('ZIP_PIN_Code') || 'ZipCode'}
                 name="postCode"
                 value={beneficiaryData?.postCode || ''}
               />
@@ -248,7 +304,7 @@ const BeneficiaryDetailPage = () => {
                 }}
                 size="small"
                 fullWidth
-                label="Country"
+                label={getLabel('Country') || 'Country'}
                 name="country"
                 value={beneficiaryData?.country || ''}
               />
@@ -259,7 +315,7 @@ const BeneficiaryDetailPage = () => {
         {/* Bank Account Section */}
         <Box>
           <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 2 }}>
-            <strong>Bank Details</strong>
+            <strong>{getLabel('Beneficiary_Bank_Details') || 'Bank Details'}</strong>
           </Typography>
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={12} sm={4}>
@@ -270,7 +326,7 @@ const BeneficiaryDetailPage = () => {
                 InputProps={{
                   readOnly: true,
                 }}
-                label="Account Holder Name"
+                label={getLabel('Account_Holder_Name') || 'Account Holder Name'}
                 name="beneficiaryName"
                 value={renderBeneficiaryfullName()}
               />
@@ -283,7 +339,7 @@ const BeneficiaryDetailPage = () => {
                 InputProps={{
                   readOnly: true,
                 }}
-                label="Account Number"
+                label={getLabel('Account_Number') || 'Account Number'}
                 name="accountNumber"
                 value={beneficiaryData?.accountNumber || ''}
               />
@@ -296,7 +352,7 @@ const BeneficiaryDetailPage = () => {
                 }}
                 size="small"
                 fullWidth
-                label="Bank Name"
+                label={getLabel('Bank_Name') || 'Bank Name'}
                 name="bankName"
                 value={beneficiaryData?.bankName || ''}
               />
@@ -306,7 +362,7 @@ const BeneficiaryDetailPage = () => {
                 variant="filled"
                 size="small"
                 fullWidth
-                label="BIC Code/ IFSC Code"
+                label={getLabel('IFSC_BIC') || 'BIC Code/IFSC Code'}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -322,7 +378,7 @@ const BeneficiaryDetailPage = () => {
                 InputProps={{
                   readOnly: true,
                 }}
-                label="Bank Location"
+                label={getLabel('Bank_Location') || 'Bank Location'}
                 name="bankLocation"
                 value={beneficiaryData?.bankLocation || ''}
               />

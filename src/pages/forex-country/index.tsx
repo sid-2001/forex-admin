@@ -1,7 +1,7 @@
 // pages/forex-country/index.tsx
 import { useEffect, useState } from 'react'
-import { Box, Button, IconButton, Stack } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import ForexCountryService, { ForexCountry } from '../../services/forextcoutnry.service'
@@ -82,9 +82,9 @@ export default function ForexCountryMaster() {
             <EditIcon />
           </IconButton>
 
-          <IconButton onClick={() => handleDelete(params.row)}>
+          {/* <IconButton onClick={() => handleDelete(params.row)}>
             <DeleteIcon color="error" />
-          </IconButton>
+          </IconButton> */}
         </>
       ),
       headerClassName: 'super-app-theme--header',
@@ -93,7 +93,21 @@ export default function ForexCountryMaster() {
 
   return (
     <Box p={2} sx={{ width: '85vw' }}>
-      <Stack direction="row" justifyContent="right" mb={2}>
+      <Stack direction="row" justifyContent="space-between" mb={2}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            display: 'grid',
+            placeItems: 'center',
+            // mb: 5,
+            color: '#0061B1',
+          }}
+        >
+          {'Country master'.toUpperCase()}
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {
@@ -111,6 +125,9 @@ export default function ForexCountryMaster() {
         columns={columns}
         autoHeight
         pageSizeOptions={[5]}
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
+        disableColumnMenu
         initialState={{
           pagination: {
             paginationModel: {
