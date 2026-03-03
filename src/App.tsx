@@ -88,6 +88,7 @@ import KycDocumentTypeMaster from './pages/kycDocumentTypeMaster'
 import CountryLimitTypeWiseLimitMaster from './pages/country-limit-type-wise-limit-master'
 import CountryKycDocumentMaster from './pages/CountryKycDocumentMaster'
 import CountryResProductChannelDocRequiredMaster from './pages/contryresproductchanneldoc'
+import ExchangeRateMasterScreen from './pages/exchangeRateMaster'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -259,19 +260,14 @@ function App() {
               <Route path="country-label-master" element={<CountryLabelFieldsGridPage />} />
               <Route path="country-reporting-label-master" element={<CountryReportingMappingsGridPage />} />
               <Route path="country-corridor-page" element={<CountryCorridorPage />} />
-                 <Route path="kyc-limit-type" element={<KycLimitTypeMaster />} />
-                   <Route path="resident-type" element={<ResidentTypeMaster />} />
-                      <Route path="kyc-document-type" element={<KycDocumentTypeMaster />} />
-                         <Route path="kyc-document-type" element={<KycDocumentTypeMaster />} />
-
-                            <Route path="country-limit-type-wise" element={<CountryLimitTypeWiseLimitMaster />} />
-                            
-                              <Route path="country-kyc-doc-master" element={<CountryKycDocumentMaster />} />
-
-   
-
-  <Route path="kyc-doc-mapping" element={<CountryResProductChannelDocRequiredMaster />} />
-
+              <Route path="kyc-limit-type" element={<KycLimitTypeMaster />} />
+              <Route path="resident-type" element={<ResidentTypeMaster />} />
+              <Route path="kyc-document-type" element={<KycDocumentTypeMaster />} />
+              <Route path="kyc-document-type" element={<KycDocumentTypeMaster />} />
+              <Route path="country-limit-type-wise" element={<CountryLimitTypeWiseLimitMaster />} />
+              <Route path="country-kyc-doc-master" element={<CountryKycDocumentMaster />} />
+              <Route path="kyc-doc-mapping" element={<CountryResProductChannelDocRequiredMaster />} />
+              <Route path="exchange-rate" element={<ExchangeRateMasterScreen />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 
