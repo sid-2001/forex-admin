@@ -16,6 +16,7 @@ import { useRecoilState } from "recoil";
 import { countyState } from "@/states/state";
 import { LocalStorageService } from "@/helpers/local-storage-service";
 import { BankBusinessType } from "../services/bantypemaster.service";
+import ForexCurrencyService, { ForexCurrency } from "../services/forex-currency.service";
 
 interface Props {
   open: boolean;
@@ -32,7 +33,9 @@ export default function BankTypeDialog({
 }: Props) {
   const localService = new LocalStorageService();
   const [countries] = useRecoilState(countyState);
+  const forexCurrencyService = new ForexCurrencyService();
 
+  const [currencies, setCurrencies] = useState<ForexCurrency[]>([]);
   const [form, setForm] = useState({
     countryCode: "",
     businessCurrencyCode: "INR",
@@ -44,17 +47,32 @@ export default function BankTypeDialog({
 
   const [errors, setErrors] = useState<any>({});
 
+  /* ================= FETCH CURRENCIES ================= */
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      try {
+        const response = await forexCurrencyService.getAll();
+         setCurrencies(response);
+
+      } catch (error) {
+        console.error("Error fetching currencies:", error);
+      }
+    };
+
+    if (open) {
+      fetchCurrencies();
+    }
+  }, [open]);
+
   /* ================= LOAD EDIT DATA ================= */
   useEffect(() => {
     if (editData) {
       setForm({
-
         //@ts-ignore
         countryCode: editData.countryCode,
         //@ts-ignore
         businessCurrencyCode: editData.businessCurrencyCode,
         //@ts-ignore
-
         bankBusinessName: editData.bankBusinessName,
         active: editData.active,
         effective_from_date: editData.effective_from_date?.split("T")[0],
@@ -145,19 +163,32 @@ export default function BankTypeDialog({
           }
         />
 
-        {/* CURRENCY */}
-        <TextField
-          label="Currency"
+        {/* CURRENCY - NOW FETCHED FROM API */}
+        <InputLabel sx={{ mt: 2 }}>Currency</InputLabel>
+        <Select
           fullWidth
-          required
-          margin="dense"
           value={form.businessCurrencyCode}
           error={!!errors.businessCurrencyCode}
-          helperText={errors.businessCurrencyCode}
           onChange={(e) =>
             handleChange("businessCurrencyCode", e.target.value)
           }
-        />
+        >
+          {currencies
+            ?.filter((c) => c.active)
+            .map((currency) => (
+              <MenuItem 
+                key={currency.currencyCode} 
+                value={currency.currencyCode}
+              >
+                {currency.currencyName} ({currency.currencyCode})
+              </MenuItem>
+            ))}
+        </Select>
+        {errors.businessCurrencyCode && (
+          <p style={{ color: "#d32f2f", fontSize: 12 }}>
+            {errors.businessCurrencyCode}
+          </p>
+        )}
 
         {/* COUNTRY */}
         <InputLabel sx={{ mt: 2 }}>Country</InputLabel>

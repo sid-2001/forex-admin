@@ -17,6 +17,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
+import ForexCurrencyService, { ForexCurrency } from '../../services/forex-currency.service'
 
 // Custom filter to search by both Name and Code
 const filter = createFilterOptions({
@@ -24,10 +25,18 @@ const filter = createFilterOptions({
   stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
 })
 
+// Custom filter for currencies to search by both Name and Code
+const currencyFilter = createFilterOptions({
+  matchFrom: 'any',
+  stringify: (o: ForexCurrency) => `${o.currencyName} ${o.currencyCode}`,
+})
+
 export default function BankTypeDialog({ open, onClose, onSubmit, editData }: any) {
   const localService = new LocalStorageService()
+  const forexCurrencyService = new ForexCurrencyService()
   const [countries] = useRecoilState(countyState)
   const [errors, setErrors] = useState<any>({})
+  const [currencies, setCurrencies] = useState<ForexCurrency[]>([])
 
   const [form, setForm] = useState<any>({
     countryCode: '',
@@ -39,6 +48,23 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
   })
 
   console.log(editData, 'editData')
+
+  /* ================= FETCH CURRENCIES ================= */
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      try {
+        const response = await forexCurrencyService.getAll()
+          setCurrencies(response)
+        
+      } catch (error) {
+        console.error('Error fetching currencies:', error)
+      }
+    }
+
+    if (open) {
+      fetchCurrencies()
+    }
+  }, [open])
 
   useEffect(() => {
     if (editData && open) {
@@ -70,6 +96,7 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
     const newErrors: any = {}
     if (!form.bankBusinessName?.trim()) newErrors.bankBusinessName = 'Required'
     if (!form.countryCode) newErrors.countryCode = 'Required'
+    if (!form.businessCurrencyCode) newErrors.businessCurrencyCode = 'Required'
     if (!form.effectiveFromDate) newErrors.effectiveFromDate = 'Required'
     if (!form.effectiveToDate) newErrors.effectiveToDate = 'Required'
 
@@ -110,7 +137,7 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
 
           <Grid item xs={12}>
             {/* Searchable Country Selector */}
-            <Autocomplete
+            <Autocomplete    disabled={!!editData}
               options={countries?.filter((c: any) => c.status === 'A') || []}
               filterOptions={filter}
               getOptionLabel={(o: any) => `${o.countryName} (${o.countryCode})`}
@@ -121,28 +148,27 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
           </Grid>
 
           <Grid item xs={12}>
-            <TextField
-              label="Currency"
-              fullWidth
-              value={form.businessCurrencyCode}
-              onChange={(e) => setForm({ ...form, businessCurrencyCode: e.target.value.toUpperCase() })}
+            {/* Searchable Currency Selector */}
+            <Autocomplete
+              options={currencies?.filter((c: ForexCurrency) => c.active) || []}
+              filterOptions={currencyFilter}
+              getOptionLabel={(o: ForexCurrency) => `${o.currencyName} (${o.currencyCode})`}
+              value={currencies?.find((c: ForexCurrency) => c.currencyCode === form.businessCurrencyCode) || null}
+              onChange={(_, val) => setForm({ ...form, businessCurrencyCode: val ? val.currencyCode : '' })}
+              renderInput={(p) => (
+                <TextField 
+                  {...p} 
+                  label="Currency" 
+                  required 
+                  error={!!errors.businessCurrencyCode} 
+                  helperText={errors.businessCurrencyCode} 
+                />
+              )}
             />
           </Grid>
 
-          {/* <Grid item xs={6}>
-            <TextField
-              type="date"
-              label="Effective From"
-              fullWidth
-              required
-              InputLabelProps={{ shrink: true }}
-              value={form.effectiveFromDate}
-              onChange={(e) => setForm({ ...form, effective_from_date: e.target.value })}
-              error={!!errors.effective_from_date}
-            />
-          </Grid> */}
           <Grid item xs={6}>
-            <DynamicDatePicker
+       <DynamicDatePicker
               label="Effective From"
               value={form.effectiveFromDate}
               onChange={(val: string) => {
@@ -150,8 +176,8 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
                 setForm({ ...form, effectiveFromDate: val })
               }}
               minDate={new Date().toISOString().split('T')[0]}
-              error={!!errors.effective_from_date}
-              helperText={errors.effective_from_date}
+              error={!!errors.effectiveFromDate} // Changed from effective_from_date
+              helperText={errors.effectiveFromDate} // Changed from effective_from_date
               required
             />
           </Grid>
@@ -169,20 +195,6 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
               required
             />
           </Grid>
-
-          {/* <Grid item xs={6}>
-            <TextField
-              type="date"
-              label="Effective To"
-              fullWidth
-              required
-              InputLabelProps={{ shrink: true }}
-              value={form.effectiveToDate}
-              onChange={(e) => setForm({ ...form, effectiveToDate: e.target.value })}
-              error={!!errors.effectiveToDate}
-              inputProps={{ min: form.effective_from_date }}
-            />
-          </Grid> */}
 
           <Grid item xs={12}>
             <FormControlLabel
