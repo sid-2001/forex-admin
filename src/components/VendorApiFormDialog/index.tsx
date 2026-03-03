@@ -135,7 +135,7 @@ export default function VendorApiFormDialog({ open, onClose, editData, refreshLi
     const newErrors: any = {}
     if (!form.selectedCountry) newErrors.selectedCountry = 'Required'
     if (!form.currencyCode) newErrors.currencyCode = 'Required'
-    if (!form.vendorCode.trim()) newErrors.vendorCode = 'Required'
+    // if (!form.vendorCode.trim()) newErrors.vendorCode = 'Required'
     if (!form.vendorName.trim()) newErrors.vendorName = 'Required'
     if (!form.vendorEmail.trim()) newErrors.vendorEmail = 'Required'
     if (!form.vendorMobile.trim()) newErrors.vendorMobile = 'Required'
@@ -223,7 +223,7 @@ export default function VendorApiFormDialog({ open, onClose, editData, refreshLi
             />
           </Grid>
 
-          <Grid item xs={12} sm={4}>
+          {/* <Grid item xs={12} sm={4}>
             <TextField
               fullWidth
               label="Vendor Code"
@@ -234,8 +234,8 @@ export default function VendorApiFormDialog({ open, onClose, editData, refreshLi
               helperText={errors.vendorCode}
               required
             />
-          </Grid>
-          <Grid item xs={12} sm={8}>
+          </Grid> */}
+          <Grid item xs={12} sm={12}>
             <TextField
               fullWidth
               label="Vendor Name"
