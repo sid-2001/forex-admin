@@ -95,13 +95,12 @@ export default function StateFormDialog({ open, onClose, onSubmit, editData }: P
             <TextField
               fullWidth
               label="State Code"
-              inputProps={{ maxLength: 2 }}
+              inputProps={{ maxLength: 10 }}
               value={form.stateCode}
               disabled={!!editData}
-              // onChange={(e) => setForm({ ...form, stateCode: e.target.value.toUpperCase() })}
               onChange={(e) => {
                 const val = e.target.value.toUpperCase()
-                if (val === '' || /^[A-Z]$/.test(val)) {
+                if (/^[A-Z]{0,10}$/.test(val)) {
                   setForm({ ...form, stateCode: val })
                 }
               }}
