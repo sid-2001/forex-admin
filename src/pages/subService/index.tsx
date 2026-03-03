@@ -57,7 +57,7 @@ export default function SubServiceManagement() {
       }
       await subService.createSubService(payload)
       setOpen(false)
-      showAlert('Success', '✨ Sub-Service added to successfully')
+      showAlert('Success', '✨ Sub-Service added  successfully')
       fetchData()
     } catch (e) {
       console.error(e)
@@ -71,7 +71,7 @@ export default function SubServiceManagement() {
 
     await subService.updateSubService(id, { ...data, subServiceCode: id, modifiedBy: local_service.get_staff_id() })
     setOpen(false)
-    showAlert('Success', 'Changes saved successfully')
+    showAlert('Success', 'Sub Service saved successfully')
     fetchData()
   }
 
@@ -97,6 +97,7 @@ export default function SubServiceManagement() {
 
   const columns: GridColDef[] = [
     { field: 'subServiceCodeGenerated', headerName: 'Sub Service Code', flex: 1, headerClassName: 'super-app-theme--header' },
+     { field: 'subServiceName', headerName: 'Sub Service Name', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'countryCode', headerName: 'Country', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'active', headerName: 'Active', flex: 0.7, renderCell: (p) => (p.value ? 'Yes' : 'No'), headerClassName: 'super-app-theme--header' },
     {
