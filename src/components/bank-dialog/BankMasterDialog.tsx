@@ -223,6 +223,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
   ]
 
   const handleSubmit = () => {
+    console.log("i m gettin fucked")
     const newErrors: any = {}
     
     // Validate all required fields and length constraints
@@ -398,18 +399,18 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
                 `${option.bankBusinessName} (${option.businessTypeCode})`
               }
               value={businessTypes.find((type: BankBusinessType) => 
-                type.businessTypeCode === form.bankTypeCode
+                type.businessTypeCode == form.bankType
               ) || null}
               onChange={(_, selectedValue) => {
                 setForm((prev: any) => ({ 
                   ...prev, 
                   bankTypeCode: selectedValue?.businessTypeCode || '',
-                  bankType: selectedValue?.bankBusinessName || ''
+                  bankType: selectedValue?.businessTypeCode || ''
                 }))
                 // Validate after state update
                 setTimeout(() => {
                   handleFieldChange('bankTypeCode', selectedValue?.businessTypeCode || '')
-                  handleFieldChange('bankType', selectedValue?.bankBusinessName || '')
+                  handleFieldChange('bankType', selectedValue?.businessTypeCode || '')
                 }, 0)
               }}
               renderInput={(params) => (

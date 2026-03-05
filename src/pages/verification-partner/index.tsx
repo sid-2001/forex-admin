@@ -1,5 +1,5 @@
-import { Button, Stack, IconButton, Box, Typography } from '@mui/material'
-import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
+import { Button, Stack, IconButton, Box, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material'
+import { DataGrid, GridColDef, GridToolbar, GridToolbarExport } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import { useEffect, useState, useMemo, useCallback } from 'react'
 
@@ -16,15 +16,19 @@ export default function VerificationPartnerManagement() {
   const [rows, setRows] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [errMassage, setErrMassage] = useState(null)
+  const [pageSize, setPageSize] = useState(5)
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: 5,
+    page: 0,
+  })
 
   const partnerService = useMemo(() => new VerificationPartnerService(), [])
   const local_service = useMemo(() => new LocalStorageService(), [])
-  // Inside your function component at the top
+  
   const [alertOpen, setAlertOpen] = useRecoilState(alertState)
   const [alertText, setAlertText] = useRecoilState(alertTextState)
   const [alertType, setAlertType] = useRecoilState(alertTypeState)
 
-  // Then add the helper function
   const showAlert = (type: 'Success' | 'Fail', text: string) => {
     setAlertType(type)
     setAlertText(text)
@@ -129,9 +133,28 @@ export default function VerificationPartnerManagement() {
     },
   ]
 
+  // Custom toolbar component with export button
+  const CustomToolbar = () => {
+    return (
+      <Stack direction="row" spacing={2} sx={{ p: 1, justifyContent: 'space-between', alignItems: 'center' }}>
+        <GridToolbarExport
+          csvOptions={{
+            fileName: 'verification-partners-export',
+            delimiter: ',',
+            allColumns: true, // Export all columns
+          }}
+          printOptions={{
+            fileName: 'verification-partners-print',
+          }}
+        />
+        <GridToolbar />
+      </Stack>
+    )
+  }
+
   return (
     <Box p={3}>
-      <Stack direction="row" mb={2} justifyContent={'space-between'}>
+      <Stack direction="row" mb={2} justifyContent={'space-between'} alignItems="center">
         <Typography
           variant="h4"
           component="h1"
@@ -140,41 +163,70 @@ export default function VerificationPartnerManagement() {
             letterSpacing: '-0.02em',
             display: 'grid',
             placeItems: 'center',
-            // mb: 5,
             color: '#0061B1',
           }}
         >
-          {'Verification master'.toUpperCase()}
+          {'Verification Partner master'.toUpperCase()}
         </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setOpen(true)
-            setErrMassage(null)
-          }}
-        >
-          Add
-        </Button>
+        
+        <Stack direction="row" spacing={2} alignItems="center">
+          {/* Rows per page selector */}
+          {/* <FormControl size="small" sx={{ minWidth: 120 }}>
+            <InputLabel id="rows-per-page-label">Rows per page</InputLabel>
+            <Select
+              labelId="rows-per-page-label"
+              value={paginationModel.pageSize}
+              label="Rows per page"
+              onChange={(e) => {
+                const newPageSize = Number(e.target.value)
+                setPaginationModel({ ...paginationModel, pageSize: newPageSize })
+                setPageSize(newPageSize)
+              }}
+            >
+              <MenuItem value={5}>5</MenuItem>
+              <MenuItem value={10}>10</MenuItem>
+              <MenuItem value={25}>25</MenuItem>
+              <MenuItem value={50}>50</MenuItem>
+              <MenuItem value={100}>100</MenuItem>
+            </Select>
+          </FormControl> */}
+
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setOpen(true)
+              setErrMassage(null)
+            }}
+          >
+            Add
+          </Button>
+        </Stack>
       </Stack>
+      
       <div style={{ height: 600, width: '100%' }}>
         <DataGrid
           rows={rows}
           columns={columns}
           loading={loading}
           getRowId={(row) => row.verificationPartnerCode}
-          slots={{ toolbar: GridToolbar }}
-          slotProps={{ toolbar: { showQuickFilter: true } }}
-          disableColumnMenu
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 5,
-              },
-            },
+          slots={{
+            toolbar: CustomToolbar,
           }}
+          slotProps={{
+            toolbar: {
+              showQuickFilter: true,
+            }
+          }}
+          disableColumnMenu
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          pageSizeOptions={[5, 10, 25, 50, 100]}
+          checkboxSelection={false}
+          disableRowSelectionOnClick
         />
       </div>
+      
       {open && (
         <VerificationPartnerMasterDialog
           key={editData ? editData.verificationPartnerCode : 'new'}

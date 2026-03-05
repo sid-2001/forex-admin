@@ -49,6 +49,9 @@ instance.interceptors.request.use(
   const hours = String(Math.floor(Math.abs(offsetMinutes) / 60)).padStart(2, "0");
   const minutes = String(Math.abs(offsetMinutes) % 60).padStart(2, "0");
   const offset = `${sign}${hours}:${minutes}`;
+const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+
 
   const localDateTime = now.toISOString().slice(0, 19);
     if (token) {
@@ -60,7 +63,7 @@ instance.interceptors.request.use(
       config.headers['ngrok-skip-browser-warning'] = 'true'
       config.headers['X-Device-IP'] = ip
       config.headers['X-Device-Name'] = deviceName
-   config.headers["timezone"] = "UTC";
+   config.headers["timezone"] = timezone;
   config.headers["offset"] = offset;
   config.headers["localdatetime"] = localDateTime; 
     }

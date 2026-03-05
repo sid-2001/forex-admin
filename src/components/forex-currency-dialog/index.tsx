@@ -86,7 +86,7 @@ export default function ForexCurrencyDialog({ open, onClose, onSubmit, editData 
           helperText={errors.countryCode}
           onChange={(e) => handleChange('countryCode', e.target.value)}
         >
-          {countries.map((c) => (
+          {countries.filter(e=>e.status=="A").map((c) => (
             <MenuItem
               //@ts-ignore
               key={c.countryCode}

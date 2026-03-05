@@ -39,9 +39,10 @@ export default function ForexCurrencyMaster() {
 
   const handleCreate = async (data: any) => {
     try {
-      await service.create(data)
+    let res=  await service.create(data)
+    
       setDialogOpen(false)
-      showAlert('Success', 'Currency created successfully')
+      showAlert('Success', res?.message)
       fetchData()
     } catch (e) {
       showAlert('Fail', 'Please check the fields')
