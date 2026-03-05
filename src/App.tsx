@@ -89,6 +89,7 @@ import CountryLimitTypeWiseLimitMaster from './pages/country-limit-type-wise-lim
 import CountryKycDocumentMaster from './pages/CountryKycDocumentMaster'
 import CountryResProductChannelDocRequiredMaster from './pages/contryresproductchanneldoc'
 import SequenceMasterTable from './pages/sequence-master'
+import ExchangeRateMasterScreen from './pages/exchangeRateMaster'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -269,6 +270,7 @@ function App() {
               <Route path="country-limit-type-wise" element={<CountryLimitTypeWiseLimitMaster />} />
               <Route path="country-kyc-doc-master" element={<CountryKycDocumentMaster />} />
               <Route path="kyc-doc-mapping" element={<CountryResProductChannelDocRequiredMaster />} />
+              <Route path="exchange-rate" element={<ExchangeRateMasterScreen />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 

@@ -95,6 +95,7 @@ import HomeIcon from '@mui/icons-material/Home'
 import BadgeIcon from '@mui/icons-material/Badge'
 import RuleIcon from '@mui/icons-material/Rule'
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
+import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
@@ -425,6 +426,12 @@ const MASTER_MENU = [
     name: 'Kyc Document Mapping',
     icon: <AccountTreeIcon fontSize="small" />,
     path: 'kyc-doc-mapping',
+  },
+  {
+    label: 'Exchange Rate',
+    name: 'Exchange Rate',
+    icon: <CurrencyExchangeIcon fontSize="small" />,
+    path: 'exchange-rate',
   },
 
   // verification-partner
