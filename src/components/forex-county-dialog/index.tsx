@@ -8,11 +8,14 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
-  Grid
+  Grid,
+  InputAdornment,
+  Tooltip
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { LocalStorageService } from "@/helpers/local-storage-service";
 import { ForexCountry } from "../../services/forextcoutnry.service";
+import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 
 interface Props {
   open: boolean;
@@ -45,17 +48,34 @@ const VALIDATION_RULES = {
     patternMessage: 'Phone code should be + followed by 1-4 digits (e.g., +91, +1)'
   },
   countryFlag: { 
-    max: 50, 
-    message: 'Flag identifier cannot exceed 50 characters',
-    pattern: /^[a-z0-9_-]+$/i,
-    patternMessage: 'Flag should contain only letters, numbers, underscores and hyphens'
+    max: 10, 
+    message: 'Flag symbol cannot exceed 10 characters',
+    // Emoji pattern - matches most flag emojis and common symbols
+    pattern: /^[\u{1F1E6}-\u{1F1FF}\u{1F3F4}\u{E0000}-\u{E007F}\u{1F1F0}-\u{1F1FF}\p{Emoji}\p{So}]+$/u,
+    patternMessage: 'Please enter a valid flag emoji or symbol'
   },
   countryFlagUrl: { 
     max: 500, 
     message: 'Flag URL cannot exceed 500 characters',
-    pattern: /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/,
+    pattern: /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/i,
     patternMessage: 'Please enter a valid URL'
   }
+};
+
+// Function to check if a string contains emoji
+const containsEmoji = (str: string): boolean => {
+  const emojiRegex = /[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}]/u;
+  return emojiRegex.test(str);
+};
+
+// Function to extract flag emoji from country code (for helper)
+const getFlagEmoji = (countryCode: string): string => {
+  if (!countryCode || countryCode.length !== 2) return '';
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map(char => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
 };
 
 export default function ForexCountryDialog({
@@ -69,17 +89,17 @@ export default function ForexCountryDialog({
   const [form, setForm] = useState<any>({
     countryCode: "",
     countryName: "",
-    active: true, // Changed from status dropdown to active boolean
+    active: true,
     countryFlag: "",
     countryFlagUrl: "",
     countryPhoneCode: ""
   });
 
   const [errors, setErrors] = useState<any>({});
+  const [flagPreview, setFlagPreview] = useState<string>("");
 
   useEffect(() => {
     if (editData && open) {
-      // Convert status "A"/"I" to boolean active
       const activeStatus = editData.status === "A" || editData.active === true;
       
       setForm({
@@ -90,6 +110,13 @@ export default function ForexCountryDialog({
         countryFlagUrl: editData.countryFlagUrl || "",
         countryPhoneCode: editData.countryPhoneCode || ""
       });
+      
+      // Set flag preview if exists
+      if (editData.countryFlag && containsEmoji(editData.countryFlag)) {
+        setFlagPreview(editData.countryFlag);
+      } else {
+        setFlagPreview("");
+      }
     } else if (open) {
       setForm({
         countryCode: "",
@@ -99,6 +126,7 @@ export default function ForexCountryDialog({
         countryFlagUrl: "",
         countryPhoneCode: ""
       });
+      setFlagPreview("");
     }
     setErrors({});
   }, [editData, open]);
@@ -107,9 +135,26 @@ export default function ForexCountryDialog({
   const handleFieldChange = (field: string, value: any) => {
     setForm((prev: any) => ({ ...prev, [field]: value }));
     
+    // Update flag preview for emoji
+    if (field === "countryFlag") {
+      if (containsEmoji(value)) {
+        setFlagPreview(value);
+      } else {
+        setFlagPreview("");
+      }
+    }
+    
     // Clear error for this field when user types
     if (errors[field]) {
       setErrors((prev: any) => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  // Auto-generate flag emoji from country code
+  const generateFlagFromCode = () => {
+    if (form.countryCode && form.countryCode.length === 2) {
+      const flagEmoji = getFlagEmoji(form.countryCode);
+      handleFieldChange("countryFlag", flagEmoji);
     }
   };
 
@@ -152,13 +197,16 @@ export default function ForexCountryDialog({
       }
     }
 
-    // Country Flag validation (optional)
+    // Country Flag validation (optional but if provided, validate it's a proper emoji/symbol)
     if (form.countryFlag) {
       const flag = form.countryFlag.trim();
       if (flag.length > VALIDATION_RULES.countryFlag.max) {
         newErrors.countryFlag = VALIDATION_RULES.countryFlag.message;
       } else if (VALIDATION_RULES.countryFlag.pattern && !VALIDATION_RULES.countryFlag.pattern.test(flag)) {
-        newErrors.countryFlag = VALIDATION_RULES.countryFlag.patternMessage;
+        // If it doesn't match emoji pattern but might be a text flag
+        if (!containsEmoji(flag) && !/^[A-Za-z]{2}$/.test(flag)) {
+          newErrors.countryFlag = VALIDATION_RULES.countryFlag.patternMessage;
+        }
       }
     }
 
@@ -179,15 +227,14 @@ export default function ForexCountryDialog({
   const handleSubmit = () => {
     if (!validate()) return;
 
-    // Convert boolean active to status for API compatibility if needed
     const payload = {
       countryCode: form.countryCode.toUpperCase(),
       countryName: form.countryName.trim(),
       countryPhoneCode: form.countryPhoneCode.trim(),
       countryFlag: form.countryFlag?.trim() || null,
       countryFlagUrl: form.countryFlagUrl?.trim() || null,
-      active: form.active, // Use boolean for checkbox
-      status: form.active ? "A" : "I", // For backward compatibility
+      active: form.active,
+      status: form.active ? "A" : "I",
       createdBy: localService.get_staff_id(),
       ...(editData && { modifiedBy: localService.get_staff_id() })
     };
@@ -262,27 +309,94 @@ export default function ForexCountryDialog({
             />
           </Grid>
 
-          {/* Country Flag */}
+          {/* Country Flag - Emoji/Symbol Field */}
           <Grid item xs={12}>
             <TextField
-              label="Country Flag Identifier"
+              label="Country Flag (Emoji or Symbol)"
               fullWidth
               value={form.countryFlag}
               error={!!errors.countryFlag}
               helperText={
                 errors.countryFlag || 
-                `${form.countryFlag.length}/${VALIDATION_RULES.countryFlag.max} characters - letters, numbers, underscore, hyphen only`
+                (flagPreview ? `Preview: ${flagPreview}` : `${form.countryFlag.length}/${VALIDATION_RULES.countryFlag.max} characters - Enter flag emoji or symbol`)
               }
               onChange={(e) => handleFieldChange("countryFlag", e.target.value)}
               inputProps={{ maxLength: VALIDATION_RULES.countryFlag.max }}
-              placeholder="e.g., us-flag, india-flag"
+              placeholder="🇺🇸 or ★ or US"
+              InputProps={{
+                startAdornment: flagPreview ? (
+                  <InputAdornment position="start">
+                    <Tooltip title="Flag preview">
+                      <span style={{ fontSize: '1.5rem' }}>{flagPreview}</span>
+                    </Tooltip>
+                  </InputAdornment>
+                ) : (
+                  <InputAdornment position="start">
+                    <EmojiEmotionsIcon color="action" />
+                  </InputAdornment>
+                ),
+                endAdornment: form.countryCode?.length === 2 && !form.countryFlag ? (
+                  <InputAdornment position="end">
+                    <Button 
+                      size="small" 
+                      onClick={generateFlagFromCode}
+                      sx={{ textTransform: 'none' }}
+                    >
+                      Generate Flag
+                    </Button>
+                  </InputAdornment>
+                ) : null
+              }}
             />
+            {/* Quick emoji hints */}
+            <Grid container spacing={1} sx={{ mt: 0.5 }}>
+              <Grid item>
+                <Tooltip title="United States Flag">
+                  <span 
+                    style={{ fontSize: '1.5rem', cursor: 'pointer', marginRight: '8px' }}
+                    onClick={() => handleFieldChange("countryFlag", "🇺🇸")}
+                  >
+                    🇺🇸
+                  </span>
+                </Tooltip>
+              </Grid>
+              <Grid item>
+                <Tooltip title="United Kingdom Flag">
+                  <span 
+                    style={{ fontSize: '1.5rem', cursor: 'pointer', marginRight: '8px' }}
+                    onClick={() => handleFieldChange("countryFlag", "🇬🇧")}
+                  >
+                    🇬🇧
+                  </span>
+                </Tooltip>
+              </Grid>
+              <Grid item>
+                <Tooltip title="India Flag">
+                  <span 
+                    style={{ fontSize: '1.5rem', cursor: 'pointer', marginRight: '8px' }}
+                    onClick={() => handleFieldChange("countryFlag", "🇮🇳")}
+                  >
+                    🇮🇳
+                  </span>
+                </Tooltip>
+              </Grid>
+              <Grid item>
+                <Tooltip title="European Union Flag">
+                  <span 
+                    style={{ fontSize: '1.5rem', cursor: 'pointer', marginRight: '8px' }}
+                    onClick={() => handleFieldChange("countryFlag", "🇪🇺")}
+                  >
+                    🇪🇺
+                  </span>
+                </Tooltip>
+              </Grid>
+            </Grid>
           </Grid>
 
           {/* Flag URL */}
           <Grid item xs={12}>
             <TextField
-              label="Flag URL"
+              label="Flag URL (Optional)"
               fullWidth
               value={form.countryFlagUrl}
               error={!!errors.countryFlagUrl}
@@ -296,7 +410,7 @@ export default function ForexCountryDialog({
             />
           </Grid>
 
-          {/* Active Checkbox (replacing dropdown) */}
+          {/* Active Checkbox */}
           <Grid item xs={12}>
             <FormControlLabel
               control={
