@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { Box, Button, IconButton, Stack, Typography, TextField, InputAdornment } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import SearchIcon from '@mui/icons-material/Search'
 import { useRecoilState } from 'recoil'
@@ -114,23 +114,9 @@ export default function SequenceMasterTable() {
     },
   ]
 
-  //   const filteredRows = rows.filter((row: any) => Object.values(row).some((val) => String(val).toLowerCase().includes(searchQuery.toLowerCase())))
-
   return (
     <Box p={3} sx={{ width: '100%', '& .header-bg': { fontWeight: 'bold', bgcolor: '#f5f5f5' } }}>
       <Stack direction="row" justifyContent="space-between" mb={2}>
-        {/* <TextField
-          size="small"
-          placeholder="Search sequences..."
-          onChange={(e) => setSearchQuery(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-        /> */}
         <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
           GENERATE SEQUENCE MASTER
         </Typography>
@@ -151,11 +137,12 @@ export default function SequenceMasterTable() {
           columns={columns}
           loading={loading}
           getRowId={(row) => row.sequenceId}
-          //   initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
           initialState={{
             pagination: {
               paginationModel: {
-                pageSize: 5, // Default to 5
+                pageSize: 5,
               },
             },
           }}

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Grid, TextField, MenuItem, FormControlLabel, Switch } from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Grid, TextField, FormControlLabel, Checkbox } from '@mui/material'
 import SequenceApiService from '../../services/sequence.api.service'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 export default function SequenceDialog({ open, editData, onClose, refreshList, showAlert }: any) {
   const service = new SequenceApiService()
-  const [formData, setFormData] = useState<any>({
+
+  const initialFormState = {
     countryCode: '',
     product: '',
     productCode: '',
@@ -17,41 +19,48 @@ export default function SequenceDialog({ open, editData, onClose, refreshList, s
     maxLimitDigit: 5,
     docSeq: '',
     flag: true,
-    startSeqNumber: 1,
-    currentSeqNumber: 1,
+    startSeqNumber: 0,
+    currentSeqNumber: 0,
     active: true,
     effectiveFromDate: '',
     effectiveToDate: '',
-  })
+  }
+
+  const [formData, setFormData] = useState<any>(initialFormState)
 
   useEffect(() => {
     if (editData) setFormData(editData)
-    else
-      setFormData({
-        countryCode: '',
-        product: '',
-        productCode: '',
-        vendor: '',
-        vendorType: '',
-        docType: '',
-        prefix: '',
-        intermediate: '',
-        suffix: '',
-        maxLimitDigit: 5,
-        docSeq: '',
-        flag: true,
-        startSeqNumber: 1,
-        currentSeqNumber: 1,
-        active: true,
-        effectiveFromDate: '',
-        effectiveToDate: '',
-      })
+    else setFormData(initialFormState)
   }, [editData, open])
 
   const handleSubmit = async () => {
+    const mandatoryFields = [
+      'countryCode',
+      'product',
+      'productCode',
+      'vendor',
+      'vendorType',
+      'docType',
+      'docSeq',
+      'effectiveFromDate',
+      'effectiveToDate',
+    ]
+
+    const isFormIncomplete = mandatoryFields.some((field) => !formData[field] || formData[field].toString().trim() === '')
+
+    if (isFormIncomplete) {
+      showAlert('error', 'Please fill in all mandatory fields before saving.')
+      return
+    }
+
+    // 2. Proceed with API call
     try {
       if (editData) {
-        await service.update(editData.sequenceId, formData)
+        await service.update(editData.sequenceId, {
+          ...formData,
+          effectiveFromDate: formData.effective_from_date + 'T00:00:00.000Z',
+          effectiveToDate: formData.effective_to_date + 'T00:00:00.000Z',
+        })
         showAlert('success', 'Sequence updated successfully')
       } else {
         await service.create(formData)
@@ -72,17 +81,25 @@ export default function SequenceDialog({ open, editData, onClose, refreshList, s
           <Grid item xs={4}>
             <TextField
               fullWidth
+              required
               label="Country Code"
               value={formData.countryCode}
               onChange={(e) => setFormData({ ...formData, countryCode: e.target.value })}
             />
           </Grid>
           <Grid item xs={4}>
-            <TextField fullWidth label="Product" value={formData.product} onChange={(e) => setFormData({ ...formData, product: e.target.value })} />
+            <TextField
+              fullWidth
+              required
+              label="Product"
+              value={formData.product}
+              onChange={(e) => setFormData({ ...formData, product: e.target.value })}
+            />
           </Grid>
           <Grid item xs={4}>
             <TextField
               fullWidth
+              required
               label="Product Code"
               value={formData.productCode}
               onChange={(e) => setFormData({ ...formData, productCode: e.target.value })}
@@ -90,18 +107,31 @@ export default function SequenceDialog({ open, editData, onClose, refreshList, s
           </Grid>
 
           <Grid item xs={4}>
-            <TextField fullWidth label="Vendor" value={formData.vendor} onChange={(e) => setFormData({ ...formData, vendor: e.target.value })} />
+            <TextField
+              fullWidth
+              required
+              label="Vendor"
+              value={formData.vendor}
+              onChange={(e) => setFormData({ ...formData, vendor: e.target.value })}
+            />
           </Grid>
           <Grid item xs={4}>
             <TextField
               fullWidth
+              required
               label="Vendor Type"
               value={formData.vendorType}
               onChange={(e) => setFormData({ ...formData, vendorType: e.target.value })}
             />
           </Grid>
           <Grid item xs={4}>
-            <TextField fullWidth label="Doc Type" value={formData.docType} onChange={(e) => setFormData({ ...formData, docType: e.target.value })} />
+            <TextField
+              fullWidth
+              required
+              label="Doc Type"
+              value={formData.docType}
+              onChange={(e) => setFormData({ ...formData, docType: e.target.value })}
+            />
           </Grid>
 
           <Grid item xs={3}>
@@ -121,6 +151,7 @@ export default function SequenceDialog({ open, editData, onClose, refreshList, s
           <Grid item xs={3}>
             <TextField
               fullWidth
+              required
               type="number"
               label="Max Digits"
               value={formData.maxLimitDigit}
@@ -131,6 +162,7 @@ export default function SequenceDialog({ open, editData, onClose, refreshList, s
           <Grid item xs={6}>
             <TextField
               fullWidth
+              required
               label="Doc Sequence Pattern"
               value={formData.docSeq}
               onChange={(e) => setFormData({ ...formData, docSeq: e.target.value })}
@@ -156,38 +188,45 @@ export default function SequenceDialog({ open, editData, onClose, refreshList, s
           </Grid>
 
           <Grid item xs={6}>
-            <TextField
-              fullWidth
-              type="datetime-local"
+            <DynamicDatePicker
               label="Effective From"
-              InputLabelProps={{ shrink: true }}
-              value={formData.effectiveFromDate?.split('.')[0]}
-              onChange={(e) => setFormData({ ...formData, effectiveFromDate: e.target.value })}
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              fullWidth
-              type="datetime-local"
-              label="Effective To"
-              InputLabelProps={{ shrink: true }}
-              value={formData.effectiveToDate?.split('.')[0]}
-              onChange={(e) => setFormData({ ...formData, effectiveToDate: e.target.value })}
+              value={formData.effectiveFromDate}
+              onChange={(val: string) => setFormData({ ...formData, effectiveFromDate: val })}
+              required
             />
           </Grid>
 
           <Grid item xs={6}>
+            <DynamicEndDatePicker
+              label="Effective To"
+              value={formData.effectiveToDate}
+              minDate={formData.effectiveFromDate}
+              onChange={(val: string) => setFormData({ ...formData, effectiveToDate: val })}
+              required
+            />
+          </Grid>
+
+          <Grid item xs={12}>
             <FormControlLabel
-              control={<Switch checked={formData.active} onChange={(e) => setFormData({ ...formData, active: e.target.checked })} />}
-              label="Active Status"
+              control={
+                <Checkbox
+                  name="active"
+                  checked={formData.active}
+                  onChange={(e: any) => setFormData({ ...formData, active: e.target.checked })}
+                  color="primary"
+                />
+              }
+              label="Active"
             />
           </Grid>
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" onClick={handleSubmit}>
-          Save
+        <Button onClick={onClose} color="inherit">
+          Cancel
+        </Button>
+        <Button variant="contained" onClick={handleSubmit} color="primary">
+          {editData ? 'Update' : 'Save'}
         </Button>
       </DialogActions>
     </Dialog>
