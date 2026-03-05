@@ -9,7 +9,7 @@ export const useAutoLogout = (
 
   useEffect(() => {
     const startTimer = () => {
-      console.log(timerRef.current)
+   
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
@@ -33,7 +33,7 @@ console.log(inactiveFor+"/"+inactiveFor)
 
     const resetTimer = (event?: Event) => {
 
-      console.log("resting",lastActivityRef.current)
+   
       lastActivityRef.current = Date.now();
 
       if (event?.type === "mousemove") {
