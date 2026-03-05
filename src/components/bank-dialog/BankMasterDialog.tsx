@@ -223,7 +223,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
   ]
 
   const handleSubmit = () => {
-    console.log("i m gettin fucked")
+ 
     const newErrors: any = {}
     
     // Validate all required fields and length constraints
