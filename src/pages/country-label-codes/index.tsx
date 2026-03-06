@@ -232,9 +232,8 @@ export default function CountryLabelCodesGridPage() {
     try {
       console.log(bopCategories)
       const filtered = bopCategories.filter((category) => {
-        return
         //@ts-ignore
-        category?.countryCode == countryCode
+        return  category?.countryCode == countryCode
       })
 
       console.log(filtered)

@@ -1,117 +1,8 @@
-// import { useEffect, useState } from 'react'
-// import { Box, Button, IconButton, Stack, Typography, Chip } from '@mui/material'
-// import { DataGrid, GridColDef } from '@mui/x-data-grid'
-// import EditIcon from '@mui/icons-material/Edit'
-// import CountryBusinessPayoutPartnerFormDialog from '../../components/countrybuisnesspayoutformformdialog'
-// import CountryBusinessPayoutPartnerService from '@/services/countryBusinessPayoutPartner.service'
-
-// const CountryBusinessPayoutPartner = () => {
-//   const [rows, setRows] = useState<any[]>([])
-//   const [open, setOpen] = useState(false)
-//   const CountryBusinessPayoutPartnerServic = new CountryBusinessPayoutPartnerService()
-//   const [editData, setEditData] = useState<any>(null)
-
-//   const fetchData = async () => {
-//     const res = await CountryBusinessPayoutPartnerServic.getAll()
-//     //@ts-ignore
-//     setRows(res || [])
-//   }
-
-//   useEffect(() => {
-//     fetchData()
-//   }, [])
-
-//   const columns: GridColDef[] = [
-//     {
-//       field: 'countryBusinessPayoutPartnerCode',
-//       headerName: 'Code',
-//       flex: 1,
-//       headerClassName: 'super-app-theme--header',
-//     },
-//     {
-//       field: 'countryCorridorBusinessMapCode',
-//       headerName: 'Corridor Business Map',
-//       flex: 1,
-//       headerClassName: 'super-app-theme--header',
-//     },
-//     {
-//       field: 'businessTypeCode',
-//       headerName: 'Business Type',
-//       flex: 1,
-//       headerClassName: 'super-app-theme--header',
-//     },
-//     {
-//       field: 'payoutPartner',
-//       headerName: 'Payout Partner',
-//       flex: 1,
-//       headerClassName: 'super-app-theme--header',
-//     },
-//     {
-//       field: 'active',
-//       headerName: 'Status',
-//       flex: 1,
-//       renderCell: (params) =>
-//         params.value ? <Chip label="Active" color="success" size="small" /> : <Chip label="Inactive" color="default" size="small" />,
-//       headerClassName: 'super-app-theme--header',
-//     },
-//     {
-//       field: 'actions',
-//       headerName: 'Actions',
-//       width: 120,
-//       renderCell: (params) => (
-//         <IconButton
-//           onClick={() => {
-//             setEditData(params.row)
-//             setOpen(true)
-//           }}
-//         >
-//           <EditIcon />
-//         </IconButton>
-//       ),
-//       headerClassName: 'super-app-theme--header',
-//     },
-//   ]
-
-//   return (
-//     <Box p={2} width="80vw">
-//       <Stack direction="row" justifyContent="space-between" mb={2}>
-//         <Button
-//           variant="contained"
-//           onClick={() => {
-//             setEditData(null)
-//             setOpen(true)
-//           }}
-//         >
-//           Create
-//         </Button>
-//       </Stack>
-
-//       <DataGrid
-//         rows={rows}
-//         columns={columns}
-//         autoHeight
-//         pageSizeOptions={[5, 10]}
-//         getRowId={(row) => row.countryBusinessPayoutPartnerCode}
-//         initialState={{
-//           pagination: {
-//             paginationModel: {
-//               page: 0,
-//               pageSize: 5,
-//             },
-//           },
-//         }}
-//       />
-
-//       <CountryBusinessPayoutPartnerFormDialog open={open} handleClose={() => setOpen(false)} editData={editData} refreshList={fetchData} />
-//     </Box>
-//   )
-// }
-
-// export default CountryBusinessPayoutPartner
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
+import DownloadIcon from '@mui/icons-material/Download'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import CountryBusinessPayoutPartnerFormDialog from '../../components/countrybuisnesspayoutformformdialog'
@@ -123,6 +14,7 @@ const CountryBusinessPayoutPartner = () => {
   const [open, setOpen] = useState(false)
   const [editData, setEditData] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [isFormChanged, setIsFormChanged] = useState(false)
 
   // Recoil Alert States for consistency
   const [, setOpenAlert] = useRecoilState(alertState)
@@ -141,7 +33,6 @@ const CountryBusinessPayoutPartner = () => {
     setLoading(true)
     try {
       const res = await service.getAll()
-      // Service returns { status, data, message }. We need res.data
       const responseData = res?.data || (Array.isArray(res) ? res : [])
       setRows(responseData)
     } catch (error) {
@@ -155,11 +46,6 @@ const CountryBusinessPayoutPartner = () => {
     fetchData()
   }, [fetchData])
 
-  const formatDateForTable = (dateStr: any) => {
-    if (!dateStr) return '-'
-    const date = new Date(dateStr)
-    return isNaN(date.getTime()) ? '-' : date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-  }
   const formatTableDate = (dateString: string) => {
     if (!dateString) return ''
     const storedConfig = localStorage.getItem('countryConfig')
@@ -169,8 +55,93 @@ const CountryBusinessPayoutPartner = () => {
       const config = JSON.parse(storedConfig)
       format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
     }
-    console.log(format, 'dkjhbcvy')
     return dayjs(dateString).format(format.toUpperCase())
+  }
+
+  // Function to download CSV with all fields
+  const downloadCSV = () => {
+    if (!rows || rows.length === 0) {
+      showAlert('Fail', 'No data to export')
+      return
+    }
+
+    // Define CSV headers based on entity fields
+    const headers = [
+      'Payout Partner Code',
+      'Corridor Business Map Code',
+      'Business Type Code',
+      'Payout Partner',
+      'Active',
+      'Effective From',
+      'Effective To',
+      'Created By',
+      'Created Date',
+      'Modified By',
+      'Modified Date'
+    ]
+    
+    // Map data to CSV rows
+    const csvRows = rows.map(row => [
+      row.countryBusinessPayoutPartnerCode || '',
+      row.countryCorridorBusinessMapCode || '',
+      row.businessTypeCode || '',
+      row.payoutPartner || '',
+      row.active ? 'Yes' : 'No',
+      formatTableDate(row.effectiveFromDate || row.effective_from_date),
+      formatTableDate(row.effectiveToDate || row.effective_to_date),
+      row.createdBy || '',
+      row.createdLocalDateTime ? dayjs(row.createdLocalDateTime).format('YYYY-MM-DD HH:mm') : '',
+      row.modifiedBy || '',
+      row.modifiedLocalDateTime ? dayjs(row.modifiedLocalDateTime).format('YYYY-MM-DD HH:mm') : ''
+    ])
+
+    // Combine headers and rows
+    const csvContent = [
+      headers.join(','),
+      ...csvRows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n')
+
+    // Create and download the file
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `payout_partner_${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+
+    showAlert('Success', 'CSV downloaded successfully')
+  }
+
+  // Custom toolbar with CSV download button
+  const CustomToolbar = () => {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1 }}>
+        <GridToolbar />
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<DownloadIcon />}
+          onClick={downloadCSV}
+          sx={{ ml: 2 }}
+        >
+          Export CSV
+        </Button>
+      </Box>
+    )
+  }
+
+  const handleDialogClose = () => {
+    setOpen(false)
+    setIsFormChanged(false)
+    setEditData(null)
+  }
+
+  const handleFormChange = (changed: boolean) => {
+    setIsFormChanged(changed)
   }
 
   const columns: GridColDef[] = [
@@ -183,14 +154,14 @@ const CountryBusinessPayoutPartner = () => {
       headerName: 'Effective From',
       flex: 0.8,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
+      renderCell: (params) => formatTableDate(params.row?.effectiveFromDate || params.row?.effective_from_date),
     },
     {
       field: 'effective_to_date',
       headerName: 'Effective To',
       flex: 0.8,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
+      renderCell: (params) => formatTableDate(params.row?.effectiveToDate || params.row?.effective_to_date),
     },
     {
       field: 'active',
@@ -211,6 +182,7 @@ const CountryBusinessPayoutPartner = () => {
           onClick={() => {
             setEditData(params.row)
             setOpen(true)
+            setIsFormChanged(false)
           }}
         >
           <EditIcon fontSize="small" />
@@ -227,27 +199,23 @@ const CountryBusinessPayoutPartner = () => {
           component="h1"
           sx={{
             fontWeight: 700,
-            // color: 'text.primary',
             letterSpacing: '-0.02em',
             display: 'grid',
             placeItems: 'center',
-            // mb: 5,
             color: '#0061B1',
           }}
         >
           {'Country Business Payout Partner'.toUpperCase()}
-        </Typography>
-        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-          {/* Country Business Payout Partner */}
         </Typography>
         <Button
           variant="contained"
           onClick={() => {
             setEditData(null)
             setOpen(true)
+            setIsFormChanged(false)
           }}
         >
-          add
+          Add
         </Button>
       </Stack>
 
@@ -256,11 +224,10 @@ const CountryBusinessPayoutPartner = () => {
         columns={columns}
         loading={loading}
         autoHeight
-        slots={{ toolbar: GridToolbar }}
+        slots={{ toolbar: CustomToolbar }}
         slotProps={{ toolbar: { showQuickFilter: true } }}
         disableColumnMenu
-        getRowId={(row) => row.countryBusinessPayoutPartnerCode}
-        // initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+        getRowId={(row) => row.countryBusinessPayoutPartnerCode || Math.random()}
         initialState={{
           pagination: {
             paginationModel: {
@@ -268,15 +235,16 @@ const CountryBusinessPayoutPartner = () => {
             },
           },
         }}
-        // pageSizeOptions={[5, 10]}
       />
 
       <CountryBusinessPayoutPartnerFormDialog
         open={open}
-        handleClose={() => setOpen(false)}
+        handleClose={handleDialogClose}
         editData={editData}
         refreshList={fetchData}
         showAlert={showAlert}
+        onFormChange={handleFormChange}
+        isUpdateDisabled={editData ? !isFormChanged : false}
       />
     </Box>
   )

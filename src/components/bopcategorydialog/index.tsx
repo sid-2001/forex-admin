@@ -1,223 +1,55 @@
-// import {
-//   Dialog,
-//   DialogTitle,
-//   DialogContent,
-//   DialogActions,
-//   TextField,
-//   Button,
-//   Checkbox,
-//   FormControlLabel,
-//   Select,
-//   MenuItem,
-//   InputLabel,
-//   FormHelperText,
-//   Box,
-// } from '@mui/material'
-// import { useEffect, useState } from 'react'
-// import { useRecoilState } from 'recoil'
-// import { countyState } from '@/states/state'
-
-// export default function BopCategoryFormDialog({ open, onClose, onSubmit, editData, categorylist }: any) {
-//   const [countries] = useRecoilState(countyState)
-
-//   const [countryCode, setCountryCode] = useState('')
-//   const [selectedCategory, setSelectedCategory] = useState('')
-//   const [bopPurposeCode, setBopPurposeCode] = useState('')
-//   const [bopPurposeDescription, setBopPurposeDescription] = useState('')
-//   const [bopPurposeSubCode, setBopPurposeSubCode] = useState('')
-//   const [bopPurposeSubDescription, setBopPurposeSubDescription] = useState('')
-//   const [effectiveFrom, setEffectiveFrom] = useState('')
-//   const [effectiveTo, setEffectiveTo] = useState('')
-//   const [active, setActive] = useState(true)
-
-//   const [errors, setErrors] = useState<any>({})
-
-//   /* ------------------ Edit Mode ------------------ */
-//   useEffect(() => {
-//     if (editData) {
-//       setCountryCode(editData.countryCode)
-//       setSelectedCategory(editData.categoryType)
-//       setBopPurposeCode(editData.bopPurposeCode)
-//       setBopPurposeDescription(editData.bopPurposeDescription)
-//       setBopPurposeSubCode(editData.bopPurposeSubCode)
-//       setBopPurposeSubDescription(editData.bopPurposeSubDescription)
-//       setEffectiveFrom(editData.effective_from_date.split('T')[0])
-//       setEffectiveTo(editData.effective_to_date.split('T')[0])
-//       setActive(editData.active)
-//     }
-//   }, [editData])
-
-//   /* ------------------ Validation ------------------ */
-//   const validate = () => {
-//     const newErrors: any = {}
-
-//     if (!countryCode) newErrors.countryCode = 'Country is required'
-//     if (!selectedCategory) newErrors.categoryType = 'Category Type is required'
-//     if (!bopPurposeCode.trim()) newErrors.bopPurposeCode = 'Purpose Code is required'
-//     if (!bopPurposeDescription.trim()) newErrors.bopPurposeDescription = 'Purpose Description is required'
-//     if (!bopPurposeSubCode.trim()) newErrors.bopPurposeSubCode = 'Sub Code is required'
-//     if (!bopPurposeSubDescription.trim()) newErrors.bopPurposeSubDescription = 'Sub Description is required'
-//     if (!effectiveFrom) newErrors.effectiveFrom = 'Effective From date is required'
-//     if (!effectiveTo) newErrors.effectiveTo = 'Effective To date is required'
-
-//     if (effectiveFrom && effectiveTo && new Date(effectiveTo) < new Date(effectiveFrom)) {
-//       newErrors.effectiveTo = 'Effective To date cannot be before Effective From'
-//     }
-
-//     setErrors(newErrors)
-//     return Object.keys(newErrors).length === 0
-//   }
-
-//   /* ------------------ Submit ------------------ */
-//   const handleSubmit = () => {
-//     if (!validate()) return
-
-//     onSubmit({
-//       countryCode,
-//       categoryType: selectedCategory,
-//       bopPurposeCode,
-//       bopPurposeDescription,
-//       bopPurposeSubCode,
-//       bopPurposeSubDescription,
-//       effectiveFromDate: `${effectiveFrom}T00:00:00`,
-//       effectiveToDate: `${effectiveTo}T23:59:59`,
-//       active,
-//     })
-//   }
-
-//   return (
-//     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-//       <DialogTitle>{editData ? 'Update BOP Category' : 'Add BOP Category'}</DialogTitle>
-
-//       <DialogContent>
-//         {/* -------- Country -------- */}
-//         <Box mt={1}>
-//           <InputLabel required>Country</InputLabel>
-//           <Select fullWidth value={countryCode} disabled={!!editData} error={!!errors.countryCode} onChange={(e) => setCountryCode(e.target.value)}>
-//             {countries
-//               ?.filter((c) => c.status === 'A')
-//               .map((c) => (
-//                 <MenuItem
-//                   //@ts-ignore
-//                   key={c.countryCode}
-//                   value={c.countryCode}
-//                 >
-//                   {c.countryName}
-//                 </MenuItem>
-//               ))}
-//           </Select>
-//           {errors.countryCode && <FormHelperText error>{errors.countryCode}</FormHelperText>}
-//         </Box>
-
-//         {/* -------- Category Type -------- */}
-//         <Box mt={2}>
-//           <InputLabel required>Category Type</InputLabel>
-//           <Select
-//             fullWidth
-//             value={selectedCategory}
-//             disabled={!!editData}
-//             error={!!errors.categoryType}
-//             onChange={(e) => setSelectedCategory(e.target.value)}
-//           >
-//             {categorylist?.map((c: any) => (
-//               <MenuItem key={c.bopCategoryTypeCode} value={c.bopCategoryTypeCode}>
-//                 {c.bopCategoryType}
-//               </MenuItem>
-//             ))}
-//           </Select>
-//           {errors.categoryType && <FormHelperText error>{errors.categoryType}</FormHelperText>}
-//         </Box>
-
-//         <TextField
-//           label="Purpose Code"
-//           fullWidth
-//           required
-//           margin="normal"
-//           value={bopPurposeCode}
-//           error={!!errors.bopPurposeCode}
-//           helperText={errors.bopPurposeCode}
-//           onChange={(e) => setBopPurposeCode(e.target.value)}
-//         />
-
-//         <TextField
-//           label="Purpose Description"
-//           fullWidth
-//           required
-//           margin="normal"
-//           value={bopPurposeDescription}
-//           error={!!errors.bopPurposeDescription}
-//           helperText={errors.bopPurposeDescription}
-//           onChange={(e) => setBopPurposeDescription(e.target.value)}
-//         />
-
-//         <TextField
-//           label="Sub Code"
-//           fullWidth
-//           required
-//           margin="normal"
-//           value={bopPurposeSubCode}
-//           error={!!errors.bopPurposeSubCode}
-//           helperText={errors.bopPurposeSubCode}
-//           onChange={(e) => setBopPurposeSubCode(e.target.value)}
-//         />
-
-//         <TextField
-//           label="Sub Description"
-//           fullWidth
-//           required
-//           margin="normal"
-//           value={bopPurposeSubDescription}
-//           error={!!errors.bopPurposeSubDescription}
-//           helperText={errors.bopPurposeSubDescription}
-//           onChange={(e) => setBopPurposeSubDescription(e.target.value)}
-//         />
-
-//         <TextField
-//           type="date"
-//           label="Effective From"
-//           fullWidth
-//           required
-//           margin="normal"
-//           InputLabelProps={{ shrink: true }}
-//           value={effectiveFrom}
-//           error={!!errors.effectiveFrom}
-//           helperText={errors.effectiveFrom}
-//           onChange={(e) => setEffectiveFrom(e.target.value)}
-//         />
-
-//         <TextField
-//           type="date"
-//           label="Effective To"
-//           fullWidth
-//           required
-//           margin="normal"
-//           InputLabelProps={{ shrink: true }}
-//           inputProps={{ min: effectiveFrom }}
-//           value={effectiveTo}
-//           error={!!errors.effectiveTo}
-//           helperText={errors.effectiveTo}
-//           onChange={(e) => setEffectiveTo(e.target.value)}
-//         />
-
-//         <FormControlLabel control={<Checkbox checked={active} onChange={(e) => setActive(e.target.checked)} />} label="Active" />
-//       </DialogContent>
-
-//       <DialogActions>
-//         <Button onClick={onClose}>Cancel</Button>
-//         <Button variant="contained" onClick={handleSubmit}>
-//           {editData ? 'Update' : 'Create'}
-//         </Button>
-//       </DialogActions>
-//     </Dialog>
-//   )
-// }
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Checkbox, FormControlLabel, Grid, Autocomplete } from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Checkbox, FormControlLabel, Grid, Autocomplete, FormHelperText } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
 import BopCategoryService from '@/services/bop.category.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
+
+// Validation constants based on entity annotations
+const VALIDATION = {
+  COUNTRY_CODE: {
+    maxLength: 3,
+    required: true,
+    message: 'Country code cannot exceed 3 characters'
+  },
+  CATEGORY_TYPE: {
+    maxLength: 10,
+    message: 'Category Type cannot exceed 10 characters'
+  },
+  BOP_PURPOSE_CODE: {
+    maxLength: 10,
+    message: 'Bop Purpose Code cannot exceed 10 characters'
+  },
+  BOP_PURPOSE_DESCRIPTION: {
+    maxLength: 50,
+    message: 'Bop purpose description cannot exceed 50 characters'
+  },
+  BOP_PURPOSE_SUB_CODE: {
+    maxLength: 3,
+    message: 'Bop purpose sub code cannot exceed 3 characters'
+  },
+  BOP_PURPOSE_SUB_DESCRIPTION: {
+    maxLength: 50,
+    message: 'Bop purpose sub description cannot exceed 50 characters'
+  },
+  CREATED_BY: {
+    maxLength: 50,
+    message: 'Created by cannot exceed 50 characters'
+  },
+  MODIFIED_BY: {
+    maxLength: 50,
+    message: 'Modified by cannot exceed 50 characters'
+  },
+  TIMEZONE: {
+    maxLength: 50,
+    message: 'Timezone cannot exceed 50 characters'
+  },
+  OFFSET: {
+    maxLength: 10,
+    message: 'Offset cannot exceed 10 characters'
+  }
+}
 
 export default function BopCategoryFormDialog({ open, onClose, editData, categorylist, refreshList, showAlert }: any) {
   const [countries] = useRecoilState(countyState)
@@ -238,6 +70,15 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
 
   const [errors, setErrors] = useState<any>({})
 
+  // Helper to format timezone offset
+  const formatTimezoneOffset = () => {
+    const offset = -new Date().getTimezoneOffset()
+    const sign = offset >= 0 ? '+' : '-'
+    const hours = Math.floor(Math.abs(offset) / 60).toString().padStart(2, '0')
+    const minutes = (Math.abs(offset) % 60).toString().padStart(2, '0')
+    return `${sign}${hours}:${minutes}`
+  }
+
   // Null-safe date formatter to prevent .split() crash
   const formatDate = (dateStr: any) => {
     if (!dateStr) return ''
@@ -250,7 +91,12 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
       if (editData) {
         setForm({
           ...editData,
-          // Handle potential spelling differences from API
+          countryCode: editData.countryCode || '',
+          categoryType: editData.categoryType || '',
+          bopPurposeCode: editData.bopPurposeCode || '',
+          bopPurposeDescription: editData.bopPurposeDescription || '',
+          bopPurposeSubCode: editData.bopPurposeSubCode || '',
+          bopPurposeSubDescription: editData.bopPurposeSubDescription || '',
           effectiveFromDate: formatDate(editData.effectiveFromDate || editData.effective_from_date),
           effectiveToDate: formatDate(editData.effectiveToDate || editData.effective_to_date),
           active: editData.active ?? true,
@@ -274,35 +120,100 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
 
   const validate = () => {
     const errs: any = {}
-    if (!form.countryCode) errs.countryCode = 'Required'
-    if (!form.categoryType) errs.categoryType = 'Required'
-    if (!form.bopPurposeCode) errs.bopPurposeCode = 'Required'
-    if (!form.effectiveFromDate) errs.effectiveFromDate = 'Required'
-    if (!form.effectiveToDate) errs.effectiveToDate = 'Required'
 
+    // Country Code validation
+    if (!form.countryCode) {
+      errs.countryCode = 'Country code must not be blank'
+    } else if (form.countryCode.length > VALIDATION.COUNTRY_CODE.maxLength) {
+      errs.countryCode = VALIDATION.COUNTRY_CODE.message
+    }
+
+    // Category Type validation
+    if (form.categoryType && form.categoryType.length > VALIDATION.CATEGORY_TYPE.maxLength) {
+      errs.categoryType = VALIDATION.CATEGORY_TYPE.message
+    }
+
+    // BOP Purpose Code validation
+    if (!form.bopPurposeCode) {
+      errs.bopPurposeCode = 'Bop Purpose Code is required'
+    } else if (form.bopPurposeCode.length > VALIDATION.BOP_PURPOSE_CODE.maxLength) {
+      errs.bopPurposeCode = VALIDATION.BOP_PURPOSE_CODE.message
+    }
+
+    // BOP Purpose Description validation
+    if (form.bopPurposeDescription && form.bopPurposeDescription.length > VALIDATION.BOP_PURPOSE_DESCRIPTION.maxLength) {
+      errs.bopPurposeDescription = VALIDATION.BOP_PURPOSE_DESCRIPTION.message
+    }
+
+    // BOP Purpose Sub Code validation
+    if (form.bopPurposeSubCode && form.bopPurposeSubCode.length > VALIDATION.BOP_PURPOSE_SUB_CODE.maxLength) {
+      errs.bopPurposeSubCode = VALIDATION.BOP_PURPOSE_SUB_CODE.message
+    }
+
+    // BOP Purpose Sub Description validation
+    if (form.bopPurposeSubDescription && form.bopPurposeSubDescription.length > VALIDATION.BOP_PURPOSE_SUB_DESCRIPTION.maxLength) {
+      errs.bopPurposeSubDescription = VALIDATION.BOP_PURPOSE_SUB_DESCRIPTION.message
+    }
+
+    // Effective From Date validation
+    if (!form.effectiveFromDate) {
+      errs.effectiveFromDate = 'Effective from date must not be null'
+    }
+
+    // Effective To Date validation
+    if (!form.effectiveToDate) {
+      errs.effectiveToDate = 'Effective to date must not be null'
+    }
+
+    // Date range validation (AssertTrue)
     if (form.effectiveFromDate && form.effectiveToDate) {
-      if (new Date(form.effectiveFromDate) > new Date(form.effectiveToDate)) {
-        errs.effectiveToDate = 'End date cannot be earlier than start date'
+      const fromDate = new Date(form.effectiveFromDate)
+      const toDate = new Date(form.effectiveToDate)
+      
+      if (toDate <= fromDate) {
+        errs.effectiveToDate = 'Effective To date must be after Effective From date'
       }
     }
+
+    // Active status validation
+    if (form.active === undefined || form.active === null) {
+      errs.active = 'Active status must not be null'
+    }
+
     setErrors(errs)
     return Object.keys(errs).length === 0
   }
 
   const handleSubmit = async () => {
     if (!validate()) return
+    
     const staffId = localService.get_staff_id() || 'admin'
+    const now = new Date().toISOString()
+    
     const payload = {
       ...form,
+      bopPurposeCategoryCode: form.bopPurposeCategoryCode || null,
       effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
       effectiveToDate: `${form.effectiveToDate}T00:00:00`,
+      createdBy: editData ? undefined : staffId,
+      modifiedBy: staffId,
+      createdLocalDateTime: editData ? undefined : now,
+      modifiedLocalDateTime: now,
+      createdTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      modifiedTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      createdOffset: formatTimezoneOffset(),
+      modifiedOffset: formatTimezoneOffset(),
+      createdUtcDateTime: editData ? undefined : new Date().toISOString(),
+      modifiedUtcDateTime: new Date().toISOString(),
     }
 
     try {
-      const res = editData ? await service.update({ ...payload, modified_by: staffId }) : await service.create({ ...payload, created_by: staffId })
+      const res = editData 
+        ? await service.update(payload) 
+        : await service.create(payload)
 
       if (res?.status === true || res) {
-        showAlert('Success', `Category ${editData ? 'Updated' : 'Created'} Successfully`)
+        showAlert('Success', `${res?.message}`)
         refreshList()
         onClose()
       } else {
@@ -313,89 +224,161 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
     }
   }
 
+  // Helper to get helper text with character limit
+  const getHelperText = (field: string, value: string, customMessage?: string) => {
+    const validationMap: any = {
+      countryCode: VALIDATION.COUNTRY_CODE,
+      categoryType: VALIDATION.CATEGORY_TYPE,
+      bopPurposeCode: VALIDATION.BOP_PURPOSE_CODE,
+      bopPurposeDescription: VALIDATION.BOP_PURPOSE_DESCRIPTION,
+      bopPurposeSubCode: VALIDATION.BOP_PURPOSE_SUB_CODE,
+      bopPurposeSubDescription: VALIDATION.BOP_PURPOSE_SUB_DESCRIPTION
+    }
+    
+    const validation = validationMap[field]
+    if (!validation) return customMessage || ''
+    
+    const currentLength = value?.length || 0
+    return `${currentLength}/${validation.maxLength} characters`
+  }
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update BOP Category' : 'Add BOP Category'}</DialogTitle>
+      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>
+        {editData ? 'Update BOP Category' : 'Add BOP Category'}
+      </DialogTitle>
+      
       <DialogContent dividers>
         <Grid container spacing={2} sx={{ mt: 1 }}>
+          {/* Country Field */}
           <Grid item xs={12}>
             <Autocomplete
               options={countries?.filter((c) => c.status === 'A') || []}
-              getOptionLabel={(option) => (option.countryName as string) || ('' as string)}
+              getOptionLabel={(option) => (option.countryName as string) || ''}
               disabled={!!editData}
               value={countries.find((c) => c.countryCode === form.countryCode) || null}
-              onChange={(_, val) => setForm({ ...form, countryCode: val?.countryCode || '' })}
-              renderInput={(params) => <TextField {...params} label="Country" required error={!!errors.countryCode} />}
+              onChange={(_, val) => {
+                setForm({ ...form, countryCode: val?.countryCode || '' })
+                if (errors.countryCode) setErrors({ ...errors, countryCode: '' })
+              }}
+              renderInput={(params) => (
+                <TextField 
+                  {...params} 
+                  label="Country" 
+                  required 
+                  error={!!errors.countryCode}
+                  helperText={errors.countryCode || getHelperText('countryCode', form.countryCode)}
+                />
+              )}
             />
           </Grid>
+
+          {/* Category Type Field */}
           <Grid item xs={12}>
             <Autocomplete
               options={categorylist || []}
               getOptionLabel={(option) => option.bopCategoryType || ''}
               value={categorylist.find((c: any) => c.bopCategoryTypeCode === form.categoryType) || null}
-              onChange={(_, val) => setForm({ ...form, categoryType: val?.bopCategoryTypeCode || '' })}
-              renderInput={(params) => <TextField {...params} label="Category Type" required error={!!errors.categoryType} />}
+              onChange={(_, val) => {
+                setForm({ ...form, categoryType: val?.bopCategoryTypeCode || '' })
+                if (errors.categoryType) setErrors({ ...errors, categoryType: '' })
+              }}
+              renderInput={(params) => (
+                <TextField 
+                  {...params} 
+                  label="Category Type" 
+                  error={!!errors.categoryType}
+                  helperText={errors.categoryType || getHelperText('categoryType', form.categoryType)}
+                />
+              )}
             />
           </Grid>
+
+          {/* Purpose Code Field */}
           <Grid item xs={6}>
             <TextField
               label="Purpose Code"
               fullWidth
+              required
               value={form.bopPurposeCode}
-              onChange={(e) => setForm({ ...form, bopPurposeCode: e.target.value })}
+              onChange={(e) => {
+                setForm({ ...form, bopPurposeCode: e.target.value })
+                if (errors.bopPurposeCode) setErrors({ ...errors, bopPurposeCode: '' })
+              }}
               error={!!errors.bopPurposeCode}
+              helperText={errors.bopPurposeCode || getHelperText('bopPurposeCode', form.bopPurposeCode)}
+              inputProps={{ maxLength: VALIDATION.BOP_PURPOSE_CODE.maxLength }}
             />
           </Grid>
+
+          {/* Sub Code Field */}
           <Grid item xs={6}>
             <TextField
               label="Sub Code"
               fullWidth
               value={form.bopPurposeSubCode}
-              onChange={(e) => setForm({ ...form, bopPurposeSubCode: e.target.value })}
+              onChange={(e) => {
+                setForm({ ...form, bopPurposeSubCode: e.target.value })
+                if (errors.bopPurposeSubCode) setErrors({ ...errors, bopPurposeSubCode: '' })
+              }}
+              error={!!errors.bopPurposeSubCode}
+              helperText={errors.bopPurposeSubCode || getHelperText('bopPurposeSubCode', form.bopPurposeSubCode)}
+              inputProps={{ maxLength: VALIDATION.BOP_PURPOSE_SUB_CODE.maxLength }}
             />
           </Grid>
+
+          {/* Description Field */}
           <Grid item xs={12}>
             <TextField
               label="Description"
               fullWidth
+              multiline
+              rows={2}
               value={form.bopPurposeDescription}
-              onChange={(e) => setForm({ ...form, bopPurposeDescription: e.target.value })}
+              onChange={(e) => {
+                setForm({ ...form, bopPurposeDescription: e.target.value })
+                if (errors.bopPurposeDescription) setErrors({ ...errors, bopPurposeDescription: '' })
+              }}
               error={!!errors.bopPurposeDescription}
+              helperText={errors.bopPurposeDescription || getHelperText('bopPurposeDescription', form.bopPurposeDescription)}
+              inputProps={{ maxLength: VALIDATION.BOP_PURPOSE_DESCRIPTION.maxLength }}
             />
           </Grid>
+
+          {/* Sub Description Field */}
           <Grid item xs={12}>
             <TextField
               label="Sub Description"
               fullWidth
+              multiline
+              rows={2}
               value={form.bopPurposeSubDescription}
-              onChange={(e) => setForm({ ...form, bopPurposeSubDescription: e.target.value })}
+              onChange={(e) => {
+                setForm({ ...form, bopPurposeSubDescription: e.target.value })
+                if (errors.bopPurposeSubDescription) setErrors({ ...errors, bopPurposeSubDescription: '' })
+              }}
+              error={!!errors.bopPurposeSubDescription}
+              helperText={errors.bopPurposeSubDescription || getHelperText('bopPurposeSubDescription', form.bopPurposeSubDescription)}
+              inputProps={{ maxLength: VALIDATION.BOP_PURPOSE_SUB_DESCRIPTION.maxLength }}
             />
           </Grid>
-          {/* <Grid item xs={6}>
-            <TextField
-              type="date"
-              label="Effective From"
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              value={form.effectiveFromDate}
-              onChange={(e) => setForm({ ...form, effectiveFromDate: e.target.value })}
-              error={!!errors.effectiveFromDate}
-            />
-          </Grid> */}
+
+          {/* Effective From Date */}
           <Grid item xs={6}>
             <DynamicDatePicker
               label="Effective From"
               value={form.effectiveFromDate}
               onChange={(val: string) => {
-                console.log(val, 'kdjhchdvy')
                 setForm({ ...form, effectiveFromDate: val })
+                if (errors.effectiveFromDate) setErrors({ ...errors, effectiveFromDate: '' })
               }}
               error={!!errors.effectiveFromDate}
-              helperText={errors.effectiveFromDate}
+              helperText={errors.effectiveFromDate || 'Required'}
               required
             />
           </Grid>
 
+          {/* Effective To Date */}
           <Grid item xs={6}>
             <DynamicEndDatePicker
               label="Effective To"
@@ -403,32 +386,33 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
               minDate={form.effectiveFromDate}
               onChange={(val: string) => {
                 setForm({ ...form, effectiveToDate: val })
+                if (errors.effectiveToDate) setErrors({ ...errors, effectiveToDate: '' })
               }}
               error={!!errors.effectiveToDate}
-              helperText={errors.effectiveToDate}
+              helperText={errors.effectiveToDate || 'Required, must be after Effective From'}
               required
             />
           </Grid>
-          {/* <Grid item xs={6}>
-            <TextField
-              type="date"
-              label="Effective To"
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              inputProps={{ min: form.effectiveFromDate }}
-              value={form.effectiveToDate}
-              onChange={(e) => setForm({ ...form, effectiveToDate: e.target.value })}
-              error={!!errors.effectiveToDate}
-            />
-          </Grid> */}
+
+          {/* Active Status */}
           <Grid item xs={12}>
             <FormControlLabel
-              control={<Checkbox checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />}
+              control={
+                <Checkbox 
+                  checked={form.active} 
+                  onChange={(e) => {
+                    setForm({ ...form, active: e.target.checked })
+                    if (errors.active) setErrors({ ...errors, active: '' })
+                  }} 
+                />
+              }
               label="Active Status"
             />
+            {errors.active && <FormHelperText error>{errors.active}</FormHelperText>}
           </Grid>
         </Grid>
       </DialogContent>
+
       <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
         <Button onClick={onClose} color="inherit">
           Cancel

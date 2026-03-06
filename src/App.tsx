@@ -245,7 +245,7 @@ function App() {
               <Route path="branches" element={<ForexBranchesPage />} />
               <Route path="bopcategory" element={<BopCategoryMaster />} />
               <Route path="bop-category-type" element={<BopCategoryTypeMaster />} />
-              <Route path="bop-category-type" element={<BopCategoryTypeMaster />} />
+      
               <Route path="product-buisness-mapping" element={<ProductBusinessCountryMapping />} />
               <Route path="business-railand-partner" element={<CountryBusinessPayoutPartner />} />
               <Route path="email-template" element={<EmailTemplateMasterPage />} />

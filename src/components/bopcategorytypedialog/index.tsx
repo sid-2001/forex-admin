@@ -7,12 +7,12 @@ import {
   TextField,
   Button,
   FormControlLabel,
-  Switch,
   Grid,
-  FormHelperText,
   Checkbox,
+  FormHelperText,
 } from '@mui/material'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
 export interface BopCategoryType {
   bopCategoryTypeCode: string
@@ -28,10 +28,41 @@ interface Props {
   editData: BopCategoryType | null
   onClose: () => void
   onSubmit: (data: any) => void
+  onFormChange?: (changed: boolean) => void // New prop
+  isUpdateDisabled?: boolean // New prop
 }
 
-const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, onSubmit }) => {
+// Validation constants based on entity annotations
+const VALIDATION = {
+  BOP_CATEGORY_TYPE_CODE: {
+    maxLength: 10,
+    message: 'Bop category type Code cannot exceed 10 characters'
+  },
+  BOP_CATEGORY_TYPE: {
+    maxLength: 10,
+    required: true,
+    message: 'Bop category type cannot exceed 10 characters'
+  },
+  BOP_CATEGORY_DESCRIPTION: {
+    maxLength: 50,
+    required: true,
+    message: 'Bop Category description cannot exceed 50 characters'
+  }
+}
+
+const BopCategoryTypeFormDialog: React.FC<Props> = ({ 
+  open, 
+  editData, 
+  onClose, 
+  onSubmit, 
+  onFormChange,
+  isUpdateDisabled 
+}) => {
+  const local_service = new LocalStorageService()
+  const staffData = local_service.get_staff_access()
+  
   const [formData, setFormData] = useState({
+    bopCategoryTypeCode: '',
     bopCategoryType: '',
     bopCategoryDescription: '',
     active: true,
@@ -39,49 +70,116 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
     effectiveToDate: '',
   })
 
+  const [originalData, setOriginalData] = useState<any>(null)
   const [errors, setErrors] = useState<any>({})
-  console.log(editData, 'djbnchvy')
+
+  // Check if form data has changed from original
+  const checkFormChanged = (current: any, original: any) => {
+    if (!original) return false
+    
+    return (
+      current.bopCategoryTypeCode !== original.bopCategoryTypeCode ||
+      current.bopCategoryType !== original.bopCategoryType ||
+      current.bopCategoryDescription !== original.bopCategoryDescription ||
+      current.active !== original.active ||
+      current.effectiveFromDate !== original.effectiveFromDate ||
+      current.effectiveToDate !== original.effectiveToDate
+    )
+  }
+
+  // Reset form when dialog opens/closes or editData changes
   useEffect(() => {
-    if (editData) {
-      setFormData({
-        bopCategoryType: editData.bopCategoryType,
-        bopCategoryDescription: editData.bopCategoryDescription,
-        active: editData.active,
-        effectiveFromDate: editData.effectiveFromDate?.slice(0, 10),
-        effectiveToDate: editData.effectiveToDate?.slice(0, 10),
-      })
-    } else {
-      setFormData({
-        bopCategoryType: '',
-        bopCategoryDescription: '',
-        active: true,
-        effectiveFromDate: '',
-        effectiveToDate: '',
-      })
+    if (open) {
+      if (editData) {
+        const newFormData = {
+          bopCategoryTypeCode: editData.bopCategoryTypeCode || '',
+          bopCategoryType: editData.bopCategoryType || '',
+          bopCategoryDescription: editData.bopCategoryDescription || '',
+          active: editData.active ?? true,
+          effectiveFromDate: editData.effectiveFromDate?.slice(0, 10) || '',
+          effectiveToDate: editData.effectiveToDate?.slice(0, 10) || '',
+        }
+        setFormData(newFormData)
+        setOriginalData(newFormData)
+      } else {
+        const newFormData = {
+          bopCategoryTypeCode: '',
+          bopCategoryType: '',
+          bopCategoryDescription: '',
+          active: true,
+          effectiveFromDate: '',
+          effectiveToDate: '',
+        }
+        setFormData(newFormData)
+        setOriginalData(null)
+      }
       setErrors({})
     }
-  }, [editData])
+  }, [editData, open])
+
+  // Notify parent component when form changes
+  useEffect(() => {
+    if (onFormChange && originalData) {
+      const changed = checkFormChanged(formData, originalData)
+      onFormChange(changed)
+    }
+  }, [formData, originalData, onFormChange])
 
   /* ------------------ Change Handler ------------------ */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    const { name, value, type, checked } = e.target
+    setFormData((prev) => ({ 
+      ...prev, 
+      [name]: type === 'checkbox' ? checked : value 
+    }))
+    
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors((prev: any) => ({ ...prev, [name]: '' }))
+    }
   }
 
   /* ------------------ Validation ------------------ */
   const validate = () => {
     const newErrors: any = {}
 
-    if (!formData.bopCategoryType.trim()) newErrors.bopCategoryType = 'Category Type is required'
+    // BOP Category Type Code validation
+    if (formData.bopCategoryTypeCode && formData.bopCategoryTypeCode.length > VALIDATION.BOP_CATEGORY_TYPE_CODE.maxLength) {
+      newErrors.bopCategoryTypeCode = VALIDATION.BOP_CATEGORY_TYPE_CODE.message
+    }
 
-    if (!formData.bopCategoryDescription.trim()) newErrors.bopCategoryDescription = 'Category Description is required'
+    // BOP Category Type validation
+    if (!formData.bopCategoryType.trim()) {
+      newErrors.bopCategoryType = 'Bop category type is required'
+    } else if (formData.bopCategoryType.length > VALIDATION.BOP_CATEGORY_TYPE.maxLength) {
+      newErrors.bopCategoryType = VALIDATION.BOP_CATEGORY_TYPE.message
+    }
 
-    if (!formData.effectiveFromDate) newErrors.effectiveFromDate = 'Effective From date is required'
+    // BOP Category Description validation
+    if (!formData.bopCategoryDescription.trim()) {
+      newErrors.bopCategoryDescription = 'Bop Category description must not be blank'
+    } else if (formData.bopCategoryDescription.length > VALIDATION.BOP_CATEGORY_DESCRIPTION.maxLength) {
+      newErrors.bopCategoryDescription = VALIDATION.BOP_CATEGORY_DESCRIPTION.message
+    }
 
-    if (!formData.effectiveToDate) newErrors.effectiveToDate = 'Effective To date is required'
+    // Effective From Date validation
+    if (!formData.effectiveFromDate) {
+      newErrors.effectiveFromDate = 'Effective from date must not be null'
+    }
 
-    if (formData.effectiveFromDate && formData.effectiveToDate && new Date(formData.effectiveToDate) < new Date(formData.effectiveFromDate)) {
-      newErrors.effectiveToDate = 'Effective To date cannot be before Effective From'
+    // Effective To Date validation
+    if (!formData.effectiveToDate) {
+      newErrors.effectiveToDate = 'Effective to date must not be null'
+    }
+
+    // Date range validation (AssertTrue validation from entity)
+    if (formData.effectiveFromDate && formData.effectiveToDate) {
+      const fromDate = new Date(formData.effectiveFromDate)
+      const toDate = new Date(formData.effectiveToDate)
+      
+      if (toDate <= fromDate) {
+        newErrors.effectiveToDate = 'Effective To date must be after Effective From date'
+      }
     }
 
     setErrors(newErrors)
@@ -92,20 +190,62 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
   const handleSubmit = () => {
     if (!validate()) return
 
-    onSubmit({
+    const now = new Date().toISOString()
+    const submitData = {
       ...formData,
+      bopCategoryTypeCode: formData.bopCategoryTypeCode || null,
       effectiveFromDate: `${formData.effectiveFromDate}T00:00:00`,
       effectiveToDate: `${formData.effectiveToDate}T00:00:00`,
-    })
+      createdBy: editData ? undefined : staffData?.staffId,
+      modifiedBy: staffData?.staffId,
+      createdLocalDateTime: editData ? undefined : now,
+      modifiedLocalDateTime: now,
+      createdTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      modifiedTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      createdOffset: formatTimezoneOffset(),
+      modifiedOffset: formatTimezoneOffset(),
+      createdUtcDateTime: editData ? undefined : new Date().toISOString(),
+      modifiedUtcDateTime: new Date().toISOString(),
+    }
+
+    onSubmit(submitData)
+  }
+
+  // Helper to format timezone offset
+  const formatTimezoneOffset = () => {
+    const offset = -new Date().getTimezoneOffset()
+    const sign = offset >= 0 ? '+' : '-'
+    const hours = Math.floor(Math.abs(offset) / 60).toString().padStart(2, '0')
+    const minutes = (Math.abs(offset) % 60).toString().padStart(2, '0')
+    return `${sign}${hours}:${minutes}`
   }
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{editData ? 'Edit BOP Category Type' : 'Create BOP Category Type'}</DialogTitle>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>
+        {editData ? 'Edit BOP Category Type' : 'Create BOP Category Type'}
+      </DialogTitle>
 
       <DialogContent>
-        <Grid container spacing={2} mt={1}>
-          <Grid item xs={12}>
+        <Grid container spacing={2} sx={{ mt: 1 }}>
+          {/* BOP Category Type Code */}
+          <Grid item xs={6}>
+            <TextField
+              label="Category Type Code"
+              name="bopCategoryTypeCode"
+              fullWidth
+              value={formData.bopCategoryTypeCode}
+              error={!!errors.bopCategoryTypeCode}
+              helperText={errors.bopCategoryTypeCode || `Max ${VALIDATION.BOP_CATEGORY_TYPE_CODE.maxLength} characters`}
+              onChange={handleChange}
+              inputProps={{ maxLength: VALIDATION.BOP_CATEGORY_TYPE_CODE.maxLength }}
+              size="small"
+              disabled={!!editData} // Disable code field in edit mode
+            />
+          </Grid>
+
+          {/* BOP Category Type */}
+          <Grid item xs={6}>
             <TextField
               label="Category Type"
               name="bopCategoryType"
@@ -113,51 +253,49 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
               required
               value={formData.bopCategoryType}
               error={!!errors.bopCategoryType}
-              helperText={errors.bopCategoryType}
+              helperText={errors.bopCategoryType || `Required, max ${VALIDATION.BOP_CATEGORY_TYPE.maxLength} characters`}
               onChange={handleChange}
+              inputProps={{ maxLength: VALIDATION.BOP_CATEGORY_TYPE.maxLength }}
+              size="small"
             />
           </Grid>
 
+          {/* BOP Category Description */}
           <Grid item xs={12}>
             <TextField
               label="Category Description"
               name="bopCategoryDescription"
               fullWidth
               required
+              multiline
+              rows={3}
               value={formData.bopCategoryDescription}
               error={!!errors.bopCategoryDescription}
-              helperText={errors.bopCategoryDescription}
+              helperText={errors.bopCategoryDescription || `Required, max ${VALIDATION.BOP_CATEGORY_DESCRIPTION.maxLength} characters`}
               onChange={handleChange}
+              inputProps={{ maxLength: VALIDATION.BOP_CATEGORY_DESCRIPTION.maxLength }}
+              size="small"
             />
           </Grid>
 
-          {/* <Grid item xs={6}>
-            <TextField
-              label="Effective From"
-              type="date"
-              name="effectiveFromDate"
-              fullWidth
-              required
-              InputLabelProps={{ shrink: true }}
-              value={formData.effectiveFromDate}
-              error={!!errors.effectiveFromDate}
-              helperText={errors.effectiveFromDate}
-              onChange={handleChange}
-            />
-          </Grid> */}
+          {/* Effective From Date */}
           <Grid item xs={6}>
             <DynamicDatePicker
               label="Effective From"
               value={formData.effectiveFromDate}
               onChange={(val: string) => {
                 setFormData({ ...formData, effectiveFromDate: val })
+                if (errors.effectiveFromDate) {
+                  setErrors((prev: any) => ({ ...prev, effectiveFromDate: '' }))
+                }
               }}
               error={!!errors.effectiveFromDate}
-              helperText={errors.effectiveFromDate}
+              helperText={errors.effectiveFromDate || 'Required'}
               required
             />
           </Grid>
 
+          {/* Effective To Date */}
           <Grid item xs={6}>
             <DynamicEndDatePicker
               label="Effective To"
@@ -165,67 +303,43 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
               minDate={formData.effectiveFromDate}
               onChange={(val: string) => {
                 setFormData({ ...formData, effectiveToDate: val })
+                if (errors.effectiveToDate) {
+                  setErrors((prev: any) => ({ ...prev, effectiveToDate: '' }))
+                }
               }}
               error={!!errors.effectiveToDate}
-              helperText={errors.effectiveToDate}
+              helperText={errors.effectiveToDate || 'Required, must be after Effective From'}
               required
             />
           </Grid>
 
-          {/* <Grid item xs={6}>
-            <TextField
-              label="Effective To"
-              type="date"
-              name="effectiveToDate"
-              fullWidth
-              required
-              InputLabelProps={{ shrink: true }}
-              inputProps={{ min: formData.effectiveFromDate }}
-              value={formData.effectiveToDate}
-              error={!!errors.effectiveToDate}
-              helperText={errors.effectiveToDate}
-              onChange={handleChange}
-            />
-          </Grid> */}
-
-          {/* <Grid item xs={12}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={formData.active}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      active: e.target.checked,
-                    }))
-                  }
-                />
-              }
-              label="Active"
-            />
-          </Grid> */}
+          {/* Active Status */}
           <Grid item xs={12}>
             <FormControlLabel
               control={
                 <Checkbox
                   checked={formData.active}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      active: e.target.checked,
-                    }))
-                  }
+                  onChange={handleChange}
+                  name="active"
+                  color="primary"
                 />
               }
               label="Active Status"
             />
+            {errors.active && (
+              <FormHelperText error>{errors.active}</FormHelperText>
+            )}
           </Grid>
         </Grid>
       </DialogContent>
 
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" onClick={handleSubmit}>
+        <Button 
+          variant="contained" 
+          onClick={handleSubmit}
+          disabled={editData ? isUpdateDisabled : false} // Disable if no changes in edit mode
+        >
           {editData ? 'Update' : 'Create'}
         </Button>
       </DialogActions>

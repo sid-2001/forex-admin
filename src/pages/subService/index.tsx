@@ -55,9 +55,10 @@ export default function SubServiceManagement() {
         ...data,
         createdBy: local_service?.get_staff_id() || 'APSNGGGN3654',
       }
-      await subService.createSubService(payload)
+   let res=   await subService.createSubService(payload)
       setOpen(false)
-      showAlert('Success', '✨ Sub-Service added  successfully')
+       showAlert('Success', `${res.message}`)
+      // showAlert('Success', '✨ Sub-Service added  successfully')
       fetchData()
     } catch (e) {
       console.error(e)
@@ -69,9 +70,9 @@ export default function SubServiceManagement() {
     const id = editData?.subServiceCodeGenerated || editData?.id
     if (!id) return alert('ID missing')
 
-    await subService.updateSubService(id, { ...data, subServiceCode: id, modifiedBy: local_service.get_staff_id() })
+  let res=  await subService.updateSubService(id, { ...data, subServiceCode: id, modifiedBy: local_service.get_staff_id() })
     setOpen(false)
-    showAlert('Success', 'Sub Service saved successfully')
+    showAlert('Success', `${res.message}`)
     fetchData()
   }
 

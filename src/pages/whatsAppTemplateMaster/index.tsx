@@ -1,6 +1,7 @@
 import { Button, Stack, IconButton, Box, Typography } from '@mui/material'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
+import DownloadIcon from '@mui/icons-material/Download'
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import WhatsappTemplateDialog from '../../components/whatsAppDialog'
 import WhatsappTemplateService from '../../services/whatsapp.service'
@@ -14,6 +15,7 @@ export default function WhatsappTemplateManagement() {
   const [editData, setEditData] = useState<any | null>(null)
   const [rows, setRows] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+  const [isFormChanged, setIsFormChanged] = useState(false)
 
   const [, setAlertOpen] = useRecoilState(alertState)
   const [, setAlertText] = useRecoilState(alertTextState)
@@ -48,6 +50,7 @@ export default function WhatsappTemplateManagement() {
 
   const handleAction = async (data: any, isUpdate: boolean) => {
     try {
+      // Original payload structure preserved exactly
       const payload = {
         countryCode: data.countryCode,
         whatsappTemplateDescription: data.whatsappTemplateDescription,
@@ -62,8 +65,10 @@ export default function WhatsappTemplateManagement() {
         : await templateService.createTemplate(payload)
 
       if (res.status !== false) {
-        showAlert('Success', `Template ${isUpdate ? 'Updated' : 'Created'} Successfully`)
+        showAlert('Success', `${res?.mess || res?.message || 'Operation completed successfully'}`)
         setOpen(false)
+        setEditData(null)
+        setIsFormChanged(false)
         fetchData()
       } else {
         showAlert('Fail', res.message || 'Server Error')
@@ -72,6 +77,7 @@ export default function WhatsappTemplateManagement() {
       showAlert('Fail', 'Connection Error')
     }
   }
+
   const formatTableDate = (dateString: string) => {
     if (!dateString) return ''
     const storedConfig = localStorage.getItem('countryConfig')
@@ -81,14 +87,83 @@ export default function WhatsappTemplateManagement() {
       const config = JSON.parse(storedConfig)
       format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
     }
-    console.log(format, 'dkjhbcvy')
     return dayjs(dateString).format(format.toUpperCase())
   }
 
-  const formatDateForTable = (dateStr: any) => {
-    if (!dateStr) return '-'
-    const date = new Date(dateStr)
-    return isNaN(date.getTime()) ? '-' : date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+  // Function to download CSV with all fields
+  const downloadCSV = () => {
+    if (!rows || rows.length === 0) {
+      showAlert('Fail', 'No data to export')
+      return
+    }
+
+    // Define CSV headers based on available fields
+    const headers = [
+      'Template Code',
+      'Description',
+      'Country Code',
+      'Active',
+      'Effective From',
+      'Effective To'
+    ]
+    
+    // Map data to CSV rows - using only fields that exist in the data
+    const csvRows = rows.map(row => [
+      row.whatsappTemplateCode || '',
+      row.whatsappTemplateDescription || '',
+      row.countryCode || '',
+      row.active ? 'Yes' : 'No',
+      formatTableDate(row.effectiveFromDate || row.effective_from_date),
+      formatTableDate(row.effectiveToDate || row.effective_to_date)
+    ])
+
+    // Combine headers and rows
+    const csvContent = [
+      headers.join(','),
+      ...csvRows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n')
+
+    // Create and download the file
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `whatsapp_templates_${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+
+    showAlert('Success', 'CSV downloaded successfully')
+  }
+
+  // Custom toolbar with CSV download button
+  const CustomToolbar = () => {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1 }}>
+        <GridToolbar />
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<DownloadIcon />}
+          onClick={downloadCSV}
+          sx={{ ml: 2 }}
+        >
+          Export CSV
+        </Button>
+      </Box>
+    )
+  }
+
+  const handleDialogClose = () => {
+    setOpen(false)
+    setIsFormChanged(false)
+    setEditData(null)
+  }
+
+  const handleFormChange = (changed: boolean) => {
+    setIsFormChanged(changed)
   }
 
   const columns: GridColDef[] = [
@@ -100,16 +175,15 @@ export default function WhatsappTemplateManagement() {
       headerName: 'Effective From',
       flex: 0.8,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
+      renderCell: (params) => formatTableDate(params.row?.effectiveFromDate || params.row?.effective_from_date),
     },
     {
       field: 'effective_to_date',
       headerName: 'Effective To',
       flex: 0.8,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
+      renderCell: (params) => formatTableDate(params.row?.effectiveToDate || params.row?.effective_to_date),
     },
-
     {
       field: 'active',
       headerName: 'Active',
@@ -130,6 +204,7 @@ export default function WhatsappTemplateManagement() {
           onClick={() => {
             setEditData(params.row)
             setOpen(true)
+            setIsFormChanged(false)
           }}
         >
           <EditIcon fontSize="small" />
@@ -141,9 +216,6 @@ export default function WhatsappTemplateManagement() {
   return (
     <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-        {/* <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-          WhatsApp Template Management
-        </Typography> */}
         <Typography
           variant="h4"
           component="h1"
@@ -152,17 +224,17 @@ export default function WhatsappTemplateManagement() {
             letterSpacing: '-0.02em',
             display: 'grid',
             placeItems: 'center',
-            // mb: 5,
             color: '#0061B1',
           }}
         >
-          {'whatsApp master'.toUpperCase()}
+          {'WhatsApp Master'.toUpperCase()}
         </Typography>
         <Button
           variant="contained"
           onClick={() => {
             setEditData(null)
             setOpen(true)
+            setIsFormChanged(false)
           }}
         >
           Add
@@ -173,10 +245,10 @@ export default function WhatsappTemplateManagement() {
         rows={rows}
         columns={columns}
         loading={loading}
-        getRowId={(row) => row.whatsappTemplateCode}
+        getRowId={(row) => row.whatsappTemplateCode || Math.random()}
         autoHeight
         disableRowSelectionOnClick
-        slots={{ toolbar: GridToolbar }}
+        slots={{ toolbar: CustomToolbar }}
         slotProps={{ toolbar: { showQuickFilter: true } }}
         disableColumnMenu
         initialState={{
@@ -186,14 +258,15 @@ export default function WhatsappTemplateManagement() {
             },
           },
         }}
-        // pageSizeOptions={[5, 10, 20]}
       />
 
       <WhatsappTemplateDialog
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={handleDialogClose}
         editData={editData}
         onSubmit={(data: any) => handleAction(data, !!editData)}
+        onFormChange={handleFormChange}
+        isUpdateDisabled={editData ? !isFormChanged : false}
       />
     </Box>
   )

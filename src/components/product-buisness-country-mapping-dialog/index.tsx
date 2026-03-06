@@ -1,4 +1,4 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Checkbox, FormControlLabel, Grid, Autocomplete } from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Checkbox, FormControlLabel, Grid, Autocomplete, FormHelperText } from '@mui/material'
 import { useEffect, useState } from 'react'
 import ProductBusinessCountryMappingService from '@/services/productBusinessCountryMapping.service'
 import { useRecoilValue } from 'recoil'
@@ -9,17 +9,79 @@ import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePi
 const service = new ProductBusinessCountryMappingService()
 const local_service = new LocalStorageService()
 
-export default function ProductBusinessCountryMappingDialog({ open, handleClose, editData, refreshList, showAlert }: any) {
+// Validation constants based on entity annotations
+const VALIDATION = {
+  BUSINESS_MAP_CODE: {
+    maxLength: 15,
+    message: 'Business Map Code cannot exceed 15 characters'
+  },
+  RECIPIENT_COUNTRY: {
+    maxLength: 3,
+    required: true,
+    message: 'Country code cannot exceed 3 characters'
+  },
+  PAYMENT_RAIL: {
+    maxLength: 10,
+    required: true,
+    message: 'Payment Rail cannot exceed 10 characters'
+  }
+}
+
+interface Props {
+  open: boolean
+  handleClose: () => void
+  editData?: any | null
+  refreshList: () => void
+  showAlert: (type: 'Success' | 'Fail', text: string) => void
+  onFormChange?: (changed: boolean) => void
+  isUpdateDisabled?: boolean
+  productList: any[]
+}
+
+export default function ProductBusinessCountryMappingDialog({ 
+  open, 
+  handleClose, 
+  editData, 
+  refreshList, 
+  showAlert,
+  onFormChange,
+  isUpdateDisabled,
+  productList
+}: Props) {
   const countries = useRecoilValue(countyState)
   const [errors, setErrors] = useState<any>({})
   const [form, setForm] = useState<any>({
-    productCode: '',
+    countryCorridorProductCode: '',
     recipientCountry: '',
     paymentRail: '',
     active: true,
     effectiveFromDate: '',
     effectiveToDate: '',
   })
+  const [originalData, setOriginalData] = useState<any>(null)
+
+  // Check if form data has changed from original
+  const checkFormChanged = (current: any, original: any) => {
+    if (!original) return false
+    
+    return (
+      current.countryCorridorProductCode !== original.countryCorridorProductCode ||
+      current.recipientCountry !== original.recipientCountry ||
+      current.paymentRail !== original.paymentRail ||
+      current.active !== original.active ||
+      current.effectiveFromDate !== original.effectiveFromDate ||
+      current.effectiveToDate !== original.effectiveToDate
+    )
+  }
+
+  // Helper to format timezone offset
+  const formatTimezoneOffset = () => {
+    const offset = -new Date().getTimezoneOffset()
+    const sign = offset >= 0 ? '+' : '-'
+    const hours = Math.floor(Math.abs(offset) / 60).toString().padStart(2, '0')
+    const minutes = (Math.abs(offset) % 60).toString().padStart(2, '0')
+    return `${sign}${hours}:${minutes}`
+  }
 
   useEffect(() => {
     if (editData && open) {
@@ -28,28 +90,39 @@ export default function ProductBusinessCountryMappingDialog({ open, handleClose,
         return dateStr.split('T')[0]
       }
 
-      setForm({
-        ...editData,
-        // Using || logic to handle variations in API field naming
-        productCode: editData.productCode || editData.businessMapCode || '',
+      const newFormData = {
+        countryCorridorProductCode: editData.countryCorridorProductCode || editData.productCode || '',
         recipientCountry: editData.recipientCountry || '',
         paymentRail: editData.paymentRail || '',
         active: editData.active ?? true,
         effectiveFromDate: formatToDateOnly(editData.effectiveFromDate || editData.effective_from_date),
         effectiveToDate: formatToDateOnly(editData.effectiveToDate || editData.effective_to_date),
-      })
-    } else {
-      setForm({
-        productCode: '',
+      }
+      
+      setForm(newFormData)
+      setOriginalData(newFormData)
+    } else if (!editData && open) {
+      const newFormData = {
+        countryCorridorProductCode: '',
         recipientCountry: '',
         paymentRail: '',
         active: true,
         effectiveFromDate: '',
         effectiveToDate: '',
-      })
+      }
+      setForm(newFormData)
+      setOriginalData(null)
     }
     setErrors({})
   }, [editData, open])
+
+  // Notify parent component when form changes
+  useEffect(() => {
+    if (onFormChange && originalData) {
+      const changed = checkFormChanged(form, originalData)
+      onFormChange(changed)
+    }
+  }, [form, originalData, onFormChange])
 
   const handleChange = (field: string, value: any) => {
     setForm((prev: any) => ({ ...prev, [field]: value }))
@@ -60,15 +133,43 @@ export default function ProductBusinessCountryMappingDialog({ open, handleClose,
 
   const validate = () => {
     const errs: any = {}
-    if (!form.productCode?.toString().trim()) errs.productCode = 'Required'
-    if (!form.recipientCountry) errs.recipientCountry = 'Required'
-    if (!form.paymentRail?.toString().trim()) errs.paymentRail = 'Required'
-    if (!form.effectiveFromDate) errs.effectiveFromDate = 'Required'
-    if (!form.effectiveToDate) errs.effectiveToDate = 'Required'
 
+    // Product Code validation
+    if (!form.countryCorridorProductCode) {
+      errs.countryCorridorProductCode = 'Product is required'
+    }
+
+    // Recipient Country validation
+    if (!form.recipientCountry) {
+      errs.recipientCountry = 'Recipient Country is required'
+    } else if (form.recipientCountry.length > VALIDATION.RECIPIENT_COUNTRY.maxLength) {
+      errs.recipientCountry = VALIDATION.RECIPIENT_COUNTRY.message
+    }
+
+    // Payment Rail validation
+    if (!form.paymentRail?.toString().trim()) {
+      errs.paymentRail = 'Payment Rail is required'
+    } else if (form.paymentRail.length > VALIDATION.PAYMENT_RAIL.maxLength) {
+      errs.paymentRail = VALIDATION.PAYMENT_RAIL.message
+    }
+
+    // Effective From Date validation
+    if (!form.effectiveFromDate) {
+      errs.effectiveFromDate = 'Effective from date must not be null'
+    }
+
+    // Effective To Date validation
+    if (!form.effectiveToDate) {
+      errs.effectiveToDate = 'Effective to date must not be null'
+    }
+
+    // Date range validation (AssertTrue)
     if (form.effectiveFromDate && form.effectiveToDate) {
-      if (new Date(form.effectiveToDate) < new Date(form.effectiveFromDate)) {
-        errs.effectiveToDate = 'End date cannot be earlier than start date'
+      const fromDate = new Date(form.effectiveFromDate)
+      const toDate = new Date(form.effectiveToDate)
+      
+      if (toDate <= fromDate) {
+        errs.effectiveToDate = 'Effective To date must be after Effective From date'
       }
     }
 
@@ -79,21 +180,47 @@ export default function ProductBusinessCountryMappingDialog({ open, handleClose,
   const handleSubmit = async () => {
     if (!validate()) return
 
+    const now = new Date().toISOString()
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    const offset = formatTimezoneOffset()
+
+    // Generate businessMapCode for new records
+    const businessMapCode = editData?.businessMapCode || `Samplecode`
+
     const payload = {
-      ...form,
-      // Formatting to ISO for Backend
-      effectiveFromDate: `${form.effectiveFromDate}T00:00:00.000Z`,
-      effectiveToDate: `${form.effectiveToDate}T00:00:00.000Z`,
+      businessMapCode,
+      countryCorridorProductCode: form.countryCorridorProductCode,
+      recipientCountry: form.recipientCountry,
+      paymentRail: form.paymentRail,
+      active: form.active,
+      effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
+      effectiveToDate: `${form.effectiveToDate}T00:00:00`,
       modifiedBy: local_service.get_staff_id(),
+      modifiedLocalDateTime: now.split('.')[0],
+      modifiedTimeZone: timeZone,
+      modifiedOffset: offset,
+      modifiedUtcDateTime: new Date().toISOString(),
+    }
+
+    if (!editData) {
+      Object.assign(payload, {
+        createdBy: local_service.get_staff_id(),
+        createdLocalDateTime: now.split('.')[0],
+        createdTimeZone: timeZone,
+        createdOffset: offset,
+        createdUtcDateTime: new Date().toISOString(),
+      })
     }
 
     try {
       const res = editData
+      //@ts-ignore
         ? await service.update(editData.businessMapCode, payload)
-        : await service.create({ ...payload, createdBy: local_service.get_staff_id() })
+//@ts-ignore
+        : await service.create(payload)
 
       if (res) {
-        showAlert('Success', `Mapping ${editData ? 'Updated' : 'Created'} Successfully`)
+        showAlert('Success', `${res.message}`)
         refreshList()
         handleClose()
       }
@@ -102,105 +229,125 @@ export default function ProductBusinessCountryMappingDialog({ open, handleClose,
     }
   }
 
+  // Helper to get helper text with character limit
+  const getHelperText = (field: string, value: string, customMessage?: string) => {
+    const validationMap: any = {
+      recipientCountry: VALIDATION.RECIPIENT_COUNTRY,
+      paymentRail: VALIDATION.PAYMENT_RAIL
+    }
+    
+    const validation = validationMap[field]
+    if (!validation) return customMessage || ''
+    
+    const currentLength = value?.length || 0
+    return `${currentLength}/${validation.maxLength} characters`
+  }
+
+  // Get selected product details
+  const selectedProduct = productList.find(p => p.countryProductCode === form.countryCorridorProductCode)
+
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update Mapping' : 'Create Mapping'}</DialogTitle>
+      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>
+        {editData ? 'Update Mapping' : 'Create Mapping'}
+      </DialogTitle>
 
       <DialogContent dividers>
         <Grid container spacing={2} sx={{ mt: 1 }}>
+          {/* Product Code Dropdown */}
           <Grid item xs={12}>
-            <TextField
-              label="Product Code"
-              required
-              fullWidth
-              error={!!errors.productCode}
-              helperText={errors.productCode}
-              value={form.productCode}
+            <Autocomplete
+              options={productList}
+              getOptionLabel={(option) => `${option.productCode} - ${option.productName} (${option.countryProductCode})`}
+              value={productList.find(p => p.countryProductCode === form.countryCorridorProductCode) || null}
+              onChange={(_, val) => handleChange('countryCorridorProductCode', val?.countryProductCode || '')}
               disabled={!!editData}
-              onChange={(e) => handleChange('productCode', e.target.value.toUpperCase())}
+              renderInput={(params) => (
+                <TextField 
+                  {...params} 
+                  label="Product" 
+                  required 
+                  error={!!errors.countryCorridorProductCode} 
+                  helperText={errors.countryCorridorProductCode}
+                />
+              )}
             />
           </Grid>
 
+          {/* Display selected product details */}
+          {selectedProduct && (
+            <Grid item xs={12}>
+              <TextField
+                label="Selected Product Details"
+                fullWidth
+                //@ts-ignore
+                value={`Code: ${selectedProduct.productCode} | Name: ${selectedProduct.productName} | Effective: ${formatTimezoneOffset(selectedProduct.effectiveFromDate)} to ${formatTimezoneOffset(selectedProduct.effectiveToDate)}`}
+                disabled
+                size="small"
+                variant="filled"
+              />
+            </Grid>
+          )}
+
+          {/* Recipient Country */}
           <Grid item xs={12}>
             <Autocomplete
               options={countries?.filter((c: any) => c.status === 'A') || []}
               getOptionLabel={(o: any) => `${o.countryName} (${o.countryCode})`}
               value={countries?.find((c: any) => c.countryCode === form.recipientCountry) || null}
               onChange={(_, val) => handleChange('recipientCountry', val?.countryCode || '')}
-              renderInput={(p) => (
-                <TextField {...p} label="Destination Country" required error={!!errors.recipientCountry} helperText={errors.recipientCountry} />
+              renderInput={(params) => (
+                <TextField 
+                  {...params} 
+                  label="Destination Country" 
+                  required 
+                  error={!!errors.recipientCountry} 
+                  helperText={errors.recipientCountry || getHelperText('recipientCountry', form.recipientCountry)}
+                />
               )}
             />
           </Grid>
 
+          {/* Payment Rail */}
           <Grid item xs={12}>
             <TextField
               label="Payment Rail"
               required
               fullWidth
               error={!!errors.paymentRail}
-              helperText={errors.paymentRail}
+              helperText={errors.paymentRail || getHelperText('paymentRail', form.paymentRail)}
               value={form.paymentRail}
               onChange={(e) => handleChange('paymentRail', e.target.value)}
+              inputProps={{ maxLength: VALIDATION.PAYMENT_RAIL.maxLength }}
             />
           </Grid>
 
-          {/* <Grid item xs={6}>
-            <TextField
-              type="date"
-              label="Effective From"
-              required
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              error={!!errors.effectiveFromDate}
-              helperText={errors.effectiveFromDate}
-              value={form.effectiveFromDate}
-              onChange={(e) => handleChange('effectiveFromDate', e.target.value)}
-            />
-          </Grid> */}
+          {/* Effective From Date */}
           <Grid item xs={6}>
             <DynamicDatePicker
               label="Effective From"
               value={form.effectiveFromDate}
-              onChange={(val: string) => {
-                console.log(val, 'kdjhchdvy')
-                setForm({ ...form, effectiveFromDate: val })
-              }}
+              onChange={(val: string) => handleChange('effectiveFromDate', val)}
               error={!!errors.effectiveFromDate}
-              helperText={errors.effectiveFromDate}
+              helperText={errors.effectiveFromDate || 'Required'}
               required
             />
           </Grid>
 
+          {/* Effective To Date */}
           <Grid item xs={6}>
             <DynamicEndDatePicker
               label="Effective To"
               value={form.effectiveToDate}
               minDate={form.effectiveFromDate}
-              onChange={(val: string) => {
-                setForm({ ...form, effectiveToDate: val })
-              }}
+              onChange={(val: string) => handleChange('effectiveToDate', val)}
               error={!!errors.effectiveToDate}
-              helperText={errors.effectiveToDate}
+              helperText={errors.effectiveToDate || 'Required, must be after Effective From'}
               required
             />
           </Grid>
 
-          {/* <Grid item xs={6}>
-            <TextField
-              type="date"
-              label="Effective To"
-              required
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              error={!!errors.effectiveToDate}
-              helperText={errors.effectiveToDate}
-              value={form.effectiveToDate}
-              inputProps={{ min: form.effectiveFromDate }}
-              onChange={(e) => handleChange('effectiveToDate', e.target.value)}
-            />
-          </Grid> */}
-
+          {/* Active Status */}
           <Grid item xs={12}>
             <FormControlLabel
               control={<Checkbox checked={form.active} onChange={(e) => handleChange('active', e.target.checked)} />}
@@ -214,7 +361,11 @@ export default function ProductBusinessCountryMappingDialog({ open, handleClose,
         <Button onClick={handleClose} color="inherit">
           Cancel
         </Button>
-        <Button variant="contained" onClick={handleSubmit}>
+        <Button 
+          variant="contained" 
+          onClick={handleSubmit}
+          disabled={editData ? isUpdateDisabled : false}
+        >
           {editData ? 'Update' : 'Save'}
         </Button>
       </DialogActions>
