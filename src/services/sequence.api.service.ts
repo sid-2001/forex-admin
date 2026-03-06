@@ -30,26 +30,24 @@ export interface SequenceMaster {
 }
 
 export default class SequenceApiService extends BaseService {
-  
- async getAll(): Promise<any> {
-  const url = '/api/static-table/generate-sequence'
-  try {
-    const response = await api1.get(url)
-    return response 
-  } catch (err) {
-    return err as any
+  async getAll(): Promise<any> {
+    const url = '/api/static-table/generate-sequence'
+    try {
+      const response = await api1.get(url)
+      return response
+    } catch (err) {
+      return err as any
+    }
   }
-}
 
- 
   async create(payload: Partial<SequenceMaster>): Promise<{ status: boolean; message: string }> {
     const url = '/api/static-table/generate-sequence/create'
     try {
       const finalPayload = {
         ...payload,
-        createdBy: "ADMIN",
-        createdTimeZone: "UTC",
-        createdOffset: "+00:00"
+        createdBy: 'ADMIN',
+        createdTimeZone: 'UTC',
+        createdOffset: '+00:00',
       }
       const { data } = await api1.post(url, finalPayload)
       return data
@@ -58,13 +56,12 @@ export default class SequenceApiService extends BaseService {
     }
   }
 
- 
   async update(id: number | string, payload: Partial<SequenceMaster>): Promise<{ status: boolean; message: string }> {
     const url = `/api/static-table/generate-sequence/${id}`
     try {
       const finalPayload = {
         ...payload,
-        modifiedBy: "ADMIN"
+        modifiedBy: 'ADMIN',
       }
       const { data } = await api1.put(url, finalPayload)
       return data
@@ -73,7 +70,6 @@ export default class SequenceApiService extends BaseService {
     }
   }
 
- 
   async delete(id: number | string): Promise<{ status: boolean; message: string }> {
     const url = `/api/static-table/generate-sequence/delete/${id}`
     try {
@@ -81,6 +77,26 @@ export default class SequenceApiService extends BaseService {
       return data
     } catch (err) {
       return err as any
+    }
+  }
+
+  async getModuleTypeList(): Promise<any[]> {
+    try {
+      const { data } = await api1.get(`/api/static-table/module-feature-master/getAll`)
+      return Array.isArray(data) ? data : data?.data || []
+    } catch (error) {
+      console.error('Fetch Error:', error)
+      return []
+    }
+  }
+
+  async getActiveCountryCorridors(): Promise<any[]> {
+    try {
+      const { data } = await api1.get(`/api/static-table/forex/active-country-currency`)
+      return Array.isArray(data) ? data : data?.data || []
+    } catch (error) {
+      console.error('Fetch Error:', error)
+      return []
     }
   }
 }

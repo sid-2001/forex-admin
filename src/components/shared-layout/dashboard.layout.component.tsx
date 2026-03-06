@@ -96,6 +96,7 @@ import BadgeIcon from '@mui/icons-material/Badge'
 import RuleIcon from '@mui/icons-material/Rule'
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
+import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered'
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
@@ -432,6 +433,12 @@ const MASTER_MENU = [
     name: 'Exchange Rate',
     icon: <CurrencyExchangeIcon fontSize="small" />,
     path: 'exchange-rate',
+  },
+  {
+    label: 'Sequence Master',
+    name: 'ESequence Master',
+    icon: <FormatListNumberedIcon fontSize="small" />,
+    path: 'sequence-master',
   },
 
   // verification-partner
@@ -813,7 +820,7 @@ const DashboardLayout = () => {
             <Box sx={{ display: 'flex', alignItems: 'left', gap: 2 }}>
               <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
                 <IconButton
-              id="imp-change-appearence"
+                  id="imp-change-appearence"
                   onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
                   color="inherit"
                   sx={{
@@ -1029,7 +1036,7 @@ const DashboardLayout = () => {
                   </Item> */}
                   {isDrawerOpen && (
                     <Item
-                    id="imp-logout-menu"
+                      id="imp-logout-menu"
                       style={{
                         color: 'white',
                         padding: '1%',

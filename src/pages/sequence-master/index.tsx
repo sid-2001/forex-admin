@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useMemo } from 'react'
-import { Box, Button, IconButton, Stack, Typography, TextField, InputAdornment } from '@mui/material'
+import React, { useEffect, useState, useMemo, useCallback } from 'react'
+import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import SearchIcon from '@mui/icons-material/Search'
@@ -20,6 +20,7 @@ export default function SequenceMasterTable() {
   const [, setOpen] = useRecoilState(alertState)
   const [, setText] = useRecoilState(alertTextState)
   const [, setType] = useRecoilState(alertTypeState)
+  const [selectedRows, setSelectedRows] = useState([])
 
   const sequenceService = useMemo(() => new SequenceApiService(), [])
 
@@ -64,6 +65,9 @@ export default function SequenceMasterTable() {
   useEffect(() => {
     fetchData()
   }, [])
+
+  // const selectedRowData = rows.filter((row: any) => selectedRows.includes(row.id))
+  // console.log(selectedRowData)
 
   const columns: GridColDef[] = [
     { field: 'sequenceId', headerName: 'Current Sequence', flex: 1.2, headerClassName: 'super-app-theme--header' },
@@ -146,6 +150,10 @@ export default function SequenceMasterTable() {
               },
             },
           }}
+          checkboxSelection
+          disableRowSelectionOnClick
+          rowSelectionModel={selectedRows}
+          onRowSelectionModelChange={(ids: any) => setSelectedRows(ids)}
         />
       </Box>
 
