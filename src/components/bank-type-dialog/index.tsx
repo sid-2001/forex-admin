@@ -54,8 +54,7 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
     const fetchCurrencies = async () => {
       try {
         const response = await forexCurrencyService.getAll()
-          setCurrencies(response)
-        
+        setCurrencies(response)
       } catch (error) {
         console.error('Error fetching currencies:', error)
       }
@@ -116,7 +115,11 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
       effectiveToDate: `${form.effectiveToDate}T00:00:00.000Z`,
     })
   }
-
+  console.log(
+    currencies?.filter((c: ForexCurrency) => c.active),
+    'sjbxschvhscvh',
+    currencies,
+  )
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update Bank Type' : 'Add Bank Type'}</DialogTitle>
@@ -137,7 +140,8 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
 
           <Grid item xs={12}>
             {/* Searchable Country Selector */}
-            <Autocomplete    disabled={!!editData}
+            <Autocomplete
+              disabled={!!editData}
               options={countries?.filter((c: any) => c.status === 'A') || []}
               filterOptions={filter}
               getOptionLabel={(o: any) => `${o.countryName} (${o.countryCode})`}
@@ -156,19 +160,13 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
               value={currencies?.find((c: ForexCurrency) => c.currencyCode === form.businessCurrencyCode) || null}
               onChange={(_, val) => setForm({ ...form, businessCurrencyCode: val ? val.currencyCode : '' })}
               renderInput={(p) => (
-                <TextField 
-                  {...p} 
-                  label="Currency" 
-                  required 
-                  error={!!errors.businessCurrencyCode} 
-                  helperText={errors.businessCurrencyCode} 
-                />
+                <TextField {...p} label="Currency" required error={!!errors.businessCurrencyCode} helperText={errors.businessCurrencyCode} />
               )}
             />
           </Grid>
 
           <Grid item xs={6}>
-       <DynamicDatePicker
+            <DynamicDatePicker
               label="Effective From"
               value={form.effectiveFromDate}
               onChange={(val: string) => {
