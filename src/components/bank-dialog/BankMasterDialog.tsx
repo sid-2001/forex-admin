@@ -10,6 +10,9 @@ import {
   Grid,
   Autocomplete,
   createFilterOptions,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { LocalStorageService } from '@/helpers/local-storage-service'
@@ -18,6 +21,7 @@ import { countyState } from '@/states/state'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 import BankBusinessTypeService, { BankBusinessType } from '../../services/bantypemaster.service'
 import StateService, { StateMaster } from '../../services/state.service'
+import ForexCurrencyService, { ForexCurrency } from '@/services/forex-currency.service'
 
 const filter = createFilterOptions({
   matchFrom: 'any',
@@ -51,6 +55,9 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
   const [loadingBusinessTypes, setLoadingBusinessTypes] = useState(false)
   const [states, setStates] = useState<StateMaster[]>([])
   const [loadingStates, setLoadingStates] = useState(false)
+  const [currencies, setCurrencies] = useState<ForexCurrency[]>([])
+  const [filteredCurrencies, setFilteredCurrencies] = useState<ForexCurrency[]>([])
+  const [loadingCurrencies, setLoadingCurrencies] = useState(false)
 
   const [form, setForm] = useState<any>({
     countryCode: '',
@@ -72,6 +79,82 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
     effective_to_date: '',
     createdBy: '',
   })
+
+  const forexCurrencyService = new ForexCurrencyService()
+
+  // Fetch all currencies when component mounts
+  useEffect(() => {
+    const fetchCurrencies = async () => {
+      setLoadingCurrencies(true)
+      try {
+        const response = await forexCurrencyService.getAll()
+        setCurrencies(response)
+      } catch (error) {
+        console.error('Error fetching currencies:', error)
+      } finally {
+        setLoadingCurrencies(false)
+      }
+    }
+
+    fetchCurrencies()
+  }, [])
+
+
+  // Filter currencies based on selected country
+useEffect(() => {
+  if (!form.countryCode) {
+    setFilteredCurrencies([]);
+    return;
+  }
+
+  const filtered = currencies.filter(
+    (currency) =>
+      currency.countryCode === form.countryCode && currency.active === true
+  );
+
+  setFilteredCurrencies(filtered);
+
+  // Auto select if only one currency
+  if (filtered.length === 1) {
+    handleFieldChange("currencyCode", filtered[0].currencyCode);
+  }
+}, [form.countryCode, currencies]);
+
+  // Filter currencies based on selected country
+  // useEffect(() => {
+  //   if (!form.countryCode || !currencies.length) {
+  //     setFilteredCurrencies([])
+  //     return
+  //   }
+
+  //   // Find the selected country from countries list
+  //   const selectedCountry = countries?.find((c: any) => c.countryCode === form.countryCode)
+    
+  //   if (selectedCountry) {
+  //     // Get the country's currency code (adjust property name based on your data structure)
+  //     const countryCurrencyCode = selectedCountry.currencyCode || selectedCountry.currency
+      
+  //     if (countryCurrencyCode) {
+  //       // Filter currencies that match the country's currency code and are active
+  //       const filtered = currencies.filter(
+  //         (currency) => currency.currencyCode === countryCurrencyCode && currency.active === true
+  //       )
+        
+  //       console.log('Filtered currencies:', filtered)
+  //       setFilteredCurrencies(filtered)
+        
+  //       // Auto-select the currency if only one matches and it's different from current
+  //       if (filtered.length === 1 && filtered[0].currencyCode !== form.currencyCode) {
+  //         handleFieldChange('currencyCode', filtered[0].currencyCode)
+  //       }
+  //     } else {
+  //       // If country doesn't have a specific currency, show all active currencies
+  //       setFilteredCurrencies(currencies.filter((c) => c.active))
+  //     }
+  //   } else {
+  //     setFilteredCurrencies(currencies.filter((c) => c.active))
+  //   }
+  // }, [form.countryCode, currencies, countries])
 
   // Fetch business types when component mounts or when country changes
   useEffect(() => {
@@ -210,7 +293,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
     const error = validateField(field, value)
     setErrors((prev: any) => ({
       ...prev,
-      [field]: error
+      [field]: error,
     }))
   }
 
@@ -230,7 +313,6 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
   ]
 
   const handleSubmit = () => {
- 
     const newErrors: any = {}
     
     // Validate all required fields and length constraints
@@ -240,7 +322,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
     })
 
     // Validate optional fields for length constraints
-    Object.keys(VALIDATION_RULES).forEach(field => {
+    Object.keys(VALIDATION_RULES).forEach((field) => {
       if (!requiredFields.includes(field) && form[field]) {
         const error = validateField(field, form[field])
         if (error) newErrors[field] = error
@@ -300,7 +382,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
         modifiedLocalDateTime: now.toISOString(),
         modifiedTimeZone: timezone,
         modifiedOffset: offsetStr,
-        modifiedUtcDateTime: new Date().toISOString()
+        modifiedUtcDateTime: new Date().toISOString(),
       })
     } else {
       payload.createdBy = localService.get_staff_id()
@@ -310,7 +392,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
         createdLocalDateTime: now.toISOString(),
         createdTimeZone: timezone,
         createdOffset: offsetStr,
-        createdUtcDateTime: new Date().toISOString()
+        createdUtcDateTime: new Date().toISOString(),
       })
     }
 
@@ -324,6 +406,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
 
       <DialogContent dividers>
         <Grid container spacing={2} sx={{ mt: 0.5 }}>
+          {/* Country Selection */}
           <Grid item xs={6}>
             <Autocomplete
               options={countries?.filter((c: any) => c.status === 'A') || []}
@@ -344,6 +427,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
                   handleFieldChange('countryCode', newCountryCode)
                 }, 0)
               }}
+               disabled={!!editData}
               renderInput={(p) => (
                 <TextField 
                   {...p} 
@@ -357,19 +441,176 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
             />
           </Grid>
 
+          {/* Currency Selection - Filtered by Country */}
           <Grid item xs={6}>
-            <TextField
+                  {/* <Select
               fullWidth
-              label="Currency Code"
-              required
               value={form.currencyCode}
-              onChange={(e) => handleFieldChange('currencyCode', e.target.value)}
               error={!!errors.currencyCode}
-              helperText={errors.currencyCode || `Max ${VALIDATION_RULES.currencyCode.max} characters`}
-              inputProps={{ maxLength: VALIDATION_RULES.currencyCode.max }}
-            />
+              onChange={(e) => handleFieldChange('currencyCode', e.target.value)}
+              disabled={!form.countryCode || filteredCurrencies.length === 0 || loadingCurrencies}
+              displayEmpty
+              renderValue={(selected) => {
+                if (!selected) {
+                  return <em>Select currency</em>
+                }
+                const selectedCurrency = filteredCurrencies.find(c => c.currencyCode === selected)
+                return selectedCurrency 
+                  ? `${selectedCurrency.currencyName} (${selectedCurrency.currencyCode})`
+                  : selected
+              }}
+            >
+              {loadingCurrencies ? (
+                <MenuItem disabled value="">
+                  <em>Loading currencies...</em>
+                </MenuItem>
+              ) : !form.countryCode ? (
+                <MenuItem disabled value="">
+                  <em>Select a country first</em>
+                </MenuItem>
+              ) : filteredCurrencies.length === 0 ? (
+                <MenuItem disabled value="">
+                  <em>No currencies available for this country</em>
+                </MenuItem>
+              ) : (
+                filteredCurrencies.map((currency) => (
+                  <MenuItem 
+                    key={currency.currencyCode} 
+                    value={currency.currencyCode}
+                  >
+                    {currency.currencyName} ({currency.currencyCode})
+                  </MenuItem>
+                ))
+              )}
+            </Select> */}
+           
+            <Select
+                
+  fullWidth
+  value={form.currencyCode}
+  error={!!errors.currencyCode}
+  onChange={(e) => handleFieldChange('currencyCode', e.target.value)}
+  disabled={!!editData || !form.countryCode || filteredCurrencies.length === 0}
+  displayEmpty
+>
+
+   {/* Placeholder */}
+   <MenuItem value="">
+    <em>Select Currency</em>
+  </MenuItem>
+
+  {!form.countryCode ? (
+    <MenuItem disabled value="">
+      <em>Select a country first</em>
+    </MenuItem>
+  ) : (
+    filteredCurrencies.map((currency) => (
+      <MenuItem key={currency.currencyCode} value={currency.currencyCode}>
+        {currency.currencyName} ({currency.currencyCode})
+      </MenuItem>
+    ))
+  )}
+</Select>
+            
+            {/* Error and info messages */}
+            {errors.currencyCode && (
+              <p style={{ color: '#d32f2f', fontSize: 12, marginTop: 4 }}>
+                {errors.currencyCode}
+              </p>
+            )}
+            
+            {form.countryCode && filteredCurrencies.length === 0 && !errors.currencyCode && !loadingCurrencies && (
+              <p style={{ color: '#666', fontSize: 12, marginTop: 4, fontStyle: 'italic' }}>
+                No active currencies found for this country
+              </p>
+            )}
+            
+            {/* Show current selection info */}
+            {form.countryCode && filteredCurrencies.length > 0 && form.currencyCode && !errors.currencyCode && (
+              <p style={{ color: '#4caf50', fontSize: 12, marginTop: 4 }}>
+                ✓ Currency selected for{' '}
+                {countries?.find((c: any) => c.countryCode === form.countryCode)?.countryName}
+              </p>
+            )}
           </Grid>
 
+      <Grid item xs={6}>
+            <Autocomplete
+              options={filteredCurrencies}
+              loading={loadingCurrencies}
+              getOptionLabel={(option: ForexCurrency) => 
+                `${option.currencyName} (${option.currencyCode})`
+              }
+              value={filteredCurrencies.find((currency) => 
+                currency.currencyCode === form.currencyCode
+              ) || null}
+              onChange={(_, selectedValue) => {
+                const newCurrencyCode = selectedValue?.currencyCode || ''
+                setForm((prev: any) => ({ 
+                  ...prev, 
+                  currencyCode: newCurrencyCode
+                }))
+                setTimeout(() => {
+                  handleFieldChange('currencyCode', newCurrencyCode)
+                }, 0)
+              }}
+              disabled={!!editData || !form.countryCode || filteredCurrencies.length === 0}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Currency"
+                  required
+                  error={!!errors.currencyCode}
+                  helperText={
+                    errors.currencyCode || 
+                    (filteredCurrencies.length === 0 && form.countryCode ? 'No currencies available for this country' : '')
+                  }
+                  placeholder={
+                    !form.countryCode 
+                      ? 'Select a country first' 
+                      : filteredCurrencies.length === 0 
+                        ? 'No currencies available' 
+                        : 'Select currency'
+                  }
+                  disabled={!!editData || !form.countryCode || filteredCurrencies.length === 0}
+                  inputProps={{ 
+                    ...params.inputProps, 
+                    maxLength: VALIDATION_RULES.currencyCode.max 
+                  }}
+                />
+              )}
+              noOptionsText={
+                !form.countryCode 
+                  ? 'Please select a country first' 
+                  : loadingCurrencies 
+                    ? 'Loading currencies...' 
+                    : 'No currencies available for this country'
+              }
+            />
+            
+            {/* Error and info messages */}
+            {errors.currencyCode && (
+              <p style={{ color: '#d32f2f', fontSize: 12, marginTop: 4 }}>
+                {errors.currencyCode}
+              </p>
+            )}
+            
+            {form.countryCode && filteredCurrencies.length === 0 && !errors.currencyCode && !loadingCurrencies && (
+              <p style={{ color: '#666', fontSize: 12, marginTop: 4, fontStyle: 'italic' }}>
+                No active currencies found for this country
+              </p>
+            )}
+            
+            {/* Show current selection info */}
+            {form.countryCode && filteredCurrencies.length > 0 && form.currencyCode && !errors.currencyCode && (
+              <p style={{ color: '#4caf50', fontSize: 12, marginTop: 4 }}>
+                ✓ Currency selected for{' '}
+                {countries?.find((c: any) => c.countryCode === form.countryCode)?.countryName}
+              </p>
+            )}
+          </Grid>
+
+          {/* Bank Code */}
           <Grid item xs={6}>
             <TextField
               fullWidth
@@ -384,6 +625,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
             />
           </Grid>
 
+          {/* Bank Name */}
           <Grid item xs={6}>
             <TextField
               fullWidth
@@ -414,7 +656,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
                 setForm((prev: any) => ({ 
                   ...prev, 
                   bankTypeCode: selectedValue?.businessTypeCode || '',
-                  bankType: selectedValue?.businessTypeCode || ''
+                  bankType: selectedValue?.businessTypeCode || '',
                 }))
                 // Validate after state update
                 setTimeout(() => {
@@ -428,9 +670,12 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
                   label="Bank Type"
                   required
                   error={!!errors.bankTypeCode}
-                  helperText={errors.bankTypeCode || (businessTypes.length === 0 && form.countryCode ? 'No bank types available for this country' : '')}
+                  helperText={
+                    errors.bankTypeCode || 
+                    (businessTypes.length === 0 && form.countryCode ? 'No bank types available for this country' : '')
+                  }
                   placeholder={!form.countryCode ? 'Select country first' : 'Select bank type'}
-                  disabled={!form.countryCode || businessTypes.length === 0}
+                  disabled={!!editData || !form.countryCode || businessTypes.length === 0}
                 />
               )}
               disabled={!form.countryCode || businessTypes.length === 0}
@@ -444,6 +689,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
             />
           </Grid>
 
+          {/* Branch Code */}
           <Grid item xs={6}>
             <TextField
               fullWidth
@@ -457,6 +703,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
             />
           </Grid>
 
+          {/* IFSC / BIC Code */}
           <Grid item xs={6}>
             <TextField
               fullWidth
@@ -508,6 +755,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
             />
           </Grid>
 
+          {/* City */}
           <Grid item xs={4}>
             <TextField
               fullWidth
@@ -521,6 +769,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
             />
           </Grid>
 
+          {/* State Selection */}
           <Grid item xs={4}>
             <Autocomplete
               options={states}
@@ -538,7 +787,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
                 const newStateCode = selectedValue?.StateCode || ''
                 setForm((prev: any) => ({ 
                   ...prev, 
-                  bankStateProvinceCode: newStateCode
+                  bankStateProvinceCode: newStateCode,
                 }))
                 setTimeout(() => {
                   handleFieldChange('bankStateProvinceCode', newStateCode)
@@ -550,7 +799,10 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
                   label="State"
                   required
                   error={!!errors.bankStateProvinceCode}
-                  helperText={errors.bankStateProvinceCode || (states.length === 0 && form.countryCode ? 'No states available for this country' : '')}
+                  helperText={
+                    errors.bankStateProvinceCode || 
+                    (states.length === 0 && form.countryCode ? 'No states available for this country' : '')
+                  }
                   placeholder={!form.countryCode ? 'Select country first' : 'Select state'}
                   disabled={!form.countryCode || states.length === 0}
                   inputProps={{ ...params.inputProps, maxLength: VALIDATION_RULES.bankStateProvinceCode.max }}
@@ -567,6 +819,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
             />
           </Grid>
 
+          {/* Postal Code */}
           <Grid item xs={4}>
             <TextField
               fullWidth
@@ -580,6 +833,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
             />
           </Grid>
 
+          {/* Effective From Date */}
           <Grid item xs={6}>
             <DynamicDatePicker
               label="Effective From"
@@ -593,6 +847,7 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
             />
           </Grid>
 
+          {/* Effective To Date */}
           <Grid item xs={6}>
             <DynamicEndDatePicker
               label="Effective To"
@@ -607,9 +862,15 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
             />
           </Grid>
 
+          {/* Active Status */}
           <Grid item xs={12}>
             <FormControlLabel
-              control={<Checkbox checked={form.active} onChange={(e) => setForm((prev: any) => ({ ...prev, active: e.target.checked }))} />}
+              control={
+                <Checkbox 
+                  checked={form.active} 
+                  onChange={(e) => setForm((prev: any) => ({ ...prev, active: e.target.checked }))} 
+                />
+              }
               label="Active Status"
             />
           </Grid>
