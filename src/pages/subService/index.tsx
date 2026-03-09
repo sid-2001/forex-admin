@@ -55,9 +55,9 @@ export default function SubServiceManagement() {
         ...data,
         createdBy: local_service?.get_staff_id() || 'APSNGGGN3654',
       }
-   let res=   await subService.createSubService(payload)
+      let res = await subService.createSubService(payload)
       setOpen(false)
-       showAlert('Success', `${res.message}`)
+      showAlert('Success', `${res.message}`)
       // showAlert('Success', '✨ Sub-Service added  successfully')
       fetchData()
     } catch (e) {
@@ -70,7 +70,7 @@ export default function SubServiceManagement() {
     const id = editData?.subServiceCodeGenerated || editData?.id
     if (!id) return alert('ID missing')
 
-  let res=  await subService.updateSubService(id, { ...data, subServiceCode: id, modifiedBy: local_service.get_staff_id() })
+    let res = await subService.updateSubService(id, { ...data, subServiceCode: id, modifiedBy: local_service.get_staff_id() })
     setOpen(false)
     showAlert('Success', `${res.message}`)
     fetchData()
@@ -98,7 +98,7 @@ export default function SubServiceManagement() {
 
   const columns: GridColDef[] = [
     { field: 'subServiceCodeGenerated', headerName: 'Sub Service Code', flex: 1, headerClassName: 'super-app-theme--header' },
-     { field: 'subServiceName', headerName: 'Sub Service Name', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'subServiceName', headerName: 'Sub Service Name', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'countryCode', headerName: 'Country', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'active', headerName: 'Active', flex: 0.7, renderCell: (p) => (p.value ? 'Yes' : 'No'), headerClassName: 'super-app-theme--header' },
     {

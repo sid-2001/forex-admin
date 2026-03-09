@@ -1,4 +1,16 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Checkbox, FormControlLabel, Box, MenuItem } from '@mui/material'
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Box,
+  MenuItem,
+  Autocomplete,
+} from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { countyState } from '@/states/state'
@@ -69,8 +81,7 @@ export default function SubServiceFormDialog({ open, onClose, onSubmit, editData
 
       <DialogContent dividers>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-          {/* Country from Recoil */}
-          <TextField
+          {/* <TextField
             select
             required
             label="Country"
@@ -87,7 +98,22 @@ export default function SubServiceFormDialog({ open, onClose, onSubmit, editData
                   {c.countryName}
                 </MenuItem>
               ))}
-          </TextField>
+          </TextField> */}
+          <Autocomplete
+            fullWidth
+            // 1. Filter the list exactly like you did in the MenuItem
+            options={countries?.filter((item) => item.status === 'A') || []}
+            // 2. Tell Autocomplete which property to show in the list
+            getOptionLabel={(option) => option.countryName || ''}
+            // 3. Handle the value (match by countryCode)
+            value={countries.find((c) => c.countryCode === countryCode) || null}
+            // 4. Update the state when a user selects an item
+            onChange={(_, newValue: any) => {
+              setCountryCode(newValue ? newValue.countryCode : '')
+            }}
+            // 5. Render the input (replaces your current TextField)
+            renderInput={(params) => <TextField {...params} required label="Country" error={!!errors.countryCode} helperText={errors.countryCode} />}
+          />
 
           <TextField
             required
