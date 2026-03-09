@@ -35,7 +35,7 @@ export default class SubServiceService extends BaseService {
 
     const url = `/api/static-table/subServiceMaster/update/${id}`;
     try {
-      const { data } = await api1.patch(url, payload);
+      const { data } = await api1.put(url, payload);
       return data;
     } catch (err) { return err as any; }
   }
