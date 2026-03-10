@@ -104,6 +104,7 @@ export default function SubServiceFormDialog({ open, onClose, onSubmit, editData
             // 1. Filter the list exactly like you did in the MenuItem
             options={countries?.filter((item) => item.status === 'A') || []}
             // 2. Tell Autocomplete which property to show in the list
+            //@ts-ignore
             getOptionLabel={(option) => option.countryName || ''}
             // 3. Handle the value (match by countryCode)
             value={countries.find((c) => c.countryCode === countryCode) || null}

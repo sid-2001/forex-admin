@@ -89,6 +89,10 @@ import CountryLimitTypeWiseLimitMaster from './pages/country-limit-type-wise-lim
 import CountryKycDocumentMaster from './pages/CountryKycDocumentMaster'
 import CountryResProductChannelDocRequiredMaster from './pages/contryresproductchanneldoc'
 import ExchangeRateMasterScreen from './pages/exchangeRateMaster'
+import CountryCorridorProductMaster from './pages/country-corridor-product'
+import ProductService from './services/product.service'
+import ProductSubServiceMaster from './pages/product-sub-service'
+import ServiceSubServiceMapping from './pages/subservice-mapping'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -146,6 +150,8 @@ function App() {
           },
         },
       },
+
+      
       MuiDataGrid: {
         styleOverrides: {
           root: {
@@ -170,6 +176,27 @@ function App() {
           },
         },
       },
+
+
+    MuiDialog: {
+      defaultProps: {
+        disableEscapeKeyDown: true
+      },
+      styleOverrides: {
+        root: {
+          "& .MuiBackdrop-root": {
+            pointerEvents: "none"
+          }
+        }
+      }
+    }
+
+    //       MuiDialog: {
+    //   defaultProps: {
+    //     disableEscapeKeyDown: true
+    //   }
+    // }
+      
     },
   })
 
@@ -268,6 +295,9 @@ function App() {
               <Route path="country-kyc-doc-master" element={<CountryKycDocumentMaster />} />
               <Route path="kyc-doc-mapping" element={<CountryResProductChannelDocRequiredMaster />} />
               <Route path="exchange-rate" element={<ExchangeRateMasterScreen />} />
+              <Route path="country-product-code" element={<CountryCorridorProductMaster />} />
+                  <Route path="product-subservice" element={<ProductSubServiceMaster />} />
+                   <Route path="service-sub-service-mapping" element={<ServiceSubServiceMapping />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 

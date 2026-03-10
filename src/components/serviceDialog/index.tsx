@@ -113,6 +113,7 @@ export default function ServiceFormDialog({ open, onClose, onSubmit, editData }:
             // Filtered list of active countries
             options={countries?.filter((c) => c.status === 'A') || []}
             // Displays the name in the dropdown list
+            //@ts-ignore
             getOptionLabel={(option) => option.countryName || ''}
             // Finds the object matching your current code string
             value={countries.find((c) => c.countryCode === countryCode) || null}
