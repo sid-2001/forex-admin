@@ -101,18 +101,13 @@ export default function SubServiceFormDialog({ open, onClose, onSubmit, editData
           </TextField> */}
           <Autocomplete
             fullWidth
-            // 1. Filter the list exactly like you did in the MenuItem
             options={countries?.filter((item) => item.status === 'A') || []}
-            // 2. Tell Autocomplete which property to show in the list
             //@ts-ignore
-            getOptionLabel={(option) => option.countryName || ''}
-            // 3. Handle the value (match by countryCode)
+            getOptionLabel={(option: any) => option.countryName || ''}
             value={countries.find((c) => c.countryCode === countryCode) || null}
-            // 4. Update the state when a user selects an item
             onChange={(_, newValue: any) => {
               setCountryCode(newValue ? newValue.countryCode : '')
             }}
-            // 5. Render the input (replaces your current TextField)
             renderInput={(params) => <TextField {...params} required label="Country" error={!!errors.countryCode} helperText={errors.countryCode} />}
           />
 

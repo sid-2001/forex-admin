@@ -13,7 +13,6 @@ import api1 from './apis/api1'
 import { BaseService } from './base.service'
 
 class CountryCorridorService extends BaseService {
-  
   // ============ GET Operations ============
 
   /**
@@ -94,9 +93,9 @@ class CountryCorridorService extends BaseService {
       // Calculate stats from all corridors if stats endpoint doesn't exist
       try {
         const corridors = await this.getAllCorridors()
-        const activeCount = corridors.filter(c => c.active).length
-        const countries = [...new Set(corridors.map(c => c.countryCode))]
-        
+        const activeCount = corridors.filter((c) => c.active).length
+        const countries = [...new Set(corridors.map((c) => c.countryCode))]
+
         return {
           total: corridors.length,
           active: activeCount,
@@ -122,7 +121,7 @@ class CountryCorridorService extends BaseService {
       // Extract from all corridors if countries endpoint doesn't exist
       try {
         const corridors = await this.getAllCorridors()
-        const countries = [...new Set(corridors.map(c => c.countryCode))]
+        const countries = [...new Set(corridors.map((c) => c.countryCode))]
         return countries
       } catch (countriesErr) {
         throw new Error('Unable to fetch countries. Please try again.')
@@ -229,17 +228,36 @@ class CountryCorridorService extends BaseService {
   /**
    * Update corridor active status
    */
-  async updateActiveStatus(corridorCode: string, active: boolean): Promise<CountryCorridorResponse> {
-    const url = `/static-table/country-corridor-master/${corridorCode}/active/${active}`
+  // async updateActiveStatus(corridorCode: string, active: boolean): Promise<CountryCorridorResponse> {
+  //   const url = `/static-table/country-corridor-master/${corridorCode}/active/${active}`
+  //   try {
+  //     const { data } = await api1.del(url,{})
+  //     return data
+  //   } catch (err) {
+  //     console.error(`Error updating status for corridor ${corridorCode}:`, err)
+  //     throw new Error(`Unable to ${active ? 'activate' : 'deactivate'} corridor. Please try again.`)
+  //   }
+  // }
+  async updateActiveStatus(id: string, active: boolean, staffId: string, fromDate: string, toDate: string) {
+    const url = `/api/static-table/country-corridor-master/updateStatus`
+
+    // Use the dynamic 'id' passed from your component
+    const payload = {
+      id: id,
+      active: active,
+      modifiedBy: staffId,
+      effectiveFromDate: fromDate,
+      effectiveToDate: toDate,
+    }
+
     try {
-      const { data } = await api1.put(url,{})
+      const { data } = await api1.del(url, payload)
       return data
     } catch (err) {
-      console.error(`Error updating status for corridor ${corridorCode}:`, err)
-      throw new Error(`Unable to ${active ? 'activate' : 'deactivate'} corridor. Please try again.`)
+      console.error('Payload sent that caused failure:', payload)
+      throw err
     }
   }
-
   /**
    * Bulk update corridor status
    */
@@ -257,10 +275,10 @@ class CountryCorridorService extends BaseService {
    * Update corridor effective dates
    */
   async updateEffectiveDates(
-    corridorCode: string, 
-    effectiveFromDate: string, 
+    corridorCode: string,
+    effectiveFromDate: string,
     effectiveToDate: string,
-    modifiedBy: string
+    modifiedBy: string,
   ): Promise<CountryCorridorResponse> {
     const url = `/static-table/country-corridor-master/${corridorCode}/dates`
     try {
@@ -320,10 +338,9 @@ class CountryCorridorService extends BaseService {
   async checkCorridorCodeExists(corridorCode: string): Promise<boolean> {
     const url = `/static-table/country-corridor-master/check-code/${corridorCode}`
     try {
-      const { data } = await 
-      
-      //@ts-ignore
-      api1.get(url)
+      const { data } =
+        await //@ts-ignore
+        api1.get(url)
       return data?.data?.exists || false
     } catch (err) {
       return false
@@ -372,7 +389,9 @@ class CountryCorridorService extends BaseService {
   generateCorridorCode(countryCode: string): string {
     const prefix = 'CCC'
     const timestamp = Date.now().toString().slice(-4)
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
+    const random = Math.floor(Math.random() * 1000)
+      .toString()
+      .padStart(3, '0')
     return `${prefix}${countryCode}${timestamp}${random}`.slice(0, 10)
   }
 
