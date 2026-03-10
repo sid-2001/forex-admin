@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import {
   Box,
   Button,
@@ -84,13 +84,9 @@ import {
 
 // Services and Types
 import { CountryCorridorService } from '@/services/countryCorridor.service'
-import {
-  CountryCorridorData,
-  CreateCorridorPayload,
-  UpdateCorridorPayload,
-  CorridorStats,
-} from '@/types/countryCorridor.types'
+import { CountryCorridorData, CreateCorridorPayload, UpdateCorridorPayload, CorridorStats } from '@/types/countryCorridor.types'
 import { TableIcon, ViewIcon } from 'lucide-react'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
 const corridorService = new CountryCorridorService()
 
@@ -171,25 +167,25 @@ const CountryCorridorPage: React.FC = () => {
   const [filteredCorridors, setFilteredCorridors] = useState<CountryCorridorData[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  
+
   // Pagination
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [totalCount, setTotalCount] = useState(0)
-  
+
   // Tabs
   const [tabValue, setTabValue] = useState(0)
-  
+
   // Filters
   const [searchTerm, setSearchTerm] = useState('')
   const [countryFilter, setCountryFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [showFilters, setShowFilters] = useState(false)
-  
+
   // Sort
   const [sortBy, setSortBy] = useState('createdLocalDateTime')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
-  
+
   // Statistics
   const [stats, setStats] = useState<CorridorStats>({
     total: 0,
@@ -198,19 +194,19 @@ const CountryCorridorPage: React.FC = () => {
     countries: 0,
     countryList: [],
   })
-  
+
   // Dialog states
   const [openCreateDialog, setOpenCreateDialog] = useState(false)
   const [openEditDialog, setOpenEditDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [openHistoryDialog, setOpenHistoryDialog] = useState(false)
   const [openViewDialog, setOpenViewDialog] = useState(false)
-  
+
   // Selected corridor
   const [selectedCorridor, setSelectedCorridor] = useState<CountryCorridorData | null>(null)
   const [selectedCorridors, setSelectedCorridors] = useState<string[]>([])
   const [corridorHistory, setCorridorHistory] = useState<CountryCorridorData[]>([])
-  
+  const local_service = useMemo(() => new LocalStorageService(), [])
   // Form data
   const [formData, setFormData] = useState<CreateCorridorPayload>({
     countryCode: '',
@@ -219,7 +215,7 @@ const CountryCorridorPage: React.FC = () => {
     effectiveFromDate: '2026-01-01T00:00:00',
     effectiveToDate: '9999-12-31T00:00:00',
   })
-  
+
   const [editFormData, setEditFormData] = useState<UpdateCorridorPayload>({
     countryCode: '',
     active: true,
@@ -227,14 +223,14 @@ const CountryCorridorPage: React.FC = () => {
     effectiveFromDate: '',
     effectiveToDate: '',
   })
-  
+
   // Unique countries
   const [uniqueCountries, setUniqueCountries] = useState<string[]>([])
-  
+
   // Menu
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedMenuCorridor, setSelectedMenuCorridor] = useState<string | null>(null)
-  
+
   // Snackbar
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
@@ -252,8 +248,8 @@ const CountryCorridorPage: React.FC = () => {
       setCorridors(data)
       applyFilters(data)
       setTotalCount(data.length)
-      
-      const countries = [...new Set(data.map(c => c.countryCode))].sort()
+
+      const countries = [...new Set(data.map((c) => c.countryCode))].sort()
       setUniqueCountries(countries)
     } catch (err: any) {
       setError(err.message || 'Failed to fetch corridors')
@@ -274,52 +270,56 @@ const CountryCorridorPage: React.FC = () => {
   }, [])
 
   // Apply filters
-  const applyFilters = useCallback((data: CountryCorridorData[]) => {
-    let filtered = [...data]
+  const applyFilters = useCallback(
+    (data: CountryCorridorData[]) => {
+      let filtered = [...data]
 
-    // Filter by tab
-    if (tabValue === 1) filtered = filtered.filter(c => c.active === true)
-    else if (tabValue === 2) filtered = filtered.filter(c => c.active === false)
+      // Filter by tab
+      if (tabValue === 1) filtered = filtered.filter((c) => c.active === true)
+      else if (tabValue === 2) filtered = filtered.filter((c) => c.active === false)
 
-    // Filter by country
-    if (countryFilter !== 'all') {
-      filtered = filtered.filter(c => c.countryCode === countryFilter)
-    }
-
-    // Filter by status
-    if (statusFilter !== 'all') {
-      const isActive = statusFilter === 'active'
-      filtered = filtered.filter(c => c.active === isActive)
-    }
-
-    // Filter by search
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase()
-      filtered = filtered.filter(c =>
-        c.countryCorridorCode.toLowerCase().includes(term) ||
-        c.countryCode.toLowerCase().includes(term) ||
-        c.createdBy.toLowerCase().includes(term)
-      )
-    }
-
-    // Apply sort
-    filtered.sort((a, b) => {
-      let aValue: any = a[sortBy as keyof CountryCorridorData]
-      let bValue: any = b[sortBy as keyof CountryCorridorData]
-
-      if (sortBy === 'effectiveFromDate' || sortBy === 'effectiveToDate' || sortBy === 'createdLocalDateTime') {
-        aValue = new Date(aValue).getTime()
-        bValue = new Date(bValue).getTime()
+      // Filter by country
+      if (countryFilter !== 'all') {
+        filtered = filtered.filter((c) => c.countryCode === countryFilter)
       }
 
-      if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1
-      if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1
-      return 0
-    })
+      // Filter by status
+      if (statusFilter !== 'all') {
+        const isActive = statusFilter === 'active'
+        filtered = filtered.filter((c) => c.active === isActive)
+      }
 
-    setFilteredCorridors(filtered)
-    setTotalCount(filtered.length)
-  }, [tabValue, countryFilter, statusFilter, searchTerm, sortBy, sortOrder])
+      // Filter by search
+      if (searchTerm) {
+        const term = searchTerm.toLowerCase()
+        filtered = filtered.filter(
+          (c) =>
+            c.countryCorridorCode.toLowerCase().includes(term) ||
+            c.countryCode.toLowerCase().includes(term) ||
+            c.createdBy.toLowerCase().includes(term),
+        )
+      }
+
+      // Apply sort
+      filtered.sort((a, b) => {
+        let aValue: any = a[sortBy as keyof CountryCorridorData]
+        let bValue: any = b[sortBy as keyof CountryCorridorData]
+
+        if (sortBy === 'effectiveFromDate' || sortBy === 'effectiveToDate' || sortBy === 'createdLocalDateTime') {
+          aValue = new Date(aValue).getTime()
+          bValue = new Date(bValue).getTime()
+        }
+
+        if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1
+        if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1
+        return 0
+      })
+
+      setFilteredCorridors(filtered)
+      setTotalCount(filtered.length)
+    },
+    [tabValue, countryFilter, statusFilter, searchTerm, sortBy, sortOrder],
+  )
 
   // Reset filters
   const resetFilters = () => {
@@ -338,7 +338,7 @@ const CountryCorridorPage: React.FC = () => {
       showSnackbar('Country code is required', 'error')
       return
     }
-    
+
     setLoading(true)
     try {
       await corridorService.createCorridor(formData)
@@ -357,13 +357,10 @@ const CountryCorridorPage: React.FC = () => {
   // Handle update corridor
   const handleUpdateCorridor = async () => {
     if (!selectedCorridor) return
-    
+
     setLoading(true)
     try {
-      await corridorService.updateCorridor(
-        selectedCorridor.countryCorridorCode,
-        editFormData
-      )
+      await corridorService.updateCorridor(selectedCorridor.countryCorridorCode, editFormData)
       showSnackbar('Corridor updated successfully', 'success')
       setOpenEditDialog(false)
       fetchCorridors()
@@ -375,19 +372,40 @@ const CountryCorridorPage: React.FC = () => {
     }
   }
 
-  // Handle toggle status
-  const handleToggleStatus = async (corridorCode: string, currentStatus: boolean) => {
+  // // Handle toggle status
+  // const handleToggleStatus = async (corridorCode: string, currentStatus: boolean) => {
+  //   setLoading(true)
+  //   try {
+  //     await corridorService.updateActiveStatus(corridorCode, !currentStatus)
+  //     showSnackbar(`Corridor ${!currentStatus ? 'activated' : 'deactivated'} successfully`, 'success')
+  //     fetchCorridors()
+  //     fetchStats()
+  //   } catch (err: any) {
+  //     showSnackbar(err.message || `Failed to ${!currentStatus ? 'activate' : 'deactivate'} corridor`, 'error')
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
+  const staffId = local_service?.get_staff_id()
+  const handleToggleStatus = async (corridor: CountryCorridorData) => {
     setLoading(true)
+    const active = !corridor.active == false ? true : false
+    alert(active)
     try {
-      await corridorService.updateActiveStatus(corridorCode, !currentStatus)
-      showSnackbar(
-        `Corridor ${!currentStatus ? 'activated' : 'deactivated'} successfully`,
-        'success'
+      // Pass the whole object or specific fields to ensure dates aren't lost
+      await corridorService.updateActiveStatus(
+        corridor.countryCorridorCode,
+        active,
+        local_service?.get_staff_id(),
+        corridor.effectiveFromDate,
+        corridor.effectiveToDate,
       )
+
+      showSnackbar(`Corridor ${!corridor.active ? 'activated' : 'deactivated'} successfully`, 'success')
       fetchCorridors()
       fetchStats()
     } catch (err: any) {
-      showSnackbar(err.message || `Failed to ${!currentStatus ? 'activate' : 'deactivate'} corridor`, 'error')
+      showSnackbar(err.message || `Failed to ${!corridor.active ? 'activate' : 'deactivate'} corridor`, 'error')
     } finally {
       setLoading(false)
     }
@@ -396,13 +414,10 @@ const CountryCorridorPage: React.FC = () => {
   // Handle deactivate corridor
   const handleDeactivateCorridor = async () => {
     if (!selectedCorridor) return
-    
+
     setLoading(true)
     try {
-      await corridorService.deactivateCorridor(
-        selectedCorridor.countryCorridorCode,
-        'APSNG26010500002'
-      )
+      await corridorService.deactivateCorridor(selectedCorridor.countryCorridorCode, 'APSNG26010500002')
       showSnackbar('Corridor deactivated successfully', 'success')
       setOpenDeleteDialog(false)
       fetchCorridors()
@@ -418,9 +433,7 @@ const CountryCorridorPage: React.FC = () => {
   const handleExportCSV = async () => {
     setLoading(true)
     try {
-      const blob = await corridorService.exportCorridorsToCSV(
-        countryFilter !== 'all' ? countryFilter : undefined
-      )
+      const blob = await corridorService.exportCorridorsToCSV(countryFilter !== 'all' ? countryFilter : undefined)
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -461,16 +474,19 @@ const CountryCorridorPage: React.FC = () => {
   // Handle tab change
   const handleTabChange = (
     //@ts-ignore
-    event: React.SyntheticEvent, newValue: number) => {
+    event: React.SyntheticEvent,
+    newValue: number,
+  ) => {
     setTabValue(newValue)
     setPage(0)
   }
 
   // Handle page change
   const handleChangePage = (
-    
     //@ts-ignore
-    event: unknown, newPage: number) => {
+    event: unknown,
+    newPage: number,
+  ) => {
     setPage(newPage)
   }
 
@@ -550,17 +566,13 @@ const CountryCorridorPage: React.FC = () => {
 
   // Handle select corridor
   const handleSelectCorridor = (corridorCode: string) => {
-    setSelectedCorridors(prev =>
-      prev.includes(corridorCode)
-        ? prev.filter(c => c !== corridorCode)
-        : [...prev, corridorCode]
-    )
+    setSelectedCorridors((prev) => (prev.includes(corridorCode) ? prev.filter((c) => c !== corridorCode) : [...prev, corridorCode]))
   }
 
   // Handle select all
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      setSelectedCorridors(filteredCorridors.map(c => c.countryCorridorCode))
+      setSelectedCorridors(filteredCorridors.map((c) => c.countryCorridorCode))
     } else {
       setSelectedCorridors([])
     }
@@ -596,14 +608,8 @@ const CountryCorridorPage: React.FC = () => {
           <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.02) }}>
             <TableCell padding="checkbox">
               <Checkbox
-                indeterminate={
-                  selectedCorridors.length > 0 &&
-                  selectedCorridors.length < filteredCorridors.length
-                }
-                checked={
-                  filteredCorridors.length > 0 &&
-                  selectedCorridors.length === filteredCorridors.length
-                }
+                indeterminate={selectedCorridors.length > 0 && selectedCorridors.length < filteredCorridors.length}
+                checked={filteredCorridors.length > 0 && selectedCorridors.length === filteredCorridors.length}
                 onChange={handleSelectAll}
               />
             </TableCell>
@@ -622,7 +628,9 @@ const CountryCorridorPage: React.FC = () => {
               Created At
             </TableCell>
             <TableCell sx={{ fontWeight: 700 }}>Timezone</TableCell>
-            <TableCell align="center" sx={{ fontWeight: 700 }}>Actions</TableCell>
+            <TableCell align="center" sx={{ fontWeight: 700 }}>
+              Actions
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -642,133 +650,127 @@ const CountryCorridorPage: React.FC = () => {
                 <Typography variant="h6" color="text.secondary" gutterBottom>
                   No corridors found
                 </Typography>
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
-                  onClick={() => setOpenCreateDialog(true)}
-                  sx={{ mt: 3 }}
-                >
+                <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenCreateDialog(true)} sx={{ mt: 3 }}>
                   Create New Corridor
                 </Button>
               </TableCell>
             </TableRow>
           ) : (
-            filteredCorridors
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row) => (
-                <TableRow
-                  key={row.countryCorridorCode}
-                  hover
-                  sx={{ cursor: 'pointer' }}
-                  onClick={() => handleOpenViewDialog(row)}
-                >
-                  <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
-                    <Checkbox
-                      checked={selectedCorridors.includes(row.countryCorridorCode)}
-                      onChange={() => handleSelectCorridor(row.countryCorridorCode)}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={row.countryCorridorCode}
-                      size="small"
-                      sx={{
-                        fontFamily: 'monospace',
-                        fontWeight: 700,
-                        bgcolor: alpha(theme.palette.primary.main, 0.08),
-                        color: 'primary.dark',
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleCopyToClipboard(row.countryCorridorCode)
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <Typography fontWeight={600}>{row.countryCode}</Typography>
-                    </Stack>
-                  </TableCell>
-                  <TableCell>
-                    <StatusChip active={row.active} />
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" fontWeight={500}>
-                      {new Date(row.effectiveFromDate).toLocaleDateString()}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      → {row.effectiveToDate === '9999-12-31T00:00:00' ? '∞' : new Date(row.effectiveToDate).toLocaleDateString()}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" fontWeight={500}>
-                      {row.createdBy}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">
-                      {new Date(row.createdLocalDateTime).toLocaleDateString()}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {new Date(row.createdLocalDateTime).toLocaleTimeString()}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <TimezoneChip
-                      timezone={row.createdTimezone}
-                      offset={row.createdOffset}
-                    />
-                  </TableCell>
-                  <TableCell align="center" onClick={(e) => e.stopPropagation()}>
-                    <Stack direction="row" spacing={1} justifyContent="center">
-                      <Tooltip title="Edit">
-                        <IconButton
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleOpenEditDialog(row)
-                          }}
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title={row.active ? 'Deactivate' : 'Activate'}>
-                        <IconButton
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleToggleStatus(row.countryCorridorCode, row.active)
-                          }}
-                        >
-                          {row.active ? <ToggleOffIcon fontSize="small" /> : <ToggleOnIcon fontSize="small" />}
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="History">
-                        <IconButton
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            fetchCorridorHistory(row.countryCorridorCode)
-                          }}
-                        >
-                          <HistoryIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="More">
-                        <IconButton
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleMenuOpen(e, row.countryCorridorCode)
-                          }}
-                        >
-                          <MoreVertIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ))
+            filteredCorridors.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+              <TableRow key={row.countryCorridorCode} hover sx={{ cursor: 'pointer' }} onClick={() => handleOpenViewDialog(row)}>
+                <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
+                  <Checkbox
+                    checked={selectedCorridors.includes(row.countryCorridorCode)}
+                    onChange={() => handleSelectCorridor(row.countryCorridorCode)}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={row.countryCorridorCode}
+                    size="small"
+                    sx={{
+                      fontFamily: 'monospace',
+                      fontWeight: 700,
+                      bgcolor: alpha(theme.palette.primary.main, 0.08),
+                      color: 'primary.dark',
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleCopyToClipboard(row.countryCorridorCode)
+                    }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Typography fontWeight={600}>{row.countryCode}</Typography>
+                  </Stack>
+                </TableCell>
+                <TableCell>
+                  <StatusChip active={row.active} />
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" fontWeight={500}>
+                    {new Date(row.effectiveFromDate).toLocaleDateString()}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    → {row.effectiveToDate === '9999-12-31T00:00:00' ? '∞' : new Date(row.effectiveToDate).toLocaleDateString()}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" fontWeight={500}>
+                    {row.createdBy}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2">{new Date(row.createdLocalDateTime).toLocaleDateString()}</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {new Date(row.createdLocalDateTime).toLocaleTimeString()}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <TimezoneChip timezone={row.createdTimezone} offset={row.createdOffset} />
+                </TableCell>
+                <TableCell align="center" onClick={(e) => e.stopPropagation()}>
+                  <Stack direction="row" spacing={1} justifyContent="center">
+                    <Tooltip title="Edit">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleOpenEditDialog(row)
+                        }}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title={row.active ? 'Deactivate' : 'Activate'}>
+                      {/* <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleToggleStatus(row.countryCorridorCode, row.active)
+                        }}
+                      >
+                        {row.active ? <ToggleOffIcon fontSize="small" /> : <ToggleOnIcon fontSize="small" />}
+                      </IconButton> */}
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          // Pass the entire row object so we have access to the dates
+
+                          handleToggleStatus(row)
+                        }}
+                      >
+                        {row.active ? <ToggleOffIcon fontSize="small" /> : <ToggleOnIcon fontSize="small" />}
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="History">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          fetchCorridorHistory(row.countryCorridorCode)
+                        }}
+                      >
+                        <HistoryIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="More">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleMenuOpen(e, row.countryCorridorCode)
+                        }}
+                      >
+                        <MoreVertIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
+                </TableCell>
+              </TableRow>
+            ))
           )}
         </TableBody>
       </Table>
@@ -787,90 +789,81 @@ const CountryCorridorPage: React.FC = () => {
   // Render card view
   const renderCardView = () => (
     <Grid container spacing={3}>
-      {filteredCorridors
-        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-        .map((corridor) => (
-          <Grid item xs={12} sm={6} md={4} key={corridor.countryCorridorCode}>
-            <Card
-              elevation={0}
-              sx={{
-                borderRadius: 3,
-                border: '1px solid',
-                borderColor: corridor.active
-                  ? alpha(theme.palette.success.main, 0.2)
-                  : alpha(theme.palette.error.main, 0.2),
-                cursor: 'pointer',
-                '&:hover': {
-                  boxShadow: 4,
-                },
-              }}
-              onClick={() => handleOpenViewDialog(corridor)}
-            >
-              <CardContent>
-                <Stack spacing={2}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                    <Chip
-                      label={corridor.countryCorridorCode}
-                      size="small"
-                      sx={{
-                        fontFamily: 'monospace',
-                        fontWeight: 700,
-                        bgcolor: alpha(theme.palette.primary.main, 0.08),
-                        color: 'primary.dark',
-                      }}
-                    />
-                    <StatusChip active={corridor.active} />
-                  </Stack>
-
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    <Avatar sx={{ width: 32, height: 32, bgcolor: alpha(theme.palette.info.main, 0.12), color: 'info.main' }}>
-                      <FlagIcon sx={{ fontSize: 16 }} />
-                    </Avatar>
-                    <Box>
-                      <Typography variant="subtitle2">
-                        {corridor.countryCode}
-                      </Typography>
-                    </Box>
-                  </Stack>
-
-                  <Divider />
-
-                  <Stack direction="row" justifyContent="space-between">
-                    <Box>
-                      <Typography variant="caption" color="text.secondary">
-                        Effective From
-                      </Typography>
-                      <Typography variant="body2" fontWeight={600}>
-                        {new Date(corridor.effectiveFromDate).toLocaleDateString()}
-                      </Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="caption" color="text.secondary">
-                        To
-                      </Typography>
-                      <Typography variant="body2" fontWeight={600}>
-                        {corridor.effectiveToDate === '9999-12-31T00:00:00' ? '∞' : new Date(corridor.effectiveToDate).toLocaleDateString()}
-                      </Typography>
-                    </Box>
-                  </Stack>
-
-                  <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <Box>
-                      <Typography variant="caption" color="text.secondary">
-                        Created By
-                      </Typography>
-                      <Typography variant="body2">{corridor.createdBy}</Typography>
-                    </Box>
-                    <TimezoneChip
-                      timezone={corridor.createdTimezone}
-                      offset={corridor.createdOffset}
-                    />
-                  </Stack>
+      {filteredCorridors.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((corridor) => (
+        <Grid item xs={12} sm={6} md={4} key={corridor.countryCorridorCode}>
+          <Card
+            elevation={0}
+            sx={{
+              borderRadius: 3,
+              border: '1px solid',
+              borderColor: corridor.active ? alpha(theme.palette.success.main, 0.2) : alpha(theme.palette.error.main, 0.2),
+              cursor: 'pointer',
+              '&:hover': {
+                boxShadow: 4,
+              },
+            }}
+            onClick={() => handleOpenViewDialog(corridor)}
+          >
+            <CardContent>
+              <Stack spacing={2}>
+                <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+                  <Chip
+                    label={corridor.countryCorridorCode}
+                    size="small"
+                    sx={{
+                      fontFamily: 'monospace',
+                      fontWeight: 700,
+                      bgcolor: alpha(theme.palette.primary.main, 0.08),
+                      color: 'primary.dark',
+                    }}
+                  />
+                  <StatusChip active={corridor.active} />
                 </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Avatar sx={{ width: 32, height: 32, bgcolor: alpha(theme.palette.info.main, 0.12), color: 'info.main' }}>
+                    <FlagIcon sx={{ fontSize: 16 }} />
+                  </Avatar>
+                  <Box>
+                    <Typography variant="subtitle2">{corridor.countryCode}</Typography>
+                  </Box>
+                </Stack>
+
+                <Divider />
+
+                <Stack direction="row" justifyContent="space-between">
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">
+                      Effective From
+                    </Typography>
+                    <Typography variant="body2" fontWeight={600}>
+                      {new Date(corridor.effectiveFromDate).toLocaleDateString()}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">
+                      To
+                    </Typography>
+                    <Typography variant="body2" fontWeight={600}>
+                      {corridor.effectiveToDate === '9999-12-31T00:00:00' ? '∞' : new Date(corridor.effectiveToDate).toLocaleDateString()}
+                    </Typography>
+                  </Box>
+                </Stack>
+
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">
+                      Created By
+                    </Typography>
+                    <Typography variant="body2">{corridor.createdBy}</Typography>
+                  </Box>
+                  <TimezoneChip timezone={corridor.createdTimezone} offset={corridor.createdOffset} />
+                </Stack>
+              </Stack>
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
     </Grid>
   )
 
@@ -932,8 +925,16 @@ const CountryCorridorPage: React.FC = () => {
                       {stats.total}
                     </Typography>
                     <Stack direction="row" spacing={1} mt={1}>
-                      <Chip label={`${stats.active} active`} size="small" sx={{ bgcolor: alpha(theme.palette.success.main, 0.08), color: 'success.main' }} />
-                      <Chip label={`${stats.inactive} inactive`} size="small" sx={{ bgcolor: alpha(theme.palette.error.main, 0.08), color: 'error.main' }} />
+                      <Chip
+                        label={`${stats.active} active`}
+                        size="small"
+                        sx={{ bgcolor: alpha(theme.palette.success.main, 0.08), color: 'success.main' }}
+                      />
+                      <Chip
+                        label={`${stats.inactive} inactive`}
+                        size="small"
+                        sx={{ bgcolor: alpha(theme.palette.error.main, 0.08), color: 'error.main' }}
+                      />
                     </Stack>
                   </Box>
                   <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.12), width: 56, height: 56 }}>
@@ -1091,20 +1092,12 @@ const CountryCorridorPage: React.FC = () => {
 
               <Stack direction="row" spacing={1}>
                 <Tooltip title="Table View">
-                  <IconButton
-                    onClick={() => setViewMode('table')}
-                    color={viewMode === 'table' ? 'primary' : 'default'}
-                    sx={{ borderRadius: 40 }}
-                  >
+                  <IconButton onClick={() => setViewMode('table')} color={viewMode === 'table' ? 'primary' : 'default'} sx={{ borderRadius: 40 }}>
                     <TableIcon />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Card View">
-                  <IconButton
-                    onClick={() => setViewMode('card')}
-                    color={viewMode === 'card' ? 'primary' : 'default'}
-                    sx={{ borderRadius: 40 }}
-                  >
+                  <IconButton onClick={() => setViewMode('card')} color={viewMode === 'card' ? 'primary' : 'default'} sx={{ borderRadius: 40 }}>
                     <ViewIcon />
                   </IconButton>
                 </Tooltip>
@@ -1140,7 +1133,13 @@ const CountryCorridorPage: React.FC = () => {
                       <Button size="small" onClick={resetFilters} startIcon={<ClearIcon />} sx={{ borderRadius: 40 }}>
                         Reset All
                       </Button>
-                      <Button size="small" variant="contained" onClick={() => applyFilters(corridors)} startIcon={<DoneIcon />} sx={{ borderRadius: 40 }}>
+                      <Button
+                        size="small"
+                        variant="contained"
+                        onClick={() => applyFilters(corridors)}
+                        startIcon={<DoneIcon />}
+                        sx={{ borderRadius: 40 }}
+                      >
                         Apply Filters
                       </Button>
                     </Stack>
@@ -1216,11 +1215,7 @@ const CountryCorridorPage: React.FC = () => {
                 <Grid item xs={12} md={6}>
                   <FormControlLabel
                     control={
-                      <Switch
-                        checked={formData.active}
-                        onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                        color="success"
-                      />
+                      <Switch checked={formData.active} onChange={(e) => setFormData({ ...formData, active: e.target.checked })} color="success" />
                     }
                     label="Active Status"
                   />
@@ -1410,7 +1405,9 @@ const CountryCorridorPage: React.FC = () => {
                           </Typography>
                           <Typography variant="body2">
                             {new Date(selectedCorridor.effectiveFromDate).toLocaleDateString()} →{' '}
-                            {selectedCorridor.effectiveToDate === '9999-12-31T00:00:00' ? '∞' : new Date(selectedCorridor.effectiveToDate).toLocaleDateString()}
+                            {selectedCorridor.effectiveToDate === '9999-12-31T00:00:00'
+                              ? '∞'
+                              : new Date(selectedCorridor.effectiveToDate).toLocaleDateString()}
                           </Typography>
                         </Stack>
                       </Stack>
@@ -1436,18 +1433,13 @@ const CountryCorridorPage: React.FC = () => {
                           <Typography variant="body2" color="text.secondary">
                             Created At
                           </Typography>
-                          <Typography variant="body2">
-                            {new Date(selectedCorridor.createdLocalDateTime).toLocaleString()}
-                          </Typography>
+                          <Typography variant="body2">{new Date(selectedCorridor.createdLocalDateTime).toLocaleString()}</Typography>
                         </Stack>
                         <Stack direction="row" justifyContent="space-between">
                           <Typography variant="body2" color="text.secondary">
                             Timezone
                           </Typography>
-                          <TimezoneChip
-                            timezone={selectedCorridor.createdTimezone}
-                            offset={selectedCorridor.createdOffset}
-                          />
+                          <TimezoneChip timezone={selectedCorridor.createdTimezone} offset={selectedCorridor.createdOffset} />
                         </Stack>
                       </Stack>
                     </CardContent>
@@ -1457,7 +1449,14 @@ const CountryCorridorPage: React.FC = () => {
             )}
           </DialogContent>
           <DialogActions sx={{ p: 3 }}>
-            <Button onClick={() => { setOpenViewDialog(false); if (selectedCorridor) handleOpenEditDialog(selectedCorridor); }} startIcon={<EditIcon />} sx={{ borderRadius: 40 }}>
+            <Button
+              onClick={() => {
+                setOpenViewDialog(false)
+                if (selectedCorridor) handleOpenEditDialog(selectedCorridor)
+              }}
+              startIcon={<EditIcon />}
+              sx={{ borderRadius: 40 }}
+            >
               Edit
             </Button>
             <Button onClick={() => setOpenViewDialog(false)} variant="contained" sx={{ borderRadius: 40 }}>
@@ -1467,35 +1466,43 @@ const CountryCorridorPage: React.FC = () => {
         </Dialog>
 
         {/* Menu */}
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-          PaperProps={{ sx: { borderRadius: 2, minWidth: 200 } }}
-        >
-          <MenuItem onClick={() => { 
-            const corridor = corridors.find(c => c.countryCorridorCode === selectedMenuCorridor)
-            if (corridor) handleCopyToClipboard(corridor.countryCorridorCode)
-            handleMenuClose()
-          }}>
-            <ListItemIcon><CopyIcon fontSize="small" /></ListItemIcon>
+        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} PaperProps={{ sx: { borderRadius: 2, minWidth: 200 } }}>
+          <MenuItem
+            onClick={() => {
+              const corridor = corridors.find((c) => c.countryCorridorCode === selectedMenuCorridor)
+              if (corridor) handleCopyToClipboard(corridor.countryCorridorCode)
+              handleMenuClose()
+            }}
+          >
+            <ListItemIcon>
+              <CopyIcon fontSize="small" />
+            </ListItemIcon>
             <ListItemText>Copy Code</ListItemText>
           </MenuItem>
-          <MenuItem onClick={() => {
-            const corridor = corridors.find(c => c.countryCorridorCode === selectedMenuCorridor)
-            if (corridor) fetchCorridorHistory(corridor.countryCorridorCode)
-            handleMenuClose()
-          }}>
-            <ListItemIcon><HistoryIcon fontSize="small" /></ListItemIcon>
+          <MenuItem
+            onClick={() => {
+              const corridor = corridors.find((c) => c.countryCorridorCode === selectedMenuCorridor)
+              if (corridor) fetchCorridorHistory(corridor.countryCorridorCode)
+              handleMenuClose()
+            }}
+          >
+            <ListItemIcon>
+              <HistoryIcon fontSize="small" />
+            </ListItemIcon>
             <ListItemText>View History</ListItemText>
           </MenuItem>
           <Divider />
-          <MenuItem onClick={() => {
-            const corridor = corridors.find(c => c.countryCorridorCode === selectedMenuCorridor)
-            if (corridor) handleOpenDeleteDialog(corridor)
-            handleMenuClose()
-          }} sx={{ color: 'error.main' }}>
-            <ListItemIcon><DeleteIcon fontSize="small" color="error" /></ListItemIcon>
+          <MenuItem
+            onClick={() => {
+              const corridor = corridors.find((c) => c.countryCorridorCode === selectedMenuCorridor)
+              if (corridor) handleOpenDeleteDialog(corridor)
+              handleMenuClose()
+            }}
+            sx={{ color: 'error.main' }}
+          >
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" color="error" />
+            </ListItemIcon>
             <ListItemText>Deactivate</ListItemText>
           </MenuItem>
         </Menu>

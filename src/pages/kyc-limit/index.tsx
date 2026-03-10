@@ -298,7 +298,7 @@ export default function KycLimitTypeMaster() {
       headerName: 'Effective To',
       width: 120,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => (params.value === '9999-12-31T23:59:59' ? '∞' : formatTableDate(params.value)),
+      renderCell: (params) => (params.value === '9999-12-31T00000z' ? '∞' : formatTableDate(params.value)),
     },
     {
       field: 'createdBy',
@@ -395,7 +395,7 @@ export default function KycLimitTypeMaster() {
             },
           }}
         >
-          Add New Limit Type
+          Add
         </Button>
       </Stack>
 
