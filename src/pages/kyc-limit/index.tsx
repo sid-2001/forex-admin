@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
@@ -109,18 +109,21 @@ export default function KycLimitTypeMaster() {
     }
 
     const submitPayload = async () => {
+      const formatForBackend = (dateVal: string) => {
+        if (!dateVal) return ''
+        const dateOnly = dateVal.split('T')[0]
+        return `${dateOnly}T00:00:00Z`
+      }
+
       if (isUpdate && editData) {
-        // Update existing
         const payload = {
           limitCode: data.limitCode,
           limitDescription: data.limitDescription,
           active: data.active,
-          effectiveFromDate: `${data.effectiveFromDate}`,
-          effectiveToDate: `${data.effectiveToDate}`,
+          effectiveFromDate: formatForBackend(data.effectiveFromDate),
+          effectiveToDate: formatForBackend(data.effectiveToDate),
           modifiedBy: local_service?.get_staff_id() || 'ADMIN',
         }
-
-        console.log('Sending Update Payload:', payload)
 
         const response: any = await kycLimitTypeService.updateLimitType(editData.kycLimitTypeCode, payload)
 
@@ -132,17 +135,14 @@ export default function KycLimitTypeMaster() {
           showAlert('Fail', response?.message || 'Server Error')
         }
       } else {
-        // Create new
         const payload = {
           limitCode: data.limitCode,
           limitDescription: data.limitDescription,
           active: data.active,
-          effectiveFromDate: `${data.effectiveFromDate}T00:00:00.000Z`,
-          effectiveToDate: `${data.effectiveToDate}T00:00:00.000Z`,
+          effectiveFromDate: formatForBackend(data.effectiveFromDate),
+          effectiveToDate: formatForBackend(data.effectiveToDate),
           createdBy: local_service?.get_staff_id() || 'ADMIN',
         }
-
-        console.log('Sending Create Payload:', payload)
 
         const response: any = await kycLimitTypeService.createLimitType(payload)
 
@@ -241,25 +241,14 @@ export default function KycLimitTypeMaster() {
       headerName: 'Limit Type Code',
       width: 130,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => (
-        <Chip
-          label={params.value}
-          size="small"
-          sx={{
-            fontFamily: 'monospace',
-            fontWeight: 600,
-            backgroundColor: '#eef4fa',
-            color: '#1e5f9e',
-          }}
-        />
-      ),
+      renderCell: (params) => params.value,
     },
     {
       field: 'limitCode',
       headerName: 'Limit Code',
       width: 100,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => <Typography fontWeight={600}>{params.value}</Typography>,
+      renderCell: (params) => params.value,
     },
     {
       field: 'limitDescription',
@@ -269,22 +258,10 @@ export default function KycLimitTypeMaster() {
     },
     {
       field: 'active',
-      headerName: 'Status',
+      headerName: 'Active',
       width: 100,
+      renderCell: (params) => (params.value ? 'Yes' : 'No'),
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => (
-        <Chip
-          icon={params.value ? <CheckCircleIcon sx={{ fontSize: 16 }} /> : <CancelIcon sx={{ fontSize: 16 }} />}
-          label={params.value ? 'Active' : 'Inactive'}
-          size="small"
-          sx={{
-            backgroundColor: params.value ? '#e2f0e6' : '#ffece5',
-            color: params.value ? '#0f6a3b' : '#b13e2d',
-            fontWeight: 600,
-            width: '80px',
-          }}
-        />
-      ),
     },
     {
       field: 'effectiveFromDate',
@@ -366,22 +343,21 @@ export default function KycLimitTypeMaster() {
 
   return (
     <Box p={3} sx={{ width: '100%' }}>
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{
-          fontWeight: 700,
-          letterSpacing: '-0.02em',
-          display: 'grid',
-          placeItems: 'center',
-          mb: 5,
-          color: '#0061B1',
-        }}
-      >
-        {'KYC Limit Type Master'.toUpperCase()}
-      </Typography>
-
-      <Stack direction="row" justifyContent="flex-end" mb={2}>
+      <Stack direction="row" justifyContent="space-between" mb={2}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            display: 'grid',
+            placeItems: 'center',
+            // mb: 5,
+            color: '#0061B1',
+          }}
+        >
+          {'KYC Limit Type Master'.toUpperCase()}
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {
@@ -405,7 +381,9 @@ export default function KycLimitTypeMaster() {
         getRowId={(row: KycLimitTypeData) => row.kycLimitTypeCode}
         autoHeight
         disableRowSelectionOnClick
-        pageSizeOptions={[5, 10, 25, 50]}
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
+        // pageSizeOptions={[5, 10, 25, 50]}
         sx={{
           '& .MuiDataGrid-cell': {
             borderBottom: '1px solid #f0f0f0',
@@ -414,14 +392,21 @@ export default function KycLimitTypeMaster() {
             backgroundColor: '#f9f9f9',
           },
         }}
+        // initialState={{
+        //   pagination: {
+        //     paginationModel: {
+        //       pageSize: 10,
+        //     },
+        //   },
+        //   sorting: {
+        //     sortModel: [{ field: 'createdLocalDateTime', sort: 'desc' }],
+        //   },
+        // }}
         initialState={{
           pagination: {
             paginationModel: {
-              pageSize: 10,
+              pageSize: 5,
             },
-          },
-          sorting: {
-            sortModel: [{ field: 'createdLocalDateTime', sort: 'desc' }],
           },
         }}
       />

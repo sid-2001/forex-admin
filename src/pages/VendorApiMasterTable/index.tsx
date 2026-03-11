@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { Box, Button, IconButton, Stack, Typography, TextField, InputAdornment } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import SearchIcon from '@mui/icons-material/Search'
 import { useRecoilState } from 'recoil'
@@ -136,11 +136,10 @@ export default function VendorApiMasterTable() {
 
   return (
     <Box p={3} sx={{ width: '100%', '& .header-bg': { fontWeight: 'bold', bgcolor: '#f5f5f5' } }}>
-      <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 3, color: '#0061B1', textAlign: 'center' }}>
-        VENDOR API CONFIGURATION
-      </Typography>
-
-      <Stack direction="row" justifyContent="right" mb={2}>
+      <Stack direction="row" justifyContent="space-between" mb={2}>
+        <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
+          VENDOR API CONFIGURATION
+        </Typography>
         <Button
           variant="contained"
           onClick={() => {
@@ -158,6 +157,8 @@ export default function VendorApiMasterTable() {
         loading={loading}
         getRowId={(row) => row.id || `${row.vendorCode}-${row.urlCode}`}
         autoHeight
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{ toolbar: { showQuickFilter: true } }}
         // initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
         initialState={{
           pagination: {

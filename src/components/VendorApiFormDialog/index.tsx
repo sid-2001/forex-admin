@@ -171,21 +171,19 @@ export default function VendorApiFormDialog({ open, onClose, editData, refreshLi
       }
 
       delete (payload as any).selectedCountry
-let res
+      let res
       if (editData) {
-      res= await service.update(form.vendorCode, payload)
-        showAlert('success', '')
+        res = await service.update(form.vendorCode, payload)
+        showAlert('success', res?.message)
       } else {
-     res=   await service.create(payload)
-        showAlert('success', res?.message);
+        res = await service.create(payload)
+        showAlert('success', res?.message)
       }
 
-      if(res.status){
-
-    refreshList()
-      onClose()
+      if (res.status) {
+        refreshList()
+        onClose()
       }
-  
     } catch (err: any) {
       showAlert('error', err.response?.data?.message || 'Server Error')
     }
