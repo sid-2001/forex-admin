@@ -335,9 +335,9 @@ export default function CountryCorridorProductFormDialog({
           {/* Country Corridor Code */}
                <Grid item xs={12} md={6}>
               <Autocomplete
-                options={countries?.filter((c: any) => c.status === 'A') || []}
+                options={countries?.filter((c: any) => c.status == 'A') || []}
                 getOptionLabel={(o: any) => `${o.countryName} (${o.countryCode})`}
-                value={countries?.find((c: any) => c.countryCode === form.countryCode) || null}
+                value={countries?.find((c: any) => c.countryCode === form.countryCorridorCode) || null}
                 onChange={(_, val) => handleChange('countryCorridorCode', val?.countryCode || '')}
                 disabled={!!editData}
                 renderInput={(params) => (
