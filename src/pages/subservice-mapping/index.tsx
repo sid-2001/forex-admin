@@ -41,13 +41,14 @@ import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePi
 import ServiceSubServiceMappingService from '@/services/service-subservice-mapping.service'
 import ServiceMasterService from '@/services/service-master.service'
 import SubServiceMasterService from '@/services/sub-service.service'
+import { formatTableDate } from '@/helpers/dateformate'
 
 // ==================== MAIN COMPONENT ====================
 export default function ServiceSubServiceMapping() {
   const mappingService = useMemo(() => new ServiceSubServiceMappingService(), [])
   const serviceService = useMemo(() => new ServiceMasterService(), [])
   const subServiceService = useMemo(() => new SubServiceMasterService(), [])
-  
+
   const [rows, setRows] = useState<any[]>([])
   const [filteredRows, setFilteredRows] = useState<any[]>([])
   const [services, setServices] = useState<any[]>([])
@@ -55,21 +56,21 @@ export default function ServiceSubServiceMapping() {
   const [open, setOpen] = useState(false)
   const [editData, setEditData] = useState<any>(null)
   const [isFormChanged, setIsFormChanged] = useState(false)
-  
+
   // Filter states
   const [searchTerm, setSearchTerm] = useState('')
   const [countryFilter, setCountryFilter] = useState('all')
   const [serviceFilter, setServiceFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
-  
+
   // Pagination
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(5)
-  
+
   const countries = useRecoilValue(countyState)
   const [uniqueCountries, setUniqueCountries] = useState<string[]>([])
   const [uniqueServices, setUniqueServices] = useState<string[]>([])
-  
+
   const [, setAlertOpen] = useRecoilState(alertState)
   const [, setAlertText] = useRecoilState(alertTextState)
   const [, setAlertType] = useRecoilState(alertTypeState)
@@ -93,37 +94,27 @@ export default function ServiceSubServiceMapping() {
     setAlertOpen(true)
   }
 
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    return dayjs(dateString).format(format.toUpperCase())
-  }
-
   const getCountryName = (countryCode: string) => {
     const country = countries.find((c: any) => c.countryCode === countryCode)
     return country ? country.countryName : countryCode
   }
 
   const getServiceName = (serviceCode: string) => {
-    const service = services.find(s => s.serviceCode === serviceCode)
+    const service = services.find((s) => s.serviceCode === serviceCode)
     return service ? service.serviceName : serviceCode
   }
 
   const getSubServiceName = (subServiceCode: string) => {
-    const subService = subServices.find(s => s.subServiceCode === subServiceCode)
+    const subService = subServices.find((s) => s.subServiceCode === subServiceCode)
     return subService ? subService.subServiceName : subServiceCode
   }
 
   const formatTimezoneOffset = () => {
     const offset = -new Date().getTimezoneOffset()
     const sign = offset >= 0 ? '+' : '-'
-    const hours = Math.floor(Math.abs(offset) / 60).toString().padStart(2, '0')
+    const hours = Math.floor(Math.abs(offset) / 60)
+      .toString()
+      .padStart(2, '0')
     const minutes = (Math.abs(offset) % 60).toString().padStart(2, '0')
     return `${sign}${hours}:${minutes}`
   }
@@ -152,19 +143,18 @@ export default function ServiceSubServiceMapping() {
       const data = await mappingService.getAllMappings()
       console.log('Fetched Data:', data)
       setRows(data)
-      
+
       // Extract unique values for filters
       const countriesSet = new Set<string>()
       const servicesSet = new Set<string>()
-      
+
       data.forEach((row: any) => {
         if (row.countryCode) countriesSet.add(row.countryCode)
         if (row.serviceCode) servicesSet.add(row.serviceCode)
       })
-      
+
       setUniqueCountries(Array.from(countriesSet).sort())
       setUniqueServices(Array.from(servicesSet).sort())
-      
     } catch (err) {
       setRows([])
       showAlert('Fail', 'Failed to fetch data')
@@ -183,26 +173,27 @@ export default function ServiceSubServiceMapping() {
 
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
-      filtered = filtered.filter(row =>
-        row.serviceSubServiceMapCode?.toLowerCase().includes(term) ||
-        row.countryCode?.toLowerCase().includes(term) ||
-        row.serviceCode?.toLowerCase().includes(term) ||
-        row.subServiceCode?.toLowerCase().includes(term) ||
-        row.createdBy?.toLowerCase().includes(term)
+      filtered = filtered.filter(
+        (row) =>
+          row.serviceSubServiceMapCode?.toLowerCase().includes(term) ||
+          row.countryCode?.toLowerCase().includes(term) ||
+          row.serviceCode?.toLowerCase().includes(term) ||
+          row.subServiceCode?.toLowerCase().includes(term) ||
+          row.createdBy?.toLowerCase().includes(term),
       )
     }
 
     if (countryFilter !== 'all') {
-      filtered = filtered.filter(row => row.countryCode === countryFilter)
+      filtered = filtered.filter((row) => row.countryCode === countryFilter)
     }
 
     if (serviceFilter !== 'all') {
-      filtered = filtered.filter(row => row.serviceCode === serviceFilter)
+      filtered = filtered.filter((row) => row.serviceCode === serviceFilter)
     }
 
     if (statusFilter !== 'all') {
       const isActive = statusFilter === 'active'
-      filtered = filtered.filter(row => row.active === isActive)
+      filtered = filtered.filter((row) => row.active === isActive)
     }
 
     setFilteredRows(filtered)
@@ -236,10 +227,10 @@ export default function ServiceSubServiceMapping() {
       'Effective From',
       'Effective To',
       'Created By',
-      'Created Date'
+      'Created Date',
     ]
-    
-    const csvRows = filteredRows.map(row => [
+
+    const csvRows = filteredRows.map((row) => [
       row.serviceSubServiceMapCode || '',
       row.countryCode || '',
       row.serviceCode || '',
@@ -248,13 +239,10 @@ export default function ServiceSubServiceMapping() {
       formatTableDate(row.effectiveFromDate),
       formatTableDate(row.effectiveToDate),
       row.createdBy || '',
-      row.createdLocalDateTime ? dayjs(row.createdLocalDateTime).format('YYYY-MM-DD HH:mm') : ''
+      row.createdLocalDateTime ? dayjs(row.createdLocalDateTime).format('YYYY-MM-DD HH:mm') : '',
     ])
 
-    const csvContent = [
-      headers.join(','),
-      ...csvRows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n')
+    const csvContent = [headers.join(','), ...csvRows.map((row) => row.map((cell) => `"${cell}"`).join(','))].join('\n')
 
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
@@ -288,19 +276,19 @@ export default function ServiceSubServiceMapping() {
 
   const handleFormChange = (field: string, value: any) => {
     setForm((prev: any) => ({ ...prev, [field]: value }))
-    
+
     // Clear error for this field
     if (formErrors[field]) {
       setFormErrors((prev: any) => ({ ...prev, [field]: null }))
     }
-    
+
     // When effectiveFromDate changes, validate and potentially clear effectiveToDate
     if (field === 'effectiveFromDate' && value && form.effectiveToDate) {
       const fromDate = new Date(value)
       const toDate = new Date(form.effectiveToDate)
       fromDate.setHours(0, 0, 0, 0)
       toDate.setHours(0, 0, 0, 0)
-      
+
       // If effectiveToDate is not after effectiveFromDate, clear it
       if (toDate <= fromDate) {
         setForm((prev: any) => ({ ...prev, effectiveToDate: '' }))
@@ -335,14 +323,14 @@ export default function ServiceSubServiceMapping() {
         effectiveFromDate: formatToDateOnly(editData.effectiveFromDate),
         effectiveToDate: formatToDateOnly(editData.effectiveToDate),
       }
-      
+
       setForm(newFormData)
       setOriginalFormData(newFormData)
     } else if (!editData && open) {
       const today = new Date().toISOString().split('T')[0]
       const nextYear = new Date()
       nextYear.setFullYear(nextYear.getFullYear() + 1)
-      
+
       const newFormData = {
         countryCode: '',
         serviceCode: '',
@@ -385,11 +373,10 @@ export default function ServiceSubServiceMapping() {
 
     // Effective To date must be AFTER Effective From date
 
-
     setFormErrors(errs)
     return Object.keys(errs).length === 0
   }
-  
+
   const local_service = new LocalStorageService()
 
   const handleSubmit = async () => {
@@ -409,7 +396,7 @@ export default function ServiceSubServiceMapping() {
         effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
         effectiveToDate: `${form.effectiveToDate}T23:59:59`,
         active: form.active,
-        modifiedBy: staffId
+        modifiedBy: staffId,
       }
 
       try {
@@ -433,7 +420,7 @@ export default function ServiceSubServiceMapping() {
         effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
         effectiveToDate: `${form.effectiveToDate}T23:59:59`,
         createdBy: staffId,
-        active: form.active
+        active: form.active,
       }
 
       try {
@@ -456,13 +443,7 @@ export default function ServiceSubServiceMapping() {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1 }}>
         <GridToolbar />
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<DownloadIcon />}
-          onClick={downloadCSV}
-          sx={{ ml: 2 }}
-        >
+        <Button variant="outlined" size="small" startIcon={<DownloadIcon />} onClick={downloadCSV} sx={{ ml: 2 }}>
           Export CSV
         </Button>
       </Box>
@@ -471,27 +452,27 @@ export default function ServiceSubServiceMapping() {
 
   // ==================== COLUMNS ====================
   const columns: GridColDef[] = [
-    { 
-      field: 'serviceSubServiceMapCode', 
-      headerName: 'Map Code', 
+    {
+      field: 'serviceSubServiceMapCode',
+      headerName: 'Map Code',
       width: 140,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
-        <Chip 
-          label={params.value} 
+        <Chip
+          label={params.value}
           size="small"
-          sx={{ 
+          sx={{
             fontFamily: 'monospace',
             fontWeight: 600,
             backgroundColor: '#eef4fa',
-            color: '#0061B1'
+            color: '#0061B1',
           }}
         />
-      )
+      ),
     },
-    { 
-      field: 'countryCode', 
-      headerName: 'Country', 
+    {
+      field: 'countryCode',
+      headerName: 'Country',
       width: 90,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
@@ -501,41 +482,29 @@ export default function ServiceSubServiceMapping() {
             <Typography variant="body2">{params.value}</Typography>
           </Tooltip>
         </Stack>
-      )
+      ),
     },
-    { 
-      field: 'serviceCode', 
-      headerName: 'Service', 
+    {
+      field: 'serviceCode',
+      headerName: 'Service',
       width: 120,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Tooltip title={getServiceName(params.value)}>
-          <Chip 
-            label={params.value} 
-            size="small"
-            icon={<CodeIcon />}
-            color="primary"
-            variant="outlined"
-          />
+          <Chip label={params.value} size="small" icon={<CodeIcon />} color="primary" variant="outlined" />
         </Tooltip>
-      )
+      ),
     },
-    { 
-      field: 'subServiceCode', 
-      headerName: 'Sub Service', 
+    {
+      field: 'subServiceCode',
+      headerName: 'Sub Service',
       width: 130,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Tooltip title={getSubServiceName(params.value)}>
-          <Chip 
-            label={params.value} 
-            size="small"
-            icon={<SubdirectoryArrowRightIcon />}
-            color="secondary"
-            variant="outlined"
-          />
+          <Chip label={params.value} size="small" icon={<SubdirectoryArrowRightIcon />} color="secondary" variant="outlined" />
         </Tooltip>
-      )
+      ),
     },
     {
       field: 'active',
@@ -551,7 +520,7 @@ export default function ServiceSubServiceMapping() {
             backgroundColor: params.value ? '#e2f0e6' : '#ffece5',
             color: params.value ? '#0f6a3b' : '#b13e2d',
             fontWeight: 600,
-            width: '70px'
+            width: '70px',
           }}
         />
       ),
@@ -568,7 +537,7 @@ export default function ServiceSubServiceMapping() {
       headerName: 'To',
       width: 100,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => params.value?.includes('9999') ? '∞' : formatTableDate(params.value),
+      renderCell: (params) => (params.value?.includes('9999') ? '∞' : formatTableDate(params.value)),
     },
     {
       field: 'createdBy',
@@ -630,7 +599,6 @@ export default function ServiceSubServiceMapping() {
       </Stack>
 
       {/* Filters */}
-   
 
       {/* Data Grid */}
       <DataGrid
@@ -679,14 +647,7 @@ export default function ServiceSubServiceMapping() {
                 onChange={(_, val) => handleFormChange('countryCode', val?.countryCode || '')}
                 disabled={!!editData}
                 renderInput={(params) => (
-                  <TextField 
-                    {...params} 
-                    label="Country" 
-                    required 
-                    size="small"
-                    error={!!formErrors.countryCode} 
-                    helperText={formErrors.countryCode}
-                  />
+                  <TextField {...params} label="Country" required size="small" error={!!formErrors.countryCode} helperText={formErrors.countryCode} />
                 )}
               />
             </Grid>
@@ -694,20 +655,13 @@ export default function ServiceSubServiceMapping() {
             {/* Service Dropdown */}
             <Grid item xs={12} md={6}>
               <Autocomplete
-              disabled={!form?.countryCode}
-                options={services.filter(s => s.active !== false&&s.countryCode==form?.countryCode)}
+                disabled={!form?.countryCode}
+                options={services.filter((s) => s.active !== false && s.countryCode == form?.countryCode)}
                 getOptionLabel={(option) => `${option.serviceCodeGenerated} - ${option.serviceName || option.serviceDescription}`}
-                value={services.find(s => s.serviceCodeGenerated === form.serviceCode) || null}
+                value={services.find((s) => s.serviceCodeGenerated === form.serviceCode) || null}
                 onChange={(_, val) => handleFormChange('serviceCode', val?.serviceCodeGenerated || '')}
                 renderInput={(params) => (
-                  <TextField 
-                    {...params} 
-                    label="Service" 
-                    required 
-                    size="small"
-                    error={!!formErrors.serviceCode} 
-                    helperText={formErrors.serviceCode}
-                  />
+                  <TextField {...params} label="Service" required size="small" error={!!formErrors.serviceCode} helperText={formErrors.serviceCode} />
                 )}
               />
             </Grid>
@@ -715,19 +669,19 @@ export default function ServiceSubServiceMapping() {
             {/* Sub Service Dropdown */}
             <Grid item xs={12} md={6}>
               <Autocomplete
-                 disabled={!form?.countryCode}
-                 //@ts-ignore
-                options={subServices.filter(s => s.active !== false&s.countryCode==form?.countryCode)}
+                disabled={!form?.countryCode}
+                //@ts-ignore
+                options={subServices.filter((s) => (s.active !== false) & (s.countryCode == form?.countryCode))}
                 getOptionLabel={(option) => `${option.subServiceCodeGenerated} - ${option.subServiceName || option.subServiceDescription}`}
-                value={subServices.find(s => s.subServiceCodeGenerated === form.subServiceCode) || null}
+                value={subServices.find((s) => s.subServiceCodeGenerated === form.subServiceCode) || null}
                 onChange={(_, val) => handleFormChange('subServiceCode', val?.subServiceCodeGenerated || '')}
                 renderInput={(params) => (
-                  <TextField 
-                    {...params} 
-                    label="Sub Service" 
-                    required 
+                  <TextField
+                    {...params}
+                    label="Sub Service"
+                    required
                     size="small"
-                    error={!!formErrors.subServiceCode} 
+                    error={!!formErrors.subServiceCode}
                     helperText={formErrors.subServiceCode}
                   />
                 )}
@@ -758,12 +712,7 @@ export default function ServiceSubServiceMapping() {
             {/* Active Status */}
             <Grid item xs={12}>
               <FormControlLabel
-                control={
-                  <Checkbox 
-                    checked={form.active} 
-                    onChange={(e) => handleFormChange('active', e.target.checked)} 
-                  />
-                }
+                control={<Checkbox checked={form.active} onChange={(e) => handleFormChange('active', e.target.checked)} />}
                 label="Active Status"
               />
             </Grid>
@@ -800,12 +749,7 @@ export default function ServiceSubServiceMapping() {
           <Button onClick={handleDialogClose} color="inherit">
             Cancel
           </Button>
-          <Button 
-            variant="contained" 
-            onClick={handleSubmit}
-            disabled={editData ? !isFormChanged : false}
-            sx={{ backgroundColor: '#0061B1' }}
-          >
+          <Button variant="contained" onClick={handleSubmit} disabled={editData ? !isFormChanged : false} sx={{ backgroundColor: '#0061B1' }}>
             {editData ? 'Update' : 'Save'}
           </Button>
         </DialogActions>

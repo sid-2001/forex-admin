@@ -30,6 +30,7 @@ import ScreenService from '@/services/screen.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import dayjs from 'dayjs'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
+import { formatTableDate } from '@/helpers/dateformate'
 
 const countryLabelFieldsService = new CountryLabelFieldsService()
 
@@ -231,18 +232,6 @@ export default function CountryLabelFieldsGridPage() {
       showError(selected ? 'Failed to update field' : 'Failed to create field')
     }
   }
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    console.log(format, 'dkjhbcvy')
-    return dayjs(dateString).format(format.toUpperCase())
-  }
 
   const columns: GridColDef[] = [
     { field: 'fieldLabelCode', headerName: 'Field Code', flex: 1, headerClassName: 'super-app-theme--header' },
@@ -364,7 +353,7 @@ export default function CountryLabelFieldsGridPage() {
                       .filter((screen: any) => screen.Active == true)
                       .map((screen: any) => (
                         <MenuItem key={screen?.ScreenCode} value={screen?.ScreenCode}>
-                          {screen.ScreenCode+"-"+screen.ScreenDescription}
+                          {screen.ScreenCode + '-' + screen.ScreenDescription}
                         </MenuItem>
                       ))}
                   </Select>

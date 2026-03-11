@@ -23,7 +23,7 @@ import {
   FormControlLabel,
   Checkbox,
   Autocomplete,
-  FormHelperText
+  FormHelperText,
 } from '@mui/material'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
@@ -40,7 +40,7 @@ import FingerprintIcon from '@mui/icons-material/Fingerprint'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import { countyState } from '@/states/state'
-import {ProductSubServiceService} from '../../services/productSubService.service'
+import { ProductSubServiceService } from '../../services/productSubService.service'
 import ProductService from '@/services/product.service'
 // import ServiceService from '@/services/service.service' // Add this import
 import { LocalStorageService } from '@/helpers/local-storage-service'
@@ -50,13 +50,14 @@ import ServiceMasterService from '@/services/service-master.service'
 import ServiceSubServiceMapping from '../subservice-mapping'
 import SubServiceService from '@/services/sub-service.service'
 import ServiceSubServiceMappingService from '@/services/service-subservice-mapping.service'
+import { formatTableDate } from '@/helpers/dateformate'
 
 // ==================== MAIN COMPONENT ====================
 export default function ProductSubServiceMaster() {
   const service = useMemo(() => new ProductSubServiceService(), [])
   const productService = useMemo(() => new ProductService(), [])
   const serviceService = useMemo(() => new ServiceMasterService(), []) // Add service service
-  
+
   const [rows, setRows] = useState<any[]>([])
   const [filteredRows, setFilteredRows] = useState<any[]>([])
   const [products, setProducts] = useState<any[]>([])
@@ -64,22 +65,22 @@ export default function ProductSubServiceMaster() {
   const [open, setOpen] = useState(false)
   const [editData, setEditData] = useState<any>(null)
   const [isFormChanged, setIsFormChanged] = useState(false)
-  
+
   // Filter states
   const [searchTerm, setSearchTerm] = useState('')
   const [countryFilter, setCountryFilter] = useState('all')
   const [productFilter, setProductFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [showFilters, setShowFilters] = useState(false)
-  
+
   // Pagination
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(5)
-  
+
   const countries = useRecoilValue(countyState)
   const [uniqueCountries, setUniqueCountries] = useState<string[]>([])
   const [uniqueProducts, setUniqueProducts] = useState<string[]>([])
-  
+
   const [, setAlertOpen] = useRecoilState(alertState)
   const [, setAlertText] = useRecoilState(alertTextState)
   const [, setAlertType] = useRecoilState(alertTypeState)
@@ -105,39 +106,28 @@ export default function ProductSubServiceMaster() {
     setAlertOpen(true)
   }
 
-
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    return dayjs(dateString).format(format.toUpperCase())
-  }
-
   const getCountryName = (countryCode: string) => {
     const country = countries.find((c: any) => c.countryCode === countryCode)
     return country ? country.countryName : countryCode
   }
 
   const getProductName = (productCode: string) => {
-    const product = products.find(p => p.productCode === productCode)
+    const product = products.find((p) => p.productCode === productCode)
     return product ? product.productName : productCode
   }
 
   const getServiceName = (serviceCode: string) => {
-    const service = services.find(s => s.serviceCode === serviceCode)
+    const service = services.find((s) => s.serviceCode === serviceCode)
     return service ? service.serviceName : serviceCode
   }
-  const subservicemap= new ServiceSubServiceMappingService()
+  const subservicemap = new ServiceSubServiceMappingService()
 
   const formatTimezoneOffset = () => {
     const offset = -new Date().getTimezoneOffset()
     const sign = offset >= 0 ? '+' : '-'
-    const hours = Math.floor(Math.abs(offset) / 60).toString().padStart(2, '0')
+    const hours = Math.floor(Math.abs(offset) / 60)
+      .toString()
+      .padStart(2, '0')
     const minutes = (Math.abs(offset) % 60).toString().padStart(2, '0')
     return `${sign}${hours}:${minutes}`
   }
@@ -166,19 +156,18 @@ export default function ProductSubServiceMaster() {
       const data = await service.getAll()
       console.log('Fetched Data Sample:', data[0])
       setRows(data)
-      
+
       // Extract unique values for filters
       const countriesSet = new Set<string>()
       const productsSet = new Set<string>()
-      
+
       data.forEach((row: any) => {
         if (row.countryCode) countriesSet.add(row.countryCode)
         if (row.productCode) productsSet.add(row.productCode)
       })
-      
+
       setUniqueCountries(Array.from(countriesSet).sort())
       setUniqueProducts(Array.from(productsSet).sort())
-      
     } catch (err) {
       setRows([])
       showAlert('Fail', 'Failed to fetch data')
@@ -197,28 +186,29 @@ export default function ProductSubServiceMaster() {
 
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
-      filtered = filtered.filter(row =>
-        row.productServiceMapCode?.toLowerCase().includes(term) ||
-        row.countryCode?.toLowerCase().includes(term) ||
-        row.productCode?.toLowerCase().includes(term) ||
-        row.serviceCode?.toLowerCase().includes(term) ||
-        row.serviceDescription?.toLowerCase().includes(term) ||
-        row.serviceCodeGenerated?.toLowerCase().includes(term) ||
-        row.createdBy?.toLowerCase().includes(term)
+      filtered = filtered.filter(
+        (row) =>
+          row.productServiceMapCode?.toLowerCase().includes(term) ||
+          row.countryCode?.toLowerCase().includes(term) ||
+          row.productCode?.toLowerCase().includes(term) ||
+          row.serviceCode?.toLowerCase().includes(term) ||
+          row.serviceDescription?.toLowerCase().includes(term) ||
+          row.serviceCodeGenerated?.toLowerCase().includes(term) ||
+          row.createdBy?.toLowerCase().includes(term),
       )
     }
 
     if (countryFilter !== 'all') {
-      filtered = filtered.filter(row => row.countryCode === countryFilter)
+      filtered = filtered.filter((row) => row.countryCode === countryFilter)
     }
 
     if (productFilter !== 'all') {
-      filtered = filtered.filter(row => row.productCode === productFilter)
+      filtered = filtered.filter((row) => row.productCode === productFilter)
     }
 
     if (statusFilter !== 'all') {
       const isActive = statusFilter === 'active'
-      filtered = filtered.filter(row => row.active === isActive)
+      filtered = filtered.filter((row) => row.active === isActive)
     }
 
     setFilteredRows(filtered)
@@ -254,10 +244,10 @@ export default function ProductSubServiceMaster() {
       'Effective From',
       'Effective To',
       'Created By',
-      'Created Date'
+      'Created Date',
     ]
-    
-    const csvRows = filteredRows.map(row => [
+
+    const csvRows = filteredRows.map((row) => [
       row.productServiceMapCode || '',
       row.countryCode || '',
       row.productCode || '',
@@ -268,13 +258,10 @@ export default function ProductSubServiceMaster() {
       formatTableDate(row.effectiveFromDate),
       formatTableDate(row.effectiveToDate),
       row.createdBy || '',
-      row.createdLocalDateTime ? dayjs(row.createdLocalDateTime).format('YYYY-MM-DD HH:mm') : ''
+      row.createdLocalDateTime ? dayjs(row.createdLocalDateTime).format('YYYY-MM-DD HH:mm') : '',
     ])
 
-    const csvContent = [
-      headers.join(','),
-      ...csvRows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n')
+    const csvContent = [headers.join(','), ...csvRows.map((row) => row.map((cell) => `"${cell}"`).join(','))].join('\n')
 
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
@@ -310,20 +297,20 @@ export default function ProductSubServiceMaster() {
 
   // const handleFormChange = (field: string, value: any) => {
   //   setForm((prev: any) => ({ ...prev, [field]: value }))
-    
+
   //   // Clear error for this field
   //   if (formErrors[field]) {
   //     setFormErrors((prev: any) => ({ ...prev, [field]: null }))
   //   }
-    
+
   //   // Special handling for service selection
   //   if (field === 'serviceCode' && value) {
   //     const selectedService = services.find(s => s.serviceCode === value)
   //     if (selectedService) {
   //       // Auto-fill description when service is selected
-  //       setForm((prev: any) => ({ 
-  //         ...prev, 
-  //         serviceDescription: selectedService.serviceName || selectedService.serviceDescription || '' 
+  //       setForm((prev: any) => ({
+  //         ...prev,
+  //         serviceDescription: selectedService.serviceName || selectedService.serviceDescription || ''
   //       }))
   //     }
   //   }
@@ -334,7 +321,7 @@ export default function ProductSubServiceMaster() {
   //     const toDate = new Date(form.effectiveToDate)
   //     fromDate.setHours(0, 0, 0, 0)
   //     toDate.setHours(0, 0, 0, 0)
-      
+
   //     if (toDate <= fromDate) {
   //       setForm((prev: any) => ({ ...prev, effectiveToDate: '' }))
   //     }
@@ -342,46 +329,41 @@ export default function ProductSubServiceMaster() {
   // }
 
   const handleFormChange = (field: string, value: any) => {
+    setForm((prev: any) => {
+      let updated = { ...prev, [field]: value }
 
-  setForm((prev: any) => {
+      // Auto fill description when service selected
+      // if (field === 'serviceCode' && value) {
+      //   const selectedService = services.find(s => s.serviceCode === value)
 
+      //   if (selectedService) {
+      //     updated.serviceDescription =
+      //       selectedService.serviceName ||
+      //       selectedService.serviceDescription ||
+      //       ''
+      //   }
+      // }
 
+      // Clear effectiveToDate if invalid
+      // if (field === 'effectiveFromDate' && prev.effectiveToDate) {
+      //   const from = new Date(value)
+      //   const to = new Date(prev.effectiveToDate)
 
+      //   from.setHours(0,0,0,0)
+      //   to.setHours(0,0,0,0)
 
-    let updated = { ...prev, [field]: value }
+      //   if (to <= from) {
+      //     updated.effectiveToDate = ''
+      //   }
+      // }
 
-    // Auto fill description when service selected
-    // if (field === 'serviceCode' && value) {
-    //   const selectedService = services.find(s => s.serviceCode === value)
+      return updated
+    })
 
-    //   if (selectedService) {
-    //     updated.serviceDescription =
-    //       selectedService.serviceName ||
-    //       selectedService.serviceDescription ||
-    //       ''
-    //   }
-    // }
-
-    // Clear effectiveToDate if invalid
-    // if (field === 'effectiveFromDate' && prev.effectiveToDate) {
-    //   const from = new Date(value)
-    //   const to = new Date(prev.effectiveToDate)
-
-    //   from.setHours(0,0,0,0)
-    //   to.setHours(0,0,0,0)
-
-    //   if (to <= from) {
-    //     updated.effectiveToDate = ''
-    //   }
-    // }
-
-    return updated
-  })
-
-  if (formErrors[field]) {
-    setFormErrors((prev:any)=>({ ...prev, [field]: null }))
+    if (formErrors[field]) {
+      setFormErrors((prev: any) => ({ ...prev, [field]: null }))
+    }
   }
-}
 
   const checkFormChanged = (current: any, original: any) => {
     if (!original) return false
@@ -413,14 +395,14 @@ export default function ProductSubServiceMaster() {
         effectiveFromDate: formatToDateOnly(editData.effectiveFromDate),
         effectiveToDate: formatToDateOnly(editData.effectiveToDate),
       }
-      
+
       setForm(newFormData)
       setOriginalFormData(newFormData)
     } else if (!editData && open) {
       const today = new Date().toISOString().split('T')[0]
       const nextYear = new Date()
       nextYear.setFullYear(nextYear.getFullYear() + 1)
-      
+
       const newFormData = {
         countryCode: '',
         productCode: '',
@@ -453,13 +435,14 @@ export default function ProductSubServiceMaster() {
     if (!form.productCode) {
       errs.productCode = 'Product is required'
     }
-    if (!form.serviceCode) { // Add service code validation
+    if (!form.serviceCode) {
+      // Add service code validation
       errs.serviceCode = 'Service is required'
     }
     // if (!editData && !form.serviceMapCode) {
     //   errs.serviceMapCode = 'Service Map Code is required'
     // }
-   
+
     if (!form.effectiveFromDate) {
       errs.effectiveFromDate = 'Effective from date is required'
     }
@@ -474,8 +457,9 @@ export default function ProductSubServiceMaster() {
       // Set hours to compare dates correctly
       fromDate.setHours(0, 0, 0, 0)
       toDate.setHours(0, 0, 0, 0)
-      
-      if (toDate <= fromDate) { // Changed from < to <= to prevent equal dates
+
+      if (toDate <= fromDate) {
+        // Changed from < to <= to prevent equal dates
         errs.effectiveToDate = 'Effective To date must be after Effective From date'
       }
     }
@@ -483,7 +467,7 @@ export default function ProductSubServiceMaster() {
     setFormErrors(errs)
     return Object.keys(errs).length === 0
   }
-  
+
   const local_service = new LocalStorageService()
 
   const handleSubmit = async () => {
@@ -492,20 +476,20 @@ export default function ProductSubServiceMaster() {
     const now = new Date().toISOString()
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
     const offset = formatTimezoneOffset()
-    const staffId = local_service.get_staff_id() 
+    const staffId = local_service.get_staff_id()
 
     if (editData) {
       // Update payload - include serviceCode
       //@ts-ignore
       const payload = {
         countryCode: form.countryCode,
-          productCode: form.productCode,
+        productCode: form.productCode,
         serviceMapCode: form.serviceCode, // Include service code
         // serviceDescription: form.serviceDescription,
         effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
         effectiveToDate: `${form.effectiveToDate}T00:00:00`,
         active: form.active,
-        modifiedBy: staffId
+        modifiedBy: staffId,
       }
 
       try {
@@ -530,7 +514,7 @@ export default function ProductSubServiceMaster() {
         serviceMapCode: form.serviceCode,
         effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
         effectiveToDate: `${form.effectiveToDate}T00:00:00`,
-        createdBy: staffId
+        createdBy: staffId,
       }
 
       try {
@@ -553,13 +537,7 @@ export default function ProductSubServiceMaster() {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1 }}>
         <GridToolbar />
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<DownloadIcon />}
-          onClick={downloadCSV}
-          sx={{ ml: 2 }}
-        >
+        <Button variant="outlined" size="small" startIcon={<DownloadIcon />} onClick={downloadCSV} sx={{ ml: 2 }}>
           Export CSV
         </Button>
       </Box>
@@ -568,28 +546,28 @@ export default function ProductSubServiceMaster() {
 
   // ==================== COLUMNS ====================
   const columns: GridColDef[] = [
-    { 
-      field: 'productServiceMapCode', 
-      headerName: 'Map Code', 
-    flex:1,
+    {
+      field: 'productServiceMapCode',
+      headerName: 'Map Code',
+      flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
-        <Chip 
-          label={params.value} 
+        <Chip
+          label={params.value}
           size="small"
-          sx={{ 
+          sx={{
             fontFamily: 'monospace',
             fontWeight: 600,
             backgroundColor: '#eef4fa',
-            color: '#0061B1'
+            color: '#0061B1',
           }}
         />
-      )
+      ),
     },
-    { 
-      field: 'countryCode', 
-      headerName: 'Country', 
- flex:1,
+    {
+      field: 'countryCode',
+      headerName: 'Country',
+      flex: 1,
 
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
@@ -599,29 +577,24 @@ export default function ProductSubServiceMaster() {
             <Typography variant="body2">{params.value}</Typography>
           </Tooltip>
         </Stack>
-      )
+      ),
     },
-    { 
-      field: 'productCode', 
-      headerName: 'Product', 
-     flex:1,
+    {
+      field: 'productCode',
+      headerName: 'Product',
+      flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Tooltip title={getProductName(params.value)}>
-          <Chip 
-            label={params.value} 
-            size="small"
-            variant="outlined"
-            color="primary"
-          />
+          <Chip label={params.value} size="small" variant="outlined" color="primary" />
         </Tooltip>
-      )
+      ),
     },
 
     {
       field: 'active',
       headerName: 'Active',
-      flex:1,
+      flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Chip
@@ -632,7 +605,7 @@ export default function ProductSubServiceMaster() {
             backgroundColor: params.value ? '#e2f0e6' : '#ffece5',
             color: params.value ? '#0f6a3b' : '#b13e2d',
             fontWeight: 600,
-            width: '70px'
+            width: '70px',
           }}
         />
       ),
@@ -640,27 +613,27 @@ export default function ProductSubServiceMaster() {
     {
       field: 'effectiveFromDate',
       headerName: 'From',
-     flex:1,
+      flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => formatTableDate(params.value),
     },
     {
       field: 'effectiveToDate',
       headerName: 'To',
-     flex:1,
+      flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => params.value?.includes('9999') ? '∞' : formatTableDate(params.value),
+      renderCell: (params) => (params.value?.includes('9999') ? '∞' : formatTableDate(params.value)),
     },
     {
       field: 'createdBy',
       headerName: 'Created By',
-     flex:1,
+      flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'actions',
       headerName: 'Actions',
-    flex:1,
+      flex: 1,
       headerClassName: 'super-app-theme--header',
       sortable: false,
       renderCell: (params) => (
@@ -669,7 +642,7 @@ export default function ProductSubServiceMaster() {
           size="small"
           onClick={() => {
             console.log(params.row)
-            
+
             setEditData(params.row)
             setOpen(true)
             setIsFormChanged(false)
@@ -759,14 +732,7 @@ export default function ProductSubServiceMaster() {
                 onChange={(_, val) => handleFormChange('countryCode', val?.countryCode || '')}
                 disabled={!!editData}
                 renderInput={(params) => (
-                  <TextField 
-                    {...params} 
-                    label="Country" 
-                    required 
-                    size="small"
-                    error={!!formErrors.countryCode} 
-                    helperText={formErrors.countryCode}
-                  />
+                  <TextField {...params} label="Country" required size="small" error={!!formErrors.countryCode} helperText={formErrors.countryCode} />
                 )}
               />
             </Grid>
@@ -774,22 +740,13 @@ export default function ProductSubServiceMaster() {
             {/* Product Dropdown */}
             <Grid item xs={12} md={6}>
               <Autocomplete
-           
-              
-                options={products.filter(p => p.active)}
+                options={products.filter((p) => p.active)}
                 getOptionLabel={(option) => `${option.countryProductCode} - ${option.productName}`}
-                value={products.find(p => p.countryProductCode === form.productCode) || null}
+                value={products.find((p) => p.countryProductCode === form.productCode) || null}
                 onChange={(_, val) => handleFormChange('productCode', val?.countryProductCode || '')}
                 disabled={!!editData && form?.countryCode}
                 renderInput={(params) => (
-                  <TextField 
-                    {...params} 
-                    label="Product" 
-                    required 
-                    size="small"
-                    error={!!formErrors.productCode} 
-                    helperText={formErrors.productCode}
-                  />
+                  <TextField {...params} label="Product" required size="small" error={!!formErrors.productCode} helperText={formErrors.productCode} />
                 )}
               />
             </Grid>
@@ -797,25 +754,16 @@ export default function ProductSubServiceMaster() {
             {/* Service Dropdown - MOVED OUTSIDE CONDITIONAL */}
             <Grid item xs={12} md={6}>
               <Autocomplete
-                options={services.filter(s => s.active !== false&& s.countryCode==form.countryCode)}
+                options={services.filter((s) => s.active !== false && s.countryCode == form.countryCode)}
                 getOptionLabel={(option) => `${option.serviceSubServiceMapCode}`}
-                value={services.find(s => s.serviceSubServiceMapCode === form.serviceCode) || null}
+                value={services.find((s) => s.serviceSubServiceMapCode === form.serviceCode) || null}
                 onChange={(_, val) => handleFormChange('serviceCode', val?.serviceSubServiceMapCode || '')}
-            
                 renderInput={(params) => (
-                  <TextField 
-                    {...params} 
-                    label="Service" 
-                    required 
-                    size="small"
-                    error={!!formErrors.serviceCode} 
-                    helperText={formErrors.serviceCode}
-                  />
+                  <TextField {...params} label="Service" required size="small" error={!!formErrors.serviceCode} helperText={formErrors.serviceCode} />
                 )}
               />
             </Grid>
 
-          
             {/* Generated Code (Display only for edit) */}
             {editData && editData.serviceCodeGenerated && (
               <Grid item xs={12} md={6}>
@@ -838,17 +786,12 @@ export default function ProductSubServiceMaster() {
             )}
 
             {/* Service Description */}
-          
+
             {/* Active Status (for update) */}
             {editData && (
               <Grid item xs={12}>
                 <FormControlLabel
-                  control={
-                    <Checkbox 
-                      checked={form.active} 
-                      onChange={(e) => handleFormChange('active', e.target.checked)} 
-                    />
-                  }
+                  control={<Checkbox checked={form.active} onChange={(e) => handleFormChange('active', e.target.checked)} />}
                   label="Active Status"
                 />
               </Grid>
@@ -886,12 +829,7 @@ export default function ProductSubServiceMaster() {
           <Button onClick={handleDialogClose} color="inherit">
             Cancel
           </Button>
-          <Button 
-            variant="contained" 
-            onClick={handleSubmit}
-            disabled={editData ? !isFormChanged : false}
-            sx={{ backgroundColor: '#0061B1' }}
-          >
+          <Button variant="contained" onClick={handleSubmit} disabled={editData ? !isFormChanged : false} sx={{ backgroundColor: '#0061B1' }}>
             {editData ? 'Update' : 'Save'}
           </Button>
         </DialogActions>
