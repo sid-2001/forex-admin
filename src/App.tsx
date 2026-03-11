@@ -46,7 +46,7 @@ import Loyality from './pages/loyality'
 import AuditLogTable from './pages/audit-log'
 import FieldValidationTable from './pages/field-validation'
 import ForexBranchesPage from './pages/branches'
-import { lazy, useCallback, useEffect } from 'react'
+import { lazy, useCallback, useEffect, useState } from 'react'
 import { useAutoLogout } from './helpers/useAutoLogout'
 import { LocalStorageService } from './helpers/local-storage-service'
 import { CrossBorderPaymentsDashboard } from './pages/dashboard'
@@ -92,6 +92,7 @@ import ExchangeRateMasterScreen from './pages/exchangeRateMaster'
 import CountryCorridorProductMaster from './pages/country-corridor-product'
 import ProductService from './services/product.service'
 import ProductSubServiceMaster from './pages/product-sub-service'
+import InactivityWarningModal from "./components/inactivity-modal"
 import ServiceSubServiceMapping from './pages/subservice-mapping'
 
 function App() {
@@ -100,6 +101,7 @@ function App() {
   }
   const [mode, setMode] = useRecoilState(themeModeState)
   const [inactivity, setinactivityTiming] = useRecoilState(inactivityTiming)
+  const [warningOpen, setWarningOpen] = useState(false)
   const local_service: any = new LocalStorageService()
 
   const theme = createTheme({
@@ -199,7 +201,9 @@ function App() {
       
     },
   })
-
+const handleInactivity = () => {
+  setWarningOpen(true)
+}
   const handleLogout = useCallback(() => {
     if (local_service?.get_accesstoken() != null) {
       localStorage.clear()
@@ -207,9 +211,12 @@ function App() {
       window.location.reload()
     }
   }, [])
-  const INACTIVITY_TIME = 10 * 60 * 1000 // 1 minutes
+  const INACTIVITY_TIME = 1 * 60 * 1000 // 1 minutes
   // ✅ Enable auto logout (30 min inactivity)
-  useAutoLogout(handleLogout, Number(inactivity) * 60000 > INACTIVITY_TIME ? Number(inactivity) * 60000 : INACTIVITY_TIME)
+  // useAutoLogout(handleLogout, Number(inactivity) * 60000 > INACTIVITY_TIME ? Number(inactivity) * 60000 : INACTIVITY_TIME)
+useAutoLogout(handleInactivity, Number(inactivity) * 60000 > INACTIVITY_TIME
+  ? Number(inactivity) * 60000
+  : INACTIVITY_TIME)
 
   return (
     <>
@@ -219,6 +226,11 @@ function App() {
         {/* <Message /> */}
         <ToastContainer />
         <CustomSnackbar />
+        <InactivityWarningModal
+  open={warningOpen}
+  onStay={() => setWarningOpen(false)}
+  onLogout={handleLogout}
+/>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<ProtectedRoute {...defaultProtectedRouteProps} outlet={<DashboardLayout />} />}>
