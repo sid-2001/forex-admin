@@ -202,7 +202,11 @@ function App() {
     },
   })
 const handleInactivity = () => {
-  setWarningOpen(true)
+  if(local_service.get_accesstoken()!=null){
+ setWarningOpen(true)
+
+  }
+ 
 }
   const handleLogout = useCallback(() => {
     if (local_service?.get_accesstoken() != null) {

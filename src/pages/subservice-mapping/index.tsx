@@ -41,6 +41,7 @@ import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePi
 import ServiceSubServiceMappingService from '@/services/service-subservice-mapping.service'
 import ServiceMasterService from '@/services/service-master.service'
 import SubServiceMasterService from '@/services/sub-service.service'
+import { formatTableDate } from '@/helpers/dateformate'
 
 // ==================== MAIN COMPONENT ====================
 export default function ServiceSubServiceMapping() {
@@ -93,17 +94,6 @@ export default function ServiceSubServiceMapping() {
     setAlertOpen(true)
   }
 
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    return dayjs(dateString).format(format.toUpperCase())
-  }
 
   const getCountryName = (countryCode: string) => {
     const country = countries.find((c: any) => c.countryCode === countryCode)
@@ -348,8 +338,8 @@ export default function ServiceSubServiceMapping() {
         serviceCode: '',
         subServiceCode: '',
         active: true,
-        effectiveFromDate: today,
-        effectiveToDate: nextYear.toISOString().split('T')[0],
+        effectiveFromDate: null,
+        effectiveToDate:null,
       }
       setForm(newFormData)
       setOriginalFormData(null)
@@ -456,7 +446,7 @@ export default function ServiceSubServiceMapping() {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1 }}>
         <GridToolbar />
-        <Button
+        {/* <Button
           variant="outlined"
           size="small"
           startIcon={<DownloadIcon />}
@@ -464,7 +454,7 @@ export default function ServiceSubServiceMapping() {
           sx={{ ml: 2 }}
         >
           Export CSV
-        </Button>
+        </Button> */}
       </Box>
     )
   }
@@ -770,13 +760,14 @@ export default function ServiceSubServiceMapping() {
 
             {/* Effective From Date */}
             <Grid item xs={6}>
-              <DynamicDatePicker
+              <DynamicEndDatePicker
                 label="Effective From"
                 value={form.effectiveFromDate}
                 onChange={(val: string) => handleFormChange('effectiveFromDate', val)}
                 error={!!formErrors.effectiveFromDate}
                 helperText={formErrors.effectiveFromDate || 'Required'}
                 required
+             
               />
             </Grid>
 

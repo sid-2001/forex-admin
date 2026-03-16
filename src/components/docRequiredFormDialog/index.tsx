@@ -22,6 +22,8 @@ import {
 import { useEffect, useState } from 'react'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import dayjs from 'dayjs'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
+import { json } from 'stream/consumers'
 
 interface Props {
   open: boolean
@@ -64,8 +66,8 @@ export default function DocRequiredFormDialog({
     documentUpload: true,
     documentNumberRequired: true,
     active: true,
-    effectiveFromDate: dayjs().format('YYYY-MM-DDTHH:mm'),
-    effectiveToDate: '2030-12-31T23:59',
+    effectiveFromDate: null,
+    effectiveToDate: null,
   })
 
   const [errors, setErrors] = useState<any>({})
@@ -105,8 +107,8 @@ export default function DocRequiredFormDialog({
         documentUpload: true,
         documentNumberRequired: true,
         active: true,
-        effectiveFromDate: dayjs().format('YYYY-MM-DDTHH:mm'),
-        effectiveToDate: '2030-12-31T23:59',
+        effectiveFromDate: null,
+        effectiveToDate: null,
       })
     }
     setErrors({})
@@ -218,8 +220,9 @@ export default function DocRequiredFormDialog({
                 helperText={errors.countryCode}
                 onChange={(e) => handleChange('countryCode', e.target.value)}
               >
-                {countries.map((c) => (
+                {countries?.filter(e=>e?.status=="A")?.map((c) => (
                   <MenuItem key={c.countryCode} value={c.countryCode}>
+                   
                     {c.countryName} ({c.countryCode})
                   </MenuItem>
                 ))}
@@ -412,36 +415,28 @@ export default function DocRequiredFormDialog({
 
             <Grid item xs={12} md={6}>
               {/* Effective From Date */}
-              <TextField
-                required
-                label="Effective From Date"
-                type="datetime-local"
-                fullWidth
-                size="small"
-                margin="dense"
-                value={form.effectiveFromDate}
-                error={!!errors.effectiveFromDate}
-                helperText={errors.effectiveFromDate}
-                onChange={(e) => handleChange('effectiveFromDate', e.target.value)}
-                InputLabelProps={{ shrink: true }}
-              />
+             <DynamicDatePicker
+    label="Effective From Date"
+    value={form.effectiveFromDate}
+    onChange={(val: string) => handleChange('effectiveFromDate', val)}
+    error={!!errors.effectiveFromDate}
+    helperText={errors.effectiveFromDate}
+    required
+  />
             </Grid>
 
             <Grid item xs={12} md={6}>
               {/* Effective To Date */}
-              <TextField
-                required
-                label="Effective To Date"
-                type="datetime-local"
-                fullWidth
-                size="small"
-                margin="dense"
-                value={form.effectiveToDate}
-                error={!!errors.effectiveToDate}
-                helperText={errors.effectiveToDate}
-                onChange={(e) => handleChange('effectiveToDate', e.target.value)}
-                InputLabelProps={{ shrink: true }}
-              />
+             <DynamicEndDatePicker
+    label="Effective To Date"
+    value={form.effectiveToDate}
+    minDate={form.effectiveFromDate}
+    onChange={(val: string) => handleChange('effectiveToDate', val)}
+    error={!!errors.effectiveToDate}
+    helperText={errors.effectiveToDate}
+    required
+    disabled={!form.effectiveFromDate}
+  />
             </Grid>
 
             <Grid item xs={12}>

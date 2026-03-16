@@ -277,7 +277,7 @@ const ProfileMenu = () => {
 
         <Avatar
   src={getAvatarUrl(
-    `${staff.staffId}-${staff.staffFirstName}-${staff.staffLastName}`
+    `${staff?.staffId}-${staff?.staffFirstName}-${staff?.staffLastName}`
   )}
   sx={{
     width: 42,

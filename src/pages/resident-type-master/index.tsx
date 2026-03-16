@@ -1,7 +1,7 @@
 // pages/ResidentTypeMaster.tsx
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { Box, Button, IconButton, Stack, Typography, Chip, Paper } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
@@ -16,6 +16,7 @@ import { countyState } from '@/states/state'
 import ConfirmModal from '@/components/ConfirmModal'
 import dayjs from 'dayjs'
 import { getLiveAuditData } from '@/helpers/dynamicLocations'
+import { formatTableDate } from '@/helpers/dateformate'
 
 // Types
 interface ResidentTypeData {
@@ -54,10 +55,6 @@ export default function ResidentTypeMaster() {
   const local_service = useMemo(() => new LocalStorageService(), [])
   const residentService = useMemo(() => new ResidentTypeService(), [])
 
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    return dayjs(dateString).format('DD/MM/YYYY')
-  }
 
   const getCountryName = (countryCode: string) => {
     const country = countries.find(c => c.countryCode === countryCode)
@@ -119,7 +116,7 @@ export default function ResidentTypeMaster() {
         )
 
         if (response?.status === true || response?.success === true) {
-          showAlert('Success', 'Resident Type Updated Successfully')
+          showAlert('Success',  response?.message);
           setDialogopen(false)
           fetchData()
         } else {
@@ -139,7 +136,7 @@ export default function ResidentTypeMaster() {
         const response: any = await residentService.createResidentType(payload)
 
         if (response?.status === true || response?.success === true) {
-          showAlert('Success', 'Resident Type Created Successfully')
+          showAlert('Success', response?.message)
           setDialogopen(false)
           fetchData()
         } else {
@@ -313,7 +310,7 @@ export default function ResidentTypeMaster() {
          <Typography
           variant="h5"
           sx={{
-            textAlign:"center",
+            textAlign:"left",
             fontWeight: 800,
             color: '#0061B1',
           }}
@@ -347,6 +344,7 @@ export default function ResidentTypeMaster() {
           columns={columns}
           getRowId={(row: ResidentTypeData) => row.residentTypeCode}
           autoHeight
+       slots={{ toolbar: GridToolbar }}
           disableRowSelectionOnClick
           pageSizeOptions={[5, 10, 25, 50]}
           sx={{

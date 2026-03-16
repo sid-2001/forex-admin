@@ -9,6 +9,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import dayjs from 'dayjs'
+import { formatTableDate } from '@/helpers/dateformate'
 
 export default function WhatsappTemplateManagement() {
   const [open, setOpen] = useState(false)
@@ -78,17 +79,7 @@ export default function WhatsappTemplateManagement() {
     }
   }
 
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
 
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    return dayjs(dateString).format(format.toUpperCase())
-  }
 
   // Function to download CSV with all fields
   const downloadCSV = () => {

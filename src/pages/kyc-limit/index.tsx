@@ -147,7 +147,7 @@ export default function KycLimitTypeMaster() {
         const response: any = await kycLimitTypeService.createLimitType(payload)
 
         if (response?.status === true || response?.success === true) {
-          showAlert('Success', 'Limit Type Created Successfully')
+          showAlert('Success', response?.message)
           setDialogopen(false)
           fetchData()
         } else {
@@ -382,7 +382,7 @@ export default function KycLimitTypeMaster() {
         autoHeight
         disableRowSelectionOnClick
         slots={{ toolbar: GridToolbar }}
-        slotProps={{ toolbar: { showQuickFilter: true } }}
+        // slotProps={{ toolbar: { showQuickFilter: true } }}
         // pageSizeOptions={[5, 10, 25, 50]}
         sx={{
           '& .MuiDataGrid-cell': {

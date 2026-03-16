@@ -10,13 +10,15 @@ import {
   FormControlLabel, 
   MenuItem,
   Stack,
-  Box
+  Box,
+  Grid
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { countyState } from '@/states/state'
 import dayjs from 'dayjs'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 interface Props {
   open: boolean
@@ -42,8 +44,8 @@ export default function ResidentTypeFormDialog({ open, onClose, onSubmit, editDa
     countryCode: '',
     residentTypeDescription: '',
     active: true,
-    effectiveFromDate: dayjs().format('YYYY-MM-DDTHH:mm'),
-    effectiveToDate: '9999-12-31T23:59',
+    effectiveFromDate: null,
+    effectiveToDate: null,
   })
 
   const [errors, setErrors] = useState<any>({})
@@ -68,16 +70,18 @@ export default function ResidentTypeFormDialog({ open, onClose, onSubmit, editDa
         countryCode: '',
         residentTypeDescription: '',
         active: true,
-        effectiveFromDate: dayjs().format('YYYY-MM-DDTHH:mm'),
-        effectiveToDate: '9999-12-31T23:59',
+        effectiveFromDate: null,
+        effectiveToDate: null,
       })
     }
     setErrors({})
   }, [editData, open])
 
   const handleChange = (key: string, value: any) => {
+    console.log(key)
+    console.log(value)
     setForm({ ...form, [key]: value })
-    setErrors({ ...errors, [key]: '' })
+    
   }
 
   const validate = () => {
@@ -98,17 +102,56 @@ export default function ResidentTypeFormDialog({ open, onClose, onSubmit, editDa
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = () => {
-    if (!validate()) return
+// const handleSubmit = () => {
+//   if (!validate()) return
 
-    const staffId = localService.get_staff_id() || 'admin'
-    
-    onSubmit({
-      ...form,
-      createdBy: editData ? undefined : staffId,
-      modifiedBy: editData ? staffId : undefined,
-    })
+//   const staffId = localService.get_staff_id() || 'admin'
+
+//   const payload = {
+//     ...form,
+
+//     effectiveFromDate: dayjs(form.effectiveFromDate)
+//       .tz("Asia/Kolkata")
+//       .format(),
+
+//     effectiveToDate:
+//       form.effectiveToDate === "9999-12-31"
+//         ? "9999-12-31T23:59:59+05:30"
+//         : dayjs(form.effectiveToDate)
+//             .tz("Asia/Kolkata")
+//             .format(),
+
+//     createdBy: editData ? undefined : staffId,
+//     modifiedBy: editData ? staffId : undefined,
+//   }
+
+//   onSubmit(payload)
+// }
+
+
+const handleSubmit = () => {
+  if (!validate()) return
+
+  const staffId = localService.get_staff_id() || 'admin'
+
+  const payload = {
+    ...form,
+
+    effectiveFromDate: dayjs(form.effectiveFromDate)
+      .format("YYYY-MM-DDTHH:mm:ss"),
+
+    effectiveToDate:
+      form.effectiveToDate === "9999-12-31"
+        ? "9999-12-31T23:59:59"
+        : dayjs(form.effectiveToDate)
+            .format("YYYY-MM-DDTHH:mm:ss"),
+
+    createdBy: editData ? undefined : staffId,
+    modifiedBy: editData ? staffId : undefined,
   }
+
+  onSubmit(payload)
+}
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -155,7 +198,7 @@ export default function ResidentTypeFormDialog({ open, onClose, onSubmit, editDa
             helperText={errors.countryCode}
             onChange={(e) => handleChange('countryCode', e.target.value)}
           >
-            {countries.map((c) => (
+            {countries?.filter(e=>e.status=='A')?.map((c) => (
               <MenuItem
               //@ts-ignore
                 key={c.countryCode}
@@ -181,7 +224,7 @@ export default function ResidentTypeFormDialog({ open, onClose, onSubmit, editDa
           />
 
           {/* Effective From Date */}
-          <TextField
+          {/* <TextField
             required
             label="Effective From Date"
             type="datetime-local"
@@ -192,10 +235,10 @@ export default function ResidentTypeFormDialog({ open, onClose, onSubmit, editDa
             helperText={errors.effectiveFromDate}
             onChange={(e) => handleChange('effectiveFromDate', e.target.value)}
             InputLabelProps={{ shrink: true }}
-          />
+          /> */}
 
           {/* Effective To Date */}
-          <TextField
+          {/* <TextField
             required
             label="Effective To Date"
             type="datetime-local"
@@ -206,8 +249,34 @@ export default function ResidentTypeFormDialog({ open, onClose, onSubmit, editDa
             helperText={errors.effectiveToDate}
             onChange={(e) => handleChange('effectiveToDate', e.target.value)}
             InputLabelProps={{ shrink: true }}
-          />
+          /> */}
 
+
+                 <Box sx={{marginBottom:'3vh',marginTop:'3vh'}}>
+<DynamicDatePicker
+                      
+                        label="Effective From"
+                        value={form.effectiveFromDate}
+                        onChange={(val: string) => handleChange('effectiveFromDate', val)}
+                        error={!!errors.effectiveFromDate}
+                        helperText={errors.effectiveFromDate}
+                        required
+                      />
+
+                 </Box>
+                      
+                                     
+                      <DynamicEndDatePicker
+                        label="Effective To"
+                        value={form.effectiveToDate}
+                        minDate={form.effectiveFromDate}
+                        onChange={(val: string) => handleChange('effectiveToDate', val)}
+                        error={!!errors.effectiveToDate}
+                        helperText={errors.effectiveToDate}
+                        disabled={!form.effectiveFromDate}
+                        required
+                      />
+                  
           {/* Active Status */}
           <FormControlLabel 
             control={

@@ -8,6 +8,7 @@ import VendorApiService, { IVendor } from '../../services/vendor.api.service'
 import VendorApiFormDialog from '../../components/VendorApiFormDialog'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
+import { formatTableDate } from '@/helpers/dateformate'
 
 export default function VendorApiMaster() {
   const [rows, setRows] = useState<IVendor[]>([])
@@ -42,14 +43,14 @@ export default function VendorApiMaster() {
       headerName: 'Effective From',
       flex: 0.5,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => (params.value ? String(params.value).split('T')[0] : '-'),
+      renderCell: (params) => (formatTableDate(params?.value)),
     },
     {
       field: 'effectiveToDate',
       headerName: 'Effective to',
       flex: 0.5,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => (params.value ? String(params.value).split('T')[0] : '-'),
+       renderCell: (params) => (formatTableDate(params?.value)),
     },
     {
       field: 'active',

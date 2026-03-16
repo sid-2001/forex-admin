@@ -188,7 +188,7 @@ export default function VerificationPartnerMasterDialog({ open, onClose, onSubmi
         </Grid>
       </DialogContent>
 
-      <ErrorMessage errMessage={errMassage} />
+ 
 
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={onClose} sx={{ color: 'grey.600' }}>

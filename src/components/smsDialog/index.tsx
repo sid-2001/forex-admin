@@ -299,7 +299,7 @@ export default function SmsTemplateDialog({ open, onClose, onSubmit, editData, e
       </DialogContent>
 
       {/* Error Message Display */}
-      <ErrorMessage errMessage={errMassage} />
+      {/* <ErrorMessage errMessage={errMassage} /> */}
 
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={onClose} sx={{ color: 'grey.600' }}>

@@ -10,7 +10,7 @@ import {
   Paper,
   Tooltip
 } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
@@ -37,6 +37,7 @@ import { countyState } from '@/states/state'
 import ConfirmModal from '@/components/ConfirmModal'
 import dayjs from 'dayjs'
 import { getLiveAuditData } from '@/helpers/dynamicLocations'
+import { formatTableDate } from '@/helpers/dateformate'
 
 // Types
 interface DocRequiredData {
@@ -116,10 +117,6 @@ export default function CountryResProductChannelDocRequiredMaster() {
   const residentService = useMemo(() => new ResidentTypeService(), [])
   const kycDocumentServicee = useMemo(() => new KycDocumentTypeService, [])
 
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    return dayjs(dateString).format('DD/MM/YYYY')
-  }
 
   const getCountryName = (countryCode: string) => {
     const country = countries.find(c => c.countryCode === countryCode)
@@ -574,7 +571,7 @@ console.log(kycDocuments)
 
   return (
     <Box p={3}>
-      <Paper elevation={0} sx={{ p: 3, mb: 3, backgroundColor: '#f5f5f5' }}>
+     
         <Typography
           variant="h5"
           sx={{
@@ -587,7 +584,7 @@ console.log(kycDocuments)
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
           Configure document requirements by country, residence type, product, and channel
         </Typography>
-      </Paper>
+     
 
       <Stack direction="row" justifyContent="flex-end" mb={2}>
         <Button
@@ -608,13 +605,14 @@ console.log(kycDocuments)
         </Button>
       </Stack>
 
-      <Paper elevation={2} sx={{ p: 2 }}>
+    
         <DataGrid
           rows={rows}
           columns={columns}
           getRowId={(row: DocRequiredData) => row.reqDocCode}
           autoHeight
           loading={loading}
+           slots={{ toolbar: GridToolbar }}
           disableRowSelectionOnClick
           pageSizeOptions={[5, 10, 25, 50]}
           sx={{
@@ -631,7 +629,7 @@ console.log(kycDocuments)
             },
           }}
         />
-      </Paper>
+     
 
       <DocRequiredFormDialog
         open={dialogopen}

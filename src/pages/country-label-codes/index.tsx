@@ -53,6 +53,7 @@ import { useRecoilState } from 'recoil'
 import ChannelService from '@/services/channel.servive'
 import { CountryData } from '@/types/static.type'
 import dayjs from 'dayjs'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 const countryLabelCodesService = new CountryLabelCodesService()
 const countryBusinessPayoutPartnerService = new CountryBusinessPayoutPartnerService()
@@ -784,7 +785,7 @@ export default function CountryLabelCodesGridPage() {
 
             {/* Effective Dates */}
             <Grid container spacing={2}>
-              <Grid item xs={6}>
+              {/* <Grid item xs={6}>
                 <TextField
                   fullWidth
                   type="date"
@@ -812,7 +813,40 @@ export default function CountryLabelCodesGridPage() {
                     min: form.effectiveFromDate ? form.effectiveFromDate.split('T')[0] : undefined,
                   }}
                 />
-              </Grid>
+              </Grid> */}
+
+
+                  <Grid item xs={6}>
+                          <DynamicDatePicker
+                            label="Effective From"
+                            value={form.effectiveFromDate}
+                            onChange={(val: string) => {
+                              console.log(val, 'kdjhchdvy')
+                              setForm({ ...form, effectiveFromDate: val })
+                            }}
+                            minDate={new Date().toISOString().split('T')[0]}
+                            // error={"Select Valid Date"}
+                            // helperText={"Selecte Valid Time Range"}
+                            required
+                          />
+                        </Grid>
+              
+                        <Grid item xs={6}>
+                          <DynamicEndDatePicker
+                            label="Effective To"
+                            value={form.effectiveToDate}
+                            minDate={form.effectiveToDate}
+                            onChange={(val: string) => {
+                              setForm({ ...form, effectiveToDate: val })
+                            }}
+                        // error={"Select Valid Date"}
+                        //     helperText={"Selecte Valid Time Range"}
+                            required
+                          />
+                        </Grid>
+
+
+              
             </Grid>
 
             {/* Active Status */}

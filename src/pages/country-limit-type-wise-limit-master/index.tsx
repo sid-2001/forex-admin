@@ -1,7 +1,7 @@
 // pages/CountryLimitTypeWiseLimitMaster.tsx
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { Box, Button, IconButton, Stack, Typography, Chip, Paper, Tooltip } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
@@ -18,6 +18,7 @@ import { countyState } from '@/states/state'
 import ConfirmModal from '@/components/ConfirmModal'
 import dayjs from 'dayjs'
 import { getLiveAuditData } from '@/helpers/dynamicLocations'
+import { formatTableDate } from '@/helpers/dateformate'
 
 // Types
 interface CountryLimitTypeWiseLimitData {
@@ -66,10 +67,6 @@ export default function CountryLimitTypeWiseLimitMaster() {
   const limitService = useMemo(() => new CountryLimitTypeWiseLimitService(), [])
   const kycLimitTypeService = useMemo(() => new KycLimitTypeService(), [])
 
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    return dayjs(dateString).format('DD/MM/YYYY')
-  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -421,6 +418,7 @@ export default function CountryLimitTypeWiseLimitMaster() {
           columns={columns}
           getRowId={(row: CountryLimitTypeWiseLimitData) => row.countryLimitTypeLimitCode}
           autoHeight
+          slots={{ toolbar: GridToolbar }}
           loading={loading}
           disableRowSelectionOnClick
           pageSizeOptions={[5, 10, 25, 50]}

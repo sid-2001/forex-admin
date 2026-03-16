@@ -96,13 +96,13 @@ export default class CountryReportingMappingsService {
     }
   }
 
-  async update(payload: CountryReportingMapping): Promise<{
+  async update(payload: CountryReportingMapping,id:any): Promise<{
     status: boolean;
     message: string;
     data?: any;
   }> {
     try {
-      const response = await api1.put(`/api/static-table/country-reporting-mappings`, payload);
+      const response = await api1.put(`/api/static-table/country-reporting-mappings/${id}`, payload);
       return response.data;
     } catch (err: any) {
       console.error('Error updating country reporting mapping:', err);

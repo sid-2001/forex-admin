@@ -22,6 +22,8 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import dayjs from 'dayjs'
 import CountryCorridorProductFormDialog from '@/components/county-corridor-product-code-master'
 import ProductService from '@/services/product.service'
+import { formatTableDate } from '@/helpers/dateformate'
+import { CountryCorridorService } from '@/services/countryCorridor.service'
 
 export default function CountryCorridorProductMaster() {
   const service = useMemo(() => new CountryCorridorProductService(), [])
@@ -47,7 +49,10 @@ export default function CountryCorridorProductMaster() {
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(5)
   
-  const countries = useRecoilValue(countyState)
+  // const countries = useRecoilValue(countyState)
+
+  const[ countries, setcountries] =useState();
+
   const [uniqueCountries, setUniqueCountries] = useState<string[]>([])
   const [uniqueProducts, setUniqueProducts] = useState<string[]>([])
   
@@ -61,17 +66,7 @@ export default function CountryCorridorProductMaster() {
     setAlertOpen(true)
   }
 
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
 
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    return dayjs(dateString).format(format.toUpperCase())
-  }
 
   const getCountryCode = (row: any) => {
     return row.countryCorridorMaster?.countryCode || 
@@ -177,6 +172,18 @@ export default function CountryCorridorProductMaster() {
     applyFilters()
   }, [applyFilters])
 
+
+  const coutry_corridor_service=new CountryCorridorService()
+  useEffect(()=>{
+coutry_corridor_service.getAllCorridors().then(data=>{
+console.log(data)
+setcountries(data)
+
+
+})
+
+  },[])
+
   // Reset filters
   const resetFilters = () => {
     setSearchTerm('')
@@ -253,7 +260,7 @@ export default function CountryCorridorProductMaster() {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1 }}>
         <GridToolbar />
-        <Button
+        {/* <Button
           variant="outlined"
           size="small"
           startIcon={<DownloadIcon />}
@@ -261,7 +268,7 @@ export default function CountryCorridorProductMaster() {
           sx={{ ml: 2 }}
         >
           Export CSV
-        </Button>
+        </Button> */}
       </Box>
     )
   }
@@ -485,7 +492,7 @@ export default function CountryCorridorProductMaster() {
         isUpdateDisabled={editData ? !isFormChanged : false}
         products={products}
         subServices={subServices}
-        countries={countries}
+        countries={countries as any}
       />
     </Box>
   )

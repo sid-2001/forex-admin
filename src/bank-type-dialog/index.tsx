@@ -9,7 +9,8 @@ import {
   FormControlLabel,
   Select,
   MenuItem,
-  InputLabel
+  InputLabel,
+  Grid
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
@@ -17,6 +18,7 @@ import { countyState } from "@/states/state";
 import { LocalStorageService } from "@/helpers/local-storage-service";
 import { BankBusinessType } from "../services/bantypemaster.service";
 import ForexCurrencyService, { ForexCurrency } from "../services/forex-currency.service";
+import { DynamicDatePicker, DynamicEndDatePicker } from "@/helpers/DynamicDatePicker";
 
 interface Props {
   open: boolean;
@@ -216,8 +218,40 @@ export default function BankTypeDialog({
           </p>
         )}
 
+
+
+
+          <Grid item xs={6}>
+            <DynamicDatePicker
+              label="Effective From"
+              value={form.effective_from_date}
+              onChange={(val: string) => {
+                console.log(val, 'kdjhchdvy')
+                setForm({ ...form, effective_from_date: val })
+              }}
+              minDate={new Date().toISOString().split('T')[0]}
+              error={!!errors.effectiveFrom}
+              helperText={errors.effectiveFrom}
+              required
+            />
+          </Grid>
+hjhjh
+          <Grid item xs={6}>
+            <DynamicEndDatePicker
+              label="Effective To"
+              value={form.effective_to_date}
+              minDate={form.effective_to_date}
+              onChange={(val: string) => {
+                setForm({ ...form, effective_to_date: val })
+              }}
+              error={!!errors.effectiveTo}
+              helperText={errors.effectiveTo}
+              required
+            />
+          </Grid>
+
         {/* EFFECTIVE FROM */}
-        <TextField
+        {/* <TextField
           type="date"
           label="Effective From"
           fullWidth
@@ -230,10 +264,10 @@ export default function BankTypeDialog({
           onChange={(e) =>
             handleChange("effective_from_date", e.target.value)
           }
-        />
+        /> */}
 
         {/* EFFECTIVE TO */}
-        <TextField
+        {/* <TextField
           type="date"
           label="Effective To"
           fullWidth
@@ -247,7 +281,7 @@ export default function BankTypeDialog({
           onChange={(e) =>
             handleChange("effective_to_date", e.target.value)
           }
-        />
+        /> */}
 
         {/* ACTIVE */}
         <FormControlLabel

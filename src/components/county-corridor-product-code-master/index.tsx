@@ -182,8 +182,8 @@ export default function CountryCorridorProductFormDialog({
         decimalPrecision: 2,
         decimalRoundOff: 0.5,
         active: true,
-        effectiveFromDate: today,
-        effectiveToDate: nextYear.toISOString().split('T')[0],
+        effectiveFromDate: null,
+        effectiveToDate:null,
       }
       setForm(newFormData)
       setOriginalData(null)
@@ -314,10 +314,11 @@ export default function CountryCorridorProductFormDialog({
       if (res) {
         showAlert('Success', res?.message || `${editData ? 'Updated' : 'Created'} successfully`)
         refreshList()
-        handleClose()
+      
       }
     } catch (e) {
       showAlert('Fail', 'Server Error')
+        handleClose()
     }
   }
 
@@ -335,10 +336,10 @@ export default function CountryCorridorProductFormDialog({
           {/* Country Corridor Code */}
                <Grid item xs={12} md={6}>
               <Autocomplete
-                options={countries?.filter((c: any) => c.status == 'A') || []}
-                getOptionLabel={(o: any) => `${o.countryName} (${o.countryCode})`}
-                value={countries?.find((c: any) => c.countryCode === form.countryCorridorCode) || null}
-                onChange={(_, val) => handleChange('countryCorridorCode', val?.countryCode || '')}
+                options={countries?.filter((c: any) => c.active == true) || []}
+                getOptionLabel={(o: any) => `${o.countryCorridorCode} (${o.countryCode})`}
+                value={countries?.find((c: any) => c.countryCorridorCode === form.countryCorridorCode) || null}
+                onChange={(_, val) => handleChange('countryCorridorCode', val?.countryCorridorCode || '')}
                 disabled={!!editData}
                 renderInput={(params) => (
                   <TextField 
@@ -542,6 +543,7 @@ export default function CountryCorridorProductFormDialog({
               error={!!errors.effectiveToDate}
               helperText={errors.effectiveToDate || 'Required, must be after Effective From'}
               required
+              disabled={!form.effectiveFromDate}
             />
        
 

@@ -263,9 +263,9 @@ export default function CountryReportingMappingsGridPage() {
           id: selected.id,
         }
 
-        console.log(updatePayload)
+    
 
-        const result = await countryReportingMappingsService.update(updatePayload)
+        const result = await countryReportingMappingsService.update(updatePayload,updatePayload?.id)
         if (result.status) {
           showSuccess('Mapping updated successfully')
           setOpen(false)
@@ -286,7 +286,7 @@ export default function CountryReportingMappingsGridPage() {
       }
     } catch (error) {
       console.error('Error submitting form:', error)
-      showError(selected ? 'Failed to update mapping' : 'Failed to create mapping')
+      showError(selected ? 'Failed to update mapping' : 'Failed to create mapping Server Error')
     }
   }
 
@@ -516,7 +516,7 @@ export default function CountryReportingMappingsGridPage() {
       const config = JSON.parse(storedConfig)
       format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
     }
-    console.log(format, 'dkjhbcvy')
+  
     return dayjs(dateString).format(format.toUpperCase())
   }
 
@@ -539,49 +539,7 @@ export default function CountryReportingMappingsGridPage() {
         </Box>
       </Stack>
 
-      {/* Summary Cards */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'primary.light', color: 'white' }}>
-            <Typography variant="h6">{rows.length}</Typography>
-            <Typography variant="body2">Total Mappings</Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'success.light', color: 'white' }}>
-            <Typography variant="h6">{rows.filter((r) => r.active).length}</Typography>
-            <Typography variant="body2">Active Mappings</Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'info.light', color: 'white' }}>
-            <Typography variant="h6">{[...new Set(rows.map((r) => r.countryLabelCode))].length}</Typography>
-            <Typography variant="body2">Country Labels</Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'warning.light', color: 'white' }}>
-            <Typography variant="h6">{[...new Set(rows.map((r) => r.fieldLabelCode))].length}</Typography>
-            <Typography variant="body2">Field Labels</Typography>
-          </Paper>
-        </Grid>
-      </Grid>
-
-      {/* Search Bar */}
-      <TextField
-        fullWidth
-        placeholder="Search by ID, Country Label, Field Label, or Requirement..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        sx={{ mb: 2 }}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon />
-            </InputAdornment>
-          ),
-        }}
-      />
+ 
 
       <Box sx={{ height: 500, width: '100%' }}>
         <DataGrid

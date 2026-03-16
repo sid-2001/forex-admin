@@ -41,8 +41,8 @@ export default function KycLimitTypeFormDialog({ open, onClose, editData, onSubm
     limitCode: '',
     limitDescription: '',
     active: true,
-    effectiveFromDate: dayjs().format('YYYY-MM-DDTHH:mm'),
-    effectiveToDate: '9999-12-31T23:59',
+    effectiveFromDate: null,
+    effectiveToDate: null,
   })
 
   useEffect(() => {

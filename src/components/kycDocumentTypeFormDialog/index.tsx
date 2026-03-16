@@ -18,6 +18,8 @@ import {
 import CloseIcon from '@mui/icons-material/Close'
 import dayjs from 'dayjs'
 
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
+
 interface FormData {
   kycDocTypeDescription: string
   active: boolean
@@ -39,55 +41,107 @@ export default function KycDocumentTypeFormDialog({
   editData,
   onSubmit,
 }: KycDocumentTypeFormDialogProps) {
+
   const [formData, setFormData] = useState<FormData>({
     kycDocTypeDescription: '',
     active: true,
-    effectiveFromDate: dayjs().format('YYYY-MM-DDTHH:mm'),
-    effectiveToDate: '9999-12-31T23:59',
+    effectiveFromDate: dayjs().format('YYYY-MM-DD'),
+    effectiveToDate: '9999-12-31',
   })
-
+const [originalData, setOriginalData] = useState<FormData | null>(null)
   useEffect(() => {
     if (editData) {
       setFormData({
         kycDocTypeDescription: editData.kycDocTypeDescription || '',
-        active: editData.active || false,
-        effectiveFromDate: editData.effectiveFromDate 
-          ? dayjs(editData.effectiveFromDate).format('YYYY-MM-DDTHH:mm')
-          : dayjs().format('YYYY-MM-DDTHH:mm'),
-        effectiveToDate: editData.effectiveToDate === '9999-12-31T23:59:59'
-          ? '9999-12-31T23:59'
-          : dayjs(editData.effectiveToDate).format('YYYY-MM-DDTHH:mm'),
+        active: editData.active ?? true,
+        effectiveFromDate: editData.effectiveFromDate
+          ? dayjs(editData.effectiveFromDate).format('YYYY-MM-DD')
+          : dayjs().format('YYYY-MM-DD'),
+        effectiveToDate:
+          editData.effectiveToDate === '9999-12-31T23:59:59'
+            ? '9999-12-31'
+            : dayjs(editData.effectiveToDate).format('YYYY-MM-DD'),
       })
     } else {
       setFormData({
         kycDocTypeDescription: '',
         active: true,
-        effectiveFromDate: dayjs().format('YYYY-MM-DDTHH:mm'),
-        effectiveToDate: '9999-12-31T23:59',
+        effectiveFromDate:null,
+        effectiveToDate: null,
       })
     }
   }, [editData, open])
 
+
+
+  useEffect(() => {
+  let newData: FormData
+
+  if (editData) {
+    newData = {
+      kycDocTypeDescription: editData.kycDocTypeDescription || '',
+      active: editData.active ?? true,
+      effectiveFromDate: editData.effectiveFromDate
+        ? dayjs(editData.effectiveFromDate).format('YYYY-MM-DD')
+        : dayjs().format('YYYY-MM-DD'),
+      effectiveToDate:
+        editData.effectiveToDate === '9999-12-31T23:59:59'
+          ? '9999-12-31'
+          : dayjs(editData.effectiveToDate).format('YYYY-MM-DD'),
+    }
+  } else {
+    newData = {
+      kycDocTypeDescription: '',
+      active: true,
+      effectiveFromDate: dayjs().format('YYYY-MM-DD'),
+      effectiveToDate: '9999-12-31',
+    }
+  }
+
+  setFormData(newData)
+  setOriginalData(newData)
+
+}, [editData, open])
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, checked, type } = e.target
+
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }))
   }
 
+
+
+  const isFormChanged = () => {
+  if (!originalData) return true
+
+  return (
+    formData.kycDocTypeDescription !== originalData.kycDocTypeDescription ||
+    formData.active !== originalData.active ||
+    formData.effectiveFromDate !== originalData.effectiveFromDate ||
+    formData.effectiveToDate !== originalData.effectiveToDate
+  )
+}
   const handleSubmit = () => {
-    // Validation
+
     if (!formData.kycDocTypeDescription.trim()) {
-      onSubmit({ ...formData, validationError: 'Document Type Description is required' })
+      onSubmit({
+        ...formData,
+        validationError: 'Document Type Description is required',
+      })
       return
     }
 
-    const fromDate = new Date(formData.effectiveFromDate)
-    const toDate = new Date(formData.effectiveToDate)
-    
-    if (fromDate > toDate) {
-      onSubmit({ ...formData, validationError: 'Effective From date cannot be after Effective To date' })
+    const fromDate = dayjs(formData.effectiveFromDate)
+    const toDate = dayjs(formData.effectiveToDate)
+
+    if (fromDate.isAfter(toDate)) {
+      onSubmit({
+        ...formData,
+        validationError:
+          'Effective From date cannot be after Effective To date',
+      })
       return
     }
 
@@ -95,38 +149,46 @@ export default function KycDocumentTypeFormDialog({
   }
 
   return (
-    <Dialog 
-      open={open} 
+    <Dialog
+      open={open}
       onClose={onClose}
       maxWidth="md"
       fullWidth
       PaperProps={{
-        sx: { borderRadius: 2 }
+        sx: { borderRadius: 2 },
       }}
     >
-      <DialogTitle sx={{ 
-        m: 0, 
-        p: 2, 
-        backgroundColor: '#f5f5f5',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <Typography variant="h6" component="div" sx={{ fontWeight: 600, color: '#0061B1' }}>
-          {editData ? 'Edit Document Type' : 'Create New Document Type'}
-        </Typography>
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          sx={{ color: '#666' }}
+      {/* HEADER */}
+      <DialogTitle
+        sx={{
+          m: 0,
+          p: 2,
+          backgroundColor: '#f5f5f5',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: 600, color: '#0061B1' }}
         >
+          {editData
+            ? 'Edit Document Type'
+            : 'Create New Document Type'}
+        </Typography>
+
+        <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
 
+      {/* BODY */}
       <DialogContent dividers sx={{ p: 3 }}>
         <Stack spacing={3}>
           <Grid container spacing={2}>
+
+            {/* DESCRIPTION */}
             <Grid item xs={12}>
               <TextField
                 name="kycDocTypeDescription"
@@ -142,36 +204,46 @@ export default function KycDocumentTypeFormDialog({
               />
             </Grid>
 
+            {/* EFFECTIVE FROM */}
             <Grid item xs={12} md={6}>
-              <TextField
-                name="effectiveFromDate"
-                label="Effective From Date *"
-                type="datetime-local"
+              <DynamicDatePicker
+                label="Effective From Date"
                 value={formData.effectiveFromDate}
-                onChange={handleChange}
-                fullWidth
-                size="small"
-                InputLabelProps={{ shrink: true }}
+                onChange={(val: string) =>
+                  setFormData(prev => ({
+                    ...prev,
+                    effectiveFromDate: val,
+                  }))
+                }
                 required
               />
             </Grid>
 
+            {/* EFFECTIVE TO */}
             <Grid item xs={12} md={6}>
-              <TextField
-                name="effectiveToDate"
-                label="Effective To Date *"
-                type="datetime-local"
+              <DynamicEndDatePicker
+                label="Effective To Date"
                 value={formData.effectiveToDate}
-                onChange={handleChange}
-                fullWidth
-                size="small"
-                InputLabelProps={{ shrink: true }}
+                minDate={formData.effectiveFromDate}
+                onChange={(val: string) =>
+                  setFormData(prev => ({
+                    ...prev,
+                    effectiveToDate: val,
+                  }))
+                }
                 required
               />
             </Grid>
 
+            {/* ACTIVE STATUS */}
             <Grid item xs={12}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  mt: 1,
+                }}
+              >
                 <FormControlLabel
                   control={
                     <Switch
@@ -183,38 +255,62 @@ export default function KycDocumentTypeFormDialog({
                   }
                   label="Active Status"
                 />
-                <Typography variant="caption" color="text.secondary" sx={{ ml: 2 }}>
-                  {formData.active ? 'Document type is active and can be used' : 'Document type is inactive'}
+
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ ml: 2 }}
+                >
+                  {formData.active
+                    ? 'Document type is active and can be used'
+                    : 'Document type is inactive'}
                 </Typography>
               </Box>
             </Grid>
 
+            {/* REQUIRED NOTE */}
             <Grid item xs={12}>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+              >
                 * Required fields
               </Typography>
             </Grid>
+
           </Grid>
         </Stack>
       </DialogContent>
 
-      <DialogActions sx={{ p: 2, backgroundColor: '#fafafa' }}>
-        <Button onClick={onClose} variant="outlined" sx={{ borderRadius: 2 }}>
+      {/* FOOTER */}
+      <DialogActions
+        sx={{
+          p: 2,
+          backgroundColor: '#fafafa',
+        }}
+      >
+        <Button
+          onClick={onClose}
+          variant="outlined"
+          sx={{ borderRadius: 2 }}
+        >
           Cancel
         </Button>
-        <Button 
-          onClick={handleSubmit} 
-          variant="contained"
-          sx={{ 
-            borderRadius: 2,
-            backgroundColor: '#0061B1',
-            '&:hover': {
-              backgroundColor: '#004d8c',
-            }
-          }}
-        >
-          {editData ? 'Update' : 'Create'}
-        </Button>
+
+    <Button
+  onClick={handleSubmit}
+  variant="contained"
+  disabled={editData ? !isFormChanged() : false}
+  sx={{
+    borderRadius: 2,
+    backgroundColor: '#0061B1',
+    '&:hover': {
+      backgroundColor: '#004d8c',
+    },
+  }}
+>
+  {editData ? 'Update' : 'Create'}
+</Button>
       </DialogActions>
     </Dialog>
   )

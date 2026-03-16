@@ -1,7 +1,7 @@
 // pages/KycDocumentTypeMaster.tsx
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { Box, Button, IconButton, Stack, Typography, Chip } from '@mui/material'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
@@ -13,7 +13,8 @@ import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import ConfirmModal from '@/components/ConfirmModal'
 import dayjs from 'dayjs'
-import { getLiveAuditData } from '@/helpers/dynamicLocations'
+import { formattedDate, getLiveAuditData } from '@/helpers/dynamicLocations'
+import { formatTableDate } from '@/helpers/dateformate'
 
 // Types
 interface KycDocumentTypeData {
@@ -48,26 +49,7 @@ export default function KycDocumentTypeMaster() {
   const local_service = useMemo(() => new LocalStorageService(), [])
   const documentService = useMemo(() => new KycDocumentTypeService(), [])
 
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
 
-    const cleanDate = String(dateString).split('T')[0]
-
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-
-    return dayjs(cleanDate).format(format.toUpperCase())
-  }
-
-  const formatDateTime = (dateString: string) => {
-    if (!dateString) return ''
-    return dayjs(dateString).format('YYYY-MM-DD HH:mm:ss')
-  }
 
   const fetchData = useCallback(async () => {
     try {
@@ -289,7 +271,7 @@ export default function KycDocumentTypeMaster() {
       headerName: 'Created At',
       width: 150,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => formatDateTime(params.value),
+      renderCell: (params) => formatTableDate(params.value),
     },
     {
       field: 'actions',
@@ -317,16 +299,18 @@ export default function KycDocumentTypeMaster() {
   ]
 
   return (
-    <Box p={3} sx={{ width: '100%' }}>
+    <Box sx={{ width: '100%' }}>
       <Typography
         variant="h4"
         component="h1"
+      
         sx={{
+         
           fontWeight: 700,
           letterSpacing: '-0.02em',
           display: 'grid',
           placeItems: 'center',
-          mb: 5,
+        
           color: '#0061B1',
         }}
       >
@@ -351,6 +335,9 @@ export default function KycDocumentTypeMaster() {
         </Button>
       </Stack>
 
+<Box>
+
+
       <DataGrid
         rows={rows}
         columns={columns}
@@ -358,6 +345,7 @@ export default function KycDocumentTypeMaster() {
         autoHeight
         disableRowSelectionOnClick
         pageSizeOptions={[5, 10, 25, 50]}
+           slots={{ toolbar: GridToolbar }}
         sx={{
           
         }}
@@ -372,6 +360,7 @@ export default function KycDocumentTypeMaster() {
           },
         }}
       />
+      </Box>
 
       <KycDocumentTypeFormDialog
         open={dialogopen}

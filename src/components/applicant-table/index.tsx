@@ -607,7 +607,7 @@ export default function CountryResProductChannelDocRequiredMaster() {
 
   return (
     <Box p={3}>
-      <Paper elevation={0} sx={{ p: 3, mb: 3, backgroundColor: '#f5f5f5' }}>
+    
         <Typography
           variant="h5"
           sx={{
@@ -617,10 +617,7 @@ export default function CountryResProductChannelDocRequiredMaster() {
         >
           Country Resident Product Channel Document Required
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          Configure document requirements by country, residence type, product, and channel
-        </Typography>
-      </Paper>
+       
 
       <Stack direction="row" justifyContent="flex-end" mb={2}>
         <Button

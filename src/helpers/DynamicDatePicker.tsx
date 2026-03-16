@@ -65,7 +65,7 @@ interface DynamicEndDatePickerProps {
   minDate?: string // To prevent End Date < Start Date
 }
 
-export function DynamicEndDatePicker({ label, value, onChange, error, helperText, required, minDate }: any) {
+export function DynamicEndDatePicker({ label, value, onChange, error, helperText, required, minDate ,disabled}: any) {
   const dynamicFormat = useMemo(() => {
     const config = JSON.parse(localStorage.getItem('countryConfig') || '{}')
     return (config.dateFormat || 'MM/DD/YYYY').toUpperCase()
@@ -88,7 +88,13 @@ export function DynamicEndDatePicker({ label, value, onChange, error, helperText
         label={`${label} (${dynamicFormat})`}
         format={dynamicFormat}
         value={dateValue}
-        minDate={minDate ? dayjs(String(minDate).split('T')[0]) : undefined}
+        disabled={disabled}
+        // minDate={minDate ? dayjs(String(minDate).split('T')[0]) : undefined}
+        minDate={
+    minDate 
+      ? dayjs(String(minDate).split('T')[0]).add(1, 'day') 
+      : undefined
+  }
         onChange={(newValue: Dayjs | null) => {
           if (newValue && newValue.isValid()) {
             const y = newValue.year()

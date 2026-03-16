@@ -50,6 +50,7 @@ import ServiceMasterService from '@/services/service-master.service'
 import ServiceSubServiceMapping from '../subservice-mapping'
 import SubServiceService from '@/services/sub-service.service'
 import ServiceSubServiceMappingService from '@/services/service-subservice-mapping.service'
+import { formatTableDate } from '@/helpers/dateformate'
 
 // ==================== MAIN COMPONENT ====================
 export default function ProductSubServiceMaster() {
@@ -106,17 +107,6 @@ export default function ProductSubServiceMaster() {
   }
 
 
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    return dayjs(dateString).format(format.toUpperCase())
-  }
 
   const getCountryName = (countryCode: string) => {
     const country = countries.find((c: any) => c.countryCode === countryCode)
@@ -428,8 +418,8 @@ export default function ProductSubServiceMaster() {
         serviceMapCode: '',
         serviceDescription: '',
         active: true,
-        effectiveFromDate: today,
-        effectiveToDate: nextYear.toISOString().split('T')[0],
+        effectiveFromDate: null,
+        effectiveToDate: null,
       }
       setForm(newFormData)
       setOriginalFormData(null)
@@ -553,7 +543,7 @@ export default function ProductSubServiceMaster() {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1 }}>
         <GridToolbar />
-        <Button
+        {/* <Button
           variant="outlined"
           size="small"
           startIcon={<DownloadIcon />}
@@ -561,7 +551,7 @@ export default function ProductSubServiceMaster() {
           sx={{ ml: 2 }}
         >
           Export CSV
-        </Button>
+        </Button> */}
       </Box>
     )
   }

@@ -1,16 +1,14 @@
+// pages/CountryCorridorPage.tsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   Chip,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControlLabel,
-  Grid,
   IconButton,
   InputAdornment,
   MenuItem,
@@ -21,13 +19,6 @@ import {
   Switch,
   Tab,
   Tabs,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
   TextField,
   Tooltip,
   Typography,
@@ -37,18 +28,20 @@ import {
   CircularProgress,
   Avatar,
   Divider,
-  Badge,
   Menu,
   ListItemIcon,
   ListItemText,
   Checkbox,
-  Radio,
-  RadioGroup,
-  FormLabel,
   FormControl,
   InputLabel,
   alpha,
+  CardContent,
+  Card,
+  Grid,
+  Autocomplete,
+  createFilterOptions,
 } from '@mui/material'
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 
 // Icons
@@ -79,14 +72,18 @@ import {
   FilterList as FilterIcon,
   Clear as ClearIcon,
   Done as DoneIcon,
-  Info as InfoIcon,
+  VisibilityOffRounded,
 } from '@mui/icons-material'
 
 // Services and Types
 import { CountryCorridorService } from '@/services/countryCorridor.service'
 import { CountryCorridorData, CreateCorridorPayload, UpdateCorridorPayload, CorridorStats } from '@/types/countryCorridor.types'
-import { TableIcon, ViewIcon } from 'lucide-react'
 import { LocalStorageService } from '@/helpers/local-storage-service'
+import { formatTableDate } from '@/helpers/dateformate'
+import { useRecoilState } from 'recoil'
+import { countyState } from '@/states/state'
+import dayjs from 'dayjs'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 const corridorService = new CountryCorridorService()
 
@@ -136,12 +133,12 @@ const StatusChip: React.FC<{ active: boolean }> = ({ active }) => (
       backgroundColor: active ? alpha(theme.palette.success.main, 0.12) : alpha(theme.palette.error.main, 0.12),
       color: active ? theme.palette.success.main : theme.palette.error.main,
       fontWeight: 600,
+      width: '70px',
     }}
   />
 )
 
 // Timezone Chip Component
-
 const TimezoneChip: React.FC<{ timezone: string; offset: string }> = ({ timezone, offset }) => {
   const displayName = timezone?.split('/').pop()?.replace('_', ' ') || timezone
   return (
@@ -163,15 +160,14 @@ const TimezoneChip: React.FC<{ timezone: string; offset: string }> = ({ timezone
 
 const CountryCorridorPage: React.FC = () => {
   // State
-  const [corridors, setCorridors] = useState<CountryCorridorData[]>([])
-  const [filteredCorridors, setFilteredCorridors] = useState<CountryCorridorData[]>([])
+  const [rows, setRows] = useState<CountryCorridorData[]>([])
+  const [filteredRows, setFilteredRows] = useState<CountryCorridorData[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Pagination
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
-  const [totalCount, setTotalCount] = useState(0)
+  const [pageSize, setPageSize] = useState(10)
 
   // Tabs
   const [tabValue, setTabValue] = useState(0)
@@ -199,27 +195,29 @@ const CountryCorridorPage: React.FC = () => {
   const [openCreateDialog, setOpenCreateDialog] = useState(false)
   const [openEditDialog, setOpenEditDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
-  const [openHistoryDialog, setOpenHistoryDialog] = useState(false)
   const [openViewDialog, setOpenViewDialog] = useState(false)
-
+  const [openHistoryDialog, setOpenHistoryDialog] = useState(false)
+  const [countries] = useRecoilState(countyState)
+  
   // Selected corridor
-  const [selectedCorridor, setSelectedCorridor] = useState<CountryCorridorData | null>(null)
-  const [selectedCorridors, setSelectedCorridors] = useState<string[]>([])
+  const [selectedRow, setSelectedRow] = useState<CountryCorridorData | null>(null)
+  const [selectedRows, setSelectedRows] = useState<string[]>([])
   const [corridorHistory, setCorridorHistory] = useState<CountryCorridorData[]>([])
   const local_service = useMemo(() => new LocalStorageService(), [])
+
   // Form data
   const [formData, setFormData] = useState<CreateCorridorPayload>({
     countryCode: '',
     active: true,
-    createdBy: 'APSNG26010500002',
-    effectiveFromDate: '2026-01-01T00:00:00',
-    effectiveToDate: '9999-12-31T00:00:00',
+    createdBy: local_service?.get_staff_id() || 'APSNG26010500002',
+    effectiveFromDate: null,
+    effectiveToDate: null,
   })
 
   const [editFormData, setEditFormData] = useState<UpdateCorridorPayload>({
     countryCode: '',
     active: true,
-    modifiedBy: 'APSNG26010500002',
+    modifiedBy: local_service?.get_staff_id() || 'APSNG26010500002',
     effectiveFromDate: '',
     effectiveToDate: '',
   })
@@ -236,8 +234,8 @@ const CountryCorridorPage: React.FC = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('')
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('success')
 
-  // View mode
-  const [viewMode, setViewMode] = useState<'table' | 'card'>('table')
+  // Date validation errors
+  const [dateErrors, setDateErrors] = useState<{ from: string; to: string }>({ from: '', to: '' })
 
   // Fetch corridors
   const fetchCorridors = useCallback(async () => {
@@ -245,10 +243,9 @@ const CountryCorridorPage: React.FC = () => {
     setError(null)
     try {
       const data = await corridorService.getAllCorridors()
-      setCorridors(data)
+      setRows(data)
       applyFilters(data)
-      setTotalCount(data.length)
-
+      
       const countries = [...new Set(data.map((c) => c.countryCode))].sort()
       setUniqueCountries(countries)
     } catch (err: any) {
@@ -315,8 +312,13 @@ const CountryCorridorPage: React.FC = () => {
         return 0
       })
 
-      setFilteredCorridors(filtered)
-      setTotalCount(filtered.length)
+      // Add serial numbers
+      const rowsWithSerial = filtered.map((row, index) => ({
+        ...row,
+        serialNo: index + 1
+      }))
+
+      setFilteredRows(rowsWithSerial)
     },
     [tabValue, countryFilter, statusFilter, searchTerm, sortBy, sortOrder],
   )
@@ -332,6 +334,31 @@ const CountryCorridorPage: React.FC = () => {
     setPage(0)
   }
 
+  // Validate dates
+  const validateDates = (fromDate: string, toDate: string): boolean => {
+    const errors = { from: '', to: '' }
+    
+    if (!fromDate) {
+      errors.from = 'Effective From date is required'
+    }
+    if (!toDate) {
+      errors.to = 'Effective To date is required'
+    }
+    
+    if (fromDate && toDate) {
+      const from = new Date(fromDate)
+      const to = new Date(toDate)
+      
+      if (from > to) {
+        errors.from = 'From date cannot be after To date'
+        errors.to = 'To date cannot be before From date'
+      }
+    }
+    
+    setDateErrors(errors)
+    return !errors.from && !errors.to
+  }
+
   // Handle create corridor
   const handleCreateCorridor = async () => {
     if (!formData.countryCode) {
@@ -339,10 +366,23 @@ const CountryCorridorPage: React.FC = () => {
       return
     }
 
+    if (!validateDates(formData.effectiveFromDate, formData.effectiveToDate)) {
+      return
+    }
+
+    const payload = {
+      ...formData,
+      effectiveFromDate: `${formData.effectiveFromDate}T00:00:00`,
+      effectiveToDate: formData.effectiveToDate === '9999-12-31' 
+        ? '9999-12-31T00:00:00' 
+        : `${formData.effectiveToDate}T00:00:00`,
+    }
+
     setLoading(true)
     try {
-      await corridorService.createCorridor(formData)
-      showSnackbar('Corridor created successfully', 'success')
+   let res=   await corridorService.createCorridor(payload)
+   console.log("i m here",res)
+      showSnackbar(`${res.message}`)
       setOpenCreateDialog(false)
       resetForm()
       fetchCorridors()
@@ -356,11 +396,23 @@ const CountryCorridorPage: React.FC = () => {
 
   // Handle update corridor
   const handleUpdateCorridor = async () => {
-    if (!selectedCorridor) return
+    if (!selectedRow) return
+
+    if (!validateDates(editFormData.effectiveFromDate, editFormData.effectiveToDate)) {
+      return
+    }
+
+    const payload = {
+      ...editFormData,
+      effectiveFromDate: `${editFormData.effectiveFromDate}T00:00:00`,
+      effectiveToDate: editFormData.effectiveToDate === '9999-12-31' 
+        ? '9999-12-31T00:00:00' 
+        : `${editFormData.effectiveToDate}T00:00:00`,
+    }
 
     setLoading(true)
     try {
-      await corridorService.updateCorridor(selectedCorridor.countryCorridorCode, editFormData)
+      await corridorService.updateCorridor(selectedRow.countryCorridorCode, payload)
       showSnackbar('Corridor updated successfully', 'success')
       setOpenEditDialog(false)
       fetchCorridors()
@@ -372,40 +424,24 @@ const CountryCorridorPage: React.FC = () => {
     }
   }
 
-  // // Handle toggle status
-  // const handleToggleStatus = async (corridorCode: string, currentStatus: boolean) => {
-  //   setLoading(true)
-  //   try {
-  //     await corridorService.updateActiveStatus(corridorCode, !currentStatus)
-  //     showSnackbar(`Corridor ${!currentStatus ? 'activated' : 'deactivated'} successfully`, 'success')
-  //     fetchCorridors()
-  //     fetchStats()
-  //   } catch (err: any) {
-  //     showSnackbar(err.message || `Failed to ${!currentStatus ? 'activate' : 'deactivate'} corridor`, 'error')
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
-  const staffId = local_service?.get_staff_id()
+  // Handle toggle status
   const handleToggleStatus = async (corridor: CountryCorridorData) => {
     setLoading(true)
-    const active = !corridor.active == false ? true : false
-    alert(active)
+    const newStatus = !corridor.active
     try {
-      // Pass the whole object or specific fields to ensure dates aren't lost
       await corridorService.updateActiveStatus(
         corridor.countryCorridorCode,
-        active,
+        newStatus,
         local_service?.get_staff_id(),
         corridor.effectiveFromDate,
         corridor.effectiveToDate,
       )
 
-      showSnackbar(`Corridor ${!corridor.active ? 'activated' : 'deactivated'} successfully`, 'success')
+      showSnackbar(`Corridor ${newStatus ? 'activated' : 'deactivated'} successfully`, 'success')
       fetchCorridors()
       fetchStats()
     } catch (err: any) {
-      showSnackbar(err.message || `Failed to ${!corridor.active ? 'activate' : 'deactivate'} corridor`, 'error')
+      showSnackbar(err.message || `Failed to ${newStatus ? 'activate' : 'deactivate'} corridor`, 'error')
     } finally {
       setLoading(false)
     }
@@ -413,11 +449,11 @@ const CountryCorridorPage: React.FC = () => {
 
   // Handle deactivate corridor
   const handleDeactivateCorridor = async () => {
-    if (!selectedCorridor) return
+    if (!selectedRow) return
 
     setLoading(true)
     try {
-      await corridorService.deactivateCorridor(selectedCorridor.countryCorridorCode, 'APSNG26010500002')
+      await corridorService.deactivateCorridor(selectedRow.countryCorridorCode, local_service?.get_staff_id() || 'APSNG26010500002')
       showSnackbar('Corridor deactivated successfully', 'success')
       setOpenDeleteDialog(false)
       fetchCorridors()
@@ -458,10 +494,11 @@ const CountryCorridorPage: React.FC = () => {
     setFormData({
       countryCode: '',
       active: true,
-      createdBy: 'APSNG26010500002',
-      effectiveFromDate: '2026-01-01T00:00:00',
-      effectiveToDate: '9999-12-31T00:00:00',
+      createdBy: local_service?.get_staff_id() || 'APSNG26010500002',
+      effectiveFromDate: '',
+      effectiveToDate: '',
     })
+    setDateErrors({ from: '', to: '' })
   }
 
   // Show snackbar
@@ -472,28 +509,14 @@ const CountryCorridorPage: React.FC = () => {
   }
 
   // Handle tab change
-  const handleTabChange = (
-    //@ts-ignore
-    event: React.SyntheticEvent,
-    newValue: number,
-  ) => {
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue)
     setPage(0)
   }
 
   // Handle page change
-  const handleChangePage = (
-    //@ts-ignore
-    event: unknown,
-    newPage: number,
-  ) => {
+  const handlePageChange = (newPage: number) => {
     setPage(newPage)
-  }
-
-  // Handle rows per page change
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10))
-    setPage(0)
   }
 
   // Handle search change
@@ -526,27 +549,28 @@ const CountryCorridorPage: React.FC = () => {
   }
 
   // Open edit dialog
-  const handleOpenEditDialog = (corridor: CountryCorridorData) => {
-    setSelectedCorridor(corridor)
+  const handleOpenEditDialog = (row: CountryCorridorData) => {
+    setSelectedRow(row)
     setEditFormData({
-      countryCode: corridor.countryCode,
-      active: corridor.active,
-      modifiedBy: 'APSNG26010500002',
-      effectiveFromDate: corridor.effectiveFromDate,
-      effectiveToDate: corridor.effectiveToDate,
+      countryCode: row.countryCode,
+      active: row.active,
+      modifiedBy: local_service?.get_staff_id() || 'APSNG26010500002',
+      effectiveFromDate: row.effectiveFromDate.split('T')[0],
+      effectiveToDate: row.effectiveToDate.split('T')[0],
     })
+    setDateErrors({ from: '', to: '' })
     setOpenEditDialog(true)
   }
 
   // Open delete dialog
-  const handleOpenDeleteDialog = (corridor: CountryCorridorData) => {
-    setSelectedCorridor(corridor)
+  const handleOpenDeleteDialog = (row: CountryCorridorData) => {
+    setSelectedRow(row)
     setOpenDeleteDialog(true)
   }
 
   // Open view dialog
-  const handleOpenViewDialog = (corridor: CountryCorridorData) => {
-    setSelectedCorridor(corridor)
+  const handleOpenViewDialog = (row: CountryCorridorData) => {
+    setSelectedRow(row)
     setOpenViewDialog(true)
   }
 
@@ -564,17 +588,17 @@ const CountryCorridorPage: React.FC = () => {
     }
   }
 
-  // Handle select corridor
-  const handleSelectCorridor = (corridorCode: string) => {
-    setSelectedCorridors((prev) => (prev.includes(corridorCode) ? prev.filter((c) => c !== corridorCode) : [...prev, corridorCode]))
+  // Handle select row
+  const handleSelectRow = (id: string) => {
+    setSelectedRows((prev) => (prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]))
   }
 
   // Handle select all
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      setSelectedCorridors(filteredCorridors.map((c) => c.countryCorridorCode))
+      setSelectedRows(filteredRows.map((c) => c.countryCorridorCode))
     } else {
-      setSelectedCorridors([])
+      setSelectedRows([])
     }
   }
 
@@ -590,936 +614,511 @@ const CountryCorridorPage: React.FC = () => {
     setSelectedMenuCorridor(null)
   }
 
+  // Custom toolbar with CSV download
+  const CustomToolbar = () => {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1 }}>
+        <GridToolbar />
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<FileDownloadIcon />}
+          onClick={handleExportCSV}
+          sx={{ ml: 2 }}
+        >
+          Export CSV
+        </Button>
+      </Box>
+    )
+  }
+
+  // Columns definition
+  const columns: GridColDef[] = [
+    {
+      field: 'serialNo',
+      headerName: 'S. No',
+      width: 70,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'countryCorridorCode',
+      headerName: 'Corridor Code',
+      width: 140,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => (
+        <Chip
+          label={params.value}
+          size="small"
+          sx={{
+            fontFamily: 'monospace',
+            fontWeight: 600,
+            backgroundColor: '#eef4fa',
+            color: '#0061B1',
+          }}
+        />
+      ),
+    },
+    {
+      field: 'countryCode',
+      headerName: 'Country',
+      width: 100,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => (
+        <Stack direction="row" spacing={0.5} alignItems="center">
+          <PublicIcon sx={{ fontSize: 16, color: '#666' }} />
+          <Typography variant="body2">{params.value}</Typography>
+        </Stack>
+      ),
+    },
+    {
+      field: 'active',
+      headerName: 'Status',
+      width: 90,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => <StatusChip active={params.value} />,
+    },
+    {
+      field: 'effectiveFromDate',
+      headerName: 'From',
+      width: 100,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.value)
+    },
+    {
+      field: 'effectiveToDate',
+      headerName: 'To',
+      width: 100,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => formatTableDate(params.value)
+    },
+    {
+      field: 'createdBy',
+      headerName: 'Created By',
+      width: 120,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'createdLocalDateTime',
+      headerName: 'Created At',
+      width: 150,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => new Date(params.value).toLocaleString(),
+    },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      width: 200,
+      headerClassName: 'super-app-theme--header',
+      sortable: false,
+      renderCell: (params) => (
+        <Stack direction="row" spacing={1}>
+     
+          <Tooltip title="Edit">
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation()
+                handleOpenEditDialog(params.row)
+              }}
+              color="primary"
+            >
+              <EditIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+      
+   
+        </Stack>
+      ),
+    },
+  ]
+
   // Effects
   useEffect(() => {
     fetchCorridors()
     fetchStats()
   }, [])
+  
+  const filter = createFilterOptions({
+    matchFrom: 'any',
+    stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
+  })
 
   useEffect(() => {
-    applyFilters(corridors)
-  }, [corridors, tabValue, countryFilter, statusFilter, searchTerm, sortBy, sortOrder, applyFilters])
-
-  // Render table view
-  const renderTableView = () => (
-    <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 3 }}>
-      <Table>
-        <TableHead>
-          <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.02) }}>
-            <TableCell padding="checkbox">
-              <Checkbox
-                indeterminate={selectedCorridors.length > 0 && selectedCorridors.length < filteredCorridors.length}
-                checked={filteredCorridors.length > 0 && selectedCorridors.length === filteredCorridors.length}
-                onChange={handleSelectAll}
-              />
-            </TableCell>
-            <TableCell onClick={() => handleSortChange('countryCorridorCode')} sx={{ cursor: 'pointer', fontWeight: 700 }}>
-              Corridor Code
-            </TableCell>
-            <TableCell sx={{ fontWeight: 700 }}>Country</TableCell>
-            <TableCell onClick={() => handleSortChange('active')} sx={{ cursor: 'pointer', fontWeight: 700 }}>
-              Status
-            </TableCell>
-            <TableCell onClick={() => handleSortChange('effectiveFromDate')} sx={{ cursor: 'pointer', fontWeight: 700 }}>
-              Effective Period
-            </TableCell>
-            <TableCell sx={{ fontWeight: 700 }}>Created By</TableCell>
-            <TableCell onClick={() => handleSortChange('createdLocalDateTime')} sx={{ cursor: 'pointer', fontWeight: 700 }}>
-              Created At
-            </TableCell>
-            <TableCell sx={{ fontWeight: 700 }}>Timezone</TableCell>
-            <TableCell align="center" sx={{ fontWeight: 700 }}>
-              Actions
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {loading && page === 0 ? (
-            <TableRow>
-              <TableCell colSpan={9} align="center" sx={{ py: 8 }}>
-                <CircularProgress />
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                  Loading corridors...
-                </Typography>
-              </TableCell>
-            </TableRow>
-          ) : filteredCorridors.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={9} align="center" sx={{ py: 8 }}>
-                <WarningIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-                <Typography variant="h6" color="text.secondary" gutterBottom>
-                  No corridors found
-                </Typography>
-                <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenCreateDialog(true)} sx={{ mt: 3 }}>
-                  Create New Corridor
-                </Button>
-              </TableCell>
-            </TableRow>
-          ) : (
-            filteredCorridors.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-              <TableRow key={row.countryCorridorCode} hover sx={{ cursor: 'pointer' }} onClick={() => handleOpenViewDialog(row)}>
-                <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
-                  <Checkbox
-                    checked={selectedCorridors.includes(row.countryCorridorCode)}
-                    onChange={() => handleSelectCorridor(row.countryCorridorCode)}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    label={row.countryCorridorCode}
-                    size="small"
-                    sx={{
-                      fontFamily: 'monospace',
-                      fontWeight: 700,
-                      bgcolor: alpha(theme.palette.primary.main, 0.08),
-                      color: 'primary.dark',
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleCopyToClipboard(row.countryCorridorCode)
-                    }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    <Typography fontWeight={600}>{row.countryCode}</Typography>
-                  </Stack>
-                </TableCell>
-                <TableCell>
-                  <StatusChip active={row.active} />
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2" fontWeight={500}>
-                    {new Date(row.effectiveFromDate).toLocaleDateString()}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    → {row.effectiveToDate === '9999-12-31T00:00:00' ? '∞' : new Date(row.effectiveToDate).toLocaleDateString()}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2" fontWeight={500}>
-                    {row.createdBy}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2">{new Date(row.createdLocalDateTime).toLocaleDateString()}</Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {new Date(row.createdLocalDateTime).toLocaleTimeString()}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <TimezoneChip timezone={row.createdTimezone} offset={row.createdOffset} />
-                </TableCell>
-                <TableCell align="center" onClick={(e) => e.stopPropagation()}>
-                  <Stack direction="row" spacing={1} justifyContent="center">
-                    <Tooltip title="Edit">
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleOpenEditDialog(row)
-                        }}
-                      >
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title={row.active ? 'Deactivate' : 'Activate'}>
-                      {/* <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleToggleStatus(row.countryCorridorCode, row.active)
-                        }}
-                      >
-                        {row.active ? <ToggleOffIcon fontSize="small" /> : <ToggleOnIcon fontSize="small" />}
-                      </IconButton> */}
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          // Pass the entire row object so we have access to the dates
-
-                          handleToggleStatus(row)
-                        }}
-                      >
-                        {row.active ? <ToggleOffIcon fontSize="small" /> : <ToggleOnIcon fontSize="small" />}
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="History">
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          fetchCorridorHistory(row.countryCorridorCode)
-                        }}
-                      >
-                        <HistoryIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="More">
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleMenuOpen(e, row.countryCorridorCode)
-                        }}
-                      >
-                        <MoreVertIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  </Stack>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25, 50]}
-        component="div"
-        count={totalCount}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-    </TableContainer>
-  )
-
-  // Render card view
-  const renderCardView = () => (
-    <Grid container spacing={3}>
-      {filteredCorridors.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((corridor) => (
-        <Grid item xs={12} sm={6} md={4} key={corridor.countryCorridorCode}>
-          <Card
-            elevation={0}
-            sx={{
-              borderRadius: 3,
-              border: '1px solid',
-              borderColor: corridor.active ? alpha(theme.palette.success.main, 0.2) : alpha(theme.palette.error.main, 0.2),
-              cursor: 'pointer',
-              '&:hover': {
-                boxShadow: 4,
-              },
-            }}
-            onClick={() => handleOpenViewDialog(corridor)}
-          >
-            <CardContent>
-              <Stack spacing={2}>
-                <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                  <Chip
-                    label={corridor.countryCorridorCode}
-                    size="small"
-                    sx={{
-                      fontFamily: 'monospace',
-                      fontWeight: 700,
-                      bgcolor: alpha(theme.palette.primary.main, 0.08),
-                      color: 'primary.dark',
-                    }}
-                  />
-                  <StatusChip active={corridor.active} />
-                </Stack>
-
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <Avatar sx={{ width: 32, height: 32, bgcolor: alpha(theme.palette.info.main, 0.12), color: 'info.main' }}>
-                    <FlagIcon sx={{ fontSize: 16 }} />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="subtitle2">{corridor.countryCode}</Typography>
-                  </Box>
-                </Stack>
-
-                <Divider />
-
-                <Stack direction="row" justifyContent="space-between">
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">
-                      Effective From
-                    </Typography>
-                    <Typography variant="body2" fontWeight={600}>
-                      {new Date(corridor.effectiveFromDate).toLocaleDateString()}
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">
-                      To
-                    </Typography>
-                    <Typography variant="body2" fontWeight={600}>
-                      {corridor.effectiveToDate === '9999-12-31T00:00:00' ? '∞' : new Date(corridor.effectiveToDate).toLocaleDateString()}
-                    </Typography>
-                  </Box>
-                </Stack>
-
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">
-                      Created By
-                    </Typography>
-                    <Typography variant="body2">{corridor.createdBy}</Typography>
-                  </Box>
-                  <TimezoneChip timezone={corridor.createdTimezone} offset={corridor.createdOffset} />
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
-      ))}
-    </Grid>
-  )
+    applyFilters(rows)
+  }, [rows, tabValue, countryFilter, statusFilter, searchTerm, sortBy, sortOrder, applyFilters])
 
   return (
-    <ThemeProvider theme={theme}>
-      <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', p: 4 }}>
-        {/* Header */}
-        <Paper
-          elevation={0}
-          sx={{
-            p: 3,
-            mb: 4,
-            borderRadius: 3,
-            background: 'linear-gradient(145deg, #ffffff, #f5faff)',
+    <Box p={3} sx={{ width: '100%', bgcolor: 'background.default', minHeight: '100vh' }}>
+      {/* Header */}
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: '#0061B1' }}>
+          Country Corridor Master
+        </Typography>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => {
+            resetForm()
+            setOpenCreateDialog(true)
           }}
+          sx={{ backgroundColor: '#0061B1' }}
         >
-          <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} spacing={2}>
-            <Stack direction="row" spacing={2} alignItems="center">
-              <Avatar sx={{ bgcolor: 'primary.main', width: 56, height: 56 }}>
-                <PublicIcon sx={{ fontSize: 32 }} />
-              </Avatar>
-              <Box>
-                <Typography variant="h4" color="secondary.main" fontWeight={700}>
-                  Country Corridor Master
-                </Typography>
-                <Stack direction="row" spacing={2} alignItems="center" mt={0.5}>
-                  <Chip
-                    icon={<CloudSyncIcon />}
-                    label="Staging · localhost:8087"
-                    size="small"
-                    sx={{ bgcolor: alpha(theme.palette.primary.main, 0.08), color: 'primary.main' }}
-                  />
-                  <Chip label="v2.1.6" size="small" sx={{ bgcolor: alpha(theme.palette.secondary.main, 0.08), color: 'secondary.main' }} />
-                </Stack>
-              </Box>
-            </Stack>
-            <Stack direction="row" spacing={2}>
-              <Button variant="outlined" startIcon={<ExportIcon />} onClick={handleExportCSV} sx={{ borderRadius: 40 }}>
-                Export
-              </Button>
-              <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenCreateDialog(true)} sx={{ borderRadius: 40 }}>
-                New Corridor
-              </Button>
-            </Stack>
+          Add Corridor
+        </Button>
+      </Stack>
+
+      {/* Tabs and Filters */}
+    
+
+      {/* Data Grid */}
+      <Paper elevation={2} sx={{ p: 2 }}>
+        <DataGrid
+          rows={filteredRows}
+          columns={columns}
+          getRowId={(row) => row.countryCorridorCode}
+          autoHeight
+          loading={loading}
+          disableRowSelectionOnClick
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
+          density="standard"
+          paginationModel={{ page, pageSize }}
+          onPaginationModelChange={(model) => {
+            setPage(model.page)
+            setPageSize(model.pageSize)
+          }}
+          pageSizeOptions={[5, 10, 25, 50]}
+          sx={{
+            '& .MuiDataGrid-columnHeaders': {
+              backgroundColor: '#f5f5f5',
+              fontWeight: 'bold',
+            },
+            '& .MuiDataGrid-cell': {
+              fontSize: '13px',
+              borderBottom: '1px solid #e0e0e0',
+            },
+            '& .MuiDataGrid-row:nth-of-type(even)': {
+              backgroundColor: '#f9f9f9',
+            },
+            '& .MuiDataGrid-row:hover': {
+              backgroundColor: '#e3f2fd',
+            },
+            '& .super-app-theme--header': {
+              fontWeight: 'bold',
+            },
+          }}
+        />
+      </Paper>
+
+      {/* Create Dialog */}
+      <Dialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>Create New Corridor</DialogTitle>
+        <DialogContent dividers>
+          <Stack spacing={3} sx={{ mt: 1 }}>
+            {/* Country Selection */}
+            <Autocomplete
+              options={countries?.filter((c: any) => c.status === 'A') || []}
+              filterOptions={filter}
+              getOptionLabel={(o: any) => `${o.countryName} (${o.countryCode})`}
+              value={countries?.find((c: any) => c.countryCode === formData.countryCode) || null}
+              onChange={(_, val) => setFormData({ ...formData, countryCode: val ? val.countryCode : '' })}
+              renderInput={(p) => (
+                <TextField 
+                  {...p} 
+                  label="Country" 
+                  required 
+                  error={!formData.countryCode && formData.countryCode !== ''} 
+                  helperText={!formData.countryCode && formData.countryCode !== '' ? 'Country is required' : 'Select Active Country'} 
+                />
+              )}
+            />
+            
+            {/* Active Status */}
+            <FormControlLabel
+              control={
+                <Switch checked={formData.active} onChange={(e) => setFormData({ ...formData, active: e.target.checked })} color="success" />
+              }
+              label="Active Status"
+            />
+
+          
+            {/* <TextField
+              label="Effective From Date"
+              type="date"
+              value={formData.effectiveFromDate}
+              onChange={(e) => {
+                setFormData({ ...formData, effectiveFromDate: e.target.value })
+                validateDates(e.target.value, formData.effectiveToDate)
+              }}
+              fullWidth
+              size="small"
+              required
+              error={!!dateErrors.from}
+              helperText={dateErrors.from}
+              InputLabelProps={{ shrink: true }}
+            />
+
+          
+            <TextField
+              label="Effective To Date"
+              type="date"
+              value={formData.effectiveToDate}
+              onChange={(e) => {
+                setFormData({ ...formData, effectiveToDate: e.target.value })
+                validateDates(formData.effectiveFromDate, e.target.value)
+              }}
+              fullWidth
+              size="small"
+              required
+              error={!!dateErrors.to}
+              helperText={dateErrors.to || (formData.effectiveToDate === '9999-12-31' ? 'Indefinite (∞)' : '')}
+              InputLabelProps={{ shrink: true }}
+            />
+   */}
+              <DynamicDatePicker
+                label="Effective From"
+                value={formData.effectiveFromDate}
+                onChange={(val: string) => {
+                  console.log(val, 'kdjhchdvy')
+                  setFormData({ ...formData, effectiveFromDate: val })
+                }}
+                // error={!!errors.effectiveFromDate}
+                // helperText={errors.effectiveFromDate}
+                required
+              />
+          
+
+           
+              <DynamicEndDatePicker
+                label="Effective To"
+                value={formData.effectiveToDate}
+                minDate={formData.effectiveFromDate}
+                onChange={(val: string) => {
+                  setFormData({ ...formData, effectiveToDate: val })
+                }}
+                // error={!!errors.effectiveToDate}
+                // helperText={errors.effectiveToDate}
+                required
+              />
+           
+
+           
+
+            {/* Created By (Read Only) */}
+            <TextField
+              label="Created By"
+              value={formData.createdBy}
+              fullWidth
+              disabled={true}
+              size="small"
+              required
+            />
           </Stack>
-        </Paper>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+          <Button onClick={() => setOpenCreateDialog(false)}>Cancel</Button>
+          <Button 
+            variant="contained" 
+            onClick={handleCreateCorridor} 
+            disabled={loading || !formData.countryCode || !!dateErrors.from || !!dateErrors.to}
+          >
+            {loading ? <CircularProgress size={24} /> : 'Create'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-        {/* Statistics Cards */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card elevation={0} sx={{ borderRadius: 3 }}>
-              <CardContent sx={{ p: 3 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                  <Box>
-                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                      Total Corridors
-                    </Typography>
-                    <Typography variant="h3" fontWeight={700} color="secondary.main">
-                      {stats.total}
-                    </Typography>
-                    <Stack direction="row" spacing={1} mt={1}>
-                      <Chip
-                        label={`${stats.active} active`}
-                        size="small"
-                        sx={{ bgcolor: alpha(theme.palette.success.main, 0.08), color: 'success.main' }}
-                      />
-                      <Chip
-                        label={`${stats.inactive} inactive`}
-                        size="small"
-                        sx={{ bgcolor: alpha(theme.palette.error.main, 0.08), color: 'error.main' }}
-                      />
-                    </Stack>
-                  </Box>
-                  <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.12), width: 56, height: 56 }}>
-                    <RouteIcon sx={{ color: 'primary.main', fontSize: 28 }} />
-                  </Avatar>
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            <Card elevation={0} sx={{ borderRadius: 3 }}>
-              <CardContent sx={{ p: 3 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                  <Box>
-                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                      Countries
-                    </Typography>
-                    <Typography variant="h3" fontWeight={700} color="secondary.main">
-                      {stats.countries}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" mt={1} noWrap>
-                      {stats.countryList.slice(0, 3).join(', ')}
-                      {stats.countryList.length > 3 && ` +${stats.countryList.length - 3}`}
-                    </Typography>
-                  </Box>
-                  <Avatar sx={{ bgcolor: alpha(theme.palette.secondary.main, 0.12), width: 56, height: 56 }}>
-                    <FlagIcon sx={{ color: 'secondary.main', fontSize: 28 }} />
-                  </Avatar>
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            <Card elevation={0} sx={{ borderRadius: 3 }}>
-              <CardContent sx={{ p: 3 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                  <Box>
-                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                      Created By
-                    </Typography>
-                    <Typography variant="h6" fontWeight={700} color="secondary.main">
-                      APSNG260105
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Primary creator
-                    </Typography>
-                  </Box>
-                  <Avatar sx={{ bgcolor: alpha(theme.palette.warning.main, 0.12), width: 56, height: 56 }}>
-                    <PersonIcon sx={{ color: 'warning.main', fontSize: 28 }} />
-                  </Avatar>
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            <Card elevation={0} sx={{ borderRadius: 3 }}>
-              <CardContent sx={{ p: 3 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                  <Box>
-                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                      Effective From
-                    </Typography>
-                    <Typography variant="h6" fontWeight={700} color="secondary.main">
-                      2026-01-01
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      → 9999-12-31 (∞)
-                    </Typography>
-                  </Box>
-                  <Avatar sx={{ bgcolor: alpha(theme.palette.info.main, 0.12), width: 56, height: 56 }}>
-                    <CalendarIcon sx={{ color: 'info.main', fontSize: 28 }} />
-                  </Avatar>
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-
-        {/* Tabs and Filters */}
-        <Paper elevation={0} sx={{ mb: 3, borderRadius: 3 }}>
-          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tabs
-              value={tabValue}
-              onChange={handleTabChange}
-              sx={{
-                px: 2,
-                '& .MuiTab-root': {
-                  borderRadius: 40,
-                  minHeight: 48,
-                  px: 3,
-                  fontWeight: 600,
-                },
-                '& .Mui-selected': {
-                  bgcolor: alpha(theme.palette.primary.main, 0.08),
-                  color: 'primary.main',
-                },
-              }}
-            >
-              <Tab icon={<RouteIcon sx={{ fontSize: 20 }} />} iconPosition="start" label={`All (${stats.total})`} />
-              <Tab icon={<CheckCircleIcon sx={{ fontSize: 20 }} />} iconPosition="start" label={`Active (${stats.active})`} />
-              <Tab icon={<CancelIcon sx={{ fontSize: 20 }} />} iconPosition="start" label={`Inactive (${stats.inactive})`} />
-            </Tabs>
-          </Box>
-
-          <Box sx={{ p: 2 }}>
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} justifyContent="space-between" alignItems={{ xs: 'stretch', md: 'center' }}>
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} flex={1}>
-                <TextField
-                  size="small"
-                  placeholder="Search by code, country, creator..."
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  sx={{ minWidth: 280, '& .MuiOutlinedInput-root': { borderRadius: 40 } }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon />
-                      </InputAdornment>
-                    ),
-                  }}
+      {/* Edit Dialog */}
+      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>Edit Corridor: {selectedRow?.countryCorridorCode}</DialogTitle>
+        <DialogContent dividers>
+          <Stack spacing={3} sx={{ mt: 1 }}>
+            {/* Country Selection (Read Only) */}
+            <Autocomplete
+              options={countries?.filter((c: any) => c.status === 'A') || []}
+              filterOptions={filter}
+              disabled={true}
+              getOptionLabel={(o: any) => `${o.countryName} (${o.countryCode})`}
+              value={countries?.find((c: any) => c.countryCode === editFormData.countryCode) || null}
+              renderInput={(p) => (
+                <TextField 
+                  {...p} 
+                  label="Country" 
+                  required 
                 />
+              )}
+            />
 
-                <FormControl size="small" sx={{ minWidth: 150 }}>
-                  <InputLabel>Country</InputLabel>
-                  <Select value={countryFilter} label="Country" onChange={handleCountryFilterChange} sx={{ borderRadius: 40 }}>
-                    <MenuItem value="all">All Countries</MenuItem>
-                    {uniqueCountries.map((country) => (
-                      <MenuItem key={country} value={country}>
-                        {country}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <FormControl size="small" sx={{ minWidth: 150 }}>
-                  <InputLabel>Status</InputLabel>
-                  <Select value={statusFilter} label="Status" onChange={handleStatusFilterChange} sx={{ borderRadius: 40 }}>
-                    <MenuItem value="all">All Status</MenuItem>
-                    <MenuItem value="active">Active</MenuItem>
-                    <MenuItem value="inactive">Inactive</MenuItem>
-                  </Select>
-                </FormControl>
-
-                <IconButton
-                  onClick={() => setShowFilters(!showFilters)}
-                  color={showFilters ? 'primary' : 'default'}
-                  sx={{ borderRadius: 40, border: '1px solid', borderColor: showFilters ? 'primary.main' : 'divider' }}
-                >
-                  <FilterIcon />
-                </IconButton>
-              </Stack>
-
-              <Stack direction="row" spacing={1}>
-                <Tooltip title="Table View">
-                  <IconButton onClick={() => setViewMode('table')} color={viewMode === 'table' ? 'primary' : 'default'} sx={{ borderRadius: 40 }}>
-                    <TableIcon />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Card View">
-                  <IconButton onClick={() => setViewMode('card')} color={viewMode === 'card' ? 'primary' : 'default'} sx={{ borderRadius: 40 }}>
-                    <ViewIcon />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Refresh">
-                  <IconButton onClick={fetchCorridors} sx={{ borderRadius: 40 }} disabled={loading}>
-                    <RefreshIcon />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-            </Stack>
-
-            {/* Advanced Filters */}
-            {showFilters && (
-              <Box sx={{ mt: 3, p: 2, bgcolor: alpha(theme.palette.primary.main, 0.02), borderRadius: 3 }}>
-                <Typography variant="subtitle2" gutterBottom>
-                  Advanced Filters
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6} md={4}>
-                    <FormControl size="small" fullWidth>
-                      <InputLabel>Sort By</InputLabel>
-                      <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)} sx={{ borderRadius: 40 }}>
-                        <MenuItem value="createdLocalDateTime">Created Date</MenuItem>
-                        <MenuItem value="countryCorridorCode">Corridor Code</MenuItem>
-                        <MenuItem value="countryCode">Country Code</MenuItem>
-                        <MenuItem value="effectiveFromDate">Effective From</MenuItem>
-                        <MenuItem value="active">Status</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Stack direction="row" spacing={2} justifyContent="flex-end">
-                      <Button size="small" onClick={resetFilters} startIcon={<ClearIcon />} sx={{ borderRadius: 40 }}>
-                        Reset All
-                      </Button>
-                      <Button
-                        size="small"
-                        variant="contained"
-                        onClick={() => applyFilters(corridors)}
-                        startIcon={<DoneIcon />}
-                        sx={{ borderRadius: 40 }}
-                      >
-                        Apply Filters
-                      </Button>
-                    </Stack>
-                  </Grid>
-                </Grid>
-              </Box>
-            )}
-          </Box>
-        </Paper>
-
-        {/* Main Content */}
-        {loading && page === 0 ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <>
-            {viewMode === 'table' ? renderTableView() : renderCardView()}
-            {viewMode === 'card' && (
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-                <TablePagination
-                  rowsPerPageOptions={[6, 12, 24, 48]}
-                  component="div"
-                  count={totalCount}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  onPageChange={handleChangePage}
-                  onRowsPerPageChange={handleChangeRowsPerPage}
+            {/* Active Status */}
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={editFormData.active}
+                  onChange={(e) => setEditFormData({ ...editFormData, active: e.target.checked })}
+                  color="success"
                 />
-              </Box>
-            )}
-          </>
-        )}
+              }
+              label="Active Status"
+            />
 
-        {/* Error Alert */}
-        {error && (
-          <Alert severity="error" sx={{ mt: 3, borderRadius: 3 }} onClose={() => setError(null)}>
-            <AlertTitle>Error</AlertTitle>
-            {error}
-          </Alert>
-        )}
+           <DynamicDatePicker
+                label="Effective From"
+                value={formData.effectiveFromDate}
+                onChange={(val: string) => {
+                  console.log(val, 'kdjhchdvy')
+                  setFormData({ ...formData, effectiveFromDate: val })
+                }}
+                // error={!!errors.effectiveFromDate}
+                // helperText={errors.effectiveFromDate}
+                required
+              />
+          
 
-        {/* Create Dialog */}
-        <Dialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
-          <DialogTitle sx={{ bgcolor: alpha(theme.palette.primary.main, 0.02) }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Typography variant="h6" fontWeight={700} color="secondary.main">
-                Create New Corridor
-              </Typography>
-              <IconButton onClick={() => setOpenCreateDialog(false)} size="small">
-                <CloseIcon />
-              </IconButton>
-            </Stack>
-          </DialogTitle>
-          <DialogContent dividers>
-            <Stack spacing={3} sx={{ mt: 1 }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
-                  <FormControl fullWidth size="small">
-                    <InputLabel>Country Code *</InputLabel>
-                    <Select
-                      value={formData.countryCode}
-                      label="Country Code *"
-                      onChange={(e) => setFormData({ ...formData, countryCode: e.target.value })}
-                      sx={{ borderRadius: 2 }}
-                    >
-                      <MenuItem value="IN">India (IN)</MenuItem>
-                      <MenuItem value="NG">Nigeria (NG)</MenuItem>
-                      <MenuItem value="ZA">South Africa (ZA)</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <FormControlLabel
-                    control={
-                      <Switch checked={formData.active} onChange={(e) => setFormData({ ...formData, active: e.target.checked })} color="success" />
-                    }
-                    label="Active Status"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    label="Created By"
-                    value={formData.createdBy}
-                    onChange={(e) => setFormData({ ...formData, createdBy: e.target.value })}
-                    fullWidth
-                    size="small"
-                    sx={{ borderRadius: 2 }}
-                    required
-                  />
-                </Grid>
-              </Grid>
-            </Stack>
-          </DialogContent>
-          <DialogActions sx={{ p: 3 }}>
-            <Button onClick={() => setOpenCreateDialog(false)} sx={{ borderRadius: 40 }}>
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<SaveIcon />}
-              onClick={handleCreateCorridor}
-              disabled={loading || !formData.countryCode}
-              sx={{ borderRadius: 40 }}
-            >
-              {loading ? <CircularProgress size={24} /> : 'Create Corridor'}
-            </Button>
-          </DialogActions>
-        </Dialog>
+           
+              <DynamicEndDatePicker
+                label="Effective To"
+                value={formData.effectiveToDate}
+                minDate={formData.effectiveFromDate}
+                onChange={(val: string) => {
+                  setFormData({ ...formData, effectiveToDate: val })
+                }}
+                // error={!!errors.effectiveToDate}
+                // helperText={errors.effectiveToDate}
+                required
+              />
+           
 
-        {/* Edit Dialog */}
-        <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
-          <DialogTitle sx={{ bgcolor: alpha(theme.palette.warning.main, 0.02) }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Typography variant="h6" fontWeight={700} color="secondary.main">
-                Edit Corridor: {selectedCorridor?.countryCorridorCode}
-              </Typography>
-              <IconButton onClick={() => setOpenEditDialog(false)} size="small">
-                <CloseIcon />
-              </IconButton>
-            </Stack>
-          </DialogTitle>
-          <DialogContent dividers>
-            <Stack spacing={3} sx={{ mt: 1 }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    label="Country Code"
-                    value={editFormData.countryCode}
-                    onChange={(e) => setEditFormData({ ...editFormData, countryCode: e.target.value })}
-                    fullWidth
-                    size="small"
-                    sx={{ borderRadius: 2 }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={editFormData.active}
-                        onChange={(e) => setEditFormData({ ...editFormData, active: e.target.checked })}
-                        color="success"
-                      />
-                    }
-                    label="Active Status"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    label="Modified By"
-                    value={editFormData.modifiedBy}
-                    onChange={(e) => setEditFormData({ ...editFormData, modifiedBy: e.target.value })}
-                    fullWidth
-                    size="small"
-                    sx={{ borderRadius: 2 }}
-                    required
-                  />
-                </Grid>
-              </Grid>
-            </Stack>
-          </DialogContent>
-          <DialogActions sx={{ p: 3 }}>
-            <Button onClick={() => setOpenEditDialog(false)} sx={{ borderRadius: 40 }}>
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              color="warning"
-              startIcon={<SaveIcon />}
-              onClick={handleUpdateCorridor}
-              disabled={loading}
-              sx={{ borderRadius: 40 }}
-            >
-              {loading ? <CircularProgress size={24} /> : 'Update Corridor'}
-            </Button>
-          </DialogActions>
-        </Dialog>
+            {/* Modified By (Read Only) */}
+            <TextField
+              label="Modified By"
+              value={editFormData.modifiedBy}
+              fullWidth
+              size="small"
+              disabled={true}
+              required
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+          <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
+          <Button 
+            variant="contained" 
+            color="warning" 
+            onClick={handleUpdateCorridor} 
+            disabled={loading || !!dateErrors.from || !!dateErrors.to}
+          >
+            {loading ? <CircularProgress size={24} /> : 'Update'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-        {/* Delete Dialog */}
-        <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
-          <DialogTitle sx={{ bgcolor: alpha(theme.palette.error.main, 0.02) }}>
-            <Stack direction="row" spacing={2} alignItems="center">
-              <Avatar sx={{ bgcolor: alpha(theme.palette.error.main, 0.12), color: 'error.main' }}>
-                <WarningIcon />
-              </Avatar>
-              <Typography variant="h6" fontWeight={700} color="error.main">
-                Deactivate Corridor
-              </Typography>
-            </Stack>
-          </DialogTitle>
-          <DialogContent dividers>
-            <Typography variant="body1" gutterBottom>
-              Are you sure you want to deactivate corridor <strong>{selectedCorridor?.countryCorridorCode}</strong>?
-            </Typography>
-          </DialogContent>
-          <DialogActions sx={{ p: 3 }}>
-            <Button onClick={() => setOpenDeleteDialog(false)} sx={{ borderRadius: 40 }}>
-              Cancel
-            </Button>
-            <Button variant="contained" color="error" onClick={handleDeactivateCorridor} disabled={loading} sx={{ borderRadius: 40 }}>
-              {loading ? <CircularProgress size={24} /> : 'Deactivate'}
-            </Button>
-          </DialogActions>
-        </Dialog>
+      {/* Delete Dialog */}
+      <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5', color: '#b13e2d' }}>Deactivate Corridor</DialogTitle>
+        <DialogContent dividers>
+          <Typography>
+            Are you sure you want to deactivate corridor <strong>{selectedRow?.countryCorridorCode}</strong>?
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+          <Button onClick={() => setOpenDeleteDialog(false)}>Cancel</Button>
+          <Button variant="contained" color="error" onClick={handleDeactivateCorridor} disabled={loading}>
+            {loading ? <CircularProgress size={24} /> : 'Deactivate'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-        {/* View Dialog */}
-        <Dialog open={openViewDialog} onClose={() => setOpenViewDialog(false)} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
-          <DialogTitle sx={{ bgcolor: alpha(theme.palette.info.main, 0.02) }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Stack direction="row" spacing={2} alignItems="center">
-                <Avatar sx={{ bgcolor: alpha(theme.palette.info.main, 0.12), color: 'info.main' }}>
-                  <RouteIcon />
-                </Avatar>
-                <Box>
-                  <Typography variant="h6" fontWeight={700} color="secondary.main">
-                    Corridor Details
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {selectedCorridor?.countryCorridorCode}
-                  </Typography>
-                </Box>
-              </Stack>
-              <IconButton onClick={() => setOpenViewDialog(false)} size="small">
-                <CloseIcon />
-              </IconButton>
-            </Stack>
-          </DialogTitle>
-          <DialogContent dividers>
-            {selectedCorridor && (
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                  <Card variant="outlined" sx={{ borderRadius: 2 }}>
-                    <CardContent>
-                      <Typography variant="subtitle2" color="primary" gutterBottom>
-                        Basic Information
+      {/* View Dialog */}
+      <Dialog open={openViewDialog} onClose={() => setOpenViewDialog(false)} maxWidth="md" fullWidth>
+        <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>Corridor Details</DialogTitle>
+        <DialogContent dividers>
+          {selectedRow && (
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <Typography variant="subtitle2" color="primary" gutterBottom>Basic Information</Typography>
+                <Paper variant="outlined" sx={{ p: 2 }}>
+                  <Stack spacing={2}>
+                    <Stack direction="row" justifyContent="space-between">
+                      <Typography variant="body2" color="text.secondary">Corridor Code:</Typography>
+                      <Typography variant="body2" fontWeight={600}>{selectedRow.countryCorridorCode}</Typography>
+                    </Stack>
+                    <Stack direction="row" justifyContent="space-between">
+                      <Typography variant="body2" color="text.secondary">Country:</Typography>
+                      <Typography variant="body2" fontWeight={600}>{selectedRow.countryCode}</Typography>
+                    </Stack>
+                    <Stack direction="row" justifyContent="space-between">
+                      <Typography variant="body2" color="text.secondary">Status:</Typography>
+                      <StatusChip active={selectedRow.active} />
+                    </Stack>
+                    <Stack direction="row" justifyContent="space-between">
+                      <Typography variant="body2" color="text.secondary">Effective Period:</Typography>
+                      <Typography variant="body2">
+                        {formatTableDate(selectedRow.effectiveFromDate)} → {' '}
+                        {selectedRow.effectiveToDate?.includes('9999') ? '∞' : formatTableDate(selectedRow.effectiveToDate)}
                       </Typography>
-                      <Stack spacing={2} sx={{ mt: 2 }}>
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">
-                            Corridor Code
-                          </Typography>
-                          <Typography variant="body2" fontWeight={600}>
-                            {selectedCorridor.countryCorridorCode}
-                          </Typography>
-                        </Stack>
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">
-                            Country
-                          </Typography>
-                          <Typography variant="body2" fontWeight={600}>
-                            {selectedCorridor.countryCode}
-                          </Typography>
-                        </Stack>
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">
-                            Status
-                          </Typography>
-                          <StatusChip active={selectedCorridor.active} />
-                        </Stack>
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">
-                            Effective Period
-                          </Typography>
-                          <Typography variant="body2">
-                            {new Date(selectedCorridor.effectiveFromDate).toLocaleDateString()} →{' '}
-                            {selectedCorridor.effectiveToDate === '9999-12-31T00:00:00'
-                              ? '∞'
-                              : new Date(selectedCorridor.effectiveToDate).toLocaleDateString()}
-                          </Typography>
-                        </Stack>
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Card variant="outlined" sx={{ borderRadius: 2 }}>
-                    <CardContent>
-                      <Typography variant="subtitle2" color="primary" gutterBottom>
-                        Audit Information
-                      </Typography>
-                      <Stack spacing={2} sx={{ mt: 2 }}>
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">
-                            Created By
-                          </Typography>
-                          <Typography variant="body2" fontWeight={600}>
-                            {selectedCorridor.createdBy}
-                          </Typography>
-                        </Stack>
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">
-                            Created At
-                          </Typography>
-                          <Typography variant="body2">{new Date(selectedCorridor.createdLocalDateTime).toLocaleString()}</Typography>
-                        </Stack>
-                        <Stack direction="row" justifyContent="space-between">
-                          <Typography variant="body2" color="text.secondary">
-                            Timezone
-                          </Typography>
-                          <TimezoneChip timezone={selectedCorridor.createdTimezone} offset={selectedCorridor.createdOffset} />
-                        </Stack>
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                </Grid>
+                    </Stack>
+                  </Stack>
+                </Paper>
               </Grid>
-            )}
-          </DialogContent>
-          <DialogActions sx={{ p: 3 }}>
-            <Button
-              onClick={() => {
-                setOpenViewDialog(false)
-                if (selectedCorridor) handleOpenEditDialog(selectedCorridor)
-              }}
-              startIcon={<EditIcon />}
-              sx={{ borderRadius: 40 }}
-            >
-              Edit
-            </Button>
-            <Button onClick={() => setOpenViewDialog(false)} variant="contained" sx={{ borderRadius: 40 }}>
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
+              <Grid item xs={12} md={6}>
+                <Typography variant="subtitle2" color="primary" gutterBottom>Audit Information</Typography>
+                <Paper variant="outlined" sx={{ p: 2 }}>
+                  <Stack spacing={2}>
+                    <Stack direction="row" justifyContent="space-between">
+                      <Typography variant="body2" color="text.secondary">Created By:</Typography>
+                      <Typography variant="body2" fontWeight={600}>{selectedRow.createdBy}</Typography>
+                    </Stack>
+                    <Stack direction="row" justifyContent="space-between">
+                      <Typography variant="body2" color="text.secondary">Created At:</Typography>
+                      <Typography variant="body2">{new Date(selectedRow.createdLocalDateTime).toLocaleString()}</Typography>
+                    </Stack>
+                    <Stack direction="row" justifyContent="space-between">
+                      <Typography variant="body2" color="text.secondary">Timezone:</Typography>
+                      <TimezoneChip timezone={selectedRow.createdTimezone} offset={selectedRow.createdOffset} />
+                    </Stack>
+                  </Stack>
+                </Paper>
+              </Grid>
+            </Grid>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+          <Button onClick={() => setOpenViewDialog(false)}>Close</Button>
+          <Button variant="contained" onClick={() => { setOpenViewDialog(false); handleOpenEditDialog(selectedRow!); }}>
+            Edit
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-        {/* Menu */}
-        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} PaperProps={{ sx: { borderRadius: 2, minWidth: 200 } }}>
-          <MenuItem
-            onClick={() => {
-              const corridor = corridors.find((c) => c.countryCorridorCode === selectedMenuCorridor)
-              if (corridor) handleCopyToClipboard(corridor.countryCorridorCode)
-              handleMenuClose()
-            }}
-          >
-            <ListItemIcon>
-              <CopyIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Copy Code</ListItemText>
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              const corridor = corridors.find((c) => c.countryCorridorCode === selectedMenuCorridor)
-              if (corridor) fetchCorridorHistory(corridor.countryCorridorCode)
-              handleMenuClose()
-            }}
-          >
-            <ListItemIcon>
-              <HistoryIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>View History</ListItemText>
-          </MenuItem>
-          <Divider />
-          <MenuItem
-            onClick={() => {
-              const corridor = corridors.find((c) => c.countryCorridorCode === selectedMenuCorridor)
-              if (corridor) handleOpenDeleteDialog(corridor)
-              handleMenuClose()
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <ListItemIcon>
-              <DeleteIcon fontSize="small" color="error" />
-            </ListItemIcon>
-            <ListItemText>Deactivate</ListItemText>
-          </MenuItem>
-        </Menu>
+      {/* Menu */}
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} PaperProps={{ sx: { minWidth: 200 } }}>
+        <MenuItem onClick={() => { handleCopyToClipboard(selectedMenuCorridor || ''); handleMenuClose(); }}>
+          <ListItemIcon><CopyIcon fontSize="small" /></ListItemIcon>
+          <ListItemText>Copy Code</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => { fetchCorridorHistory(selectedMenuCorridor || ''); handleMenuClose(); }}>
+          <ListItemIcon><HistoryIcon fontSize="small" /></ListItemIcon>
+          <ListItemText>View History</ListItemText>
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={() => { handleOpenDeleteDialog(rows.find(r => r.countryCorridorCode === selectedMenuCorridor)!); handleMenuClose(); }} sx={{ color: 'error.main' }}>
+          <ListItemIcon><DeleteIcon fontSize="small" color="error" /></ListItemIcon>
+          <ListItemText>Deactivate</ListItemText>
+        </MenuItem>
+      </Menu>
 
-        {/* Snackbar */}
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={5000}
-          onClose={() => setSnackbarOpen(false)}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        >
-          <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} variant="filled" sx={{ width: '100%', borderRadius: 2 }}>
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
-      </Box>
-    </ThemeProvider>
+      {/* Snackbar */}
+      <Snackbar 
+        open={snackbarOpen} 
+        autoHideDuration={5000} 
+        onClose={() => setSnackbarOpen(false)} 
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} variant="filled" sx={{ width: '100%', borderRadius: 2 }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+    </Box>
   )
 }
 

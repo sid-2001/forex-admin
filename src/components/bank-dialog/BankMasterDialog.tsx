@@ -22,6 +22,7 @@ import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePi
 import BankBusinessTypeService, { BankBusinessType } from '../../services/bantypemaster.service'
 import StateService, { StateMaster } from '../../services/state.service'
 import ForexCurrencyService, { ForexCurrency } from '@/services/forex-currency.service'
+import dayjs from 'dayjs'
 
 const filter = createFilterOptions({
   matchFrom: 'any',
@@ -399,7 +400,15 @@ useEffect(() => {
     console.log('Submitting payload for', editData ? 'update' : 'create', ':', payload)
     onSubmit(payload)
   }
+  
 
+  const minEffectiveToDate = form.effective_from_date
+  ? (() => {
+      const date = new Date(form.effective_from_date)
+      date.setDate(date.getDate() + 1)
+      return date
+    })()
+  : undefined
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update Bank' : 'Add Bank'}</DialogTitle>

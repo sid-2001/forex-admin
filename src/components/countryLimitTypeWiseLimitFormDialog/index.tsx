@@ -18,6 +18,7 @@ import {
 import { useEffect, useState } from 'react'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import dayjs from 'dayjs'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 interface Props {
   open: boolean
@@ -74,8 +75,8 @@ export default function CountryLimitTypeWiseLimitFormDialog({
         limitTypeCode: '',
         limitAmount: '',
         active: true,
-        effectiveFromDate: dayjs().format('YYYY-MM-DDTHH:mm'),
-        effectiveToDate: '9999-12-31T23:59',
+        effectiveFromDate: null,
+        effectiveToDate: null,
       })
     }
     setErrors({})
@@ -145,7 +146,7 @@ export default function CountryLimitTypeWiseLimitFormDialog({
             helperText={errors.countryCode}
             onChange={(e) => handleChange('countryCode', e.target.value)}
           >
-            {countries.map((c) => (
+            {countries?.filter(e=>e.status=='A')?.map((c) => (
               <MenuItem key={c.countryCode} value={c.countryCode}>
                 {c.countryName} ({c.countryCode})
               </MenuItem>
@@ -190,6 +191,7 @@ export default function CountryLimitTypeWiseLimitFormDialog({
 
           {/* Limit Amount */}
           <TextField
+          sx={{mb:2}}
             required
             label="Limit Amount"
             type="number"
@@ -209,33 +211,38 @@ export default function CountryLimitTypeWiseLimitFormDialog({
           />
 
           {/* Effective From Date */}
-          <TextField
-            required
-            label="Effective From Date"
-            type="datetime-local"
-            fullWidth
-            margin="dense"
-            value={form.effectiveFromDate}
-            error={!!errors.effectiveFromDate}
-            helperText={errors.effectiveFromDate}
-            onChange={(e) => handleChange('effectiveFromDate', e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
+     <Box mb={2}>
+
+ 
+     <DynamicDatePicker
+  label="Effective From Date"
+  value={form.effectiveFromDate}
+  onChange={(val: string) => handleChange('effectiveFromDate', val)}
+  error={!!errors.effectiveFromDate}
+  helperText={errors.effectiveFromDate}
+  required
+/>
+    </Box>
+
 
           {/* Effective To Date */}
-          <TextField
-            required
-            label="Effective To Date"
-            type="datetime-local"
-            fullWidth
-            margin="dense"
-            value={form.effectiveToDate}
-            error={!!errors.effectiveToDate}
-            helperText={errors.effectiveToDate}
-            onChange={(e) => handleChange('effectiveToDate', e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
+          <Box >
 
+           <DynamicEndDatePicker
+  label="Effective To Date"
+  value={form.effectiveToDate}
+  minDate={form.effectiveFromDate}
+  onChange={(val: string) => handleChange('effectiveToDate', val)}
+  error={!!errors.effectiveToDate}
+  helperText={errors.effectiveToDate}
+  required
+  disabled={!form.effectiveFromDate}
+
+/>
+  </Box>
+    
+          {/* Effective To Date */}
+     
           {/* Active Status */}
           <FormControlLabel 
             control={

@@ -1,11 +1,11 @@
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
   Button,
-  Typography
+  Typography,
+  Box
 } from "@mui/material"
+import WarningAmberIcon from "@mui/icons-material/WarningAmber"
 import { useEffect, useState } from "react"
 
 interface Props {
@@ -14,13 +14,17 @@ interface Props {
   onLogout: () => void
 }
 
-export default function InactivityWarningModal({ open, onStay, onLogout }: Props) {
-  const [seconds, setSeconds] = useState(10)
+export default function InactivityWarningModal({
+  open,
+  onStay,
+  onLogout
+}: Props) {
+  const [seconds, setSeconds] = useState(30)
 
   useEffect(() => {
     if (!open) return
 
-    setSeconds(10)
+    setSeconds(30)
 
     const interval = setInterval(() => {
       setSeconds((prev) => {
@@ -37,30 +41,68 @@ export default function InactivityWarningModal({ open, onStay, onLogout }: Props
   }, [open])
 
   return (
-    <Dialog open={open}>
-      <DialogTitle>
-        ⏳ Session Expiring
-      </DialogTitle>
-
+    <Dialog
+      open={open}
+      PaperProps={{
+        sx: {
+          borderRadius: "16px",
+          padding: 4,
+          maxWidth: 520,
+          textAlign: "center"
+        }
+      }}
+    >
       <DialogContent>
-        <Typography variant="body1">
-          👋 Are you still there?
+
+        {/* Warning Icon */}
+        <Box
+          display="flex"
+          justifyContent="center"
+          mb={2}
+        >
+          <WarningAmberIcon
+            sx={{
+              fontSize: 90,
+              color: "#f5a623"
+            }}
+          />
+        </Box>
+
+        {/* Title */}
+        <Typography
+          variant="h5"
+          fontWeight={700}
+          gutterBottom
+        >
+          Session about to be expired
         </Typography>
 
-        <Typography sx={{ mt: 2 }}>
-          🔒 You will be logged out in <b>{seconds}</b> seconds.
+        {/* Description */}
+        <Typography
+          variant="body1"
+          color="text.secondary"
+          sx={{ mb: 3 }}
+        >
+          For security reasons, your session will end in{" "}
+          <b>{seconds} seconds</b> due to inactivity. Click below to stay
+          signed in.
         </Typography>
-      </DialogContent>
 
-      <DialogActions>
+        {/* Button */}
         <Button
           variant="contained"
-          color="primary"
           onClick={onStay}
+          sx={{
+            px: 3,
+            py: 1,
+            textTransform: "none",
+            borderRadius: "6px"
+          }}
         >
-          ✅ Stay Logged In
+          Stay Signed In
         </Button>
-      </DialogActions>
+
+      </DialogContent>
     </Dialog>
   )
 }

@@ -166,6 +166,7 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
           </Grid>
 
           <Grid item xs={6}>
+        
             <DynamicDatePicker
               label="Effective From"
               value={form.effectiveFromDate}
