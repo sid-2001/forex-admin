@@ -7,6 +7,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs from 'dayjs'
+import DownloadIcon from '@mui/icons-material/Download'
 
 export default function ExchangeRateMasterScreen() {
   const rate_service = new ExchangeRateService()
@@ -23,6 +24,7 @@ export default function ExchangeRateMasterScreen() {
     fromDate: null,
     toDate: null,
   })
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState<any>({})
 
   const isFilterEmpty =
     !filters.sourceCountry &&
@@ -36,8 +38,15 @@ export default function ExchangeRateMasterScreen() {
   const [rows, setRows] = useState<IExchangeRate[]>([])
   const [loading, setLoading] = useState(false)
 
+  let vendorNamesMapping = {}
+
   const fetchVendorsByType = async () => {
     const res: any = await vendor_service.getExchangeRateVendorsList()
+    vendorNamesMapping = res.reduce((acc: any, vendor: any) => {
+      //@ts-ignore
+      acc[vendor.vendorCode] = vendor.vendorName
+      return acc
+    }, {})
     setVendorsList(res || [])
   }
 
@@ -46,20 +55,12 @@ export default function ExchangeRateMasterScreen() {
     setDropdownValues(res || {})
   }
 
-  const vendorMap = useMemo(() => {
-    return vendorsList.reduce((acc, vendor) => {
-      //@ts-ignore
-      acc[vendor.vendorCode] = vendor.vendorName
-      return acc
-    }, {})
-  }, [vendorsList])
-
   const fetchRateListingData = async (filterValue: string) => {
     const data = await rate_service.getExchangeRateList(filterValue)
     const updatedRates = data.map((rate: IExchangeRate) => ({
       ...rate,
       //@ts-ignore
-      vendorName: vendorMap[rate.vendorCode] || 'Unknown',
+      vendorName: vendorNamesMapping[rate.vendorCode] || '',
     }))
     setRows(updatedRates || [])
   }
@@ -130,6 +131,19 @@ export default function ExchangeRateMasterScreen() {
       renderCell: (params) => (params.row?.createdLocaldatetime ? dayjs(params.row?.createdLocaldatetime).format('YYYY-MM-DD') : ''),
     },
   ]
+
+  const handleExportCSV = () => {
+    const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false)
+    const headers = visibleCols.map((col) => col.headerName).join(',')
+    //@ts-ignore
+    const mappedRows = rows.map((row) => visibleCols.map((col) => row[col.field] ?? '').join(','))
+    const csv = [headers, ...mappedRows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.setAttribute('download', 'ExchangeRate.csv')
+    link.click()
+  }
 
   return (
     <Box p={2} sx={{ width: '85vw' }}>
@@ -379,6 +393,10 @@ export default function ExchangeRateMasterScreen() {
 
         <Button disabled={loading} variant="outlined" onClick={handleClear}>
           Clear
+        </Button>
+
+        <Button variant="outlined" color="primary" size="small" startIcon={<DownloadIcon />} onClick={handleExportCSV}>
+          Export
         </Button>
 
         <Box

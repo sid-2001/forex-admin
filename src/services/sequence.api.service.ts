@@ -4,11 +4,10 @@ import api1 from './apis/api1'
 export interface SequenceMaster {
   sequenceId: number
   countryCode: string
-  product: string
   productCode: string
-  vendor: string
-  vendorType: string
-  docType: string
+  vendorCode: string
+  vendorTypeCode: string
+  moduleFeatureCode: string
   prefix: string | null
   intermediate: string | null
   suffix: string | null
@@ -97,6 +96,16 @@ export default class SequenceApiService extends BaseService {
     } catch (error) {
       console.error('Fetch Error:', error)
       return []
+    }
+  }
+
+  async createBulkSequence(payload: any): Promise<{ status: boolean; message: string }> {
+    const url = '/api/static-table/generate-sequence/create/bulk'
+    try {
+      const { data } = await api1.post(url, payload)
+      return data
+    } catch (err) {
+      return err as any
     }
   }
 }

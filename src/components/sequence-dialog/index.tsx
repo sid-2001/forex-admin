@@ -3,9 +3,9 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Grid, TextFi
 import SequenceApiService from '../../services/sequence.api.service'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 import ProductService from '@/services/product.service'
-import VendorApiService, { IVendor, IVendorType } from '@/services/vendor.api.service'
+import VendorApiService from '@/services/vendor.api.service'
 
-export default function SequenceDialog({ open, editData, onClose, refreshList, showAlert }: any) {
+export default function SequenceDialog({ open, editData, onClose, refreshList, showAlert, countryCorridorList }: any) {
   const service = new SequenceApiService()
   const productService = useMemo(() => new ProductService(), [])
   const vendorService = new VendorApiService()
@@ -13,9 +13,9 @@ export default function SequenceDialog({ open, editData, onClose, refreshList, s
   const initialFormState = {
     countryCode: '',
     productCode: '',
-    vendor: '',
-    vendorType: '',
-    docType: '',
+    vendorCode: '',
+    vendorTypeCode: '',
+    moduleFeatureCode: '',
     prefix: '',
     intermediate: '',
     suffix: '',
@@ -27,6 +27,7 @@ export default function SequenceDialog({ open, editData, onClose, refreshList, s
     active: true,
     effectiveFromDate: '',
     effectiveToDate: '',
+    sequenceNumber: '',
   }
 
   const [formData, setFormData] = useState<any>(initialFormState)
@@ -34,7 +35,6 @@ export default function SequenceDialog({ open, editData, onClose, refreshList, s
   const [vendors, setVendors] = useState([])
   const [vendorTypeData, setVendorTypeData] = useState([])
   const [tableMasterList, setTableMasterList] = useState([])
-  const [countriesData, setCountryCorridorsData] = useState([])
 
   useEffect(() => {
     if (editData) setFormData(editData)
@@ -58,14 +58,7 @@ export default function SequenceDialog({ open, editData, onClose, refreshList, s
 
   const fetchTableTypeList = useCallback(async () => {
     const res: any = await service.getModuleTypeList()
-    console.log(res, '--------------')
     setTableMasterList(res || [])
-  }, [])
-
-  const fetchCountryCodes = useCallback(async () => {
-    const res: any = await service.getActiveCountryCorridors()
-    console.log(res, '--------------1111')
-    setCountryCorridorsData(res || [])
   }, [])
 
   useEffect(() => {
@@ -73,11 +66,19 @@ export default function SequenceDialog({ open, editData, onClose, refreshList, s
     fetchVendorsList()
     fetchVendorTypeList()
     fetchTableTypeList()
-    fetchCountryCodes()
   }, [])
 
   const handleSubmit = async () => {
-    const mandatoryFields = ['countryCode', 'product', 'vendor', 'vendorType', 'docType', 'docSeq', 'effectiveFromDate', 'effectiveToDate']
+    const mandatoryFields = [
+      'countryCode',
+      'productCode',
+      'vendorCode',
+      'vendorTypeCode',
+      'moduleFeatureCode',
+      'docSeq',
+      'effectiveFromDate',
+      'effectiveToDate',
+    ]
 
     const isFormIncomplete = mandatoryFields.some((field) => !formData[field] || formData[field].toString().trim() === '')
 
@@ -90,13 +91,33 @@ export default function SequenceDialog({ open, editData, onClose, refreshList, s
     try {
       if (editData) {
         await service.update(editData.sequenceId, {
-          ...formData,
-          effectiveFromDate: formData.effective_from_date + 'T00:00:00.000Z',
-          effectiveToDate: formData.effective_to_date + 'T00:00:00.000Z',
+          countryCode: formData.countryCode,
+          productCode: formData.productCode,
+          vendorCode: formData.vendorCode,
+          vendorTypeCode: formData.vendorTypeCode,
+          moduleFeatureCode: formData.moduleFeatureCode,
+          prefix: formData.prefix,
+          intermediate: formData.intermediate,
+          suffix: formData.suffix,
+          maxLimitDigit: formData.maxLimitDigit,
+          docSeq: formData.docSeq,
+          flag: formData.flag,
+          startSeqNumber: formData.startSeqNumber,
+          currentSeqNumber: formData.currentSeqNumber,
+          sequenceNumber: formData.sequenceNumber,
+          createdBy: formData.createdBy,
+          active: formData.active,
+          effectiveFromDate: formData.effectiveFromDate + 'T00:00:00',
+          effectiveToDate: formData.effectiveToDate + 'T00:00:00',
         })
         showAlert('success', 'Sequence updated successfully')
       } else {
-        await service.create(formData)
+        let payload = {
+          ...formData,
+          effectiveFromDate: formData.effectiveFromDate + 'T00:00:00',
+          effectiveToDate: formData.effectiveToDate + 'T00:00:00',
+        }
+        await service.create(payload)
         showAlert('success', 'Sequence created successfully')
       }
       refreshList()
@@ -113,8 +134,8 @@ export default function SequenceDialog({ open, editData, onClose, refreshList, s
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={4}>
             <Autocomplete
-              options={countriesData}
-              value={countriesData.find((c: any) => c.countryCode === formData.countryCode) || null}
+              options={countryCorridorList}
+              value={countryCorridorList.find((c: any) => c.countryCode === formData.countryCode) || null}
               getOptionLabel={(option: any) => `${option.countryName} (${option.countryCode})` || ''}
               isOptionEqualToValue={(option: any, value: any) => option.countryCode === value.countryCode}
               onChange={(_, newValue) => {
@@ -162,13 +183,13 @@ export default function SequenceDialog({ open, editData, onClose, refreshList, s
           <Grid item xs={6}>
             <Autocomplete
               options={tableMasterList}
-              value={tableMasterList.find((c: any) => c.moduleFeatureCode === formData.docType) || null}
+              value={tableMasterList.find((c: any) => c.moduleFeatureCode === formData.moduleFeatureCode) || null}
               getOptionLabel={(option: any) => `${option.moduleFeatureName} (${option.moduleFeatureCode})` || ''}
               isOptionEqualToValue={(option: any, value: any) => option.moduleFeatureCode === value.moduleFeatureCode}
               onChange={(_, newValue) => {
-                setFormData({ ...formData, docType: newValue ? newValue.moduleFeatureCode : '' })
+                setFormData({ ...formData, moduleFeatureCode: newValue ? newValue.moduleFeatureCode : '' })
               }}
-              renderInput={(params) => <TextField {...params} label="Doc Type" fullWidth />}
+              renderInput={(params) => <TextField {...params} label="Module Feature Type" fullWidth />}
             />
           </Grid>
 
