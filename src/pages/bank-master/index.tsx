@@ -43,10 +43,13 @@ export default function BankMasterScreen() {
   }, [fetchData])
 
   const handleAction = async (data: any, isUpdate: boolean) => {
+       console.log("we are updating")
+
     if (data.validationError) {
       showAlert('Fail', data.validationError)
       return
     }
+    console.log("we are updating")
 
     const res = isUpdate ? await service.updateBank(editData!.bankMasterCode, data) : await service.createBank(data)
 

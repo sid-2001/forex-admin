@@ -11,6 +11,7 @@ import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import ConfirmModal from '@/components/ConfirmModal'
 import dayjs from 'dayjs'
 import { getLiveAuditData } from '@/helpers/dynamicLocations'
+import { formatTableDate } from '@/helpers/dateformate'
 
 export default function StateManagement() {
   const [rows, setRows] = useState<any[]>([])
@@ -167,17 +168,6 @@ export default function StateManagement() {
         showAlert('Fail', 'Location access is required for auditing. Please enable it.')
       },
     )
-  }
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    return dayjs(dateString).format(format.toUpperCase())
   }
 
   const columns: GridColDef[] = [

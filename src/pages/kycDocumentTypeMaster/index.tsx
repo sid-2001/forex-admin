@@ -14,6 +14,7 @@ import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import ConfirmModal from '@/components/ConfirmModal'
 import dayjs from 'dayjs'
 import { getLiveAuditData } from '@/helpers/dynamicLocations'
+import { formatTableDate } from '@/helpers/dateformate'
 
 // Types
 interface KycDocumentTypeData {
@@ -47,22 +48,6 @@ export default function KycDocumentTypeMaster() {
 
   const local_service = useMemo(() => new LocalStorageService(), [])
   const documentService = useMemo(() => new KycDocumentTypeService(), [])
-
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-
-    const cleanDate = String(dateString).split('T')[0]
-
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-
-    return dayjs(cleanDate).format(format.toUpperCase())
-  }
 
   const formatDateTime = (dateString: string) => {
     if (!dateString) return ''
@@ -111,21 +96,14 @@ export default function KycDocumentTypeMaster() {
         const payload = {
           kycDocTypeDescription: data.kycDocTypeDescription,
           active: data.active,
-          effectiveFromDate: data.effectiveFromDate.includes('T') 
-            ? data.effectiveFromDate 
-            : `${data.effectiveFromDate}T00:00:00`,
-          effectiveToDate: data.effectiveToDate.includes('T') 
-            ? data.effectiveToDate 
-            : `${data.effectiveToDate}T23:59:59`,
+          effectiveFromDate: data.effectiveFromDate.includes('T') ? data.effectiveFromDate : `${data.effectiveFromDate}T00:00:00`,
+          effectiveToDate: data.effectiveToDate.includes('T') ? data.effectiveToDate : `${data.effectiveToDate}T23:59:59`,
           modifiedBy: local_service?.get_staff_id() || 'admin',
         }
 
         console.log('Sending Update Payload:', payload)
 
-        const response: any = await documentService.updateDocumentType(
-          editData.kycDocTypeCode,
-          payload
-        )
+        const response: any = await documentService.updateDocumentType(editData.kycDocTypeCode, payload)
 
         if (response?.status === true || response?.success === true) {
           showAlert('Success', 'Document Type Updated Successfully')
@@ -139,12 +117,8 @@ export default function KycDocumentTypeMaster() {
         const payload = {
           kycDocTypeDescription: data.kycDocTypeDescription,
           active: data.active,
-          effectiveFromDate: data.effectiveFromDate.includes('T') 
-            ? data.effectiveFromDate 
-            : `${data.effectiveFromDate}T00:00:00`,
-          effectiveToDate: data.effectiveToDate.includes('T') 
-            ? data.effectiveToDate 
-            : `${data.effectiveToDate}T23:59:59`,
+          effectiveFromDate: data.effectiveFromDate.includes('T') ? data.effectiveFromDate : `${data.effectiveFromDate}T00:00:00`,
+          effectiveToDate: data.effectiveToDate.includes('T') ? data.effectiveToDate : `${data.effectiveToDate}T23:59:59`,
           createdBy: local_service?.get_staff_id() || 'admin',
         }
 
@@ -165,25 +139,24 @@ export default function KycDocumentTypeMaster() {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
-          const liveAudit:any = await getLiveAuditData(pos.coords.latitude, pos.coords.longitude)
+          const liveAudit: any = await getLiveAuditData(pos.coords.latitude, pos.coords.longitude)
           if (liveAudit) {
-
             //@ts-ignore
             await submitPayload(liveAudit)
           } else {
-              //@ts-ignore
+            //@ts-ignore
             await submitPayload(audit)
           }
         },
         async (_) => {
           console.warn('Location denied, using fallback.')
-            //@ts-ignore
+          //@ts-ignore
           await submitPayload(audit)
         },
         { timeout: 5000 },
       )
     } else {
-        //@ts-ignore
+      //@ts-ignore
       await submitPayload(audit)
     }
   }
@@ -192,14 +165,10 @@ export default function KycDocumentTypeMaster() {
     if (!selectedRow || !statusAction) return
 
     const newStatus = statusAction === 'activate'
-    
+
     try {
-      const response: any = await documentService.updateStatus(
-        selectedRow.kycDocTypeCode,
-        newStatus,
-        local_service?.get_staff_id() || 'admin'
-      )
-      
+      const response: any = await documentService.updateStatus(selectedRow.kycDocTypeCode, newStatus, local_service?.get_staff_id() || 'admin')
+
       if (response?.status === true || response?.success === true) {
         showAlert('Success', `Document Type ${newStatus ? 'Activated' : 'Deactivated'} Successfully`)
         setStatusModalOpen(false)
@@ -215,35 +184,35 @@ export default function KycDocumentTypeMaster() {
   }
 
   const columns: GridColDef[] = [
-    { 
-      field: 'kycDocTypeCode', 
-      headerName: 'Document Code', 
-      width: 120, 
+    {
+      field: 'kycDocTypeCode',
+      headerName: 'Document Code',
+      width: 120,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
-        <Chip 
-          label={params.value} 
+        <Chip
+          label={params.value}
           size="small"
-          sx={{ 
+          sx={{
             fontFamily: 'monospace',
             fontWeight: 600,
             backgroundColor: '#eef4fa',
-            color: '#1e5f9e'
+            color: '#1e5f9e',
           }}
         />
-      )
+      ),
     },
-    { 
-      field: 'kycDocTypeDescription', 
-      headerName: 'Description', 
-      flex: 1, 
+    {
+      field: 'kycDocTypeDescription',
+      headerName: 'Description',
+      flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Stack direction="row" spacing={1} alignItems="center">
           <DescriptionIcon sx={{ fontSize: 18, color: '#666' }} />
           <Typography>{params.value}</Typography>
         </Stack>
-      )
+      ),
     },
     {
       field: 'active',
@@ -259,7 +228,7 @@ export default function KycDocumentTypeMaster() {
             backgroundColor: params.value ? '#e2f0e6' : '#ffece5',
             color: params.value ? '#0f6a3b' : '#b13e2d',
             fontWeight: 600,
-            width: '80px'
+            width: '80px',
           }}
         />
       ),
@@ -276,7 +245,7 @@ export default function KycDocumentTypeMaster() {
       headerName: 'Effective To',
       width: 120,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => params.value === '9999-12-31T23:59:59' ? '∞' : formatTableDate(params.value),
+      renderCell: (params) => (params.value === '9999-12-31T23:59:59' ? '∞' : formatTableDate(params.value)),
     },
     {
       field: 'createdBy',
@@ -309,8 +278,6 @@ export default function KycDocumentTypeMaster() {
           >
             <EditIcon fontSize="small" />
           </IconButton>
-          
-    
         </Stack>
       ),
     },
@@ -344,7 +311,7 @@ export default function KycDocumentTypeMaster() {
             backgroundColor: '#0061B1',
             '&:hover': {
               backgroundColor: '#004d8c',
-            }
+            },
           }}
         >
           Add New Document Type
@@ -358,9 +325,7 @@ export default function KycDocumentTypeMaster() {
         autoHeight
         disableRowSelectionOnClick
         pageSizeOptions={[5, 10, 25, 50]}
-        sx={{
-          
-        }}
+        sx={{}}
         initialState={{
           pagination: {
             paginationModel: {

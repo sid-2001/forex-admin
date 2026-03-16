@@ -46,7 +46,7 @@ import Loyality from './pages/loyality'
 import AuditLogTable from './pages/audit-log'
 import FieldValidationTable from './pages/field-validation'
 import ForexBranchesPage from './pages/branches'
-import { lazy, useCallback, useEffect } from 'react'
+import { lazy, useCallback, useEffect, useState } from 'react'
 import { useAutoLogout } from './helpers/useAutoLogout'
 import { LocalStorageService } from './helpers/local-storage-service'
 import { CrossBorderPaymentsDashboard } from './pages/dashboard'
@@ -90,6 +90,11 @@ import CountryKycDocumentMaster from './pages/CountryKycDocumentMaster'
 import CountryResProductChannelDocRequiredMaster from './pages/contryresproductchanneldoc'
 import SequenceMasterTable from './pages/sequence-master'
 import ExchangeRateMasterScreen from './pages/exchangeRateMaster'
+import CountryCorridorProductMaster from './pages/country-corridor-product'
+import ProductService from './services/product.service'
+import ProductSubServiceMaster from './pages/product-sub-service'
+import InactivityWarningModal from "./components/inactivity-modal"
+import ServiceSubServiceMapping from './pages/subservice-mapping'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -97,6 +102,7 @@ function App() {
   }
   const [mode, setMode] = useRecoilState(themeModeState)
   const [inactivity, setinactivityTiming] = useRecoilState(inactivityTiming)
+  const [warningOpen, setWarningOpen] = useState(false)
   const local_service: any = new LocalStorageService()
 
   const theme = createTheme({
@@ -147,6 +153,8 @@ function App() {
           },
         },
       },
+
+      
       MuiDataGrid: {
         styleOverrides: {
           root: {
@@ -171,9 +179,32 @@ function App() {
           },
         },
       },
+
+
+    MuiDialog: {
+      defaultProps: {
+        disableEscapeKeyDown: true
+      },
+      styleOverrides: {
+        root: {
+          "& .MuiBackdrop-root": {
+            pointerEvents: "none"
+          }
+        }
+      }
+    }
+
+    //       MuiDialog: {
+    //   defaultProps: {
+    //     disableEscapeKeyDown: true
+    //   }
+    // }
+      
     },
   })
-
+const handleInactivity = () => {
+  setWarningOpen(true)
+}
   const handleLogout = useCallback(() => {
     if (local_service?.get_accesstoken() != null) {
       localStorage.clear()
@@ -181,9 +212,12 @@ function App() {
       window.location.reload()
     }
   }, [])
-  const INACTIVITY_TIME = 10 * 60 * 1000 // 1 minutes
+  const INACTIVITY_TIME = 1 * 60 * 1000 // 1 minutes
   // ✅ Enable auto logout (30 min inactivity)
-  useAutoLogout(handleLogout, Number(inactivity) * 60000 > INACTIVITY_TIME ? Number(inactivity) * 60000 : INACTIVITY_TIME)
+  // useAutoLogout(handleLogout, Number(inactivity) * 60000 > INACTIVITY_TIME ? Number(inactivity) * 60000 : INACTIVITY_TIME)
+useAutoLogout(handleInactivity, Number(inactivity) * 60000 > INACTIVITY_TIME
+  ? Number(inactivity) * 60000
+  : INACTIVITY_TIME)
 
   return (
     <>
@@ -193,6 +227,11 @@ function App() {
         {/* <Message /> */}
         <ToastContainer />
         <CustomSnackbar />
+        <InactivityWarningModal
+  open={warningOpen}
+  onStay={() => setWarningOpen(false)}
+  onLogout={handleLogout}
+/>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<ProtectedRoute {...defaultProtectedRouteProps} outlet={<DashboardLayout />} />}>
@@ -246,7 +285,7 @@ function App() {
               <Route path="branches" element={<ForexBranchesPage />} />
               <Route path="bopcategory" element={<BopCategoryMaster />} />
               <Route path="bop-category-type" element={<BopCategoryTypeMaster />} />
-              <Route path="bop-category-type" element={<BopCategoryTypeMaster />} />
+      
               <Route path="product-buisness-mapping" element={<ProductBusinessCountryMapping />} />
               <Route path="business-railand-partner" element={<CountryBusinessPayoutPartner />} />
               <Route path="email-template" element={<EmailTemplateMasterPage />} />
@@ -271,6 +310,9 @@ function App() {
               <Route path="country-kyc-doc-master" element={<CountryKycDocumentMaster />} />
               <Route path="kyc-doc-mapping" element={<CountryResProductChannelDocRequiredMaster />} />
               <Route path="exchange-rate" element={<ExchangeRateMasterScreen />} />
+              <Route path="country-product-code" element={<CountryCorridorProductMaster />} />
+                  <Route path="product-subservice" element={<ProductSubServiceMaster />} />
+                   <Route path="service-sub-service-mapping" element={<ServiceSubServiceMapping />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 

@@ -35,43 +35,88 @@ export async function getDeviceInfo(): Promise<{ ip: string; deviceName: string 
 
   return { ip, deviceName }
 }
-
 instance.interceptors.request.use(
   async (config: AdaptAxiosRequestConfig) => {
     const localStorageService = new LocalStorageService()
     const { ip, deviceName } = await getDeviceInfo()
     const token = (localStorageService.get_accesstoken() as any)?.replaceAll(`"`, '')
- const now = new Date();
 
-  // Timezone offset in minutes → convert to ±HH:MM
-  const offsetMinutes = -now.getTimezoneOffset();
-  const sign = offsetMinutes >= 0 ? "+" : "-";
-  const hours = String(Math.floor(Math.abs(offsetMinutes) / 60)).padStart(2, "0");
-  const minutes = String(Math.abs(offsetMinutes) % 60).padStart(2, "0");
-  const offset = `${sign}${hours}:${minutes}`;
+    const now = new Date();
 
-  const localDateTime = now.toISOString().slice(0, 19);
+    // 1. Standard Offset (e.g., +05:30)
+    const offsetMinutes = -now.getTimezoneOffset();
+    const sign = offsetMinutes >= 0 ? "+" : "-";
+    const hours = String(Math.floor(Math.abs(offsetMinutes) / 60)).padStart(2, "0");
+    const minutes = String(Math.abs(offsetMinutes) % 60).padStart(2, "0");
+    const offset = `${sign}${hours}:${minutes}`;
+
+    // 2. Standard Timezone
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+
+    // 3. Local DateTime with HH:mm:ss.SSS
+    // Subtracting timezoneOffset ensures the ISO string reflects the user's LOCAL time
+    const localDateTime = new Date(now.getTime() - (now.getTimezoneOffset() * 60000))
+      .toISOString()
+      .replace('Z', ''); // Result: "2026-03-09T12:45:00.783"
+
     if (token) {
-      config.headers['Authorization'] = 'Bearer ' + token
-      config.headers['ngrok-skip-browser-warning'] = '69420'
-      // "ngrok-skip-browser-warning": true;
-      config.headers['access-control-allow-credentials'] = 'true'
-      config.headers['access-control-allow-origin'] = '*'
-      config.headers['ngrok-skip-browser-warning'] = 'true'
-      config.headers['X-Device-IP'] = ip
-      config.headers['X-Device-Name'] = deviceName
-   config.headers["timezone"] = "UTC";
-  config.headers["offset"] = offset;
-  config.headers["localdatetime"] = localDateTime; 
+      config.headers['Authorization'] = 'Bearer ' + token;
+      config.headers['ngrok-skip-browser-warning'] = 'true';
+      
+      // Audit Headers
+      config.headers["timezone"] = timezone;
+      config.headers["offset"] = offset;
+      config.headers["localdatetime"] = localDateTime; 
+
+      config.headers['X-Device-IP'] = ip;
+      config.headers['X-Device-Name'] = deviceName;
     }
-    return config
+    
+    return config;
   },
   (error: any) => {
-    // Handle request error
-    logger.error('Request Interceptor Error:', error)
-    return Promise.reject(error)
+    return Promise.reject(error);
   },
 )
+// instance.interceptors.request.use(
+//   async (config: AdaptAxiosRequestConfig) => {
+//     const localStorageService = new LocalStorageService()
+//     const { ip, deviceName } = await getDeviceInfo()
+//     const token = (localStorageService.get_accesstoken() as any)?.replaceAll(`"`, '')
+//  const now = new Date();
+
+//   // Timezone offset in minutes → convert to ±HH:MM
+//   const offsetMinutes = -now.getTimezoneOffset();
+//   const sign = offsetMinutes >= 0 ? "+" : "-";
+//   const hours = String(Math.floor(Math.abs(offsetMinutes) / 60)).padStart(2, "0");
+//   const minutes = String(Math.abs(offsetMinutes) % 60).padStart(2, "0");
+//   const offset = `${sign}${hours}:${minutes}`;
+// const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+
+
+//   const localDateTime = now.toISOString().slice(0, 19);
+//     if (token) {
+//       config.headers['Authorization'] = 'Bearer ' + token
+//       config.headers['ngrok-skip-browser-warning'] = '69420'
+//       // "ngrok-skip-browser-warning": true;
+//       config.headers['access-control-allow-credentials'] = 'true'
+//       config.headers['access-control-allow-origin'] = '*'
+//       config.headers['ngrok-skip-browser-warning'] = 'true'
+//       config.headers['X-Device-IP'] = ip
+//       config.headers['X-Device-Name'] = deviceName
+//    config.headers["timezone"] = timezone;
+//   config.headers["offset"] = offset;
+//   config.headers["localdatetime"] = localDateTime; 
+//     }
+//     return config
+//   },
+//   (error: any) => {
+//     // Handle request error
+//     logger.error('Request Interceptor Error:', error)
+//     return Promise.reject(error)
+//   },
+// )
 
 // Response interceptor
 instance.interceptors.response.use(

@@ -53,6 +53,7 @@ import { useRecoilState } from 'recoil'
 import ChannelService from '@/services/channel.servive'
 import { CountryData } from '@/types/static.type'
 import dayjs from 'dayjs'
+import { formatTableDate } from '@/helpers/dateformate'
 
 const countryLabelCodesService = new CountryLabelCodesService()
 const countryBusinessPayoutPartnerService = new CountryBusinessPayoutPartnerService()
@@ -232,9 +233,8 @@ export default function CountryLabelCodesGridPage() {
     try {
       console.log(bopCategories)
       const filtered = bopCategories.filter((category) => {
-        return
         //@ts-ignore
-        category?.countryCode == countryCode
+        return category?.countryCode == countryCode
       })
 
       console.log(filtered)
@@ -381,18 +381,6 @@ export default function CountryLabelCodesGridPage() {
       row.channel.toLowerCase().includes(searchLower)
     )
   })
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    console.log(format, 'dkjhbcvy')
-    return dayjs(dateString).format(format.toUpperCase())
-  }
 
   const columns: GridColDef[] = [
     {

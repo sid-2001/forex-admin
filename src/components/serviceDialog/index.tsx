@@ -12,6 +12,7 @@ import {
   MenuItem,
   InputLabel,
   FormHelperText,
+  Autocomplete,
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
@@ -29,7 +30,6 @@ export default function ServiceFormDialog({ open, onClose, onSubmit, editData }:
 
   const [errors, setErrors] = useState<any>({})
 
-  /* ------------------ Populate Edit Data ------------------ */
   useEffect(() => {
     if (editData) {
       setCountryCode(editData.countryCode || '')
@@ -87,7 +87,7 @@ export default function ServiceFormDialog({ open, onClose, onSubmit, editData }:
       <DialogContent dividers>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           {/* Country */}
-          <InputLabel required>Country</InputLabel>
+          {/* <InputLabel required>Country</InputLabel>
           <Select value={countryCode} fullWidth disabled={!!editData} error={!!errors.countryCode} onChange={(e) => setCountryCode(e.target.value)}>
             {countries
               ?.filter((c) => c.status === 'A')
@@ -101,6 +101,35 @@ export default function ServiceFormDialog({ open, onClose, onSubmit, editData }:
                 </MenuItem>
               ))}
           </Select>
+          {errors.countryCode && <FormHelperText error>{errors.countryCode}</FormHelperText>} */}
+          <InputLabel required shrink>
+            Country
+          </InputLabel>
+
+          <Autocomplete
+            disabled={!!editData}
+            options={countries?.filter((c) => c.status === 'A') || []}
+            //@ts-ignore
+            getOptionLabel={(option: any) => option.countryName || ''}
+            value={countries.find((c) => c.countryCode === countryCode) || null}
+            onChange={(_, newValue: any) => {
+              setCountryCode(newValue ? newValue.countryCode : '')
+            }}
+            isOptionEqualToValue={(option: any, value: any) => option.countryCode === value.countryCode}
+            renderInput={(params: any) => (
+              <TextField
+                {...params}
+                required
+                error={!!errors.countryCode}
+                placeholder="Search and select country"
+                sx={{
+                  marginTop: '8px',
+                }}
+              />
+            )}
+          />
+
+          {/* Display your existing error message */}
           {errors.countryCode && <FormHelperText error>{errors.countryCode}</FormHelperText>}
 
           {/* Service Description */}

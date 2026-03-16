@@ -10,6 +10,7 @@ import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import dayjs from 'dayjs'
 import { getLiveAuditData } from '@/helpers/dynamicLocations'
 import { LocalStorageService } from '@/helpers/local-storage-service'
+import { formatTableDate } from '@/helpers/dateformate'
 
 export default function BankTypeMaster() {
   const service = useMemo(() => new BankBusinessTypeService(), [])
@@ -37,17 +38,6 @@ export default function BankTypeMaster() {
   useEffect(() => {
     fetchData()
   }, [fetchData])
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    return dayjs(dateString).format(format.toUpperCase())
-  }
 
   const handleAction = async (data: any, isUpdate: boolean) => {
     if (data.validationError) {

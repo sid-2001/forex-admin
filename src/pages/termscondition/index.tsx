@@ -251,12 +251,13 @@ export default function TermsConditionsGridPage() {
         createdBy: 'ADMIN',
       }
 
-      await termsService.create(payload)
-      showSuccess('Terms created successfully')
+    let res=  await termsService.create(payload)
+    console.log(res)
+      showSuccess(res?.message)
       setOpen(false)
       loadData()
     } catch {
-      showError('Create failed')
+      showError('Create failed Server Error')
     }
   }
 
@@ -279,17 +280,17 @@ export default function TermsConditionsGridPage() {
         updatedAt: new Date().toISOString(),
       })
 
-      await termsService.update(selected.termsCode!, {
+     let res= await termsService.update(selected.termsCode!, {
         ...selected,
         ...form,
         countryCode: selectedCountry,
         channel: selectedChannel,
         screen: selectedScreen,
         jsonContent: JSON.stringify({ editorData: updatedVersions }),
-        modifiedBy: 'ADMIN',
+        modifiedBy: local_service.get_staff_id(),
       })
 
-      showSuccess('Terms updated')
+      showSuccess(res?.message)
       setOpen(false)
       loadData()
     } catch {
@@ -491,7 +492,7 @@ export default function TermsConditionsGridPage() {
                       //@ts-ignore
                       item.Active === true,
                       //@ts-ignore
-                      item.Active === true,
+                  
                   )
                   .map((screen: any) => (
                     <MenuItem key={screen.ScreenCode} value={screen.ScreenCode}>

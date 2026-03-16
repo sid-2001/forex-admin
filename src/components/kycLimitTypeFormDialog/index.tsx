@@ -14,9 +14,11 @@ import {
   Typography,
   IconButton,
   Box,
+  Checkbox,
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import dayjs from 'dayjs'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 interface FormData {
   limitCode: string
@@ -34,12 +36,7 @@ interface KycLimitTypeFormDialogProps {
   onSubmit: (data: FormData) => void
 }
 
-export default function KycLimitTypeFormDialog({
-  open,
-  onClose,
-  editData,
-  onSubmit,
-}: KycLimitTypeFormDialogProps) {
+export default function KycLimitTypeFormDialog({ open, onClose, editData, onSubmit }: KycLimitTypeFormDialogProps) {
   const [formData, setFormData] = useState<FormData>({
     limitCode: '',
     limitDescription: '',
@@ -54,12 +51,11 @@ export default function KycLimitTypeFormDialog({
         limitCode: editData.limitCode || '',
         limitDescription: editData.limitDescription || '',
         active: editData.active || false,
-        effectiveFromDate: editData.effectiveFromDate 
+        effectiveFromDate: editData.effectiveFromDate
           ? dayjs(editData.effectiveFromDate).format('YYYY-MM-DDTHH:mm')
           : dayjs().format('YYYY-MM-DDTHH:mm'),
-        effectiveToDate: editData.effectiveToDate === '9999-12-31T23:59:59'
-          ? '9999-12-31T23:59'
-          : dayjs(editData.effectiveToDate).format('YYYY-MM-DDTHH:mm'),
+        effectiveToDate:
+          editData.effectiveToDate === '9999-12-31T23:59:59' ? '9999-12-31T23:59' : dayjs(editData.effectiveToDate).format('YYYY-MM-DDTHH:mm'),
       })
     } else {
       setFormData({
@@ -67,14 +63,14 @@ export default function KycLimitTypeFormDialog({
         limitDescription: '',
         active: true,
         effectiveFromDate: dayjs().format('YYYY-MM-DDTHH:mm'),
-        effectiveToDate: '9999-12-31T23:59',
+        effectiveToDate: '2028-12-31T23:59',
       })
     }
   }, [editData, open])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, checked, type } = e.target
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }))
@@ -93,7 +89,7 @@ export default function KycLimitTypeFormDialog({
 
     const fromDate = new Date(formData.effectiveFromDate)
     const toDate = new Date(formData.effectiveToDate)
-    
+
     if (fromDate > toDate) {
       onSubmit({ ...formData, validationError: 'Effective From date cannot be after Effective To date' })
       return
@@ -103,31 +99,29 @@ export default function KycLimitTypeFormDialog({
   }
 
   return (
-    <Dialog 
-      open={open} 
+    <Dialog
+      open={open}
       onClose={onClose}
       maxWidth="md"
       fullWidth
       PaperProps={{
-        sx: { borderRadius: 2 }
+        sx: { borderRadius: 2 },
       }}
     >
-      <DialogTitle sx={{ 
-        m: 0, 
-        p: 2, 
-        backgroundColor: '#f5f5f5',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
+      <DialogTitle
+        sx={{
+          m: 0,
+          p: 2,
+          backgroundColor: '#f5f5f5',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
         <Typography variant="h6" component="div" sx={{ fontWeight: 600, color: '#0061B1' }}>
           {editData ? 'Edit Limit Type' : 'Create New Limit Type'}
         </Typography>
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          sx={{ color: '#666' }}
-        >
+        <IconButton aria-label="close" onClick={onClose} sx={{ color: '#666' }}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -162,7 +156,7 @@ export default function KycLimitTypeFormDialog({
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            {/* <Grid item xs={12} md={6}>
               <TextField
                 name="effectiveFromDate"
                 label="Effective From Date *"
@@ -174,9 +168,36 @@ export default function KycLimitTypeFormDialog({
                 InputLabelProps={{ shrink: true }}
                 required
               />
+            </Grid> */}
+            <Grid item xs={6}>
+              <DynamicDatePicker
+                label="Effective From"
+                value={formData.effectiveFromDate}
+                onChange={(val: string) => {
+                  console.log(val, 'kdjhchdvy')
+                  setFormData({ ...formData, effectiveFromDate: val })
+                }}
+                // error={!!errors.effectiveFromDate}
+                // helperText={errors.effectiveFromDate}
+                required
+              />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid item xs={6}>
+              <DynamicEndDatePicker
+                label="Effective To"
+                value={formData.effectiveToDate}
+                minDate={formData.effectiveFromDate}
+                onChange={(val: string) => {
+                  setFormData({ ...formData, effectiveToDate: val })
+                }}
+                // error={!!errors.effectiveToDate}
+                // helperText={errors.effectiveToDate}
+                required
+              />
+            </Grid>
+
+            {/* <Grid item xs={12} md={6}>
               <TextField
                 name="effectiveToDate"
                 label="Effective To Date *"
@@ -188,19 +209,16 @@ export default function KycLimitTypeFormDialog({
                 InputLabelProps={{ shrink: true }}
                 required
               />
-            </Grid>
+            </Grid> */}
 
             <Grid item xs={12}>
               <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                {/* <FormControlLabel
+                  control={<Switch name="active" checked={formData.active} onChange={handleChange} color="success" />}
+                  label="Active Status"
+                /> */}
                 <FormControlLabel
-                  control={
-                    <Switch
-                      name="active"
-                      checked={formData.active}
-                      onChange={handleChange}
-                      color="success"
-                    />
-                  }
+                  control={<Checkbox checked={formData.active} onChange={(e: any) => setFormData({ ...formData, active: e.target.checked })} />}
                   label="Active Status"
                 />
                 <Typography variant="caption" color="text.secondary" sx={{ ml: 2 }}>
@@ -222,15 +240,15 @@ export default function KycLimitTypeFormDialog({
         <Button onClick={onClose} variant="outlined" sx={{ borderRadius: 2 }}>
           Cancel
         </Button>
-        <Button 
-          onClick={handleSubmit} 
+        <Button
+          onClick={handleSubmit}
           variant="contained"
-          sx={{ 
+          sx={{
             borderRadius: 2,
             backgroundColor: '#0061B1',
             '&:hover': {
               backgroundColor: '#004d8c',
-            }
+            },
           }}
         >
           {editData ? 'Update' : 'Create'}

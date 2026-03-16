@@ -22,6 +22,72 @@ const filter = createFilterOptions({
   stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
 })
 
+// Validation rules based on common email template requirements
+const VALIDATION_RULES = {
+  countryCode: { max: 3, message: 'Country code cannot exceed 3 characters' },
+  templateCode: { max: 50, message: 'Template code cannot exceed 50 characters' },
+  templateName: { max: 100, message: 'Template name cannot exceed 100 characters', required: true },
+  fromName: { max: 100, message: 'From name cannot exceed 100 characters' },
+  fromEmail: { max: 100, message: 'Email cannot exceed 100 characters', required: true, pattern: /\S+@\S+\.\S+/, patternMessage: 'Invalid email format' },
+  emailSubject: { max: 200, message: 'Subject cannot exceed 200 characters', required: true },
+  emailBodyHtml: { max: 10000, message: 'HTML body cannot exceed 10000 characters' },
+  emailBodyText: { max: 5000, message: 'Text body cannot exceed 5000 characters' },
+  emailTemplateDescription: { max: 255, message: 'Description cannot exceed 255 characters' },
+}
+
+// Function to validate HTML
+const isValidHTML = (html: string): boolean => {
+  if (!html) return true // Empty HTML is considered valid (optional field)
+  
+  try {
+    // Create a DOM parser to check if HTML is valid
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(html, 'text/html')
+    
+    // Check for parsing errors
+    const parserErrors = doc.querySelectorAll('parsererror')
+    if (parserErrors.length > 0) {
+      return false
+    }
+    
+    // Additional check for unclosed tags
+    const div = document.createElement('div')
+    div.innerHTML = html
+    // If innerHTML is different from original after parsing, there might be issues
+    // This is a simple check - you might want more sophisticated validation
+    return true
+  } catch (error) {
+    return false
+  }
+}
+
+// Function to check for potentially dangerous HTML (XSS prevention)
+const isSafeHTML = (html: string): boolean => {
+  if (!html) return true
+  
+  // List of disallowed tags/attributes that could be used for XSS
+  const dangerousPatterns = [
+    /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+    /javascript:/gi,
+    /onerror\s*=/gi,
+    /onclick\s*=/gi,
+    /onload\s*=/gi,
+    /onmouseover\s*=/gi,
+    /onfocus\s*=/gi,
+    /onblur\s*=/gi,
+    /onchange\s*=/gi,
+    /onsubmit\s*=/gi,
+    /onreset\s*=/gi,
+    /onselect\s*=/gi,
+    /onabort\s*=/gi,
+    /<iframe\b/gi,
+    /<embed\b/gi,
+    /<object\b/gi,
+  ]
+  
+  return !dangerousPatterns.some(pattern => pattern.test(html))
+}
+
 export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, editData, errMassage }: any) {
   const [countries] = useRecoilState(countyState)
 
@@ -44,12 +110,13 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
   const [errors, setErrors] = useState<any>({})
 
   useEffect(() => {
-    if (editData) {
+    if (editData && open) {
       setForm({
         ...editData,
         effectiveFromDate: editData.effectiveFromDate?.split('T')[0] || '',
         effectiveToDate: editData.effectiveToDate?.split('T')[0] || '',
       })
+      setErrors({})
     } else {
       setForm(initialFormState)
       setErrors({})
@@ -59,21 +126,89 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
   const handleChange = (e: any) => {
     const { name, value, checked, type } = e.target
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
-    if (errors[name]) setErrors({ ...errors, [name]: '' })
+    
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors((prev: any) => ({ ...prev, [name]: '' }))
+    }
+  }
+
+  // Handle date change with error clearing
+  const handleDateChange = (field: string, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }))
+    if (errors[field]) {
+      setErrors((prev: any) => ({ ...prev, [field]: '' }))
+    }
+    // Clear effectiveToDate error when effectiveFromDate changes
+    if (field === 'effectiveFromDate' && errors.effectiveToDate) {
+      setErrors((prev: any) => ({ ...prev, effectiveToDate: '' }))
+    }
   }
 
   const validate = () => {
     const newErrors: any = {}
+    
+    // Required fields validation
     const requiredFields = ['countryCode', 'templateName', 'fromEmail', 'emailSubject', 'effectiveFromDate', 'effectiveToDate']
-
+    
     requiredFields.forEach((field) => {
-      if (!form[field as keyof typeof form]) {
+      if (!form[field as keyof typeof form]?.toString().trim()) {
         newErrors[field] = 'This field is required'
       }
     })
 
-    if (form.fromEmail && !/\S+@\S+\.\S+/.test(form.fromEmail)) {
-      newErrors.fromEmail = 'Invalid email format'
+    // Field-specific validations
+    Object.keys(VALIDATION_RULES).forEach((field) => {
+      const rule = VALIDATION_RULES[field as keyof typeof VALIDATION_RULES]
+      const value = form[field as keyof typeof form]
+      
+      if (value) {
+        // Max length validation
+        //@ts-ignore
+        if (rule.max && value.length > rule.max) {
+          newErrors[field] = rule.message
+        }
+        
+        // Email pattern validation
+          //@ts-ignore
+        if (field === 'fromEmail' && rule.pattern && !rule.pattern.test(value)) {
+            //@ts-ignore
+          newErrors[field] = rule.patternMessage || 'Invalid email format'
+        }
+
+
+      } else if 
+        //@ts-ignore
+      (rule.required) {
+        newErrors[field] = 'This field is required'
+      }
+    })
+
+    // HTML validation
+    if (form.emailBodyHtml) {
+      if (!isValidHTML(form.emailBodyHtml)) {
+        newErrors.emailBodyHtml = 'Invalid HTML format'
+      } else if (!isSafeHTML(form.emailBodyHtml)) {
+        newErrors.emailBodyHtml = 'HTML contains potentially unsafe content'
+      }
+    }
+
+    // Date validation: effectiveToDate must be after effectiveFromDate
+    if (form.effectiveFromDate && form.effectiveToDate) {
+      const fromDate = new Date(form.effectiveFromDate)
+      const toDate = new Date(form.effectiveToDate)
+      
+      if (toDate <= fromDate) {
+        newErrors.effectiveToDate = 'Effective To date must be after Effective From date'
+      }
+    }
+
+    // Template code validation for edit mode
+    if (!editData && form.templateCode) {
+      // Add any custom validation for template code format if needed
+      if (form.templateCode.length < 3) {
+        newErrors.templateCode = 'Template code must be at least 3 characters'
+      }
     }
 
     setErrors(newErrors)
@@ -84,14 +219,14 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
     if (validate()) {
       const cleanPayload = {
         countryCode: form.countryCode,
-        templateCode: form.templateCode,
-        templateName: form.templateName,
-        emailSubject: form.emailSubject,
-        emailBodyHtml: form.emailBodyHtml,
-        emailBodyText: form.emailBodyText,
-        fromName: form.fromName,
-        fromEmail: form.fromEmail,
-        emailTemplateDescription: form.emailTemplateDescription || 'Email Template',
+        templateCode: form.templateCode || `TMP_${Date.now()}`, // Auto-generate if not provided
+        templateName: form.templateName.trim(),
+        emailSubject: form.emailSubject.trim(),
+        emailBodyHtml: form.emailBodyHtml?.trim() || '',
+        emailBodyText: form.emailBodyText?.trim() || '',
+        fromName: form.fromName?.trim() || form.fromEmail?.split('@')[0], // Default from email username
+        fromEmail: form.fromEmail.trim(),
+        emailTemplateDescription: form.emailTemplateDescription?.trim() || `${form.templateName} Template`,
         active: form.active,
         effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
         effectiveToDate: `${form.effectiveToDate}T23:59:59`,
@@ -119,12 +254,19 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
                 if (errors.countryCode) setErrors({ ...errors, countryCode: '' })
               }}
               renderInput={(params) => (
-                <TextField {...params} label="Search Country" required error={!!errors.countryCode} helperText={errors.countryCode} />
+                <TextField 
+                  {...params} 
+                  label="Search Country" 
+                  required 
+                  error={!!errors.countryCode} 
+                  helperText={errors.countryCode || `Max ${VALIDATION_RULES.countryCode.max} characters`}
+                  inputProps={{ ...params.inputProps, maxLength: VALIDATION_RULES.countryCode.max }}
+                />
               )}
             />
           </Grid>
 
-          {/* <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Template Code"
@@ -132,10 +274,11 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
               value={form.templateCode}
               onChange={handleChange}
               error={!!errors.templateCode}
-              helperText={errors.templateCode}
+              helperText={errors.templateCode || (editData ? 'Cannot be changed' : 'Optional - will be auto-generated if left blank')}
               disabled={!!editData}
+              inputProps={{ maxLength: VALIDATION_RULES.templateCode.max }}
             />
-          </Grid> */}
+          </Grid>
 
           <Grid item xs={12} sm={6}>
             <TextField
@@ -145,12 +288,23 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
               value={form.templateName}
               onChange={handleChange}
               error={!!errors.templateName}
-              helperText={errors.templateName}
+              helperText={errors.templateName || `Max ${VALIDATION_RULES.templateName.max} characters`}
+              required
+              inputProps={{ maxLength: VALIDATION_RULES.templateName.max }}
             />
           </Grid>
 
-          <Grid item xs={12}>
-            <TextField fullWidth label="From Name" name="fromName" value={form.fromName} onChange={handleChange} />
+          <Grid item xs={12} sm={6}>
+            <TextField 
+              fullWidth 
+              label="From Name" 
+              name="fromName" 
+              value={form.fromName} 
+              onChange={handleChange}
+              error={!!errors.fromName}
+              helperText={errors.fromName || `Max ${VALIDATION_RULES.fromName.max} characters`}
+              inputProps={{ maxLength: VALIDATION_RULES.fromName.max }}
+            />
           </Grid>
 
           <Grid item xs={12}>
@@ -161,7 +315,9 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
               value={form.fromEmail}
               onChange={handleChange}
               error={!!errors.fromEmail}
-              helperText={errors.fromEmail}
+              helperText={errors.fromEmail || `Max ${VALIDATION_RULES.fromEmail.max} characters`}
+              required
+              inputProps={{ maxLength: VALIDATION_RULES.fromEmail.max }}
             />
           </Grid>
 
@@ -173,39 +329,49 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
               value={form.emailSubject}
               onChange={handleChange}
               error={!!errors.emailSubject}
-              helperText={errors.emailSubject}
+              helperText={errors.emailSubject || `Max ${VALIDATION_RULES.emailSubject.max} characters`}
+              required
+              inputProps={{ maxLength: VALIDATION_RULES.emailSubject.max }}
             />
           </Grid>
 
           <Grid item xs={12}>
-            <TextField fullWidth multiline rows={4} label="HTML Body" name="emailBodyHtml" value={form.emailBodyHtml} onChange={handleChange} />
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextField fullWidth multiline rows={2} label="Text Body" name="emailBodyText" value={form.emailBodyText} onChange={handleChange} />
-          </Grid>
-
-          {/* <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              type="date"
-              label="From Date"
-              name="effectiveFromDate"
-              InputLabelProps={{ shrink: true }}
-              value={form.effectiveFromDate}
+            <TextField 
+              fullWidth 
+              multiline 
+              rows={4} 
+              label="HTML Body" 
+              name="emailBodyHtml" 
+              value={form.emailBodyHtml} 
               onChange={handleChange}
-              error={!!errors.effectiveFromDate}
-              helperText={errors.effectiveFromDate}
+              error={!!errors.emailBodyHtml}
+              helperText={errors.emailBodyHtml || `Max ${VALIDATION_RULES.emailBodyHtml.max} characters`}
+              inputProps={{ maxLength: VALIDATION_RULES.emailBodyHtml.max }}
+              placeholder="<html><body>Your HTML content here</body></html>"
             />
-          </Grid> */}
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField 
+              fullWidth 
+              multiline 
+              rows={2} 
+              label="Text Body (Plain Text)" 
+              name="emailBodyText" 
+              value={form.emailBodyText} 
+              onChange={handleChange}
+              error={!!errors.emailBodyText}
+              helperText={errors.emailBodyText || `Max ${VALIDATION_RULES.emailBodyText.max} characters`}
+              inputProps={{ maxLength: VALIDATION_RULES.emailBodyText.max }}
+              placeholder="Plain text version of your email (for clients that don't support HTML)"
+            />
+          </Grid>
+
           <Grid item xs={6}>
             <DynamicDatePicker
               label="Effective From"
               value={form.effectiveFromDate}
-              onChange={(val: string) => {
-                console.log(val, 'kdjhchdvy')
-                setForm({ ...form, effectiveFromDate: val })
-              }}
+              onChange={(val: string) => handleDateChange('effectiveFromDate', val)}
               error={!!errors.effectiveFromDate}
               helperText={errors.effectiveFromDate}
               required
@@ -217,35 +383,44 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
               label="Effective To"
               value={form.effectiveToDate}
               minDate={form.effectiveFromDate}
-              onChange={(val: string) => {
-                setForm({ ...form, effectiveToDate: val })
-              }}
+              onChange={(val: string) => handleDateChange('effectiveToDate', val)}
               error={!!errors.effectiveToDate}
               helperText={errors.effectiveToDate}
               required
             />
           </Grid>
-          {/* <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              type="date"
-              label="To Date"
-              name="effectiveToDate"
-              InputLabelProps={{ shrink: true }}
-              value={form.effectiveToDate}
-              onChange={handleChange}
-              error={!!errors.effectiveToDate}
-              helperText={errors.effectiveToDate}
-            />
-          </Grid> */}
 
           <Grid item xs={12}>
-            <FormControlLabel control={<Checkbox name="active" checked={form.active} onChange={handleChange} color="primary" />} label="Active" />
+            <TextField
+              fullWidth
+              label="Description"
+              name="emailTemplateDescription"
+              value={form.emailTemplateDescription}
+              onChange={handleChange}
+              error={!!errors.emailTemplateDescription}
+              helperText={errors.emailTemplateDescription || `Max ${VALIDATION_RULES.emailTemplateDescription.max} characters`}
+              inputProps={{ maxLength: VALIDATION_RULES.emailTemplateDescription.max }}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <FormControlLabel 
+              control={
+                <Checkbox 
+                  name="active" 
+                  checked={form.active} 
+                  onChange={handleChange} 
+                  color="primary" 
+                />
+              } 
+              label="Active" 
+            />
           </Grid>
         </Grid>
       </DialogContent>
-      {/* <p style={{ textAlign: 'center', color: 'red' }}>{errMassage ? errMassage : ''}</p> */}
+      
       <ErrorMessage errMessage={errMassage} />
+      
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={onClose} sx={{ color: 'grey.600' }}>
           CANCEL

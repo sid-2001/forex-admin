@@ -55,8 +55,8 @@ export default function UrlTypeFormDialog({ open, onClose, editData, refreshList
     // Formatting dates to YYYY-MM-DDTHH:mm:ss
     const payload = {
       ...form,
-      effectiveFromDate: `${form.effectiveFromDate}T10:00:00`,
-      effectiveToDate: `${form.effectiveToDate}T10:00:00`,
+      effectiveFromDate: `${form.effectiveFromDate}T00:00:00Z`,
+      effectiveToDate: `${form.effectiveToDate}T00:00:00Z`,
     }
 
     try {

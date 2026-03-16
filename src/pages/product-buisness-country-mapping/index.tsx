@@ -2,17 +2,22 @@ import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Box, Button, IconButton, Stack, Chip, Typography } from '@mui/material'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
+import DownloadIcon from '@mui/icons-material/Download'
 import ProductBusinessCountryMappingDialog from '../../components/product-buisness-country-mapping-dialog'
 import ProductBusinessCountryMappingService from '@/services/productBusinessCountryMapping.service'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import dayjs from 'dayjs'
+import ProductService from '@/services/product.service'
+import { formatTableDate } from '@/helpers/dateformate'
 
 export default function ProductBusinessCountryMapping() {
   const service = useMemo(() => new ProductBusinessCountryMappingService(), [])
   const [rows, setRows] = useState<any[]>([])
   const [open, setOpen] = useState(false)
   const [editData, setEditData] = useState<any>(null)
+  const [isFormChanged, setIsFormChanged] = useState(false)
+  const [productlist, setProductlist] = useState([])
 
   const [, setAlertOpen] = useRecoilState(alertState)
   const [, setAlertText] = useRecoilState(alertTextState)
@@ -23,12 +28,15 @@ export default function ProductBusinessCountryMapping() {
     setAlertText(text)
     setAlertOpen(true)
   }
+  const product_service = new ProductService()
 
   const fetchList = useCallback(async () => {
     try {
       const res: any = await service.getList()
-      // Log to verify the fields: effectiveFromDate and effectiveToDate
       console.log('Fetched Data Sample:', res[0])
+      product_service.getProductList().then((data) => {
+        setProductlist(data)
+      })
       setRows(Array.isArray(res) ? res : res?.data || [])
     } catch (err) {
       setRows([])
@@ -39,32 +47,81 @@ export default function ProductBusinessCountryMapping() {
     fetchList()
   }, [fetchList])
 
-  // Helper to format dates for the table display
-  const formatDateForTable = (dateStr: string) => {
-    if (!dateStr) return '-'
-    try {
-      const date = new Date(dateStr)
-      if (isNaN(date.getTime())) return '-'
-      return date.toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      })
-    } catch (e) {
-      return '-'
+  // Function to download CSV with all fields
+  const downloadCSV = () => {
+    if (!rows || rows.length === 0) {
+      showAlert('Fail', 'No data to export')
+      return
     }
-  }
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
 
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    console.log(format, 'dkjhbcvy')
-    return dayjs(dateString).format(format.toUpperCase())
+    // Define CSV headers based on entity fields
+    const headers = [
+      'Business Map Code',
+      'Country Product Code',
+      'Recipient Country',
+      'Payment Rail',
+      'Active',
+      'Effective From',
+      'Effective To',
+      'Created By',
+      'Created Date',
+      'Modified By',
+      'Modified Date',
+    ]
+
+    // Map data to CSV rows
+    const csvRows = rows.map((row) => [
+      row.businessMapCode || '',
+      row.countryCorridorProductCode || row.productCode || '',
+      row.recipientCountry || '',
+      row.paymentRail || '',
+      row.active ? 'Yes' : 'No',
+      formatTableDate(row.effectiveFromDate || row.effective_from_date),
+      formatTableDate(row.effectiveToDate || row.effective_to_date),
+      row.createdBy || '',
+      row.createdLocalDateTime ? dayjs(row.createdLocalDateTime).format('YYYY-MM-DD HH:mm') : '',
+      row.modifiedBy || '',
+      row.modifiedLocalDateTime ? dayjs(row.modifiedLocalDateTime).format('YYYY-MM-DD HH:mm') : '',
+    ])
+
+    // Combine headers and rows
+    const csvContent = [headers.join(','), ...csvRows.map((row) => row.map((cell) => `"${cell}"`).join(','))].join('\n')
+
+    // Create and download the file
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `product_mapping_${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+
+    showAlert('Success', 'CSV downloaded successfully')
+  }
+
+  // Custom toolbar with CSV download button
+  const CustomToolbar = () => {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1 }}>
+        <GridToolbar />
+        <Button variant="outlined" size="small" startIcon={<DownloadIcon />} onClick={downloadCSV} sx={{ ml: 2 }}>
+          Export CSV
+        </Button>
+      </Box>
+    )
+  }
+
+  const handleDialogClose = () => {
+    setOpen(false)
+    setIsFormChanged(false)
+    setEditData(null)
+  }
+
+  const handleFormChange = (changed: boolean) => {
+    setIsFormChanged(changed)
   }
 
   const columns: GridColDef[] = [
@@ -72,16 +129,6 @@ export default function ProductBusinessCountryMapping() {
     { field: 'countryCorridorProductCode', headerName: 'Product', flex: 0.8, headerClassName: 'super-app-theme--header' },
     { field: 'recipientCountry', headerName: 'Country', flex: 0.5, headerClassName: 'super-app-theme--header' },
     { field: 'paymentRail', headerName: 'Payment Rail', flex: 0.8, headerClassName: 'super-app-theme--header' },
-    {
-      field: 'effectiveFromDate',
-      headerName: 'Effective From',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params) => {
-        const val = params.row?.effective_from_date || params.row?.effectiveFromDate
-        return val ? val.split('T')[0] : ''
-      },
-    },
     {
       field: 'effective_from_date',
       headerName: 'Effective From',
@@ -97,6 +144,13 @@ export default function ProductBusinessCountryMapping() {
       renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
     },
     {
+      field: 'active',
+      headerName: 'Active',
+      flex: 0.5,
+      renderCell: (params) => (params.row?.active ? 'Yes' : 'No'),
+      headerClassName: 'super-app-theme--header',
+    },
+    {
       field: 'actions',
       headerName: 'Actions',
       width: 80,
@@ -109,6 +163,7 @@ export default function ProductBusinessCountryMapping() {
           onClick={() => {
             setEditData(params.row)
             setOpen(true)
+            setIsFormChanged(false)
           }}
         >
           <EditIcon fontSize="small" />
@@ -125,20 +180,20 @@ export default function ProductBusinessCountryMapping() {
           component="h1"
           sx={{
             fontWeight: 700,
-            // color: 'text.primary',
             letterSpacing: '-0.02em',
             display: 'grid',
             placeItems: 'center',
             color: '#0061B1',
           }}
         >
-          {'Product Master'.toUpperCase()}
+          {'Product Business Country Mapping'.toUpperCase()}
         </Typography>
         <Button
           variant="contained"
           onClick={() => {
             setEditData(null)
             setOpen(true)
+            setIsFormChanged(false)
           }}
         >
           Add
@@ -162,7 +217,6 @@ export default function ProductBusinessCountryMapping() {
             },
           },
         }}
-        // pageSizeOptions={[5, 10, 20]}
         sx={{
           boxShadow: 2,
           border: 2,
@@ -175,10 +229,13 @@ export default function ProductBusinessCountryMapping() {
 
       <ProductBusinessCountryMappingDialog
         open={open}
-        handleClose={() => setOpen(false)}
+        handleClose={handleDialogClose}
         editData={editData}
         refreshList={fetchList}
         showAlert={showAlert}
+        onFormChange={handleFormChange}
+        isUpdateDisabled={editData ? !isFormChanged : false}
+        productList={productlist}
       />
     </Box>
   )

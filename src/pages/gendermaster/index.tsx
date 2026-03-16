@@ -18,6 +18,7 @@ dayjs.extend(timezone)
 
 dayjs.extend(utc)
 import { getLiveAuditData } from '@/helpers/dynamicLocations'
+import { formatTableDate } from '@/helpers/dateformate'
 
 export default function GenderMaster() {
   const [rows, setRows] = useState<any[]>([])
@@ -31,22 +32,6 @@ export default function GenderMaster() {
 
   const local_service = useMemo(() => new LocalStorageService(), [])
   const static_service = useMemo(() => new GenderService(), [])
-
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-
-    const cleanDate = String(dateString).split('T')[0]
-
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-
-    return dayjs(cleanDate).format(format.toUpperCase())
-  }
 
   const fetchData = useCallback(async () => {
     const res: any = await static_service.getGenderList()

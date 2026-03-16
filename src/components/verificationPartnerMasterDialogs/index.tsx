@@ -38,12 +38,13 @@ export default function VerificationPartnerMasterDialog({ open, onClose, onSubmi
   const [errors, setErrors] = useState<any>({})
 
   useEffect(() => {
-    if (editData) {
+    if (editData && open) {
       setForm({
         ...editData,
         effectiveFromDate: editData.effectiveFromDate?.split('T')[0] || '',
         effectiveToDate: editData.effectiveToDate?.split('T')[0] || '',
       })
+      setErrors({})
     } else {
       setForm(initialFormState)
       setErrors({})
@@ -66,6 +67,16 @@ export default function VerificationPartnerMasterDialog({ open, onClose, onSubmi
       }
     })
 
+    // Date validation: effectiveToDate must be after effectiveFromDate
+    if (form.effectiveFromDate && form.effectiveToDate) {
+      const fromDate = new Date(form.effectiveFromDate)
+      const toDate = new Date(form.effectiveToDate)
+      
+      if (toDate <= fromDate) {
+        newErrors.effectiveToDate = 'Effective To date must be after Effective From date'
+      }
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -81,6 +92,18 @@ export default function VerificationPartnerMasterDialog({ open, onClose, onSubmi
         effectiveToDate: `${form.effectiveToDate}T23:59:59`,
       }
       onSubmit(cleanPayload)
+    }
+  }
+
+  // Handle date change with validation clearing
+  const handleDateChange = (field: string, value: string) => {
+    setForm({ ...form, [field]: value })
+    if (errors[field]) {
+      setErrors({ ...errors, [field]: '' })
+    }
+    // Clear effectiveToDate error when effectiveFromDate changes
+    if (field === 'effectiveFromDate' && errors.effectiveToDate) {
+      setErrors({ ...errors, effectiveToDate: '' })
     }
   }
 
@@ -102,23 +125,16 @@ export default function VerificationPartnerMasterDialog({ open, onClose, onSubmi
                 if (errors.countryCode) setErrors({ ...errors, countryCode: '' })
               }}
               renderInput={(params) => (
-                <TextField {...params} label="Search Country" required error={!!errors.countryCode} helperText={errors.countryCode} />
+                <TextField 
+                  {...params} 
+                  label="Search Country" 
+                  required 
+                  error={!!errors.countryCode} 
+                  helperText={errors.countryCode} 
+                />
               )}
             />
           </Grid>
-
-          {/* <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Partner Code"
-              name="verificationPartnerCode"
-              value={form.verificationPartnerCode}
-              onChange={handleChange}
-              error={!!errors.verificationPartnerCode}
-              helperText={errors.verificationPartnerCode}
-              disabled={!!editData}
-            />
-          </Grid> */}
 
           <Grid item xs={12}>
             <TextField
@@ -129,32 +145,17 @@ export default function VerificationPartnerMasterDialog({ open, onClose, onSubmi
               onChange={handleChange}
               error={!!errors.verificationPartnerDescription}
               helperText={errors.verificationPartnerDescription}
+              required
             />
           </Grid>
 
-          {/* <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Effective From"
-              name="effectiveFromDate"
-              InputLabelProps={{ shrink: true }}
-              value={form.effectiveFromDate}
-              onChange={handleChange}
-              error={!!errors.effectiveFromDate}
-              helperText={errors.effectiveFromDate}
-            />
-          </Grid> */}
           <Grid item xs={6}>
             <DynamicDatePicker
               label="Effective From"
               value={form.effectiveFromDate}
-              onChange={(val: string) => {
-                console.log(val, 'kdjhchdvy')
-                setForm({ ...form, effectiveFromDate: val })
-              }}
-              error={!!errors.effectiveFrom}
-              helperText={errors.effectiveFrom}
+              onChange={(val: string) => handleDateChange('effectiveFromDate', val)}
+              error={!!errors.effectiveFromDate}
+              helperText={errors.effectiveFromDate}
               required
             />
           </Grid>
@@ -164,30 +165,25 @@ export default function VerificationPartnerMasterDialog({ open, onClose, onSubmi
               label="Effective To"
               value={form.effectiveToDate}
               minDate={form.effectiveFromDate}
-              onChange={(val: string) => {
-                setForm({ ...form, effectiveToDate: val })
-              }}
+              onChange={(val: string) => handleDateChange('effectiveToDate', val)}
               error={!!errors.effectiveToDate}
               helperText={errors.effectiveToDate}
               required
             />
           </Grid>
-          {/* <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Effective To"
-              name="effectiveToDate"
-              InputLabelProps={{ shrink: true }}
-              value={form.effectiveToDate}
-              onChange={handleChange}
-              error={!!errors.effectiveToDate}
-              helperText={errors.effectiveToDate}
-            />
-          </Grid> */}
 
           <Grid item xs={12}>
-            <FormControlLabel control={<Checkbox name="active" checked={form.active} onChange={handleChange} color="primary" />} label="Active" />
+            <FormControlLabel 
+              control={
+                <Checkbox 
+                  name="active" 
+                  checked={form.active} 
+                  onChange={handleChange} 
+                  color="primary" 
+                />
+              } 
+              label="Active" 
+            />
           </Grid>
         </Grid>
       </DialogContent>

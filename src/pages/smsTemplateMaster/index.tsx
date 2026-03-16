@@ -10,6 +10,7 @@ import dayjs from 'dayjs'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import { Success } from '@/assets/images'
+import { formatTableDate } from '@/helpers/dateformate'
 
 export default function SmsTemplateManagement() {
   const [open, setOpen] = useState(false)
@@ -91,18 +92,6 @@ export default function SmsTemplateManagement() {
       console.error('Update failed:', err)
       showAlert('Fail', 'Please see the fields are correct' + ' ' + err)
     }
-  }
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    console.log(format, 'dkjhbcvy')
-    return dayjs(dateString).format(format.toUpperCase())
   }
 
   const columns: GridColDef[] = [

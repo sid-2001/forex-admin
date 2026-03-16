@@ -48,6 +48,7 @@ import CountryLabelCodesService from '../../services/country-label-codes.service
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import dayjs from 'dayjs'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
+import { formatTableDate } from '@/helpers/dateformate'
 
 const countryReportingMappingsService = new CountryReportingMappingsService()
 const countryLabelCodesService = new CountryLabelCodesService()
@@ -506,18 +507,6 @@ export default function CountryReportingMappingsGridPage() {
   const getSelectedFieldLabelDetails = () => {
     if (!form.fieldLabelCode) return null
     return fieldLabelOptions.find((opt) => opt.fieldLabelCode === form.fieldLabelCode)
-  }
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    console.log(format, 'dkjhbcvy')
-    return dayjs(dateString).format(format.toUpperCase())
   }
 
   return (

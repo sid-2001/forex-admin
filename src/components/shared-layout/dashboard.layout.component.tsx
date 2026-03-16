@@ -30,6 +30,7 @@ import Person2Icon from '@mui/icons-material/Person2'
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
 import { menuHistoryState, themeModeState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
+import AddToQueueIcon from '@mui/icons-material/AddToQueue'
 import CompactLocationBar from '../location'
 import {
   ArrowBack,
@@ -74,7 +75,8 @@ import ReportIcon from '@mui/icons-material/Report'
 import ReportOffIcon from '@mui/icons-material/ReportOff'
 // import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
-import { FolderIcon, GavelIcon, LanguagesIcon, Menu, SettingsIcon } from 'lucide-react'
+import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing'
+import { FolderIcon, GavelIcon, LanguagesIcon, Menu, QrCodeIcon, SettingsIcon } from 'lucide-react'
 import WebIcon from '@mui/icons-material/Web'
 import MonitorIcon from '@mui/icons-material/Monitor'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'
@@ -439,6 +441,25 @@ const MASTER_MENU = [
     name: 'ESequence Master',
     icon: <FormatListNumberedIcon fontSize="small" />,
     path: 'sequence-master',
+  },
+  {
+    label: 'Country Product Code',
+    name: 'Country Product Code',
+    icon: <QrCodeIcon fontSize="small" />,
+    path: 'country-product-code',
+  },
+  {
+    label: 'Product Sub Service',
+    name: 'Product Sub Service',
+    icon: <PrecisionManufacturingIcon fontSize="small" />,
+    path: 'product-subservice',
+  },
+
+  {
+    label: 'Service Sub Service Mapping',
+    name: 'Service Sub Service Mapping',
+    icon: <AddToQueueIcon fontSize="small" />,
+    path: 'service-sub-service-mapping',
   },
 
   // verification-partner

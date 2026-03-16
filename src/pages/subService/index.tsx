@@ -10,6 +10,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import dayjs from 'dayjs'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
+import { formatTableDate } from '@/helpers/dateformate'
 
 export default function SubServiceManagement() {
   const [open, setOpen] = useState(false)
@@ -55,9 +56,10 @@ export default function SubServiceManagement() {
         ...data,
         createdBy: local_service?.get_staff_id() || 'APSNGGGN3654',
       }
-      await subService.createSubService(payload)
+      let res = await subService.createSubService(payload)
       setOpen(false)
-      showAlert('Success', '✨ Sub-Service added  successfully')
+      showAlert('Success', `${res.message}`)
+      // showAlert('Success', '✨ Sub-Service added  successfully')
       fetchData()
     } catch (e) {
       console.error(e)
@@ -69,9 +71,9 @@ export default function SubServiceManagement() {
     const id = editData?.subServiceCodeGenerated || editData?.id
     if (!id) return alert('ID missing')
 
-    await subService.updateSubService(id, { ...data, subServiceCode: id, modifiedBy: local_service.get_staff_id() })
+    let res = await subService.updateSubService(id, { ...data, subServiceCode: id, modifiedBy: local_service.get_staff_id() })
     setOpen(false)
-    showAlert('Success', 'Sub Service saved successfully')
+    showAlert('Success', `${res.message}`)
     fetchData()
   }
 
@@ -82,22 +84,10 @@ export default function SubServiceManagement() {
       fetchData()
     }
   }
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    console.log(format, 'dkjhbcvy')
-    return dayjs(dateString).format(format.toUpperCase())
-  }
 
   const columns: GridColDef[] = [
     { field: 'subServiceCodeGenerated', headerName: 'Sub Service Code', flex: 1, headerClassName: 'super-app-theme--header' },
-     { field: 'subServiceName', headerName: 'Sub Service Name', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'subServiceName', headerName: 'Sub Service Name', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'countryCode', headerName: 'Country', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'active', headerName: 'Active', flex: 0.7, renderCell: (p) => (p.value ? 'Yes' : 'No'), headerClassName: 'super-app-theme--header' },
     {

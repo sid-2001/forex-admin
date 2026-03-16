@@ -11,6 +11,7 @@ import ConfirmModal from '@/components/ConfirmModal'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { getLiveAuditData } from '@/helpers/dynamicLocations'
+import { formatTableDate } from '@/helpers/dateformate'
 
 dayjs.extend(utc)
 
@@ -51,18 +52,6 @@ export default function ChannelManagement() {
   useEffect(() => {
     fetchData()
   }, [fetchData])
-
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    return dayjs(dateString).format(format.toUpperCase())
-  }
 
   const handleAction = async (data: any, isUpdate: boolean) => {
     if (data.validationError) {
