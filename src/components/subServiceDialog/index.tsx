@@ -103,7 +103,7 @@ export default function SubServiceFormDialog({ open, onClose, onSubmit, editData
             fullWidth
             options={countries?.filter((item) => item.status === 'A') || []}
             //@ts-ignore
-            getOptionLabel={(option: any) => option.countryName || ''}
+            getOptionLabel={(option: any) => option.countryName + ` (${option.countryCode})` || ''}
             value={countries.find((c) => c.countryCode === countryCode) || null}
             onChange={(_, newValue: any) => {
               setCountryCode(newValue ? newValue.countryCode : '')

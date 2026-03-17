@@ -1,4 +1,4 @@
-import { Button, Stack, IconButton, Box, Typography } from '@mui/material'
+import { Button, Stack, IconButton, Box, Typography, Alert, Snackbar } from '@mui/material'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import { useEffect, useState, useMemo, useCallback } from 'react'
@@ -12,8 +12,15 @@ export default function CountryKycDocManagement() {
   const [rows, setRows] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [errMassage, setErrMassage] = useState(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
 
   const docService = useMemo(() => new CountryKycDocService(), [])
+
+  const showSuccessMessage = (message: string) => {
+    setSuccessMessage(message)
+    setSnackbarOpen(true)
+  }
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -22,8 +29,10 @@ export default function CountryKycDocManagement() {
       // Correctly handle the response structure
       const responseData = res?.data || res
       setRows(Array.isArray(responseData) ? responseData : [])
-    } catch (error) {
+      setErrMassage(null)
+    } catch (error: any) {
       console.error('Fetch error:', error)
+      setErrMassage(error?.response?.data?.message || error?.message || 'Failed to fetch data')
     } finally {
       setLoading(false)
     }
@@ -43,10 +52,14 @@ export default function CountryKycDocManagement() {
         setErrMassage(res.message)
       } else {
         setOpen(false)
-        fetchData()
+        setEditData(null)
+        setErrMassage(null)
+        showSuccessMessage('Document updated successfully!')
+        await fetchData()
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
+      setErrMassage(err?.response?.data?.message || err?.message || 'Failed to update document')
     }
   }
 
@@ -57,11 +70,25 @@ export default function CountryKycDocManagement() {
         setErrMassage(res.message)
       } else {
         setOpen(false)
-        fetchData()
+        setEditData(null)
+        setErrMassage(null)
+        showSuccessMessage('Document created successfully!')
+        await fetchData()
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
+      setErrMassage(err?.response?.data?.message || err?.message || 'Failed to create document')
     }
+  }
+
+  const handleCloseSnackbar = (
+    //@ts-ignore
+    event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return
+    }
+    setSnackbarOpen(false)
+    setSuccessMessage(null)
   }
 
   const columns: GridColDef[] = [
@@ -151,6 +178,14 @@ export default function CountryKycDocManagement() {
           Add
         </Button>
       </Stack>
+      
+      {/* Display error message if exists */}
+      {errMassage && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setErrMassage(null)}>
+          {errMassage}
+        </Alert>
+      )}
+
       <div style={{ height: 500, width: '100%' }}>
         <DataGrid
           rows={rows}
@@ -169,16 +204,32 @@ export default function CountryKycDocManagement() {
           }}
         />
       </div>
+      
       {open && (
         <CountryKycDocDialog
           key={editData ? editData.countryKycDocCode : 'new'}
           open={open}
-          onClose={() => setOpen(false)}
+          onClose={() => {
+            setOpen(false)
+            setErrMassage(null)
+          }}
           editData={editData}
           onSubmit={editData ? handleUpdate : handleCreate}
           errMassage={errMassage}
         />
       )}
+
+      {/* Success Snackbar */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   )
 }

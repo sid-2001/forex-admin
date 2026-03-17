@@ -118,8 +118,10 @@ export default function DocRequiredFormDialog({
   useEffect(() => {
     if (form.countryCode && kycDocuments.length > 0) {
       const filtered = kycDocuments.filter((doc: any) => 
-       doc.active === true
+       doc.countryCode == form.countryCode
       )
+      console.log(filtered)
+     
       setFilteredKycDocs(filtered)
     } else {
       setFilteredKycDocs([])
@@ -180,18 +182,26 @@ export default function DocRequiredFormDialog({
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = () => {
-    if (!validate()) return
+const handleSubmit = () => {
+  if (!validate()) return
 
-    const staffId = localService.get_staff_id() || 'ADMIN'
-    
-    onSubmit({
-      ...form,
-      createdBy: editData ? undefined : staffId,
-      modifiedBy: editData ? staffId : undefined,
-    })
-  }
+  const staffId = localService.get_staff_id() || 'ADMIN'
 
+  onSubmit({
+    ...form,
+
+    effectiveFromDate: form.effectiveFromDate
+      ? dayjs(form.effectiveFromDate).format('YYYY-MM-DDTHH:mm:ss')
+      : null,
+
+    effectiveToDate: form.effectiveToDate
+      ? dayjs(form.effectiveToDate).format('YYYY-MM-DDTHH:mm:ss')
+      : null,
+
+    createdBy: editData ? undefined : staffId,
+    modifiedBy: editData ? staffId : undefined,
+  })
+}
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle sx={{ 
@@ -312,8 +322,10 @@ export default function DocRequiredFormDialog({
                 onChange={(e) => handleChange('kycDocCode', e.target.value)}
               >
                 {filteredKycDocs.map((doc) => (
-                  <MenuItem key={doc.kycDocTypeCode} value={doc.kycDocTypeCode}>
-                    {doc.kycDocTypeCode} - {doc.kycDocTypeDescription} 
+                  <MenuItem key={doc.kycDocCode} value={doc.kycDocCode}>
+
+                    {/* {JSON.stringify(doc)} */}
+                    {doc.kycDocCode} - {doc.docTypeDescription} 
                   </MenuItem>
                 ))}
               </TextField>

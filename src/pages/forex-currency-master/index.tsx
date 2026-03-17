@@ -18,7 +18,7 @@ export default function ForexCurrencyMaster() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editData, setEditData] = useState<ForexCurrency | null>(null)
   const [isFormChanged, setIsFormChanged] = useState(false)
-  
+
   // Inside your function component at the top
   const [alertOpen, setAlertOpen] = useRecoilState(alertState)
   const [alertText, setAlertText] = useRecoilState(alertTextState)
@@ -59,31 +59,32 @@ export default function ForexCurrencyMaster() {
       'Created By',
       'Created Date',
       'Modified By',
-      'Modified Date'
+      'Modified Date',
     ]
-    
+
     // Map data to CSV rows
     const csvRows = (rows as any).map(
       //@ts-ignore
-      row => [
-      row.countryCode || '',
-      row.currencyCode || '',
-      row.currencyName || '',
-      row.currencySymbol || '',
-      row.active ? 'Yes' : 'No',
-      formatTableDate(row.effectiveFromDate || row.effectivefromdate),
-      formatTableDate(row.effectiveToDate || row.effectivetodate),
-      row.createdBy || '',
-      row.createdLocaldatetime ? dayjs(row.createdLocaldatetime).format('YYYY-MM-DD HH:mm') : '',
-      row.modifiedBy || '',
-      row.modifiedLocaldatetime ? dayjs(row.modifiedLocaldatetime).format('YYYY-MM-DD HH:mm') : ''
-    ])
+      (row) => [
+        row.countryCode || '',
+        row.currencyCode || '',
+        row.currencyName || '',
+        row.currencySymbol || '',
+        row.active ? 'Yes' : 'No',
+        formatTableDate(row.effectiveFromDate || row.effectivefromdate),
+        formatTableDate(row.effectiveToDate || row.effectivetodate),
+        row.createdBy || '',
+        row.createdLocaldatetime ? dayjs(row.createdLocaldatetime).format('YYYY-MM-DD HH:mm') : '',
+        row.modifiedBy || '',
+        row.modifiedLocaldatetime ? dayjs(row.modifiedLocaldatetime).format('YYYY-MM-DD HH:mm') : '',
+      ],
+    )
 
     // Combine headers and rows
     const csvContent = [
       headers.join(','),
       //@ts-ignore
-      ...csvRows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ...csvRows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
     ].join('\n')
 
     // Create and download the file
@@ -106,13 +107,7 @@ export default function ForexCurrencyMaster() {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1 }}>
         <GridToolbar />
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<DownloadIcon />}
-          onClick={downloadCSV}
-          sx={{ ml: 2 }}
-        >
+        <Button variant="outlined" size="small" startIcon={<DownloadIcon />} onClick={downloadCSV} sx={{ ml: 2 }}>
           Export CSV
         </Button>
       </Box>
@@ -132,7 +127,7 @@ export default function ForexCurrencyMaster() {
 
   const handleUpdate = async (data: any) => {
     if (!editData) return
-  let res=  await service.update(editData.countryCode, data)
+    let res = await service.update(editData.countryCode, data)
     showAlert('Success', res.message)
     setEditData(null)
     setDialogOpen(false)
@@ -167,7 +162,7 @@ export default function ForexCurrencyMaster() {
       renderCell: (params) => (params.value ? 'Yes' : 'No'),
       headerClassName: 'super-app-theme--header',
     },
- 
+
     {
       field: 'actions',
       headerName: 'Actions',
@@ -225,7 +220,7 @@ export default function ForexCurrencyMaster() {
         getRowId={(row) => row.countryCode}
         columns={columns}
         autoHeight
-        slots={{ toolbar: CustomToolbar }}
+        slots={{ toolbar: GridToolbar }}
         slotProps={{ toolbar: { showQuickFilter: true } }}
         disableColumnMenu
         pageSizeOptions={[5]}

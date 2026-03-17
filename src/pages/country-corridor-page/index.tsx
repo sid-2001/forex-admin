@@ -210,7 +210,9 @@ const CountryCorridorPage: React.FC = () => {
     countryCode: '',
     active: true,
     createdBy: local_service?.get_staff_id() || 'APSNG26010500002',
+    //@ts-ignore
     effectiveFromDate: null,
+    //@ts-ignore
     effectiveToDate: null,
   })
 
@@ -366,6 +368,8 @@ const CountryCorridorPage: React.FC = () => {
       return
     }
 
+    //@ts-ignore
+
     if (!validateDates(formData.effectiveFromDate, formData.effectiveToDate)) {
       return
     }
@@ -381,7 +385,7 @@ const CountryCorridorPage: React.FC = () => {
     setLoading(true)
     try {
    let res=   await corridorService.createCorridor(payload)
-   console.log("i m here",res)
+     //@ts-ignore
       showSnackbar(`${res.message}`)
       setOpenCreateDialog(false)
       resetForm()
@@ -398,6 +402,7 @@ const CountryCorridorPage: React.FC = () => {
   const handleUpdateCorridor = async () => {
     if (!selectedRow) return
 
+    //@ts-ignore
     if (!validateDates(editFormData.effectiveFromDate, editFormData.effectiveToDate)) {
       return
     }
@@ -508,11 +513,7 @@ const CountryCorridorPage: React.FC = () => {
     setSnackbarOpen(true)
   }
 
-  // Handle tab change
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue)
-    setPage(0)
-  }
+
 
   // Handle page change
   const handlePageChange = (newPage: number) => {
@@ -615,22 +616,7 @@ const CountryCorridorPage: React.FC = () => {
   }
 
   // Custom toolbar with CSV download
-  const CustomToolbar = () => {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1 }}>
-        <GridToolbar />
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<FileDownloadIcon />}
-          onClick={handleExportCSV}
-          sx={{ ml: 2 }}
-        >
-          Export CSV
-        </Button>
-      </Box>
-    )
-  }
+
 
   // Columns definition
   const columns: GridColDef[] = [

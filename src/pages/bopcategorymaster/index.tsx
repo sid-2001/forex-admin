@@ -193,6 +193,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import dayjs from 'dayjs'
+import { formatTableDate } from '@/helpers/dateformate'
 
 export default function BopCategoryMaster() {
   const [rows, setRows] = useState<any[]>([])
@@ -233,18 +234,6 @@ export default function BopCategoryMaster() {
   const filteredRows = useMemo(() => {
     return rows.filter((row) => Object.values(row).some((val) => String(val).toLowerCase().includes(searchQuery.toLowerCase())))
   }, [rows, searchQuery])
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    console.log(format, 'dkjhbcvy')
-    return dayjs(dateString).format(format.toUpperCase())
-  }
 
   const columns: GridColDef[] = [
     { field: 'bopPurposeCategoryCode', headerName: 'Category Code', flex: 0.7, headerClassName: 'super-app-theme--header' },

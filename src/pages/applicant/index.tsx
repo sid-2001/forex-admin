@@ -240,8 +240,11 @@ const ApplicantPage = () => {
       const data = await applicant_service.getDocumentByApplicantId(applicantId)
       console.log(data)
       if (data.length > 0) {
-        const imageRecord = data.find((doc: any) => doc.documentName === 'image')
-        setApplicantImage(imageRecord?.docUrl || '')
+        console.log("here i am ")
+        const imageRecord = data.find((doc: any) => doc.docCode.toLowerCase() == 'image')
+        console.log(imageRecord)
+        console.log("saf")
+        setApplicantImage(imageRecord?.docFrontUrl || '')
         setApplicantDocuments(data)
       }
     } catch (error) {

@@ -44,6 +44,22 @@ export class CountryKycDocumentService extends BaseService {
    * Create a new country KYC document
    * @param payload - The document data to create
    */
+
+
+    async getAllKycDocuments(): Promise<any[]> {
+    try {
+      const response = await api1.get(this.baseUrl+'/getAll')
+    
+      return response.data || []
+    } catch (err) {
+      console.error('Error fetching country KYC documents:', err)
+      throw new Error('Unable to fetch country KYC documents. Please try again.')
+    }
+  }
+
+
+
+
   async createCountryKycDocument(payload: CreateCountryKycDocumentPayload): Promise<any> {
     try {
       const response = await api1.post(this.baseUrl, payload)

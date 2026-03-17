@@ -10,6 +10,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import dayjs from 'dayjs'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
+import { formatTableDate } from '@/helpers/dateformate'
 
 export default function SubServiceManagement() {
   const [open, setOpen] = useState(false)
@@ -82,18 +83,6 @@ export default function SubServiceManagement() {
       await subService.deleteSubService(id)
       fetchData()
     }
-  }
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    console.log(format, 'dkjhbcvy')
-    return dayjs(dateString).format(format.toUpperCase())
   }
 
   const columns: GridColDef[] = [

@@ -116,6 +116,8 @@ export default function CountryLimitTypeWiseLimitFormDialog({
     
     onSubmit({
       ...form,
+        effectiveFromDate: dayjs(form.effectiveFromDate).format('YYYY-MM-DDTHH:mm:ss'),
+    effectiveToDate: dayjs(form.effectiveToDate).format('YYYY-MM-DDTHH:mm:ss'),
       createdBy: editData ? undefined : staffId,
       modifiedBy: editData ? staffId : undefined,
     })

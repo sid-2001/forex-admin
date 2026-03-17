@@ -23,6 +23,25 @@ export interface IVendor {
   utcDateTime?: string | null
 }
 
+export interface IVendorType {
+  active: boolean
+  countryCode: string | null
+  createdBy: string | null
+  createdLocalDateTime: string | null
+  createdOffset: string | null
+  createdTimezone: string | null
+  createdUtcDateTime: string | null
+  effectiveFromDate: string | null
+  effectiveToDate: string | null
+  modifiedBy: string | null
+  modifiedLocalDateTime: string | null
+  modifiedOffset: string | null
+  modifiedTimezone: string | null
+  modifiedUtcDateTime: string | null
+  vendorType: string | null
+  vendorTypeCode: string | null
+}
+
 export default class VendorApiService {
   private getHeaders() {
     return {
@@ -69,6 +88,16 @@ export default class VendorApiService {
   async getExchangeRateVendorsList(): Promise<IVendor[]> {
     try {
       const { data } = await api1.get(`/api/static-table/vendor/getExchangeRateVendors`)
+      return Array.isArray(data) ? data : data?.data || []
+    } catch (error) {
+      console.error('Fetch Error:', error)
+      return []
+    }
+  }
+
+  async getVendorTypeData(): Promise<IVendorType[]> {
+    try {
+      const { data } = await api1.get(`/api/static-table/vendor-type-master/getAll`)
       return Array.isArray(data) ? data : data?.data || []
     } catch (error) {
       console.error('Fetch Error:', error)

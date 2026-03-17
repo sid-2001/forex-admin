@@ -22,7 +22,10 @@ const filter = createFilterOptions({
   stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
 })
 
-export default function VerificationPartnerMasterDialog({ open, onClose, onSubmit, editData, errMassage }: any) {
+export default function VerificationPartnerMasterDialog({ open, onClose, onSubmit, editData, 
+  
+  //@ts-ignore
+  errMassage }: any) {
   const [countries] = useRecoilState(countyState)
 
   const initialFormState = {

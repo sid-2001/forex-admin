@@ -246,8 +246,8 @@ export default function CountryResProductChannelDocRequiredMaster() {
           documentUpload: data.documentUpload,
           documentNumberRequired: data.documentNumberRequired,
           active: data.active,
-          effectiveFromDate: data.effectiveFromDate,
-          effectiveToDate: data.effectiveToDate,
+         effectiveFromDate: dayjs(data.effectiveFromDate).format('YYYY-MM-DD HH:mm:ss'),
+effectiveToDate: dayjs(data.effectiveToDate).format('YYYY-MM-DD HH:mm:ss'),
           modifiedBy: data.modifiedBy || local_service?.get_staff_id() || 'ADMIN',
         }
 
@@ -279,8 +279,8 @@ export default function CountryResProductChannelDocRequiredMaster() {
           documentUpload: data.documentUpload,
           documentNumberRequired: data.documentNumberRequired,
           active: data.active,
-          effectiveFromDate: data.effectiveFromDate,
-          effectiveToDate: data.effectiveToDate,
+       effectiveFromDate: dayjs(data.effectiveFromDate).format('YYYY-MM-DD HH:mm:ss'),
+effectiveToDate: dayjs(data.effectiveToDate).format('YYYY-MM-DD HH:mm:ss'),
           createdBy: data.createdBy || local_service?.get_staff_id() || 'ADMIN',
         }
 

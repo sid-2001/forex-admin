@@ -38,6 +38,7 @@ import ConfirmModal from '@/components/ConfirmModal'
 import dayjs from 'dayjs'
 import { getLiveAuditData } from '@/helpers/dynamicLocations'
 import { formatTableDate } from '@/helpers/dateformate'
+import { CountryKycDocumentService } from '@/services/countryKycDocument.service'
 
 // Types
 interface DocRequiredData {
@@ -152,6 +153,7 @@ export default function CountryResProductChannelDocRequiredMaster() {
     const option = BFA_OPTIONS.find(o => o.value === bfa)
     return option ? option.label : bfa
   }
+let country_kyc_doc_service=new   CountryKycDocumentService()
 
   // Fetch all master data
   const fetchMasterData = useCallback(async () => {
@@ -160,13 +162,14 @@ export default function CountryResProductChannelDocRequiredMaster() {
         productService.getProductList(),
         channelService.getChannelList(),
         residentService.getAllResidentTypes(),
-        kycDocumentServicee.getAllDocumentTypes()
+        country_kyc_doc_service.getAllKycDocuments()
       ])
       console.log(kycDocsRes)
       setProducts(productsRes)
       //@ts-ignore
       setChannels(channelsRes)
       setResidentTypes(Array.isArray(residentRes) ? residentRes : [])
+      
       setKycDocuments(kycDocsRes)
     } catch (error) {
       console.error('Error fetching master data:', error)
@@ -174,7 +177,7 @@ export default function CountryResProductChannelDocRequiredMaster() {
   }, [productService, channelService, residentService, kycDocumentServicee])
 
   useEffect(()=>{
-console.log("all thge kyc document")
+
 console.log(kycDocuments)
   },[])
   // Fetch document requirements

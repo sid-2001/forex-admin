@@ -1,6 +1,22 @@
 // pages/CountryCorridorProductMaster.tsx
 import { useEffect, useState, useCallback, useMemo } from 'react'
-import { Box, Button, IconButton, Stack, Chip, Typography, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem, Grid, Paper, Tooltip } from '@mui/material'
+import {
+  Box,
+  Button,
+  IconButton,
+  Stack,
+  Chip,
+  Typography,
+  TextField,
+  InputAdornment,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Grid,
+  Paper,
+  Tooltip,
+} from '@mui/material'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DownloadIcon from '@mui/icons-material/Download'
@@ -23,13 +39,14 @@ import dayjs from 'dayjs'
 import CountryCorridorProductFormDialog from '@/components/county-corridor-product-code-master'
 import ProductService from '@/services/product.service'
 import { formatTableDate } from '@/helpers/dateformate'
+
 import { CountryCorridorService } from '@/services/countryCorridor.service'
 
 export default function CountryCorridorProductMaster() {
   const service = useMemo(() => new CountryCorridorProductService(), [])
   const productService = useMemo(() => new ProductService(), [])
   const subServiceService = useMemo(() => new ProductSubServiceService(), [])
-  
+
   const [rows, setRows] = useState<any[]>([])
   const [filteredRows, setFilteredRows] = useState<any[]>([])
   const [products, setProducts] = useState<any[]>([])
@@ -37,14 +54,14 @@ export default function CountryCorridorProductMaster() {
   const [open, setOpen] = useState(false)
   const [editData, setEditData] = useState<any>(null)
   const [isFormChanged, setIsFormChanged] = useState(false)
-  
+
   // Filter states
   const [searchTerm, setSearchTerm] = useState('')
   const [countryFilter, setCountryFilter] = useState('all')
   const [productFilter, setProductFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [showFilters, setShowFilters] = useState(false)
-  
+
   // Pagination
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(5)
@@ -55,7 +72,7 @@ export default function CountryCorridorProductMaster() {
 
   const [uniqueCountries, setUniqueCountries] = useState<string[]>([])
   const [uniqueProducts, setUniqueProducts] = useState<string[]>([])
-  
+
   const [, setAlertOpen] = useRecoilState(alertState)
   const [, setAlertText] = useRecoilState(alertTextState)
   const [, setAlertType] = useRecoilState(alertTypeState)
@@ -69,35 +86,27 @@ export default function CountryCorridorProductMaster() {
 
 
   const getCountryCode = (row: any) => {
-    return row.countryCorridorMaster?.countryCode || 
-           row.countryCorridorCode?.substring(3, 5) || 
-           'N/A'
+    return row.countryCorridorMaster?.countryCode || row.countryCorridorCode?.substring(3, 5) || 'N/A'
   }
 
-  const getCountryName = (countryCode: string) => {
-    const country = countries.find((c: any) => c.countryCode === countryCode)
-    return country ? country.countryName : countryCode
-  }
+
 
   const getProductName = (productCode: string) => {
-    const product = products.find(p => p.productCode === productCode)
+    const product = products.find((p) => p.productCode === productCode)
     return product ? product.productName : productCode
   }
 
   const getServiceName = (serviceCode: string) => {
-    const service = subServices.find(s => s.productServiceMapCode === serviceCode)
+    const service = subServices.find((s) => s.productServiceMapCode === serviceCode)
     return service ? service.productServiceMapCode : serviceCode
   }
 
   // Fetch master data
   const fetchMasterData = useCallback(async () => {
     try {
-      const [productsData, servicesData] = await Promise.all([
-        productService.getProductList(),
-        subServiceService.getAllProductSubServices()
-      ])
+      const [productsData, servicesData] = await Promise.all([productService.getProductList(), subServiceService.getAllProductSubServices()])
       setProducts(productsData)
-      console.log("service data is here",servicesData)
+      console.log('service data is here', servicesData)
       setSubServices(servicesData)
     } catch (err) {
       console.error('Error fetching master data:', err)
@@ -109,20 +118,19 @@ export default function CountryCorridorProductMaster() {
     try {
       const res: any = await service.getAllCountryCorridorProducts()
       setRows(Array.isArray(res) ? res : res || [])
-      
+
       // Extract unique values for filters
       const countriesSet = new Set<string>()
       const productsSet = new Set<string>()
-      
+
       ;(Array.isArray(res) ? res : res?.data || []).forEach((row: any) => {
         const countryCode = getCountryCode(row)
         if (countryCode) countriesSet.add(countryCode)
         if (row.productCode) productsSet.add(row.productCode)
       })
-      
+
       setUniqueCountries(Array.from(countriesSet).sort())
       setUniqueProducts(Array.from(productsSet).sort())
-      
     } catch (err) {
       setRows([])
     }
@@ -135,29 +143,30 @@ export default function CountryCorridorProductMaster() {
     // Filter by search term
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
-      filtered = filtered.filter(row =>
-        row.countryCorridorProductCode?.toLowerCase().includes(term) ||
-        row.countryCorridorCode?.toLowerCase().includes(term) ||
-        row.productCode?.toLowerCase().includes(term) ||
-        row.productServiceCode?.toLowerCase().includes(term) ||
-        row.createdBy?.toLowerCase().includes(term)
+      filtered = filtered.filter(
+        (row) =>
+          row.countryCorridorProductCode?.toLowerCase().includes(term) ||
+          row.countryCorridorCode?.toLowerCase().includes(term) ||
+          row.productCode?.toLowerCase().includes(term) ||
+          row.productServiceCode?.toLowerCase().includes(term) ||
+          row.createdBy?.toLowerCase().includes(term),
       )
     }
 
     // Filter by country
     if (countryFilter !== 'all') {
-      filtered = filtered.filter(row => getCountryCode(row) === countryFilter)
+      filtered = filtered.filter((row) => getCountryCode(row) === countryFilter)
     }
 
     // Filter by product
     if (productFilter !== 'all') {
-      filtered = filtered.filter(row => row.productCode === productFilter)
+      filtered = filtered.filter((row) => row.productCode === productFilter)
     }
 
     // Filter by status
     if (statusFilter !== 'all') {
       const isActive = statusFilter === 'active'
-      filtered = filtered.filter(row => row.active === isActive)
+      filtered = filtered.filter((row) => row.active === isActive)
     }
 
     setFilteredRows(filtered)
@@ -176,8 +185,8 @@ export default function CountryCorridorProductMaster() {
   const coutry_corridor_service=new CountryCorridorService()
   useEffect(()=>{
 coutry_corridor_service.getAllCorridors().then(data=>{
-console.log(data)
-setcountries(data)
+
+setcountries(data as any)
 
 
 })
@@ -215,10 +224,10 @@ setcountries(data)
       'Effective From',
       'Effective To',
       'Created By',
-      'Created Date'
+      'Created Date',
     ]
-    
-    const csvRows = filteredRows.map(row => [
+
+    const csvRows = filteredRows.map((row) => [
       row.countryCorridorProductCode || '',
       row.countryCorridorCode || '',
       getCountryCode(row),
@@ -233,13 +242,10 @@ setcountries(data)
       formatTableDate(row.effectiveFromDate),
       formatTableDate(row.effectiveToDate),
       row.createdBy || '',
-      row.createdLocalDateTime ? dayjs(row.createdLocalDateTime).format('YYYY-MM-DD HH:mm') : ''
+      row.createdLocalDateTime ? dayjs(row.createdLocalDateTime).format('YYYY-MM-DD HH:mm') : '',
     ])
 
-    const csvContent = [
-      headers.join(','),
-      ...csvRows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n')
+    const csvContent = [headers.join(','), ...csvRows.map((row) => row.map((cell) => `"${cell}"`).join(','))].join('\n')
 
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
@@ -284,27 +290,27 @@ setcountries(data)
   }
 
   const columns: GridColDef[] = [
-    { 
-      field: 'countryCorridorProductCode', 
-      headerName: 'Product Code', 
+    {
+      field: 'countryCorridorProductCode',
+      headerName: 'Product Code',
       width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
-        <Chip 
-          label={params.value} 
+        <Chip
+          label={params.value}
           size="small"
-          sx={{ 
+          sx={{
             fontFamily: 'monospace',
             fontWeight: 600,
             backgroundColor: '#eef4fa',
-            color: '#0061B1'
+            color: '#0061B1',
           }}
         />
-      )
+      ),
     },
-    { 
-      field: 'countryCorridorCode', 
-      headerName: 'Corridor', 
+    {
+      field: 'countryCorridorCode',
+      headerName: 'Corridor',
       width: 120,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => {
@@ -318,52 +324,52 @@ setcountries(data)
             </Typography>
           </Stack>
         )
-      }
+      },
     },
-    { 
-      field: 'productCode', 
-      headerName: 'Product', 
+    {
+      field: 'productCode',
+      headerName: 'Product',
       width: 100,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Tooltip title={getProductName(params.value)}>
           <Typography variant="body2">{params.value}</Typography>
         </Tooltip>
-      )
+      ),
     },
-    { 
-      field: 'productServiceCode', 
-      headerName: 'Service', 
+    {
+      field: 'productServiceCode',
+      headerName: 'Service',
       width: 130,
       headerClassName: 'super-app-theme--header',
     },
-    { 
-      field: 'dateFormat', 
-      headerName: 'Date Format', 
+    {
+      field: 'dateFormat',
+      headerName: 'Date Format',
       width: 120,
       headerClassName: 'super-app-theme--header',
     },
-    { 
-      field: 'timeFormat', 
-      headerName: 'Time Format', 
+    {
+      field: 'timeFormat',
+      headerName: 'Time Format',
       width: 120,
       headerClassName: 'super-app-theme--header',
     },
-    { 
-      field: 'currencyFormat', 
-      headerName: 'Currency', 
+    {
+      field: 'currencyFormat',
+      headerName: 'Currency',
       width: 100,
       headerClassName: 'super-app-theme--header',
     },
-    { 
-      field: 'decimalPrecision', 
-      headerName: 'Precision', 
+    {
+      field: 'decimalPrecision',
+      headerName: 'Precision',
       width: 90,
       headerClassName: 'super-app-theme--header',
     },
-    { 
-      field: 'decimalRoundOff', 
-      headerName: 'Round Off', 
+    {
+      field: 'decimalRoundOff',
+      headerName: 'Round Off',
       width: 90,
       headerClassName: 'super-app-theme--header',
     },
@@ -381,7 +387,7 @@ setcountries(data)
             backgroundColor: params.value ? '#e2f0e6' : '#ffece5',
             color: params.value ? '#0f6a3b' : '#b13e2d',
             fontWeight: 600,
-            width: '70px'
+            width: '70px',
           }}
         />
       ),
@@ -398,7 +404,7 @@ setcountries(data)
       headerName: 'To',
       width: 100,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => params.value?.includes('9999') ? '∞' : formatTableDate(params.value),
+      renderCell: (params) => (params.value?.includes('9999') ? '∞' : formatTableDate(params.value)),
     },
     {
       field: 'actions',
@@ -452,7 +458,7 @@ setcountries(data)
       </Stack>
 
       {/* Search and Filter Bar */}
-  
+
       <DataGrid
         rows={filteredRows}
         columns={columns}

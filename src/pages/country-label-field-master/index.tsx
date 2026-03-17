@@ -354,7 +354,7 @@ export default function CountryLabelFieldsGridPage() {
                       .filter((screen: any) => screen.Active == true)
                       .map((screen: any) => (
                         <MenuItem key={screen?.ScreenCode} value={screen?.ScreenCode}>
-                          {screen.ScreenCode+"-"+screen.ScreenDescription}
+                          {screen.ScreenCode + '-' + screen.ScreenDescription}
                         </MenuItem>
                       ))}
                   </Select>

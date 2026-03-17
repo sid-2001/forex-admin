@@ -7,7 +7,7 @@ import dayjs, { Dayjs } from 'dayjs'
 export function DynamicDatePicker({ label, value, onChange, error, helperText, required, minDate }: any) {
   const dynamicFormat = useMemo(() => {
     const config = JSON.parse(localStorage.getItem('countryConfig') || '{}')
-    return (config.dateFormat || 'MM/DD/YYYY').toUpperCase()
+    return (config.dateFormat || 'YYYY-MM-DD').toUpperCase()
   }, [])
 
   const dateValue = useMemo(() => {
@@ -68,7 +68,7 @@ interface DynamicEndDatePickerProps {
 export function DynamicEndDatePicker({ label, value, onChange, error, helperText, required, minDate ,disabled}: any) {
   const dynamicFormat = useMemo(() => {
     const config = JSON.parse(localStorage.getItem('countryConfig') || '{}')
-    return (config.dateFormat || 'MM/DD/YYYY').toUpperCase()
+    return (config.dateFormat || 'YYYY-MM-DD').toUpperCase()
   }, [])
 
   //   const dateValue = useMemo(() => {

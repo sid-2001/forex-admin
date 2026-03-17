@@ -9,6 +9,7 @@ import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import dayjs from 'dayjs'
 import ProductService from '@/services/product.service'
+import { formatTableDate } from '@/helpers/dateformate'
 
 export default function ProductBusinessCountryMapping() {
   const service = useMemo(() => new ProductBusinessCountryMappingService(), [])
@@ -16,7 +17,7 @@ export default function ProductBusinessCountryMapping() {
   const [open, setOpen] = useState(false)
   const [editData, setEditData] = useState<any>(null)
   const [isFormChanged, setIsFormChanged] = useState(false)
-  const [productlist,setProductlist]=useState([]);
+  const [productlist, setProductlist] = useState([])
 
   const [, setAlertOpen] = useRecoilState(alertState)
   const [, setAlertText] = useRecoilState(alertTextState)
@@ -27,15 +28,13 @@ export default function ProductBusinessCountryMapping() {
     setAlertText(text)
     setAlertOpen(true)
   }
-  const product_service=new ProductService()
+  const product_service = new ProductService()
 
   const fetchList = useCallback(async () => {
     try {
       const res: any = await service.getList()
       console.log('Fetched Data Sample:', res[0])
-      product_service.getProductList().then(data=>{
-
-
+      product_service.getProductList().then((data) => {
         setProductlist(data)
       })
       setRows(Array.isArray(res) ? res : res?.data || [])
@@ -47,18 +46,6 @@ export default function ProductBusinessCountryMapping() {
   useEffect(() => {
     fetchList()
   }, [fetchList])
-
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    return dayjs(dateString).format(format.toUpperCase())
-  }
 
   // Function to download CSV with all fields
   const downloadCSV = () => {
@@ -79,11 +66,11 @@ export default function ProductBusinessCountryMapping() {
       'Created By',
       'Created Date',
       'Modified By',
-      'Modified Date'
+      'Modified Date',
     ]
-    
+
     // Map data to CSV rows
-    const csvRows = rows.map(row => [
+    const csvRows = rows.map((row) => [
       row.businessMapCode || '',
       row.countryCorridorProductCode || row.productCode || '',
       row.recipientCountry || '',
@@ -94,14 +81,11 @@ export default function ProductBusinessCountryMapping() {
       row.createdBy || '',
       row.createdLocalDateTime ? dayjs(row.createdLocalDateTime).format('YYYY-MM-DD HH:mm') : '',
       row.modifiedBy || '',
-      row.modifiedLocalDateTime ? dayjs(row.modifiedLocalDateTime).format('YYYY-MM-DD HH:mm') : ''
+      row.modifiedLocalDateTime ? dayjs(row.modifiedLocalDateTime).format('YYYY-MM-DD HH:mm') : '',
     ])
 
     // Combine headers and rows
-    const csvContent = [
-      headers.join(','),
-      ...csvRows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n')
+    const csvContent = [headers.join(','), ...csvRows.map((row) => row.map((cell) => `"${cell}"`).join(','))].join('\n')
 
     // Create and download the file
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
@@ -123,13 +107,7 @@ export default function ProductBusinessCountryMapping() {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1 }}>
         <GridToolbar />
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<DownloadIcon />}
-          onClick={downloadCSV}
-          sx={{ ml: 2 }}
-        >
+        <Button variant="outlined" size="small" startIcon={<DownloadIcon />} onClick={downloadCSV} sx={{ ml: 2 }}>
           Export CSV
         </Button>
       </Box>
@@ -228,7 +206,7 @@ export default function ProductBusinessCountryMapping() {
         getRowId={(row) => row.businessMapCode || Math.random()}
         autoHeight
         disableRowSelectionOnClick
-        slots={{ toolbar: CustomToolbar }}
+        slots={{ toolbar: GridToolbar }}
         slotProps={{ toolbar: { showQuickFilter: true } }}
         disableColumnMenu
         density="standard"
@@ -256,7 +234,9 @@ export default function ProductBusinessCountryMapping() {
         refreshList={fetchList}
         showAlert={showAlert}
         onFormChange={handleFormChange}
-        isUpdateDisabled={editData ? !isFormChanged : false} productList={productlist}      />
+        isUpdateDisabled={editData ? !isFormChanged : false}
+        productList={productlist}
+      />
     </Box>
   )
 }

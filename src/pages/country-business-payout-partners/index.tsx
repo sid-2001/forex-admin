@@ -8,6 +8,7 @@ import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import CountryBusinessPayoutPartnerFormDialog from '../../components/countrybuisnesspayoutformformdialog'
 import CountryBusinessPayoutPartnerService from '@/services/countryBusinessPayoutPartner.service'
 import dayjs from 'dayjs'
+import { formatTableDate } from '@/helpers/dateformate'
 
 const CountryBusinessPayoutPartner = () => {
   const [rows, setRows] = useState<any[]>([])
@@ -46,18 +47,6 @@ const CountryBusinessPayoutPartner = () => {
     fetchData()
   }, [fetchData])
 
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    return dayjs(dateString).format(format.toUpperCase())
-  }
-
   // Function to download CSV with all fields
   const downloadCSV = () => {
     if (!rows || rows.length === 0) {
@@ -77,11 +66,11 @@ const CountryBusinessPayoutPartner = () => {
       'Created By',
       'Created Date',
       'Modified By',
-      'Modified Date'
+      'Modified Date',
     ]
-    
+
     // Map data to CSV rows
-    const csvRows = rows.map(row => [
+    const csvRows = rows.map((row) => [
       row.countryBusinessPayoutPartnerCode || '',
       row.countryCorridorBusinessMapCode || '',
       row.businessTypeCode || '',
@@ -92,14 +81,11 @@ const CountryBusinessPayoutPartner = () => {
       row.createdBy || '',
       row.createdLocalDateTime ? dayjs(row.createdLocalDateTime).format('YYYY-MM-DD HH:mm') : '',
       row.modifiedBy || '',
-      row.modifiedLocalDateTime ? dayjs(row.modifiedLocalDateTime).format('YYYY-MM-DD HH:mm') : ''
+      row.modifiedLocalDateTime ? dayjs(row.modifiedLocalDateTime).format('YYYY-MM-DD HH:mm') : '',
     ])
 
     // Combine headers and rows
-    const csvContent = [
-      headers.join(','),
-      ...csvRows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n')
+    const csvContent = [headers.join(','), ...csvRows.map((row) => row.map((cell) => `"${cell}"`).join(','))].join('\n')
 
     // Create and download the file
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
@@ -121,13 +107,7 @@ const CountryBusinessPayoutPartner = () => {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1 }}>
         <GridToolbar />
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<DownloadIcon />}
-          onClick={downloadCSV}
-          sx={{ ml: 2 }}
-        >
+        <Button variant="outlined" size="small" startIcon={<DownloadIcon />} onClick={downloadCSV} sx={{ ml: 2 }}>
           Export CSV
         </Button>
       </Box>
@@ -224,7 +204,7 @@ const CountryBusinessPayoutPartner = () => {
         columns={columns}
         loading={loading}
         autoHeight
-        slots={{ toolbar: CustomToolbar }}
+        slots={{ toolbar: GridToolbar }}
         slotProps={{ toolbar: { showQuickFilter: true } }}
         disableColumnMenu
         getRowId={(row) => row.countryBusinessPayoutPartnerCode || Math.random()}

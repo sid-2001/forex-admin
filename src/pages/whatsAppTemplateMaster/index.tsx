@@ -89,30 +89,20 @@ export default function WhatsappTemplateManagement() {
     }
 
     // Define CSV headers based on available fields
-    const headers = [
-      'Template Code',
-      'Description',
-      'Country Code',
-      'Active',
-      'Effective From',
-      'Effective To'
-    ]
-    
+    const headers = ['Template Code', 'Description', 'Country Code', 'Active', 'Effective From', 'Effective To']
+
     // Map data to CSV rows - using only fields that exist in the data
-    const csvRows = rows.map(row => [
+    const csvRows = rows.map((row) => [
       row.whatsappTemplateCode || '',
       row.whatsappTemplateDescription || '',
       row.countryCode || '',
       row.active ? 'Yes' : 'No',
       formatTableDate(row.effectiveFromDate || row.effective_from_date),
-      formatTableDate(row.effectiveToDate || row.effective_to_date)
+      formatTableDate(row.effectiveToDate || row.effective_to_date),
     ])
 
     // Combine headers and rows
-    const csvContent = [
-      headers.join(','),
-      ...csvRows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n')
+    const csvContent = [headers.join(','), ...csvRows.map((row) => row.map((cell) => `"${cell}"`).join(','))].join('\n')
 
     // Create and download the file
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
@@ -134,13 +124,7 @@ export default function WhatsappTemplateManagement() {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1 }}>
         <GridToolbar />
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<DownloadIcon />}
-          onClick={downloadCSV}
-          sx={{ ml: 2 }}
-        >
+        <Button variant="outlined" size="small" startIcon={<DownloadIcon />} onClick={downloadCSV} sx={{ ml: 2 }}>
           Export CSV
         </Button>
       </Box>

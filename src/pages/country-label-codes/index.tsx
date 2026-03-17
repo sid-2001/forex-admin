@@ -54,6 +54,7 @@ import ChannelService from '@/services/channel.servive'
 import { CountryData } from '@/types/static.type'
 import dayjs from 'dayjs'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
+import { formatTableDate } from '@/helpers/dateformate'
 
 const countryLabelCodesService = new CountryLabelCodesService()
 const countryBusinessPayoutPartnerService = new CountryBusinessPayoutPartnerService()
@@ -77,6 +78,7 @@ export interface BopCategory {
   createdUtcDateTime: string
   modifiedUtcDateTime: string | null
   effectiveDateValid: boolean
+  countryCode?: string // Adding optional countryCode field
 }
 
 export default function CountryLabelCodesGridPage() {
@@ -126,7 +128,7 @@ export default function CountryLabelCodesGridPage() {
 
   // Filter rail payout mappings when country changes
   useEffect(() => {
-    if (form.countryCode && allRailPayoutMappings.length > 0) {
+    if (form.countryCode) {
       filterRailPayoutMappingsByCountry(form.countryCode)
     } else {
       setFilteredRailPayoutMappings([])
@@ -135,10 +137,7 @@ export default function CountryLabelCodesGridPage() {
 
   // Filter BOP categories based on selected country
   useEffect(() => {
-    console.log(form.countryCode)
-    console.log(bopCategories)
     if (form.countryCode && bopCategories.length > 0) {
-      console.log(form.countryCode)
       filterBopCategoriesByCountry(form.countryCode)
     } else {
       setFilteredBopCategories([])
@@ -170,10 +169,19 @@ export default function CountryLabelCodesGridPage() {
   const loadAllRailPayoutMappings = async () => {
     try {
       setLoadingRailMappings(true)
-      const result = await countryBusinessPayoutPartnerService.getAll()
-      console.log('All Rail Payout Mappings:', result)
-      setAllRailPayoutMappings(Array.isArray(result) ? result : [])
+      const response = await countryBusinessPayoutPartnerService.getAll()
+      console.log('All Rail Payout Mappings Response:', response)
+      
+      // Check if response has data property and it's an array
+      if (response && response.data && Array.isArray(response.data)) {
+        setAllRailPayoutMappings(response.data)
+      } else if (Array.isArray(response)) {
+        setAllRailPayoutMappings(response)
+      } else {
+        setAllRailPayoutMappings([])
+      }
     } catch (error) {
+      console.error('Failed to load rail payout mappings:', error)
       showError('Failed to load rail payout mappings')
     } finally {
       setLoadingRailMappings(false)
@@ -201,22 +209,31 @@ export default function CountryLabelCodesGridPage() {
 
   const filterRailPayoutMappingsByCountry = (countryCode: string) => {
     try {
-      // Assuming rail payout mapping code contains country code at the beginning
-      // Example: "INMCBRPZA0005" starts with "IN"
+      console.log('Filtering rail mappings for country:', countryCode)
+      console.log('All rail mappings:', allRailPayoutMappings)
+
+      // Filter mappings based on recipient country from productBusinessResponseDTO
       const filtered = allRailPayoutMappings.filter((mapping) => {
-        // Check if mapping code starts with country code
-        if (mapping.countryBusinessPayoutPartnerCode.startsWith(countryCode)) {
+        // Check if the mapping has productBusinessResponseDTO with recipientCountry
+        //@ts-ignore
+        if (mapping?.bankMaster?.countryCode === countryCode) {
+          return true
+        }
+        
+        // Alternative: Check if countryBusinessPayoutPartnerCode starts with country code
+        if (mapping.countryBusinessPayoutPartnerCode?.startsWith(countryCode)) {
           return true
         }
 
-        // Also check if there's countryCorridorBusinessMapCode that contains country
-        if (mapping.countryCorridorBusinessMapCode && mapping.countryCorridorBusinessMapCode.includes(countryCode)) {
+        // Check if countryCorridorBusinessMapCode contains the country code
+        if (mapping.countryCorridorBusinessMapCode?.includes(countryCode)) {
           return true
         }
 
         return false
       })
 
+      console.log('Filtered rail mappings:', filtered)
       setFilteredRailPayoutMappings(filtered)
 
       // If current railPayoutMappingCode is not in filtered list, clear it
@@ -231,14 +248,27 @@ export default function CountryLabelCodesGridPage() {
 
   const filterBopCategoriesByCountry = (countryCode: string) => {
     try {
-      console.log(bopCategories)
+      console.log('Filtering BOP categories for country:', countryCode)
+      console.log('All BOP categories:', bopCategories)
+      
+      // Filter BOP categories by country code
+      // Note: You might need to adjust this based on actual BOP category structure
       const filtered = bopCategories.filter((category) => {
+        // Check if category has countryCode property
         //@ts-ignore
-        return  category?.countryCode == countryCode
+        if (category.countryCode === countryCode) {
+          return true
+        }
+        
+        // Alternative: Check if bopPurposeCategoryCode starts with country code
+        if (category.bopPurposeCategoryCode?.startsWith(countryCode)) {
+          return true
+        }
+
+        return false
       })
 
-      console.log(filtered)
-
+      console.log('Filtered BOP categories:', filtered)
       setFilteredBopCategories(filtered)
 
       // If current countryReportingCode is not in filtered list, clear it
@@ -324,8 +354,9 @@ export default function CountryLabelCodesGridPage() {
         effectiveFromDate: new Date(form.effectiveFromDate).toISOString(),
         effectiveToDate: new Date(form.effectiveToDate).toISOString(),
       }
-      console.log(payload)
-      console.log(selected)
+      console.log('Submit payload:', payload)
+      console.log('Selected:', selected)
+      
       if (selected && selected.countryLabelCode) {
         // Update
         const updatePayload = {
@@ -364,7 +395,8 @@ export default function CountryLabelCodesGridPage() {
     const searchLower = searchTerm.toLowerCase()
     const country = countries.find((c) => c.countryCode === row.countryCode)?.countryName?.toLowerCase() || ''
     const railMapping = allRailPayoutMappings.find((r) => r.countryBusinessPayoutPartnerCode === row.railPayoutMappingCode)
-    const railInfo = railMapping ? `${railMapping.businessTypeCode} ${railMapping.payoutPartner}`.toLowerCase() : ''
+    //@ts-ignore
+    const railInfo = railMapping ? `${railMapping.businessTypeCode} ${railMapping.payoutPartner} ${railMapping.productBusinessResponseDTO?.paymentRail || ''}`.toLowerCase() : ''
 
     // Find BOP category details
     const bopCategory = bopCategories.find((c) => c.bopPurposeCategoryCode === row.countryReportingCode)
@@ -381,18 +413,6 @@ export default function CountryLabelCodesGridPage() {
       row.channel.toLowerCase().includes(searchLower)
     )
   })
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    console.log(format, 'dkjhbcvy')
-    return dayjs(dateString).format(format.toUpperCase())
-  }
 
   const columns: GridColDef[] = [
     {
@@ -439,7 +459,10 @@ export default function CountryLabelCodesGridPage() {
             </Typography>
             {railMapping && (
               <Typography variant="caption" color="textSecondary">
-                {railMapping.businessTypeCode}/{railMapping.payoutPartner}
+            
+                {
+                //@ts-ignore
+                railMapping.businessTypeCode}/{railMapping.payoutPartner} | Rail: {railMapping.productBusinessResponseDTO?.paymentRail || 'N/A'}
               </Typography>
             )}
           </Box>
@@ -496,20 +519,6 @@ export default function CountryLabelCodesGridPage() {
       ),
     },
     {
-      field: 'effective_from_date',
-      headerName: 'Effective From',
-      flex: 0.8,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
-    },
-    {
-      field: 'effective_to_date',
-      headerName: 'Effective To',
-      flex: 0.8,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
-    },
-    {
       field: 'actions',
       headerName: 'Actions',
       flex: 1,
@@ -537,7 +546,14 @@ export default function CountryLabelCodesGridPage() {
   const getRailPayoutMappingInfo = (code: string) => {
     const mapping = allRailPayoutMappings.find((r) => r.countryBusinessPayoutPartnerCode === code)
     if (!mapping) return code
-    return `${code} (${mapping.businessTypeCode}/${mapping.payoutPartner})`
+    
+    //@ts-ignore
+    const railInfo = mapping.productBusinessResponseDTO?.paymentRail 
+    //@ts-ignore
+      ? ` | Rail: ${mapping.productBusinessResponseDTO.paymentRail}` 
+      : ''
+    
+    return `${code} (${mapping.businessTypeCode}/${mapping.payoutPartner}${railInfo})`
   }
 
   // Get BOP category details
@@ -557,22 +573,6 @@ export default function CountryLabelCodesGridPage() {
           + Create Label Code
         </Button>
       </Stack>
-
-      {/* Search Bar */}
-      {/* <TextField
-        fullWidth
-        placeholder="Search by label code, country, rail mapping, or reporting code..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        sx={{ mb: 2 }}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon />
-            </InputAdornment>
-          ),
-        }}
-      /> */}
 
       {/* Summary Cards */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -701,7 +701,14 @@ export default function CountryLabelCodesGridPage() {
                         <Box>
                           <Typography variant="body2">{mapping.countryBusinessPayoutPartnerCode}</Typography>
                           <Typography variant="caption" color="textSecondary">
-                            Business: {mapping.businessTypeCode} | Payout: {mapping.payoutPartner}
+                            Business: {mapping.businessTypeCode} | Payout: {mapping.payoutPartner} | Rail: {
+                            //@ts-ignore
+                            mapping.productBusinessResponseDTO?.paymentRail || 'N/A'}
+                          </Typography>
+                          <Typography variant="caption" display="block" color="textSecondary">
+                            Recipient: {
+                            //@ts-ignore
+                            mapping.productBusinessResponseDTO?.recipientCountry || 'N/A'}
                           </Typography>
                         </Box>
                       </MenuItem>
@@ -785,68 +792,30 @@ export default function CountryLabelCodesGridPage() {
 
             {/* Effective Dates */}
             <Grid container spacing={2}>
-              {/* <Grid item xs={6}>
-                <TextField
-                  fullWidth
-                  type="date"
-                  label="Effective From *"
-                  value={form.effectiveFromDate ? form.effectiveFromDate.split('T')[0] : ''}
-                  onChange={(e) => setForm({ ...form, effectiveFromDate: e.target.value })}
-                  InputLabelProps={{ shrink: true }}
+              <Grid item xs={6}>
+                <DynamicDatePicker
+                  label="Effective From"
+                  value={form.effectiveFromDate}
+                  onChange={(val: string) => {
+                    console.log(val, 'kdjhchdvy')
+                    setForm({ ...form, effectiveFromDate: val })
+                  }}
+                  minDate={new Date().toISOString().split('T')[0]}
                   required
                 />
               </Grid>
+      
               <Grid item xs={6}>
-                <TextField
-                  fullWidth
-                  type="date"
+                <DynamicEndDatePicker
                   label="Effective To"
-                  value={form.effectiveToDate ? form.effectiveToDate.split('T')[0] : ''}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      effectiveToDate: e.target.value,
-                    })
-                  }
-                  InputLabelProps={{ shrink: true }}
-                  inputProps={{
-                    min: form.effectiveFromDate ? form.effectiveFromDate.split('T')[0] : undefined,
+                  value={form.effectiveToDate}
+                  minDate={form.effectiveFromDate}
+                  onChange={(val: string) => {
+                    setForm({ ...form, effectiveToDate: val })
                   }}
+                  required
                 />
-              </Grid> */}
-
-
-                  <Grid item xs={6}>
-                          <DynamicDatePicker
-                            label="Effective From"
-                            value={form.effectiveFromDate}
-                            onChange={(val: string) => {
-                              console.log(val, 'kdjhchdvy')
-                              setForm({ ...form, effectiveFromDate: val })
-                            }}
-                            minDate={new Date().toISOString().split('T')[0]}
-                            // error={"Select Valid Date"}
-                            // helperText={"Selecte Valid Time Range"}
-                            required
-                          />
-                        </Grid>
-              
-                        <Grid item xs={6}>
-                          <DynamicEndDatePicker
-                            label="Effective To"
-                            value={form.effectiveToDate}
-                            minDate={form.effectiveToDate}
-                            onChange={(val: string) => {
-                              setForm({ ...form, effectiveToDate: val })
-                            }}
-                        // error={"Select Valid Date"}
-                        //     helperText={"Selecte Valid Time Range"}
-                            required
-                          />
-                        </Grid>
-
-
-              
+              </Grid>
             </Grid>
 
             {/* Active Status */}

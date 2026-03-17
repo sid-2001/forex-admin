@@ -88,6 +88,7 @@ import KycDocumentTypeMaster from './pages/kycDocumentTypeMaster'
 import CountryLimitTypeWiseLimitMaster from './pages/country-limit-type-wise-limit-master'
 import CountryKycDocumentMaster from './pages/CountryKycDocumentMaster'
 import CountryResProductChannelDocRequiredMaster from './pages/contryresproductchanneldoc'
+import SequenceMasterTable from './pages/sequence-master'
 import ExchangeRateMasterScreen from './pages/exchangeRateMaster'
 import CountryCorridorProductMaster from './pages/country-corridor-product'
 import ProductService from './services/product.service'
@@ -307,6 +308,8 @@ useAutoLogout(handleInactivity, Number(inactivity) * 60000 > INACTIVITY_TIME
               <Route path="resident-type" element={<ResidentTypeMaster />} />
               <Route path="kyc-document-type" element={<KycDocumentTypeMaster />} />
               <Route path="kyc-document-type" element={<KycDocumentTypeMaster />} />
+              <Route path="sequence-master" element={<SequenceMasterTable />} />
+              {/* sequence-master-Table */}
               <Route path="country-limit-type-wise" element={<CountryLimitTypeWiseLimitMaster />} />
               <Route path="country-kyc-doc-master" element={<CountryKycDocumentMaster />} />
               <Route path="kyc-doc-mapping" element={<CountryResProductChannelDocRequiredMaster />} />

@@ -66,7 +66,9 @@ const [originalData, setOriginalData] = useState<FormData | null>(null)
       setFormData({
         kycDocTypeDescription: '',
         active: true,
+        //@ts-ignore
         effectiveFromDate:null,
+        //@ts-ignore
         effectiveToDate: null,
       })
     }

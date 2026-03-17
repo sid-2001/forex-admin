@@ -41,7 +41,9 @@ export default function KycLimitTypeFormDialog({ open, onClose, editData, onSubm
     limitCode: '',
     limitDescription: '',
     active: true,
+    //@ts-ignore
     effectiveFromDate: null,
+    //@ts-ignore
     effectiveToDate: null,
   })
 

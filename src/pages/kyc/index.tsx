@@ -339,7 +339,9 @@ const KYCPage = () => {
   const getKycDetailsById = async (kycId: string) => {
     try {
       const response:any = await kycservice.getKycById(kycId)
-      let image = response?.documents.find((doc: any) => doc?.documentType === 'image')?.documentUrl
+      let image = response?.documents.find((doc: any) => doc?.documentType === 'image'|| doc?.documentType === 'photo')?.documentFrontUrl
+    
+      console.log("image aa gyi is the",image)
       setImageUrl(image)
       setSelectedKYC(response)
       console.log(response)

@@ -42,7 +42,10 @@ const VALIDATION_RULES = {
   }
 }
 
-export default function SmsTemplateDialog({ open, onClose, onSubmit, editData, errMassage }: any) {
+export default function SmsTemplateDialog({ open, onClose, onSubmit, editData,
+  
+  //@ts-ignore
+  errMassage }: any) {
   const [countries] = useRecoilState(countyState)
 
   const [countryCode, setCountryCode] = useState('')

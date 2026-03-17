@@ -9,6 +9,7 @@ import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import dayjs from 'dayjs'
 import { getLiveAuditData } from '@/helpers/dynamicLocations'
+import { formatTableDate } from '@/helpers/dateformate'
 
 export default function ScreenMaster() {
   const [rows, setRows] = useState<Screen[]>([])
@@ -109,18 +110,6 @@ export default function ScreenMaster() {
     if (!dateStr) return '-'
     const date = new Date(dateStr)
     return isNaN(date.getTime()) ? '-' : date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-  }
-  const formatTableDate = (dateString: string) => {
-    if (!dateString) return ''
-    const storedConfig = localStorage.getItem('countryConfig')
-    let format = 'YYYY-MM-DD'
-
-    if (storedConfig) {
-      const config = JSON.parse(storedConfig)
-      format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
-    }
-    console.log(format, 'dkjhbcvy')
-    return dayjs(dateString).format(format.toUpperCase())
   }
 
   const columns: GridColDef[] = [

@@ -100,26 +100,22 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
     fetchCurrencies()
   }, [])
 
-
   // Filter currencies based on selected country
-useEffect(() => {
-  if (!form.countryCode) {
-    setFilteredCurrencies([]);
-    return;
-  }
+  useEffect(() => {
+    if (!form.countryCode) {
+      setFilteredCurrencies([])
+      return
+    }
 
-  const filtered = currencies.filter(
-    (currency) =>
-      currency.countryCode === form.countryCode && currency.active === true
-  );
+    const filtered = currencies.filter((currency) => currency.countryCode === form.countryCode && currency.active === true)
 
-  setFilteredCurrencies(filtered);
+    setFilteredCurrencies(filtered)
 
-  // Auto select if only one currency
-  if (filtered.length === 1) {
-    handleFieldChange("currencyCode", filtered[0].currencyCode);
-  }
-}, [form.countryCode, currencies]);
+    // Auto select if only one currency
+    if (filtered.length === 1) {
+      handleFieldChange('currencyCode', filtered[0].currencyCode)
+    }
+  }, [form.countryCode, currencies])
 
   // Filter currencies based on selected country
   // useEffect(() => {
@@ -130,20 +126,20 @@ useEffect(() => {
 
   //   // Find the selected country from countries list
   //   const selectedCountry = countries?.find((c: any) => c.countryCode === form.countryCode)
-    
+
   //   if (selectedCountry) {
   //     // Get the country's currency code (adjust property name based on your data structure)
   //     const countryCurrencyCode = selectedCountry.currencyCode || selectedCountry.currency
-      
+
   //     if (countryCurrencyCode) {
   //       // Filter currencies that match the country's currency code and are active
   //       const filtered = currencies.filter(
   //         (currency) => currency.currencyCode === countryCurrencyCode && currency.active === true
   //       )
-        
+
   //       console.log('Filtered currencies:', filtered)
   //       setFilteredCurrencies(filtered)
-        
+
   //       // Auto-select the currency if only one matches and it's different from current
   //       if (filtered.length === 1 && filtered[0].currencyCode !== form.currencyCode) {
   //         handleFieldChange('currencyCode', filtered[0].currencyCode)
@@ -169,18 +165,17 @@ useEffect(() => {
       try {
         const service = new BankBusinessTypeService()
         const response = await service.getList()
-        
+
         console.log(response)
         if (response as any) {
           // Filter business types by country code and active status
-          const filteredTypes = response?.
-          //@ts-ignore
-          filter(
-            (type: BankBusinessType) => 
-              //@ts-ignore
-              type.countryCode === form.countryCode && 
-              type.active === true
-          )
+          const filteredTypes = response
+            //@ts-ignore
+            ?.filter(
+              (type: BankBusinessType) =>
+                //@ts-ignore
+                type.countryCode === form.countryCode && type.active === true,
+            )
           setBusinessTypes(filteredTypes)
         }
       } catch (error) {
@@ -206,19 +201,19 @@ useEffect(() => {
       try {
         const service = new StateService()
         const response = await service.getStateList()
-        
+
         console.log('States response:', response)
         if (response) {
           // Filter states by country code and active status
-          const filteredStates = response.
-          //@ts-ignore
-          filter(
-            (state: StateMaster) => 
-              //@ts-ignore
-              state.CountryCode === form.countryCode && 
-              //@ts-ignore
-              state.Active === true
-          )
+          const filteredStates = response
+            //@ts-ignore
+            .filter(
+              (state: StateMaster) =>
+                //@ts-ignore
+                state.CountryCode === form.countryCode &&
+                //@ts-ignore
+                state.Active === true,
+            )
           setStates(filteredStates)
         }
       } catch (error) {
@@ -289,7 +284,7 @@ useEffect(() => {
   // Handle field change with validation
   const handleFieldChange = (field: string, value: any) => {
     setForm((prev: any) => ({ ...prev, [field]: value }))
-    
+
     // Validate the field and update errors
     const error = validateField(field, value)
     setErrors((prev: any) => ({
@@ -315,7 +310,7 @@ useEffect(() => {
 
   const handleSubmit = () => {
     const newErrors: any = {}
-    
+
     // Validate all required fields and length constraints
     requiredFields.forEach((field) => {
       const error = validateField(field, form[field])
@@ -336,7 +331,7 @@ useEffect(() => {
     // Date Validation (using @AssertTrue equivalent)
     const fromDate = new Date(form.effective_from_date)
     const toDate = new Date(form.effective_to_date)
-    
+
     if (toDate <= fromDate) {
       onSubmit({ validationError: 'effectiveToDate must be after effectiveFromDate' })
       return
@@ -348,9 +343,7 @@ useEffect(() => {
     const offset = -now.getTimezoneOffset()
     const offsetHours = Math.floor(Math.abs(offset) / 60)
     const offsetMinutes = Math.abs(offset) % 60
-    const offsetStr = (offset >= 0 ? '+' : '-') + 
-                      String(offsetHours).padStart(2, '0') + ':' + 
-                      String(offsetMinutes).padStart(2, '0')
+    const offsetStr = (offset >= 0 ? '+' : '-') + String(offsetHours).padStart(2, '0') + ':' + String(offsetMinutes).padStart(2, '0')
 
     // Format the payload according to the API requirements with all entity fields
     const payload: any = {
@@ -377,7 +370,7 @@ useEffect(() => {
       // Use the correct identifier field name (adjust based on your API)
       payload.bankMasterCode = editData.bankMasterCode || editData.bankCode
       payload.modifiedBy = localService.get_staff_id()
-      
+
       // Add modified audit fields
       Object.assign(payload, {
         modifiedLocalDateTime: now.toISOString(),
@@ -387,7 +380,7 @@ useEffect(() => {
       })
     } else {
       payload.createdBy = localService.get_staff_id()
-      
+
       // Add created audit fields
       Object.assign(payload, {
         createdLocalDateTime: now.toISOString(),
@@ -424,25 +417,25 @@ useEffect(() => {
               value={countries?.find((c: any) => c.countryCode === form.countryCode) || null}
               onChange={(_, val) => {
                 const newCountryCode = val ? val.countryCode : ''
-                setForm((prev: any) => ({ 
-                  ...prev, 
-                  countryCode: newCountryCode, 
-                  bankType: '', 
-                  bankTypeCode: '', 
-                  bankStateProvinceCode: '' 
+                setForm((prev: any) => ({
+                  ...prev,
+                  countryCode: newCountryCode,
+                  bankType: '',
+                  bankTypeCode: '',
+                  bankStateProvinceCode: '',
                 }))
                 // Validate after state update
                 setTimeout(() => {
                   handleFieldChange('countryCode', newCountryCode)
                 }, 0)
               }}
-               disabled={!!editData}
+              disabled={!!editData}
               renderInput={(p) => (
-                <TextField 
-                  {...p} 
-                  label="Country" 
-                  required 
-                  error={!!errors.countryCode} 
+                <TextField
+                  {...p}
+                  label="Country"
+                  required
+                  error={!!errors.countryCode}
                   helperText={errors.countryCode}
                   inputProps={{ ...p.inputProps, maxLength: VALIDATION_RULES.countryCode.max }}
                 />
@@ -450,24 +443,17 @@ useEffect(() => {
             />
           </Grid>
 
-          {/* Currency Selection - Filtered by Country */}
-  
-
-      <Grid item xs={6}>
+          <Grid item xs={6}>
             <Autocomplete
               options={filteredCurrencies}
               loading={loadingCurrencies}
-              getOptionLabel={(option: ForexCurrency) => 
-                `${option.currencyName} (${option.currencyCode})`
-              }
-              value={filteredCurrencies.find((currency) => 
-                currency.currencyCode === form.currencyCode
-              ) || null}
+              getOptionLabel={(option: ForexCurrency) => `${option.currencyName} (${option.currencyCode})`}
+              value={filteredCurrencies.find((currency) => currency.currencyCode === form.currencyCode) || null}
               onChange={(_, selectedValue) => {
                 const newCurrencyCode = selectedValue?.currencyCode || ''
-                setForm((prev: any) => ({ 
-                  ...prev, 
-                  currencyCode: newCurrencyCode
+                setForm((prev: any) => ({
+                  ...prev,
+                  currencyCode: newCurrencyCode,
                 }))
                 setTimeout(() => {
                   handleFieldChange('currencyCode', newCurrencyCode)
@@ -481,50 +467,38 @@ useEffect(() => {
                   required
                   error={!!errors.currencyCode}
                   helperText={
-                    errors.currencyCode || 
-                    (filteredCurrencies.length === 0 && form.countryCode ? 'No currencies available for this country' : '')
+                    errors.currencyCode || (filteredCurrencies.length === 0 && form.countryCode ? 'No currencies available for this country' : '')
                   }
                   placeholder={
-                    !form.countryCode 
-                      ? 'Select a country first' 
-                      : filteredCurrencies.length === 0 
-                        ? 'No currencies available' 
-                        : 'Select currency'
+                    !form.countryCode ? 'Select a country first' : filteredCurrencies.length === 0 ? 'No currencies available' : 'Select currency'
                   }
                   disabled={!!editData || !form.countryCode || filteredCurrencies.length === 0}
-                  inputProps={{ 
-                    ...params.inputProps, 
-                    maxLength: VALIDATION_RULES.currencyCode.max 
+                  inputProps={{
+                    ...params.inputProps,
+                    maxLength: VALIDATION_RULES.currencyCode.max,
                   }}
                 />
               )}
               noOptionsText={
-                !form.countryCode 
-                  ? 'Please select a country first' 
-                  : loadingCurrencies 
-                    ? 'Loading currencies...' 
+                !form.countryCode
+                  ? 'Please select a country first'
+                  : loadingCurrencies
+                    ? 'Loading currencies...'
                     : 'No currencies available for this country'
               }
             />
-            
+
             {/* Error and info messages */}
-            {errors.currencyCode && (
-              <p style={{ color: '#d32f2f', fontSize: 12, marginTop: 4 }}>
-                {errors.currencyCode}
-              </p>
-            )}
-            
+            {errors.currencyCode && <p style={{ color: '#d32f2f', fontSize: 12, marginTop: 4 }}>{errors.currencyCode}</p>}
+
             {form.countryCode && filteredCurrencies.length === 0 && !errors.currencyCode && !loadingCurrencies && (
-              <p style={{ color: '#666', fontSize: 12, marginTop: 4, fontStyle: 'italic' }}>
-                No active currencies found for this country
-              </p>
+              <p style={{ color: '#666', fontSize: 12, marginTop: 4, fontStyle: 'italic' }}>No active currencies found for this country</p>
             )}
-            
+
             {/* Show current selection info */}
             {form.countryCode && filteredCurrencies.length > 0 && form.currencyCode && !errors.currencyCode && (
               <p style={{ color: '#4caf50', fontSize: 12, marginTop: 4 }}>
-                ✓ Currency selected for{' '}
-                {countries?.find((c: any) => c.countryCode === form.countryCode)?.countryName}
+                ✓ Currency selected for {countries?.find((c: any) => c.countryCode === form.countryCode)?.countryName}
               </p>
             )}
           </Grid>
@@ -563,17 +537,16 @@ useEffect(() => {
             <Autocomplete
               options={businessTypes}
               loading={loadingBusinessTypes}
-              getOptionLabel={(option: BankBusinessType) => 
+              getOptionLabel={(option: BankBusinessType) =>
                 `${
                   //@ts-ignore
-                  option.bankBusinessName} (${option.businessTypeCode})`
+                  option.bankBusinessName
+                } (${option.businessTypeCode})`
               }
-              value={businessTypes.find((type: BankBusinessType) => 
-                type.businessTypeCode == form.bankType
-              ) || null}
+              value={businessTypes.find((type: BankBusinessType) => type.businessTypeCode == form.bankType) || null}
               onChange={(_, selectedValue) => {
-                setForm((prev: any) => ({ 
-                  ...prev, 
+                setForm((prev: any) => ({
+                  ...prev,
                   bankTypeCode: selectedValue?.businessTypeCode || '',
                   bankType: selectedValue?.businessTypeCode || '',
                 }))
@@ -590,21 +563,14 @@ useEffect(() => {
                   required
                   error={!!errors.bankTypeCode}
                   helperText={
-                    errors.bankTypeCode || 
-                    (businessTypes.length === 0 && form.countryCode ? 'No bank types available for this country' : '')
+                    errors.bankTypeCode || (businessTypes.length === 0 && form.countryCode ? 'No bank types available for this country' : '')
                   }
                   placeholder={!form.countryCode ? 'Select country first' : 'Select bank type'}
                   disabled={!!editData || !form.countryCode || businessTypes.length === 0}
                 />
               )}
               disabled={!form.countryCode || businessTypes.length === 0}
-              noOptionsText={
-                !form.countryCode 
-                  ? 'Please select a country first' 
-                  : loadingBusinessTypes 
-                    ? 'Loading...' 
-                    : 'No bank types available'
-              }
+              noOptionsText={!form.countryCode ? 'Please select a country first' : loadingBusinessTypes ? 'Loading...' : 'No bank types available'}
             />
           </Grid>
 
@@ -693,19 +659,22 @@ useEffect(() => {
             <Autocomplete
               options={states}
               loading={loadingStates}
-              getOptionLabel={(option: StateMaster) => 
+              getOptionLabel={(option: StateMaster) =>
                 //@ts-ignore
                 `${option.StateDescription} (${option.StateCode})`
               }
-              value={states.find((state: StateMaster) => 
-                //@ts-ignore
-                state.StateCode === form.bankStateProvinceCode
-              ) || null}
+              value={
+                states.find(
+                  (state: StateMaster) =>
+                    //@ts-ignore
+                    state.StateCode === form.bankStateProvinceCode,
+                ) || null
+              }
               onChange={(_, selectedValue) => {
                 //@ts-ignore
                 const newStateCode = selectedValue?.StateCode || ''
-                setForm((prev: any) => ({ 
-                  ...prev, 
+                setForm((prev: any) => ({
+                  ...prev,
                   bankStateProvinceCode: newStateCode,
                 }))
                 setTimeout(() => {
@@ -718,23 +687,14 @@ useEffect(() => {
                   label="State"
                   required
                   error={!!errors.bankStateProvinceCode}
-                  helperText={
-                    errors.bankStateProvinceCode || 
-                    (states.length === 0 && form.countryCode ? 'No states available for this country' : '')
-                  }
+                  helperText={errors.bankStateProvinceCode || (states.length === 0 && form.countryCode ? 'No states available for this country' : '')}
                   placeholder={!form.countryCode ? 'Select country first' : 'Select state'}
                   disabled={!form.countryCode || states.length === 0}
                   inputProps={{ ...params.inputProps, maxLength: VALIDATION_RULES.bankStateProvinceCode.max }}
                 />
               )}
               disabled={!form.countryCode || states.length === 0}
-              noOptionsText={
-                !form.countryCode 
-                  ? 'Please select a country first' 
-                  : loadingStates 
-                    ? 'Loading...' 
-                    : 'No states available'
-              }
+              noOptionsText={!form.countryCode ? 'Please select a country first' : loadingStates ? 'Loading...' : 'No states available'}
             />
           </Grid>
 
@@ -784,12 +744,7 @@ useEffect(() => {
           {/* Active Status */}
           <Grid item xs={12}>
             <FormControlLabel
-              control={
-                <Checkbox 
-                  checked={form.active} 
-                  onChange={(e) => setForm((prev: any) => ({ ...prev, active: e.target.checked }))} 
-                />
-              }
+              control={<Checkbox checked={form.active} onChange={(e) => setForm((prev: any) => ({ ...prev, active: e.target.checked }))} />}
               label="Active Status"
             />
           </Grid>

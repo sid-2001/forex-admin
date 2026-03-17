@@ -6,7 +6,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility'
 const DocumentsListComponent = ({ documentRecords }: { documentRecords: any }) => {
   const docColumns = [
     {
-      field: 'documentName',
+      field: 'docCode',
       headerName: 'Document Name',
       flex: 1,
       headerClassName: 'super-app-theme--header',
