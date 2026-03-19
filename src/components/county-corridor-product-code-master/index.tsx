@@ -1,5 +1,18 @@
 // components/countryCorridorProductFormDialog.tsx
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Checkbox, FormControlLabel, Grid, Autocomplete, FormHelperText, MenuItem } from '@mui/material'
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  Autocomplete,
+  FormHelperText,
+  MenuItem,
+} from '@mui/material'
 import { useEffect, useState } from 'react'
 import { CountryCorridorProductService } from '@/services/countryCorridorProduct.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
@@ -12,21 +25,21 @@ const local_service = new LocalStorageService()
 const VALIDATION = {
   COUNTRY_CORRIDOR_CODE: {
     maxLength: 15,
-    message: 'Country Corridor Code cannot exceed 15 characters'
+    message: 'Country Corridor Code cannot exceed 15 characters',
   },
   PRODUCT_CODE: {
     required: true,
-    message: 'Product is required'
+    message: 'Product is required',
   },
   SERVICE_CODE: {
     required: true,
-    message: 'Product Service Code is required'
+    message: 'Product Service Code is required',
   },
   DECIMAL_PRECISION: {
     min: 0,
     max: 6,
-    message: 'Decimal precision must be between 0 and 6'
-  }
+    message: 'Decimal precision must be between 0 and 6',
+  },
 }
 
 // Format options
@@ -71,17 +84,17 @@ interface Props {
   countries: any[]
 }
 
-export default function CountryCorridorProductFormDialog({ 
-  open, 
-  handleClose, 
-  editData, 
-  refreshList, 
+export default function CountryCorridorProductFormDialog({
+  open,
+  handleClose,
+  editData,
+  refreshList,
   showAlert,
   onFormChange,
   isUpdateDisabled,
   products,
   subServices,
-  countries
+  countries,
 }: Props) {
   const [errors, setErrors] = useState<any>({})
   const [filteredServices, setFilteredServices] = useState<any[]>([])
@@ -103,7 +116,7 @@ export default function CountryCorridorProductFormDialog({
   // Check if form data has changed from original
   const checkFormChanged = (current: any, original: any) => {
     if (!original) return false
-    
+
     return (
       current.countryCorridorCode !== original.countryCorridorCode ||
       current.productCode !== original.productCode ||
@@ -123,7 +136,9 @@ export default function CountryCorridorProductFormDialog({
   const formatTimezoneOffset = () => {
     const offset = -new Date().getTimezoneOffset()
     const sign = offset >= 0 ? '+' : '-'
-    const hours = Math.floor(Math.abs(offset) / 60).toString().padStart(2, '0')
+    const hours = Math.floor(Math.abs(offset) / 60)
+      .toString()
+      .padStart(2, '0')
     const minutes = (Math.abs(offset) % 60).toString().padStart(2, '0')
     return `${sign}${hours}:${minutes}`
   }
@@ -131,13 +146,10 @@ export default function CountryCorridorProductFormDialog({
   // Filter sub services based on selected product
   useEffect(() => {
     if (form.productCode) {
-
-      console.log(form?.productCode);
+      console.log(form?.productCode)
       console.log(subServices)
 
-      const filtered = subServices.filter(
-        s => s.productCode == form.productCode 
-      )
+      const filtered = subServices.filter((s) => s.productCode == form.productCode)
       setFilteredServices(filtered)
     } else {
       setFilteredServices([])
@@ -164,14 +176,14 @@ export default function CountryCorridorProductFormDialog({
         effectiveFromDate: formatToDateOnly(editData.effectiveFromDate),
         effectiveToDate: formatToDateOnly(editData.effectiveToDate),
       }
-      
+
       setForm(newFormData)
       setOriginalData(newFormData)
     } else if (!editData && open) {
       const today = new Date().toISOString().split('T')[0]
       const nextYear = new Date()
       nextYear.setFullYear(nextYear.getFullYear() + 1)
-      
+
       const newFormData = {
         countryCorridorCode: '',
         productCode: '',
@@ -183,7 +195,7 @@ export default function CountryCorridorProductFormDialog({
         decimalRoundOff: 0.5,
         active: true,
         effectiveFromDate: null,
-        effectiveToDate:null,
+        effectiveToDate: null,
       }
       setForm(newFormData)
       setOriginalData(null)
@@ -249,8 +261,6 @@ export default function CountryCorridorProductFormDialog({
       errs.decimalPrecision = VALIDATION.DECIMAL_PRECISION.message
     }
 
-
-
     // Effective From Date validation
     if (!form.effectiveFromDate) {
       errs.effectiveFromDate = 'Effective from date must not be null'
@@ -262,7 +272,7 @@ export default function CountryCorridorProductFormDialog({
     }
 
     // Date range validation
-   
+
     console.log(errs)
 
     setErrors(errs)
@@ -289,75 +299,64 @@ export default function CountryCorridorProductFormDialog({
       effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
       effectiveToDate: `${form.effectiveToDate}T00:00:00`,
       modifiedBy: local_service.get_staff_id(),
-      modifiedLocalDateTime: now.split('.')[0],
-      modifiedTimeZone: timeZone,
-      modifiedOffset: offset,
-      modifiedUtcDateTime: new Date().toISOString(),
+      // modifiedLocalDateTime: now.split('.')[0],
+      // modifiedTimeZone: timeZone,
+      // modifiedOffset: offset,
+      // modifiedUtcDateTime: new Date().toISOString(),
     }
 
     if (!editData) {
       Object.assign(payload, {
         createdBy: local_service.get_staff_id(),
-        createdLocalDateTime: now.split('.')[0],
-        createdTimeZone: timeZone,
-        createdOffset: offset,
-        createdUtcDateTime: new Date().toISOString(),
+        // createdLocalDateTime: now.split('.')[0],
+        // createdTimeZone: timeZone,
+        // createdOffset: offset,
+        // createdUtcDateTime: new Date().toISOString(),
       })
     }
 
     try {
       const res = editData
         ? await service.updateCountryCorridorProduct(editData.countryCorridorProductCode, payload)
-        //@ts-ignore
-        : await service.createCountryCorridorProduct(payload)
+        : //@ts-ignore
+          await service.createCountryCorridorProduct(payload)
 
       if (res) {
         showAlert('Success', res?.message || `${editData ? 'Updated' : 'Created'} successfully`)
         refreshList()
-      
       }
     } catch (e) {
       showAlert('Fail', 'Server Error')
-        // handleClose()
+      // handleClose()
     }
   }
 
   // Get selected product details
-  const selectedProduct = products.find(p => p.productCode === form.productCode)
+  const selectedProduct = products.find((p) => p.productCode === form.productCode)
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
-      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>
-        {editData ? 'Update Corridor Product' : 'Create Corridor Product'}
-      </DialogTitle>
+      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update Corridor Product' : 'Create Corridor Product'}</DialogTitle>
 
       <DialogContent dividers>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           {/* Country Corridor Code */}
-               <Grid item xs={12} md={6}>
-              <Autocomplete
-                options={countries?.filter((c: any) => c.active == true) || []}
-                getOptionLabel={(o: any) => `${o.countryCorridorCode} (${o.countryCode})`}
-                value={countries?.find((c: any) => c.countryCorridorCode === form.countryCorridorCode) || null}
-                onChange={(_, val) => handleChange('countryCorridorCode', val?.countryCorridorCode || '')}
-                disabled={!!editData}
-                renderInput={(params) => (
-                  <TextField 
-                    {...params} 
-                    label="Country" 
-                    required 
-                    size="small"
-                    error={!!errors.countryCode} 
-                    helperText={errors.countryCode}
-                  />
-                )}
-              />
-            </Grid>
-
-        {/* precidoson */}
           <Grid item xs={12} md={6}>
-             
-       <TextField
+            <Autocomplete
+              options={countries?.filter((c: any) => c.active == true) || []}
+              getOptionLabel={(o: any) => `${o.countryCorridorCode} (${o.countryCode})`}
+              value={countries?.find((c: any) => c.countryCorridorCode === form.countryCorridorCode) || null}
+              onChange={(_, val) => handleChange('countryCorridorCode', val?.countryCorridorCode || '')}
+              disabled={!!editData}
+              renderInput={(params) => (
+                <TextField {...params} label="Country" required size="small" error={!!errors.countryCode} helperText={errors.countryCode} />
+              )}
+            />
+          </Grid>
+
+          {/* precidoson */}
+          <Grid item xs={12} md={6}>
+            <TextField
               select
               label="Decimal Precision"
               required
@@ -379,20 +378,13 @@ export default function CountryCorridorProductFormDialog({
           {/* Product Code Dropdown */}
           <Grid item xs={12} md={6}>
             <Autocomplete
-              options={products.filter(p => p.active)}
+              options={products.filter((p) => p.active)}
               getOptionLabel={(option) => ` ${option?.countryProductCode}-${option.productCode} - ${option.productName}`}
-              value={products.find(p => p.countryProductCode === form.productCode) || null}
+              value={products.find((p) => p.countryProductCode === form.productCode) || null}
               onChange={(_, val) => handleChange('productCode', val?.countryProductCode || '')}
               disabled={!!editData}
               renderInput={(params) => (
-                <TextField 
-                  {...params} 
-                  label="Product" 
-                  required 
-                  size="small"
-                  error={!!errors.productCode} 
-                  helperText={errors.productCode}
-                />
+                <TextField {...params} label="Product" required size="small" error={!!errors.productCode} helperText={errors.productCode} />
               )}
             />
           </Grid>
@@ -402,23 +394,21 @@ export default function CountryCorridorProductFormDialog({
             <Autocomplete
               options={filteredServices}
               getOptionLabel={(option) => option.productServiceMapCode}
-              value={subServices.find(s => s.productServiceMapCode === form.productServiceCode) || null}
+              value={subServices.find((s) => s.productServiceMapCode === form.productServiceCode) || null}
               onChange={(_, val) => handleChange('productServiceCode', val?.productServiceMapCode || '')}
               disabled={!form.productCode || !!editData}
               renderInput={(params) => (
-                <TextField 
-                  {...params} 
-                  label="Product Service Code" 
-                  required 
+                <TextField
+                  {...params}
+                  label="Product Service Code"
+                  required
                   size="small"
-                  error={!!errors.productServiceCode} 
+                  error={!!errors.productServiceCode}
                   helperText={errors.productServiceCode || (!form.productCode ? 'Select product first' : '')}
                 />
               )}
             />
-            {form.productCode && filteredServices.length === 0 && (
-              <FormHelperText error>No active services found for this product</FormHelperText>
-            )}
+            {form.productCode && filteredServices.length === 0 && <FormHelperText error>No active services found for this product</FormHelperText>}
           </Grid>
 
           {/* Selected Product Details */}
@@ -498,8 +488,6 @@ export default function CountryCorridorProductFormDialog({
             </TextField>
           </Grid>
 
-          
-
           {/* Decimal Round Off */}
           <Grid item xs={12} md={6}>
             <TextField
@@ -535,7 +523,7 @@ export default function CountryCorridorProductFormDialog({
 
           {/* Effective To Date */}
           <Grid item xs={6}>
-               <DynamicEndDatePicker
+            <DynamicEndDatePicker
               label="Effective To"
               value={form.effectiveToDate}
               minDate={form.effectiveFromDate}
@@ -545,9 +533,8 @@ export default function CountryCorridorProductFormDialog({
               required
               disabled={!form.effectiveFromDate}
             />
-       
 
-                 {/* <TextField
+            {/* <TextField
               select
               label="Decimal Precision"
               required
@@ -564,11 +551,10 @@ export default function CountryCorridorProductFormDialog({
                 </MenuItem>
               ))}
             </TextField> */}
-                      <FormControlLabel
+            <FormControlLabel
               control={<Checkbox checked={form.active} onChange={(e) => handleChange('active', e.target.checked)} />}
               label="Active Status"
             />
-          
           </Grid>
         </Grid>
       </DialogContent>
@@ -577,12 +563,7 @@ export default function CountryCorridorProductFormDialog({
         <Button onClick={handleClose} color="inherit">
           Cancel
         </Button>
-        <Button 
-          variant="contained" 
-          onClick={handleSubmit}
-          disabled={editData ? isUpdateDisabled : false}
-          sx={{ backgroundColor: '#0061B1' }}
-        >
+        <Button variant="contained" onClick={handleSubmit} disabled={editData ? isUpdateDisabled : false} sx={{ backgroundColor: '#0061B1' }}>
           {editData ? 'Update' : 'Save'}
         </Button>
       </DialogActions>
