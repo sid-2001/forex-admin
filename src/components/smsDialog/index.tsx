@@ -24,28 +24,33 @@ const filter = createFilterOptions({
 
 // Validation rules based on common SMS template requirements
 const VALIDATION_RULES = {
-  countryCode: { 
-    max: 3, 
+  countryCode: {
+    max: 3,
     message: 'Country code cannot exceed 3 characters',
-    required: true 
+    required: true,
   },
-  smsTemplateDescription: { 
-    max: 255, 
+  smsTemplateDescription: {
+    max: 255,
     message: 'SMS description cannot exceed 255 characters',
     required: true,
     min: 3,
-    minMessage: 'SMS description must be at least 3 characters'
+    minMessage: 'SMS description must be at least 3 characters',
   },
   smsContent: {
     max: 160, // Standard SMS character limit
-    message: 'SMS content cannot exceed 160 characters for a single SMS'
-  }
+    message: 'SMS content cannot exceed 160 characters for a single SMS',
+  },
 }
 
-export default function SmsTemplateDialog({ open, onClose, onSubmit, editData,
-  
+export default function SmsTemplateDialog({
+  open,
+  onClose,
+  onSubmit,
+  editData,
+
   //@ts-ignore
-  errMassage }: any) {
+  errMassage,
+}: any) {
   const [countries] = useRecoilState(countyState)
 
   const [countryCode, setCountryCode] = useState('')
@@ -80,14 +85,14 @@ export default function SmsTemplateDialog({ open, onClose, onSubmit, editData,
 
   // Handle field change with error clearing
   const handleFieldChange = (field: string, value: any) => {
-    switch(field) {
+    switch (field) {
       case 'countryCode':
         setCountryCode(value)
         break
       case 'smsTemplateDescription':
         setSmsTemplateDescription(value)
         break
-      
+
       case 'active':
         setActive(value)
         break
@@ -102,7 +107,7 @@ export default function SmsTemplateDialog({ open, onClose, onSubmit, editData,
         setEffectiveToDate(value)
         break
     }
-    
+
     // Clear error for this field when user makes changes
     if (errors[field]) {
       setErrors((prev: any) => ({ ...prev, [field]: '' }))
@@ -149,7 +154,7 @@ export default function SmsTemplateDialog({ open, onClose, onSubmit, editData,
     if (effectiveFromDate && effectiveToDate) {
       const fromDate = new Date(effectiveFromDate)
       const toDate = new Date(effectiveToDate)
-      
+
       if (toDate <= fromDate) {
         newErrors.effectiveToDate = 'Effective To date must be after Effective From date'
       }
@@ -169,13 +174,13 @@ export default function SmsTemplateDialog({ open, onClose, onSubmit, editData,
 
   const handleSubmit = () => {
     if (!validate()) return
-    
+
     const payload: any = {
       countryCode,
       smsTemplateDescription: smsTemplateDescription.trim(),
       active,
       effectiveFromDate: `${effectiveFromDate}T00:00:00`,
-      effectiveToDate: `${effectiveToDate}T23:59:59`,
+      effectiveToDate: `${effectiveToDate}T00:00:00`,
     }
 
     // Only include smsContent if it's provided
@@ -185,10 +190,10 @@ export default function SmsTemplateDialog({ open, onClose, onSubmit, editData,
 
     // Add audit fields
     if (!editData) {
-      payload.createdBy = 'SYSTEM' // You can get this from your auth service
+      payload.createdBy = 'SYSTEM'
     } else {
-      payload.modifiedBy = 'SYSTEM' // You can get this from your auth service
-      payload.smsTemplateCode = editData.smsTemplateCode // Include the template code for updates
+      payload.modifiedBy = 'SYSTEM'
+      payload.smsTemplateCode = editData.smsTemplateCode
     }
 
     onSubmit(payload)
@@ -201,10 +206,8 @@ export default function SmsTemplateDialog({ open, onClose, onSubmit, editData,
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle sx={{ fontWeight: 'bold' }}>
-        {editData ? 'Update SMS Template' : 'Add SMS Template'}
-      </DialogTitle>
-      
+      <DialogTitle sx={{ fontWeight: 'bold' }}>{editData ? 'Update SMS Template' : 'Add SMS Template'}</DialogTitle>
+
       <DialogContent dividers>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           {/* Country Autocomplete */}
@@ -218,11 +221,11 @@ export default function SmsTemplateDialog({ open, onClose, onSubmit, editData,
               handleFieldChange('countryCode', val ? val.countryCode : '')
             }}
             renderInput={(p) => (
-              <TextField 
-                {...p} 
-                label="Search Country" 
-                required 
-                error={!!errors.countryCode} 
+              <TextField
+                {...p}
+                label="Search Country"
+                required
+                error={!!errors.countryCode}
                 helperText={errors.countryCode || `Max ${VALIDATION_RULES.countryCode.max} characters`}
                 inputProps={{ ...p.inputProps, maxLength: VALIDATION_RULES.countryCode.max }}
               />
@@ -238,12 +241,12 @@ export default function SmsTemplateDialog({ open, onClose, onSubmit, editData,
             onChange={(e) => handleFieldChange('smsTemplateDescription', e.target.value)}
             error={!!errors.smsTemplateDescription}
             helperText={
-              errors.smsTemplateDescription || 
+              errors.smsTemplateDescription ||
               `${smsTemplateDescription.length}/${VALIDATION_RULES.smsTemplateDescription.max} characters (min: ${VALIDATION_RULES.smsTemplateDescription.min})`
             }
-            inputProps={{ 
+            inputProps={{
               maxLength: VALIDATION_RULES.smsTemplateDescription.max,
-              minLength: VALIDATION_RULES.smsTemplateDescription.min
+              minLength: VALIDATION_RULES.smsTemplateDescription.min,
             }}
           />
 
@@ -289,15 +292,7 @@ export default function SmsTemplateDialog({ open, onClose, onSubmit, editData,
           />
 
           {/* Active Checkbox */}
-          <FormControlLabel 
-            control={
-              <Checkbox 
-                checked={active} 
-                onChange={(e) => handleFieldChange('active', e.target.checked)} 
-              />
-            } 
-            label="Active" 
-          />
+          <FormControlLabel control={<Checkbox checked={active} onChange={(e) => handleFieldChange('active', e.target.checked)} />} label="Active" />
         </Box>
       </DialogContent>
 
@@ -308,8 +303,8 @@ export default function SmsTemplateDialog({ open, onClose, onSubmit, editData,
         <Button onClick={onClose} sx={{ color: 'grey.600' }}>
           Cancel
         </Button>
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           onClick={handleSubmit}
           disabled={isOverLimit && Math.abs(remainingChars) > 50} // Disable if too many characters
         >

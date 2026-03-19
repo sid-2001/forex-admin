@@ -22,10 +22,15 @@ const filter = createFilterOptions({
   stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
 })
 
-export default function VerificationPartnerMasterDialog({ open, onClose, onSubmit, editData, 
-  
+export default function VerificationPartnerMasterDialog({
+  open,
+  onClose,
+  onSubmit,
+  editData,
+
   //@ts-ignore
-  errMassage }: any) {
+  errMassage,
+}: any) {
   const [countries] = useRecoilState(countyState)
 
   const initialFormState = {
@@ -74,7 +79,7 @@ export default function VerificationPartnerMasterDialog({ open, onClose, onSubmi
     if (form.effectiveFromDate && form.effectiveToDate) {
       const fromDate = new Date(form.effectiveFromDate)
       const toDate = new Date(form.effectiveToDate)
-      
+
       if (toDate <= fromDate) {
         newErrors.effectiveToDate = 'Effective To date must be after Effective From date'
       }
@@ -92,7 +97,7 @@ export default function VerificationPartnerMasterDialog({ open, onClose, onSubmi
         verificationPartnerDescription: form.verificationPartnerDescription,
         active: form.active,
         effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
-        effectiveToDate: `${form.effectiveToDate}T23:59:59`,
+        effectiveToDate: `${form.effectiveToDate}T00:00:00`,
       }
       onSubmit(cleanPayload)
     }
@@ -128,13 +133,7 @@ export default function VerificationPartnerMasterDialog({ open, onClose, onSubmi
                 if (errors.countryCode) setErrors({ ...errors, countryCode: '' })
               }}
               renderInput={(params) => (
-                <TextField 
-                  {...params} 
-                  label="Search Country" 
-                  required 
-                  error={!!errors.countryCode} 
-                  helperText={errors.countryCode} 
-                />
+                <TextField {...params} label="Search Country" required error={!!errors.countryCode} helperText={errors.countryCode} />
               )}
             />
           </Grid>
@@ -176,22 +175,10 @@ export default function VerificationPartnerMasterDialog({ open, onClose, onSubmi
           </Grid>
 
           <Grid item xs={12}>
-            <FormControlLabel 
-              control={
-                <Checkbox 
-                  name="active" 
-                  checked={form.active} 
-                  onChange={handleChange} 
-                  color="primary" 
-                />
-              } 
-              label="Active" 
-            />
+            <FormControlLabel control={<Checkbox name="active" checked={form.active} onChange={handleChange} color="primary" />} label="Active" />
           </Grid>
         </Grid>
       </DialogContent>
-
- 
 
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={onClose} sx={{ color: 'grey.600' }}>

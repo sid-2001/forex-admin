@@ -1,4 +1,16 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Checkbox, FormControlLabel, Grid, Autocomplete, FormHelperText } from '@mui/material'
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  Autocomplete,
+  FormHelperText,
+} from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
@@ -6,18 +18,18 @@ import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePi
 
 // Validation rules based on entity annotations
 const VALIDATION_RULES = {
-  countryCode: { 
-    max: 3, 
+  countryCode: {
+    max: 3,
     message: 'Country code cannot exceed 3 characters',
-    required: true 
+    required: true,
   },
-  description: { 
-    max: 255, 
+  description: {
+    max: 255,
     message: 'Description cannot exceed 255 characters',
     required: true,
     min: 3,
-    minMessage: 'Description must be at least 3 characters'
-  }
+    minMessage: 'Description must be at least 3 characters',
+  },
 }
 
 interface Props {
@@ -29,14 +41,7 @@ interface Props {
   isUpdateDisabled?: boolean
 }
 
-export default function WhatsappTemplateDialog({ 
-  open, 
-  onClose, 
-  onSubmit, 
-  editData,
-  onFormChange,
-  isUpdateDisabled 
-}: Props) {
+export default function WhatsappTemplateDialog({ open, onClose, onSubmit, editData, onFormChange, isUpdateDisabled }: Props) {
   const [countries] = useRecoilState(countyState)
   const [form, setForm] = useState({
     countryCode: '',
@@ -51,7 +56,7 @@ export default function WhatsappTemplateDialog({
   // Check if form data has changed from original
   const checkFormChanged = (current: any, original: any) => {
     if (!original) return false
-    
+
     return (
       current.description !== original.description ||
       current.fromDate !== original.fromDate ||
@@ -98,12 +103,12 @@ export default function WhatsappTemplateDialog({
   // Handle field change with error clearing
   const handleFieldChange = (field: string, value: any) => {
     setForm((prev) => ({ ...prev, [field]: value }))
-    
+
     // Clear error for this field
     if (errors[field]) {
       setErrors((prev: any) => ({ ...prev, [field]: '' }))
     }
-    
+
     // Clear toDate error when fromDate changes (if it was a date range error)
     if (field === 'fromDate' && errors.toDate?.includes('after')) {
       setErrors((prev: any) => ({ ...prev, toDate: '' }))
@@ -145,7 +150,7 @@ export default function WhatsappTemplateDialog({
     if (form.fromDate && form.toDate) {
       const fromDate = new Date(form.fromDate)
       const toDate = new Date(form.toDate)
-      
+
       // Check if dates are valid
       if (isNaN(fromDate.getTime())) {
         newErrors.fromDate = 'Invalid date format'
@@ -153,7 +158,7 @@ export default function WhatsappTemplateDialog({
       if (isNaN(toDate.getTime())) {
         newErrors.toDate = 'Invalid date format'
       }
-      
+
       // Check if toDate is after fromDate
       if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime()) && toDate <= fromDate) {
         newErrors.toDate = 'Effective To date must be after Effective From date'
@@ -166,14 +171,14 @@ export default function WhatsappTemplateDialog({
 
   const handleSubmit = () => {
     if (!validate()) return
-    
+
     // Original payload structure preserved exactly
     const payload = {
       countryCode: form.countryCode,
       whatsappTemplateDescription: form.description.trim(),
       active: form.active,
       effectiveFromDate: `${form.fromDate}T00:00:00`,
-      effectiveToDate: `${form.toDate}T23:59:59`,
+      effectiveToDate: `${form.toDate}T00:00:00`,
     }
 
     onSubmit(payload)
@@ -183,12 +188,12 @@ export default function WhatsappTemplateDialog({
   const getHelperText = (field: string, value: string, customMessage?: string) => {
     const validationMap: any = {
       countryCode: VALIDATION_RULES.countryCode,
-      description: VALIDATION_RULES.description
+      description: VALIDATION_RULES.description,
     }
-    
+
     const validation = validationMap[field]
     if (!validation) return customMessage || ''
-    
+
     const currentLength = value?.length || 0
     if (field === 'description') {
       return `${currentLength}/${validation.max} characters (min: ${validation.min})`
@@ -198,10 +203,8 @@ export default function WhatsappTemplateDialog({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>
-        {editData ? 'Update WhatsApp Template' : 'Create WhatsApp Template'}
-      </DialogTitle>
-      
+      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update WhatsApp Template' : 'Create WhatsApp Template'}</DialogTitle>
+
       <DialogContent dividers>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           {/* Country Autocomplete */}
@@ -215,11 +218,11 @@ export default function WhatsappTemplateDialog({
                 handleFieldChange('countryCode', val ? val.countryCode : '')
               }}
               renderInput={(p) => (
-                <TextField 
-                  {...p} 
-                  label="Country" 
-                  required 
-                  error={!!errors.countryCode} 
+                <TextField
+                  {...p}
+                  label="Country"
+                  required
+                  error={!!errors.countryCode}
                   helperText={errors.countryCode || getHelperText('countryCode', form.countryCode)}
                   inputProps={{ ...p.inputProps, maxLength: VALIDATION_RULES.countryCode.max }}
                 />
@@ -237,9 +240,9 @@ export default function WhatsappTemplateDialog({
               onChange={(e) => handleFieldChange('description', e.target.value)}
               error={!!errors.description}
               helperText={errors.description || getHelperText('description', form.description)}
-              inputProps={{ 
+              inputProps={{
                 maxLength: VALIDATION_RULES.description.max,
-                minLength: VALIDATION_RULES.description.min
+                minLength: VALIDATION_RULES.description.min,
               }}
               multiline
               rows={2}
@@ -274,12 +277,7 @@ export default function WhatsappTemplateDialog({
           {/* Active Status */}
           <Grid item xs={12}>
             <FormControlLabel
-              control={
-                <Checkbox 
-                  checked={form.active} 
-                  onChange={(e) => handleFieldChange('active', e.target.checked)} 
-                />
-              }
+              control={<Checkbox checked={form.active} onChange={(e) => handleFieldChange('active', e.target.checked)} />}
               label="Active Status"
             />
           </Grid>
@@ -290,11 +288,7 @@ export default function WhatsappTemplateDialog({
         <Button onClick={onClose} color="inherit">
           Cancel
         </Button>
-        <Button 
-          variant="contained" 
-          onClick={handleSubmit}
-          disabled={editData ? isUpdateDisabled : false}
-        >
+        <Button variant="contained" onClick={handleSubmit} disabled={editData ? isUpdateDisabled : false}>
           {editData ? 'Update' : 'Save'}
         </Button>
       </DialogActions>

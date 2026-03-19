@@ -28,7 +28,13 @@ const VALIDATION_RULES = {
   templateCode: { max: 50, message: 'Template code cannot exceed 50 characters' },
   templateName: { max: 100, message: 'Template name cannot exceed 100 characters', required: true },
   fromName: { max: 100, message: 'From name cannot exceed 100 characters' },
-  fromEmail: { max: 100, message: 'Email cannot exceed 100 characters', required: true, pattern: /\S+@\S+\.\S+/, patternMessage: 'Invalid email format' },
+  fromEmail: {
+    max: 100,
+    message: 'Email cannot exceed 100 characters',
+    required: true,
+    pattern: /\S+@\S+\.\S+/,
+    patternMessage: 'Invalid email format',
+  },
   emailSubject: { max: 200, message: 'Subject cannot exceed 200 characters', required: true },
   emailBodyHtml: { max: 10000, message: 'HTML body cannot exceed 10000 characters' },
   emailBodyText: { max: 5000, message: 'Text body cannot exceed 5000 characters' },
@@ -38,18 +44,18 @@ const VALIDATION_RULES = {
 // Function to validate HTML
 const isValidHTML = (html: string): boolean => {
   if (!html) return true // Empty HTML is considered valid (optional field)
-  
+
   try {
     // Create a DOM parser to check if HTML is valid
     const parser = new DOMParser()
     const doc = parser.parseFromString(html, 'text/html')
-    
+
     // Check for parsing errors
     const parserErrors = doc.querySelectorAll('parsererror')
     if (parserErrors.length > 0) {
       return false
     }
-    
+
     // Additional check for unclosed tags
     const div = document.createElement('div')
     div.innerHTML = html
@@ -64,7 +70,7 @@ const isValidHTML = (html: string): boolean => {
 // Function to check for potentially dangerous HTML (XSS prevention)
 const isSafeHTML = (html: string): boolean => {
   if (!html) return true
-  
+
   // List of disallowed tags/attributes that could be used for XSS
   const dangerousPatterns = [
     /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
@@ -84,8 +90,8 @@ const isSafeHTML = (html: string): boolean => {
     /<embed\b/gi,
     /<object\b/gi,
   ]
-  
-  return !dangerousPatterns.some(pattern => pattern.test(html))
+
+  return !dangerousPatterns.some((pattern) => pattern.test(html))
 }
 
 export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, editData, errMassage }: any) {
@@ -126,7 +132,7 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
   const handleChange = (e: any) => {
     const { name, value, checked, type } = e.target
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
-    
+
     // Clear error for this field when user starts typing
     if (errors[name]) {
       setErrors((prev: any) => ({ ...prev, [name]: '' }))
@@ -147,10 +153,10 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
 
   const validate = () => {
     const newErrors: any = {}
-    
+
     // Required fields validation
     const requiredFields = ['countryCode', 'templateName', 'fromEmail', 'emailSubject', 'effectiveFromDate', 'effectiveToDate']
-    
+
     requiredFields.forEach((field) => {
       if (!form[field as keyof typeof form]?.toString().trim()) {
         newErrors[field] = 'This field is required'
@@ -161,25 +167,24 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
     Object.keys(VALIDATION_RULES).forEach((field) => {
       const rule = VALIDATION_RULES[field as keyof typeof VALIDATION_RULES]
       const value = form[field as keyof typeof form]
-      
+
       if (value) {
         // Max length validation
         //@ts-ignore
         if (rule.max && value.length > rule.max) {
           newErrors[field] = rule.message
         }
-        
+
         // Email pattern validation
-          //@ts-ignore
+        //@ts-ignore
         if (field === 'fromEmail' && rule.pattern && !rule.pattern.test(value)) {
-            //@ts-ignore
+          //@ts-ignore
           newErrors[field] = rule.patternMessage || 'Invalid email format'
         }
-
-
-      } else if 
+      } else if (
         //@ts-ignore
-      (rule.required) {
+        rule.required
+      ) {
         newErrors[field] = 'This field is required'
       }
     })
@@ -197,7 +202,7 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
     if (form.effectiveFromDate && form.effectiveToDate) {
       const fromDate = new Date(form.effectiveFromDate)
       const toDate = new Date(form.effectiveToDate)
-      
+
       if (toDate <= fromDate) {
         newErrors.effectiveToDate = 'Effective To date must be after Effective From date'
       }
@@ -229,7 +234,7 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
         emailTemplateDescription: form.emailTemplateDescription?.trim() || `${form.templateName} Template`,
         active: form.active,
         effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
-        effectiveToDate: `${form.effectiveToDate}T23:59:59`,
+        effectiveToDate: `${form.effectiveToDate}T00:00:00`,
       }
       onSubmit(cleanPayload)
     }
@@ -254,11 +259,11 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
                 if (errors.countryCode) setErrors({ ...errors, countryCode: '' })
               }}
               renderInput={(params) => (
-                <TextField 
-                  {...params} 
-                  label="Search Country" 
-                  required 
-                  error={!!errors.countryCode} 
+                <TextField
+                  {...params}
+                  label="Search Country"
+                  required
+                  error={!!errors.countryCode}
                   helperText={errors.countryCode || `Max ${VALIDATION_RULES.countryCode.max} characters`}
                   inputProps={{ ...params.inputProps, maxLength: VALIDATION_RULES.countryCode.max }}
                 />
@@ -295,11 +300,11 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <TextField 
-              fullWidth 
-              label="From Name" 
-              name="fromName" 
-              value={form.fromName} 
+            <TextField
+              fullWidth
+              label="From Name"
+              name="fromName"
+              value={form.fromName}
               onChange={handleChange}
               error={!!errors.fromName}
               helperText={errors.fromName || `Max ${VALIDATION_RULES.fromName.max} characters`}
@@ -336,13 +341,13 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
           </Grid>
 
           <Grid item xs={12}>
-            <TextField 
-              fullWidth 
-              multiline 
-              rows={4} 
-              label="HTML Body" 
-              name="emailBodyHtml" 
-              value={form.emailBodyHtml} 
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              label="HTML Body"
+              name="emailBodyHtml"
+              value={form.emailBodyHtml}
               onChange={handleChange}
               error={!!errors.emailBodyHtml}
               helperText={errors.emailBodyHtml || `Max ${VALIDATION_RULES.emailBodyHtml.max} characters`}
@@ -352,13 +357,13 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
           </Grid>
 
           <Grid item xs={12}>
-            <TextField 
-              fullWidth 
-              multiline 
-              rows={2} 
-              label="Text Body (Plain Text)" 
-              name="emailBodyText" 
-              value={form.emailBodyText} 
+            <TextField
+              fullWidth
+              multiline
+              rows={2}
+              label="Text Body (Plain Text)"
+              name="emailBodyText"
+              value={form.emailBodyText}
               onChange={handleChange}
               error={!!errors.emailBodyText}
               helperText={errors.emailBodyText || `Max ${VALIDATION_RULES.emailBodyText.max} characters`}
@@ -404,23 +409,13 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
           </Grid>
 
           <Grid item xs={12}>
-            <FormControlLabel 
-              control={
-                <Checkbox 
-                  name="active" 
-                  checked={form.active} 
-                  onChange={handleChange} 
-                  color="primary" 
-                />
-              } 
-              label="Active" 
-            />
+            <FormControlLabel control={<Checkbox name="active" checked={form.active} onChange={handleChange} color="primary" />} label="Active" />
           </Grid>
         </Grid>
       </DialogContent>
-      
+
       <ErrorMessage errMessage={errMassage} />
-      
+
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={onClose} sx={{ color: 'grey.600' }}>
           CANCEL
