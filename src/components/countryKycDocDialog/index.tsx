@@ -66,7 +66,7 @@ export default function CountryKycDocDialog({ open, onClose, onSubmit, editData,
     onSubmit({
       ...cleanData,
       effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
-      effectiveToDate: `${form.effectiveToDate}T23:59:59`,
+      effectiveToDate: `${form.effectiveToDate}T00:00:00`,
     })
   }
 

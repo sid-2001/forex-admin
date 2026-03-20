@@ -1,16 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  FormControlLabel,
-  Grid,
-  Checkbox,
-  FormHelperText,
-} from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, FormControlLabel, Grid, Checkbox, FormHelperText } from '@mui/material'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 
@@ -36,31 +25,24 @@ interface Props {
 const VALIDATION = {
   BOP_CATEGORY_TYPE_CODE: {
     maxLength: 10,
-    message: 'Bop category type Code cannot exceed 10 characters'
+    message: 'Bop category type Code cannot exceed 10 characters',
   },
   BOP_CATEGORY_TYPE: {
     maxLength: 10,
     required: true,
-    message: 'Bop category type cannot exceed 10 characters'
+    message: 'Bop category type cannot exceed 10 characters',
   },
   BOP_CATEGORY_DESCRIPTION: {
     maxLength: 50,
     required: true,
-    message: 'Bop Category description cannot exceed 50 characters'
-  }
+    message: 'Bop Category description cannot exceed 50 characters',
+  },
 }
 
-const BopCategoryTypeFormDialog: React.FC<Props> = ({ 
-  open, 
-  editData, 
-  onClose, 
-  onSubmit, 
-  onFormChange,
-  isUpdateDisabled 
-}) => {
+const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, onSubmit, onFormChange, isUpdateDisabled }) => {
   const local_service = new LocalStorageService()
   const staffData = local_service.get_staff_access()
-  
+
   const [formData, setFormData] = useState({
     bopCategoryTypeCode: '',
     bopCategoryType: '',
@@ -76,7 +58,7 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({
   // Check if form data has changed from original
   const checkFormChanged = (current: any, original: any) => {
     if (!original) return false
-    
+
     return (
       current.bopCategoryTypeCode !== original.bopCategoryTypeCode ||
       current.bopCategoryType !== original.bopCategoryType ||
@@ -128,11 +110,11 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({
   /* ------------------ Change Handler ------------------ */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
-    setFormData((prev) => ({ 
-      ...prev, 
-      [name]: type === 'checkbox' ? checked : value 
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
     }))
-    
+
     // Clear error for this field when user starts typing
     if (errors[name]) {
       setErrors((prev: any) => ({ ...prev, [name]: '' }))
@@ -176,7 +158,7 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({
     if (formData.effectiveFromDate && formData.effectiveToDate) {
       const fromDate = new Date(formData.effectiveFromDate)
       const toDate = new Date(formData.effectiveToDate)
-      
+
       if (toDate <= fromDate) {
         newErrors.effectiveToDate = 'Effective To date must be after Effective From date'
       }
@@ -196,16 +178,16 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({
       bopCategoryTypeCode: formData.bopCategoryTypeCode || null,
       effectiveFromDate: `${formData.effectiveFromDate}T00:00:00`,
       effectiveToDate: `${formData.effectiveToDate}T00:00:00`,
-      createdBy: editData ? undefined : staffData?.staffId,
-      modifiedBy: staffData?.staffId,
-      createdLocalDateTime: editData ? undefined : now,
-      modifiedLocalDateTime: now,
-      createdTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      modifiedTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      createdOffset: formatTimezoneOffset(),
-      modifiedOffset: formatTimezoneOffset(),
-      createdUtcDateTime: editData ? undefined : new Date().toISOString(),
-      modifiedUtcDateTime: new Date().toISOString(),
+      // createdBy: editData ? undefined : staffData?.staffId,
+      // modifiedBy: staffData?.staffId,
+      // createdLocalDateTime: editData ? undefined : now,
+      // modifiedLocalDateTime: now,
+      // createdTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      // modifiedTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      // createdOffset: formatTimezoneOffset(),
+      // modifiedOffset: formatTimezoneOffset(),
+      // createdUtcDateTime: editData ? undefined : new Date().toISOString(),
+      // modifiedUtcDateTime: new Date().toISOString(),
     }
 
     onSubmit(submitData)
@@ -215,16 +197,16 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({
   const formatTimezoneOffset = () => {
     const offset = -new Date().getTimezoneOffset()
     const sign = offset >= 0 ? '+' : '-'
-    const hours = Math.floor(Math.abs(offset) / 60).toString().padStart(2, '0')
+    const hours = Math.floor(Math.abs(offset) / 60)
+      .toString()
+      .padStart(2, '0')
     const minutes = (Math.abs(offset) % 60).toString().padStart(2, '0')
     return `${sign}${hours}:${minutes}`
   }
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
-        {editData ? 'Edit BOP Category Type' : 'Create BOP Category Type'}
-      </DialogTitle>
+      <DialogTitle>{editData ? 'Edit BOP Category Type' : 'Create BOP Category Type'}</DialogTitle>
 
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -316,27 +298,18 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({
           {/* Active Status */}
           <Grid item xs={12}>
             <FormControlLabel
-              control={
-                <Checkbox
-                  checked={formData.active}
-                  onChange={handleChange}
-                  name="active"
-                  color="primary"
-                />
-              }
+              control={<Checkbox checked={formData.active} onChange={handleChange} name="active" color="primary" />}
               label="Active Status"
             />
-            {errors.active && (
-              <FormHelperText error>{errors.active}</FormHelperText>
-            )}
+            {errors.active && <FormHelperText error>{errors.active}</FormHelperText>}
           </Grid>
         </Grid>
       </DialogContent>
 
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           onClick={handleSubmit}
           disabled={editData ? isUpdateDisabled : false} // Disable if no changes in edit mode
         >

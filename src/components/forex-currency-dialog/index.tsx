@@ -1,4 +1,15 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Checkbox, FormControlLabel, MenuItem, FormHelperText } from '@mui/material'
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  MenuItem,
+  FormHelperText,
+} from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { LocalStorageService } from '@/helpers/local-storage-service'
@@ -19,27 +30,28 @@ const VALIDATION = {
   COUNTRY_CODE: {
     maxLength: 10,
     required: true,
-    message: 'Country code cannot exceed 10 characters'
+    message: 'Country code cannot exceed 10 characters',
   },
   CURRENCY_CODE: {
     maxLength: 255,
     required: true,
-    message: 'Currency code cannot exceed 255 characters'
+    message: 'Currency code cannot exceed 255 characters',
   },
   CURRENCY_NAME: {
     maxLength: 255,
     required: true,
-    message: 'Currency name cannot exceed 255 characters'
+    message: 'Currency name cannot exceed 255 characters',
   },
   CURRENCY_SYMBOL: {
     maxLength: 255,
-    message: 'Currency symbol cannot exceed 255 characters'
-  }
+    message: 'Currency symbol cannot exceed 255 characters',
+  },
 }
 
 export default function ForexCurrencyDialog({ open, onClose, onSubmit, editData, onFormChange, isUpdateDisabled }: Props) {
   const localService = new LocalStorageService()
   const countries = useRecoilValue(countyState)
+  const staffData = localService.get_staff_access()
 
   const [form, setForm] = useState<any>({
     countryCode: '',
@@ -55,7 +67,7 @@ export default function ForexCurrencyDialog({ open, onClose, onSubmit, editData,
   // Check if form data has changed from original
   const checkFormChanged = (current: any, original: any) => {
     if (!original) return false
-    
+
     return (
       current.currencyCode !== original.currencyCode ||
       current.currencyName !== original.currencyName ||
@@ -68,7 +80,9 @@ export default function ForexCurrencyDialog({ open, onClose, onSubmit, editData,
   const formatTimezoneOffset = () => {
     const offset = -new Date().getTimezoneOffset()
     const sign = offset >= 0 ? '+' : '-'
-    const hours = Math.floor(Math.abs(offset) / 60).toString().padStart(2, '0')
+    const hours = Math.floor(Math.abs(offset) / 60)
+      .toString()
+      .padStart(2, '0')
     const minutes = (Math.abs(offset) % 60).toString().padStart(2, '0')
     return `${sign}${hours}:${minutes}`
   }
@@ -153,18 +167,24 @@ export default function ForexCurrencyDialog({ open, onClose, onSubmit, editData,
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
     const offset = formatTimezoneOffset()
 
-    const payload = {
+    let payload = {
       ...form,
-      createdBy: editData ? undefined : localService.get_staff_id(),
-      modifiedBy: localService.get_staff_id(),
-      createdLocaldatetime: editData ? undefined : now.split('.')[0],
-      modifiedLocaldatetime: now.split('.')[0],
-      createdTimezone: editData ? undefined : timeZone,
-      modifiedTimezone: timeZone,
-      createdOffset: editData ? undefined : offset,
-      modifiedOffset: offset,
-      createdUtcDatetime: editData ? undefined : new Date().toISOString(),
-      modifiedUtcDatetime: new Date().toISOString(),
+      // createdBy: editData ? undefined : localService.get_staff_id(),
+      // modifiedBy: localService.get_staff_id(),
+      // createdLocaldatetime: editData ? undefined : now.split('.')[0],
+      // modifiedLocaldatetime: now.split('.')[0],
+      // createdTimezone: editData ? undefined : timeZone,
+      // modifiedTimezone: timeZone,
+      // createdOffset: editData ? undefined : offset,
+      // modifiedOffset: offset,
+      // createdUtcDatetime: editData ? undefined : new Date().toISOString(),
+      // modifiedUtcDatetime: new Date().toISOString(),
+    }
+
+    if (editData) {
+      payload.modifiedBy = staffData?.staffId
+    } else {
+      payload.createdBy = staffData?.staffId
     }
 
     onSubmit(payload)
@@ -176,12 +196,12 @@ export default function ForexCurrencyDialog({ open, onClose, onSubmit, editData,
       countryCode: VALIDATION.COUNTRY_CODE,
       currencyCode: VALIDATION.CURRENCY_CODE,
       currencyName: VALIDATION.CURRENCY_NAME,
-      currencySymbol: VALIDATION.CURRENCY_SYMBOL
+      currencySymbol: VALIDATION.CURRENCY_SYMBOL,
     }
-    
+
     const validation = validationMap[field]
     if (!validation) return customMessage || ''
-    
+
     const currentLength = value?.length || 0
     return `${currentLength}/${validation.maxLength} characters`
   }
@@ -204,15 +224,17 @@ export default function ForexCurrencyDialog({ open, onClose, onSubmit, editData,
           helperText={errors.countryCode || getHelperText('countryCode', form.countryCode)}
           onChange={(e) => handleChange('countryCode', e.target.value)}
         >
-          {countries.filter(e => e.status === "A").map((c) => (
-            <MenuItem
-            //@ts-ignore
-              key={c.countryCode}
-              value={c.countryCode}
-            >
-              {c.countryName} ({c.countryCode})
-            </MenuItem>
-          ))}
+          {countries
+            .filter((e) => e.status === 'A')
+            .map((c) => (
+              <MenuItem
+                //@ts-ignore
+                key={c.countryCode}
+                value={c.countryCode}
+              >
+                {c.countryName} ({c.countryCode})
+              </MenuItem>
+            ))}
         </TextField>
 
         <TextField
@@ -251,24 +273,12 @@ export default function ForexCurrencyDialog({ open, onClose, onSubmit, editData,
           inputProps={{ maxLength: VALIDATION.CURRENCY_SYMBOL.maxLength }}
         />
 
-        <FormControlLabel 
-          control={
-            <Checkbox 
-              checked={form.active} 
-              onChange={(e) => handleChange('active', e.target.checked)} 
-            />
-          } 
-          label="Active" 
-        />
+        <FormControlLabel control={<Checkbox checked={form.active} onChange={(e) => handleChange('active', e.target.checked)} />} label="Active" />
       </DialogContent>
 
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button 
-          variant="contained" 
-          onClick={handleSubmit}
-          disabled={editData ? isUpdateDisabled : false}
-        >
+        <Button variant="contained" onClick={handleSubmit} disabled={editData ? isUpdateDisabled : false}>
           {editData ? 'Update' : 'Create'}
         </Button>
       </DialogActions>

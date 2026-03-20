@@ -362,7 +362,8 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
       bankType: form.bankType,
       active: form.active,
       effectiveFromDate: `${form.effective_from_date}T00:00:00`,
-      effectiveToDate: `${form.effective_to_date}T23:59:59`,
+      effectiveToDate: `${form.effective_to_date}T00:00:00`,
+      createdBy: '',
     }
 
     // IMPORTANT: Add identifier for update
@@ -372,36 +373,35 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
       payload.modifiedBy = localService.get_staff_id()
 
       // Add modified audit fields
-      Object.assign(payload, {
-        modifiedLocalDateTime: now.toISOString(),
-        modifiedTimeZone: timezone,
-        modifiedOffset: offsetStr,
-        modifiedUtcDateTime: new Date().toISOString(),
-      })
+      // Object.assign(payload, {
+      //   modifiedLocalDateTime: now.toISOString(),
+      //   modifiedTimeZone: timezone,
+      //   modifiedOffset: offsetStr,
+      //   modifiedUtcDateTime: new Date().toISOString(),
+      // })
     } else {
       payload.createdBy = localService.get_staff_id()
 
       // Add created audit fields
-      Object.assign(payload, {
-        createdLocalDateTime: now.toISOString(),
-        createdTimeZone: timezone,
-        createdOffset: offsetStr,
-        createdUtcDateTime: new Date().toISOString(),
-      })
+      // Object.assign(payload, {
+      //   createdLocalDateTime: now.toISOString(),
+      //   createdTimeZone: timezone,
+      //   createdOffset: offsetStr,
+      //   createdUtcDateTime: new Date().toISOString(),
+      // })
     }
 
     console.log('Submitting payload for', editData ? 'update' : 'create', ':', payload)
     onSubmit(payload)
   }
-  
 
   const minEffectiveToDate = form.effective_from_date
-  ? (() => {
-      const date = new Date(form.effective_from_date)
-      date.setDate(date.getDate() + 1)
-      return date
-    })()
-  : undefined
+    ? (() => {
+        const date = new Date(form.effective_from_date)
+        date.setDate(date.getDate() + 1)
+        return date
+      })()
+    : undefined
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update Bank' : 'Add Bank'}</DialogTitle>

@@ -37,17 +37,18 @@ export default function ExchangeRateMasterScreen() {
 
   const [rows, setRows] = useState<IExchangeRate[]>([])
   const [loading, setLoading] = useState(false)
-
-  let vendorNamesMapping = {}
+  const [vendorNamesMapping, setVendorNamesMapping] = useState<any>({})
 
   const fetchVendorsByType = async () => {
     const res: any = await vendor_service.getExchangeRateVendorsList()
-    vendorNamesMapping = res.reduce((acc: any, vendor: any) => {
+    const vendorNames = res.reduce((acc: any, vendor: any) => {
       //@ts-ignore
       acc[vendor.vendorCode] = vendor.vendorName
       return acc
     }, {})
+    console.log(vendorNames, 'names')
     setVendorsList(res || [])
+    setVendorNamesMapping(vendorNames)
   }
 
   const fetchFilterValues = async () => {
@@ -57,12 +58,7 @@ export default function ExchangeRateMasterScreen() {
 
   const fetchRateListingData = async (filterValue: string) => {
     const data = await rate_service.getExchangeRateList(filterValue)
-    const updatedRates = data.map((rate: IExchangeRate) => ({
-      ...rate,
-      //@ts-ignore
-      vendorName: vendorNamesMapping[rate.vendorCode] || '',
-    }))
-    setRows(updatedRates || [])
+    setRows(data || [])
   }
 
   useEffect(() => {
@@ -114,7 +110,7 @@ export default function ExchangeRateMasterScreen() {
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <span>
-          {params.row.vendorName} {params.row.vendorCode ? `(${params.row.vendorCode})` : ''}
+          {vendorNamesMapping[params.row.vendorCode]} {params.row.vendorCode ? `(${params.row.vendorCode})` : ''}
         </span>
       ),
     },

@@ -109,8 +109,8 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
 
     onSubmit({
       ...form,
-      created_by: localService.get_staff_id(),
-      modified_by: editData ? localService.get_staff_id() : undefined,
+      createdBy: localService.get_staff_id(),
+      modifiedBy: editData ? localService.get_staff_id() : undefined,
       effectiveFromDate: `${form.effectiveFromDate}T00:00:00.000Z`,
       effectiveToDate: `${form.effectiveToDate}T00:00:00.000Z`,
     })
@@ -166,7 +166,6 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
           </Grid>
 
           <Grid item xs={6}>
-        
             <DynamicDatePicker
               label="Effective From"
               value={form.effectiveFromDate}

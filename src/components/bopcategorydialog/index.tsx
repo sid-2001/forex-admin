@@ -1,4 +1,16 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Checkbox, FormControlLabel, Grid, Autocomplete, FormHelperText } from '@mui/material'
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  Autocomplete,
+  FormHelperText,
+} from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
@@ -11,44 +23,44 @@ const VALIDATION = {
   COUNTRY_CODE: {
     maxLength: 3,
     required: true,
-    message: 'Country code cannot exceed 3 characters'
+    message: 'Country code cannot exceed 3 characters',
   },
   CATEGORY_TYPE: {
     maxLength: 10,
-    message: 'Category Type cannot exceed 10 characters'
+    message: 'Category Type cannot exceed 10 characters',
   },
   BOP_PURPOSE_CODE: {
     maxLength: 10,
-    message: 'Bop Purpose Code cannot exceed 10 characters'
+    message: 'Bop Purpose Code cannot exceed 10 characters',
   },
   BOP_PURPOSE_DESCRIPTION: {
     maxLength: 50,
-    message: 'Bop purpose description cannot exceed 50 characters'
+    message: 'Bop purpose description cannot exceed 50 characters',
   },
   BOP_PURPOSE_SUB_CODE: {
     maxLength: 3,
-    message: 'Bop purpose sub code cannot exceed 3 characters'
+    message: 'Bop purpose sub code cannot exceed 3 characters',
   },
   BOP_PURPOSE_SUB_DESCRIPTION: {
     maxLength: 50,
-    message: 'Bop purpose sub description cannot exceed 50 characters'
+    message: 'Bop purpose sub description cannot exceed 50 characters',
   },
   CREATED_BY: {
     maxLength: 50,
-    message: 'Created by cannot exceed 50 characters'
+    message: 'Created by cannot exceed 50 characters',
   },
   MODIFIED_BY: {
     maxLength: 50,
-    message: 'Modified by cannot exceed 50 characters'
+    message: 'Modified by cannot exceed 50 characters',
   },
   TIMEZONE: {
     maxLength: 50,
-    message: 'Timezone cannot exceed 50 characters'
+    message: 'Timezone cannot exceed 50 characters',
   },
   OFFSET: {
     maxLength: 10,
-    message: 'Offset cannot exceed 10 characters'
-  }
+    message: 'Offset cannot exceed 10 characters',
+  },
 }
 
 export default function BopCategoryFormDialog({ open, onClose, editData, categorylist, refreshList, showAlert }: any) {
@@ -74,7 +86,9 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
   const formatTimezoneOffset = () => {
     const offset = -new Date().getTimezoneOffset()
     const sign = offset >= 0 ? '+' : '-'
-    const hours = Math.floor(Math.abs(offset) / 60).toString().padStart(2, '0')
+    const hours = Math.floor(Math.abs(offset) / 60)
+      .toString()
+      .padStart(2, '0')
     const minutes = (Math.abs(offset) % 60).toString().padStart(2, '0')
     return `${sign}${hours}:${minutes}`
   }
@@ -169,7 +183,7 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
     if (form.effectiveFromDate && form.effectiveToDate) {
       const fromDate = new Date(form.effectiveFromDate)
       const toDate = new Date(form.effectiveToDate)
-      
+
       if (toDate <= fromDate) {
         errs.effectiveToDate = 'Effective To date must be after Effective From date'
       }
@@ -186,31 +200,29 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
 
   const handleSubmit = async () => {
     if (!validate()) return
-    
+
     const staffId = localService.get_staff_id() || 'admin'
     const now = new Date().toISOString()
-    
+
     const payload = {
       ...form,
       bopPurposeCategoryCode: form.bopPurposeCategoryCode || null,
       effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
       effectiveToDate: `${form.effectiveToDate}T00:00:00`,
       createdBy: editData ? undefined : staffId,
-      modifiedBy: staffId,
-      createdLocalDateTime: editData ? undefined : now,
-      modifiedLocalDateTime: now,
-      createdTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      modifiedTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      createdOffset: formatTimezoneOffset(),
-      modifiedOffset: formatTimezoneOffset(),
-      createdUtcDateTime: editData ? undefined : new Date().toISOString(),
-      modifiedUtcDateTime: new Date().toISOString(),
+      modifiedBy: !editData ? undefined : staffId,
+      // createdLocalDateTime: editData ? undefined : now,
+      // modifiedLocalDateTime: now,
+      // createdTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      // modifiedTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      // createdOffset: formatTimezoneOffset(),
+      // modifiedOffset: formatTimezoneOffset(),
+      // createdUtcDateTime: editData ? undefined : new Date().toISOString(),
+      // modifiedUtcDateTime: new Date().toISOString(),
     }
 
     try {
-      const res = editData 
-        ? await service.update(payload) 
-        : await service.create(payload)
+      const res = editData ? await service.update(payload) : await service.create(payload)
 
       if (res?.status === true || res) {
         showAlert('Success', `${res?.message}`)
@@ -232,22 +244,20 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
       bopPurposeCode: VALIDATION.BOP_PURPOSE_CODE,
       bopPurposeDescription: VALIDATION.BOP_PURPOSE_DESCRIPTION,
       bopPurposeSubCode: VALIDATION.BOP_PURPOSE_SUB_CODE,
-      bopPurposeSubDescription: VALIDATION.BOP_PURPOSE_SUB_DESCRIPTION
+      bopPurposeSubDescription: VALIDATION.BOP_PURPOSE_SUB_DESCRIPTION,
     }
-    
+
     const validation = validationMap[field]
     if (!validation) return customMessage || ''
-    
+
     const currentLength = value?.length || 0
     return `${currentLength}/${validation.maxLength} characters`
   }
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>
-        {editData ? 'Update BOP Category' : 'Add BOP Category'}
-      </DialogTitle>
-      
+      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update BOP Category' : 'Add BOP Category'}</DialogTitle>
+
       <DialogContent dividers>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           {/* Country Field */}
@@ -262,10 +272,10 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
                 if (errors.countryCode) setErrors({ ...errors, countryCode: '' })
               }}
               renderInput={(params) => (
-                <TextField 
-                  {...params} 
-                  label="Country" 
-                  required 
+                <TextField
+                  {...params}
+                  label="Country"
+                  required
                   error={!!errors.countryCode}
                   helperText={errors.countryCode || getHelperText('countryCode', form.countryCode)}
                 />
@@ -284,9 +294,9 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
                 if (errors.categoryType) setErrors({ ...errors, categoryType: '' })
               }}
               renderInput={(params) => (
-                <TextField 
-                  {...params} 
-                  label="Category Type" 
+                <TextField
+                  {...params}
+                  label="Category Type"
                   error={!!errors.categoryType}
                   helperText={errors.categoryType || getHelperText('categoryType', form.categoryType)}
                 />
@@ -398,12 +408,12 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
           <Grid item xs={12}>
             <FormControlLabel
               control={
-                <Checkbox 
-                  checked={form.active} 
+                <Checkbox
+                  checked={form.active}
                   onChange={(e) => {
                     setForm({ ...form, active: e.target.checked })
                     if (errors.active) setErrors({ ...errors, active: '' })
-                  }} 
+                  }}
                 />
               }
               label="Active Status"

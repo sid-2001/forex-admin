@@ -1,4 +1,16 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Checkbox, FormControlLabel, Grid, Autocomplete, FormHelperText } from '@mui/material'
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  Autocomplete,
+  FormHelperText,
+} from '@mui/material'
 import { useEffect, useState } from 'react'
 import ProductBusinessCountryMappingService from '@/services/productBusinessCountryMapping.service'
 import { useRecoilValue } from 'recoil'
@@ -13,18 +25,18 @@ const local_service = new LocalStorageService()
 const VALIDATION = {
   BUSINESS_MAP_CODE: {
     maxLength: 15,
-    message: 'Business Map Code cannot exceed 15 characters'
+    message: 'Business Map Code cannot exceed 15 characters',
   },
   RECIPIENT_COUNTRY: {
     maxLength: 3,
     required: true,
-    message: 'Country code cannot exceed 3 characters'
+    message: 'Country code cannot exceed 3 characters',
   },
   PAYMENT_RAIL: {
     maxLength: 10,
     required: true,
-    message: 'Payment Rail cannot exceed 10 characters'
-  }
+    message: 'Payment Rail cannot exceed 10 characters',
+  },
 }
 
 interface Props {
@@ -38,15 +50,15 @@ interface Props {
   productList: any[]
 }
 
-export default function ProductBusinessCountryMappingDialog({ 
-  open, 
-  handleClose, 
-  editData, 
-  refreshList, 
+export default function ProductBusinessCountryMappingDialog({
+  open,
+  handleClose,
+  editData,
+  refreshList,
   showAlert,
   onFormChange,
   isUpdateDisabled,
-  productList
+  productList,
 }: Props) {
   const countries = useRecoilValue(countyState)
   const [errors, setErrors] = useState<any>({})
@@ -63,7 +75,7 @@ export default function ProductBusinessCountryMappingDialog({
   // Check if form data has changed from original
   const checkFormChanged = (current: any, original: any) => {
     if (!original) return false
-    
+
     return (
       current.countryCorridorProductCode !== original.countryCorridorProductCode ||
       current.recipientCountry !== original.recipientCountry ||
@@ -78,7 +90,9 @@ export default function ProductBusinessCountryMappingDialog({
   const formatTimezoneOffset = () => {
     const offset = -new Date().getTimezoneOffset()
     const sign = offset >= 0 ? '+' : '-'
-    const hours = Math.floor(Math.abs(offset) / 60).toString().padStart(2, '0')
+    const hours = Math.floor(Math.abs(offset) / 60)
+      .toString()
+      .padStart(2, '0')
     const minutes = (Math.abs(offset) % 60).toString().padStart(2, '0')
     return `${sign}${hours}:${minutes}`
   }
@@ -98,7 +112,7 @@ export default function ProductBusinessCountryMappingDialog({
         effectiveFromDate: formatToDateOnly(editData.effectiveFromDate || editData.effective_from_date),
         effectiveToDate: formatToDateOnly(editData.effectiveToDate || editData.effective_to_date),
       }
-      
+
       setForm(newFormData)
       setOriginalData(newFormData)
     } else if (!editData && open) {
@@ -167,7 +181,7 @@ export default function ProductBusinessCountryMappingDialog({
     if (form.effectiveFromDate && form.effectiveToDate) {
       const fromDate = new Date(form.effectiveFromDate)
       const toDate = new Date(form.effectiveToDate)
-      
+
       if (toDate <= fromDate) {
         errs.effectiveToDate = 'Effective To date must be after Effective From date'
       }
@@ -195,29 +209,30 @@ export default function ProductBusinessCountryMappingDialog({
       active: form.active,
       effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
       effectiveToDate: `${form.effectiveToDate}T00:00:00`,
-      modifiedBy: local_service.get_staff_id(),
-      modifiedLocalDateTime: now.split('.')[0],
-      modifiedTimeZone: timeZone,
-      modifiedOffset: offset,
-      modifiedUtcDateTime: new Date().toISOString(),
+      // modifiedLocalDateTime: now.split('.')[0],
+      // modifiedTimeZone: timeZone,
+      // modifiedOffset: offset,
+      // modifiedUtcDateTime: new Date().toISOString(),
     }
 
     if (!editData) {
       Object.assign(payload, {
         createdBy: local_service.get_staff_id(),
-        createdLocalDateTime: now.split('.')[0],
-        createdTimeZone: timeZone,
-        createdOffset: offset,
-        createdUtcDateTime: new Date().toISOString(),
+        // createdLocalDateTime: now.split('.')[0],
+        // createdTimeZone: timeZone,
+        // createdOffset: offset,
+        // createdUtcDateTime: new Date().toISOString(),
       })
+    } else {
+      Object.assign(payload, { modifiedBy: local_service.get_staff_id() })
     }
 
     try {
       const res = editData
-      //@ts-ignore
-        ? await service.update(editData.businessMapCode, payload)
-//@ts-ignore
-        : await service.create(payload)
+        ? //@ts-ignore
+          await service.update(editData.businessMapCode, payload)
+        : //@ts-ignore
+          await service.create(payload)
 
       if (res) {
         showAlert('Success', `${res.message}`)
@@ -233,24 +248,22 @@ export default function ProductBusinessCountryMappingDialog({
   const getHelperText = (field: string, value: string, customMessage?: string) => {
     const validationMap: any = {
       recipientCountry: VALIDATION.RECIPIENT_COUNTRY,
-      paymentRail: VALIDATION.PAYMENT_RAIL
+      paymentRail: VALIDATION.PAYMENT_RAIL,
     }
-    
+
     const validation = validationMap[field]
     if (!validation) return customMessage || ''
-    
+
     const currentLength = value?.length || 0
     return `${currentLength}/${validation.maxLength} characters`
   }
 
   // Get selected product details
-  const selectedProduct = productList.find(p => p.countryProductCode === form.countryCorridorProductCode)
+  const selectedProduct = productList.find((p) => p.countryProductCode === form.countryCorridorProductCode)
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>
-        {editData ? 'Update Mapping' : 'Create Mapping'}
-      </DialogTitle>
+      <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update Mapping' : 'Create Mapping'}</DialogTitle>
 
       <DialogContent dividers>
         <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -259,15 +272,15 @@ export default function ProductBusinessCountryMappingDialog({
             <Autocomplete
               options={productList}
               getOptionLabel={(option) => `${option.productCode} - ${option.productName} (${option.countryProductCode})`}
-              value={productList.find(p => p.countryProductCode === form.countryCorridorProductCode) || null}
+              value={productList.find((p) => p.countryProductCode === form.countryCorridorProductCode) || null}
               onChange={(_, val) => handleChange('countryCorridorProductCode', val?.countryProductCode || '')}
               disabled={!!editData}
               renderInput={(params) => (
-                <TextField 
-                  {...params} 
-                  label="Product" 
-                  required 
-                  error={!!errors.countryCorridorProductCode} 
+                <TextField
+                  {...params}
+                  label="Product"
+                  required
+                  error={!!errors.countryCorridorProductCode}
                   helperText={errors.countryCorridorProductCode}
                 />
               )}
@@ -297,11 +310,11 @@ export default function ProductBusinessCountryMappingDialog({
               value={countries?.find((c: any) => c.countryCode === form.recipientCountry) || null}
               onChange={(_, val) => handleChange('recipientCountry', val?.countryCode || '')}
               renderInput={(params) => (
-                <TextField 
-                  {...params} 
-                  label="Destination Country" 
-                  required 
-                  error={!!errors.recipientCountry} 
+                <TextField
+                  {...params}
+                  label="Destination Country"
+                  required
+                  error={!!errors.recipientCountry}
                   helperText={errors.recipientCountry || getHelperText('recipientCountry', form.recipientCountry)}
                 />
               )}
@@ -361,11 +374,7 @@ export default function ProductBusinessCountryMappingDialog({
         <Button onClick={handleClose} color="inherit">
           Cancel
         </Button>
-        <Button 
-          variant="contained" 
-          onClick={handleSubmit}
-          disabled={editData ? isUpdateDisabled : false}
-        >
+        <Button variant="contained" onClick={handleSubmit} disabled={editData ? isUpdateDisabled : false}>
           {editData ? 'Update' : 'Save'}
         </Button>
       </DialogActions>
