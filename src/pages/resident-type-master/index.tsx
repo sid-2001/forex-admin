@@ -100,9 +100,9 @@ export default function ResidentTypeMaster() {
     const submitPayload = async () => {
       if (isUpdate && editData) {
         const payload = {
-          residentTypeCode: editData.residentTypeCode,
+          // residentTypeCode: editData.residentTypeCode,
           residenceCode: data.residenceCode,
-          countryCode: data.countryCode,
+          // countryCode: data.countryCode,
           residentTypeDescription: data.residentTypeDescription,
           active: data.active,
           effectiveFromDate: data.effectiveFromDate,
@@ -112,6 +112,7 @@ export default function ResidentTypeMaster() {
 
         const response: any = await residentService.updateResidentType(
           editData.residentTypeCode,
+          //@ts-ignore
           payload
         )
 

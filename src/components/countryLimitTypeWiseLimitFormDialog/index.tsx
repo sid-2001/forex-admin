@@ -171,7 +171,7 @@ export default function CountryLimitTypeWiseLimitFormDialog({
             {limitTypes
               .filter(limit => limit.active) // Only show active limit types
               .map((limit) => (
-                <MenuItem key={limit.limitCode} value={limit.limitCode}>
+                <MenuItem key={limit.kycLimitTypeCode} value={limit.kycLimitTypeCode}>
                   <Box>
                     <Typography variant="body2">
                       <strong>{limit.limitCode}</strong> - {limit.limitDescription}
@@ -187,7 +187,7 @@ export default function CountryLimitTypeWiseLimitFormDialog({
           {/* Display selected limit type description */}
           {form.limitTypeCode && !editData && (
             <FormHelperText sx={{ ml: 1, mt: 0.5 }}>
-              Selected: {limitTypes.find(l => l.limitCode === form.limitTypeCode)?.limitDescription}
+              Selected: {limitTypes.find(l => l.kycLimitTypeCode === form.limitTypeCode)?.limitDescription}
             </FormHelperText>
           )}
 

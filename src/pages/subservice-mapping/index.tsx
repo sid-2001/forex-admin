@@ -615,10 +615,16 @@ export default function ServiceSubServiceMapping() {
         getRowId={(row) => row.serviceSubServiceMapCode || Math.random()}
         autoHeight
         disableRowSelectionOnClick
+          slotProps={{
+    toolbar: {
+      showQuickFilter: true,
+      showDensitySelector: true, // ✅ enable density
+    },
+  }}
         slots={{ toolbar: CustomToolbar }}
-        slotProps={{ toolbar: { showQuickFilter: true } }}
+        // slotProps={{ toolbar: { showQuickFilter: true } }}
         disableColumnMenu
-        density="standard"
+      
         paginationModel={{ page, pageSize }}
         onPaginationModelChange={(model) => {
           setPage(model.page)

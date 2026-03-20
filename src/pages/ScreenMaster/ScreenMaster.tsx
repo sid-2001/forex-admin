@@ -204,7 +204,7 @@ export default function ScreenMaster() {
         columns={columns}
         getRowId={(row: any) => `${row.ScreenCode}-${row.CountryCode}`}
         autoHeight
-        density="standard"
+        // density="standard"
         slots={{ toolbar: GridToolbar }}
         slotProps={{ toolbar: { showQuickFilter: true } }}
         disableColumnMenu

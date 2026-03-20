@@ -58,7 +58,7 @@ export class ResidentTypeService extends BaseService {
 
   async updateResidentType(code: string, payload: UpdateResidentTypePayload): Promise<any> {
     try {
-      const response = await api1.put(`${this.baseUrl}/${code}/true`, payload)
+      const response = await api1.put(`${this.baseUrl}/${code}`, payload)
       return response.data
     } catch (err) {
       console.error('Error updating resident type:', err)

@@ -704,7 +704,14 @@ export default function ProductSubServiceMaster() {
         slots={{ toolbar: CustomToolbar }}
         slotProps={{ toolbar: { showQuickFilter: true } }}
         disableColumnMenu
-        density="standard"
+        // density="standard"
+        //@ts-ignore
+           slotProps={{
+    toolbar: {
+      showQuickFilter: true,
+      showDensitySelector: true, // ✅ enable density
+    },
+  }}
         paginationModel={{ page, pageSize }}
         onPaginationModelChange={(model) => {
           setPage(model.page)

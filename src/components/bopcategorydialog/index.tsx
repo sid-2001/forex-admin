@@ -199,6 +199,8 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
   }
 
   const handleSubmit = async () => {
+
+    console.log(validate())
     if (!validate()) return
 
     const staffId = localService.get_staff_id() || 'admin'

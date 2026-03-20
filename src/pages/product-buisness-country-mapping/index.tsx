@@ -209,7 +209,14 @@ export default function ProductBusinessCountryMapping() {
         slots={{ toolbar: GridToolbar }}
         slotProps={{ toolbar: { showQuickFilter: true } }}
         disableColumnMenu
-        density="standard"
+        // density="standard"
+        //@ts-ignore
+           slotProps={{
+    toolbar: {
+      showQuickFilter: true,
+      showDensitySelector: true, // ✅ enable density
+    },
+  }}
         initialState={{
           pagination: {
             paginationModel: {
