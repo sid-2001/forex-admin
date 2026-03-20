@@ -223,9 +223,9 @@ export default function ResidentTypeMaster() {
       width: 100,
        headerClassName: 'super-app-theme--header',
       renderCell: (params) => {
-        const code = RESIDENCE_CODES.find(c => c.value === params.value)
+        // const code = RESIDENCE_CODES.find(c => c.value === params.value)
         return (
-          <Typography>{code?.label || params.value}</Typography>
+          <Typography>{params.value}</Typography>
         )
       }
     },
