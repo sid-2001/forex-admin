@@ -41,7 +41,7 @@ import {
   Autocomplete,
   createFilterOptions,
 } from '@mui/material'
-import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbar, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarQuickFilter } from '@mui/x-data-grid'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 
 // Icons
@@ -267,6 +267,15 @@ const CountryCorridorPage: React.FC = () => {
       console.error('Failed to fetch stats:', err)
     }
   }, [])
+
+
+
+  const CustomToolbar = () => (
+  <GridToolbarContainer>
+    <GridToolbarQuickFilter />
+    <GridToolbarDensitySelector />
+  </GridToolbarContainer>
+)
 
   // Apply filters
   const applyFilters = useCallback(
@@ -623,13 +632,13 @@ const CountryCorridorPage: React.FC = () => {
     {
       field: 'serialNo',
       headerName: 'S. No',
-      width: 70,
+     flex:1,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'countryCorridorCode',
       headerName: 'Corridor Code',
-      width: 140,
+     flex:1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Chip
@@ -647,7 +656,7 @@ const CountryCorridorPage: React.FC = () => {
     {
       field: 'countryCode',
       headerName: 'Country',
-      width: 100,
+    flex:1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Stack direction="row" spacing={0.5} alignItems="center">
@@ -659,41 +668,41 @@ const CountryCorridorPage: React.FC = () => {
     {
       field: 'active',
       headerName: 'Status',
-      width: 90,
+     flex:1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => <StatusChip active={params.value} />,
     },
     {
       field: 'effectiveFromDate',
       headerName: 'From',
-      width: 100,
+   flex:1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => formatTableDate(params.value)
     },
     {
       field: 'effectiveToDate',
       headerName: 'To',
-      width: 100,
+      flex:1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => formatTableDate(params.value)
     },
     {
       field: 'createdBy',
       headerName: 'Created By',
-      width: 120,
+   flex:1,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'createdLocalDateTime',
       headerName: 'Created At',
-      width: 150,
+    flex:1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => new Date(params.value).toLocaleString(),
     },
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 200,
+      flex:1,
       headerClassName: 'super-app-theme--header',
       sortable: false,
       renderCell: (params) => (
@@ -757,8 +766,8 @@ const CountryCorridorPage: React.FC = () => {
     
 
       {/* Data Grid */}
-      <Paper elevation={2} sx={{ p: 2 }}>
-        <DataGrid
+    
+        {/* <DataGrid
           rows={filteredRows}
           columns={columns}
           getRowId={(row) => row.countryCorridorCode}
@@ -766,8 +775,14 @@ const CountryCorridorPage: React.FC = () => {
           loading={loading}
           disableRowSelectionOnClick
           slots={{ toolbar: GridToolbar }}
-          slotProps={{ toolbar: { showQuickFilter: true } }}
-          disableColumnMenu
+          slotProps={{
+  toolbar: {
+    showQuickFilter: true,
+    showDensitySelector: true, // 👈 THIS is missing
+  },
+}}
+          // slotProps={{ toolbar: { showQuickFilter: true } }}
+          // disableColumnMenu
           density="standard"
           paginationModel={{ page, pageSize }}
           onPaginationModelChange={(model) => {
@@ -794,8 +809,32 @@ const CountryCorridorPage: React.FC = () => {
               fontWeight: 'bold',
             },
           }}
-        />
-      </Paper>
+        /> */}
+
+
+        <DataGrid
+  rows={filteredRows}
+  columns={columns}
+  getRowId={(row) => row.countryCorridorCode}
+  autoHeight
+  loading={loading}
+  disableRowSelectionOnClick
+  slots={{ toolbar: GridToolbar }}
+  slotProps={{
+    toolbar: {
+      showQuickFilter: true,
+      showDensitySelector: true, // ✅ enable density
+    },
+  }}
+  
+  paginationModel={{ page, pageSize }}
+  onPaginationModelChange={(model) => {
+    setPage(model.page)
+    setPageSize(model.pageSize)
+  }}
+  pageSizeOptions={[5, 10, 25, 50]}
+/>
+      
 
       {/* Create Dialog */}
       <Dialog open={openCreateDialog} onClose={() => setOpenCreateDialog(false)} maxWidth="sm" fullWidth>
