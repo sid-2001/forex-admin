@@ -77,7 +77,7 @@ export default class ServiceSubServiceMappingService extends BaseService {
     subServiceCode?: string;
     effectiveFromDate?: string;
     effectiveToDate?: string;
-    modifiedBy: string;
+    modifiedBy: string
     active?: boolean;
   }) {
     const url = `/api/static-table/serviceSubServiceMapping/update/${mapCode}`;

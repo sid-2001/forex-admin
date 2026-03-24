@@ -74,20 +74,34 @@ export default function BankTypeMaster() {
     { field: 'bankBusinessName', headerName: 'Business Name', flex: 1.2, headerClassName: 'super-app-theme--header' },
     { field: 'businessCurrencyCode', headerName: 'Currency', flex: 0.6, headerClassName: 'super-app-theme--header' },
     { field: 'countryCode', headerName: 'Country', flex: 0.6, headerClassName: 'super-app-theme--header' },
-    {
-      field: 'effective_from_date',
-      headerName: 'Effective From',
-      flex: 0.8,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
-    },
-    {
-      field: 'effective_to_date',
-      headerName: 'Effective To',
-      flex: 0.8,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
-    },
+   {
+  field: 'effective_from_date',
+  headerName: 'Effective From',
+  flex: 1,
+  minWidth: 150,
+ headerClassName: 'super-app-theme--header',
+ //@ts-ignore
+  valueGetter: (value, row) => {
+    const date =
+      row?.effectivefromdate || row?.effectiveFromDate
+
+    return date ? formatTableDate(date) : ''
+  },
+},
+{
+  field: 'effective_to_date',
+  headerName: 'Effective To',
+  flex: 1,
+   headerClassName: 'super-app-theme--header',
+  minWidth: 150,
+  //@ts-ignore
+  valueGetter: (value, row) => {
+    const date =
+      row?.effectivetodate || row?.effectiveToDate
+
+    return date ? formatTableDate(date) : ''
+  },
+},
     {
       field: 'active',
       headerName: 'Active',

@@ -180,14 +180,14 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
     }
 
     // Date range validation (AssertTrue)
-    if (form.effectiveFromDate && form.effectiveToDate) {
-      const fromDate = new Date(form.effectiveFromDate)
-      const toDate = new Date(form.effectiveToDate)
+    // if (form.effectiveFromDate && form.effectiveToDate) {
+    //   const fromDate = new Date(form.effectiveFromDate)
+    //   const toDate = new Date(form.effectiveToDate)
 
-      if (toDate <= fromDate) {
-        errs.effectiveToDate = 'Effective To date must be after Effective From date'
-      }
-    }
+    //   if (toDate <= fromDate) {
+    //     errs.effectiveToDate = 'Effective To date must be after Effective From date'
+    //   }
+    // }
 
     // Active status validation
     if (form.active === undefined || form.active === null) {

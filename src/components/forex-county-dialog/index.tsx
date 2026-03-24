@@ -297,6 +297,7 @@ export default function ForexCountryDialog({
               label="Phone Code"
               fullWidth
               required
+              type="number"
               value={form.countryPhoneCode}
               error={!!errors.countryPhoneCode}
               helperText={
