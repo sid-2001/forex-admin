@@ -82,17 +82,6 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
 
   const [errors, setErrors] = useState<any>({})
 
-  // Helper to format timezone offset
-  const formatTimezoneOffset = () => {
-    const offset = -new Date().getTimezoneOffset()
-    const sign = offset >= 0 ? '+' : '-'
-    const hours = Math.floor(Math.abs(offset) / 60)
-      .toString()
-      .padStart(2, '0')
-    const minutes = (Math.abs(offset) % 60).toString().padStart(2, '0')
-    return `${sign}${hours}:${minutes}`
-  }
-
   // Null-safe date formatter to prevent .split() crash
   const formatDate = (dateStr: any) => {
     if (!dateStr) return ''
@@ -199,7 +188,6 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
   }
 
   const handleSubmit = async () => {
-
     console.log(validate())
     if (!validate()) return
 
@@ -213,14 +201,6 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
       effectiveToDate: `${form.effectiveToDate}T00:00:00`,
       createdBy: editData ? undefined : staffId,
       modifiedBy: !editData ? undefined : staffId,
-      // createdLocalDateTime: editData ? undefined : now,
-      // modifiedLocalDateTime: now,
-      // createdTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      // modifiedTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      // createdOffset: formatTimezoneOffset(),
-      // modifiedOffset: formatTimezoneOffset(),
-      // createdUtcDateTime: editData ? undefined : new Date().toISOString(),
-      // modifiedUtcDateTime: new Date().toISOString(),
     }
 
     try {
