@@ -5,6 +5,7 @@ import { useEffect, useState, useMemo, useCallback } from 'react'
 import CountryKycDocDialog from '../../components/countryKycDocDialog'
 import CountryKycDocService from '../../services/country-kyc-doc.service'
 import { formatTableDate } from '@/helpers/dateformate'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
 export default function CountryKycDocManagement() {
   const [open, setOpen] = useState(false)
@@ -16,6 +17,7 @@ export default function CountryKycDocManagement() {
   const [snackbarOpen, setSnackbarOpen] = useState(false)
 
   const docService = useMemo(() => new CountryKycDocService(), [])
+  const local_service = new LocalStorageService()
 
   const showSuccessMessage = (message: string) => {
     setSuccessMessage(message)
@@ -43,11 +45,9 @@ export default function CountryKycDocManagement() {
   }, [fetchData])
 
   const handleUpdate = async (data: any) => {
-    // The ID for the URL parameter
-    const id = editData?.countryKycDocCode
     try {
       // Switched to PUT pattern from your EmailTemplate reference
-      const res = await docService.updateDoc(id, { ...data, modifiedBy: 'APSNGGGN3624' })
+      const res = await docService.updateDoc(editData?.kycDocCode, { ...data, modifiedBy: local_service?.get_staff_id() })
       if (res.status === false) {
         setErrMassage(res.message)
       } else {
@@ -65,7 +65,7 @@ export default function CountryKycDocManagement() {
 
   const handleCreate = async (data: any) => {
     try {
-      const res = await docService.createDoc({ ...data, createdBy: 'APSNGGGN3624' })
+      const res = await docService.createDoc({ ...data, createdBy: local_service?.get_staff_id() })
       if (res.status === false) {
         setErrMassage(res.message)
       } else {
@@ -83,7 +83,9 @@ export default function CountryKycDocManagement() {
 
   const handleCloseSnackbar = (
     //@ts-ignore
-    event?: React.SyntheticEvent | Event, reason?: string) => {
+    event?: React.SyntheticEvent | Event,
+    reason?: string,
+  ) => {
     if (reason === 'clickaway') {
       return
     }
@@ -93,51 +95,88 @@ export default function CountryKycDocManagement() {
 
   const columns: GridColDef[] = [
     {
-      field: 'countryKycDocCode',
-      headerName: 'Doc Code',
+      field: 'kycDocCode',
+      headerName: 'kyc Doc Code',
       flex: 1,
-      headerClassName: 'super-app-theme--header', // Added for Blue Header
+      headerClassName: 'super-app-theme--header',
     },
     {
       field: 'countryCode',
       headerName: 'Country',
       flex: 0.7,
-      headerClassName: 'super-app-theme--header', // Added for Blue Header
+      headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'countryKycDocDescription',
-      headerName: 'Description',
+      field: 'docTypeCode',
+      headerName: 'Doc Type Code',
       flex: 1.5,
-      headerClassName: 'super-app-theme--header', // Added for Blue Header
+      headerClassName: 'super-app-theme--header',
     },
-   {
-  field: 'effective_from_date',
-  headerName: 'Effective From',
-  flex: 1,
-  minWidth: 150,
- headerClassName: 'super-app-theme--header',
- //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivefromdate || row?.effectiveFromDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
-{
-  field: 'effective_to_date',
-  headerName: 'Effective To',
-  flex: 1,
-   headerClassName: 'super-app-theme--header',
-  minWidth: 150,
-  //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivetodate || row?.effectiveToDate
+    {
+      field: 'docTypeDescription',
+      headerName: 'Doc Type Description',
+      flex: 1.5,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'docCode',
+      headerName: 'Doc Code',
+      flex: 1.5,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'docDescription',
+      headerName: 'Doc Description',
+      flex: 1.5,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'vendorCode',
+      headerName: 'Vendor Code',
+      flex: 1.5,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'verificationMode',
+      headerName: 'Verification Mode',
+      flex: 1.5,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (p) => (p.value === 'A' ? 'Auto' : p.value === 'M' ? 'Manual' : ''),
+    },
+    {
+      field: 'appLimit',
+      headerName: 'App limit',
+      flex: 1.5,
+      headerClassName: 'super-app-theme--header',
+    },
 
-    return date ? formatTableDate(date) : ''
-  },
-},
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 1,
+      minWidth: 150,
+      headerClassName: 'super-app-theme--header',
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivefromdate || row?.effectiveFromDate
+
+        return date ? formatTableDate(date) : ''
+      },
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      minWidth: 150,
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivetodate || row?.effectiveToDate
+
+        return date ? formatTableDate(date) : ''
+      },
+    },
     {
       field: 'active',
       headerName: 'Active',
@@ -192,7 +231,7 @@ export default function CountryKycDocManagement() {
           Add
         </Button>
       </Stack>
-      
+
       {/* Display error message if exists */}
       {errMassage && (
         <Alert severity="error" sx={{ mb: 2 }} onClose={() => setErrMassage(null)}>
@@ -205,7 +244,7 @@ export default function CountryKycDocManagement() {
           rows={rows}
           columns={columns}
           loading={loading}
-          getRowId={(r) => r.countryKycDocCode}
+          getRowId={(r) => r.kycDocCode}
           slots={{ toolbar: GridToolbar }}
           slotProps={{ toolbar: { showQuickFilter: true } }}
           disableColumnMenu
@@ -218,7 +257,7 @@ export default function CountryKycDocManagement() {
           }}
         />
       </div>
-      
+
       {open && (
         <CountryKycDocDialog
           key={editData ? editData.countryKycDocCode : 'new'}
@@ -234,12 +273,7 @@ export default function CountryKycDocManagement() {
       )}
 
       {/* Success Snackbar */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
+      <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
         <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
           {successMessage}
         </Alert>

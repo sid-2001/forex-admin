@@ -192,7 +192,6 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
     if (!validate()) return
 
     const staffId = localService.get_staff_id() || 'admin'
-    const now = new Date().toISOString()
 
     const payload = {
       ...form,

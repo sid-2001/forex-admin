@@ -132,7 +132,22 @@ export default function BankTypeDialog({ open, onClose, onSubmit, editData }: an
               fullWidth
               required
               value={form.bankBusinessName}
-              onChange={(e) => setForm({ ...form, bankBusinessName: e.target.value })}
+              onChange={(e) => {
+                const value = e.target.value
+                setForm({ ...form, bankBusinessName: value })
+
+                if (!/^[A-Za-z\s]+$/.test(value)) {
+                  setErrors({
+                    ...errors,
+                    bankBusinessName: 'Only alphabets allowed',
+                  })
+                } else {
+                  setErrors({
+                    ...errors,
+                    bankBusinessName: '',
+                  })
+                }
+              }}
               error={!!errors.bankBusinessName}
               helperText={errors.bankBusinessName}
             />
