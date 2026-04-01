@@ -246,7 +246,22 @@ export default function VendorApiFormDialog({ open, onClose, editData, refreshLi
               fullWidth
               label="Vendor Name"
               value={form.vendorName}
-              onChange={(e) => setForm({ ...form, vendorName: e.target.value })}
+              onChange={(e) => {
+                const value = e.target.value
+                setForm({ ...form, vendorName: value })
+
+                if (!/^[A-Za-z\s]+$/.test(value)) {
+                  setErrors({
+                    ...errors,
+                    vendorName: 'Only alphabets allowed',
+                  })
+                } else {
+                  setErrors({
+                    ...errors,
+                    vendorName: '',
+                  })
+                }
+              }}
               error={!!errors.vendorName}
               helperText={errors.vendorName}
               required
@@ -269,7 +284,22 @@ export default function VendorApiFormDialog({ open, onClose, editData, refreshLi
               fullWidth
               label="Mobile"
               value={form.vendorMobile}
-              onChange={(e) => setForm({ ...form, vendorMobile: e.target.value })}
+              onChange={(e) => {
+                const value = e.target.value
+                setForm({ ...form, vendorMobile: value })
+
+                if (!/^\d+$/.test(value)) {
+                  setErrors({
+                    ...errors,
+                    vendorMobile: 'Only digits are allowed',
+                  })
+                } else {
+                  setErrors({
+                    ...errors,
+                    vendorMobile: '',
+                  })
+                }
+              }}
               error={!!errors.vendorMobile}
               helperText={errors.vendorMobile}
               required
