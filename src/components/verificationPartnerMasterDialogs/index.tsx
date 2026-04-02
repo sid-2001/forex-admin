@@ -63,6 +63,17 @@ export default function VerificationPartnerMasterDialog({
     const { name, value, checked, type } = e.target
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
     if (errors[name]) setErrors({ ...errors, [name]: '' })
+    if (name === 'verificationPartnerDescription' && value && !/^[A-Za-z\s]+$/.test(value)) {
+      setErrors({
+        ...errors,
+        [name]: 'Only alphabets allowed',
+      })
+    } else {
+      setErrors({
+        ...errors,
+        [name]: '',
+      })
+    }
   }
 
   const validate = () => {
