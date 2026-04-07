@@ -49,6 +49,21 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
       //@ts-ignore
       setErrors((prev) => ({ ...prev, [field]: null }))
     }
+    // Clear toDate error when fromDate changes (if it was a date range error)
+    if (field === 'fromDate' && errors.toDate?.includes('after')) {
+      setErrors((prev: any) => ({ ...prev, toDate: '' }))
+    }
+    if ((field === 'description' || field === 'screencode') && value && !/^[A-Za-z\s]+$/.test(value)) {
+      setErrors({
+        ...errors,
+        [field]: 'Only alphabets allowed',
+      })
+    } else {
+      setErrors({
+        ...errors,
+        [field]: '',
+      })
+    }
   }
 
   const validate = () => {
@@ -126,27 +141,11 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
             />
           </Grid>
 
-          {/* <Grid item xs={6}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Effective From"
-              required
-              InputLabelProps={{ shrink: true }}
-              value={form.fromDate}
-              onChange={(e) => handleChange('fromDate', e.target.value)}
-              error={!!errors.fromDate}
-              helperText={errors.fromDate}
-            />
-          </Grid> */}
           <Grid item xs={6}>
             <DynamicDatePicker
               label="Effective From"
               value={form.fromDate}
-              onChange={(val: string) => {
-                console.log(val, 'kdjhchdvy')
-                setForm({ ...form, fromDate: val })
-              }}
+              onChange={(val: string) => handleChange('fromDate', val)}
               error={!!errors.fromDate}
               helperText={errors.fromDate}
               required
@@ -158,29 +157,12 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
               label="Effective To"
               value={form.toDate}
               minDate={form.fromDate}
-              onChange={(val: string) => {
-                setForm({ ...form, toDate: val })
-              }}
+              onChange={(val: string) => handleChange('toDate', val)}
               error={!!errors.toDate}
               helperText={errors.toDate}
               required
             />
           </Grid>
-
-          {/* <Grid item xs={6}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Effective To"
-              required
-              InputLabelProps={{ shrink: true }}
-              inputProps={{ min: form.fromDate }}
-              value={form.toDate}
-              onChange={(e) => handleChange('toDate', e.target.value)}
-              error={!!errors.toDate}
-              helperText={errors.toDate}
-            />
-          </Grid> */}
 
           <Grid item xs={12}>
             <FormControlLabel

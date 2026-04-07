@@ -90,20 +90,65 @@ export default function SubServiceManagement() {
     { field: 'subServiceName', headerName: 'Sub Service Name', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'countryCode', headerName: 'Country', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'active', headerName: 'Active', flex: 0.7, renderCell: (p) => (p.value ? 'Yes' : 'No'), headerClassName: 'super-app-theme--header' },
-    {
-      field: 'effective_from_date',
-      headerName: 'Effective From',
-      flex: 0.8,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
-    },
-    {
-      field: 'effective_to_date',
-      headerName: 'Effective To',
-      flex: 0.8,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
-    },
+// {
+//   field: 'effective_from_date',
+//   headerName: 'Effective From',
+//   flex: 1,
+//   minWidth: 150,
+
+//   // formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate)
+//   valueGetter: (params) => {
+//     console.log(params)
+//     const date =
+//       params?.row?.effectivefromdate ||
+//       params?.row?.effectiveFromDate
+//       console.log(date)
+//     return date ? formatTableDate(date) : ''
+//   },
+// },
+
+
+{
+  field: 'effective_from_date',
+  headerName: 'Effective From',
+  flex: 1,
+  minWidth: 150,
+ headerClassName: 'super-app-theme--header',
+  //@ts-ignore
+  valueGetter: (value, row) => {
+    const date =
+      row?.effectivefromdate || row?.effectiveFromDate
+
+    return date ? formatTableDate(date) : ''
+  },
+},
+{
+  field: 'effective_to_date',
+  headerName: 'Effective To',
+  flex: 1,
+   headerClassName: 'super-app-theme--header',
+  minWidth: 150,
+   //@ts-ignore
+  valueGetter: (value, row) => {
+    const date =
+      row?.effectivetodate || row?.effectiveToDate
+
+    return date ? formatTableDate(date) : ''
+  },
+},
+// {
+//   field: 'effective_to_date',
+//   headerName: 'Effective To',
+//   flex: 1,
+//   minWidth: 150,
+//   valueGetter: (params) => {
+//     const date =
+//       params?.row?.effectivetodate ||
+//       params?.row?.effectiveToDate
+//       console.log(date)
+//     return date ? formatTableDate(date) : ''
+//   },
+// },
     {
       field: 'actions',
       headerName: 'Actions',

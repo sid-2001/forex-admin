@@ -24,7 +24,7 @@ export default function VerificationPartnerManagement() {
 
   const partnerService = useMemo(() => new VerificationPartnerService(), [])
   const local_service = useMemo(() => new LocalStorageService(), [])
-  
+
   const [alertOpen, setAlertOpen] = useRecoilState(alertState)
   const [alertText, setAlertText] = useRecoilState(alertTextState)
   const [alertType, setAlertType] = useRecoilState(alertTypeState)
@@ -61,14 +61,14 @@ export default function VerificationPartnerManagement() {
     try {
       const res = await partnerService.updatePartner(id, {
         ...data,
-        modifiedBy: local_service?.get_staff_id() || 'APSNGGGN3624',
+        modifiedBy: local_service?.get_staff_id(),
       })
       if (res.status === false) {
         setErrMassage(res.message)
         return
       }
       setOpen(false)
-      showAlert('Success', 'Updated Successfully')
+      showAlert('Success', 'Record Updated Successfully')
       fetchData()
     } catch (err) {
       console.error(err)
@@ -79,9 +79,9 @@ export default function VerificationPartnerManagement() {
     try {
       const res = await partnerService.createPartner({
         ...data,
-        createdBy: local_service?.get_staff_id() || 'APSNGGGN3624',
+        createdBy: local_service?.get_staff_id(),
       })
-      showAlert('Success', errMassage || 'Created Successfully')
+      showAlert('Success', errMassage || 'Record Created Successfully')
       if (res.status === false) {
         setErrMassage(res.message)
         return
@@ -101,16 +101,28 @@ export default function VerificationPartnerManagement() {
     {
       field: 'effective_from_date',
       headerName: 'Effective From',
-      flex: 0.8,
+      flex: 1,
+      minWidth: 150,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivefromdate || row?.effectiveFromDate
+
+        return date ? formatTableDate(date) : ''
+      },
     },
     {
       field: 'effective_to_date',
       headerName: 'Effective To',
-      flex: 0.8,
+      flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
+      minWidth: 150,
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivetodate || row?.effectiveToDate
+
+        return date ? formatTableDate(date) : ''
+      },
     },
     { field: 'active', headerName: 'Active', headerClassName: 'super-app-theme--header', flex: 0.6, renderCell: (p) => (p.value ? 'Yes' : 'No') },
     {
@@ -133,25 +145,6 @@ export default function VerificationPartnerManagement() {
     },
   ]
 
-  // Custom toolbar component with export button
-  const CustomToolbar = () => {
-    return (
-      <Stack direction="row" spacing={2} sx={{ p: 1, justifyContent: 'space-between', alignItems: 'center' }}>
-        <GridToolbarExport
-          csvOptions={{
-            fileName: 'verification-partners-export',
-            delimiter: ',',
-            allColumns: true, // Export all columns
-          }}
-          printOptions={{
-            fileName: 'verification-partners-print',
-          }}
-        />
-        <GridToolbar />
-      </Stack>
-    )
-  }
-
   return (
     <Box p={3}>
       <Stack direction="row" mb={2} justifyContent={'space-between'} alignItems="center">
@@ -168,7 +161,7 @@ export default function VerificationPartnerManagement() {
         >
           {'Verification Partner master'.toUpperCase()}
         </Typography>
-        
+
         <Stack direction="row" spacing={2} alignItems="center">
           {/* Rows per page selector */}
           {/* <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -203,7 +196,7 @@ export default function VerificationPartnerManagement() {
           </Button>
         </Stack>
       </Stack>
-      
+
       <div style={{ height: 600, width: '100%' }}>
         <DataGrid
           rows={rows}
@@ -211,12 +204,12 @@ export default function VerificationPartnerManagement() {
           loading={loading}
           getRowId={(row) => row.verificationPartnerCode}
           slots={{
-            toolbar: CustomToolbar,
+            toolbar: GridToolbar,
           }}
           slotProps={{
             toolbar: {
               showQuickFilter: true,
-            }
+            },
           }}
           disableColumnMenu
           paginationModel={paginationModel}
@@ -226,7 +219,7 @@ export default function VerificationPartnerManagement() {
           disableRowSelectionOnClick
         />
       </div>
-      
+
       {open && (
         <VerificationPartnerMasterDialog
           key={editData ? editData.verificationPartnerCode : 'new'}

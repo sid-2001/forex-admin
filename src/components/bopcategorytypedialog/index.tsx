@@ -4,7 +4,6 @@ import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePi
 import { LocalStorageService } from '@/helpers/local-storage-service'
 
 export interface BopCategoryType {
-  bopCategoryTypeCode: string
   bopCategoryType: string
   bopCategoryDescription: string
   active: boolean
@@ -44,7 +43,6 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
   const staffData = local_service.get_staff_access()
 
   const [formData, setFormData] = useState({
-    bopCategoryTypeCode: '',
     bopCategoryType: '',
     bopCategoryDescription: '',
     active: true,
@@ -60,7 +58,6 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
     if (!original) return false
 
     return (
-      current.bopCategoryTypeCode !== original.bopCategoryTypeCode ||
       current.bopCategoryType !== original.bopCategoryType ||
       current.bopCategoryDescription !== original.bopCategoryDescription ||
       current.active !== original.active ||
@@ -74,7 +71,6 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
     if (open) {
       if (editData) {
         const newFormData = {
-          bopCategoryTypeCode: editData.bopCategoryTypeCode || '',
           bopCategoryType: editData.bopCategoryType || '',
           bopCategoryDescription: editData.bopCategoryDescription || '',
           active: editData.active ?? true,
@@ -85,7 +81,6 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
         setOriginalData(newFormData)
       } else {
         const newFormData = {
-          bopCategoryTypeCode: '',
           bopCategoryType: '',
           bopCategoryDescription: '',
           active: true,
@@ -124,11 +119,6 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
   /* ------------------ Validation ------------------ */
   const validate = () => {
     const newErrors: any = {}
-
-    // BOP Category Type Code validation
-    if (formData.bopCategoryTypeCode && formData.bopCategoryTypeCode.length > VALIDATION.BOP_CATEGORY_TYPE_CODE.maxLength) {
-      newErrors.bopCategoryTypeCode = VALIDATION.BOP_CATEGORY_TYPE_CODE.message
-    }
 
     // BOP Category Type validation
     if (!formData.bopCategoryType.trim()) {
@@ -175,7 +165,6 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
     const now = new Date().toISOString()
     const submitData = {
       ...formData,
-      bopCategoryTypeCode: formData.bopCategoryTypeCode || null,
       effectiveFromDate: `${formData.effectiveFromDate}T00:00:00`,
       effectiveToDate: `${formData.effectiveToDate}T00:00:00`,
       // createdBy: editData ? undefined : staffData?.staffId,
@@ -193,17 +182,6 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
     onSubmit(submitData)
   }
 
-  // Helper to format timezone offset
-  const formatTimezoneOffset = () => {
-    const offset = -new Date().getTimezoneOffset()
-    const sign = offset >= 0 ? '+' : '-'
-    const hours = Math.floor(Math.abs(offset) / 60)
-      .toString()
-      .padStart(2, '0')
-    const minutes = (Math.abs(offset) % 60).toString().padStart(2, '0')
-    return `${sign}${hours}:${minutes}`
-  }
-
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>{editData ? 'Edit BOP Category Type' : 'Create BOP Category Type'}</DialogTitle>
@@ -211,23 +189,9 @@ const BopCategoryTypeFormDialog: React.FC<Props> = ({ open, editData, onClose, o
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           {/* BOP Category Type Code */}
-          <Grid item xs={6}>
-            <TextField
-              label="Category Type Code"
-              name="bopCategoryTypeCode"
-              fullWidth
-              value={formData.bopCategoryTypeCode}
-              error={!!errors.bopCategoryTypeCode}
-              helperText={errors.bopCategoryTypeCode || `Max ${VALIDATION.BOP_CATEGORY_TYPE_CODE.maxLength} characters`}
-              onChange={handleChange}
-              inputProps={{ maxLength: VALIDATION.BOP_CATEGORY_TYPE_CODE.maxLength }}
-              size="small"
-              disabled={!!editData} // Disable code field in edit mode
-            />
-          </Grid>
 
           {/* BOP Category Type */}
-          <Grid item xs={6}>
+          <Grid item xs={12}>
             <TextField
               label="Category Type"
               name="bopCategoryType"

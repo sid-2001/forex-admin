@@ -58,6 +58,7 @@ export default function SubServiceFormDialog({ open, onClose, onSubmit, editData
     if (effectiveFromDate && effectiveToDate && new Date(effectiveFromDate) > new Date(effectiveToDate)) {
       newErrors.effectiveToDate = 'Effective To must be after Effective From'
     }
+    if (subServiceName && !/^[A-Za-z\s]+$/.test(subServiceName)) newErrors.subServiceName = 'Only digits are allowed'
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0

@@ -23,8 +23,8 @@ const countryCodes = {
 }
 
 const genderArry = [
-  { label: 'Male', value: 'Male' },
-  { label: 'Female', value: 'Female' },
+  { label: 'Male', value: 'M' },
+  { label: 'Female', value: 'F' },
 ]
 
 const fieldNamesMapping: any = {
@@ -79,8 +79,8 @@ const BopScreen: React.FC = () => {
     stpErrors?.length === 0 &&
     formData.transaction_status === 'RELEASED' &&
     helper.checkUserHasPermission(local_service.get_modules()?.BOP, 'canUpdate')
-//@ts-ignore
-  const userLoggedInCountry = countryCodes[parseData?.staffCountry]
+  //@ts-ignore
+  const userLoggedInCountry = parseData?.staffCountry
 
   // Helper function to get label by field name
   const getLabel = (fieldName: string): string => {
@@ -96,19 +96,15 @@ const BopScreen: React.FC = () => {
   useEffect(() => {
     const fetchFieldValidations = async () => {
       try {
-        const response = await validation.getScreenFieldvalidation(
-          "BOP",
-          local_service.get_staff_country(),
-          "W"
-        )
-        
+        const response = await validation.getScreenFieldvalidation('BOP', local_service.get_staff_country(), 'W')
+
         if (response?.data) {
           setFieldValidations(response.data)
-          
+
           // Create lookup maps for labels and messages
           const labelsMap: Record<string, string> = {}
           const messagesMap: Record<string, string> = {}
-          
+
           response.data.countryReportingLabelDTO?.forEach((item: CountryReportingLabelDTO) => {
             const fieldName = item.countryLabelFieldNameAndValidation?.fieldName?.trim()
             if (fieldName) {
@@ -116,12 +112,12 @@ const BopScreen: React.FC = () => {
               messagesMap[fieldName] = item.countryLabelFieldNameAndValidation?.validationMessageMandatory
             }
           })
-          
+
           setFieldLabels(labelsMap)
           setFieldMessages(messagesMap)
         }
       } catch (error) {
-        console.error("Error fetching field validations:", error)
+        console.error('Error fetching field validations:', error)
       }
     }
 
@@ -138,7 +134,7 @@ const BopScreen: React.FC = () => {
       if (validRule) {
         const pattern = validRule.specialCharacterList.slice(1, -1)
         const regex = new RegExp(pattern)
-        
+
         if (requiredFormFields.includes(key) && value === '') {
           errors[key] = getValidationMessage(key) || `Field is required.`
         }
@@ -278,11 +274,8 @@ const BopScreen: React.FC = () => {
   }
 
   const fetchStaticBopMapping = async (bopCategoryValue: string) => {
-    //@ts-ignore
-    const countryCode = countryCodes[parseData?.staffCountry]
-
     try {
-      const { data } = await bopService.getStaticTableBopData(countryCode)
+      const { data } = await bopService.getStaticTableBopData(parseData?.staffCountry)
 
       if (userLoggedInCountry === data.countryCode) {
         setbopCat((prev: any) => ({
@@ -382,7 +375,7 @@ const BopScreen: React.FC = () => {
             ))}
           </Box>
         )}
-        
+
         <Box>
           <Typography variant="h5" gutterBottom>
             {getLabel('Reporting_Details') || 'Reporting Details'}
@@ -439,9 +432,9 @@ const BopScreen: React.FC = () => {
 
           <Box mt={3}>
             <Typography variant="h5" gutterBottom>
-              {userLoggedInCountry === 'IN' || userLoggedInCountry === 'NG' 
-                ? (getLabel('Purpose_Code_Details') || 'Purpose Code Details')
-                : (getLabel('BOP_Category_Details') || 'BOP Category Details')}
+              {userLoggedInCountry === 'IN' || userLoggedInCountry === 'NG'
+                ? getLabel('Purpose_Code_Details') || 'Purpose Code Details'
+                : getLabel('BOP_Category_Details') || 'BOP Category Details'}
             </Typography>
           </Box>
 
@@ -449,17 +442,19 @@ const BopScreen: React.FC = () => {
             <Grid item xs={3}>
               <FormControl fullWidth>
                 {bopCategorySelected ? (
-                  <TextField 
-                    size='small'
-                    label={userLoggedInCountry === 'IN' || userLoggedInCountry === 'NG' 
-                      ? (getLabel('Purpose_Code') || 'Purpose Code')
-                      : (getLabel('BOP_Category') || 'BOP Category')}
+                  <TextField
+                    size="small"
+                    label={
+                      userLoggedInCountry === 'IN' || userLoggedInCountry === 'NG'
+                        ? getLabel('Purpose_Code') || 'Purpose Code'
+                        : getLabel('BOP_Category') || 'BOP Category'
+                    }
                     disabled
                     value={bopCategorySelected}
                   />
                 ) : (
                   <Select
-                    label={userLoggedInCountry === 'IN' ? (getLabel('Purpose_Code') || 'Purpose Code') : (getLabel('BOP_Category') || 'BOP Category')}
+                    label={userLoggedInCountry === 'IN' ? getLabel('Purpose_Code') || 'Purpose Code' : getLabel('BOP_Category') || 'BOP Category'}
                     variant="outlined"
                     name="bop_category"
                     value={bopCat?.bop_category || ''}
@@ -717,14 +712,14 @@ const BopScreen: React.FC = () => {
                 />
               </Grid>
               <Grid item xs={2}>
-                <TextField 
-                  size="small" 
-                  label={getLabel('Email_Address') || 'Email Address'} 
-                  variant="outlined" 
-                  name="email" 
-                  fullWidth 
-                  value={formData.email || ''} 
-                  disabled 
+                <TextField
+                  size="small"
+                  label={getLabel('Email_Address') || 'Email Address'}
+                  variant="outlined"
+                  name="email"
+                  fullWidth
+                  value={formData.email || ''}
+                  disabled
                 />
               </Grid>
               {userLoggedInCountry === 'ZA' && (

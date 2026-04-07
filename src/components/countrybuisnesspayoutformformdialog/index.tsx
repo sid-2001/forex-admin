@@ -16,9 +16,11 @@ import CountryBusinessPayoutPartnerService from '@/services/countryBusinessPayou
 import ProductBusinessCountryMappingService from '@/services/productBusinessCountryMapping.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
+import BankBusinessTypeService from '@/services/bantypemaster.service'
 
 const service = new CountryBusinessPayoutPartnerService()
 const productBusinessService = new ProductBusinessCountryMappingService()
+const Bank_business_type_service = new BankBusinessTypeService()
 const local_service = new LocalStorageService()
 
 // Validation constants based on entity annotations
@@ -64,6 +66,7 @@ export default function CountryBusinessPayoutPartnerFormDialog({
   isUpdateDisabled,
 }: Props) {
   const [businessMapCode, setBusinessMapCode] = useState<any[]>([])
+  const [businessTypeCodeList, setBusinessTypeCodeList] = useState<any[]>([])
   const [errors, setErrors] = useState<any>({})
   const [originalData, setOriginalData] = useState<any>(null)
 
@@ -108,6 +111,11 @@ export default function CountryBusinessPayoutPartnerFormDialog({
       productBusinessService.getList().then((data: any) => {
         const list = Array.isArray(data) ? data : data?.data || []
         setBusinessMapCode(list.filter((item: any) => item.active === true))
+      })
+
+      Bank_business_type_service.getList().then((data: any) => {
+        const list = Array.isArray(data) ? data : data?.data || []
+        setBusinessTypeCodeList(list.filter((item: any) => item.active === true))
       })
     }
   }, [open])
@@ -337,7 +345,23 @@ export default function CountryBusinessPayoutPartnerFormDialog({
 
           {/* Business Type Code */}
           <Grid item xs={12}>
-            <TextField
+            <Autocomplete
+              options={businessTypeCodeList}
+              disabled={!!editData}
+              getOptionLabel={(o: any) => o.businessTypeCode || ''}
+              value={businessTypeCodeList.find((m) => m.businessTypeCode === form.businessTypeCode) || null}
+              onChange={(_, val) => handleChange('businessTypeCode', val?.businessTypeCode || '')}
+              renderInput={(p) => (
+                <TextField
+                  {...p}
+                  label="Business Type Code"
+                  required
+                  error={!!errors.businessTypeCode}
+                  helperText={errors.businessTypeCode || getHelperText('businessTypeCode', form.businessTypeCode)}
+                />
+              )}
+            />
+            {/* <TextField
               label="Business Type Code"
               fullWidth
               required
@@ -346,7 +370,7 @@ export default function CountryBusinessPayoutPartnerFormDialog({
               error={!!errors.businessTypeCode}
               helperText={errors.businessTypeCode || getHelperText('businessTypeCode', form.businessTypeCode)}
               inputProps={{ maxLength: VALIDATION.BUSINESS_TYPE_CODE.maxLength }}
-            />
+            /> */}
           </Grid>
 
           {/* Payout Partner */}

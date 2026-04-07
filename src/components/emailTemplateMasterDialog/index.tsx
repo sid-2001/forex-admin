@@ -25,9 +25,9 @@ const filter = createFilterOptions({
 // Validation rules based on common email template requirements
 const VALIDATION_RULES = {
   countryCode: { max: 3, message: 'Country code cannot exceed 3 characters' },
-  templateCode: { max: 50, message: 'Template code cannot exceed 50 characters' },
+  // templateCode: { max: 50, message: 'Template code cannot exceed 50 characters' },
   templateName: { max: 100, message: 'Template name cannot exceed 100 characters', required: true },
-  fromName: { max: 100, message: 'From name cannot exceed 100 characters' },
+  fromName: { max: 100, message: 'From name cannot exceed 100 characters', required: true },
   fromEmail: {
     max: 100,
     message: 'Email cannot exceed 100 characters',
@@ -99,7 +99,7 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
 
   const initialFormState = {
     countryCode: '',
-    templateCode: '',
+    // templateCode: '',
     templateName: '',
     fromName: '',
     fromEmail: '',
@@ -137,6 +137,21 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
     if (errors[name]) {
       setErrors((prev: any) => ({ ...prev, [name]: '' }))
     }
+    if (
+      (name === 'fromName' || name === 'templateName' || name === 'emailTemplateDescription' || name === 'emailSubject') &&
+      value &&
+      !/^[A-Za-z\s]+$/.test(value)
+    ) {
+      setErrors({
+        ...errors,
+        [name]: 'Only alphabets allowed',
+      })
+    } else {
+      setErrors({
+        ...errors,
+        [name]: '',
+      })
+    }
   }
 
   // Handle date change with error clearing
@@ -155,7 +170,7 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
     const newErrors: any = {}
 
     // Required fields validation
-    const requiredFields = ['countryCode', 'templateName', 'fromEmail', 'emailSubject', 'effectiveFromDate', 'effectiveToDate']
+    const requiredFields = ['countryCode', 'templateName', 'fromEmail', 'emailSubject', 'effectiveFromDate', 'effectiveToDate', 'fromName']
 
     requiredFields.forEach((field) => {
       if (!form[field as keyof typeof form]?.toString().trim()) {
@@ -209,12 +224,12 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
     }
 
     // Template code validation for edit mode
-    if (!editData && form.templateCode) {
-      // Add any custom validation for template code format if needed
-      if (form.templateCode.length < 3) {
-        newErrors.templateCode = 'Template code must be at least 3 characters'
-      }
-    }
+    // if (!editData && form.templateCode) {
+    //   // Add any custom validation for template code format if needed
+    //   if (form.templateCode.length < 3) {
+    //     newErrors.templateCode = 'Template code must be at least 3 characters'
+    //   }
+    // }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -224,7 +239,7 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
     if (validate()) {
       const cleanPayload = {
         countryCode: form.countryCode,
-        templateCode: form.templateCode || `TMP_${Date.now()}`, // Auto-generate if not provided
+        templateCode: `TMP_${Date.now()}`, // Auto-generate if not provided
         templateName: form.templateName.trim(),
         emailSubject: form.emailSubject.trim(),
         emailBodyHtml: form.emailBodyHtml?.trim() || '',
@@ -264,14 +279,14 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
                   label="Search Country"
                   required
                   error={!!errors.countryCode}
-                  helperText={errors.countryCode || `Max ${VALIDATION_RULES.countryCode.max} characters`}
+                  helperText={errors.countryCode}
                   inputProps={{ ...params.inputProps, maxLength: VALIDATION_RULES.countryCode.max }}
                 />
               )}
             />
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          {/* <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Template Code"
@@ -279,11 +294,11 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
               value={form.templateCode}
               onChange={handleChange}
               error={!!errors.templateCode}
-              helperText={errors.templateCode || (editData ? 'Cannot be changed' : 'Optional - will be auto-generated if left blank')}
+              helperText={errors.templateCode}
               disabled={!!editData}
               inputProps={{ maxLength: VALIDATION_RULES.templateCode.max }}
             />
-          </Grid>
+          </Grid> */}
 
           <Grid item xs={12} sm={6}>
             <TextField
@@ -293,7 +308,7 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
               value={form.templateName}
               onChange={handleChange}
               error={!!errors.templateName}
-              helperText={errors.templateName || `Max ${VALIDATION_RULES.templateName.max} characters`}
+              helperText={errors.templateName}
               required
               inputProps={{ maxLength: VALIDATION_RULES.templateName.max }}
             />
@@ -306,13 +321,14 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
               name="fromName"
               value={form.fromName}
               onChange={handleChange}
+              required
               error={!!errors.fromName}
-              helperText={errors.fromName || `Max ${VALIDATION_RULES.fromName.max} characters`}
+              helperText={errors.fromName}
               inputProps={{ maxLength: VALIDATION_RULES.fromName.max }}
             />
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid item xs={12} sm={12}>
             <TextField
               fullWidth
               label="From Email"
@@ -320,7 +336,7 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
               value={form.fromEmail}
               onChange={handleChange}
               error={!!errors.fromEmail}
-              helperText={errors.fromEmail || `Max ${VALIDATION_RULES.fromEmail.max} characters`}
+              helperText={errors.fromEmail}
               required
               inputProps={{ maxLength: VALIDATION_RULES.fromEmail.max }}
             />
@@ -334,7 +350,7 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
               value={form.emailSubject}
               onChange={handleChange}
               error={!!errors.emailSubject}
-              helperText={errors.emailSubject || `Max ${VALIDATION_RULES.emailSubject.max} characters`}
+              helperText={errors.emailSubject}
               required
               inputProps={{ maxLength: VALIDATION_RULES.emailSubject.max }}
             />
@@ -350,7 +366,7 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
               value={form.emailBodyHtml}
               onChange={handleChange}
               error={!!errors.emailBodyHtml}
-              helperText={errors.emailBodyHtml || `Max ${VALIDATION_RULES.emailBodyHtml.max} characters`}
+              helperText={errors.emailBodyHtml}
               inputProps={{ maxLength: VALIDATION_RULES.emailBodyHtml.max }}
               placeholder="<html><body>Your HTML content here</body></html>"
             />
@@ -366,7 +382,7 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
               value={form.emailBodyText}
               onChange={handleChange}
               error={!!errors.emailBodyText}
-              helperText={errors.emailBodyText || `Max ${VALIDATION_RULES.emailBodyText.max} characters`}
+              helperText={errors.emailBodyText}
               inputProps={{ maxLength: VALIDATION_RULES.emailBodyText.max }}
               placeholder="Plain text version of your email (for clients that don't support HTML)"
             />
@@ -403,7 +419,7 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
               value={form.emailTemplateDescription}
               onChange={handleChange}
               error={!!errors.emailTemplateDescription}
-              helperText={errors.emailTemplateDescription || `Max ${VALIDATION_RULES.emailTemplateDescription.max} characters`}
+              helperText={errors.emailTemplateDescription}
               inputProps={{ maxLength: VALIDATION_RULES.emailTemplateDescription.max }}
             />
           </Grid>

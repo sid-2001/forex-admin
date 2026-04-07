@@ -2,9 +2,11 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, C
 import { useState, useEffect } from 'react'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 import UrlTypeApiService from '../../services/urlType.api.service'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
 export default function UrlTypeFormDialog({ open, onClose, editData, refreshList, showAlert }: any) {
   const service = new UrlTypeApiService()
+  const localService = new LocalStorageService()
   const [form, setForm] = useState({
     urlCode: '',
     urlType: '',
@@ -57,6 +59,7 @@ export default function UrlTypeFormDialog({ open, onClose, editData, refreshList
       ...form,
       effectiveFromDate: `${form.effectiveFromDate}T00:00:00Z`,
       effectiveToDate: `${form.effectiveToDate}T00:00:00Z`,
+      createdBy: editData ? null : localService.get_staff_id(),
     }
 
     try {
