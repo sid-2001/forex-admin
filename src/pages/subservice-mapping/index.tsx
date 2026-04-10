@@ -43,7 +43,6 @@ import ServiceMasterService from '@/services/service-master.service'
 import SubServiceMasterService from '@/services/sub-service.service'
 import { formatTableDate } from '@/helpers/dateformate'
 
-
 // ==================== MAIN COMPONENT ====================
 export default function ServiceSubServiceMapping() {
   const mappingService = useMemo(() => new ServiceSubServiceMappingService(), [])
@@ -94,7 +93,6 @@ export default function ServiceSubServiceMapping() {
     setAlertText(text)
     setAlertOpen(true)
   }
-
 
   const getCountryName = (countryCode: string) => {
     const country = countries.find((c: any) => c.countryCode === countryCode)
@@ -329,17 +327,13 @@ export default function ServiceSubServiceMapping() {
       setForm(newFormData)
       setOriginalFormData(newFormData)
     } else if (!editData && open) {
-      const today = new Date().toISOString().split('T')[0]
-      const nextYear = new Date()
-      nextYear.setFullYear(nextYear.getFullYear() + 1)
-
       const newFormData = {
         countryCode: '',
         serviceCode: '',
         subServiceCode: '',
         active: true,
         effectiveFromDate: null,
-        effectiveToDate:null,
+        effectiveToDate: null,
       }
       setForm(newFormData)
       setOriginalFormData(null)
@@ -384,9 +378,6 @@ export default function ServiceSubServiceMapping() {
   const handleSubmit = async () => {
     if (!validateForm()) return
 
-    const now = new Date().toISOString()
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-    const offset = formatTimezoneOffset()
     const staffId = local_service.get_staff_id() || 'APSNGGGN3654'
 
     if (editData) {
@@ -396,7 +387,7 @@ export default function ServiceSubServiceMapping() {
         serviceCode: form.serviceCode,
         subServiceCode: form.subServiceCode,
         effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
-        effectiveToDate: `${form.effectiveToDate}T23:59:59`,
+        effectiveToDate: `${form.effectiveToDate}T00:00:00`,
         active: form.active,
         modifiedBy: staffId,
       }
@@ -420,7 +411,7 @@ export default function ServiceSubServiceMapping() {
         serviceCode: form.serviceCode,
         subServiceCode: form.subServiceCode,
         effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
-        effectiveToDate: `${form.effectiveToDate}T23:59:59`,
+        effectiveToDate: `${form.effectiveToDate}T00:00:00`,
         createdBy: staffId,
         active: form.active,
       }
@@ -615,16 +606,15 @@ export default function ServiceSubServiceMapping() {
         getRowId={(row) => row.serviceSubServiceMapCode || Math.random()}
         autoHeight
         disableRowSelectionOnClick
-          slotProps={{
-    toolbar: {
-      showQuickFilter: true,
-      showDensitySelector: true, // ✅ enable density
-    },
-  }}
+        slotProps={{
+          toolbar: {
+            showQuickFilter: true,
+            showDensitySelector: true, // ✅ enable density
+          },
+        }}
         slots={{ toolbar: CustomToolbar }}
         // slotProps={{ toolbar: { showQuickFilter: true } }}
         disableColumnMenu
-      
         paginationModel={{ page, pageSize }}
         onPaginationModelChange={(model) => {
           setPage(model.page)
@@ -661,7 +651,7 @@ export default function ServiceSubServiceMapping() {
                 onChange={(_, val) => handleFormChange('countryCode', val?.countryCode || '')}
                 disabled={!!editData}
                 renderInput={(params) => (
-                  <TextField {...params} label="Country" required size="small" error={!!formErrors.countryCode} helperText={formErrors.countryCode} />
+                  <TextField {...params} label="Country" required error={!!formErrors.countryCode} helperText={formErrors.countryCode} />
                 )}
               />
             </Grid>
@@ -675,7 +665,7 @@ export default function ServiceSubServiceMapping() {
                 value={services.find((s) => s.serviceCodeGenerated === form.serviceCode) || null}
                 onChange={(_, val) => handleFormChange('serviceCode', val?.serviceCodeGenerated || '')}
                 renderInput={(params) => (
-                  <TextField {...params} label="Service" required size="small" error={!!formErrors.serviceCode} helperText={formErrors.serviceCode} />
+                  <TextField {...params} label="Service" required error={!!formErrors.serviceCode} helperText={formErrors.serviceCode} />
                 )}
               />
             </Grid>
@@ -690,14 +680,7 @@ export default function ServiceSubServiceMapping() {
                 value={subServices.find((s) => s.subServiceCodeGenerated === form.subServiceCode) || null}
                 onChange={(_, val) => handleFormChange('subServiceCode', val?.subServiceCodeGenerated || '')}
                 renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Sub Service"
-                    required
-                    size="small"
-                    error={!!formErrors.subServiceCode}
-                    helperText={formErrors.subServiceCode}
-                  />
+                  <TextField {...params} label="Sub Service" required error={!!formErrors.subServiceCode} helperText={formErrors.subServiceCode} />
                 )}
               />
             </Grid>
@@ -708,7 +691,6 @@ export default function ServiceSubServiceMapping() {
                 <TextField
                   label="Map Code"
                   fullWidth
-                  size="small"
                   value={editData.serviceSubServiceMapCode}
                   disabled
                   variant="filled"
@@ -738,9 +720,8 @@ export default function ServiceSubServiceMapping() {
                 value={form.effectiveFromDate}
                 onChange={(val: string) => handleFormChange('effectiveFromDate', val)}
                 error={!!formErrors.effectiveFromDate}
-                helperText={formErrors.effectiveFromDate || 'Required'}
+                helperText={formErrors.effectiveFromDate}
                 required
-             
               />
             </Grid>
 
@@ -752,7 +733,7 @@ export default function ServiceSubServiceMapping() {
                 minDate={form.effectiveFromDate}
                 onChange={(val: string) => handleFormChange('effectiveToDate', val)}
                 error={!!formErrors.effectiveToDate}
-                helperText={formErrors.effectiveToDate || 'Required, must be after Effective From'}
+                helperText={formErrors.effectiveToDate}
                 required
                 disabled={!form.effectiveFromDate}
               />

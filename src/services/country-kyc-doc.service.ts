@@ -7,8 +7,8 @@ export default class CountryKycDocService extends BaseService {
   async getDocList() {
     const url = `${this.baseUrl}/getAll`
     try {
-      const { data } = await api1.get(url)
-      return data
+      const response = await api1.get(url)
+      return response
     } catch (err) {
       return err as any
     }
@@ -19,7 +19,7 @@ export default class CountryKycDocService extends BaseService {
     try {
       const response = await api1.post(url, payload)
       return response
-    } catch (err) {
+    } catch (err: any) {
       return err as any
     }
   }
@@ -27,8 +27,8 @@ export default class CountryKycDocService extends BaseService {
   async updateDoc(id: string, payload: any) {
     const url = `${this.baseUrl}/${id}`
     try {
-      const { data } = await api1.put(url, payload)
-      return data
+      const response = await api1.put(url, payload)
+      return response
     } catch (err) {
       return err as any
     }

@@ -1,10 +1,10 @@
 /* eslint-disable no-useless-catch */
-import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig, AxiosRequestHeaders, AxiosProgressEvent } from 'axios'
+import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig, AxiosRequestHeaders, AxiosProgressEvent, AxiosError } from 'axios'
 import { redirect } from 'react-router-dom'
 import { LocalStorageService } from '../../helpers/local-storage-service'
 import { BaseError } from '../../types/error.type'
 import { logger } from '../../helpers/logger'
-import { publicIpv4 } from 'public-ip';
+import { publicIpv4 } from 'public-ip'
 
 const { VITE_APP_BACKEND } = import.meta.env
 
@@ -25,13 +25,13 @@ const instance: AxiosInstance = axios.create({
 export async function getDeviceInfo(): Promise<{ ip: string; deviceName: string }> {
   let ip = 'unknown'
   try {
-    ip = await publicIpv4() || 'unknown';
+    ip = (await publicIpv4()) || 'unknown'
   } catch (err) {
     console.warn('Failed to fetch public IP:', err)
   }
 
   // Get device name (OS + browser info)
-  const deviceName = `${navigator.platform} - ${navigator.userAgent}`;
+  const deviceName = `${navigator.platform} - ${navigator.userAgent}`
 
   return { ip, deviceName }
 }
@@ -41,41 +41,39 @@ instance.interceptors.request.use(
     const { ip, deviceName } = await getDeviceInfo()
     const token = (localStorageService.get_accesstoken() as any)?.replaceAll(`"`, '')
 
-    const now = new Date();
+    const now = new Date()
 
     // 1. Standard Offset (e.g., +05:30)
-    const offsetMinutes = -now.getTimezoneOffset();
-    const sign = offsetMinutes >= 0 ? "+" : "-";
-    const hours = String(Math.floor(Math.abs(offsetMinutes) / 60)).padStart(2, "0");
-    const minutes = String(Math.abs(offsetMinutes) % 60).padStart(2, "0");
-    const offset = `${sign}${hours}:${minutes}`;
+    const offsetMinutes = -now.getTimezoneOffset()
+    const sign = offsetMinutes >= 0 ? '+' : '-'
+    const hours = String(Math.floor(Math.abs(offsetMinutes) / 60)).padStart(2, '0')
+    const minutes = String(Math.abs(offsetMinutes) % 60).padStart(2, '0')
+    const offset = `${sign}${hours}:${minutes}`
 
     // 2. Standard Timezone
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
 
     // 3. Local DateTime with HH:mm:ss.SSS
     // Subtracting timezoneOffset ensures the ISO string reflects the user's LOCAL time
-    const localDateTime = new Date(now.getTime() - (now.getTimezoneOffset() * 60000))
-      .toISOString()
-      .replace('Z', ''); // Result: "2026-03-09T12:45:00.783"
+    const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().replace('Z', '') // Result: "2026-03-09T12:45:00.783"
 
     if (token) {
-      config.headers['Authorization'] = 'Bearer ' + token;
-      config.headers['ngrok-skip-browser-warning'] = 'true';
-      
-      // Audit Headers
-      config.headers["timezone"] = timezone;
-      config.headers["offset"] = offset;
-      config.headers["localdatetime"] = localDateTime; 
+      config.headers['Authorization'] = 'Bearer ' + token
+      config.headers['ngrok-skip-browser-warning'] = 'true'
 
-      config.headers['X-Device-IP'] = ip;
-      config.headers['X-Device-Name'] = deviceName;
+      // Audit Headers
+      config.headers['timezone'] = timezone
+      config.headers['offset'] = offset
+      config.headers['localdatetime'] = localDateTime
+
+      config.headers['X-Device-IP'] = ip
+      config.headers['X-Device-Name'] = deviceName
     }
-    
-    return config;
+
+    return config
   },
   (error: any) => {
-    return Promise.reject(error);
+    return Promise.reject(error)
   },
 )
 // instance.interceptors.request.use(
@@ -93,8 +91,6 @@ instance.interceptors.request.use(
 //   const offset = `${sign}${hours}:${minutes}`;
 // const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-
-
 //   const localDateTime = now.toISOString().slice(0, 19);
 //     if (token) {
 //       config.headers['Authorization'] = 'Bearer ' + token
@@ -107,7 +103,7 @@ instance.interceptors.request.use(
 //       config.headers['X-Device-Name'] = deviceName
 //    config.headers["timezone"] = timezone;
 //   config.headers["offset"] = offset;
-//   config.headers["localdatetime"] = localDateTime; 
+//   config.headers["localdatetime"] = localDateTime;
 //     }
 //     return config
 //   },
@@ -119,36 +115,125 @@ instance.interceptors.request.use(
 // )
 
 // Response interceptor
-instance.interceptors.response.use(
-  async (response: AxiosResponse) => {
-    if (response.status == 401) {
-      const newToken = await refreshToken()
-      window.location.reload()
-    }
-    if (response.status == 403) {
-    }
-    return response
-  },
-  async (error) => {
-    console.log(error.status)
+// instance.interceptors.response.use(
+//   async (response: AxiosResponse) => {
+//     console.log(response, 'respp')
+//     if (response.status == 401) {
+//       const newToken = await refreshToken()
+//       window.location.reload()
+//     }
+//     if (response.status == 403) {
+//     }
+//     return response
+//   },
+//   async (error: AxiosError) => {
+//     console.log(error.status, error, 'error')
 
-    if (error.status === 401) {
+//     if (error.status === 401) {
+//       try {
+//         const newToken = await refreshToken()
+//         error.config.headers['Authorization'] = 'Bearer ' + newToken
+//         return instance.request(error.config) // Retry the original request
+//       } catch (refreshError) {
+//         localStorage.clear()
+//         window.location.replace('/login')
+//         return Promise.reject(refreshError)
+//       }
+//     } else {
+//       const err = new BaseError()
+//       err.error_message = error?.response?.data || 'Bad Response'
+//       err.error_code = String(error?.response?.status)
+//       logger.error('Response Interceptor Error:', err)
+//       return Promise.reject(err)
+//     }
+//   },
+// )
+
+// instance.interceptors.response.use(
+//   async (response: AxiosResponse) => {
+//     // Only for 2xx responses
+//     return response
+//   },
+
+//   async (error: AxiosError) => {
+//     const status = error?.response?.status
+
+//     console.log(status, error, 'error')
+
+//     // 🔐 Handle Unauthorized (401)
+//     if (status === 401) {
+//       try {
+//         const newToken = await refreshToken()
+
+//         if (error.config && newToken) {
+//           error.config.headers['Authorization'] = 'Bearer ' + newToken
+
+//           return instance.request(error.config) // retry request
+//         }
+//       } catch (refreshError) {
+//         localStorage.clear()
+//         window.location.replace('/login')
+//         return Promise.reject(refreshError)
+//       }
+//     }
+
+//     // 🚫 Handle Forbidden
+//     if (status === 403) {
+//       console.warn('Access Denied')
+//     }
+
+//     // 💥 Handle Server Error (500)
+//     if (status === 500) {
+//       console.error('Internal Server Error')
+//     }
+
+//     // 🧠 Standard Error Object
+//     const err = new BaseError()
+//     //@ts-ignore
+//     err.error_message = error?.response?.data?.message || error.response?.data || 'Something went wrong'
+//     err.error_code = String(status || 500)
+
+//     logger.error('Response Interceptor Error:', err)
+
+//     return Promise.reject(err)
+//   },
+// )
+
+instance.interceptors.response.use(
+  (response) => response,
+
+  async (error: AxiosError) => {
+    const status = error.response?.status
+    const data: any = error.response?.data
+
+    console.log('INTERCEPTOR ERROR:', status, data)
+
+    // ✅ Handle 401 (token refresh)
+    //@ts-ignore
+    if (status === 401 && !error.config?._retry) {
       try {
+        //@ts-ignore
+        error.config._retry = true
         const newToken = await refreshToken()
-        error.config.headers['Authorization'] = 'Bearer ' + newToken
-        return instance.request(error.config) // Retry the original request
+
+        if (error.config) {
+          error.config.headers['Authorization'] = 'Bearer ' + newToken
+          return instance.request(error.config)
+        }
       } catch (refreshError) {
         localStorage.clear()
         window.location.replace('/login')
         return Promise.reject(refreshError)
       }
-    } else {
-      const err = new BaseError()
-      err.error_message = error?.response?.data || 'Bad Response'
-      err.error_code = String(error.response.status)
-      logger.error('Response Interceptor Error:', err)
-      return Promise.reject(err)
     }
+
+    // ✅ Build clean error
+    const customError = {
+      status: data.status,
+      message: data?.message || data?.error || JSON.stringify(data) || 'Something went wrong',
+    }
+
+    return Promise.reject(customError) // ✅ no BaseError needed
   },
 )
 
@@ -188,18 +273,29 @@ const get = async (url: string) => {
   }
 }
 
-const post = async (url: string, object: any) => {
-  try {
-    const data = await instance.post(url, object, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
+// const post = async (url: string, object: any) => {
+//   try {
+//     const response = await instance.post(url, object, {
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//     })
+//     console.log(response, '----------------')
 
-    return data
-  } catch (error) {
-    throw error
-  }
+//     return response?.data
+//   } catch (error) {
+//     console.log(error, '0000000080080')
+//     throw error
+//   }
+// }
+
+const post = async (url: string, payload: any) => {
+  const res = await instance.post(url, payload, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+  return res.data
 }
 
 const put = async (url: string, object: any) => {
@@ -213,17 +309,15 @@ const put = async (url: string, object: any) => {
 //
 const patch = async (url: string, object: any) => {
   try {
-    console.log("i hav alld data1",url,object)
+    console.log('i hav alld data1', url, object)
 
     const { data } = await instance.patch(url, object)
-    console.log("i hav alld data",url,object)
+    console.log('i hav alld data', url, object)
     return data
   } catch (error) {
     throw error
   }
 }
-
-
 
 const del = async (url: string, object?: any) => {
   try {
@@ -245,7 +339,6 @@ const del = async (url: string, object?: any) => {
 //       headers: {
 //         'Content-Type': 'application/json',
 //       }});
-
 
 //       return data
 

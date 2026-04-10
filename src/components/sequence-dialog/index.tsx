@@ -4,11 +4,13 @@ import SequenceApiService from '../../services/sequence.api.service'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 import ProductService from '@/services/product.service'
 import VendorApiService from '@/services/vendor.api.service'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
 export default function SequenceDialog({ open, editData, onClose, refreshList, showAlert, countryCorridorList }: any) {
   const service = new SequenceApiService()
   const productService = useMemo(() => new ProductService(), [])
   const vendorService = new VendorApiService()
+  const local_service = new LocalStorageService()
 
   const initialFormState = {
     countryCode: '',
@@ -90,7 +92,7 @@ export default function SequenceDialog({ open, editData, onClose, refreshList, s
     // 2. Proceed with API call
     try {
       if (editData) {
-        await service.update(editData.sequenceId, {
+        const res = await service.update(editData.sequenceId, {
           countryCode: formData.countryCode,
           productCode: formData.productCode,
           vendorCode: formData.vendorCode,
@@ -109,19 +111,31 @@ export default function SequenceDialog({ open, editData, onClose, refreshList, s
           active: formData.active,
           effectiveFromDate: formData.effectiveFromDate + 'T00:00:00',
           effectiveToDate: formData.effectiveToDate + 'T00:00:00',
+          modifiedBy: local_service?.get_staff_id(),
         })
-        showAlert('success', 'Sequence updated successfully')
+        if (res.status === false) {
+          showAlert('fail', res.message)
+        } else {
+          showAlert('success', 'Sequence updated successfully')
+          refreshList()
+          onClose()
+        }
       } else {
         let payload = {
           ...formData,
           effectiveFromDate: formData.effectiveFromDate + 'T00:00:00',
           effectiveToDate: formData.effectiveToDate + 'T00:00:00',
+          createdBy: local_service?.get_staff_id(),
         }
-        await service.create(payload)
-        showAlert('success', 'Sequence created successfully')
+        const res = await service.create(payload)
+        if (res.status === false) {
+          showAlert('fail', res.message)
+        } else {
+          showAlert('success', res.message)
+          refreshList()
+          onClose()
+        }
       }
-      refreshList()
-      onClose()
     } catch (error) {
       showAlert('error', 'Operation failed')
     }

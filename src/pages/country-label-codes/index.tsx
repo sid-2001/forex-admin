@@ -171,7 +171,7 @@ export default function CountryLabelCodesGridPage() {
       setLoadingRailMappings(true)
       const response = await countryBusinessPayoutPartnerService.getAll()
       console.log('All Rail Payout Mappings Response:', response)
-      
+
       // Check if response has data property and it's an array
       if (response && response.data && Array.isArray(response.data)) {
         setAllRailPayoutMappings(response.data)
@@ -219,7 +219,7 @@ export default function CountryLabelCodesGridPage() {
         if (mapping?.bankMaster?.countryCode === countryCode) {
           return true
         }
-        
+
         // Alternative: Check if countryBusinessPayoutPartnerCode starts with country code
         if (mapping.countryBusinessPayoutPartnerCode?.startsWith(countryCode)) {
           return true
@@ -250,7 +250,7 @@ export default function CountryLabelCodesGridPage() {
     try {
       console.log('Filtering BOP categories for country:', countryCode)
       console.log('All BOP categories:', bopCategories)
-      
+
       // Filter BOP categories by country code
       // Note: You might need to adjust this based on actual BOP category structure
       const filtered = bopCategories.filter((category) => {
@@ -259,7 +259,7 @@ export default function CountryLabelCodesGridPage() {
         if (category.countryCode === countryCode) {
           return true
         }
-        
+
         // Alternative: Check if bopPurposeCategoryCode starts with country code
         if (category.bopPurposeCategoryCode?.startsWith(countryCode)) {
           return true
@@ -351,12 +351,12 @@ export default function CountryLabelCodesGridPage() {
         ...form,
         createdBy: selected ? undefined : local_service.get_staff_id() || 'ADMIN',
         modifiedBy: selected ? local_service.get_staff_id() || 'ADMIN' : undefined,
-        effectiveFromDate: new Date(form.effectiveFromDate).toISOString(),
-        effectiveToDate: new Date(form.effectiveToDate).toISOString(),
+        effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
+        effectiveToDate: `${form.effectiveToDate}T00:00:00`,
       }
       console.log('Submit payload:', payload)
       console.log('Selected:', selected)
-      
+
       if (selected && selected.countryLabelCode) {
         // Update
         const updatePayload = {
@@ -396,7 +396,10 @@ export default function CountryLabelCodesGridPage() {
     const country = countries.find((c) => c.countryCode === row.countryCode)?.countryName?.toLowerCase() || ''
     const railMapping = allRailPayoutMappings.find((r) => r.countryBusinessPayoutPartnerCode === row.railPayoutMappingCode)
     //@ts-ignore
-    const railInfo = railMapping ? `${railMapping.businessTypeCode} ${railMapping.payoutPartner} ${railMapping.productBusinessResponseDTO?.paymentRail || ''}`.toLowerCase() : ''
+    const railInfo = railMapping
+      ? //@ts-ignore
+        `${railMapping.businessTypeCode} ${railMapping.payoutPartner} ${railMapping.productBusinessResponseDTO?.paymentRail || ''}`.toLowerCase()
+      : ''
 
     // Find BOP category details
     const bopCategory = bopCategories.find((c) => c.bopPurposeCategoryCode === row.countryReportingCode)
@@ -459,44 +462,47 @@ export default function CountryLabelCodesGridPage() {
             </Typography>
             {railMapping && (
               <Typography variant="caption" color="textSecondary">
-            
                 {
-                //@ts-ignore
-                railMapping.businessTypeCode}/{railMapping.payoutPartner} | Rail: {railMapping.productBusinessResponseDTO?.paymentRail || 'N/A'}
+                  //@ts-ignore
+                  railMapping.businessTypeCode
+                }
+                /{railMapping.payoutPartner} | Rail:{' '}
+                {
+                  //@ts-ignore
+                  railMapping.productBusinessResponseDTO?.paymentRail || 'N/A'
+                }
               </Typography>
             )}
           </Box>
         )
       },
     },
-   {
-  field: 'effective_from_date',
-  headerName: 'Effective From',
-  flex: 1,
-  minWidth: 150,
- headerClassName: 'super-app-theme--header',
- //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivefromdate || row?.effectiveFromDate
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 1,
+      minWidth: 150,
+      headerClassName: 'super-app-theme--header',
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivefromdate || row?.effectiveFromDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
-{
-  field: 'effective_to_date',
-  headerName: 'Effective To',
-  flex: 1,
-   headerClassName: 'super-app-theme--header',
-  minWidth: 150,
-  //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivetodate || row?.effectiveToDate
+        return date ? formatTableDate(date) : ''
+      },
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      minWidth: 150,
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivetodate || row?.effectiveToDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
+        return date ? formatTableDate(date) : ''
+      },
+    },
     {
       field: 'countryReportingCode',
       headerName: 'Reporting Code',
@@ -560,13 +566,13 @@ export default function CountryLabelCodesGridPage() {
   const getRailPayoutMappingInfo = (code: string) => {
     const mapping = allRailPayoutMappings.find((r) => r.countryBusinessPayoutPartnerCode === code)
     if (!mapping) return code
-    
+
     //@ts-ignore
-    const railInfo = mapping.productBusinessResponseDTO?.paymentRail 
-    //@ts-ignore
-      ? ` | Rail: ${mapping.productBusinessResponseDTO.paymentRail}` 
+    const railInfo = mapping.productBusinessResponseDTO?.paymentRail
+      ? //@ts-ignore
+        ` | Rail: ${mapping.productBusinessResponseDTO.paymentRail}`
       : ''
-    
+
     return `${code} (${mapping.businessTypeCode}/${mapping.payoutPartner}${railInfo})`
   }
 
@@ -715,14 +721,18 @@ export default function CountryLabelCodesGridPage() {
                         <Box>
                           <Typography variant="body2">{mapping.countryBusinessPayoutPartnerCode}</Typography>
                           <Typography variant="caption" color="textSecondary">
-                            Business: {mapping.businessTypeCode} | Payout: {mapping.payoutPartner} | Rail: {
-                            //@ts-ignore
-                            mapping.productBusinessResponseDTO?.paymentRail || 'N/A'}
+                            Business: {mapping.businessTypeCode} | Payout: {mapping.payoutPartner} | Rail:{' '}
+                            {
+                              //@ts-ignore
+                              mapping.productBusinessResponseDTO?.paymentRail || 'N/A'
+                            }
                           </Typography>
                           <Typography variant="caption" display="block" color="textSecondary">
-                            Recipient: {
-                            //@ts-ignore
-                            mapping.productBusinessResponseDTO?.recipientCountry || 'N/A'}
+                            Recipient:{' '}
+                            {
+                              //@ts-ignore
+                              mapping.productBusinessResponseDTO?.recipientCountry || 'N/A'
+                            }
                           </Typography>
                         </Box>
                       </MenuItem>
@@ -818,7 +828,7 @@ export default function CountryLabelCodesGridPage() {
                   required
                 />
               </Grid>
-      
+
               <Grid item xs={6}>
                 <DynamicEndDatePicker
                   label="Effective To"

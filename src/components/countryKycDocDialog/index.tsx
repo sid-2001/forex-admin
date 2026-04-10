@@ -14,7 +14,7 @@ import {
 import { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
-import ErrorMessage from '../errorMessage'
+// import ErrorMessage from '../errorMessage'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 import { KycDocumentTypeService } from '@/services/kycdocumenttype.service'
 import VendorApiService from '@/services/vendor.api.service'
@@ -24,7 +24,47 @@ const filter = createFilterOptions({
   stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
 })
 
-export default function CountryKycDocDialog({ open, onClose, onSubmit, editData, errMassage }: any) {
+const VALIDATION_RULES = {
+  countryCode: {
+    max: 3,
+    message: 'Country code cannot exceed 3 characters',
+    required: true,
+    pattern: /^[A-Z]{2,3}$/,
+    patternMessage: 'Country code should be 2-3 uppercase letters',
+  },
+  vendorCode: {
+    message: 'Vendor Code is required',
+    required: true,
+  },
+  docTypeCode: {
+    message: 'Document Type Code is required',
+    required: true,
+  },
+  docCode: {
+    message: 'Document Code is required',
+    pattern: /^[A-Za-z\s]+$/,
+    patternMessage: 'Only alphabets allowed',
+    required: true,
+  },
+  docDescription: {
+    message: 'Document Description is required',
+    pattern: /^[A-Za-z\s]+$/,
+    patternMessage: 'Only alphabets allowed',
+    required: true,
+  },
+  verificationMode: {
+    required: true,
+    message: 'Verification Mode is required',
+  },
+  appLimit: {
+    required: true,
+    message: 'App Limit is required',
+  },
+  effectiveToDate: { required: true, message: 'To Date is required' },
+  effectiveFromDate: { required: true, message: 'From Date is required' },
+}
+
+export default function CountryKycDocDialog({ open, onClose, onSubmit, editData }: any) {
   const [countries] = useRecoilState(countyState)
   const [vendorCodes, setVendorCodes] = useState<any>([])
   const [docTypeCodes, setDocTypeCodes] = useState<any>([])
@@ -34,10 +74,9 @@ export default function CountryKycDocDialog({ open, onClose, onSubmit, editData,
   const initialFormState = {
     countryCode: '',
     docTypeCode: '',
-    docCode: 'Contract',
-    docDescription: 'Contract',
+    docCode: '',
+    docDescription: '',
     verificationMode: '',
-    // verificationPartnerCode: '',
     appLimit: 0,
     active: true,
     effectiveFromDate: '',
@@ -83,12 +122,41 @@ export default function CountryKycDocDialog({ open, onClose, onSubmit, editData,
 
   const validate = () => {
     const newErrors: any = {}
-    if (!form.countryCode) newErrors.countryCode = 'Required'
-    if (!form.docTypeCode) newErrors.docTypeCode = 'Required'
-    if (!form.effectiveFromDate) newErrors.effectiveFromDate = 'Required'
-    if (!form.vendorCode) newErrors.vendorCode = 'Required'
-    if (!form.verificationMode) newErrors.verificationMode = 'Required'
-    if (!form.appLimit) newErrors.appLimit = 'Required'
+
+    Object.keys(VALIDATION_RULES).forEach((field) => {
+      const rule = VALIDATION_RULES[field as keyof typeof VALIDATION_RULES]
+      const value = form[field as keyof typeof form]
+
+      if (value) {
+        // Max length validation
+        //@ts-ignore
+        if (rule.max && value.length > rule.max) {
+          newErrors[field] = rule.message
+        }
+
+        //@ts-ignore
+        if ((field === 'docDescription' || field === 'docCode' || field === 'countryCode') && rule.pattern && !rule.pattern.test(value)) {
+          //@ts-ignore
+          newErrors[field] = rule.patternMessage
+        }
+      } else if (
+        //@ts-ignore
+        rule.required
+      ) {
+        newErrors[field] = 'This field is required'
+      }
+    })
+
+    // Date validation: effectiveToDate must be after effectiveFromDate
+    if (form.effectiveFromDate && form.effectiveToDate) {
+      const fromDate = new Date(form.effectiveFromDate)
+      const toDate = new Date(form.effectiveToDate)
+
+      if (toDate <= fromDate) {
+        newErrors.effectiveToDate = 'Effective To date must be after Effective From date'
+      }
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -167,7 +235,7 @@ export default function CountryKycDocDialog({ open, onClose, onSubmit, editData,
             />
           </Grid>
           <Grid item xs={6}>
-            <TextField fullWidth label="Document Description" value={form.docTypeDescription} disabled />
+            <TextField fullWidth label="Document Type Description" value={form.docTypeDescription} disabled />
           </Grid>
 
           <Grid item xs={6}>
@@ -179,6 +247,28 @@ export default function CountryKycDocDialog({ open, onClose, onSubmit, editData,
               onChange={(e: any) => handleChange('appLimit', e.target.value || '')}
               error={!!errors.appLimit}
               helperText={errors.appLimit}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              label="Document Code"
+              value={form.docCode}
+              required
+              onChange={(e: any) => handleChange('docCode', e.target.value || '')}
+              error={!!errors.docCode}
+              helperText={errors.docCode}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              label="Document Description"
+              value={form.docDescription}
+              required
+              onChange={(e: any) => handleChange('docDescription', e.target.value || '')}
+              error={!!errors.docDescription}
+              helperText={errors.docDescription}
             />
           </Grid>
           <Grid item xs={6}>
@@ -215,7 +305,7 @@ export default function CountryKycDocDialog({ open, onClose, onSubmit, editData,
           </Grid>
         </Grid>
       </DialogContent>
-      <ErrorMessage errMessage={errMassage} />
+      {/* <ErrorMessage errMessage={errMassage} /> */}
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={onClose}>CANCEL</Button>
         <Button variant="contained" onClick={handleSubmit}>

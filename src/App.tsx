@@ -43,7 +43,7 @@ import { useRecoilState } from 'recoil'
 import { CssBaseline } from '@mui/material'
 import SarbErrorsListing from './pages/sarb-errors'
 import Loyality from './pages/loyality'
-import AuditLogTable from './pages/audit-log'
+// import AuditLogTable from './pages/audit-log'
 import FieldValidationTable from './pages/field-validation'
 import ForexBranchesPage from './pages/branches'
 import { lazy, useCallback, useEffect, useState } from 'react'
@@ -93,8 +93,9 @@ import ExchangeRateMasterScreen from './pages/exchangeRateMaster'
 import CountryCorridorProductMaster from './pages/country-corridor-product'
 import ProductService from './services/product.service'
 import ProductSubServiceMaster from './pages/product-sub-service'
-import InactivityWarningModal from "./components/inactivity-modal"
+import InactivityWarningModal from './components/inactivity-modal'
 import ServiceSubServiceMapping from './pages/subservice-mapping'
+import AuditScreen from './pages/audit-screen'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -154,7 +155,6 @@ function App() {
         },
       },
 
-      
       MuiDataGrid: {
         styleOverrides: {
           root: {
@@ -180,35 +180,31 @@ function App() {
         },
       },
 
-
-    MuiDialog: {
-      defaultProps: {
-        disableEscapeKeyDown: true
+      MuiDialog: {
+        defaultProps: {
+          disableEscapeKeyDown: true,
+        },
+        styleOverrides: {
+          root: {
+            '& .MuiBackdrop-root': {
+              pointerEvents: 'none',
+            },
+          },
+        },
       },
-      styleOverrides: {
-        root: {
-          "& .MuiBackdrop-root": {
-            pointerEvents: "none"
-          }
-        }
-      }
-    }
 
-    //       MuiDialog: {
-    //   defaultProps: {
-    //     disableEscapeKeyDown: true
-    //   }
-    // }
-      
+      //       MuiDialog: {
+      //   defaultProps: {
+      //     disableEscapeKeyDown: true
+      //   }
+      // }
     },
   })
-const handleInactivity = () => {
-  if(local_service.get_accesstoken()!=null){
- setWarningOpen(true)
-
+  const handleInactivity = () => {
+    if (local_service.get_accesstoken() != null) {
+      setWarningOpen(true)
+    }
   }
- 
-}
   const handleLogout = useCallback(() => {
     if (local_service?.get_accesstoken() != null) {
       localStorage.clear()
@@ -219,9 +215,7 @@ const handleInactivity = () => {
   const INACTIVITY_TIME = 1 * 60 * 1000 // 1 minutes
   // ✅ Enable auto logout (30 min inactivity)
   // useAutoLogout(handleLogout, Number(inactivity) * 60000 > INACTIVITY_TIME ? Number(inactivity) * 60000 : INACTIVITY_TIME)
-useAutoLogout(handleInactivity, Number(inactivity) * 60000 > INACTIVITY_TIME
-  ? Number(inactivity) * 60000
-  : INACTIVITY_TIME)
+  useAutoLogout(handleInactivity, Number(inactivity) * 60000 > INACTIVITY_TIME ? Number(inactivity) * 60000 : INACTIVITY_TIME)
 
   return (
     <>
@@ -231,11 +225,7 @@ useAutoLogout(handleInactivity, Number(inactivity) * 60000 > INACTIVITY_TIME
         {/* <Message /> */}
         <ToastContainer />
         <CustomSnackbar />
-        <InactivityWarningModal
-  open={warningOpen}
-  onStay={() => setWarningOpen(false)}
-  onLogout={handleLogout}
-/>
+        <InactivityWarningModal open={warningOpen} onStay={() => setWarningOpen(false)} onLogout={handleLogout} />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<ProtectedRoute {...defaultProtectedRouteProps} outlet={<DashboardLayout />} />}>
@@ -266,7 +256,7 @@ useAutoLogout(handleInactivity, Number(inactivity) * 60000 > INACTIVITY_TIME
               <Route path="module" element={<ModuleTable />} />
               <Route path="role" element={<RoleManagement />} />
               <Route path="sarberrors" element={<SarbErrorsListing />} />
-              <Route path="audit-logs" element={<AuditLogTable />} />
+              <Route path="audit-logs" element={<AuditScreen />} />
               <Route path="field-validation" element={<FieldValidationTable />} />
               <Route path="static-gender" element={<GenderMaster />} />
               <Route path="states" element={<StateManagement />} />
@@ -289,7 +279,6 @@ useAutoLogout(handleInactivity, Number(inactivity) * 60000 > INACTIVITY_TIME
               <Route path="branches" element={<ForexBranchesPage />} />
               <Route path="bopcategory" element={<BopCategoryMaster />} />
               <Route path="bop-category-type" element={<BopCategoryTypeMaster />} />
-      
               <Route path="product-buisness-mapping" element={<ProductBusinessCountryMapping />} />
               <Route path="business-railand-partner" element={<CountryBusinessPayoutPartner />} />
               <Route path="email-template" element={<EmailTemplateMasterPage />} />
@@ -315,8 +304,8 @@ useAutoLogout(handleInactivity, Number(inactivity) * 60000 > INACTIVITY_TIME
               <Route path="kyc-doc-mapping" element={<CountryResProductChannelDocRequiredMaster />} />
               <Route path="exchange-rate" element={<ExchangeRateMasterScreen />} />
               <Route path="country-product-code" element={<CountryCorridorProductMaster />} />
-                  <Route path="product-subservice" element={<ProductSubServiceMaster />} />
-                   <Route path="service-sub-service-mapping" element={<ServiceSubServiceMapping />} />
+              <Route path="product-subservice" element={<ProductSubServiceMaster />} />
+              <Route path="service-sub-service-mapping" element={<ServiceSubServiceMapping />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 

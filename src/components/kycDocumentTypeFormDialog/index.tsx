@@ -9,14 +9,12 @@ import {
   Button,
   Stack,
   FormControlLabel,
-  Switch,
+  Checkbox,
   Grid,
   Typography,
   IconButton,
-  Box,
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
-import dayjs from 'dayjs'
 
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
@@ -35,125 +33,136 @@ interface KycDocumentTypeFormDialogProps {
   onSubmit: (data: FormData) => void
 }
 
-export default function KycDocumentTypeFormDialog({
-  open,
-  onClose,
-  editData,
-  onSubmit,
-}: KycDocumentTypeFormDialogProps) {
+const VALIDATION_RULES = {
+  kycDocTypeDescription: {
+    message: 'KYC Document Type Description is required',
+    pattern: /^[A-Za-z\s]+$/,
+    patternMessage: 'Only alphabets allowed',
+    required: true,
+  },
 
-  const [formData, setFormData] = useState<FormData>({
+  effectiveToDate: { required: true, message: 'To Date is required' },
+  effectiveFromDate: { required: true, message: 'From Date is required' },
+}
+
+export default function KycDocumentTypeFormDialog({ open, onClose, editData, onSubmit }: KycDocumentTypeFormDialogProps) {
+  const initialFormState = {
     kycDocTypeDescription: '',
     active: true,
-    effectiveFromDate: dayjs().format('YYYY-MM-DD'),
-    effectiveToDate: '9999-12-31',
-  })
-const [originalData, setOriginalData] = useState<FormData | null>(null)
+    effectiveFromDate: '',
+    effectiveToDate: '',
+  }
+
+  const [formData, setFormData] = useState<FormData>(initialFormState)
+  const [originalData, setOriginalData] = useState<FormData | null>(null)
+  const [errors, setErrors] = useState<any>({})
+
   useEffect(() => {
     if (editData) {
       setFormData({
-        kycDocTypeDescription: editData.kycDocTypeDescription || '',
-        active: editData.active ?? true,
-        effectiveFromDate: editData.effectiveFromDate
-          ? dayjs(editData.effectiveFromDate).format('YYYY-MM-DD')
-          : dayjs().format('YYYY-MM-DD'),
-        effectiveToDate:
-          editData.effectiveToDate === '9999-12-31T23:59:59'
-            ? '9999-12-31'
-            : dayjs(editData.effectiveToDate).format('YYYY-MM-DD'),
+        ...editData,
+        effectiveFromDate: editData.effectiveFromDate?.split('T')[0] || '',
+        effectiveToDate: editData.effectiveToDate?.split('T')[0] || '',
       })
     } else {
-      setFormData({
-        kycDocTypeDescription: '',
-        active: true,
-        //@ts-ignore
-        effectiveFromDate:null,
-        //@ts-ignore
-        effectiveToDate: null,
-      })
+      setFormData(formData)
     }
   }, [editData, open])
 
-
-
   useEffect(() => {
-  let newData: FormData
+    let newData: FormData
 
-  if (editData) {
-    newData = {
-      kycDocTypeDescription: editData.kycDocTypeDescription || '',
-      active: editData.active ?? true,
-      effectiveFromDate: editData.effectiveFromDate
-        ? dayjs(editData.effectiveFromDate).format('YYYY-MM-DD')
-        : dayjs().format('YYYY-MM-DD'),
-      effectiveToDate:
-        editData.effectiveToDate === '9999-12-31T23:59:59'
-          ? '9999-12-31'
-          : dayjs(editData.effectiveToDate).format('YYYY-MM-DD'),
+    if (editData) {
+      newData = {
+        ...editData,
+        effectiveFromDate: editData.effectiveFromDate?.split('T')[0] || '',
+        effectiveToDate: editData.effectiveToDate?.split('T')[0] || '',
+      }
+    } else {
+      newData = formData
     }
-  } else {
-    newData = {
-      kycDocTypeDescription: '',
-      active: true,
-      effectiveFromDate: dayjs().format('YYYY-MM-DD'),
-      effectiveToDate: '9999-12-31',
-    }
-  }
 
-  setFormData(newData)
-  setOriginalData(newData)
+    setFormData(newData)
+    setOriginalData(newData)
+  }, [editData, open])
 
-}, [editData, open])
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, checked, type } = e.target
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }))
   }
 
-
-
   const isFormChanged = () => {
-  if (!originalData) return true
+    if (!originalData) return true
 
-  return (
-    formData.kycDocTypeDescription !== originalData.kycDocTypeDescription ||
-    formData.active !== originalData.active ||
-    formData.effectiveFromDate !== originalData.effectiveFromDate ||
-    formData.effectiveToDate !== originalData.effectiveToDate
-  )
-}
+    return (
+      formData.kycDocTypeDescription !== originalData.kycDocTypeDescription ||
+      formData.active !== originalData.active ||
+      formData.effectiveFromDate !== originalData.effectiveFromDate ||
+      formData.effectiveToDate !== originalData.effectiveToDate
+    )
+  }
+
+  const validate = () => {
+    const newErrors: any = {}
+
+    Object.keys(VALIDATION_RULES).forEach((field) => {
+      const rule = VALIDATION_RULES[field as keyof typeof VALIDATION_RULES]
+      const value = formData[field as keyof typeof formData]
+
+      if (value) {
+        // Max length validation
+        //@ts-ignore
+        if (rule.max && value.length > rule.max) {
+          newErrors[field] = rule.message
+        }
+
+        //@ts-ignore
+        if (field === 'kycDocTypeDescription' && rule.pattern && !rule.pattern.test(value)) {
+          //@ts-ignore
+          newErrors[field] = rule.patternMessage
+        }
+      } else if (
+        //@ts-ignore
+        rule.required
+      ) {
+        newErrors[field] = 'This field is required'
+      }
+    })
+
+    if (formData.effectiveFromDate && formData.effectiveToDate) {
+      const fromDate = new Date(formData.effectiveFromDate)
+      const toDate = new Date(formData.effectiveToDate)
+
+      if (toDate <= fromDate) {
+        newErrors.effectiveToDate = 'Effective To date must be after Effective From date'
+      }
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   const handleSubmit = () => {
+    if (!validate()) return
+    const { ...cleanData } = formData as any
+    onSubmit({ ...cleanData })
+    setFormData(initialFormState)
+  }
 
-    if (!formData.kycDocTypeDescription.trim()) {
-      onSubmit({
-        ...formData,
-        validationError: 'Document Type Description is required',
-      })
-      return
-    }
-
-    const fromDate = dayjs(formData.effectiveFromDate)
-    const toDate = dayjs(formData.effectiveToDate)
-
-    if (fromDate.isAfter(toDate)) {
-      onSubmit({
-        ...formData,
-        validationError:
-          'Effective From date cannot be after Effective To date',
-      })
-      return
-    }
-
-    onSubmit(formData)
+  const handleCloseButton = () => {
+    setErrors({})
+    setFormData(initialFormState)
+    onClose()
   }
 
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={handleCloseButton}
       maxWidth="md"
       fullWidth
       PaperProps={{
@@ -171,16 +180,11 @@ const [originalData, setOriginalData] = useState<FormData | null>(null)
           alignItems: 'center',
         }}
       >
-        <Typography
-          variant="h6"
-          sx={{ fontWeight: 600, color: '#0061B1' }}
-        >
-          {editData
-            ? 'Edit Document Type'
-            : 'Create New Document Type'}
+        <Typography variant="h6" sx={{ fontWeight: 600, color: '#0061B1' }}>
+          {editData ? 'Edit Document Type' : 'Create New Document Type'}
         </Typography>
 
-        <IconButton onClick={onClose}>
+        <IconButton onClick={handleCloseButton}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -189,12 +193,11 @@ const [originalData, setOriginalData] = useState<FormData | null>(null)
       <DialogContent dividers sx={{ p: 3 }}>
         <Stack spacing={3}>
           <Grid container spacing={2}>
-
             {/* DESCRIPTION */}
             <Grid item xs={12}>
               <TextField
                 name="kycDocTypeDescription"
-                label="Document Type Description *"
+                label="Document Type Description"
                 value={formData.kycDocTypeDescription}
                 onChange={handleChange}
                 fullWidth
@@ -203,6 +206,8 @@ const [originalData, setOriginalData] = useState<FormData | null>(null)
                 placeholder="e.g., Pan Card, Aadhar Card, Passport"
                 multiline
                 rows={2}
+                error={!!errors.kycDocTypeDescription}
+                helperText={errors.kycDocTypeDescription}
               />
             </Grid>
 
@@ -212,12 +217,14 @@ const [originalData, setOriginalData] = useState<FormData | null>(null)
                 label="Effective From Date"
                 value={formData.effectiveFromDate}
                 onChange={(val: string) =>
-                  setFormData(prev => ({
+                  setFormData((prev) => ({
                     ...prev,
                     effectiveFromDate: val,
                   }))
                 }
                 required
+                error={!!errors.effectiveFromDate}
+                helperText={errors.effectiveFromDate}
               />
             </Grid>
 
@@ -228,58 +235,21 @@ const [originalData, setOriginalData] = useState<FormData | null>(null)
                 value={formData.effectiveToDate}
                 minDate={formData.effectiveFromDate}
                 onChange={(val: string) =>
-                  setFormData(prev => ({
+                  setFormData((prev) => ({
                     ...prev,
                     effectiveToDate: val,
                   }))
                 }
                 required
+                error={!!errors.effectiveToDate}
+                helperText={errors.effectiveToDate}
               />
             </Grid>
 
             {/* ACTIVE STATUS */}
             <Grid item xs={12}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  mt: 1,
-                }}
-              >
-                <FormControlLabel
-                  control={
-                    <Switch
-                      name="active"
-                      checked={formData.active}
-                      onChange={handleChange}
-                      color="success"
-                    />
-                  }
-                  label="Active Status"
-                />
-
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ ml: 2 }}
-                >
-                  {formData.active
-                    ? 'Document type is active and can be used'
-                    : 'Document type is inactive'}
-                </Typography>
-              </Box>
+              <FormControlLabel control={<Checkbox checked={formData.active} onChange={handleChange} />} label="Active" />
             </Grid>
-
-            {/* REQUIRED NOTE */}
-            <Grid item xs={12}>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-              >
-                * Required fields
-              </Typography>
-            </Grid>
-
           </Grid>
         </Stack>
       </DialogContent>
@@ -291,28 +261,24 @@ const [originalData, setOriginalData] = useState<FormData | null>(null)
           backgroundColor: '#fafafa',
         }}
       >
-        <Button
-          onClick={onClose}
-          variant="outlined"
-          sx={{ borderRadius: 2 }}
-        >
+        <Button onClick={handleCloseButton} variant="outlined" sx={{ borderRadius: 2 }}>
           Cancel
         </Button>
 
-    <Button
-  onClick={handleSubmit}
-  variant="contained"
-  disabled={editData ? !isFormChanged() : false}
-  sx={{
-    borderRadius: 2,
-    backgroundColor: '#0061B1',
-    '&:hover': {
-      backgroundColor: '#004d8c',
-    },
-  }}
->
-  {editData ? 'Update' : 'Create'}
-</Button>
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
+          disabled={editData ? !isFormChanged() : false}
+          sx={{
+            borderRadius: 2,
+            backgroundColor: '#0061B1',
+            '&:hover': {
+              backgroundColor: '#004d8c',
+            },
+          }}
+        >
+          {editData ? 'Update' : 'Create'}
+        </Button>
       </DialogActions>
     </Dialog>
   )
