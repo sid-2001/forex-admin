@@ -71,9 +71,17 @@ export default function ScreenMaster() {
           ...(isUpdate
             ? {
                 ModifiedBy: staffId,
+                Modified_TimeZone: audit.timeZone,
+                Modified_Offset: audit.offset,
+                Modified_UTCDateTime: audit.utcDateTime,
+                Modified_LocalDateTime: audit.localDateTime,
               }
             : {
                 CreatedBy: staffId,
+                Created_TimeZone: audit.timeZone,
+                Created_Offset: audit.offset,
+                Created_UTCDateTime: audit.utcDateTime,
+                Created_LocalDateTime: audit.localDateTime,
               }),
         }
 
