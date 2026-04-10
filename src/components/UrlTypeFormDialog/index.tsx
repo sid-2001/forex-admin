@@ -6,13 +6,9 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 
 export default function UrlTypeFormDialog({ open, onClose, editData, refreshList, showAlert }: any) {
   const service = new UrlTypeApiService()
-<<<<<<< HEAD
-  const localService = new LocalStorageService()
-=======
   const local_service = new LocalStorageService()
   const staffData = local_service.get_staff_access()
 
->>>>>>> bfc27b8 (bug fixes)
   const [form, setForm] = useState({
     urlCode: '',
     urlType: '',
