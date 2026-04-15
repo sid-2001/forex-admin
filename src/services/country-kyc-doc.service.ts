@@ -27,8 +27,8 @@ export default class CountryKycDocService extends BaseService {
   async updateDoc(id: string, payload: any) {
     const url = `${this.baseUrl}/${id}`
     try {
-      const response = await api1.put(url, payload)
-      return response
+      const { data } = await api1.put(url, payload)
+      return data
     } catch (err) {
       return err as any
     }

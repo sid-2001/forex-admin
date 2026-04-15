@@ -21,6 +21,30 @@ const filter = createFilterOptions({
   stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
 })
 
+const VALIDATION_RULES = {
+  countryCode: {
+    max: 3,
+    message: 'Country code cannot exceed 3 characters',
+    required: true,
+    pattern: /^[A-Z]{2,3}$/,
+    patternMessage: 'Country code should be 2-3 uppercase letters',
+  },
+  stateCode: {
+    message: 'State Code is required',
+    pattern: /^[A-Za-z\s]+$/,
+    patternMessage: 'Only alphabets allowed',
+    required: true,
+  },
+  description: {
+    message: 'Description is required',
+    pattern: /^[A-Za-z\s]+$/,
+    patternMessage: 'Only alphabets allowed',
+    required: true,
+  },
+  effectiveToDate: { required: true, message: 'To Date is required' },
+  effectiveFromDate: { required: true, message: 'From Date is required' },
+}
+
 interface Props {
   open: boolean
   onClose: () => void
@@ -33,8 +57,8 @@ export default function StateFormDialog({ open, onClose, onSubmit, editData }: P
     stateCode: '',
     description: '',
     countryCode: '',
-    effectiveFrom: '',
-    effectiveTo: '',
+    effectiveFromDate: '',
+    effectiveToDate: '',
     active: true,
   })
   const [errors, setErrors] = useState<any>({})
@@ -46,33 +70,75 @@ export default function StateFormDialog({ open, onClose, onSubmit, editData }: P
         stateCode: editData.StateCode || '',
         description: editData.StateDescription || '',
         countryCode: editData.CountryCode || '',
-        effectiveFrom: editData.EffectiveFromDate ? editData.EffectiveFromDate.split('T')[0] : '',
-        effectiveTo: editData.EffectiveToDate ? editData.EffectiveToDate.split('T')[0] : '',
+        effectiveFromDate: editData.EffectiveFromDate ? editData.EffectiveFromDate.split('T')[0] : '',
+        effectiveToDate: editData.EffectiveToDate ? editData.EffectiveToDate.split('T')[0] : '',
         active: editData.Active ?? true,
       })
     } else {
-      setForm({ stateCode: '', description: '', countryCode: '', effectiveFrom: '', effectiveTo: '', active: true })
+      setForm({ stateCode: '', description: '', countryCode: '', effectiveFromDate: '', effectiveToDate: '', active: true })
     }
     setErrors({})
   }, [editData, open])
 
-  const handleSubmit = () => {
+  const validate = () => {
     const newErrors: any = {}
-    if (!form.stateCode.trim()) newErrors.stateCode = 'Required'
-    if (!form.description.trim()) newErrors.description = 'Required'
-    if (!form.countryCode) newErrors.countryCode = 'Required'
-    if (!form.effectiveFrom) newErrors.effectiveFrom = 'Required'
-    if (!form.effectiveTo) newErrors.effectiveTo = 'Required'
 
-    setErrors(newErrors)
-    if (Object.keys(newErrors).length > 0) return
+    Object.keys(VALIDATION_RULES).forEach((field) => {
+      const rule = VALIDATION_RULES[field as keyof typeof VALIDATION_RULES]
+      const value = form[field as keyof typeof form]
 
-    if (new Date(form.effectiveTo) < new Date(form.effectiveFrom)) {
-      onSubmit({ validationError: 'End Date cannot be earlier than Start Date' })
-      return
+      if (value) {
+        // Max length validation
+        //@ts-ignore
+        if (rule.max && value.length > rule.max) {
+          newErrors[field] = rule.message
+        }
+
+        //@ts-ignore
+        if ((field === 'description' || field === 'stateCode' || field === 'countryCode') && rule.pattern && !rule.pattern.test(value)) {
+          //@ts-ignore
+          newErrors[field] = rule.patternMessage
+        }
+      } else if (
+        //@ts-ignore
+        rule.required
+      ) {
+        newErrors[field] = 'This field is required'
+      }
+    })
+
+    // Date validation: effectiveToDate must be after effectiveFromDate
+    if (form.effectiveFromDate && form.effectiveToDate) {
+      const fromDate = new Date(form.effectiveFromDate)
+      const toDate = new Date(form.effectiveToDate)
+
+      if (toDate <= fromDate) {
+        newErrors.effectiveToDate = 'Effective To date must be after Effective From date'
+      }
     }
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
-    onSubmit(form)
+  const handleSubmit = () => {
+    if (!validate()) return
+
+    // Clean payload: Remove primary keys before sending to API
+    const { ...cleanData } = form as any
+
+    onSubmit({
+      ...cleanData,
+      effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
+      effectiveToDate: `${form.effectiveToDate}T00:00:00`,
+    })
+  }
+
+  const handleChange = (field: string, value: any) => {
+    setForm((prev: any) => ({ ...prev, [field]: value }))
+    // Clear error for this field
+    if (errors[field]) {
+      setErrors((prev: any) => ({ ...prev, [field]: '' }))
+    }
   }
 
   return (
@@ -87,7 +153,7 @@ export default function StateFormDialog({ open, onClose, onSubmit, editData }: P
               getOptionLabel={(o: any) => `${o.countryName} (${o.countryCode})`}
               value={countries?.find((c: any) => c.countryCode === form.countryCode) || null}
               disabled={!!editData}
-              onChange={(_, val) => setForm({ ...form, countryCode: val ? val.countryCode : '' })}
+              onChange={(_, val) => handleChange('countryCode', val?.countryCode || '')}
               renderInput={(p) => <TextField {...p} label="Country" error={!!errors.countryCode} helperText={errors.countryCode} required />}
             />
           </Grid>
@@ -98,12 +164,7 @@ export default function StateFormDialog({ open, onClose, onSubmit, editData }: P
               inputProps={{ maxLength: 10 }}
               value={form.stateCode}
               disabled={!!editData}
-              onChange={(e) => {
-                const val = e.target.value.toUpperCase()
-                if (/^[A-Z]{0,10}$/.test(val)) {
-                  setForm({ ...form, stateCode: val })
-                }
-              }}
+              onChange={(e: any) => handleChange('stateCode', e.target.value.toUpperCase() || '')}
               error={!!errors.stateCode}
               helperText={errors.stateCode}
               required
@@ -114,7 +175,7 @@ export default function StateFormDialog({ open, onClose, onSubmit, editData }: P
               fullWidth
               label="State Description"
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(e: any) => handleChange('description', e.target.value || '')}
               error={!!errors.description}
               helperText={errors.description}
               required
@@ -124,14 +185,13 @@ export default function StateFormDialog({ open, onClose, onSubmit, editData }: P
           <Grid item xs={6}>
             <DynamicDatePicker
               label="Effective From"
-              value={form.effectiveFrom}
+              value={form.effectiveFromDate}
               onChange={(val: string) => {
-                console.log(val, 'kdjhchdvy')
-                setForm({ ...form, effectiveFrom: val })
+                setForm({ ...form, effectiveFromDate: val })
               }}
               minDate={new Date().toISOString().split('T')[0]}
-              error={!!errors.effectiveFrom}
-              helperText={errors.effectiveFrom}
+              error={!!errors.effectiveFromDate}
+              helperText={errors.effectiveFromDate}
               required
             />
           </Grid>
@@ -139,13 +199,13 @@ export default function StateFormDialog({ open, onClose, onSubmit, editData }: P
           <Grid item xs={6}>
             <DynamicEndDatePicker
               label="Effective To"
-              value={form.effectiveTo}
-              minDate={form.effectiveFrom}
+              value={form.effectiveToDate}
+              minDate={form.effectiveFromDate}
               onChange={(val: string) => {
-                setForm({ ...form, effectiveTo: val })
+                setForm({ ...form, effectiveToDate: val })
               }}
-              error={!!errors.effectiveTo}
-              helperText={errors.effectiveTo}
+              error={!!errors.effectiveToDate}
+              helperText={errors.effectiveToDate}
               required
             />
           </Grid>

@@ -200,7 +200,7 @@ export default function CountryKycDocDialog({ open, onClose, onSubmit, editData 
           <Grid item xs={6}>
             <Autocomplete
               options={vendorCodes}
-              disabled={!!editData}
+              //  disabled={!!editData}
               getOptionLabel={(o: any) => `${o.vendorName} (${o.vendorCode})`}
               value={vendorCodes.find((m: any) => m.vendorCode === form.vendorCode) || null}
               onChange={(_, val) => handleChange('vendorCode', val?.vendorCode || '')}

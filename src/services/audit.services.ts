@@ -30,4 +30,24 @@ export class AuditService extends BaseService {
       console.log(err)
     }
   }
+
+  async getAuditLogsListingDataViaModuleName(searchFilterStr: string): Promise<any> {
+    const url = `api/static-table/master-audit-table/data?${searchFilterStr}`
+    try {
+      const data = await api1.get(url)
+      return data
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  async getfiltersDataByModuleName(moduleName: string): Promise<any> {
+    const url = `api/static-table/master-audit-table/filters?moduleName=${moduleName}`
+    try {
+      const data = await api1.get(url)
+      return data
+    } catch (err) {
+      console.log(err)
+    }
+  }
 }

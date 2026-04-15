@@ -48,6 +48,7 @@ export default function CountryKycDocManagement() {
     try {
       // Switched to PUT pattern from your EmailTemplate reference
       const res = await docService.updateDoc(editData?.kycDocCode, { ...data, modifiedBy: local_service?.get_staff_id() })
+      console.log(res, 'response updatd')
       if (res.status === false) {
         setErrMessage(res.message)
         setSnackbarOpen(true)

@@ -516,40 +516,6 @@ const CountryCorridorPage: React.FC = () => {
     setSnackbarOpen(true)
   }
 
-  // Handle page change
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage)
-  }
-
-  // Handle search change
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value)
-    setPage(0)
-  }
-
-  // Handle country filter change
-  const handleCountryFilterChange = (event: SelectChangeEvent) => {
-    setCountryFilter(event.target.value)
-    setPage(0)
-  }
-
-  // Handle status filter change
-  const handleStatusFilterChange = (event: SelectChangeEvent) => {
-    setStatusFilter(event.target.value)
-    setPage(0)
-  }
-
-  // Handle sort change
-  const handleSortChange = (column: string) => {
-    if (sortBy === column) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-    } else {
-      setSortBy(column)
-      setSortOrder('asc')
-    }
-    setPage(0)
-  }
-
   // Open edit dialog
   const handleOpenEditDialog = (row: CountryCorridorData) => {
     setSelectedRow(row)
@@ -844,10 +810,13 @@ const CountryCorridorPage: React.FC = () => {
             />
 
             {/* Active Status */}
-            <FormControlLabel
-              control={<Switch checked={formData.active} onChange={(e) => setFormData({ ...formData, active: e.target.checked })} color="success" />}
-              label="Active Status"
-            />
+
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={<Checkbox checked={formData.active} onChange={(e) => setFormData({ ...formData, active: e.target.checked })} />}
+                label="Active Status"
+              />
+            </Grid>
 
             {/* <TextField
               label="Effective From Date"
