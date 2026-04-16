@@ -24,10 +24,22 @@ const filter = createFilterOptions({
 
 // Validation rules based on common email template requirements
 const VALIDATION_RULES = {
-  countryCode: { max: 3, message: 'Country code cannot exceed 3 characters' },
+  countryCode: { max: 3, required: true, message: 'Country code cannot exceed 3 characters' },
   // templateCode: { max: 50, message: 'Template code cannot exceed 50 characters' },
-  templateName: { max: 100, message: 'Template name cannot exceed 100 characters', required: true },
-  fromName: { max: 100, message: 'From name cannot exceed 100 characters', required: true },
+  templateName: {
+    max: 100,
+    pattern: /^[A-Za-z\s]+$/,
+    patternMessage: 'Only alphabets allowed',
+    message: 'Template name cannot exceed 100 characters',
+    required: true,
+  },
+  fromName: {
+    max: 100,
+    pattern: /^[A-Za-z\s]+$/,
+    patternMessage: 'Only alphabets allowed',
+    message: 'From name cannot exceed 100 characters',
+    required: true,
+  },
   fromEmail: {
     max: 100,
     message: 'Email cannot exceed 100 characters',
@@ -35,10 +47,23 @@ const VALIDATION_RULES = {
     pattern: /\S+@\S+\.\S+/,
     patternMessage: 'Invalid email format',
   },
-  emailSubject: { max: 200, message: 'Subject cannot exceed 200 characters', required: true },
+  effectiveToDate: { required: true, message: 'To Date is required' },
+  effectiveFromDate: { required: true, message: 'From Date is required' },
+  emailSubject: {
+    max: 200,
+    pattern: /^[A-Za-z\s]+$/,
+    patternMessage: 'Only alphabets allowed',
+    message: 'Subject cannot exceed 200 characters',
+    required: true,
+  },
   emailBodyHtml: { max: 10000, message: 'HTML body cannot exceed 10000 characters' },
   emailBodyText: { max: 5000, message: 'Text body cannot exceed 5000 characters' },
-  emailTemplateDescription: { max: 255, message: 'Description cannot exceed 255 characters' },
+  emailTemplateDescription: {
+    max: 255,
+    pattern: /^[A-Za-z\s]+$/,
+    patternMessage: 'Only alphabets allowed',
+    message: 'Description cannot exceed 255 characters',
+  },
 }
 
 // Function to validate HTML
@@ -169,15 +194,6 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
   const validate = () => {
     const newErrors: any = {}
 
-    // Required fields validation
-    const requiredFields = ['countryCode', 'templateName', 'fromEmail', 'emailSubject', 'effectiveFromDate', 'effectiveToDate', 'fromName']
-
-    requiredFields.forEach((field) => {
-      if (!form[field as keyof typeof form]?.toString().trim()) {
-        newErrors[field] = 'This field is required'
-      }
-    })
-
     // Field-specific validations
     Object.keys(VALIDATION_RULES).forEach((field) => {
       const rule = VALIDATION_RULES[field as keyof typeof VALIDATION_RULES]
@@ -222,14 +238,6 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
         newErrors.effectiveToDate = 'Effective To date must be after Effective From date'
       }
     }
-
-    // Template code validation for edit mode
-    // if (!editData && form.templateCode) {
-    //   // Add any custom validation for template code format if needed
-    //   if (form.templateCode.length < 3) {
-    //     newErrors.templateCode = 'Template code must be at least 3 characters'
-    //   }
-    // }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0

@@ -18,49 +18,46 @@ import BopCategoryService from '@/services/bop.category.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
-// Validation constants based on entity annotations
-const VALIDATION = {
-  COUNTRY_CODE: {
+// VALIDATION_RULES constants based on entity annotations
+const VALIDATION_RULES = {
+  countryCode: {
     maxLength: 3,
     required: true,
     message: 'Country code cannot exceed 3 characters',
+    pattern: /^[A-Z]{2,3}$/,
+    patternMessage: 'Country code should be 2-3 uppercase letters',
   },
-  CATEGORY_TYPE: {
+  categoryType: {
     maxLength: 10,
     message: 'Category Type cannot exceed 10 characters',
   },
-  BOP_PURPOSE_CODE: {
+  bopPurposeCode: {
     maxLength: 10,
+    pattern: /^[A-Za-z0-9\s]+$/,
+    patternMessage: 'Only alphabets and numbers are allowed',
     message: 'Bop Purpose Code cannot exceed 10 characters',
+    required: true,
   },
-  BOP_PURPOSE_DESCRIPTION: {
+  bopPurposeDescription: {
     maxLength: 50,
+    pattern: /^[A-Za-z\s]+$/,
+    patternMessage: 'Only alphabets allowed',
     message: 'Bop purpose description cannot exceed 50 characters',
   },
-  BOP_PURPOSE_SUB_CODE: {
+  bopPurposeSubCode: {
     maxLength: 3,
+    pattern: /^[0-9]*/,
+    patternMessage: 'Only numbers are allowed',
     message: 'Bop purpose sub code cannot exceed 3 characters',
   },
-  BOP_PURPOSE_SUB_DESCRIPTION: {
+  bopPurposeSubDescription: {
     maxLength: 50,
+    pattern: /^[A-Za-z\s]+$/,
+    patternMessage: 'Only alphabets allowed',
     message: 'Bop purpose sub description cannot exceed 50 characters',
   },
-  CREATED_BY: {
-    maxLength: 50,
-    message: 'Created by cannot exceed 50 characters',
-  },
-  MODIFIED_BY: {
-    maxLength: 50,
-    message: 'Modified by cannot exceed 50 characters',
-  },
-  TIMEZONE: {
-    maxLength: 50,
-    message: 'Timezone cannot exceed 50 characters',
-  },
-  OFFSET: {
-    maxLength: 10,
-    message: 'Offset cannot exceed 10 characters',
-  },
+  effectiveToDate: { required: true, message: 'To Date is required' },
+  effectiveFromDate: { required: true, message: 'From Date is required' },
 }
 
 export default function BopCategoryFormDialog({ open, onClose, editData, categorylist, refreshList, showAlert }: any) {
@@ -122,80 +119,69 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
   }, [editData, open])
 
   const validate = () => {
-    const errs: any = {}
+    const newErrors: any = {}
 
-    // Country Code validation
-    if (!form.countryCode) {
-      errs.countryCode = 'Country code must not be blank'
-    } else if (form.countryCode.length > VALIDATION.COUNTRY_CODE.maxLength) {
-      errs.countryCode = VALIDATION.COUNTRY_CODE.message
+    Object.keys(VALIDATION_RULES).forEach((field) => {
+      const rule = VALIDATION_RULES[field as keyof typeof VALIDATION_RULES]
+      const value = form[field as keyof typeof form]
+
+      if (value) {
+        // Max length validation
+        //@ts-ignore
+        if (rule.maxLength && value.length > rule.maxLength) {
+          newErrors[field] = rule.message
+        }
+
+        //@ts-ignore
+        if (
+          (field === 'bopPurposeSubDescription' ||
+            field === 'bopPurposeCode' ||
+            field === 'bopPurposeDescription' ||
+            field === 'bopPurposeSubCode' ||
+            field === 'categoryType' ||
+            field === 'countryCode') &&
+          //@ts-ignore
+          rule?.pattern &&
+          //@ts-ignore
+          !rule?.pattern.test(value)
+        ) {
+          //@ts-ignore
+          newErrors[field] = rule.patternMessage
+        }
+      } else if (
+        //@ts-ignore
+        rule.required
+      ) {
+        newErrors[field] = 'This field is required'
+      }
+    })
+
+    // Date validation: effectiveToDate must be after effectiveFromDate
+    if (form.effectiveFromDate && form.effectiveToDate) {
+      const fromDate = new Date(form.effectiveFromDate)
+      const toDate = new Date(form.effectiveToDate)
+
+      if (toDate <= fromDate) {
+        newErrors.effectiveToDate = 'Effective To date must be after Effective From date'
+      }
     }
-
-    // Category Type validation
-    if (form.categoryType && form.categoryType.length > VALIDATION.CATEGORY_TYPE.maxLength) {
-      errs.categoryType = VALIDATION.CATEGORY_TYPE.message
-    }
-
-    // BOP Purpose Code validation
-    if (!form.bopPurposeCode) {
-      errs.bopPurposeCode = 'Bop Purpose Code is required'
-    } else if (form.bopPurposeCode.length > VALIDATION.BOP_PURPOSE_CODE.maxLength) {
-      errs.bopPurposeCode = VALIDATION.BOP_PURPOSE_CODE.message
-    }
-
-    // BOP Purpose Description validation
-    if (form.bopPurposeDescription && form.bopPurposeDescription.length > VALIDATION.BOP_PURPOSE_DESCRIPTION.maxLength) {
-      errs.bopPurposeDescription = VALIDATION.BOP_PURPOSE_DESCRIPTION.message
-    }
-
-    // BOP Purpose Sub Code validation
-    if (form.bopPurposeSubCode && form.bopPurposeSubCode.length > VALIDATION.BOP_PURPOSE_SUB_CODE.maxLength) {
-      errs.bopPurposeSubCode = VALIDATION.BOP_PURPOSE_SUB_CODE.message
-    }
-
-    // BOP Purpose Sub Description validation
-    if (form.bopPurposeSubDescription && form.bopPurposeSubDescription.length > VALIDATION.BOP_PURPOSE_SUB_DESCRIPTION.maxLength) {
-      errs.bopPurposeSubDescription = VALIDATION.BOP_PURPOSE_SUB_DESCRIPTION.message
-    }
-
-    // Effective From Date validation
-    if (!form.effectiveFromDate) {
-      errs.effectiveFromDate = 'Effective from date must not be null'
-    }
-
-    // Effective To Date validation
-    if (!form.effectiveToDate) {
-      errs.effectiveToDate = 'Effective to date must not be null'
-    }
-
-    // Date range validation (AssertTrue)
-    // if (form.effectiveFromDate && form.effectiveToDate) {
-    //   const fromDate = new Date(form.effectiveFromDate)
-    //   const toDate = new Date(form.effectiveToDate)
-
-    //   if (toDate <= fromDate) {
-    //     errs.effectiveToDate = 'Effective To date must be after Effective From date'
-    //   }
-    // }
 
     // Active status validation
     if (form.active === undefined || form.active === null) {
-      errs.active = 'Active status must not be null'
+      newErrors.active = 'Active status must not be null'
     }
 
-    setErrors(errs)
-    return Object.keys(errs).length === 0
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async () => {
-    console.log(validate())
     if (!validate()) return
 
     const staffId = localService.get_staff_id() || 'admin'
 
     const payload = {
       ...form,
-      bopPurposeCategoryCode: form.bopPurposeCategoryCode || null,
       effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
       effectiveToDate: `${form.effectiveToDate}T00:00:00`,
       createdBy: editData ? undefined : staffId,
@@ -220,12 +206,12 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
   // Helper to get helper text with character limit
   const getHelperText = (field: string, value: string, customMessage?: string) => {
     const validationMap: any = {
-      countryCode: VALIDATION.COUNTRY_CODE,
-      categoryType: VALIDATION.CATEGORY_TYPE,
-      bopPurposeCode: VALIDATION.BOP_PURPOSE_CODE,
-      bopPurposeDescription: VALIDATION.BOP_PURPOSE_DESCRIPTION,
-      bopPurposeSubCode: VALIDATION.BOP_PURPOSE_SUB_CODE,
-      bopPurposeSubDescription: VALIDATION.BOP_PURPOSE_SUB_DESCRIPTION,
+      countryCode: VALIDATION_RULES.countryCode,
+      categoryType: VALIDATION_RULES.categoryType,
+      bopPurposeCode: VALIDATION_RULES.bopPurposeCode,
+      bopPurposeDescription: VALIDATION_RULES.bopPurposeDescription,
+      bopPurposeSubCode: VALIDATION_RULES.bopPurposeSubCode,
+      bopPurposeSubDescription: VALIDATION_RULES.bopPurposeSubDescription,
     }
 
     const validation = validationMap[field]
@@ -245,7 +231,7 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
           <Grid item xs={12}>
             <Autocomplete
               options={countries?.filter((c) => c.status === 'A') || []}
-              getOptionLabel={(option) => (option.countryName as string) || ''}
+              getOptionLabel={(o) => `${o.countryName} (${o.countryCode})`}
               disabled={!!editData}
               value={countries.find((c) => c.countryCode === form.countryCode) || null}
               onChange={(_, val) => {
@@ -298,7 +284,7 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
               }}
               error={!!errors.bopPurposeCode}
               helperText={errors.bopPurposeCode || getHelperText('bopPurposeCode', form.bopPurposeCode)}
-              inputProps={{ maxLength: VALIDATION.BOP_PURPOSE_CODE.maxLength }}
+              inputProps={{ maxLength: VALIDATION_RULES.bopPurposeCode.maxLength }}
             />
           </Grid>
 
@@ -314,7 +300,7 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
               }}
               error={!!errors.bopPurposeSubCode}
               helperText={errors.bopPurposeSubCode || getHelperText('bopPurposeSubCode', form.bopPurposeSubCode)}
-              inputProps={{ maxLength: VALIDATION.BOP_PURPOSE_SUB_CODE.maxLength }}
+              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*', maxLength: VALIDATION_RULES.bopPurposeSubCode.maxLength }}
             />
           </Grid>
 
@@ -332,7 +318,7 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
               }}
               error={!!errors.bopPurposeDescription}
               helperText={errors.bopPurposeDescription || getHelperText('bopPurposeDescription', form.bopPurposeDescription)}
-              inputProps={{ maxLength: VALIDATION.BOP_PURPOSE_DESCRIPTION.maxLength }}
+              inputProps={{ maxLength: VALIDATION_RULES.bopPurposeDescription.maxLength }}
             />
           </Grid>
 
@@ -350,7 +336,7 @@ export default function BopCategoryFormDialog({ open, onClose, editData, categor
               }}
               error={!!errors.bopPurposeSubDescription}
               helperText={errors.bopPurposeSubDescription || getHelperText('bopPurposeSubDescription', form.bopPurposeSubDescription)}
-              inputProps={{ maxLength: VALIDATION.BOP_PURPOSE_SUB_DESCRIPTION.maxLength }}
+              inputProps={{ maxLength: VALIDATION_RULES.bopPurposeSubDescription.maxLength }}
             />
           </Grid>
 

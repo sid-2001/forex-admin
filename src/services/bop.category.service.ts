@@ -11,7 +11,7 @@ export default class BopCategoryService {
   }
 
   async create(payload: any) {
-    const { data } = await api1.post('/api/static-table/bop-purpose-category-master/create', payload)
+    const data = await api1.post('/api/static-table/bop-purpose-category-master/create', payload)
     return data
   }
 

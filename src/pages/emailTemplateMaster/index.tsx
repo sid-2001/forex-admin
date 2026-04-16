@@ -72,7 +72,7 @@ export default function EmailTemplateManagement() {
         setErrMasage(res.message)
         return
       }
-      showAlert('Success', 'Created successfully')
+      showAlert('Success', res.message)
       setOpen(false)
       fetchData()
     } catch (err) {
