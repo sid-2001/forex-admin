@@ -199,6 +199,8 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
       const rule = VALIDATION_RULES[field as keyof typeof VALIDATION_RULES]
       const value = form[field as keyof typeof form]
 
+      console.log(rule, value, 'vvvvv')
+
       if (value) {
         // Max length validation
         //@ts-ignore
@@ -208,7 +210,17 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
 
         // Email pattern validation
         //@ts-ignore
-        if (field === 'fromEmail' && rule.pattern && !rule.pattern.test(value)) {
+        if (
+          (field === 'fromEmail' ||
+            field === 'fromName' ||
+            field === 'templateName' ||
+            field === 'emailSubject' ||
+            field === 'emailTemplateDescription') &&
+          //@ts-ignore
+          rule.pattern &&
+          //@ts-ignore
+          !rule.pattern.test(value)
+        ) {
           //@ts-ignore
           newErrors[field] = rule.patternMessage || 'Invalid email format'
         }
@@ -318,7 +330,7 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
               error={!!errors.templateName}
               helperText={errors.templateName}
               required
-              inputProps={{ maxLength: VALIDATION_RULES.templateName.max }}
+              inputProps={{ maxLength: VALIDATION_RULES.templateName.max, pattern: '[A-Za-z ]*' }}
             />
           </Grid>
 
@@ -332,7 +344,7 @@ export default function EmailTemplateMasterDialog({ open, onClose, onSubmit, edi
               required
               error={!!errors.fromName}
               helperText={errors.fromName}
-              inputProps={{ maxLength: VALIDATION_RULES.fromName.max }}
+              inputProps={{ maxLength: VALIDATION_RULES.fromName.max, pattern: '[A-Za-z ]*' }}
             />
           </Grid>
 

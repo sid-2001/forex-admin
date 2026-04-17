@@ -16,6 +16,7 @@ import { useEffect, useState } from 'react'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { ForexCountry } from '../../services/forextcoutnry.service'
 import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions'
+import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
 interface Props {
   open: boolean
@@ -60,6 +61,8 @@ const VALIDATION_RULES = {
     pattern: /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/i,
     patternMessage: 'Please enter a valid URL',
   },
+  effectiveToDate: { required: true, message: 'To Date is required' },
+  effectiveFromDate: { required: true, message: 'From Date is required' },
 }
 
 // Function to check if a string contains emoji
@@ -88,10 +91,18 @@ export default function ForexCountryDialog({ open, onClose, onSubmit, editData }
     countryFlag: '',
     countryFlagUrl: '',
     countryPhoneCode: '',
+    effectiveFromDate: '',
+    effectiveToDate: '',
   })
 
   const [errors, setErrors] = useState<any>({})
   const [flagPreview, setFlagPreview] = useState<string>('')
+
+  const formatDate = (dateStr: any) => {
+    if (!dateStr) return ''
+    const str = String(dateStr)
+    return str.includes('T') ? str.split('T')[0] : str
+  }
 
   useEffect(() => {
     if (editData && open) {
@@ -104,6 +115,8 @@ export default function ForexCountryDialog({ open, onClose, onSubmit, editData }
         countryFlag: editData.countryFlag || '',
         countryFlagUrl: editData.countryFlagUrl || '',
         countryPhoneCode: editData.countryPhoneCode || '',
+        effectiveFromDate: formatDate(editData.effectiveFromDate),
+        effectiveToDate: formatDate(editData.effectiveToDate),
       })
 
       // Set flag preview if exists
@@ -120,6 +133,8 @@ export default function ForexCountryDialog({ open, onClose, onSubmit, editData }
         countryFlag: '',
         countryFlagUrl: '',
         countryPhoneCode: '',
+        effectiveFromDate: '',
+        effectiveToDate: '',
       })
       setFlagPreview('')
     }
@@ -226,6 +241,19 @@ export default function ForexCountryDialog({ open, onClose, onSubmit, editData }
       }
     }
 
+    if (!form.effectiveFromDate) newErrors.effectiveFromDate = 'From Date is required'
+    if (!form.effectiveToDate) newErrors.effectiveToDate = 'To Date is required'
+
+    // Date validation: effectiveToDate must be after effectiveFromDate
+    if (form.effectiveFromDate && form.effectiveToDate) {
+      const fromDate = new Date(form.effectiveFromDate)
+      const toDate = new Date(form.effectiveToDate)
+
+      if (toDate <= fromDate) {
+        newErrors.effectiveToDate = 'Effective To date must be after Effective From date'
+      }
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -242,6 +270,8 @@ export default function ForexCountryDialog({ open, onClose, onSubmit, editData }
       active: form.active,
       status: form.active ? 'A' : 'I',
       createdBy: localService.get_staff_id(),
+      effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
+      effectiveToDate: `${form.effectiveToDate}T00:00:00`,
       ...(editData && { modifiedBy: localService.get_staff_id() }),
     }
 
@@ -381,6 +411,37 @@ export default function ForexCountryDialog({ open, onClose, onSubmit, editData }
               onChange={(e) => handleFieldChange('countryFlagUrl', e.target.value)}
               inputProps={{ maxLength: VALIDATION_RULES.countryFlagUrl.max }}
               placeholder="https://example.com/flag.png"
+            />
+          </Grid>
+
+          {/* Effective From Date */}
+          <Grid item xs={6}>
+            <DynamicDatePicker
+              label="Effective From"
+              value={form.effectiveFromDate}
+              onChange={(val: string) => {
+                setForm({ ...form, effectiveFromDate: val })
+                if (errors.effectiveFromDate) setErrors({ ...errors, effectiveFromDate: '' })
+              }}
+              error={!!errors.effectiveFromDate}
+              helperText={errors.effectiveFromDate}
+              required
+            />
+          </Grid>
+
+          {/* Effective To Date */}
+          <Grid item xs={6}>
+            <DynamicEndDatePicker
+              label="Effective To"
+              value={form.effectiveToDate}
+              minDate={form.effectiveFromDate}
+              onChange={(val: string) => {
+                setForm({ ...form, effectiveToDate: val })
+                if (errors.effectiveToDate) setErrors({ ...errors, effectiveToDate: '' })
+              }}
+              error={!!errors.effectiveToDate}
+              helperText={errors.effectiveToDate}
+              required
             />
           </Grid>
 

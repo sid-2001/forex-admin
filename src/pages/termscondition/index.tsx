@@ -11,8 +11,7 @@ import {
   Snackbar,
   Alert,
   Divider,
-  TextField,
-  Switch,
+  Checkbox,
   FormControlLabel,
   Select,
   MenuItem,
@@ -20,6 +19,7 @@ import {
   FormControl,
   Grid,
   IconButton,
+  FormHelperText,
 } from '@mui/material'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import ReactQuill from 'react-quill'
@@ -27,14 +27,12 @@ import 'react-quill/dist/quill.snow.css'
 import TermsConditionsService, { TermsConditions } from '../../services/termsandcondition.service'
 import { countyState } from '@/states/state'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import staticdataService from '@/services/staticdata.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import ChannelService from '@/services/channel.servive'
 import ScreenService from '@/services/screen.service'
 import { formatTableDate } from '@/helpers/dateformate'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 import EditIcon from '@mui/icons-material/Edit'
-import { Edit3Icon } from 'lucide-react'
 
 const termsService = new TermsConditionsService()
 
@@ -77,18 +75,31 @@ const QuillToolbar = () => (
   </div>
 )
 
+const VALIDATION_RULES = {
+  countryCode: {
+    message: 'Country code is required',
+    required: true,
+  },
+  channel: {
+    message: 'Channel is required',
+    required: true,
+  },
+  screen: {
+    message: 'Screen is required',
+    required: true,
+  },
+  effectiveToDate: { required: true, message: 'To Date is required' },
+  effectiveFromDate: { required: true, message: 'From Date is required' },
+}
+
 export default function TermsConditionsGridPage() {
   const [rows, setRows] = useState<TermsConditions[]>([])
   const [loading, setLoading] = useState(true)
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<TermsConditions | null>(null)
-  const [selectedCountry, setSelectedCountry] = useState<string>('')
-  const [selectedChannel, setSelectedChannel] = useState<string>('')
   const [screens, setScreens] = useState<any>([])
-  const [selectedScreen, setSelectedScreen] = useState<string>('')
   const [versions, setVersions] = useState<any[]>([])
   const [editorValue, setEditorValue] = useState('')
-  // const [countries, setCountries] = useRecoilState(countyState);
   const countries = useRecoilValue(countyState)
   const [channels, setChannels] = useState([])
   const [form, setForm] = useState({
@@ -100,13 +111,14 @@ export default function TermsConditionsGridPage() {
     version: '1.0',
     active: true,
     effectiveFromDate: '',
-    effectiveToDate: '9999-12-31T00:00:00',
+    effectiveToDate: '',
   })
   const [errors, setErrors] = useState<any>({})
 
   const local_service = new LocalStorageService()
+  const channel_service = new ChannelService()
+  const screen_service = new ScreenService()
   const userCountry = local_service?.get_staff_country()
-  const static_service = new staticdataService()
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -124,35 +136,6 @@ export default function TermsConditionsGridPage() {
     fetchchannel()
   }, [])
 
-  const handleCountryChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    const countryCode = event.target.value as string
-    setSelectedCountry(countryCode)
-    const selectedCountryObj = countries.find((country) => country.countryCode == countryCode)
-    console.log('selected', selectedCountryObj)
-  }
-
-  const handleChannelChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    const channelCode = event.target.value as string
-    setSelectedChannel(channelCode)
-    const selectedChannelObj = channels.find(
-      (channel) =>
-        //@ts-ignore
-        channel.channel_code == channelCode,
-    )
-    console.log('selected', selectedChannelObj)
-  }
-
-  const handleScreenChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    const screenCode = event.target.value as string
-    setSelectedScreen(screenCode)
-    const selectedScreenObj = screens.find(
-      (screen: any) =>
-        //@ts-ignore
-        screen.screencode == screenCode,
-    )
-    console.log('selected', selectedScreenObj)
-  }
-
   const loadData = async () => {
     try {
       setLoading(true)
@@ -166,12 +149,8 @@ export default function TermsConditionsGridPage() {
 
   const fetchScreens = async () => {
     try {
-      const screen_service = new ScreenService()
-      screen_service.getScreenList().then((e) => {
-        console.log(e)
-        setScreens(e)
-        console.log(e, 'bhanu')
-      })
+      const res = await screen_service.getScreenList()
+      setScreens(res)
       setLoading(true)
     } catch {
       showError('Failed to load Screens')
@@ -182,12 +161,9 @@ export default function TermsConditionsGridPage() {
 
   const fetchchannel = async () => {
     try {
-      const channel_service = new ChannelService()
       setLoading(true)
-      channel_service.getChannelList().then((data) => {
-        console.log(data)
-        setChannels(data as any)
-      })
+      const data = await channel_service.getChannelList()
+      setChannels(data as any)
     } catch {
       showError('Failed to load Channels')
     } finally {
@@ -204,11 +180,6 @@ export default function TermsConditionsGridPage() {
     setVersions(parsed.editorData || [])
     setEditorValue(active ? cleanHtml(active.data) : '')
 
-    // Update selected dropdowns
-    setSelectedCountry(row.countryCode || '')
-    setSelectedChannel(row.channel || '')
-    setSelectedScreen(row.screen || '')
-
     setForm({
       countryCode: row.countryCode || '',
       channel: row.channel || '',
@@ -224,20 +195,45 @@ export default function TermsConditionsGridPage() {
     setOpen(true)
   }
 
+  const handleChange = (field: string, value: any) => {
+    console.log(field, value)
+    setForm((prev: any) => ({ ...prev, [field]: value }))
+    // Clear error for this field
+    if (errors[field]) {
+      setErrors((prev: any) => ({ ...prev, [field]: '' }))
+    }
+  }
+
+  const validate = () => {
+    const newErrors: any = {}
+
+    Object.keys(VALIDATION_RULES).forEach((field) => {
+      const rule = VALIDATION_RULES[field as keyof typeof VALIDATION_RULES]
+      const value = form[field as keyof typeof form]
+
+      if (!value && rule.required) newErrors[field] = rule.message
+    })
+
+    // Date validation: effectiveToDate must be after effectiveFromDate
+    if (form.effectiveFromDate && form.effectiveToDate) {
+      const fromDate = new Date(form.effectiveFromDate)
+      const toDate = new Date(form.effectiveToDate)
+
+      if (toDate <= fromDate) {
+        newErrors.effectiveToDate = 'Effective To date must be after Effective From date'
+      }
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   /* ---------- CREATE ---------- */
   const handleCreate = async () => {
+    if (!validate()) return
     try {
-      // Validation
-      if (!selectedCountry || !selectedChannel || !selectedScreen || !form.effectiveFromDate) {
-        showError('Please fill all required fields')
-        return
-      }
-
       const payload = {
         ...form,
-        countryCode: selectedCountry,
-        channel: selectedChannel,
-        screen: selectedScreen,
         jsonContent: JSON.stringify({
           editorData: [
             {
@@ -248,14 +244,15 @@ export default function TermsConditionsGridPage() {
             },
           ],
         }),
-        createdBy: 'ADMIN',
+        createdBy: local_service.get_staff_id(),
       }
 
-    let res=  await termsService.create(payload)
-    console.log(res)
-      showSuccess(res?.message)
-      setOpen(false)
-      loadData()
+      let res = await termsService.create(payload)
+      if (res?.status) {
+        showSuccess(res?.message)
+        setOpen(false)
+        loadData()
+      }
     } catch {
       showError('Create failed Server Error')
     }
@@ -264,14 +261,9 @@ export default function TermsConditionsGridPage() {
   /* ---------- UPDATE ---------- */
   const handleUpdate = async () => {
     if (!selected) return
+    if (!validate()) return
 
     try {
-      // Validation
-      if (!selectedCountry || !selectedChannel || !selectedScreen || !form.effectiveFromDate) {
-        showError('Please fill all required fields')
-        return
-      }
-
       const updatedVersions = versions.map((v) => ({ ...v, active: false }))
       updatedVersions.push({
         id: `v${updatedVersions.length + 1}`,
@@ -280,12 +272,9 @@ export default function TermsConditionsGridPage() {
         updatedAt: new Date().toISOString(),
       })
 
-     let res= await termsService.update(selected.termsCode!, {
+      let res = await termsService.update(selected.termsCode!, {
         ...selected,
         ...form,
-        countryCode: selectedCountry,
-        channel: selectedChannel,
-        screen: selectedScreen,
         jsonContent: JSON.stringify({ editorData: updatedVersions }),
         modifiedBy: local_service.get_staff_id(),
       })
@@ -322,41 +311,38 @@ export default function TermsConditionsGridPage() {
     //     return (params.value)
     //   }
     // },
-   {
-  field: 'effective_from_date',
-  headerName: 'Effective From',
-  flex: 1,
-  minWidth: 150,
- headerClassName: 'super-app-theme--header',
-  //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivefromdate || row?.effectiveFromDate
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 1,
+      minWidth: 150,
+      headerClassName: 'super-app-theme--header',
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivefromdate || row?.effectiveFromDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
-{
-  field: 'effective_to_date',
-  headerName: 'Effective To',
-  flex: 1,
-   headerClassName: 'super-app-theme--header',
-  minWidth: 150,
-   //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivetodate || row?.effectiveToDate
+        return date ? formatTableDate(date) : ''
+      },
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      minWidth: 150,
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivetodate || row?.effectiveToDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
+        return date ? formatTableDate(date) : ''
+      },
+    },
     {
       field: 'actions',
       headerName: 'Actions',
       width: 80,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
-   
         <IconButton color="primary" onClick={() => handleView(params.row)}>
           <EditIcon />
         </IconButton>
@@ -370,7 +356,7 @@ export default function TermsConditionsGridPage() {
     //   renderCell: (params) => (
     //     <Button size="small" onClick={() => handleView(params.row)}>
     //       <Edit3Icon></Edit3Icon>
-        
+
     //     </Button>
     //   ),
     // },
@@ -386,9 +372,9 @@ export default function TermsConditionsGridPage() {
             setSelected(null)
             setVersions([])
             setEditorValue('')
-            setSelectedCountry('')
-            setSelectedChannel('')
-            setSelectedScreen('')
+            // setSelectedCountry('')
+            // setSelectedChannel('')
+            // setSelectedScreen('')
             setForm({
               countryCode: '',
               channel: '',
@@ -398,7 +384,7 @@ export default function TermsConditionsGridPage() {
               version: '1.0',
               active: true,
               effectiveFromDate: '',
-              effectiveToDate: '9999-12-31T00:00:00',
+              effectiveToDate: '',
             })
             setOpen(true)
           }}
@@ -430,175 +416,158 @@ export default function TermsConditionsGridPage() {
         <DialogTitle>{selected ? 'Edit Terms' : 'Create Terms'}</DialogTitle>
 
         <DialogContent dividers>
-          <Stack spacing={2} sx={{ mt: 1 }}>
-            {/* Country Selection */}
-            <FormControl fullWidth>
-              <InputLabel>Destination Country *</InputLabel>
-              <Select
-                value={selectedCountry}
-                //@ts-ignore
-                onChange={handleCountryChange}
-                label="Destination Country *"
-              >
-                {countries
-                  ?.filter((item) => item.status === 'A' && item.countryCode !== userCountry)
-                  .map((country) => (
-                    <MenuItem
-                      //@ts-ignore
-                      key={country.countryCode}
-                      value={country.countryCode}
-                    >
-                      <Typography>{country.countryName}</Typography>
-                    </MenuItem>
-                  ))}
-              </Select>
-            </FormControl>
-
-            {/* Channel Selection */}
-            <FormControl fullWidth>
-              <InputLabel>Channel *</InputLabel>
-              <Select
-                value={selectedChannel}
-                //@ts-ignore
-                onChange={handleChannelChange}
-                label="Channel *"
-              >
-                {channels ? (
-                  channels
-                    ?.filter(
-                      (item) =>
-                        //@ts-ignore
-                        item.active === true,
-                    )
-                    .map((channel) => (
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid item xs={12}>
+              {/* Country Selection */}
+              <FormControl fullWidth required error={!!errors.countryCode}>
+                <InputLabel>Destination Country</InputLabel>
+                <Select
+                  value={form?.countryCode}
+                  onChange={(e: any) => handleChange('countryCode', e.target.value || '')}
+                  label="Destination Country"
+                >
+                  {countries
+                    ?.filter((item) => item.status === 'A' && item.countryCode !== userCountry)
+                    .map((country: any, index: number) => (
                       <MenuItem
                         //@ts-ignore
-                        key={channel.channel_code}
-                        //@ts-ignore
-                        value={channel.channel_code}
+                        key={index}
+                        value={country.countryCode}
                       >
                         <Typography>
-                          {
-                            //@ts-ignore
-                            channel.channel_code
-                          }
+                          {country.countryName} ({country.countryCode})
                         </Typography>
                       </MenuItem>
-                    ))
-                ) : (
-                  <></>
-                )}
-              </Select>
-            </FormControl>
-
-            {/* Screen Selection */}
-            <FormControl fullWidth>
-              <InputLabel>Screen *</InputLabel>
-              <Select
-                value={selectedScreen}
-                //@ts-ignore
-                onChange={handleScreenChange}
-                label="Screen *"
-              >
-                {screens
-                  ?.filter(
-                    (item: any) =>
-                      //@ts-ignore
-                      item.Active === true,
-                      //@ts-ignore
-                  
-                  )
-                  .map((screen: any) => (
-                    <MenuItem key={screen.ScreenCode} value={screen.ScreenCode}>
-                      <Typography>{screen.ScreenCode}</Typography>
-                    </MenuItem>
-                  ))}
-              </Select>
-            </FormControl>
-
-            {/* Effective Date Fields */}
-            <Grid container spacing={2}>
-              {/* <Grid item xs={6}>
-                <TextField
-                  fullWidth
-                  label="Effective From *"
-                  type="date"
-                  value={form.effectiveFromDate ? form.effectiveFromDate.split('T')[0] : ''}
-                  onChange={(e) => setForm({ ...form, effectiveFromDate: e.target.value + 'T00:00:00' })}
-                  InputLabelProps={{ shrink: true }}
-                  required
-                />
-              </Grid> */}
-              <Grid item xs={6}>
-                <DynamicDatePicker
-                  label="Effective From"
-                  value={form.effectiveFromDate ? form.effectiveFromDate.split('T')[0] : ''}
-                  onChange={(val: string) => {
-                    console.log(val, 'kdjhchdvy')
-                    setForm({
-                      ...form,
-                      effectiveFromDate: val ? `${val}T00:00:00` : '',
-                    })
-                  }}
-                  error={!!errors.effectiveFromDate}
-                  helperText={errors.effectiveFromDate}
-                  required
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <DynamicEndDatePicker
-                  label="Effective To"
-                  value={form.effectiveToDate && form.effectiveToDate !== '9999-12-31T00:00:00' ? form.effectiveToDate.split('T')[0] : ''}
-                  minDate={form.effectiveFromDate ? form.effectiveFromDate.split('T')[0] : undefined}
-                  onChange={(val: string) => {
-                    setForm({
-                      ...form,
-                      effectiveToDate: val ? `${val}T00:00:00` : '9999-12-31T00:00:00',
-                    })
-                  }}
-                  required
-                />
-              </Grid>
-
-              {/* <Grid item xs={6}>
-                <TextField
-                  fullWidth
-                  label="Effective To"
-                  type="date"
-                  value={form.effectiveToDate && form.effectiveToDate !== '9999-12-31T00:00:00' ? form.effectiveToDate.split('T')[0] : ''}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      effectiveToDate: e.target.value ? e.target.value + 'T00:00:00' : '9999-12-31T00:00:00',
-                    })
-                  }
-                  InputLabelProps={{ shrink: true }}
-                  inputProps={{
-                    min: form.effectiveFromDate ? form.effectiveFromDate.split('T')[0] : undefined,
-                  }}
-                />
-              </Grid> */}
+                    ))}
+                </Select>
+                <FormHelperText>{errors?.countryCode}</FormHelperText>
+              </FormControl>
             </Grid>
 
-            {/* Active Switch */}
-            <FormControlLabel
-              control={<Switch checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />}
-              label="Active"
-            />
+            <Grid item xs={12}>
+              {/* Channel Selection */}
+              <FormControl fullWidth required error={!!errors.channel}>
+                <InputLabel>Channel</InputLabel>
+                <Select value={form?.channel} onChange={(e: any) => handleChange('channel', e.target.value || '')} label="Channel">
+                  {channels ? (
+                    channels
+                      ?.filter(
+                        (item) =>
+                          //@ts-ignore
+                          item.active === true,
+                      )
+                      .map((channel: any, index: number) => (
+                        <MenuItem
+                          //@ts-ignore
+                          key={index}
+                          //@ts-ignore
+                          value={channel.channel_code}
+                        >
+                          <Typography>
+                            {
+                              //@ts-ignore
+                              channel.channel_code
+                            }
+                          </Typography>
+                        </MenuItem>
+                      ))
+                  ) : (
+                    <></>
+                  )}
+                </Select>
+                <FormHelperText>{errors?.channel}</FormHelperText>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12}>
+              {/* Screen Selection */}
+              <FormControl fullWidth required error={!!errors.screen}>
+                <InputLabel>Screen</InputLabel>
+                <Select value={form?.screen} onChange={(e: any) => handleChange('screen', e.target.value || '')} label="Screen">
+                  {screens
+                    ?.filter(
+                      (item: any) =>
+                        //@ts-ignore
+                        item.Active === true,
+                      //@ts-ignore
+                    )
+                    .map((screen: any, index: number) => (
+                      <MenuItem key={index} value={screen.ScreenCode}>
+                        <Typography>{screen.ScreenCode}</Typography>
+                      </MenuItem>
+                    ))}
+                </Select>
+                <FormHelperText>{errors.screen}</FormHelperText>
+              </FormControl>
+            </Grid>
+
+            {/* Effective From Date */}
+            <Grid item xs={6}>
+              <DynamicDatePicker
+                label="Effective From"
+                value={form.effectiveFromDate}
+                onChange={(val: string) => {
+                  setForm({ ...form, effectiveFromDate: val })
+                  if (errors.effectiveFromDate) setErrors({ ...errors, effectiveFromDate: '' })
+                }}
+                error={!!errors.effectiveFromDate}
+                helperText={errors.effectiveFromDate}
+                required
+              />
+            </Grid>
+
+            {/* Effective To Date */}
+            <Grid item xs={6}>
+              <DynamicEndDatePicker
+                label="Effective To"
+                value={form.effectiveToDate}
+                minDate={form.effectiveFromDate}
+                onChange={(val: string) => {
+                  setForm({ ...form, effectiveToDate: val })
+                  if (errors.effectiveToDate) setErrors({ ...errors, effectiveToDate: '' })
+                }}
+                error={!!errors.effectiveToDate}
+                helperText={errors.effectiveToDate}
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={form.active}
+                    onChange={(e) => {
+                      setForm({ ...form, active: e.target.checked })
+                      if (errors.active) setErrors({ ...errors, active: '' })
+                    }}
+                  />
+                }
+                label="Active"
+              />
+            </Grid>
 
             <Divider />
 
-            {/* Rich Text Editor */}
-            <Typography variant="subtitle2">Content *</Typography>
-            <QuillToolbar />
-            <ReactQuill theme="snow" value={editorValue} onChange={setEditorValue} modules={{ toolbar: '#quill-toolbar' }} style={{ height: 250 }} />
-          </Stack>
+            <Grid item xs={12}>
+              {/* Rich Text Editor */}
+              <Typography variant="subtitle2">Content</Typography>
+              <QuillToolbar />
+              <ReactQuill
+                theme="snow"
+                value={editorValue}
+                onChange={setEditorValue}
+                modules={{ toolbar: '#quill-toolbar' }}
+                style={{ height: 250 }}
+              />
+            </Grid>
+          </Grid>
         </DialogContent>
 
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
           <Button variant="contained" onClick={selected ? handleUpdate : handleCreate}>
-            {selected ? 'Save Changes' : 'Create'}
+            {selected ? 'Update' : 'Create'}
           </Button>
         </DialogActions>
       </Dialog>
