@@ -390,6 +390,7 @@ const CountryCorridorPage: React.FC = () => {
     setLoading(true)
     try {
       let res = await corridorService.createCorridor(payload)
+      console.log(res, 'response')
       //@ts-ignore
       showSnackbar(`${res.message}`)
       setOpenCreateDialog(false)
@@ -814,7 +815,7 @@ const CountryCorridorPage: React.FC = () => {
             <Grid item xs={12}>
               <FormControlLabel
                 control={<Checkbox checked={formData.active} onChange={(e) => setFormData({ ...formData, active: e.target.checked })} />}
-                label="Active Status"
+                label="Active"
               />
             </Grid>
 

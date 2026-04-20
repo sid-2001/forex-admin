@@ -138,17 +138,9 @@ export default function GenderMaster() {
           ...(isUpdate
             ? {
                 modifiedby: staffId,
-                modified_local_date_time: audit.localDateTime,
-                Modified_UTCDateTime: audit.utcDateTime,
-                modified_time: audit.timeZone,
-                modified_off: audit.offset,
               }
             : {
                 createdby: staffId,
-                created_local_date_time: audit.localDateTime,
-                Created_UTCDateTime: audit.utcDateTime,
-                created_time: audit.timeZone,
-                created_off: audit.offset,
               }),
         }
 

@@ -18,7 +18,7 @@ export interface Channel {
   modified_off: string | null
   utcdatetime: string | null
 }
- const url = '/api/bop/channel/getAllchannels'
+const url = '/api/bop/channel/getAllchannels'
 
 export default class ChannelService extends BaseService {
   /**
@@ -57,7 +57,7 @@ export default class ChannelService extends BaseService {
     // const url = '/api/bop/channel/create'
     const url = '/api/bop/channel/create'
     try {
-      const { data } = await api1.post(url, payload)
+      const data = await api1.post(url, payload)
       return data
     } catch (err) {
       return err as any
@@ -67,17 +67,11 @@ export default class ChannelService extends BaseService {
   /**
    * Update Channel
    */
-  async updateChannel(payload: {
-    applicant_id: string
-    channel_code: string
-    country_code: string
-    channel_description: string
-  }): Promise<{
+  async updateChannel(payload: { applicant_id: string; channel_code: string; country_code: string; channel_description: string }): Promise<{
     status: boolean
     message: string
   }> {
     const url = '/api/bop/channel/update'
-    // const url = '/api/bop/channel/update'
     try {
       const { data } = await api1.put(url, payload)
       return data
@@ -89,17 +83,14 @@ export default class ChannelService extends BaseService {
   /**
    * Delete Channel
    */
-  async deleteChannel(payload: {
-    channel_code: string
-    country_code: string
-  }): Promise<{
+  async deleteChannel(payload: { channel_code: string; country_code: string }): Promise<{
     status: boolean
     message: string
   }> {
     // const url = '/api/bop/channel/delete'
     const url = '/api/bop/channel/delete'
     try {
-      const { data } = await api1.del(url,  payload )
+      const { data } = await api1.del(url, payload)
       return data
     } catch (err) {
       return err as any
@@ -109,11 +100,7 @@ export default class ChannelService extends BaseService {
   /**
    * Toggle Channel Active Status (optional – if API exists)
    */
-  async toggleChannelActive(payload: {
-    channel_code: string
-    country_code: string
-    activeStatus: boolean
-  }): Promise<{
+  async toggleChannelActive(payload: { channel_code: string; country_code: string; activeStatus: boolean }): Promise<{
     status: boolean
     message: string
   }> {
