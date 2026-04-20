@@ -87,11 +87,11 @@ export default function KycDocumentTypeFormDialog({ open, onClose, editData, onS
   }, [editData, open])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, checked, type } = e.target
+    const { name, value } = e.target
 
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: value,
     }))
   }
 
@@ -248,7 +248,10 @@ export default function KycDocumentTypeFormDialog({ open, onClose, editData, onS
 
             {/* ACTIVE STATUS */}
             <Grid item xs={12}>
-              <FormControlLabel control={<Checkbox checked={formData.active} onChange={handleChange} />} label="Active" />
+              <FormControlLabel
+                control={<Checkbox checked={formData.active} onChange={(e) => setFormData({ ...formData, active: e.target.checked })} />}
+                label="Active"
+              />
             </Grid>
           </Grid>
         </Stack>
