@@ -61,7 +61,7 @@ export default function UrlTypeFormDialog({ open, onClose, editData, refreshList
       ...form,
       effectiveFromDate: `${form.effectiveFromDate}T00:00:00Z`,
       effectiveToDate: `${form.effectiveToDate}T00:00:00Z`,
-      createdBy: editData ? null : localService.get_staff_id(),
+      createdBy: editData ? null : local_service.get_staff_id(),
     }
     if (editData) {
       payload.modifiedBy = staffData?.staffId

@@ -63,26 +63,26 @@ const AuditLogTable: React.FC = () => {
     } else {
       setlogType(logtype)
     }
-    fetchAuditListingData()
+    // fetchAuditListingData()
   }, [logType, paginationModel])
 
-  const fetchAuditListingData = useCallback(async () => {
-    try {
-      setIsLoading(true)
-      const { page, pageSize } = paginationModel
-      const response = await auditLogService.getAuditLogsListing(logType, page, pageSize)
-      setAuditLogData(response.data)
-      setRowCount(response?.totalItems)
-      // setPaginationModel({
-      //   page: 0,
-      //   pageSize: response?.totalPages,
-      // })
+  // const fetchAuditListingData = useCallback(async () => {
+  //   try {
+  //     setIsLoading(true)
+  //     const { page, pageSize } = paginationModel
+  //     const response = await auditLogService.getAuditLogsListing(logType, page, pageSize)
+  //     setAuditLogData(response.data)
+  //     setRowCount(response?.totalItems)
+  //     // setPaginationModel({
+  //     //   page: 0,
+  //     //   pageSize: response?.totalPages,
+  //     // })
 
-      setIsLoading(false)
-    } catch (error) {
-      console.error('There was a problem with the fetch operation:', error)
-    }
-  }, [logType, paginationModel])
+  //     setIsLoading(false)
+  //   } catch (error) {
+  //     console.error('There was a problem with the fetch operation:', error)
+  //   }
+  // }, [logType, paginationModel])
 
   // handle page or pageSize change
   const handlePaginationChange = (newModel: GridPaginationModel) => {
