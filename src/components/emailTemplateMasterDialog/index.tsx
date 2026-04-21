@@ -44,7 +44,7 @@ const VALIDATION_RULES = {
     max: 100,
     message: 'Email cannot exceed 100 characters',
     required: true,
-    pattern: /\S+@\S+\.\S+/,
+    pattern: /^(?!.*\.\.)(?!.*\.$)[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
     patternMessage: 'Invalid email format',
   },
   effectiveToDate: { required: true, message: 'To Date is required' },
