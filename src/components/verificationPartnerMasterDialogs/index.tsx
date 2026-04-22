@@ -22,6 +22,18 @@ const filter = createFilterOptions({
   stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
 })
 
+const VALIDATION_RULES = {
+  countryCode: { message: 'Country code is required', required: true },
+  effectiveToDate: { required: true, message: 'To Date is required' },
+  effectiveFromDate: { required: true, message: 'From Date is required' },
+  verificationPartnerDescription: {
+    pattern: /^[A-Za-z\s]+$/,
+    patternMessage: 'Only alphabets allowed',
+    required: true,
+    message: 'Description is required',
+  },
+}
+
 export default function VerificationPartnerMasterDialog({
   open,
   onClose,
@@ -78,11 +90,27 @@ export default function VerificationPartnerMasterDialog({
 
   const validate = () => {
     const newErrors: any = {}
-    const requiredFields = ['countryCode', 'verificationPartnerDescription', 'effectiveFromDate', 'effectiveToDate']
 
-    requiredFields.forEach((field) => {
-      if (!form[field as keyof typeof form]) {
-        newErrors[field] = 'Required'
+    Object.keys(VALIDATION_RULES).forEach((field) => {
+      const rule = VALIDATION_RULES[field as keyof typeof VALIDATION_RULES]
+      const value = form[field as keyof typeof form]
+      if (value) {
+        // Max length validation
+        //@ts-ignore
+        if (rule.max && value.length > rule.max) {
+          newErrors[field] = rule.message
+        }
+
+        //@ts-ignore
+        if (field === 'verificationPartnerDescription' && rule.pattern && !rule.pattern.test(value)) {
+          //@ts-ignore
+          newErrors[field] = rule.patternMessage
+        }
+      } else if (
+        //@ts-ignore
+        rule.required
+      ) {
+        newErrors[field] = 'This field is required'
       }
     })
 

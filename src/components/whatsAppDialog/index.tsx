@@ -17,7 +17,11 @@ const VALIDATION_RULES = {
     required: true,
     min: 3,
     minMessage: 'Description must be at least 3 characters',
+    pattern: /^[A-Za-z\s]+$/,
+    patternMessage: 'Only alphabets allowed',
   },
+  toDate: { required: true, message: 'To Date is required' },
+  fromDate: { required: true, message: 'From Date is required' },
 }
 
 interface Props {
@@ -118,50 +122,36 @@ export default function WhatsappTemplateDialog({ open, onClose, onSubmit, editDa
   const validate = () => {
     const newErrors: any = {}
 
-    // Country Code validation
-    if (!form.countryCode) {
-      newErrors.countryCode = 'Country is required'
-    } else if (form.countryCode.length > VALIDATION_RULES.countryCode.max) {
-      newErrors.countryCode = VALIDATION_RULES.countryCode.message
-    }
+    Object.keys(VALIDATION_RULES).forEach((field) => {
+      const rule = VALIDATION_RULES[field as keyof typeof VALIDATION_RULES]
+      const value = form[field as keyof typeof form]
+      if (value) {
+        // Max length validation
+        //@ts-ignore
+        if (rule.max && value.length > rule.max) {
+          newErrors[field] = rule.message
+        }
 
-    // Description validation
-    if (!form.description.trim()) {
-      newErrors.description = 'Description is required'
-    } else {
-      const desc = form.description.trim()
-      if (desc.length < VALIDATION_RULES.description.min) {
-        newErrors.description = VALIDATION_RULES.description.minMessage
-      } else if (desc.length > VALIDATION_RULES.description.max) {
-        newErrors.description = VALIDATION_RULES.description.message
+        //@ts-ignore
+        if (field === 'description' && rule.pattern && !rule.pattern.test(value)) {
+          //@ts-ignore
+          newErrors[field] = rule.patternMessage
+        }
+      } else if (
+        //@ts-ignore
+        rule.required
+      ) {
+        newErrors[field] = 'This field is required'
       }
-    }
+    })
 
-    // Date validations
-    if (!form.fromDate) {
-      newErrors.fromDate = 'Effective From date is required'
-    }
-
-    if (!form.toDate) {
-      newErrors.toDate = 'Effective To date is required'
-    }
-
-    // Date range validation
+    // Date validation: effectiveToDate must be after effectiveFromDate
     if (form.fromDate && form.toDate) {
       const fromDate = new Date(form.fromDate)
       const toDate = new Date(form.toDate)
 
-      // Check if dates are valid
-      if (isNaN(fromDate.getTime())) {
-        newErrors.fromDate = 'Invalid date format'
-      }
-      if (isNaN(toDate.getTime())) {
-        newErrors.toDate = 'Invalid date format'
-      }
-
-      // Check if toDate is after fromDate
-      if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime()) && toDate <= fromDate) {
-        newErrors.toDate = 'Effective To date must be after Effective From date'
+      if (toDate <= fromDate) {
+        newErrors.effectiveToDate = 'Effective To date must be after Effective From date'
       }
     }
 

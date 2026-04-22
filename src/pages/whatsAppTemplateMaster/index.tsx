@@ -65,7 +65,7 @@ export default function WhatsappTemplateManagement() {
         : await templateService.createTemplate(payload)
 
       if (res.status !== false) {
-        showAlert('Success', `${res?.mess || res?.message || 'Operation completed successfully'}`)
+        showAlert('Success', `${res?.message || 'Operation completed successfully'}`)
         setOpen(false)
         setEditData(null)
         setIsFormChanged(false)
