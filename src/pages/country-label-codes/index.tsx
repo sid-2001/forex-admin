@@ -12,7 +12,6 @@ import {
   Alert,
   Divider,
   TextField,
-  Switch,
   FormControlLabel,
   Select,
   MenuItem,
@@ -32,6 +31,7 @@ import {
   TableRow,
   CircularProgress,
   Autocomplete,
+  Checkbox,
 } from '@mui/material'
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
 import {
@@ -665,7 +665,7 @@ export default function CountryLabelCodesGridPage() {
 
             {/* Country Code */}
             <FormControl fullWidth required>
-              <InputLabel>Country Code *</InputLabel>
+              <InputLabel>Country Code</InputLabel>
               <Select value={form.countryCode} label="Country Code *" onChange={(e) => handleCountryChange(e.target.value)}>
                 {countries
                   .filter((country) => country.status === 'A')
@@ -688,10 +688,10 @@ export default function CountryLabelCodesGridPage() {
 
             {/* Rail Payout Mapping Code */}
             <FormControl fullWidth required>
-              <InputLabel>Rail Payout Mapping Code *</InputLabel>
+              <InputLabel>Rail Payout Mapping Code</InputLabel>
               <Select
                 value={form.railPayoutMappingCode}
-                label="Rail Payout Mapping Code *"
+                label="Rail Payout Mapping Code"
                 onChange={(e) => setForm({ ...form, railPayoutMappingCode: e.target.value })}
                 startAdornment={
                   form.railPayoutMappingCode && (
@@ -749,10 +749,10 @@ export default function CountryLabelCodesGridPage() {
 
             {/* Country Reporting Code (BOP Category) */}
             <FormControl fullWidth required>
-              <InputLabel>Country Reporting Code (BOP Category) *</InputLabel>
+              <InputLabel>Country Reporting Code (BOP Category)</InputLabel>
               <Select
                 value={form.countryReportingCode}
-                label="Country Reporting Code (BOP Category) *"
+                label="Country Reporting Code (BOP Category)"
                 onChange={(e) => setForm({ ...form, countryReportingCode: e.target.value })}
                 startAdornment={
                   form.countryReportingCode && (
@@ -800,8 +800,8 @@ export default function CountryLabelCodesGridPage() {
 
             {/* Channel */}
             <FormControl fullWidth required>
-              <InputLabel>Channel *</InputLabel>
-              <Select value={form.channel} label="Channel *" onChange={(e) => setForm({ ...form, channel: e.target.value })}>
+              <InputLabel>Channel </InputLabel>
+              <Select value={form.channel} label="Channel" onChange={(e) => setForm({ ...form, channel: e.target.value })}>
                 {channels
                   .filter((ch: any) => ch.active === true)
                   .map((channel: any) => (
@@ -815,21 +815,21 @@ export default function CountryLabelCodesGridPage() {
             <Divider>Effective Dates</Divider>
 
             {/* Effective Dates */}
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
+
+            <Box sx={{ display: 'flex' }}>
+              <FormControl required sx={{ width: '50%', marginRight: '8px' }}>
                 <DynamicDatePicker
                   label="Effective From"
                   value={form.effectiveFromDate}
                   onChange={(val: string) => {
-                    console.log(val, 'kdjhchdvy')
                     setForm({ ...form, effectiveFromDate: val })
                   }}
                   minDate={new Date().toISOString().split('T')[0]}
                   required
                 />
-              </Grid>
+              </FormControl>
 
-              <Grid item xs={6}>
+              <FormControl required sx={{ width: '50%', marginLeft: '8px' }}>
                 <DynamicEndDatePicker
                   label="Effective To"
                   value={form.effectiveToDate}
@@ -839,12 +839,13 @@ export default function CountryLabelCodesGridPage() {
                   }}
                   required
                 />
-              </Grid>
-            </Grid>
+              </FormControl>
+            </Box>
 
             {/* Active Status */}
+
             <FormControlLabel
-              control={<Switch checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />}
+              control={<Checkbox checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />}
               label="Active"
             />
 

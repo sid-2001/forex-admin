@@ -238,31 +238,18 @@ export default function CountryBusinessPayoutPartnerFormDialog({
     // Generate code for new records if not provided
     const payload = {
       ...form,
-      countryBusinessPayoutPartnerCode: form.countryBusinessPayoutPartnerCode || `PAY${Date.now()}`,
+      countryBusinessPayoutPartnerCode: form.countryBusinessPayoutPartnerCode,
       effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
       effectiveToDate: `${form.effectiveToDate}T00:00:00`,
-      // modified_by: staffId,
-      // modifiedLocalDateTime: now.split('.')[0],
-      // modifiedTimeZone: timeZone,
-      // modifiedOffset: offset,
-      // modifiedUtcDateTime: new Date().toISOString(),
     }
 
     if (!editData) {
       Object.assign(payload, {
         createdBy: staffId,
-        // createdLocalDateTime: now.split('.')[0],
-        // createdTimeZone: timeZone,
-        // createdOffset: offset,
-        // createdUtcDateTime: new Date().toISOString(),
       })
     } else {
       Object.assign(payload, {
         modifiedBy: staffId,
-        // createdLocalDateTime: now.split('.')[0],
-        // createdTimeZone: timeZone,
-        // createdOffset: offset,
-        // createdUtcDateTime: new Date().toISOString(),
       })
     }
 
