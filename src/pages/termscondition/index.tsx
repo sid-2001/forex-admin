@@ -245,6 +245,8 @@ export default function TermsConditionsGridPage() {
           ],
         }),
         createdBy: local_service.get_staff_id(),
+        effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
+        effectiveToDate: `${form.effectiveToDate}T00:00:00`,
       }
 
       let res = await termsService.create(payload)

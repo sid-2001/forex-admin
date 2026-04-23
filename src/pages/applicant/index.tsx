@@ -14,6 +14,7 @@ import BeneficiaryTable from '@/components/beneficiary-table'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { FieldValidationService } from '@/services/fieldvalidstion.service'
 import { CountryLabelData, CountryReportingLabelDTO } from '@/types/field.validation.type'
+import { ConsoleLogger } from '@/helpers/logger'
 
 const ApplicantPage = () => {
   const navigate = useNavigate()
@@ -24,7 +25,7 @@ const ApplicantPage = () => {
   const local_service = new LocalStorageService()
   const kyc_service = new KycService()
   const validation = new FieldValidationService()
-  
+
   const [selectedTab, setSelectedTab] = useState(0)
   const [transactions, setTransactions] = useState<any[]>([])
   const [utilizedLimit, setutilizedLimit] = useState(0)
@@ -35,7 +36,7 @@ const ApplicantPage = () => {
   const [applicantDocuments, setApplicantDocuments] = useState<any[]>([])
   const [applicantDetails, setApplicantDetails] = useState<any>({})
   const [kycId, setKycId] = useState<string | null>(null)
-  
+
   // Field validation states
   const [fieldValidations, setFieldValidations] = useState<CountryLabelData>()
   const [fieldLabels, setFieldLabels] = useState<Record<string, string>>({})
@@ -57,19 +58,15 @@ const ApplicantPage = () => {
   useEffect(() => {
     const fetchFieldValidations = async () => {
       try {
-        const response = await validation.getScreenFieldvalidation(
-          "APPLICANT",
-          local_service.get_staff_country(),
-          "W"
-        )
-        
+        const response = await validation.getScreenFieldvalidation('APPLICANT', local_service.get_staff_country(), 'W')
+
         if (response?.data) {
           setFieldValidations(response.data)
-          
+
           // Create lookup maps for labels and messages
           const labelsMap: Record<string, string> = {}
           const messagesMap: Record<string, string> = {}
-          
+
           response.data.countryReportingLabelDTO?.forEach((item: CountryReportingLabelDTO) => {
             const fieldName = item.countryLabelFieldNameAndValidation?.fieldName?.trim()
             if (fieldName) {
@@ -77,12 +74,15 @@ const ApplicantPage = () => {
               messagesMap[fieldName] = item.countryLabelFieldNameAndValidation?.validationMessageMandatory
             }
           })
-          
+
+          console.log(labelsMap, 'labelsMap')
+          console.log(messagesMap, 'messagesMap')
+
           setFieldLabels(labelsMap)
           setFieldMessages(messagesMap)
         }
       } catch (error) {
-        console.error("Error fetching field validations:", error)
+        console.error('Error fetching field validations:', error)
       }
     }
 
@@ -148,7 +148,7 @@ const ApplicantPage = () => {
       console.error('Error fetching applicant data:', error)
     }
   }
-  
+
   const fetchApplicantData = async () => {
     if (!applicantId) {
       console.error('Applicant ID is missing in the URL')
@@ -233,17 +233,17 @@ const ApplicantPage = () => {
       console.error('Error fetching data:', error)
     }
   }, [applicantId])
-  
+
   const getdocumentlistByApplicantId = useCallback(async () => {
     if (!applicantId) return
     try {
       const data = await applicant_service.getDocumentByApplicantId(applicantId)
       console.log(data)
       if (data.length > 0) {
-        console.log("here i am ")
+        console.log('here i am ')
         const imageRecord = data.find((doc: any) => doc.docCode.toLowerCase() == 'image')
         console.log(imageRecord)
-        console.log("saf")
+        console.log('saf')
         setApplicantImage(imageRecord?.docFrontUrl || '')
         setApplicantDocuments(data)
       }
@@ -331,8 +331,7 @@ const ApplicantPage = () => {
                 <Avatar
                   src={applicantImage
                     ?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')
-                    .replace('http://64.227.139.142/', 'https://api.impronics.com/')
-                  }
+                    .replace('http://64.227.139.142/', 'https://api.impronics.com/')}
                   style={{
                     width: '100%',
                     height: '100%',
@@ -584,7 +583,7 @@ const ApplicantPage = () => {
             <Tab label={getLabel('Referral_Redeemed') || 'Referral Redeemed Transactions'} sx={{ marginRight: '2px' }} />
             <Tab label={getLabel('Referral_Credited') || 'Referral Credited Transactions'} sx={{ marginRight: '2px' }} />
           </Tabs>
-          
+
           {/* Content Sections */}
           {selectedTab === 0 && <DocumentsListComponent documentRecords={applicantDocuments || []} />}
           {selectedTab === 1 && <BeneficiaryTable beneficiary={applicantDetails?.beneficiaryList || []} />}

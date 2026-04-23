@@ -185,7 +185,7 @@ const CountryBusinessPayoutPartner = () => {
             color: '#0061B1',
           }}
         >
-          {'Country Business Payout Partner'.toUpperCase()}
+          {'Country Business Railand Payout Mapping'.toUpperCase()}
         </Typography>
         <Button
           variant="contained"

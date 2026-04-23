@@ -34,7 +34,7 @@ export default function ProductBusinessCountryMapping() {
     try {
       const res: any = await service.getList()
       console.log('Fetched Data Sample:', res[0])
-      product_service.getProductList().then((data) => {
+      product_service.getProductsData().then((data) => {
         setProductlist(data)
       })
       setRows(Array.isArray(res) ? res : res?.data || [])
@@ -129,34 +129,32 @@ export default function ProductBusinessCountryMapping() {
     { field: 'countryCorridorProductCode', headerName: 'Product', flex: 0.8, headerClassName: 'super-app-theme--header' },
     { field: 'recipientCountry', headerName: 'Country', flex: 0.5, headerClassName: 'super-app-theme--header' },
     { field: 'paymentRail', headerName: 'Payment Rail', flex: 0.8, headerClassName: 'super-app-theme--header' },
-   {
-  field: 'effective_from_date',
-  headerName: 'Effective From',
-  flex: 1,
-  minWidth: 150,
- headerClassName: 'super-app-theme--header',
-  //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivefromdate || row?.effectiveFromDate
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 1,
+      minWidth: 150,
+      headerClassName: 'super-app-theme--header',
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivefromdate || row?.effectiveFromDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
-{
-  field: 'effective_to_date',
-  headerName: 'Effective To',
-  flex: 1,
-   headerClassName: 'super-app-theme--header',
-  minWidth: 150,
-   //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivetodate || row?.effectiveToDate
+        return date ? formatTableDate(date) : ''
+      },
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      minWidth: 150,
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivetodate || row?.effectiveToDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
+        return date ? formatTableDate(date) : ''
+      },
+    },
     {
       field: 'active',
       headerName: 'Active',
@@ -225,12 +223,12 @@ export default function ProductBusinessCountryMapping() {
         disableColumnMenu
         // density="standard"
         //@ts-ignore
-           slotProps={{
-    toolbar: {
-      showQuickFilter: true,
-      showDensitySelector: true, // ✅ enable density
-    },
-  }}
+        slotProps={{
+          toolbar: {
+            showQuickFilter: true,
+            showDensitySelector: true, // ✅ enable density
+          },
+        }}
         initialState={{
           pagination: {
             paginationModel: {
