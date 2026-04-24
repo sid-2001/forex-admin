@@ -17,11 +17,13 @@ import ProductBusinessCountryMappingService from '@/services/productBusinessCoun
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 import BankBusinessTypeService from '@/services/bantypemaster.service'
+import BankMasterService from '@/services/bankmaster.service'
 
 const service = new CountryBusinessPayoutPartnerService()
 const productBusinessService = new ProductBusinessCountryMappingService()
 const Bank_business_type_service = new BankBusinessTypeService()
 const local_service = new LocalStorageService()
+const bankMasterService = new BankMasterService()
 
 // Validation constants based on entity annotations
 const VALIDATION = {
@@ -69,6 +71,7 @@ export default function CountryBusinessPayoutPartnerFormDialog({
   const [businessTypeCodeList, setBusinessTypeCodeList] = useState<any[]>([])
   const [errors, setErrors] = useState<any>({})
   const [originalData, setOriginalData] = useState<any>(null)
+  const [payoutPartnerList, setPayoutPartnerList] = useState<any>([])
 
   // Initial state uses camelCase
   const [form, setForm] = useState<any>({
@@ -115,6 +118,11 @@ export default function CountryBusinessPayoutPartnerFormDialog({
       Bank_business_type_service.getList().then((data: any) => {
         const list = Array.isArray(data) ? data : data?.data || []
         setBusinessTypeCodeList(list.filter((item: any) => item.active === true))
+      })
+
+      bankMasterService.getBankList().then((data: any) => {
+        const list = Array.isArray(data) ? data : data?.data || []
+        setPayoutPartnerList(list.filter((item: any) => item.active === true))
       })
     }
   }, [open])
@@ -165,17 +173,6 @@ export default function CountryBusinessPayoutPartnerFormDialog({
     if (errors[field]) {
       setErrors((prev: any) => ({ ...prev, [field]: '' }))
     }
-    if (field === 'payoutPartner' && value && !/^[A-Za-z\s]+$/.test(value)) {
-      setErrors({
-        ...errors,
-        [field]: 'Only alphabets allowed',
-      })
-    } else {
-      setErrors({
-        ...errors,
-        [field]: '',
-      })
-    }
   }
 
   const validate = () => {
@@ -200,8 +197,6 @@ export default function CountryBusinessPayoutPartnerFormDialog({
       errs.payoutPartner = 'Payout Partner is required'
     } else if (form.payoutPartner.length > VALIDATION.PAYOUT_PARTNER.maxLength) {
       errs.payoutPartner = VALIDATION.PAYOUT_PARTNER.message
-    } else if (!/^[A-Za-z\s]+$/.test(form.payoutPartner)) {
-      errs.payoutPartner = 'Only alphabets are allowed.'
     }
     if (!form.effectiveFromDate) {
       // Effective From Date validation
@@ -329,15 +324,14 @@ export default function CountryBusinessPayoutPartnerFormDialog({
 
           {/* Payout Partner */}
           <Grid item xs={12}>
-            <TextField
-              label="Payout Partner"
-              fullWidth
-              required
-              value={form.payoutPartner}
-              onChange={(e) => handleChange('payoutPartner', e.target.value)}
-              error={!!errors.payoutPartner}
-              helperText={errors.payoutPartner || getHelperText('payoutPartner', form.payoutPartner)}
-              inputProps={{ maxLength: VALIDATION.PAYOUT_PARTNER.maxLength }}
+            <Autocomplete
+              options={payoutPartnerList}
+              getOptionLabel={(o: any) => `${o.bankMasterCode} (${o.bankName})` || ''}
+              value={businessTypeCodeList.find((m) => m.bankMasterCode === form.payoutPartner) || null}
+              onChange={(_, val) => handleChange('payoutPartner', val?.bankMasterCode || '')}
+              renderInput={(p) => (
+                <TextField {...p} label="Payout Partner Code" required error={!!errors.payoutPartner} helperText={errors.payoutPartner} />
+              )}
             />
           </Grid>
 
