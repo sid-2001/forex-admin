@@ -51,7 +51,6 @@ const transaction_service = new TransactionService()
 const TransactionListing = () => {
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<GridColumnVisibilityModel>({})
 
-      
   const columns_outward = [
     {
       field: 'id',
@@ -63,11 +62,7 @@ const TransactionListing = () => {
       resizable: false,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
-        <a
-          href="#"
-          style={{ color: theme.palette.text.primary }}
-          onClick={() => handleViewMore(params.row)}
-        >
+        <a href="#" style={{ color: theme.palette.text.primary }} onClick={() => handleViewMore(params.row)}>
           {params?.value}
         </a>
       ),
@@ -109,19 +104,12 @@ const TransactionListing = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-
-        if ( !isNaN(params?.value)){
-
- return params?.value?.toFixed(2)}
-            else{
-return 0;
-       }
-       }
-        
-      
-      
-      
-      
+        if (!isNaN(params?.value)) {
+          return params?.value?.toFixed(2)
+        } else {
+          return 0
+        }
+      },
     },
     {
       field: 'settlementCurrency',
@@ -141,18 +129,16 @@ return 0;
       renderCell: (params: any) => {
         const nameOrId = params.value?.name || params.value?.applicantId || 'N/A'
         return (
-            <span
-              onClick={() =>
-                handleNavigation(`/applicant-details/${params.value?.applicantId}`)
-              }
-              style={{
-                cursor: 'pointer',
-                color: theme.palette.text.primary,
-                textDecoration: 'underline',
-              }}
-            >
-              {nameOrId}
-            </span>
+          <span
+            onClick={() => handleNavigation(`/applicant-details/${params.value?.applicantId}`)}
+            style={{
+              cursor: 'pointer',
+              color: theme.palette.text.primary,
+              textDecoration: 'underline',
+            }}
+          >
+            {nameOrId}
+          </span>
         )
       },
     },
@@ -169,7 +155,7 @@ return 0;
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
-  
+
     {
       field: 'owCreatedDate',
       headerName: 'Date',
@@ -184,7 +170,7 @@ return 0;
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        const value = ( params?.row?.gateway_status)?.toUpperCase()
+        const value = params?.row?.gateway_status?.toUpperCase()
         if (!value) return null
         return (
           <Chip
@@ -264,7 +250,7 @@ return 0;
     const s = v == null ? '' : String(v)
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
   }
-  const fmt = (n: any) => (typeof n === 'number' ? n.toFixed(2) : n ?? '')
+  const fmt = (n: any) => (typeof n === 'number' ? n.toFixed(2) : (n ?? ''))
   const fmtDate = (d: any) => (d ? helper.convertDateAndTime(d) : '')
 
   // Build headers + rows from current tab
@@ -293,85 +279,74 @@ return 0;
     return { headers, body, title: isInwards ? 'inwards' : 'outwards' }
   }
 
-
-    const handleZapperPaymentGateway = async () => {
+  const handleZapperPaymentGateway = async () => {
     setCommonLoader(true)
 
-  let zapper_trans = await transaction_service.createZaphierTransaction({
-        amount:  transactionDetails?.value,
-        currencyISOCode: 'ZAR',
-        transactionNumber: transactionDetails?.transactionNumber,
-      })
+    let zapper_trans = await transaction_service.createZaphierTransaction({
+      amount: transactionDetails?.value,
+      currencyISOCode: 'ZAR',
+      transactionNumber: transactionDetails?.transactionNumber,
+    })
 
-      setcommonloader(false)
+    setcommonloader(false)
 
-      console.log(zapper_trans?.data?.redirectUrl)
+    console.log(zapper_trans?.data?.redirectUrl)
 
-      window.location.href = zapper_trans?.data?.redirectUrl
+    window.location.href = zapper_trans?.data?.redirectUrl
 
+    // navigate('/transaction')
+  }
 
-    
+  const stageDetails = [
+    {
+      stage: 'INITIATED',
+      status: 'COMPLETED',
+      timestamp: '2025-10-28T09:42:18Z',
+      message: 'Payment request created.',
+    },
+    {
+      stage: 'PROCESSING',
+      status: 'FAILED',
+      timestamp: '2025-10-28T09:43:00Z',
+      message: 'Payment failed due to insufficient funds.',
+    },
+    {
+      stage: 'VERIFIED',
+      status: 'SKIPPED',
+      timestamp: null,
+      message: 'Verification not attempted as payment failed.',
+    },
+    {
+      stage: 'COMPLETED',
+      status: 'FAILED',
+      timestamp: '2025-10-28T09:43:50Z',
+      message: 'Transaction marked as failed.',
+    },
+  ]
 
-    
-      // navigate('/transaction')
-    }
-  
-
-
-    const stageDetails = [
-  {
-    stage: "INITIATED",
-    status: "COMPLETED",
-    timestamp: "2025-10-28T09:42:18Z",
-    message: "Payment request created.",
-  },
-  {
-    stage: "PROCESSING",
-    status: "FAILED",
-    timestamp: "2025-10-28T09:43:00Z",
-    message: "Payment failed due to insufficient funds.",
-  },
-  {
-    stage: "VERIFIED",
-    status: "SKIPPED",
-    timestamp: null,
-    message: "Verification not attempted as payment failed.",
-  },
-  {
-    stage: "COMPLETED",
-    status: "FAILED",
-    timestamp: "2025-10-28T09:43:50Z",
-    message: "Transaction marked as failed.",
-  },
-];
-
-
-
-    const handleAdumoPaymentClick = async () => {
+  const handleAdumoPaymentClick = async () => {
     try {
-    
+      console.log(transactionDetails)
+      console.log(transactionDetails)
 
-console.log(transactionDetails)
-console.log(transactionDetails)
+      const response = await transaction_service.createAdumoOrder({
+        amount: transactionDetails?.value,
+        transactionId: transactionDetails?.transactionNumber,
+      })
+      const { data } = response
 
-          const response = await transaction_service.createAdumoOrder({ amount: transactionDetails?.value, transactionId: transactionDetails?.transactionNumber })
-           const { data } = response
+      console.log()
 
-           console.log()
-
-          if (!data) {
-            alert('Failed to get session ID')
-            return
-          }
-          window.location.replace(JSON.parse( data)?.redirect_url)
-
-     
+      if (!data) {
+        alert('Failed to get session ID')
+        return
+      }
+      window.location.replace(JSON.parse(data)?.redirect_url)
     } catch (error) {
       console.error('Payment initiation failed:', error)
       // alert('Payment failed. Please try again.')
     }
   }
-
 
   const ConfirmAndPayButton = ({ handleClick = () => {}, imgUrl = '' }) => {
     return (
@@ -385,7 +360,8 @@ console.log(transactionDetails)
         <img src={imgUrl} alt="Ozow" style={{ height: '20px' }} />
         Confirm & Pay
       </Button>
-    )}
+    )
+  }
   const downloadCSV = () => {
     const { headers, body, title } = rowsForExport()
     if (!body.length) return
@@ -560,10 +536,10 @@ console.log(transactionDetails)
   const [givenTransaction, setGivenTransaction] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(false)
 
-    const [open, setOpen] = useRecoilState(alertState)
-        const [text, setText] = useRecoilState(alertTextState)
-        const [type, settype] = useRecoilState(alertTypeState)
-        const [commonLoader, setCommonLoader] = useRecoilState(loaderStateNew)
+  const [open, setOpen] = useRecoilState(alertState)
+  const [text, setText] = useRecoilState(alertTextState)
+  const [type, settype] = useRecoilState(alertTypeState)
+  const [commonLoader, setCommonLoader] = useRecoilState(loaderStateNew)
   // Add state for row count
   const [rowCount, setRowCount] = useState(0)
 
@@ -586,13 +562,12 @@ console.log(transactionDetails)
     pageSize: 20,
   })
 
-
   // filter state
   const [filterModel, setFilterModel] = React.useState<GridFilterModel>({
     items: [],
   })
 
-    const [inwardfilterModel, setInwardFilterModel] = React.useState<GridFilterModel>({
+  const [inwardfilterModel, setInwardFilterModel] = React.useState<GridFilterModel>({
     items: [],
   })
   // Fetch API whenever pagination or filter changes
@@ -620,7 +595,6 @@ console.log(transactionDetails)
     fetchData()
   }, [paginationModel, filterModel])
 
-
   React.useEffect(() => {
     const fetchData = async () => {
       try {
@@ -635,8 +609,7 @@ console.log(transactionDetails)
           }
         }
 
-
-        getInwardTransactionListFilterd(page,pageSize)
+        getInwardTransactionListFilterd(page, pageSize)
       } catch (err) {
         console.error('Failed to fetch transactions', err)
       } finally {
@@ -647,15 +620,13 @@ console.log(transactionDetails)
     fetchData()
   }, [paginationInwardModel, filterModel])
 
-
   // handle page or pageSize change
   const handlePaginationChange = (newModel: GridPaginationModel) => {
     setPaginationModel(newModel)
   }
-    const handleInwardPaginationChange = (newModel: GridPaginationModel) => {
+  const handleInwardPaginationChange = (newModel: GridPaginationModel) => {
     setPaginationInwardModel(newModel)
   }
-
 
   // handle filter changes
   const handleFilterChange = (newFilterModel: GridFilterModel) => {
@@ -664,7 +635,7 @@ console.log(transactionDetails)
     if (filter.field == 'id' && filter.value) {
       try {
         getAllTransactions(0, 10, filter.value)
-      } catch (err) { }
+      } catch (err) {}
     }
     console.log(filter)
     // setFilterModel(newFilterModel);
@@ -704,26 +675,26 @@ console.log(transactionDetails)
     </GridToolbarContainer>
   )
 
-  function CustomColumnMenu(props:
-    //@ts-ignore
-    GridColumnMenuProps) {
-  return (
-
-    //@ts-ignore
-    <GridColumnMenu
-      {...props}
-      slotProps={{
-        // Swap positions of filter and sort items
-        columnMenuFilterItem: {
-          displayOrder: 0, // Previously `10`
-        },
-        columnMenuSortItem: {
-          displayOrder: 10, // Previously `0`
-        },
-      }}
-    />
-  );
-}
+  function CustomColumnMenu(
+    props: //@ts-ignore
+    GridColumnMenuProps,
+  ) {
+    return (
+      //@ts-ignore
+      <GridColumnMenu
+        {...props}
+        slotProps={{
+          // Swap positions of filter and sort items
+          columnMenuFilterItem: {
+            displayOrder: 0, // Previously `10`
+          },
+          columnMenuSortItem: {
+            displayOrder: 10, // Previously `0`
+          },
+        }}
+      />
+    )
+  }
 
   const fetchStpErrorList = useCallback(async (transactionId: string) => {
     try {
@@ -770,16 +741,19 @@ console.log(transactionDetails)
     }
   }, [])
 
-    const getInwardTransactionListFilterd = useCallback(async (page:any,size:any) => {
-    try {
-      const transactions = await transaction_Service.getInwardTransactionFilted(page,size,userCountry)
-      console.log("inbound")
-      console.log(transactions)
-      setInboundTransaction(transactions) // transactions is already the array
-    } catch (error) {
-      console.log(error)
-    }
-  }, [userCountry])
+  const getInwardTransactionListFilterd = useCallback(
+    async (page: any, size: any) => {
+      try {
+        const transactions = await transaction_Service.getInwardTransactionFilted(page, size, userCountry)
+        console.log('inbound')
+        console.log(transactions)
+        setInboundTransaction(transactions) // transactions is already the array
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    [userCountry],
+  )
 
   const getInwardTransactionList = useCallback(async () => {
     try {
@@ -789,7 +763,6 @@ console.log(transactionDetails)
       console.log(error)
     }
   }, [userCountry])
-  
 
   const getAllTransactions = useCallback(
     async (
@@ -807,15 +780,15 @@ console.log(transactionDetails)
         } else {
           data = await transaction_Service.getOutwardAllTransaction(userCountry, page, size)
         }
-       
+
         const outbound: Array<TransactionOutward> | any = data
           ?.map((e: any) => {
             return {
               ...e.transactionGatewayDTO,
               ...e.beneficiary,
               ...e.applicant,
-            stages:e?.stages,
-          
+              stages: e?.stages,
+
               id: e?.transactionGatewayDTO?.transactionNumber,
               destination: e?.transactionGatewayDTO?.receiveCountry,
               value: e?.transactionGatewayDTO?.principalAmount,
@@ -824,13 +797,13 @@ console.log(transactionDetails)
               destinationBank: e?.transactionGatewayDTO?.destinationBankBicCode,
               forex: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates),
               date: e?.utcDatetime,
-              
+
               reporting: e?.transactionGatewayDTO?.reportingStatus,
               status: e?.transactionGatewayDTO?.transactionStatus,
               final_amount: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates * e?.transactionGatewayDTO?.principalAmount),
               applicant: e?.applicant,
               gateway_name: e?.transactionGatewayDTO?.forexPaymentGateway?.company,
-               gateway_status: e?.transactionGatewayDTO?.gatewayStatus,
+              gateway_status: e?.transactionGatewayDTO?.gatewayStatus,
               //@ts-ignore
               inid: e?.transactionInwardNumber,
             }
@@ -872,7 +845,7 @@ console.log(transactionDetails)
       setTransactionType(flow)
     }
     getApplicantDetails()
-    getInwardTransactionListFilterd(1,20)
+    getInwardTransactionListFilterd(1, 20)
     //getAllTransactions(0, 20)
     setGivenTransaction(queryParams.get('id'))
   }, [])
@@ -979,6 +952,8 @@ console.log(transactionDetails)
     return commonloader
   }
 
+  const filteredColumns = userCountry === 'UAE' ? columns_outward.filter((col) => col.field !== 'gateway_status') : columns_outward
+
   return (
     <Box sx={{ width: '80vw', height: '70vh' }}>
       <Typography variant="h4" gutterBottom>
@@ -988,83 +963,87 @@ console.log(transactionDetails)
       <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'} sx={{ width: '80vw' }}>
         <Box>
           <ToggleButtonGroup value={transactionType} color="primary" exclusive onChange={handleToggleTransactionType} sx={{ mb: 2 }}>
-            <ToggleButton id='imp-inward-button'  value="inwards">Inwards</ToggleButton>
+            <ToggleButton id="imp-inward-button" value="inwards">
+              Inwards
+            </ToggleButton>
 
-            <ToggleButton  id="imp-outward-button" value="outwards">Outwards</ToggleButton>
+            <ToggleButton id="imp-outward-button" value="outwards">
+              Outwards
+            </ToggleButton>
           </ToggleButtonGroup>
         </Box>
 
-    
-<Box sx={{ display: 'flex', alignItems: 'center' }}>
-      {/* Left group: text-style buttons */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 3 }}>
-        <Button
-          variant="text"
-          sx={{
-            textTransform: 'none',
-            borderBottom: '1px solid transparent',
-            borderRadius: 0,
-            color: 'text.primary',
-            '&:hover': {
-              borderBottomColor: 'primary.main',
-              fontWeight: 'bold',
-              backgroundColor: 'transparent',
-            },
-          }}
-          onClick={() => handleNavigation('/recon-trx')}
-        >
-          Reconciliation
-        </Button>
+        {userCountry !== 'UAE' && (
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {/* Left group: text-style buttons */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 3 }}>
+              <Button
+                variant="text"
+                sx={{
+                  textTransform: 'none',
+                  borderBottom: '1px solid transparent',
+                  borderRadius: 0,
+                  color: 'text.primary',
+                  '&:hover': {
+                    borderBottomColor: 'primary.main',
+                    fontWeight: 'bold',
+                    backgroundColor: 'transparent',
+                  },
+                }}
+                onClick={() => handleNavigation('/recon-trx')}
+              >
+                Reconciliation
+              </Button>
 
-        <Button
-          variant="text"
-          sx={{
-            textTransform: 'none',
-            borderBottom: '1px solid transparent',
-            borderRadius: 0,
-            color: 'text.primary',
-            '&:hover': {
-              borderBottomColor: 'primary.main',
-              fontWeight: 'bold',
-              backgroundColor: 'transparent',
-            },
-          }}
-          // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
-          onClick={() => handleNavigation('/utilization')}
-        >
-          Utilization Limit
-        </Button>
+              <Button
+                variant="text"
+                sx={{
+                  textTransform: 'none',
+                  borderBottom: '1px solid transparent',
+                  borderRadius: 0,
+                  color: 'text.primary',
+                  '&:hover': {
+                    borderBottomColor: 'primary.main',
+                    fontWeight: 'bold',
+                    backgroundColor: 'transparent',
+                  },
+                }}
+                // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
+                onClick={() => handleNavigation('/utilization')}
+              >
+                Utilization Limit
+              </Button>
 
-        <Button
-          variant="text"
-          sx={{
-            textTransform: 'none',
-            borderBottom: '1px solid transparent',
-            borderRadius: 0,
-            color: 'text.primary',
-            '&:hover': {
-              borderBottomColor: 'primary.main',
-              fontWeight: 'bold',
-              backgroundColor: 'transparent',
-            },
-          }}
-          // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
-          onClick={() => handleNavigation('/recon')}
-        >
-          Settlement
-        </Button>
-      </Box>
+              <Button
+                variant="text"
+                sx={{
+                  textTransform: 'none',
+                  borderBottom: '1px solid transparent',
+                  borderRadius: 0,
+                  color: 'text.primary',
+                  '&:hover': {
+                    borderBottomColor: 'primary.main',
+                    fontWeight: 'bold',
+                    backgroundColor: 'transparent',
+                  },
+                }}
+                // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
+                onClick={() => handleNavigation('/recon')}
+              >
+                Settlement
+              </Button>
+            </Box>
 
-      {/* Right: Transaction button */}
-      <Button
-        variant="contained"
-        disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
-        onClick={() => handleNavigation('/sendmoney')}
-      >
-        + Transaction
-      </Button>
-    </Box>
-
+            {/* Right: Transaction button */}
+            <Button
+              variant="contained"
+              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
+              onClick={() => handleNavigation('/sendmoney')}
+            >
+              + Transaction
+            </Button>
+          </Box>
+        )}
       </Box>
 
       <Box
@@ -1080,58 +1059,49 @@ console.log(transactionDetails)
         {helper.checkUserHasPermission(getTransactionPermission(), 'canRead') &&
           (transactionType == 'inwards' ? (
             <>
-  <DataGrid
-  rows={transactionType === 'inwards' ? inboundTransaction : outboundTransaction || []}
-  //@ts-ignore
-  columns={transactionType === 'inwards' ? inward_columns : columns_outward}
-  getRowId={(row: any) =>
-    transactionType === 'inwards' ? row?.transactionNumberIw : row.id
-  }
-  pageSizeOptions={[10, 20, 50]}
-  // paginationMode="server"
-  // filterMode="server"
-  // paginationModel={paginationInwardModel}
-  // onPaginationModelChange={handleInwardPaginationChange}
-  // filterModel={filterModel}
-  // onFilterModelChange={handleFilterChange}
-  rowCount={1000}
-  disableColumnMenu // ✅ Removes the 3-dot column menu icon globally
-  disableRowSelectionOnClick
-  loading={getLoadingState() || isLoading}
-  columnVisibilityModel={columnVisibilityModel}
-  onColumnVisibilityModelChange={setColumnVisibilityModel}
-    
- 
-  slots={{
-    loadingOverlay: LoaderUI.LoadingOverlay,
-    toolbar: () => (
-      <CustomToolbar
-        downloadCSV={downloadCSV}
-        downloadPDF={downloadPDF}
-      />
-    ),
-  }}
-  sx={{
-    '& .MuiDataGrid-root': {
-      border: '1px solid blue', // ✅ Fixed typo ('1 px' → '1px')
-    },
-    '& .MuiDataGrid-cell': {
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-    },
-    '& .MuiDataGrid-columnHeaders': {
-      backgroundColor: '#f5f5f5', // optional: better header visibility
-    },
-  }}
-/>
+              <DataGrid
+                rows={transactionType === 'inwards' ? inboundTransaction : outboundTransaction || []}
+                //@ts-ignore
+                columns={transactionType === 'inwards' ? inward_columns : filteredColumns}
+                getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
+                pageSizeOptions={[10, 20, 50]}
+                // paginationMode="server"
+                // filterMode="server"
+                // paginationModel={paginationInwardModel}
+                // onPaginationModelChange={handleInwardPaginationChange}
+                // filterModel={filterModel}
+                // onFilterModelChange={handleFilterChange}
+                rowCount={1000}
+                disableColumnMenu // ✅ Removes the 3-dot column menu icon globally
+                disableRowSelectionOnClick
+                loading={getLoadingState() || isLoading}
+                columnVisibilityModel={columnVisibilityModel}
+                onColumnVisibilityModelChange={setColumnVisibilityModel}
+                slots={{
+                  loadingOverlay: LoaderUI.LoadingOverlay,
+                  toolbar: () => <CustomToolbar downloadCSV={downloadCSV} downloadPDF={downloadPDF} />,
+                }}
+                sx={{
+                  '& .MuiDataGrid-root': {
+                    border: '1px solid blue', // ✅ Fixed typo ('1 px' → '1px')
+                  },
+                  '& .MuiDataGrid-cell': {
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  },
+                  '& .MuiDataGrid-columnHeaders': {
+                    backgroundColor: '#f5f5f5', // optional: better header visibility
+                  },
+                }}
+              />
             </>
           ) : (
             <>
               <DataGrid
                 rows={transactionType === 'inwards' ? inboundTransaction : outboundTransaction || []}
                 //@ts-ignore
-                columns={transactionType === 'inwards' ? inward_columns : columns_outward}
+                columns={transactionType === 'inwards' ? inward_columns : filteredColumns}
                 getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
                 pageSizeOptions={[10, 20, 50]}
                 paginationMode="server"
@@ -1146,13 +1116,10 @@ console.log(transactionDetails)
                 onColumnVisibilityModelChange={setColumnVisibilityModel}
                 //@ts-ignore
                 loading={isLoading}
-                 disableColumnMenu
-
-               
+                disableColumnMenu
                 slots={{
                   loadingOverlay: LoaderUI.LoadingOverlay,
                   toolbar: () => <CustomToolbar downloadCSV={downloadCSV} downloadPDF={downloadPDF} />,
-             
                 }}
                 disableRowSelectionOnClick
                 sx={{
@@ -1200,11 +1167,10 @@ console.log(transactionDetails)
 
             <Chip label={transactionDetails?.status} color="warning" sx={{ marginBottom: 2 }} />
 
+            <Grid container spacing={2} mb={2} p={3}>
+              {/* { JSON.stringify(transactionDetails?.stages)} */}
 
-                <Grid container spacing={2} mb={2} p={3}>
-                  {/* { JSON.stringify(transactionDetails?.stages)} */}
-              
-               {/* <StageTimeline stageDetails={transactionDetails?.stages} /> */}
+              {/* <StageTimeline stageDetails={transactionDetails?.stages} /> */}
             </Grid>
 
             {/* Transaction Details Section */}
@@ -1255,7 +1221,6 @@ console.log(transactionDetails)
                   size="small"
                   disabled
                 />
-              
               </Grid>
             </Grid>
 
@@ -1287,10 +1252,9 @@ console.log(transactionDetails)
                   }
                   size="small"
                   disabled
-              />
+                />
               </Grid>
             </Grid>
-
 
             <Divider sx={{ my: 2 }} />
             <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2, color: theme.palette.primary.main }}>
@@ -1319,10 +1283,6 @@ console.log(transactionDetails)
               </Grid>
             </Grid>
 
-
-
-
-
             {trxStatus == 'DRAFT' || trxStatus == 'PENDING' ? (
               <>
                 <Button
@@ -1343,37 +1303,32 @@ console.log(transactionDetails)
                   Complete Payment
                 </Button>
 
-
-       {userCountry === 'ZA' ? (
-                <>
-                  {/* <ConfirmAndPayButton
+                {userCountry === 'ZA' ? (
+                  <>
+                    {/* <ConfirmAndPayButton
                     imgUrl="https://cdn.prod.website-files.com/6282d4840afd19e1afa62e70/6491490c213c45a9d600d387_ozow_small_xs.png"
                     handleClick={() => handleOzowPaymentClick()}
                   /> */}
 
-                   <ConfirmAndPayButton
-                    imgUrl="https://media.licdn.com/dms/image/v2/D4D0BAQFafwhXng3fkQ/company-logo_200_200/company-logo_200_200/0/1730292941961/adumo_online_logo?e=2147483647&v=beta&t=agng3yUCjdKlMYt76saZvTJHFC3Tx1BC9uaGlVTLh4c"
-                    handleClick={() => handleAdumoPaymentClick()}
-                  />
-                  {/* <ConfirmAndPayButton
+                    <ConfirmAndPayButton
+                      imgUrl="https://media.licdn.com/dms/image/v2/D4D0BAQFafwhXng3fkQ/company-logo_200_200/company-logo_200_200/0/1730292941961/adumo_online_logo?e=2147483647&v=beta&t=agng3yUCjdKlMYt76saZvTJHFC3Tx1BC9uaGlVTLh4c"
+                      handleClick={() => handleAdumoPaymentClick()}
+                    />
+                    {/* <ConfirmAndPayButton
                     imgUrl="https://www.peachpayments.com/hubfs/peachpayments-logo.svg"
                     handleClick={() => handlePeachPaymentsClick()}
                   /> */}
 
-                  <ConfirmAndPayButton
-                    imgUrl="https://zapper.gitbook.io/zapper-platform/~gitbook/image?url=https%3A%2F%2F3889691800-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F-M4tIVi0eT23PM2ng2_g%252Ficon%252Ffg6xU4qKsy5lQJ83OvI0%252FRounded.svg%3Falt%3Dmedia%26token%3D28b1c6cc-492e-43da-a8d8-230b9ac27b70&width=32&dpr=4&quality=100&sign=9960cbd3&sv=2"
-                    handleClick={() => handleZapperPaymentGateway()}
-                  />
-                </>
-              ) : (
-                <>
-                  <ConfirmAndPayButton
-                    imgUrl="https://cashfreelogo.cashfree.com/website/landings-cache/landings/logo-lightbg_3x.webp"
-                 
-                  />
-                </>
-              )}
-
+                    <ConfirmAndPayButton
+                      imgUrl="https://zapper.gitbook.io/zapper-platform/~gitbook/image?url=https%3A%2F%2F3889691800-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F-M4tIVi0eT23PM2ng2_g%252Ficon%252Ffg6xU4qKsy5lQJ83OvI0%252FRounded.svg%3Falt%3Dmedia%26token%3D28b1c6cc-492e-43da-a8d8-230b9ac27b70&width=32&dpr=4&quality=100&sign=9960cbd3&sv=2"
+                      handleClick={() => handleZapperPaymentGateway()}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <ConfirmAndPayButton imgUrl="https://cashfreelogo.cashfree.com/website/landings-cache/landings/logo-lightbg_3x.webp" />
+                  </>
+                )}
               </>
             ) : (
               <></>
@@ -1419,7 +1374,7 @@ console.log(transactionDetails)
         </DialogActions>
       </Dialog>
 
-      <CompliancTool open={toolopen} setOpen={setToolOpen} userList={userList} fetchUserDetails={() => { }} />
+      <CompliancTool open={toolopen} setOpen={setToolOpen} userList={userList} fetchUserDetails={() => {}} />
 
       <Modal open={modalOpen} onClose={() => setmodalOpen(false)}>
         <Box

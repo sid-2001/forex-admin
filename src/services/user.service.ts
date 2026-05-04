@@ -31,7 +31,7 @@ export interface Modules {
 }
 
 export class UserService extends BaseService {
-  async createModule(payload: any,staffId:any): Promise<any> {
+  async createModule(payload: any, staffId: any): Promise<any> {
     let url = `/api/staff/staff-modules/staff/${staffId}/modules`
     try {
       let { data } = await api1.post(url, payload)
@@ -85,7 +85,7 @@ export class UserService extends BaseService {
     let url = '/api/staff/staff-details/add'
     try {
       console.log(payload)
-      let { data } = await api1.post(url, payload)
+      let data = await api1.post(url, payload)
       return data
     } catch (err) {
       console.log(err)
@@ -103,7 +103,7 @@ export class UserService extends BaseService {
     }
   }
 
-  async deleteModule(id: number,staffId:any): Promise<any> {
+  async deleteModule(id: number, staffId: any): Promise<any> {
     let url = `/api/staff/staff-modules/staff/${staffId}/deleteModule/${id}`
     try {
       let data = await api1.del(url, {})
@@ -133,7 +133,7 @@ export class UserService extends BaseService {
     }
   }
 
-  async addRole(payload: any,staffId:any): Promise<any> {
+  async addRole(payload: any, staffId: any): Promise<any> {
     let url = `/api/staff/staff-roles/staff/${staffId}/add`
     try {
       let data = await api1.post(url, payload)
@@ -142,7 +142,7 @@ export class UserService extends BaseService {
       throw new Error(err as any)
     }
   }
-  
+
   async getRolesList(): Promise<any> {
     let url = `/api/staff/staff-roles/getAll`
     try {
@@ -154,17 +154,17 @@ export class UserService extends BaseService {
   }
 
   async editRoles(staffId: string, payload: any): Promise<any> {
-  const url = `/api/staff/staff-roles/update/${staffId}`;
-  try {
-    const { data } = await api1.post(url, payload);
-    return data; // This will contain { status: true, message: "...", data: "..."}
-  } catch (err: any) {
-    if (err.response && err.response.data) {
-      throw err.response.data; // Pass API error response forward
+    const url = `/api/staff/staff-roles/update/${staffId}`
+    try {
+      const { data } = await api1.post(url, payload)
+      return data // This will contain { status: true, message: "...", data: "..."}
+    } catch (err: any) {
+      if (err.response && err.response.data) {
+        throw err.response.data // Pass API error response forward
+      }
+      throw err // Fallback generic error
     }
-    throw err; // Fallback generic error
   }
-}
 
   async getCountriesList() {
     let url = '/api/static-table/forex/getAllCountry'
