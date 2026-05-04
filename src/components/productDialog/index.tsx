@@ -98,7 +98,22 @@ export default function ProductFormDialog({ open, onClose, onSubmit, editData }:
               fullWidth
               required
               value={form.productName}
-              onChange={(e) => handleChange('productName', e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value
+                setForm({ ...form, productName: value })
+
+                if (!/^[A-Za-z\s]+$/.test(value)) {
+                  setErrors({
+                    ...errors,
+                    productName: 'Only alphabets allowed',
+                  })
+                } else {
+                  setErrors({
+                    ...errors,
+                    productName: '',
+                  })
+                }
+              }}
               error={!!errors.productName}
               helperText={errors.productName}
               placeholder="e.g., Remittance - Outward"

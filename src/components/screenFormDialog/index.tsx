@@ -4,6 +4,30 @@ import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 
+const VALIDATION_RULES = {
+  selectedCountry: {
+    max: 3,
+    message: 'Country code cannot exceed 3 characters',
+    required: true,
+    pattern: /^[A-Z]{2,3}$/,
+    patternMessage: 'Country code should be 2-3 uppercase letters',
+  },
+  screencode: {
+    message: 'Screen Code is required',
+    pattern: /^[A-Za-z\s]+$/,
+    patternMessage: 'Only alphabets allowed',
+    required: true,
+  },
+  description: {
+    message: 'Description is required',
+    pattern: /^[A-Za-z\s]+$/,
+    patternMessage: 'Only alphabets allowed',
+    required: true,
+  },
+  toDate: { required: true, message: 'To Date is required' },
+  fromDate: { required: true, message: 'From Date is required' },
+}
+
 export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: any) {
   const [countries] = useRecoilState(countyState)
   const [form, setForm] = useState({
@@ -49,27 +73,67 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
       //@ts-ignore
       setErrors((prev) => ({ ...prev, [field]: null }))
     }
+    // Clear toDate error when fromDate changes (if it was a date range error)
+    if (field === 'fromDate' && errors.toDate?.includes('after')) {
+      setErrors((prev: any) => ({ ...prev, toDate: '' }))
+    }
+    if ((field === 'description' || field === 'screencode') && value && !/^[A-Za-z\s]+$/.test(value)) {
+      setErrors({
+        ...errors,
+        [field]: 'Only alphabets allowed',
+      })
+    } else {
+      setErrors({
+        ...errors,
+        [field]: '',
+      })
+    }
   }
 
   const validate = () => {
     const newErrors: any = {}
-    if (!form.selectedCountry) newErrors.selectedCountry = 'Required'
-    if (!form.screencode.trim()) newErrors.screencode = 'Required'
-    if (!form.description.trim()) newErrors.description = 'Required'
-    if (!form.fromDate) newErrors.fromDate = 'Required'
-    if (!form.toDate) newErrors.toDate = 'Required'
 
+    Object.keys(VALIDATION_RULES).forEach((field) => {
+      const rule = VALIDATION_RULES[field as keyof typeof VALIDATION_RULES]
+      const value = form[field as keyof typeof form]
+
+      if (value) {
+        // Max length validation
+        //@ts-ignore
+        if (rule.max && value.length > rule.max) {
+          newErrors[field] = rule.message
+        }
+
+        //@ts-ignore
+        if ((field === 'description' || field === 'screenCode' || field === 'countryCode') && rule.pattern && !rule.pattern.test(value)) {
+          //@ts-ignore
+          newErrors[field] = rule.patternMessage
+        }
+      } else if (
+        //@ts-ignore
+        rule.required
+      ) {
+        newErrors[field] = 'This field is required'
+      }
+    })
+
+    // Date validation: effectiveToDate must be after effectiveFromDate
     if (form.fromDate && form.toDate) {
-      if (new Date(form.toDate) < new Date(form.fromDate)) {
-        newErrors.toDate = 'End date cannot be earlier than start date'
+      const fromDate = new Date(form.fromDate)
+      const toDate = new Date(form.toDate)
+
+      if (toDate <= fromDate) {
+        newErrors.toDate = 'Effective To date must be after Effective From date'
       }
     }
 
     setErrors(newErrors)
+    console.log(newErrors, 'ERROS')
     return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = () => {
+    console.log(form, '-----------')
     if (!validate()) return
 
     onSubmit({
@@ -126,27 +190,11 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
             />
           </Grid>
 
-          {/* <Grid item xs={6}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Effective From"
-              required
-              InputLabelProps={{ shrink: true }}
-              value={form.fromDate}
-              onChange={(e) => handleChange('fromDate', e.target.value)}
-              error={!!errors.fromDate}
-              helperText={errors.fromDate}
-            />
-          </Grid> */}
           <Grid item xs={6}>
             <DynamicDatePicker
               label="Effective From"
               value={form.fromDate}
-              onChange={(val: string) => {
-                console.log(val, 'kdjhchdvy')
-                setForm({ ...form, fromDate: val })
-              }}
+              onChange={(val: string) => handleChange('fromDate', val)}
               error={!!errors.fromDate}
               helperText={errors.fromDate}
               required
@@ -158,29 +206,12 @@ export default function ScreenFormDialog({ open, onClose, onSubmit, editData }: 
               label="Effective To"
               value={form.toDate}
               minDate={form.fromDate}
-              onChange={(val: string) => {
-                setForm({ ...form, toDate: val })
-              }}
+              onChange={(val: string) => handleChange('toDate', val)}
               error={!!errors.toDate}
               helperText={errors.toDate}
               required
             />
           </Grid>
-
-          {/* <Grid item xs={6}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Effective To"
-              required
-              InputLabelProps={{ shrink: true }}
-              inputProps={{ min: form.fromDate }}
-              value={form.toDate}
-              onChange={(e) => handleChange('toDate', e.target.value)}
-              error={!!errors.toDate}
-              helperText={errors.toDate}
-            />
-          </Grid> */}
 
           <Grid item xs={12}>
             <FormControlLabel

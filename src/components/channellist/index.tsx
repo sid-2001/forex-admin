@@ -28,6 +28,28 @@ interface Props {
   editData?: any | null
 }
 
+const VALIDATION_RULES = {
+  selectedCountry: {
+    max: 3,
+    message: 'Country code cannot exceed 3 characters',
+    required: true,
+    pattern: /^[A-Z]{2,3}$/,
+    patternMessage: 'Country code should be 2-3 uppercase letters',
+  },
+  channelCode: {
+    message: 'Channel Code is required',
+    required: true,
+  },
+  description: {
+    message: 'Description is required',
+    pattern: /^[A-Za-z\s]+$/,
+    patternMessage: 'Only alphabets allowed',
+    required: true,
+  },
+  effectiveTo: { required: true, message: 'To Date is required' },
+  effectiveFrom: { required: true, message: 'From Date is required' },
+}
+
 export default function ChannelFormDialog({ open, onClose, onSubmit, editData }: Props) {
   const [form, setForm] = useState({
     channelCode: '',
@@ -60,23 +82,49 @@ export default function ChannelFormDialog({ open, onClose, onSubmit, editData }:
     setErrors({})
   }, [editData, open])
 
-  const handleSubmit = () => {
+  const validate = () => {
     const newErrors: any = {}
-    if (!form.channelCode.trim()) newErrors.channelCode = 'Required'
-    if (!form.description.trim()) newErrors.description = 'Required'
-    if (!form.selectedCountry) newErrors.selectedCountry = 'Required'
-    if (!form.effectiveFrom) newErrors.effectiveFrom = 'Required'
-    if (!form.effectiveTo) newErrors.effectiveTo = 'Required'
 
-    setErrors(newErrors)
-    if (Object.keys(newErrors).length > 0) return
+    Object.keys(VALIDATION_RULES).forEach((field) => {
+      const rule = VALIDATION_RULES[field as keyof typeof VALIDATION_RULES]
+      const value = form[field as keyof typeof form]
 
-    // Logical Date Validation
-    if (new Date(form.effectiveTo) < new Date(form.effectiveFrom)) {
-      onSubmit({ validationError: 'End Date cannot be earlier than Start Date' })
-      return
+      if (value) {
+        // Max length validation
+        //@ts-ignore
+        if (rule.max && value.length > rule.max) {
+          newErrors[field] = rule.message
+        }
+
+        //@ts-ignore
+        if ((field === 'description' || field === 'countryCode') && rule.pattern && !rule.pattern.test(value)) {
+          //@ts-ignore
+          newErrors[field] = rule.patternMessage
+        }
+      } else if (
+        //@ts-ignore
+        rule.required
+      ) {
+        newErrors[field] = 'This field is required'
+      }
+    })
+
+    // Date validation: effectiveToDate must be after effectiveFromDate
+    if (form.effectiveFrom && form.effectiveTo) {
+      const fromDate = new Date(form.effectiveFrom)
+      const toDate = new Date(form.effectiveTo)
+
+      if (toDate <= fromDate) {
+        newErrors.effectiveTo = 'Effective To date must be after Effective From date'
+      }
     }
 
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = () => {
+    if (!validate()) return
     onSubmit(form)
   }
 
@@ -104,7 +152,6 @@ export default function ChannelFormDialog({ open, onClose, onSubmit, editData }:
               inputProps={{ maxLength: 1 }}
               value={form.channelCode}
               disabled={!!editData}
-              // onChange={(e) => setForm({ ...form, channelCode: e.target.value.toUpperCase() })}
               onChange={(e) => {
                 const val = e.target.value.toUpperCase()
                 if (val === '' || /^[A-Z]$/.test(val)) {
@@ -134,7 +181,6 @@ export default function ChannelFormDialog({ open, onClose, onSubmit, editData }:
               label="Effective From"
               value={form.effectiveFrom}
               onChange={(val: string) => {
-                console.log(val, 'kdjhchdvy')
                 setForm({ ...form, effectiveFrom: val })
               }}
               minDate={new Date().toISOString().split('T')[0]}

@@ -5,17 +5,19 @@ import { useEffect, useState, useMemo, useCallback } from 'react'
 import CountryKycDocDialog from '../../components/countryKycDocDialog'
 import CountryKycDocService from '../../services/country-kyc-doc.service'
 import { formatTableDate } from '@/helpers/dateformate'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
 export default function CountryKycDocManagement() {
   const [open, setOpen] = useState(false)
   const [editData, setEditData] = useState<any | null>(null)
   const [rows, setRows] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
-  const [errMassage, setErrMassage] = useState(null)
+  const [errMessage, setErrMessage] = useState(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [snackbarOpen, setSnackbarOpen] = useState(false)
 
   const docService = useMemo(() => new CountryKycDocService(), [])
+  const local_service = new LocalStorageService()
 
   const showSuccessMessage = (message: string) => {
     setSuccessMessage(message)
@@ -29,10 +31,10 @@ export default function CountryKycDocManagement() {
       // Correctly handle the response structure
       const responseData = res?.data || res
       setRows(Array.isArray(responseData) ? responseData : [])
-      setErrMassage(null)
+      setErrMessage(null)
     } catch (error: any) {
       console.error('Fetch error:', error)
-      setErrMassage(error?.response?.data?.message || error?.message || 'Failed to fetch data')
+      setErrMessage(error?.response?.data?.message || error?.message || 'Failed to fetch data')
     } finally {
       setLoading(false)
     }
@@ -43,101 +45,147 @@ export default function CountryKycDocManagement() {
   }, [fetchData])
 
   const handleUpdate = async (data: any) => {
-    // The ID for the URL parameter
-    const id = editData?.countryKycDocCode
     try {
       // Switched to PUT pattern from your EmailTemplate reference
-      const res = await docService.updateDoc(id, { ...data, modifiedBy: 'APSNGGGN3624' })
+      const res = await docService.updateDoc(editData?.kycDocCode, { ...data, modifiedBy: local_service?.get_staff_id() })
+      console.log(res, 'response updatd')
       if (res.status === false) {
-        setErrMassage(res.message)
+        setErrMessage(res.message)
+        setSnackbarOpen(true)
+        setOpen(false)
+        setEditData(null)
       } else {
         setOpen(false)
         setEditData(null)
-        setErrMassage(null)
-        showSuccessMessage('Document updated successfully!')
+        setErrMessage(null)
+        showSuccessMessage(res.message)
         await fetchData()
       }
     } catch (err: any) {
       console.error(err)
-      setErrMassage(err?.response?.data?.message || err?.message || 'Failed to update document')
+      setErrMessage(err?.response?.data?.message || err?.message || 'Failed to update document')
     }
   }
 
   const handleCreate = async (data: any) => {
     try {
-      const res = await docService.createDoc({ ...data, createdBy: 'APSNGGGN3624' })
+      const res = await docService.createDoc({ ...data, createdBy: local_service?.get_staff_id() })
+      console.log(res, 'respnse')
       if (res.status === false) {
-        setErrMassage(res.message)
+        setErrMessage(res.message)
+        setSnackbarOpen(true)
+        setOpen(false)
+        setEditData(null)
       } else {
         setOpen(false)
         setEditData(null)
-        setErrMassage(null)
-        showSuccessMessage('Document created successfully!')
+        setErrMessage(null)
+        showSuccessMessage(res.message)
         await fetchData()
       }
     } catch (err: any) {
       console.error(err)
-      setErrMassage(err?.response?.data?.message || err?.message || 'Failed to create document')
+      setErrMessage(err?.response?.data?.message || err?.message || 'Failed to create document')
     }
   }
 
   const handleCloseSnackbar = (
     //@ts-ignore
-    event?: React.SyntheticEvent | Event, reason?: string) => {
+    event?: React.SyntheticEvent | Event,
+    reason?: string,
+  ) => {
     if (reason === 'clickaway') {
       return
     }
     setSnackbarOpen(false)
     setSuccessMessage(null)
+    setErrMessage(null)
   }
 
   const columns: GridColDef[] = [
     {
-      field: 'countryKycDocCode',
-      headerName: 'Doc Code',
+      field: 'kycDocCode',
+      headerName: 'kyc Doc Code',
       flex: 1,
-      headerClassName: 'super-app-theme--header', // Added for Blue Header
+      headerClassName: 'super-app-theme--header',
     },
     {
       field: 'countryCode',
       headerName: 'Country',
       flex: 0.7,
-      headerClassName: 'super-app-theme--header', // Added for Blue Header
+      headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'countryKycDocDescription',
-      headerName: 'Description',
+      field: 'docTypeCode',
+      headerName: 'Doc Type Code',
       flex: 1.5,
-      headerClassName: 'super-app-theme--header', // Added for Blue Header
+      headerClassName: 'super-app-theme--header',
     },
-   {
-  field: 'effective_from_date',
-  headerName: 'Effective From',
-  flex: 1,
-  minWidth: 150,
- headerClassName: 'super-app-theme--header',
- //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivefromdate || row?.effectiveFromDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
-{
-  field: 'effective_to_date',
-  headerName: 'Effective To',
-  flex: 1,
-   headerClassName: 'super-app-theme--header',
-  minWidth: 150,
-  //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivetodate || row?.effectiveToDate
+    {
+      field: 'docTypeDescription',
+      headerName: 'Doc Type Description',
+      flex: 1.5,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'docCode',
+      headerName: 'Doc Code',
+      flex: 1.5,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'docDescription',
+      headerName: 'Doc Description',
+      flex: 1.5,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'vendorCode',
+      headerName: 'Vendor Code',
+      flex: 1.5,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'verificationMode',
+      headerName: 'Verification Mode',
+      flex: 1.5,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (p) => (p.value === 'A' ? 'Auto' : p.value === 'M' ? 'Manual' : ''),
+    },
+    {
+      field: 'appLimit',
+      headerName: 'App limit',
+      flex: 1.5,
+      headerClassName: 'super-app-theme--header',
+    },
 
-    return date ? formatTableDate(date) : ''
-  },
-},
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 1,
+      minWidth: 150,
+      headerClassName: 'super-app-theme--header',
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivefromdate || row?.effectiveFromDate
+
+        return date ? formatTableDate(date) : ''
+      },
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      minWidth: 150,
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivetodate || row?.effectiveToDate
+
+        return date ? formatTableDate(date) : ''
+      },
+    },
     {
       field: 'active',
       headerName: 'Active',
@@ -156,7 +204,7 @@ export default function CountryKycDocManagement() {
           onClick={() => {
             setEditData(params.row)
             setOpen(true)
-            setErrMassage(null)
+            setErrMessage(null)
           }}
         >
           <EditIcon />
@@ -186,26 +234,19 @@ export default function CountryKycDocManagement() {
           onClick={() => {
             setEditData(null)
             setOpen(true)
-            setErrMassage(null)
+            setErrMessage(null)
           }}
         >
           Add
         </Button>
       </Stack>
-      
-      {/* Display error message if exists */}
-      {errMassage && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setErrMassage(null)}>
-          {errMassage}
-        </Alert>
-      )}
 
       <div style={{ height: 500, width: '100%' }}>
         <DataGrid
           rows={rows}
           columns={columns}
           loading={loading}
-          getRowId={(r) => r.countryKycDocCode}
+          getRowId={(r) => r.kycDocCode}
           slots={{ toolbar: GridToolbar }}
           slotProps={{ toolbar: { showQuickFilter: true } }}
           disableColumnMenu
@@ -218,30 +259,32 @@ export default function CountryKycDocManagement() {
           }}
         />
       </div>
-      
+
       {open && (
         <CountryKycDocDialog
           key={editData ? editData.countryKycDocCode : 'new'}
           open={open}
           onClose={() => {
             setOpen(false)
-            setErrMassage(null)
+            setErrMessage(null)
           }}
           editData={editData}
           onSubmit={editData ? handleUpdate : handleCreate}
-          errMassage={errMassage}
+          errMassage={errMessage}
         />
       )}
 
       {/* Success Snackbar */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
+      <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
         <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
           {successMessage}
+        </Alert>
+      </Snackbar>
+
+      {/* Display error message if exists */}
+      <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+        <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+          {errMessage}
         </Alert>
       </Snackbar>
     </Box>

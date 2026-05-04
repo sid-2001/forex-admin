@@ -30,8 +30,7 @@ export default class CountryBusinessPayoutPartnerService extends BaseService {
     message: string
     data: CountryBusinessPayoutPartner[]
   }> {
-    const url =
-      '/api/static-table/country-business-payout-partner/getAll'
+    const url = '/api/static-table/country-business-payout-partner/getAll'
     try {
       const { data } = await api1.get(url)
       return data
@@ -55,10 +54,9 @@ export default class CountryBusinessPayoutPartnerService extends BaseService {
     status: boolean
     message: string
   }> {
-    const url =
-      '/api/static-table/country-business-payout-partner/create'
+    const url = '/api/static-table/country-business-payout-partner/create'
     try {
-      const { data } = await api1.post(url, payload)
+      const data = await api1.post(url, payload)
       return data
     } catch (err) {
       return err as any
@@ -78,7 +76,7 @@ export default class CountryBusinessPayoutPartnerService extends BaseService {
       effective_from_date: string
       effective_to_date: string
       modified_by: string
-    }
+    },
   ): Promise<{
     status: boolean
     message: string

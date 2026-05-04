@@ -25,10 +25,8 @@ export default class ProductBusinessCountryMappingService extends BaseService {
   /**
    * Get Product Business Country Mapping List
    */
-  async getList(): Promise<Array<ProductBusinessCountryMapping>>
- {
-    const url =
-      '/api/static-table/product-business-country-mapping/getData'
+  async getList(): Promise<Array<ProductBusinessCountryMapping>> {
+    const url = '/api/static-table/product-business-country-mapping/getData'
     try {
       const { data } = await api1.get(url)
       return data
@@ -53,10 +51,9 @@ export default class ProductBusinessCountryMappingService extends BaseService {
     status: boolean
     message: string
   }> {
-    const url =
-      '/api/static-table/product-business-country-mapping/create'
+    const url = '/api/static-table/product-business-country-mapping/create'
     try {
-      const { data } = await api1.post(url, payload)
+      const data = await api1.post(url, payload)
       return data
     } catch (err) {
       return err as any
@@ -76,7 +73,7 @@ export default class ProductBusinessCountryMappingService extends BaseService {
       effectiveFromDate: string
       effectiveToDate: string
       modifiedBy: string
-    }
+    },
   ): Promise<{
     status: boolean
     message: string

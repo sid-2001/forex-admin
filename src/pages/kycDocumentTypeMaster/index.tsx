@@ -49,8 +49,6 @@ export default function KycDocumentTypeMaster() {
   const local_service = useMemo(() => new LocalStorageService(), [])
   const documentService = useMemo(() => new KycDocumentTypeService(), [])
 
-
-
   const fetchData = useCallback(async () => {
     try {
       const response = await documentService.getAllDocumentTypes()
@@ -94,14 +92,14 @@ export default function KycDocumentTypeMaster() {
           kycDocTypeDescription: data.kycDocTypeDescription,
           active: data.active,
           effectiveFromDate: data.effectiveFromDate.includes('T') ? data.effectiveFromDate : `${data.effectiveFromDate}T00:00:00`,
-          effectiveToDate: data.effectiveToDate.includes('T') ? data.effectiveToDate : `${data.effectiveToDate}T23:59:59`,
+          effectiveToDate: data.effectiveToDate.includes('T') ? data.effectiveToDate : `${data.effectiveToDate}T00:00:00`,
           modifiedBy: local_service?.get_staff_id() || 'admin',
         }
 
         console.log('Sending Update Payload:', payload)
 
         const response: any = await documentService.updateDocumentType(editData.kycDocTypeCode, payload)
-
+        console.log(response, '-------------')
         if (response?.status === true || response?.success === true) {
           showAlert('Success', 'Document Type Updated Successfully')
           setDialogopen(false)
@@ -115,14 +113,14 @@ export default function KycDocumentTypeMaster() {
           kycDocTypeDescription: data.kycDocTypeDescription,
           active: data.active,
           effectiveFromDate: data.effectiveFromDate.includes('T') ? data.effectiveFromDate : `${data.effectiveFromDate}T00:00:00`,
-          effectiveToDate: data.effectiveToDate.includes('T') ? data.effectiveToDate : `${data.effectiveToDate}T23:59:59`,
+          effectiveToDate: data.effectiveToDate.includes('T') ? data.effectiveToDate : `${data.effectiveToDate}T00:00:00`,
           createdBy: local_service?.get_staff_id() || 'admin',
         }
 
         console.log('Sending Create Payload:', payload)
 
         const response: any = await documentService.createDocumentType(payload)
-
+        console.log(response, '-------------created')
         if (response?.status === true || response?.success === true) {
           showAlert('Success', 'Document Type Created Successfully')
           setDialogopen(false)
@@ -285,14 +283,12 @@ export default function KycDocumentTypeMaster() {
       <Typography
         variant="h4"
         component="h1"
-      
         sx={{
-         
           fontWeight: 700,
           letterSpacing: '-0.02em',
           display: 'grid',
           placeItems: 'center',
-        
+
           color: '#0061B1',
         }}
       >
@@ -317,31 +313,27 @@ export default function KycDocumentTypeMaster() {
         </Button>
       </Stack>
 
-<Box>
-
-
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        getRowId={(row: KycDocumentTypeData) => row.kycDocTypeCode}
-        autoHeight
-        disableRowSelectionOnClick
-        pageSizeOptions={[5, 10, 25, 50]}
-           slots={{ toolbar: GridToolbar }}
-        sx={{
-          
-        }}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 10,
+      <Box>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={(row: KycDocumentTypeData) => row.kycDocTypeCode}
+          autoHeight
+          disableRowSelectionOnClick
+          pageSizeOptions={[5, 10, 25, 50]}
+          slots={{ toolbar: GridToolbar }}
+          sx={{}}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 10,
+              },
             },
-          },
-          sorting: {
-            sortModel: [{ field: 'createdLocalDateTime', sort: 'desc' }],
-          },
-        }}
-      />
+            sorting: {
+              sortModel: [{ field: 'createdLocalDateTime', sort: 'desc' }],
+            },
+          }}
+        />
       </Box>
 
       <KycDocumentTypeFormDialog

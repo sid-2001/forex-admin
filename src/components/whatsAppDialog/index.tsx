@@ -1,16 +1,4 @@
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  Grid,
-  Autocomplete,
-  FormHelperText,
-} from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Checkbox, FormControlLabel, Grid, Autocomplete } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { countyState } from '@/states/state'
@@ -29,7 +17,11 @@ const VALIDATION_RULES = {
     required: true,
     min: 3,
     minMessage: 'Description must be at least 3 characters',
+    pattern: /^[A-Za-z\s]+$/,
+    patternMessage: 'Only alphabets allowed',
   },
+  toDate: { required: true, message: 'To Date is required' },
+  fromDate: { required: true, message: 'From Date is required' },
 }
 
 interface Props {
@@ -113,55 +105,53 @@ export default function WhatsappTemplateDialog({ open, onClose, onSubmit, editDa
     if (field === 'fromDate' && errors.toDate?.includes('after')) {
       setErrors((prev: any) => ({ ...prev, toDate: '' }))
     }
+
+    if (field === 'description' && value && !/^[A-Za-z\s]+$/.test(value)) {
+      setErrors({
+        ...errors,
+        [field]: 'Only alphabets allowed',
+      })
+    } else {
+      setErrors({
+        ...errors,
+        [field]: '',
+      })
+    }
   }
 
   const validate = () => {
     const newErrors: any = {}
 
-    // Country Code validation
-    if (!form.countryCode) {
-      newErrors.countryCode = 'Country is required'
-    } else if (form.countryCode.length > VALIDATION_RULES.countryCode.max) {
-      newErrors.countryCode = VALIDATION_RULES.countryCode.message
-    }
+    Object.keys(VALIDATION_RULES).forEach((field) => {
+      const rule = VALIDATION_RULES[field as keyof typeof VALIDATION_RULES]
+      const value = form[field as keyof typeof form]
+      if (value) {
+        // Max length validation
+        //@ts-ignore
+        if (rule.max && value.length > rule.max) {
+          newErrors[field] = rule.message
+        }
 
-    // Description validation
-    if (!form.description.trim()) {
-      newErrors.description = 'Description is required'
-    } else {
-      const desc = form.description.trim()
-      if (desc.length < VALIDATION_RULES.description.min) {
-        newErrors.description = VALIDATION_RULES.description.minMessage
-      } else if (desc.length > VALIDATION_RULES.description.max) {
-        newErrors.description = VALIDATION_RULES.description.message
+        //@ts-ignore
+        if (field === 'description' && rule.pattern && !rule.pattern.test(value)) {
+          //@ts-ignore
+          newErrors[field] = rule.patternMessage
+        }
+      } else if (
+        //@ts-ignore
+        rule.required
+      ) {
+        newErrors[field] = 'This field is required'
       }
-    }
+    })
 
-    // Date validations
-    if (!form.fromDate) {
-      newErrors.fromDate = 'Effective From date is required'
-    }
-
-    if (!form.toDate) {
-      newErrors.toDate = 'Effective To date is required'
-    }
-
-    // Date range validation
+    // Date validation: effectiveToDate must be after effectiveFromDate
     if (form.fromDate && form.toDate) {
       const fromDate = new Date(form.fromDate)
       const toDate = new Date(form.toDate)
 
-      // Check if dates are valid
-      if (isNaN(fromDate.getTime())) {
-        newErrors.fromDate = 'Invalid date format'
-      }
-      if (isNaN(toDate.getTime())) {
-        newErrors.toDate = 'Invalid date format'
-      }
-
-      // Check if toDate is after fromDate
-      if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime()) && toDate <= fromDate) {
-        newErrors.toDate = 'Effective To date must be after Effective From date'
+      if (toDate <= fromDate) {
+        newErrors.effectiveToDate = 'Effective To date must be after Effective From date'
       }
     }
 
@@ -182,23 +172,6 @@ export default function WhatsappTemplateDialog({ open, onClose, onSubmit, editDa
     }
 
     onSubmit(payload)
-  }
-
-  // Helper to get helper text with character limit
-  const getHelperText = (field: string, value: string, customMessage?: string) => {
-    const validationMap: any = {
-      countryCode: VALIDATION_RULES.countryCode,
-      description: VALIDATION_RULES.description,
-    }
-
-    const validation = validationMap[field]
-    if (!validation) return customMessage || ''
-
-    const currentLength = value?.length || 0
-    if (field === 'description') {
-      return `${currentLength}/${validation.max} characters (min: ${validation.min})`
-    }
-    return `${currentLength}/${validation.max} characters`
   }
 
   return (
@@ -223,7 +196,7 @@ export default function WhatsappTemplateDialog({ open, onClose, onSubmit, editDa
                   label="Country"
                   required
                   error={!!errors.countryCode}
-                  helperText={errors.countryCode || getHelperText('countryCode', form.countryCode)}
+                  helperText={errors.countryCode}
                   inputProps={{ ...p.inputProps, maxLength: VALIDATION_RULES.countryCode.max }}
                 />
               )}
@@ -239,7 +212,7 @@ export default function WhatsappTemplateDialog({ open, onClose, onSubmit, editDa
               value={form.description}
               onChange={(e) => handleFieldChange('description', e.target.value)}
               error={!!errors.description}
-              helperText={errors.description || getHelperText('description', form.description)}
+              helperText={errors.description}
               inputProps={{
                 maxLength: VALIDATION_RULES.description.max,
                 minLength: VALIDATION_RULES.description.min,
@@ -256,7 +229,7 @@ export default function WhatsappTemplateDialog({ open, onClose, onSubmit, editDa
               value={form.fromDate}
               onChange={(val: string) => handleFieldChange('fromDate', val)}
               error={!!errors.fromDate}
-              helperText={errors.fromDate || 'Required'}
+              helperText={errors.fromDate}
               required
             />
           </Grid>
@@ -269,7 +242,7 @@ export default function WhatsappTemplateDialog({ open, onClose, onSubmit, editDa
               minDate={form.fromDate}
               onChange={(val: string) => handleFieldChange('toDate', val)}
               error={!!errors.toDate}
-              helperText={errors.toDate || 'Required, must be after Effective From'}
+              helperText={errors.toDate}
               required
             />
           </Grid>

@@ -52,7 +52,6 @@ import SubServiceService from '@/services/sub-service.service'
 import ServiceSubServiceMappingService from '@/services/service-subservice-mapping.service'
 import { formatTableDate } from '@/helpers/dateformate'
 
-
 // ==================== MAIN COMPONENT ====================
 export default function ProductSubServiceMaster() {
   const service = useMemo(() => new ProductSubServiceService(), [])
@@ -107,8 +106,6 @@ export default function ProductSubServiceMaster() {
     setAlertOpen(true)
   }
 
-
-
   const getCountryName = (countryCode: string) => {
     const country = countries.find((c: any) => c.countryCode === countryCode)
     return country ? country.countryName : countryCode
@@ -119,21 +116,7 @@ export default function ProductSubServiceMaster() {
     return product ? product.productName : productCode
   }
 
-  const getServiceName = (serviceCode: string) => {
-    const service = services.find((s) => s.serviceCode === serviceCode)
-    return service ? service.serviceName : serviceCode
-  }
   const subservicemap = new ServiceSubServiceMappingService()
-
-  const formatTimezoneOffset = () => {
-    const offset = -new Date().getTimezoneOffset()
-    const sign = offset >= 0 ? '+' : '-'
-    const hours = Math.floor(Math.abs(offset) / 60)
-      .toString()
-      .padStart(2, '0')
-    const minutes = (Math.abs(offset) % 60).toString().padStart(2, '0')
-    return `${sign}${hours}:${minutes}`
-  }
 
   // ==================== DATA FETCHING ====================
   const fetchProducts = useCallback(async () => {
@@ -402,10 +385,6 @@ export default function ProductSubServiceMaster() {
       setForm(newFormData)
       setOriginalFormData(newFormData)
     } else if (!editData && open) {
-      const today = new Date().toISOString().split('T')[0]
-      const nextYear = new Date()
-      nextYear.setFullYear(nextYear.getFullYear() + 1)
-
       const newFormData = {
         countryCode: '',
         productCode: '',
@@ -476,9 +455,6 @@ export default function ProductSubServiceMaster() {
   const handleSubmit = async () => {
     if (!validateForm()) return
 
-    const now = new Date().toISOString()
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-    const offset = formatTimezoneOffset()
     const staffId = local_service.get_staff_id()
 
     if (editData) {
@@ -706,12 +682,12 @@ export default function ProductSubServiceMaster() {
         disableColumnMenu
         // density="standard"
         //@ts-ignore
-           slotProps={{
-    toolbar: {
-      showQuickFilter: true,
-      showDensitySelector: true, // ✅ enable density
-    },
-  }}
+        slotProps={{
+          toolbar: {
+            showQuickFilter: true,
+            showDensitySelector: true, // ✅ enable density
+          },
+        }}
         paginationModel={{ page, pageSize }}
         onPaginationModelChange={(model) => {
           setPage(model.page)
@@ -748,7 +724,7 @@ export default function ProductSubServiceMaster() {
                 onChange={(_, val) => handleFormChange('countryCode', val?.countryCode || '')}
                 disabled={!!editData}
                 renderInput={(params) => (
-                  <TextField {...params} label="Country" required size="small" error={!!formErrors.countryCode} helperText={formErrors.countryCode} />
+                  <TextField {...params} label="Country" required error={!!formErrors.countryCode} helperText={formErrors.countryCode} />
                 )}
               />
             </Grid>
@@ -762,7 +738,7 @@ export default function ProductSubServiceMaster() {
                 onChange={(_, val) => handleFormChange('productCode', val?.countryProductCode || '')}
                 disabled={!!editData && form?.countryCode}
                 renderInput={(params) => (
-                  <TextField {...params} label="Product" required size="small" error={!!formErrors.productCode} helperText={formErrors.productCode} />
+                  <TextField {...params} label="Product" required error={!!formErrors.productCode} helperText={formErrors.productCode} />
                 )}
               />
             </Grid>
@@ -775,7 +751,7 @@ export default function ProductSubServiceMaster() {
                 value={services.find((s) => s.serviceSubServiceMapCode === form.serviceCode) || null}
                 onChange={(_, val) => handleFormChange('serviceCode', val?.serviceSubServiceMapCode || '')}
                 renderInput={(params) => (
-                  <TextField {...params} label="Service" required size="small" error={!!formErrors.serviceCode} helperText={formErrors.serviceCode} />
+                  <TextField {...params} label="Service" required error={!!formErrors.serviceCode} helperText={formErrors.serviceCode} />
                 )}
               />
             </Grid>
@@ -786,7 +762,6 @@ export default function ProductSubServiceMaster() {
                 <TextField
                   label="Generated Service Code"
                   fullWidth
-                  size="small"
                   value={editData.serviceCodeGenerated}
                   disabled
                   variant="filled"
@@ -820,7 +795,7 @@ export default function ProductSubServiceMaster() {
                 value={form.effectiveFromDate}
                 onChange={(val: string) => handleFormChange('effectiveFromDate', val)}
                 error={!!formErrors.effectiveFromDate}
-                helperText={formErrors.effectiveFromDate || 'Required'}
+                helperText={formErrors.effectiveFromDate}
                 required
               />
             </Grid>
@@ -833,7 +808,7 @@ export default function ProductSubServiceMaster() {
                 minDate={form.effectiveFromDate}
                 onChange={(val: string) => handleFormChange('effectiveToDate', val)}
                 error={!!formErrors.effectiveToDate}
-                helperText={formErrors.effectiveToDate || 'Required, must be after Effective From'}
+                helperText={formErrors.effectiveToDate}
                 required
                 disabled={!form.effectiveFromDate} // Disable if Effective From is not selected
               />

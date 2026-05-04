@@ -31,7 +31,7 @@ export default function BopCategoryTypeMaster() {
     //@ts-ignore
     setAlertType(type)
     //@ts-ignore
-    
+
     setAlertOpen(true)
   }
 
@@ -47,7 +47,7 @@ export default function BopCategoryTypeMaster() {
   const handleCreate = async (data: any) => {
     const res = await service.create({
       ...data,
-      created_by: localService.get_staff_id(),
+      createdBy: localService.get_staff_id(),
     })
 
     if (res?.status) {
@@ -66,7 +66,7 @@ export default function BopCategoryTypeMaster() {
   const handleUpdate = async (data: any) => {
     const res = await service.update(editData!.bopCategoryTypeCode, {
       ...data,
-      modified_by: localService.get_staff_id(),
+      modifiedBy: localService.get_staff_id(),
     })
 
     if (res?.status) {
@@ -110,9 +110,9 @@ export default function BopCategoryTypeMaster() {
 
     // Define CSV headers
     const headers = ['Code', 'Type', 'Description', 'Active', 'Effective From', 'Effective To']
-    
+
     // Map data to CSV rows
-    const csvRows = rows.map(row => [
+    const csvRows = rows.map((row) => [
       row.bopCategoryTypeCode,
       row.bopCategoryType,
       row.bopCategoryDescription,
@@ -120,13 +120,13 @@ export default function BopCategoryTypeMaster() {
       //@ts-ignore
       formatTableDate(row.effectiveFromDate || row.effectivefromdate),
       //@ts-ignore
-      formatTableDate(row.effectiveToDate || row.effectivetodate)
+      formatTableDate(row.effectiveToDate || row.effectivetodate),
     ])
 
     // Combine headers and rows
     const csvContent = [
       headers.join(','),
-      ...csvRows.map(row => row.map(cell => `"${cell}"`).join(',')) // Wrap cells in quotes to handle commas in content
+      ...csvRows.map((row) => row.map((cell) => `"${cell}"`).join(',')), // Wrap cells in quotes to handle commas in content
     ].join('\n')
 
     // Create and download the file
@@ -156,35 +156,33 @@ export default function BopCategoryTypeMaster() {
       renderCell: (p) => (p.value ? 'Yes' : 'No'),
       headerClassName: 'super-app-theme--header',
     },
-   {
-  field: 'effective_from_date',
-  headerName: 'Effective From',
-  flex: 1,
-  minWidth: 150,
- headerClassName: 'super-app-theme--header',
- //@
- //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivefromdate || row?.effectiveFromDate
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 1,
+      minWidth: 150,
+      headerClassName: 'super-app-theme--header',
+      //@
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivefromdate || row?.effectiveFromDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
-{
-  field: 'effective_to_date',
-  headerName: 'Effective To',
-  flex: 1,
-   headerClassName: 'super-app-theme--header',
-  minWidth: 150,
-  //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivetodate || row?.effectiveToDate
+        return date ? formatTableDate(date) : ''
+      },
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      minWidth: 150,
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivetodate || row?.effectiveToDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
+        return date ? formatTableDate(date) : ''
+      },
+    },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -214,7 +212,6 @@ export default function BopCategoryTypeMaster() {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1 }}>
         <GridToolbar />
-  
       </Box>
     )
   }

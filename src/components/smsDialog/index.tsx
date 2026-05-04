@@ -10,6 +10,7 @@ import {
   Box,
   Autocomplete,
   createFilterOptions,
+  Grid,
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
@@ -112,6 +113,17 @@ export default function SmsTemplateDialog({
     if (errors[field]) {
       setErrors((prev: any) => ({ ...prev, [field]: '' }))
     }
+    if (field === 'smsTemplateDescription' && value && !/^[A-Za-z0-9\s]+$/.test(value)) {
+      setErrors({
+        ...errors,
+        [field]: 'Only alphabets and numbers are allowed',
+      })
+    } else {
+      setErrors({
+        ...errors,
+        [field]: '',
+      })
+    }
   }
 
   const validate = () => {
@@ -133,6 +145,8 @@ export default function SmsTemplateDialog({
         newErrors.smsTemplateDescription = VALIDATION_RULES.smsTemplateDescription.minMessage
       } else if (desc.length > VALIDATION_RULES.smsTemplateDescription.max) {
         newErrors.smsTemplateDescription = VALIDATION_RULES.smsTemplateDescription.message
+      } else if (!/^[A-Za-z0-9\s]+$/.test(smsTemplateDescription)) {
+        newErrors.smsTemplateDescription = 'Only alphabets and numbers are allowed'
       }
     }
 
@@ -226,12 +240,12 @@ export default function SmsTemplateDialog({
                 label="Search Country"
                 required
                 error={!!errors.countryCode}
-                helperText={errors.countryCode || `Max ${VALIDATION_RULES.countryCode.max} characters`}
+                helperText={errors.countryCode}
+                // helperText={errors.countryCode || `Max ${VALIDATION_RULES.countryCode.max} characters`}
                 inputProps={{ ...p.inputProps, maxLength: VALIDATION_RULES.countryCode.max }}
               />
             )}
           />
-
           {/* SMS Description */}
           <TextField
             label="SMS Description"
@@ -240,36 +254,12 @@ export default function SmsTemplateDialog({
             value={smsTemplateDescription}
             onChange={(e) => handleFieldChange('smsTemplateDescription', e.target.value)}
             error={!!errors.smsTemplateDescription}
-            helperText={
-              errors.smsTemplateDescription ||
-              `${smsTemplateDescription.length}/${VALIDATION_RULES.smsTemplateDescription.max} characters (min: ${VALIDATION_RULES.smsTemplateDescription.min})`
-            }
+            helperText={errors.smsTemplateDescription}
             inputProps={{
               maxLength: VALIDATION_RULES.smsTemplateDescription.max,
               minLength: VALIDATION_RULES.smsTemplateDescription.min,
             }}
           />
-
-          {/* SMS Content (Optional but with validation) */}
-          {/* <TextField
-            label="SMS Content"
-            fullWidth
-            multiline
-            rows={3}
-            value={smsContent}
-            onChange={(e) => handleFieldChange('smsContent', e.target.value)}
-            error={!!errors.smsContent || isOverLimit}
-            helperText={
-              errors.smsContent || 
-              (isOverLimit 
-                ? `Exceeded by ${Math.abs(remainingChars)} characters. This will be sent as multiple SMS messages.` 
-                : `${remainingChars} characters remaining for single SMS`)
-            }
-            inputProps={{ maxLength: VALIDATION_RULES.smsContent.max + 100 }} // Allow longer for multi-part SMS
-            placeholder="Enter your SMS content here (optional)"
-            color={isNearLimit ? 'warning' : isOverLimit ? 'error' : 'primary'}
-          /> */}
-
           {/* Effective From Date */}
           <DynamicDatePicker
             label="Effective From"
@@ -279,7 +269,6 @@ export default function SmsTemplateDialog({
             helperText={errors.effectiveFromDate}
             required
           />
-
           {/* Effective To Date */}
           <DynamicEndDatePicker
             label="Effective To"
@@ -290,9 +279,13 @@ export default function SmsTemplateDialog({
             helperText={errors.effectiveToDate}
             required
           />
-
           {/* Active Checkbox */}
-          <FormControlLabel control={<Checkbox checked={active} onChange={(e) => handleFieldChange('active', e.target.checked)} />} label="Active" />
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={<Checkbox checked={active} onChange={(e) => handleFieldChange('active', e.target.checked)} />}
+              label="Active"
+            />
+          </Grid>
         </Box>
       </DialogContent>
 

@@ -959,51 +959,55 @@ const DashboardLayout = () => {
               }}
             >
               {menuItems.map((item, index) => (
-                <ListItem
-                  button
-                  selected={selectedApp === item.label}
-                  key={index}
-                  // id={}
-                  id={'imp-' + item.label}
-                  sx={{
-                    justifyContent: isDrawerOpen ? 'flex-start' : 'center',
-                    textAlign: 'center',
-                    alignItems: 'center',
-                    backgroundColor: 'transparent',
-                  }}
-                  onClick={() => {
-                    setSelectedApp(item.label)
-                    addToHistory(item.label)
+                <>
+                  {!(item.name === 'KYC' && staffCountry === 'UAE') && (
+                    <ListItem
+                      button
+                      selected={selectedApp === item.label}
+                      key={index}
+                      // id={}
+                      id={'imp-' + item.label}
+                      sx={{
+                        justifyContent: isDrawerOpen ? 'flex-start' : 'center',
+                        textAlign: 'center',
+                        alignItems: 'center',
+                        backgroundColor: 'transparent',
+                      }}
+                      onClick={() => {
+                        setSelectedApp(item.label)
+                        addToHistory(item.label)
 
-                    navigate(item.label.toLocaleLowerCase())
-                  }}
-                >
-                  <Stack sx={{ padding: '1%' }}>
-                    <Item>
-                      <ListItemIcon
-                        sx={{
-                          textAlign: 'center',
-                          justifyContent: 'center',
-                          //@ts-ignore
-                          // color: selectedApp === item.label ? theme.palette.primary.main : 'red', // Change color if selected
-                        }}
-                        onClick={() => {
-                          navigate(item.label.toLocaleLowerCase())
-                        }}
-                      >
-                        {item.icon}
-                      </ListItemIcon>
-                    </Item>
-                    <Item
-                      style={{
-                        color: 'white',
-                        padding: '1%',
+                        navigate(item.label.toLocaleLowerCase())
                       }}
                     >
-                      {item.name}
-                    </Item>
-                  </Stack>
-                </ListItem>
+                      <Stack sx={{ padding: '1%' }}>
+                        <Item>
+                          <ListItemIcon
+                            sx={{
+                              textAlign: 'center',
+                              justifyContent: 'center',
+                              //@ts-ignore
+                              // color: selectedApp === item.label ? theme.palette.primary.main : 'red', // Change color if selected
+                            }}
+                            onClick={() => {
+                              navigate(item.label.toLocaleLowerCase())
+                            }}
+                          >
+                            {item.icon}
+                          </ListItemIcon>
+                        </Item>
+                        <Item
+                          style={{
+                            color: 'white',
+                            padding: '1%',
+                          }}
+                        >
+                          {item.name}
+                        </Item>
+                      </Stack>
+                    </ListItem>
+                  )}
+                </>
               ))}
 
               <ListItem

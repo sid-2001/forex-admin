@@ -35,7 +35,7 @@ export class KycDocumentTypeService extends BaseService {
   async createDocumentType(payload: CreateDocumentTypePayload): Promise<any> {
     try {
       const response = await api1.post(this.baseUrl, payload)
-      return response.data
+      return response
     } catch (err) {
       console.error('Error creating document type:', err)
       throw new Error('Unable to create document type. Please try again.')
@@ -100,7 +100,7 @@ export class KycDocumentTypeService extends BaseService {
       const payload: UpdateStatusPayload = {
         id: id,
         active: active,
-        modifiedBy: modifiedBy
+        modifiedBy: modifiedBy,
       }
       const response = await api1.put(`${this.baseUrl}/updateStatus`, payload)
       return response.data

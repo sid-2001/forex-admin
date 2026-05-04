@@ -8,7 +8,6 @@ import WhatsappTemplateService from '../../services/whatsapp.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
-import dayjs from 'dayjs'
 import { formatTableDate } from '@/helpers/dateformate'
 
 export default function WhatsappTemplateManagement() {
@@ -66,7 +65,7 @@ export default function WhatsappTemplateManagement() {
         : await templateService.createTemplate(payload)
 
       if (res.status !== false) {
-        showAlert('Success', `${res?.mess || res?.message || 'Operation completed successfully'}`)
+        showAlert('Success', `${res?.message || 'Operation completed successfully'}`)
         setOpen(false)
         setEditData(null)
         setIsFormChanged(false)
@@ -79,54 +78,11 @@ export default function WhatsappTemplateManagement() {
     }
   }
 
-
-
-  // Function to download CSV with all fields
-  const downloadCSV = () => {
-    if (!rows || rows.length === 0) {
-      showAlert('Fail', 'No data to export')
-      return
-    }
-
-    // Define CSV headers based on available fields
-    const headers = ['Template Code', 'Description', 'Country Code', 'Active', 'Effective From', 'Effective To']
-
-    // Map data to CSV rows - using only fields that exist in the data
-    const csvRows = rows.map((row) => [
-      row.whatsappTemplateCode || '',
-      row.whatsappTemplateDescription || '',
-      row.countryCode || '',
-      row.active ? 'Yes' : 'No',
-      formatTableDate(row.effectiveFromDate || row.effective_from_date),
-      formatTableDate(row.effectiveToDate || row.effective_to_date),
-    ])
-
-    // Combine headers and rows
-    const csvContent = [headers.join(','), ...csvRows.map((row) => row.map((cell) => `"${cell}"`).join(','))].join('\n')
-
-    // Create and download the file
-    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
-    const link = document.createElement('a')
-    const url = URL.createObjectURL(blob)
-    link.setAttribute('href', url)
-    link.setAttribute('download', `whatsapp_templates_${new Date().toISOString().split('T')[0]}.csv`)
-    link.style.visibility = 'hidden'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
-
-    showAlert('Success', 'CSV downloaded successfully')
-  }
-
   // Custom toolbar with CSV download button
   const CustomToolbar = () => {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1 }}>
         <GridToolbar />
-        <Button variant="outlined" size="small" startIcon={<DownloadIcon />} onClick={downloadCSV} sx={{ ml: 2 }}>
-          Export CSV
-        </Button>
       </Box>
     )
   }

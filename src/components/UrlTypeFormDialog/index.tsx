@@ -2,9 +2,13 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, C
 import { useState, useEffect } from 'react'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 import UrlTypeApiService from '../../services/urlType.api.service'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
 export default function UrlTypeFormDialog({ open, onClose, editData, refreshList, showAlert }: any) {
   const service = new UrlTypeApiService()
+  const local_service = new LocalStorageService()
+  const staffData = local_service.get_staff_access()
+
   const [form, setForm] = useState({
     urlCode: '',
     urlType: '',
@@ -13,7 +17,7 @@ export default function UrlTypeFormDialog({ open, onClose, editData, refreshList
     effectiveToDate: '',
     active: true,
   })
-
+  // createdBy: editData ? undefined : staffData?.staffId
   const [errors, setErrors] = useState<any>({})
 
   useEffect(() => {
@@ -53,12 +57,17 @@ export default function UrlTypeFormDialog({ open, onClose, editData, refreshList
     if (!validate()) return
 
     // Formatting dates to YYYY-MM-DDTHH:mm:ss
-    const payload = {
+    let payload: any = {
       ...form,
       effectiveFromDate: `${form.effectiveFromDate}T00:00:00Z`,
       effectiveToDate: `${form.effectiveToDate}T00:00:00Z`,
+      createdBy: editData ? null : local_service.get_staff_id(),
     }
-
+    if (editData) {
+      payload.modifiedBy = staffData?.staffId
+    } else {
+      payload.createdBy = staffData?.staffId
+    }
     try {
       if (editData) {
         await service.update(form.urlCode, payload)

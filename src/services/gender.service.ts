@@ -2,7 +2,7 @@ import { BaseService } from './base.service'
 import api1 from './apis/api1'
 
 export interface Gender {
- gendercode: string
+  gendercode: string
   description: string
   countrycode: string
   active: boolean
@@ -22,9 +22,9 @@ export interface Gender {
 export default class GenderService extends BaseService {
   /**
    * Get Gender List
-   * 
+   *
    */
-  
+
   async getGenderList(): Promise<{
     success: boolean
     count: number
@@ -56,7 +56,7 @@ export default class GenderService extends BaseService {
   }> {
     const url = '/api/bop/gender/create'
     try {
-      const { data } = await api1.post(url, payload)
+      const data = await api1.post(url, payload)
       return data
     } catch (err) {
       return err as any
@@ -66,12 +66,7 @@ export default class GenderService extends BaseService {
   /**
    * Update Gender
    */
-  async updateGender(payload: {
-    username: string
-    gendercode: string
-    countrycode: string
-    description: string
-  }): Promise<{
+  async updateGender(payload: { username: string; gendercode: string; countrycode: string; description: string }): Promise<{
     status: boolean
     message: string
   }> {
@@ -87,10 +82,7 @@ export default class GenderService extends BaseService {
   /**
    * Delete Gender
    */
-  async deleteGender(payload: {
-    gendercode: string
-    countrycode: string
-  }): Promise<{
+  async deleteGender(payload: { gendercode: string; countrycode: string }): Promise<{
     status: boolean
     message: string
   }> {

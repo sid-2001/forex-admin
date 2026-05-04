@@ -245,19 +245,16 @@ const UserAdd = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: any; value: any }>) => {
     const { name, value } = e.target
 
-    if(name=="staffCountries"){
-    setStaffData((prev: any) => ({
-      ...prev,
-         [name]: typeof value === "string" ? value.split(",") : value,
-    }))
-
-    }
-    else{
-
-    setStaffData((prev: any) => ({
-      ...prev,
-      [name]: value,
-    }))
+    if (name == 'staffCountries') {
+      setStaffData((prev: any) => ({
+        ...prev,
+        [name]: typeof value === 'string' ? value.split(',') : value,
+      }))
+    } else {
+      setStaffData((prev: any) => ({
+        ...prev,
+        [name]: value,
+      }))
     }
 
     setIsbuttondisabled(false)
@@ -268,23 +265,29 @@ const UserAdd = () => {
       //@ts-ignore
       delete staffData?.password
 
-      user_service.editStaff({ ...staffData, roleId: selectedRole, staffID: staffData?.staffId }, local_service.get_staff_id()).then((data) => {
-        if (data) {
-          settype('success')
-          setText('Staff updated successfully!')
-          navigate('/profile')
-        } else {
-          settype('error')
-          setText(data?.message)
-        }
-        setOpen(true)
-      })
+      user_service
+        .editStaff(
+          { ...staffData, roleId: selectedRole, staffID: staffData?.staffId, modified_by: local_service.get_staff_id() },
+          local_service.get_staff_id(),
+        )
+        .then((data) => {
+          if (data) {
+            settype('success')
+            setText('Staff updated successfully!')
+            navigate('/profile')
+          } else {
+            settype('error')
+            setText(data?.message)
+          }
+          setOpen(true)
+        })
     } else {
       user_service
         .createStaff({
           ...staffData,
           staffIdType: 'Aadhar',
           roleId: selectedRole,
+          createdBy: local_service.get_staff_id(),
         })
         .then((data) => {
           if (data.status) {
@@ -401,7 +404,7 @@ const UserAdd = () => {
                 type="text" // Use text instead of number to enforce length
               />
             </Grid>
-              {/* <Grid item xs={12} sm={3}>
+            {/* <Grid item xs={12} sm={3}>
               <label style={inputLabelStyle}>
                 In
               </label>
@@ -416,7 +419,6 @@ const UserAdd = () => {
                 type="text" // Use text instead of number to enforce length
               />
             </Grid> */}
-
 
             <Grid item xs={12} sm={3}>
               <label style={inputLabelStyle}>Email</label>
@@ -555,33 +557,33 @@ const UserAdd = () => {
             </Grid>
 
             <Grid item xs={12} sm={2}>
-  <label style={inputLabelStyle}>Access Country</label>
-  <TextField
-    select
-    fullWidth
-    name="staffCountries"
-    //@ts-ignore
-    value={staffData?.staffCountries || []} 
-    //@ts-ignore
-    // must be array
-    onChange={handleChange}
-    InputProps={{ readOnly: !isEditable }}
-    SelectProps={{
-      multiple: true,
-      renderValue: (selected: any) =>
-        countryList
-          .filter((c: any) => selected.includes(c.countryCode))
-          .map((c: any) => c.countryName)
-          .join(", "),
-    }}
-  >
-    {countryList.map((country: any) => (
-      <MenuItem key={country.countryCode} value={country.countryCode}>
-        {country.countryName}
-      </MenuItem>
-    ))}
-  </TextField>
-</Grid>
+              <label style={inputLabelStyle}>Access Country</label>
+              <TextField
+                select
+                fullWidth
+                name="staffCountries"
+                //@ts-ignore
+                value={staffData?.staffCountries || []}
+                //@ts-ignore
+                // must be array
+                onChange={handleChange}
+                InputProps={{ readOnly: !isEditable }}
+                SelectProps={{
+                  multiple: true,
+                  renderValue: (selected: any) =>
+                    countryList
+                      .filter((c: any) => selected.includes(c.countryCode))
+                      .map((c: any) => c.countryName)
+                      .join(', '),
+                }}
+              >
+                {countryList.map((country: any) => (
+                  <MenuItem key={country.countryCode} value={country.countryCode}>
+                    {country.countryName}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
 
             {/* <Grid item xs={12} sm={2}>
               <label style={inputLabelStyle}>Postal Code</label>

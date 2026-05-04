@@ -22,6 +22,30 @@ const filter = createFilterOptions({
   stringify: (o: any) => `${o.countryName} ${o.countryCode}`,
 })
 
+const VALIDATION_RULES = {
+  selectedCountry: {
+    max: 3,
+    message: 'Country code cannot exceed 3 characters',
+    required: true,
+    pattern: /^[A-Z]{2,3}$/,
+    patternMessage: 'Country code should be 2-3 uppercase letters',
+  },
+  gendercode: {
+    message: 'Gender Code is required',
+    required: true,
+    pattern: /^[A-Z]+$/,
+    patternMessage: 'Only alphabets allowed',
+  },
+  description: {
+    message: 'Description is required',
+    pattern: /^[A-Za-z\s]+$/,
+    patternMessage: 'Only alphabets allowed',
+    required: true,
+  },
+  effectiveTo: { required: true, message: 'To Date is required' },
+  effectiveFrom: { required: true, message: 'From Date is required' },
+}
+
 export default function GenderFormDialog({ open, onClose, onSubmit, editData }: any) {
   const [countries] = useRecoilState(countyState)
 
@@ -65,22 +89,49 @@ export default function GenderFormDialog({ open, onClose, onSubmit, editData }: 
     setErrors({})
   }, [editData, open])
 
-  const handleSubmit = () => {
+  const validate = () => {
     const newErrors: any = {}
-    if (!form.gendercode.trim()) newErrors.gendercode = 'Required'
-    if (!form.description.trim()) newErrors.description = 'Required'
-    if (!form.selectedCountry) newErrors.selectedCountry = 'Required'
-    if (!form.effectiveFrom) newErrors.effectiveFrom = 'Required'
-    if (!form.effectiveTo) newErrors.effectiveTo = 'Required'
 
-    setErrors(newErrors)
-    if (Object.keys(newErrors).length > 0) return
+    Object.keys(VALIDATION_RULES).forEach((field) => {
+      const rule = VALIDATION_RULES[field as keyof typeof VALIDATION_RULES]
+      const value = form[field as keyof typeof form]
 
-    if (new Date(form.effectiveTo) < new Date(form.effectiveFrom)) {
-      onSubmit({ validationError: 'End Date cannot be less than Start Date' })
-      return
+      if (value) {
+        // Max length validation
+        //@ts-ignore
+        if (rule.max && value.length > rule.max) {
+          newErrors[field] = rule.message
+        }
+
+        //@ts-ignore
+        if ((field === 'description' || field === 'gendercode' || field === 'countryCode') && rule.pattern && !rule.pattern.test(value)) {
+          //@ts-ignore
+          newErrors[field] = rule.patternMessage
+        }
+      } else if (
+        //@ts-ignore
+        rule.required
+      ) {
+        newErrors[field] = 'This field is required'
+      }
+    })
+
+    // Date validation: effectiveToDate must be after effectiveFromDate
+    if (form.effectiveFrom && form.effectiveTo) {
+      const fromDate = new Date(form.effectiveFrom)
+      const toDate = new Date(form.effectiveTo)
+
+      if (toDate <= fromDate) {
+        newErrors.effectiveTo = 'Effective To date must be after Effective From date'
+      }
     }
 
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = () => {
+    if (!validate()) return
     onSubmit(form)
   }
 
@@ -97,7 +148,7 @@ export default function GenderFormDialog({ open, onClose, onSubmit, editData }: 
               value={countries?.find((c: any) => c.countryCode === form.selectedCountry) || null}
               disabled={!!editData}
               onChange={(_, val) => setForm({ ...form, selectedCountry: val ? val.countryCode : '' })}
-              renderInput={(p) => <TextField {...p} label="Country" error={!!errors.selectedCountry} helperText={errors.selectedCountry} />}
+              renderInput={(p) => <TextField {...p} required label="Country" error={!!errors.selectedCountry} helperText={errors.selectedCountry} />}
             />
           </Grid>
 
@@ -108,6 +159,7 @@ export default function GenderFormDialog({ open, onClose, onSubmit, editData }: 
               inputProps={{ maxLength: 1 }}
               value={form.gendercode}
               disabled={!!editData}
+              required
               // onChange={(e) => setForm({ ...form, gendercode: e.target.value.toUpperCase() })}
               onChange={(e) => {
                 const val = e.target.value.toUpperCase()
@@ -124,6 +176,7 @@ export default function GenderFormDialog({ open, onClose, onSubmit, editData }: 
             <TextField
               fullWidth
               label="Description"
+              required
               inputProps={{ maxLength: 15 }}
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -132,39 +185,11 @@ export default function GenderFormDialog({ open, onClose, onSubmit, editData }: 
             />
           </Grid>
 
-          {/* <Grid item xs={6}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Effective From"
-              InputLabelProps={{ shrink: true }}
-              value={form.effectiveFrom}
-              onChange={(e) => setForm({ ...form, effectiveFrom: e.target.value })}
-              error={!!errors.effectiveFrom}
-              // Displaying the dynamic format as a hint to the user
-              helperText={errors.effectiveFrom || `Format: ${displayDateFormat}`}
-            />
-          </Grid>
-
-          <Grid item xs={6}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Effective To"
-              InputLabelProps={{ shrink: true }}
-              value={form.effectiveTo}
-              onChange={(e) => setForm({ ...form, effectiveTo: e.target.value })}
-              error={!!errors.effectiveTo}
-              helperText={errors.effectiveTo || `Format: ${displayDateFormat}`}
-              inputProps={{ min: form.effectiveFrom }}
-            />
-          </Grid> */}
           <Grid item xs={6}>
             <DynamicDatePicker
               label="Effective From"
               value={form.effectiveFrom}
               onChange={(val: string) => {
-                console.log(val, 'kdjhchdvy')
                 setForm({ ...form, effectiveFrom: val })
               }}
               error={!!errors.effectiveFrom}

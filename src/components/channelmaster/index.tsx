@@ -83,17 +83,9 @@ export default function ChannelManagement() {
           ...(isUpdate
             ? {
                 modified_by: staffId,
-                modified_time: audit.timeZone,
-                modified_off: audit.offset,
-                Modified_UTCDateTime: audit.utcDateTime,
-                modified_local_date_time: audit.localDateTime,
               }
             : {
                 created_by: staffId,
-                created_time: audit.timeZone,
-                created_off: audit.offset,
-                Created_UTCDateTime: audit.utcDateTime,
-                created_local_date_time: audit.localDateTime,
               }),
         }
 

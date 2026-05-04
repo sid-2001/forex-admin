@@ -42,7 +42,7 @@ const VALIDATION_RULES = {
   bankAddress3: { max: 50, message: 'Bank address3 cannot exceed 50 characters' },
   bankStateProvinceCode: { max: 20, message: 'Bank state/province code cannot exceed 20 characters' },
   bankCity: { max: 50, message: 'Bank city cannot exceed 50 characters' },
-  bankPostalCode: { max: 20, message: 'Bank postal code cannot exceed 20 characters' },
+  bankPostalCode: { max: 10, message: 'Bank postal code cannot exceed 10 characters' },
   bankType: { max: 10, message: 'Bank type cannot exceed 10 characters' },
   createdBy: { max: 50, message: 'Created by cannot exceed 50 characters' },
   modifiedBy: { max: 50, message: 'Modified by cannot exceed 50 characters' },
@@ -371,37 +371,14 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
       // Use the correct identifier field name (adjust based on your API)
       payload.bankMasterCode = editData.bankMasterCode || editData.bankCode
       payload.modifiedBy = localService.get_staff_id()
-
-      // Add modified audit fields
-      // Object.assign(payload, {
-      //   modifiedLocalDateTime: now.toISOString(),
-      //   modifiedTimeZone: timezone,
-      //   modifiedOffset: offsetStr,
-      //   modifiedUtcDateTime: new Date().toISOString(),
-      // })
     } else {
       payload.createdBy = localService.get_staff_id()
-
-      // Add created audit fields
-      // Object.assign(payload, {
-      //   createdLocalDateTime: now.toISOString(),
-      //   createdTimeZone: timezone,
-      //   createdOffset: offsetStr,
-      //   createdUtcDateTime: new Date().toISOString(),
-      // })
     }
 
     console.log('Submitting payload for', editData ? 'update' : 'create', ':', payload)
     onSubmit(payload)
   }
 
-  const minEffectiveToDate = form.effective_from_date
-    ? (() => {
-        const date = new Date(form.effective_from_date)
-        date.setDate(date.getDate() + 1)
-        return date
-      })()
-    : undefined
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>{editData ? 'Update Bank' : 'Add Bank'}</DialogTitle>
@@ -525,7 +502,22 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
               label="Bank Name"
               required
               value={form.bankName}
-              onChange={(e) => handleFieldChange('bankName', e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value
+                setForm({ ...form, bankName: value })
+
+                if (!/^[A-Za-z\s]+$/.test(value)) {
+                  setErrors({
+                    ...errors,
+                    bankName: 'Only alphabets allowed',
+                  })
+                } else {
+                  setErrors({
+                    ...errors,
+                    bankName: '',
+                  })
+                }
+              }}
               error={!!errors.bankName}
               helperText={errors.bankName || `Max ${VALIDATION_RULES.bankName.max} characters`}
               inputProps={{ maxLength: VALIDATION_RULES.bankName.max }}
@@ -705,7 +697,22 @@ export default function BankMasterDialog({ open, onClose, onSubmit, editData }: 
               label="Postal Code"
               required
               value={form.bankPostalCode}
-              onChange={(e) => handleFieldChange('bankPostalCode', e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value
+                setForm({ ...form, bankPostalCode: value })
+
+                if (!/^\d+$/.test(value)) {
+                  setErrors({
+                    ...errors,
+                    bankPostalCode: 'Only digits are allowed',
+                  })
+                } else {
+                  setErrors({
+                    ...errors,
+                    bankPostalCode: '',
+                  })
+                }
+              }}
               error={!!errors.bankPostalCode}
               helperText={errors.bankPostalCode || `Max ${VALIDATION_RULES.bankPostalCode.max} characters`}
               inputProps={{ maxLength: VALIDATION_RULES.bankPostalCode.max }}
