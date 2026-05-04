@@ -113,10 +113,10 @@ export default function SmsTemplateDialog({
     if (errors[field]) {
       setErrors((prev: any) => ({ ...prev, [field]: '' }))
     }
-    if (field === 'smsTemplateDescription' && value && !/^[A-Za-z\s]+$/.test(value)) {
+    if (field === 'smsTemplateDescription' && value && !/^[A-Za-z0-9\s]+$/.test(value)) {
       setErrors({
         ...errors,
-        [field]: 'Only alphabets allowed',
+        [field]: 'Only alphabets and numbers are allowed',
       })
     } else {
       setErrors({
@@ -145,6 +145,8 @@ export default function SmsTemplateDialog({
         newErrors.smsTemplateDescription = VALIDATION_RULES.smsTemplateDescription.minMessage
       } else if (desc.length > VALIDATION_RULES.smsTemplateDescription.max) {
         newErrors.smsTemplateDescription = VALIDATION_RULES.smsTemplateDescription.message
+      } else if (!/^[A-Za-z0-9\s]+$/.test(smsTemplateDescription)) {
+        newErrors.smsTemplateDescription = 'Only alphabets and numbers are allowed'
       }
     }
 

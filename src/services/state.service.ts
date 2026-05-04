@@ -35,7 +35,6 @@ export default class StateService extends BaseService {
    * Create State
    */
   async createState(payload: {
-    applicant_id: string
     statecode: string
     statedescription: string
     countrycode: string
@@ -45,7 +44,7 @@ export default class StateService extends BaseService {
   }): Promise<{ status: boolean; message: string }> {
     const url = '/api/bop/state/create'
     try {
-      const { data } = await api1.post(url, payload)
+      const data = await api1.post(url, payload)
       return data
     } catch (err) {
       return err as any
@@ -73,15 +72,11 @@ export default class StateService extends BaseService {
   /**
    * Delete State
    */
-  async deleteState(payload: {
-    statecode: string
-    countrycode: string
-  }): Promise<{ status: boolean; message: string }> {
+  async deleteState(payload: { statecode: string; countrycode: string }): Promise<{ status: boolean; message: string }> {
     const url = '/api/bop/state/delete'
     try {
-
-        //@ts-ignore
-      const { data } = await api1.del(url,  payload )
+      //@ts-ignore
+      const { data } = await api1.del(url, payload)
       return data
     } catch (err) {
       return err as any

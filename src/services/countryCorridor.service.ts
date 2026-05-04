@@ -189,7 +189,7 @@ class CountryCorridorService extends BaseService {
   async createCorridor(payload: CreateCorridorPayload): Promise<CountryCorridorResponse> {
     const url = `/api/static-table/country-corridor-master`
     try {
-      const { data } = await api1.post(url, payload)
+      const data = await api1.post(url, payload)
       return data
     } catch (err) {
       console.error('Error creating corridor:', err)

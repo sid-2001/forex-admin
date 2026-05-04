@@ -12,7 +12,7 @@ export default function CountryKycDocManagement() {
   const [editData, setEditData] = useState<any | null>(null)
   const [rows, setRows] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
-  const [errMassage, setErrMassage] = useState(null)
+  const [errMessage, setErrMessage] = useState(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [snackbarOpen, setSnackbarOpen] = useState(false)
 
@@ -31,10 +31,10 @@ export default function CountryKycDocManagement() {
       // Correctly handle the response structure
       const responseData = res?.data || res
       setRows(Array.isArray(responseData) ? responseData : [])
-      setErrMassage(null)
+      setErrMessage(null)
     } catch (error: any) {
       console.error('Fetch error:', error)
-      setErrMassage(error?.response?.data?.message || error?.message || 'Failed to fetch data')
+      setErrMessage(error?.response?.data?.message || error?.message || 'Failed to fetch data')
     } finally {
       setLoading(false)
     }
@@ -48,36 +48,44 @@ export default function CountryKycDocManagement() {
     try {
       // Switched to PUT pattern from your EmailTemplate reference
       const res = await docService.updateDoc(editData?.kycDocCode, { ...data, modifiedBy: local_service?.get_staff_id() })
+      console.log(res, 'response updatd')
       if (res.status === false) {
-        setErrMassage(res.message)
+        setErrMessage(res.message)
+        setSnackbarOpen(true)
+        setOpen(false)
+        setEditData(null)
       } else {
         setOpen(false)
         setEditData(null)
-        setErrMassage(null)
-        showSuccessMessage('Document updated successfully!')
+        setErrMessage(null)
+        showSuccessMessage(res.message)
         await fetchData()
       }
     } catch (err: any) {
       console.error(err)
-      setErrMassage(err?.response?.data?.message || err?.message || 'Failed to update document')
+      setErrMessage(err?.response?.data?.message || err?.message || 'Failed to update document')
     }
   }
 
   const handleCreate = async (data: any) => {
     try {
       const res = await docService.createDoc({ ...data, createdBy: local_service?.get_staff_id() })
+      console.log(res, 'respnse')
       if (res.status === false) {
-        setErrMassage(res.message)
+        setErrMessage(res.message)
+        setSnackbarOpen(true)
+        setOpen(false)
+        setEditData(null)
       } else {
         setOpen(false)
         setEditData(null)
-        setErrMassage(null)
-        showSuccessMessage('Document created successfully!')
+        setErrMessage(null)
+        showSuccessMessage(res.message)
         await fetchData()
       }
     } catch (err: any) {
       console.error(err)
-      setErrMassage(err?.response?.data?.message || err?.message || 'Failed to create document')
+      setErrMessage(err?.response?.data?.message || err?.message || 'Failed to create document')
     }
   }
 
@@ -91,6 +99,7 @@ export default function CountryKycDocManagement() {
     }
     setSnackbarOpen(false)
     setSuccessMessage(null)
+    setErrMessage(null)
   }
 
   const columns: GridColDef[] = [
@@ -195,7 +204,7 @@ export default function CountryKycDocManagement() {
           onClick={() => {
             setEditData(params.row)
             setOpen(true)
-            setErrMassage(null)
+            setErrMessage(null)
           }}
         >
           <EditIcon />
@@ -225,19 +234,12 @@ export default function CountryKycDocManagement() {
           onClick={() => {
             setEditData(null)
             setOpen(true)
-            setErrMassage(null)
+            setErrMessage(null)
           }}
         >
           Add
         </Button>
       </Stack>
-
-      {/* Display error message if exists */}
-      {errMassage && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setErrMassage(null)}>
-          {errMassage}
-        </Alert>
-      )}
 
       <div style={{ height: 500, width: '100%' }}>
         <DataGrid
@@ -264,11 +266,11 @@ export default function CountryKycDocManagement() {
           open={open}
           onClose={() => {
             setOpen(false)
-            setErrMassage(null)
+            setErrMessage(null)
           }}
           editData={editData}
           onSubmit={editData ? handleUpdate : handleCreate}
-          errMassage={errMassage}
+          errMassage={errMessage}
         />
       )}
 
@@ -276,6 +278,13 @@ export default function CountryKycDocManagement() {
       <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
         <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
           {successMessage}
+        </Alert>
+      </Snackbar>
+
+      {/* Display error message if exists */}
+      <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+        <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+          {errMessage}
         </Alert>
       </Snackbar>
     </Box>

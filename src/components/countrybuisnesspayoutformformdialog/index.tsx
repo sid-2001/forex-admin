@@ -17,11 +17,13 @@ import ProductBusinessCountryMappingService from '@/services/productBusinessCoun
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 import BankBusinessTypeService from '@/services/bantypemaster.service'
+import BankMasterService from '@/services/bankmaster.service'
 
 const service = new CountryBusinessPayoutPartnerService()
 const productBusinessService = new ProductBusinessCountryMappingService()
 const Bank_business_type_service = new BankBusinessTypeService()
 const local_service = new LocalStorageService()
+const bankMasterService = new BankMasterService()
 
 // Validation constants based on entity annotations
 const VALIDATION = {
@@ -69,10 +71,10 @@ export default function CountryBusinessPayoutPartnerFormDialog({
   const [businessTypeCodeList, setBusinessTypeCodeList] = useState<any[]>([])
   const [errors, setErrors] = useState<any>({})
   const [originalData, setOriginalData] = useState<any>(null)
+  const [payoutPartnerList, setPayoutPartnerList] = useState<any>([])
 
   // Initial state uses camelCase
   const [form, setForm] = useState<any>({
-    countryBusinessPayoutPartnerCode: '',
     countryCorridorBusinessMapCode: '',
     businessTypeCode: '',
     payoutPartner: '',
@@ -117,6 +119,11 @@ export default function CountryBusinessPayoutPartnerFormDialog({
         const list = Array.isArray(data) ? data : data?.data || []
         setBusinessTypeCodeList(list.filter((item: any) => item.active === true))
       })
+
+      bankMasterService.getBankList().then((data: any) => {
+        const list = Array.isArray(data) ? data : data?.data || []
+        setPayoutPartnerList(list.filter((item: any) => item.active === true))
+      })
     }
   }, [open])
 
@@ -126,7 +133,6 @@ export default function CountryBusinessPayoutPartnerFormDialog({
         // Edit Mode: Map incoming snake_case or camelCase to our form state
         const formatDate = (d: string) => (d && d.includes('T') ? d.split('T')[0] : d)
         const newFormData = {
-          countryBusinessPayoutPartnerCode: editData.countryBusinessPayoutPartnerCode || '',
           countryCorridorBusinessMapCode: editData.countryCorridorBusinessMapCode || '',
           businessTypeCode: editData.businessTypeCode || '',
           payoutPartner: editData.payoutPartner || '',
@@ -139,7 +145,6 @@ export default function CountryBusinessPayoutPartnerFormDialog({
       } else {
         // Create Mode: Explicitly blank dates
         const newFormData = {
-          countryBusinessPayoutPartnerCode: '',
           countryCorridorBusinessMapCode: '',
           businessTypeCode: '',
           payoutPartner: '',
@@ -173,15 +178,6 @@ export default function CountryBusinessPayoutPartnerFormDialog({
   const validate = () => {
     const errs: any = {}
 
-    // Country Business Payout Partner Code validation (only for create)
-    if (
-      !editData &&
-      form.countryBusinessPayoutPartnerCode &&
-      form.countryBusinessPayoutPartnerCode.length > VALIDATION.COUNTRY_BUSINESS_PAYOUT_PARTNER_CODE.maxLength
-    ) {
-      errs.countryBusinessPayoutPartnerCode = VALIDATION.COUNTRY_BUSINESS_PAYOUT_PARTNER_CODE.message
-    }
-
     // Country Corridor Business Map Code validation
     if (!form.countryCorridorBusinessMapCode) {
       errs.countryCorridorBusinessMapCode = 'Corridor Business Map Code is required'
@@ -202,9 +198,8 @@ export default function CountryBusinessPayoutPartnerFormDialog({
     } else if (form.payoutPartner.length > VALIDATION.PAYOUT_PARTNER.maxLength) {
       errs.payoutPartner = VALIDATION.PAYOUT_PARTNER.message
     }
-
-    // Effective From Date validation
     if (!form.effectiveFromDate) {
+      // Effective From Date validation
       errs.effectiveFromDate = 'Effective from date must not be null'
     }
 
@@ -231,38 +226,21 @@ export default function CountryBusinessPayoutPartnerFormDialog({
     if (!validate()) return
 
     const staffId = local_service.get_staff_id()
-    const now = new Date().toISOString()
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-    const offset = formatTimezoneOffset()
 
     // Generate code for new records if not provided
     const payload = {
       ...form,
-      countryBusinessPayoutPartnerCode: form.countryBusinessPayoutPartnerCode || `PAY${Date.now()}`,
       effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
       effectiveToDate: `${form.effectiveToDate}T00:00:00`,
-      // modified_by: staffId,
-      // modifiedLocalDateTime: now.split('.')[0],
-      // modifiedTimeZone: timeZone,
-      // modifiedOffset: offset,
-      // modifiedUtcDateTime: new Date().toISOString(),
     }
 
     if (!editData) {
       Object.assign(payload, {
         createdBy: staffId,
-        // createdLocalDateTime: now.split('.')[0],
-        // createdTimeZone: timeZone,
-        // createdOffset: offset,
-        // createdUtcDateTime: new Date().toISOString(),
       })
     } else {
       Object.assign(payload, {
         modifiedBy: staffId,
-        // createdLocalDateTime: now.split('.')[0],
-        // createdTimeZone: timeZone,
-        // createdOffset: offset,
-        // createdUtcDateTime: new Date().toISOString(),
       })
     }
 
@@ -284,7 +262,6 @@ export default function CountryBusinessPayoutPartnerFormDialog({
   // Helper to get helper text with character limit
   const getHelperText = (field: string, value: string, customMessage?: string) => {
     const validationMap: any = {
-      countryBusinessPayoutPartnerCode: VALIDATION.COUNTRY_BUSINESS_PAYOUT_PARTNER_CODE,
       countryCorridorBusinessMapCode: VALIDATION.COUNTRY_CORRIDOR_BUSINESS_MAP_CODE,
       businessTypeCode: VALIDATION.BUSINESS_TYPE_CODE,
       payoutPartner: VALIDATION.PAYOUT_PARTNER,
@@ -303,24 +280,6 @@ export default function CountryBusinessPayoutPartnerFormDialog({
 
       <DialogContent dividers>
         <Grid container spacing={2} sx={{ mt: 1 }}>
-          {/* Country Business Payout Partner Code - Only shown in create mode */}
-          {!editData && (
-            <Grid item xs={12}>
-              <TextField
-                label="Payout Partner Code"
-                fullWidth
-                value={form.countryBusinessPayoutPartnerCode}
-                onChange={(e) => handleChange('countryBusinessPayoutPartnerCode', e.target.value.toUpperCase())}
-                error={!!errors.countryBusinessPayoutPartnerCode}
-                helperText={
-                  errors.countryBusinessPayoutPartnerCode || getHelperText('countryBusinessPayoutPartnerCode', form.countryBusinessPayoutPartnerCode)
-                }
-                inputProps={{ maxLength: VALIDATION.COUNTRY_BUSINESS_PAYOUT_PARTNER_CODE.maxLength }}
-                placeholder="Will be auto-generated if left blank"
-              />
-            </Grid>
-          )}
-
           {/* Country Corridor Business Map Code */}
           <Grid item xs={12}>
             <Autocomplete
@@ -361,29 +320,18 @@ export default function CountryBusinessPayoutPartnerFormDialog({
                 />
               )}
             />
-            {/* <TextField
-              label="Business Type Code"
-              fullWidth
-              required
-              value={form.businessTypeCode}
-              onChange={(e) => handleChange('businessTypeCode', e.target.value.toUpperCase())}
-              error={!!errors.businessTypeCode}
-              helperText={errors.businessTypeCode || getHelperText('businessTypeCode', form.businessTypeCode)}
-              inputProps={{ maxLength: VALIDATION.BUSINESS_TYPE_CODE.maxLength }}
-            /> */}
           </Grid>
 
           {/* Payout Partner */}
           <Grid item xs={12}>
-            <TextField
-              label="Payout Partner"
-              fullWidth
-              required
-              value={form.payoutPartner}
-              onChange={(e) => handleChange('payoutPartner', e.target.value)}
-              error={!!errors.payoutPartner}
-              helperText={errors.payoutPartner || getHelperText('payoutPartner', form.payoutPartner)}
-              inputProps={{ maxLength: VALIDATION.PAYOUT_PARTNER.maxLength }}
+            <Autocomplete
+              options={payoutPartnerList}
+              getOptionLabel={(o: any) => `${o.bankMasterCode} (${o.bankName})` || ''}
+              value={businessTypeCodeList.find((m) => m.bankMasterCode === form.payoutPartner) || null}
+              onChange={(_, val) => handleChange('payoutPartner', val?.bankMasterCode || '')}
+              renderInput={(p) => (
+                <TextField {...p} label="Payout Partner Code" required error={!!errors.payoutPartner} helperText={errors.payoutPartner} />
+              )}
             />
           </Grid>
 
@@ -394,7 +342,7 @@ export default function CountryBusinessPayoutPartnerFormDialog({
               value={form.effectiveFromDate}
               onChange={(val: string) => handleChange('effectiveFromDate', val)}
               error={!!errors.effectiveFromDate}
-              helperText={errors.effectiveFromDate || 'Required'}
+              helperText={errors.effectiveFromDate}
               required
             />
           </Grid>
@@ -407,7 +355,7 @@ export default function CountryBusinessPayoutPartnerFormDialog({
               minDate={form.effectiveFromDate}
               onChange={(val: string) => handleChange('effectiveToDate', val)}
               error={!!errors.effectiveToDate}
-              helperText={errors.effectiveToDate || 'Required, must be after Effective From'}
+              helperText={errors.effectiveToDate}
               required
             />
           </Grid>

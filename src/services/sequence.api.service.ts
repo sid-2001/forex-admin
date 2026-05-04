@@ -42,13 +42,7 @@ export default class SequenceApiService extends BaseService {
   async create(payload: Partial<SequenceMaster>): Promise<{ status: boolean; message: string }> {
     const url = '/api/static-table/generate-sequence/create'
     try {
-      const finalPayload = {
-        ...payload,
-        createdBy: 'ADMIN',
-        createdTimeZone: 'UTC',
-        createdOffset: '+00:00',
-      }
-      const { data } = await api1.post(url, finalPayload)
+      const data = await api1.post(url, payload)
       return data
     } catch (err) {
       return err as any
@@ -58,11 +52,7 @@ export default class SequenceApiService extends BaseService {
   async update(id: number | string, payload: Partial<SequenceMaster>): Promise<{ status: boolean; message: string }> {
     const url = `/api/static-table/generate-sequence/${id}`
     try {
-      const finalPayload = {
-        ...payload,
-        modifiedBy: 'ADMIN',
-      }
-      const { data } = await api1.put(url, finalPayload)
+      const { data } = await api1.put(url, payload)
       return data
     } catch (err) {
       return err as any

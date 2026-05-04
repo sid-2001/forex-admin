@@ -68,7 +68,7 @@ export default function SmsTemplateManagement() {
       }
       setOpen(false)
       setEditData(null)
-      showAlert('Success', 'Created Successfully')
+      showAlert('Success', res.message)
       fetchData()
     } catch (e) {
       console.error(e)
@@ -84,7 +84,7 @@ export default function SmsTemplateManagement() {
 
     try {
       await smsService.updateTemplate(id, payload)
-      showAlert('Success', 'Updated Successfully')
+      showAlert('Success', 'Record Updated Successfully')
       setOpen(false)
       setEditData(null)
       fetchData()
@@ -107,34 +107,32 @@ export default function SmsTemplateManagement() {
     },
     // { field: 'effectiveFromDate', headerName: 'Effective From', flex: 1, headerClassName: 'super-app-theme--header' },
     // { field: 'effectiveToDate', headerName: 'Effective To', flex: 1, headerClassName: 'super-app-theme--header' },
-   {
-  field: 'effective_from_date',
-  headerName: 'Effective From',
-  flex: 1,
-  minWidth: 150,
- headerClassName: 'super-app-theme--header',
-  //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivefromdate || row?.effectiveFromDate
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 1,
+      minWidth: 150,
+      headerClassName: 'super-app-theme--header',
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivefromdate || row?.effectiveFromDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
-{
-  field: 'effective_to_date',
-  headerName: 'Effective To',
-  flex: 1,
-   headerClassName: 'super-app-theme--header',
-  minWidth: 150,
-   //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivetodate || row?.effectiveToDate
+        return date ? formatTableDate(date) : ''
+      },
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      minWidth: 150,
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivetodate || row?.effectiveToDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
+        return date ? formatTableDate(date) : ''
+      },
+    },
     {
       field: 'actions',
       headerName: 'Actions',

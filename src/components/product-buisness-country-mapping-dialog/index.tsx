@@ -143,6 +143,17 @@ export default function ProductBusinessCountryMappingDialog({
     if (errors[field]) {
       setErrors((prev: any) => ({ ...prev, [field]: null }))
     }
+    if (field === 'paymentRail' && value && !/^[A-Za-z\s]+$/.test(value)) {
+      setErrors({
+        ...errors,
+        [field]: 'Only alphabets allowed',
+      })
+    } else {
+      setErrors({
+        ...errors,
+        [field]: '',
+      })
+    }
   }
 
   const validate = () => {
@@ -165,6 +176,8 @@ export default function ProductBusinessCountryMappingDialog({
       errs.paymentRail = 'Payment Rail is required'
     } else if (form.paymentRail.length > VALIDATION.PAYMENT_RAIL.maxLength) {
       errs.paymentRail = VALIDATION.PAYMENT_RAIL.message
+    } else if (!/^[A-Za-z\s]+$/.test(form.paymentRail)) {
+      errs.paymentRail = 'Only alphabets are allowed.'
     }
 
     // Effective From Date validation
@@ -194,34 +207,20 @@ export default function ProductBusinessCountryMappingDialog({
   const handleSubmit = async () => {
     if (!validate()) return
 
-    const now = new Date().toISOString()
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-    const offset = formatTimezoneOffset()
-
     // Generate businessMapCode for new records
-    const businessMapCode = editData?.businessMapCode || `Samplecode`
 
     const payload = {
-      businessMapCode,
       countryCorridorProductCode: form.countryCorridorProductCode,
       recipientCountry: form.recipientCountry,
       paymentRail: form.paymentRail,
       active: form.active,
       effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
       effectiveToDate: `${form.effectiveToDate}T00:00:00`,
-      // modifiedLocalDateTime: now.split('.')[0],
-      // modifiedTimeZone: timeZone,
-      // modifiedOffset: offset,
-      // modifiedUtcDateTime: new Date().toISOString(),
     }
 
     if (!editData) {
       Object.assign(payload, {
         createdBy: local_service.get_staff_id(),
-        // createdLocalDateTime: now.split('.')[0],
-        // createdTimeZone: timeZone,
-        // createdOffset: offset,
-        // createdUtcDateTime: new Date().toISOString(),
       })
     } else {
       Object.assign(payload, { modifiedBy: local_service.get_staff_id() })
@@ -271,9 +270,9 @@ export default function ProductBusinessCountryMappingDialog({
           <Grid item xs={12}>
             <Autocomplete
               options={productList}
-              getOptionLabel={(option) => `${option.productCode} - ${option.productName} (${option.countryProductCode})`}
-              value={productList.find((p) => p.countryProductCode === form.countryCorridorProductCode) || null}
-              onChange={(_, val) => handleChange('countryCorridorProductCode', val?.countryProductCode || '')}
+              getOptionLabel={(option) => `${option.countryCorridorProductCode}`}
+              value={productList.find((p) => p.countryCorridorProductCode === form.countryCorridorProductCode) || null}
+              onChange={(_, val) => handleChange('countryCorridorProductCode', val?.countryCorridorProductCode || '')}
               disabled={!!editData}
               renderInput={(params) => (
                 <TextField
@@ -342,7 +341,7 @@ export default function ProductBusinessCountryMappingDialog({
               value={form.effectiveFromDate}
               onChange={(val: string) => handleChange('effectiveFromDate', val)}
               error={!!errors.effectiveFromDate}
-              helperText={errors.effectiveFromDate || 'Required'}
+              helperText={errors.effectiveFromDate}
               required
             />
           </Grid>
@@ -355,7 +354,7 @@ export default function ProductBusinessCountryMappingDialog({
               minDate={form.effectiveFromDate}
               onChange={(val: string) => handleChange('effectiveToDate', val)}
               error={!!errors.effectiveToDate}
-              helperText={errors.effectiveToDate || 'Required, must be after Effective From'}
+              helperText={errors.effectiveToDate}
               required
             />
           </Grid>

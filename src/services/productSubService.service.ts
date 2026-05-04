@@ -37,18 +37,16 @@ export class ProductSubServiceService extends BaseService {
 
   /**
    * Get all product sub services
-   * 
-   * 
-   * 
+   *
+   *
+   *
    */
 
-
-  
   async getAllProductSubServices(): Promise<ProductSubServiceData[]> {
     const url = `${this.baseUrl}/getAll`
     try {
       const { data } = await api1.get(url)
-      return data|| []
+      return data || []
     } catch (err) {
       console.error('Error fetching product sub services:', err)
       throw new Error('Unable to fetch product sub services. Please try again.')
@@ -61,7 +59,7 @@ export class ProductSubServiceService extends BaseService {
   async getActiveProductSubServices(): Promise<ProductSubServiceData[]> {
     try {
       const services = await this.getAllProductSubServices()
-      return services.filter(s => s.active === true)
+      return services.filter((s) => s.active === true)
     } catch (err) {
       console.error('Error fetching active product sub services:', err)
       throw new Error('Unable to fetch active product sub services. Please try again.')
@@ -74,7 +72,7 @@ export class ProductSubServiceService extends BaseService {
   async getByProductCode(productCode: string): Promise<ProductSubServiceData[]> {
     try {
       const services = await this.getAllProductSubServices()
-      return services.filter(s => s.productCode === productCode && s.active === true)
+      return services.filter((s) => s.productCode === productCode && s.active === true)
     } catch (err) {
       console.error('Error fetching product sub services by product:', err)
       throw new Error('Unable to fetch product sub services. Please try again.')
@@ -87,20 +85,18 @@ export class ProductSubServiceService extends BaseService {
   async getByMapCode(mapCode: string): Promise<ProductSubServiceData | undefined> {
     try {
       const services = await this.getAllProductSubServices()
-      return services.find(s => s.productServiceMapCode === mapCode)
+      return services.find((s) => s.productServiceMapCode === mapCode)
     } catch (err) {
       console.error('Error fetching product sub service by map code:', err)
       throw new Error('Unable to fetch product sub service. Please try again.')
     }
   }
 
-
-    async getAll(): Promise<Array<any>> {
+  async getAll(): Promise<Array<any>> {
     const url = `${this.baseUrl}/getAll`
     try {
       const { data } = await api1.get(url)
       return data || []
-
     } catch (err) {
       console.error('Error fetching product sub services:', err)
       throw new Error('Unable to fetch product sub services')
@@ -120,7 +116,7 @@ export class ProductSubServiceService extends BaseService {
       throw new Error('Unable to fetch product sub service')
     }
   }
-   async getAllServices(): Promise<Array<any>> {
+  async getAllServices(): Promise<Array<any>> {
     const url = `${this.baseUrl}/getAll`
     try {
       const { data } = await api1.get(url)
@@ -130,7 +126,6 @@ export class ProductSubServiceService extends BaseService {
       throw new Error('Unable to fetch services')
     }
   }
-
 
   /**
    * Create product sub service
@@ -149,7 +144,7 @@ export class ProductSubServiceService extends BaseService {
   }> {
     const url = `${this.baseUrl}/createService`
     try {
-      const { data } = await api1.post(url, payload)
+      const data = await api1.post(url, payload)
       return data
     } catch (err) {
       console.error('Error creating product sub service:', err)
@@ -171,7 +166,7 @@ export class ProductSubServiceService extends BaseService {
       effectiveToDate: string
       active: boolean
       modifiedBy: string
-    }
+    },
   ): Promise<{
     status: boolean
     message: string
@@ -193,7 +188,7 @@ export class ProductSubServiceService extends BaseService {
   async getActiveOnly(): Promise<Array<any>> {
     try {
       const all = await this.getAll()
-      return all.filter(item => item.active === true)
+      return all.filter((item) => item.active === true)
     } catch (err) {
       console.error('Error fetching active product sub services:', err)
       throw new Error('Unable to fetch active product sub services')
@@ -219,11 +214,10 @@ export class ProductSubServiceService extends BaseService {
   async getByCountry(countryCode: string): Promise<Array<ProductSubServiceData>> {
     try {
       const all = await this.getAll()
-      return all.filter(item => item.countryCode === countryCode)
+      return all.filter((item) => item.countryCode === countryCode)
     } catch (err) {
       console.error('Error fetching product sub services by country:', err)
       throw new Error('Unable to fetch product sub services by country')
     }
   }
-
 }
