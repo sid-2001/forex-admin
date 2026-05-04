@@ -287,7 +287,7 @@ const UserAdd = () => {
           ...staffData,
           staffIdType: 'Aadhar',
           roleId: selectedRole,
-          created_by: local_service.get_staff_id(),
+          createdBy: local_service.get_staff_id(),
         })
         .then((data) => {
           if (data.status) {
