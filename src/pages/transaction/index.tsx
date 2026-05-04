@@ -47,9 +47,15 @@ const transaction_Service = new TransactionService()
 const helper = new HelperService()
 const local_service = new LocalStorageService()
 const transaction_service = new TransactionService()
+const userCountry = local_service?.get_staff_country()
 
 const TransactionListing = () => {
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<GridColumnVisibilityModel>({})
+
+  const columnHeaderMap: any = {
+    UAE: 'Payment Details',
+    DEFAULT: 'BOP',
+  }
 
   const columns_outward = [
     {
@@ -230,7 +236,7 @@ const TransactionListing = () => {
     },
     {
       field: 'Bop action',
-      headerName: 'Bop',
+      headerName: columnHeaderMap[userCountry] || columnHeaderMap.DEFAULT,
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
@@ -547,7 +553,7 @@ const TransactionListing = () => {
   const navigate = useNavigate()
   const { search } = useLocation()
   const queryParams = new URLSearchParams(search)
-  const userCountry = local_service?.get_staff_country()
+
   const flow = queryParams.get('flow')
 
   // pagination state
