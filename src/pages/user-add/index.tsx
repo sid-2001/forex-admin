@@ -62,6 +62,7 @@ const UserAdd = () => {
     IN: 6,
     ZA: 4,
     GR: 5, // Example for Greece
+    UAE: 5,
   }
 
   const handleToggleChangePermisson = (
@@ -154,7 +155,12 @@ const UserAdd = () => {
   const fetchAllData = async () => {
     setLoading(true)
     try {
-      await Promise.all([fetchRolesList(), fetchCountries(), fetchBranches(), staffId ? fetchStaffDetailsByStaffId() : Promise.resolve()])
+      await Promise.all([
+        fetchRolesList(),
+        fetchCountries(),
+        // fetchBranches(),
+        staffId ? fetchStaffDetailsByStaffId() : Promise.resolve(),
+      ])
     } catch (err) {
       console.error(err)
     } finally {
@@ -191,6 +197,7 @@ const UserAdd = () => {
         //@ts-ignore
         response?.modules,
       )
+      fetchBranches(response?.staffCountry)
 
       const initialPermissions = response?.modules?.map(
         //@ts-ignore
@@ -225,9 +232,9 @@ const UserAdd = () => {
     }
   }
 
-  const fetchBranches = async () => {
+  const fetchBranches = async (country: string) => {
     try {
-      const response = await user_service.BranchList(userCountry)
+      const response = await user_service.BranchList(country)
       setBranchList(response || [])
     } catch (err) {
       console.error('Error fetching branches:', err)
@@ -245,7 +252,10 @@ const UserAdd = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: any; value: any }>) => {
     const { name, value } = e.target
 
-    if (name == 'staffCountries') {
+    if (name === 'staffCountry') {
+      fetchBranches(value)
+    }
+    if (name === 'staffCountries') {
       setStaffData((prev: any) => ({
         ...prev,
         [name]: typeof value === 'string' ? value.split(',') : value,
@@ -585,7 +595,7 @@ const UserAdd = () => {
               </TextField>
             </Grid>
 
-            {/* <Grid item xs={12} sm={2}>
+            <Grid item xs={12} sm={2}>
               <label style={inputLabelStyle}>Postal Code</label>
               <TextField
                 fullWidth
@@ -615,13 +625,14 @@ const UserAdd = () => {
                 SelectProps={{ native: true }}
               >
                 <option value="">-- Select Branch --</option>
-                {branchList.map((branch: any) => (
-                  <option key={branch.id} value={branch.branchCode}>
-                    {branch.city} ({branch.branchCode})
-                  </option>
-                ))}
+                {branchList &&
+                  branchList.map((branch: any) => (
+                    <option key={branch.id} value={branch.branchCode}>
+                      {branch.city} ({branch.branchCode})
+                    </option>
+                  ))}
               </TextField>
-            </Grid> */}
+            </Grid>
           </Grid>
         </Box>
 
