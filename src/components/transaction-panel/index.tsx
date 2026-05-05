@@ -15,7 +15,6 @@ const TransactionPanel = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [yearsData, setYearsData] = useState<any[]>([])
-  const [selectedCounty, SetSelectedCountry] = useRecoilState(selectedCountryState)
   let static_service = new staticdataService()
   let local_service = new LocalStorageService()
   const theme = useTheme()
