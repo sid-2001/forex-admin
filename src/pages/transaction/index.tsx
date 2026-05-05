@@ -163,11 +163,12 @@ const TransactionListing = () => {
     },
 
     {
-      field: 'createdLocalDateTime',
+      field: 'owCreatedDate',
       headerName: 'Date',
+      type: 'Date',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => helper.convertDateAndTime(params?.row?.createdLocalDateTime),
+      renderCell: (params: any) => helper.convertDateAndTime(params?.row?.owCreatedDate),
     },
     {
       field: 'gateway_status',
@@ -1222,7 +1223,7 @@ const TransactionListing = () => {
                   variant="filled"
                   fullWidth
                   //@ts-ignore
-                  defaultValue={helper.convertDateAndTime(transactionDetails.createdLocalDateTime)}
+                  defaultValue={helper.convertDateAndTime(transactionDetails.date)}
                   size="small"
                   disabled
                 />

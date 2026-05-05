@@ -960,15 +960,7 @@ const DashboardLayout = () => {
             >
               {menuItems.map((item, index) => (
                 <>
-                  {!(
-                    (item.name === 'KYC' ||
-                      item.name === 'CDI' ||
-                      item.name === 'Error Codes' ||
-                      item.name === 'Loyalty' ||
-                      item.name === 'Audit-Logs' ||
-                      item.name === 'Static Data') &&
-                    staffCountry === 'UAE'
-                  ) && (
+                  {!(item.name === 'KYC' && staffCountry === 'UAE') && (
                     <ListItem
                       button
                       selected={selectedApp === item.label}
