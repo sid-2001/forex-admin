@@ -71,25 +71,29 @@ const TransactionPanel = () => {
   const fetchYearlyData = async () => {
     setLoading(true)
     try {
-      const res2023 = await static_service.getTransactionYearlyData(local_service.get_staff_country(), 2023)
-      const res2024 = await static_service.getTransactionYearlyData(local_service.get_staff_country(), 2024)
-      const res2025 = await static_service.getTransactionYearlyData(local_service.get_staff_country(), 2025)
+      const lastYear = new Date().getFullYear() - 1
+      const secondLastYear = new Date().getFullYear() - 2
+      const currentYear = new Date().getFullYear()
+
+      const res2023 = await static_service.getTransactionYearlyData(local_service.get_staff_country(), secondLastYear)
+      const res2024 = await static_service.getTransactionYearlyData(local_service.get_staff_country(), lastYear)
+      const res2025 = await static_service.getTransactionYearlyData(local_service.get_staff_country(), currentYear)
 
       setYearsData([
         {
-          year: 2023,
-          totalCount: res2023.data.reduce((a: any, b: any) => a + b.totalCount, 0),
-          totalAmount: res2023.data.reduce((a: any, b: any) => a + b.totalAmount, 0),
+          year: secondLastYear,
+          totalCount: res2023?.data?.reduce((a: any, b: any) => a + b.totalCount, 0),
+          totalAmount: res2023?.data?.reduce((a: any, b: any) => a + b.totalAmount, 0),
         },
         {
-          year: 2024,
-          totalCount: res2024.data.reduce((a: any, b: any) => a + b.totalCount, 0),
-          totalAmount: res2024.data.reduce((a: any, b: any) => a + b.totalAmount, 0),
+          year: lastYear,
+          totalCount: res2024?.data?.reduce((a: any, b: any) => a + b.totalCount, 0),
+          totalAmount: res2024?.data?.reduce((a: any, b: any) => a + b.totalAmount, 0),
         },
         {
-          year: 2025,
-          totalCount: res2025.data.reduce((a: any, b: any) => a + b.totalCount, 0),
-          totalAmount: res2025.data.reduce((a: any, b: any) => a + b.totalAmount, 0),
+          year: currentYear,
+          totalCount: res2025?.data?.reduce((a: any, b: any) => a + b.totalCount, 0),
+          totalAmount: res2025?.data?.reduce((a: any, b: any) => a + b.totalAmount, 0),
         },
       ])
     } catch (err: any) {
