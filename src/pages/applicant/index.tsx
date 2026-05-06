@@ -25,6 +25,7 @@ const ApplicantPage = () => {
   const local_service = new LocalStorageService()
   const kyc_service = new KycService()
   const validation = new FieldValidationService()
+  const userCountry = local_service?.get_staff_country()
 
   const [selectedTab, setSelectedTab] = useState(0)
   const [transactions, setTransactions] = useState<any[]>([])
@@ -48,6 +49,15 @@ const ApplicantPage = () => {
   const getLabel = (fieldName: string): string => {
     return fieldLabels[fieldName] || fieldName.replace(/_/g, ' ')
   }
+
+  const tabs = [
+    { label: `${getLabel('Documents')}` || 'Documents', value: 0, hidden: userCountry === 'UAE' },
+
+    { label: `${getLabel('Beneficiaries')}` || 'Beneficiaries', value: 1 },
+    { label: `${getLabel('Transactions')}` || 'Transactions', value: 2 },
+    { label: `${getLabel('Referral_Redeemed')}` || 'Referral Redeemed Transactions', value: 3 },
+    { label: `${getLabel('Referral_Credited')}` || 'Referral Credited Transactions', value: 4 },
+  ]
 
   // Helper function to get validation message by field name
   const getValidationMessage = (fieldName: string): string => {
@@ -411,181 +421,186 @@ const ApplicantPage = () => {
                 </Grid>
               </Grid>
             </Grid>
+
             <Grid item xs={12} sm={3} sx={{ alignContent: 'top' }}>
-              {MemoizedPieChart}
+              {userCountry !== 'UAE' && <>{MemoizedPieChart}</>}
             </Grid>
           </Grid>
         </Box>
 
         {/* Postal Address Section */}
-        <Box>
-          <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}>
-            <strong>{getLabel('Postal_Address') || 'Postal Address'}</strong>
-          </Typography>
-          <Grid container spacing={2} marginBottom={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                variant="filled"
-                fullWidth
-                label={getLabel('Address_Line_1') || 'Address Line 1'}
-                value={applicantDetails?.postalAddressLine1 || ''}
-                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                variant="filled"
-                fullWidth
-                label={getLabel('Address_Line_2') || 'Address Line 2'}
-                value={applicantDetails?.postalAddressLine2 || ''}
-                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-              />
-            </Grid>
-          </Grid>
 
-          <Grid container spacing={2} marginBottom={2}>
-            {parseData?.staffCountry === 'ZA' && (
+        {userCountry !== 'UAE' && (
+          <Box>
+            <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}>
+              <strong>{getLabel('Postal_Address') || 'Postal Address'}</strong>
+            </Typography>
+            <Grid container spacing={2} marginBottom={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label={getLabel('Address_Line_1') || 'Address Line 1'}
+                  value={applicantDetails?.postalAddressLine1 || ''}
+                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label={getLabel('Address_Line_2') || 'Address Line 2'}
+                  value={applicantDetails?.postalAddressLine2 || ''}
+                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+                />
+              </Grid>
+            </Grid>
+
+            <Grid container spacing={2} marginBottom={2}>
+              {parseData?.staffCountry === 'ZA' && (
+                <Grid item xs={12} sm={2.3}>
+                  <TextField
+                    variant="filled"
+                    fullWidth
+                    label={getLabel('Suburb') || 'Suburb'}
+                    value={applicantDetails?.postalAddressSuburb || ''}
+                    InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+                  />
+                </Grid>
+              )}
+
               <Grid item xs={12} sm={2.3}>
                 <TextField
                   variant="filled"
                   fullWidth
-                  label={getLabel('Suburb') || 'Suburb'}
-                  value={applicantDetails?.postalAddressSuburb || ''}
+                  label={getLabel('City') || 'City'}
+                  value={applicantDetails?.postalAddressCity || ''}
                   InputProps={{ readOnly: true, sx: { color: 'grey' } }}
                 />
               </Grid>
-            )}
 
-            <Grid item xs={12} sm={2.3}>
-              <TextField
-                variant="filled"
-                fullWidth
-                label={getLabel('City') || 'City'}
-                value={applicantDetails?.postalAddressCity || ''}
-                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={2.3}>
-              <TextField
-                variant="filled"
-                fullWidth
-                label={getLabel('State') || 'State'}
-                value={applicantDetails?.postalAddressStateProvince || ''}
-                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={2.3}>
-              <TextField
-                variant="filled"
-                fullWidth
-                label={getLabel('Postal_Code') || 'Postal Code'}
-                value={applicantDetails?.postalAddressPostalCode || ''}
-                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={2.3}>
-              <TextField
-                variant="filled"
-                fullWidth
-                label={getLabel('Country') || 'Country'}
-                value={applicantDetails?.postalAddressCountry || ''}
-                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-              />
-            </Grid>
-          </Grid>
-
-          {/* Residential Address Section */}
-          <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}>
-            <strong>{getLabel('Residential_Address') || 'Residential Address'}</strong>
-          </Typography>
-
-          <Grid container spacing={2} marginBottom={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                variant="filled"
-                fullWidth
-                label={getLabel('Address_Line_1') || 'Address Line 1'}
-                value={applicantDetails?.residentialAddressLine1 || ''}
-                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                variant="filled"
-                fullWidth
-                label={getLabel('Address_Line_2') || 'Address Line 2'}
-                value={applicantDetails?.residentialAddressLine2 || ''}
-                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-              />
-            </Grid>
-          </Grid>
-
-          <Grid container spacing={2} marginBottom={2}>
-            {parseData?.staffCountry === 'ZA' && (
               <Grid item xs={12} sm={2.3}>
                 <TextField
                   variant="filled"
                   fullWidth
-                  label={getLabel('Suburb') || 'Suburb'}
-                  value={applicantDetails?.residentialAddressSuburb || ''}
+                  label={getLabel('State') || 'State'}
+                  value={applicantDetails?.postalAddressStateProvince || ''}
                   InputProps={{ readOnly: true, sx: { color: 'grey' } }}
                 />
               </Grid>
-            )}
 
-            <Grid item xs={12} sm={2.3}>
-              <TextField
-                variant="filled"
-                fullWidth
-                label={getLabel('City') || 'City'}
-                value={applicantDetails?.residentialAddressCity || ''}
-                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-              />
+              <Grid item xs={12} sm={2.3}>
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label={getLabel('Postal_Code') || 'Postal Code'}
+                  value={applicantDetails?.postalAddressPostalCode || ''}
+                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={2.3}>
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label={getLabel('Country') || 'Country'}
+                  value={applicantDetails?.postalAddressCountry || ''}
+                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+                />
+              </Grid>
             </Grid>
-            <Grid item xs={12} sm={2.3}>
-              <TextField
-                variant="filled"
-                fullWidth
-                label={getLabel('State') || 'State'}
-                value={applicantDetails?.residentialAddressStateProvince || ''}
-                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={2.3}>
-              <TextField
-                variant="filled"
-                fullWidth
-                label={getLabel('Postal_Code') || 'Zip Code'}
-                value={applicantDetails?.residentialAddressPostalCode || ''}
-                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={2.3}>
-              <TextField
-                variant="filled"
-                fullWidth
-                label={getLabel('Country') || 'Country'}
-                value={applicantDetails?.residentialAddressCountry || ''}
-                InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-              />
-            </Grid>
-          </Grid>
-        </Box>
 
+            {/* Residential Address Section */}
+            <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}>
+              <strong>{getLabel('Residential_Address') || 'Residential Address'}</strong>
+            </Typography>
+
+            <Grid container spacing={2} marginBottom={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label={getLabel('Address_Line_1') || 'Address Line 1'}
+                  value={applicantDetails?.residentialAddressLine1 || ''}
+                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label={getLabel('Address_Line_2') || 'Address Line 2'}
+                  value={applicantDetails?.residentialAddressLine2 || ''}
+                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+                />
+              </Grid>
+            </Grid>
+
+            <Grid container spacing={2} marginBottom={2}>
+              {parseData?.staffCountry === 'ZA' && (
+                <Grid item xs={12} sm={2.3}>
+                  <TextField
+                    variant="filled"
+                    fullWidth
+                    label={getLabel('Suburb') || 'Suburb'}
+                    value={applicantDetails?.residentialAddressSuburb || ''}
+                    InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+                  />
+                </Grid>
+              )}
+
+              <Grid item xs={12} sm={2.3}>
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label={getLabel('City') || 'City'}
+                  value={applicantDetails?.residentialAddressCity || ''}
+                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={2.3}>
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label={getLabel('State') || 'State'}
+                  value={applicantDetails?.residentialAddressStateProvince || ''}
+                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={2.3}>
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label={getLabel('Postal_Code') || 'Zip Code'}
+                  value={applicantDetails?.residentialAddressPostalCode || ''}
+                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={2.3}>
+                <TextField
+                  variant="filled"
+                  fullWidth
+                  label={getLabel('Country') || 'Country'}
+                  value={applicantDetails?.residentialAddressCountry || ''}
+                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
+                />
+              </Grid>
+            </Grid>
+          </Box>
+        )}
         <Box marginBottom={8}>
           {/* Tab Component */}
-          <Tabs sx={{ marginBottom: '10px' }} value={selectedTab} onChange={handleTabChange} aria-label="Customer data tabs">
-            <Tab label={getLabel('Documents') || 'Documents'} sx={{ marginRight: '2px' }} />
-            <Tab label={getLabel('Beneficiaries') || 'Beneficiaries'} sx={{ marginRight: '2px' }} />
-            <Tab label={getLabel('Transactions') || 'Transactions'} sx={{ marginRight: '2px' }} />
-            <Tab label={getLabel('Referral_Redeemed') || 'Referral Redeemed Transactions'} sx={{ marginRight: '2px' }} />
-            <Tab label={getLabel('Referral_Credited') || 'Referral Credited Transactions'} sx={{ marginRight: '2px' }} />
+
+          <Tabs value={selectedTab} onChange={handleTabChange}>
+            {tabs
+              .filter((t) => !t.hidden)
+              .map((tab) => (
+                //@ts-ignore
+                <Tab key={tab.value} {...tab} x={{ marginRight: '2px' }} />
+              ))}
           </Tabs>
 
           {/* Content Sections */}
-          {selectedTab === 0 && <DocumentsListComponent documentRecords={applicantDocuments || []} />}
+          {userCountry !== 'UAE' && selectedTab === 0 && <DocumentsListComponent documentRecords={applicantDocuments || []} />}
           {selectedTab === 1 && <BeneficiaryTable beneficiary={applicantDetails?.beneficiaryList || []} />}
           {selectedTab === 2 && (
             <TransactionTable
