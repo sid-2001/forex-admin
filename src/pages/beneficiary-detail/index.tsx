@@ -11,14 +11,15 @@ import { CountryLabelData, CountryReportingLabelDTO } from '@/types/field.valida
 const BeneficiaryDetailPage = () => {
   const navigate = useNavigate()
   const { beneficiaryId } = useParams()
-  
+
   const beneficiary_service = new BeneficiaryService()
   const local_service = new LocalStorageService()
   const helper_service = new HelperService()
   const validation = new FieldValidationService()
+  const userCountry = local_service?.get_staff_country()
 
   const [beneficiaryData, setBeneficiaryData] = useState<any>({})
-  
+
   // Field validation states
   const [fieldValidations, setFieldValidations] = useState<CountryLabelData>()
   const [fieldLabels, setFieldLabels] = useState<Record<string, string>>({})
@@ -38,19 +39,15 @@ const BeneficiaryDetailPage = () => {
   useEffect(() => {
     const fetchFieldValidations = async () => {
       try {
-        const response = await validation.getScreenFieldvalidation(
-          "BENEFICIARY",
-          local_service.get_staff_country(),
-          "W"
-        )
-        
+        const response = await validation.getScreenFieldvalidation('BENEFICIARY', local_service.get_staff_country(), 'W')
+
         if (response?.data) {
           setFieldValidations(response.data)
-          
+
           // Create lookup maps for labels and messages
           const labelsMap: Record<string, string> = {}
           const messagesMap: Record<string, string> = {}
-          
+
           response.data.countryReportingLabelDTO?.forEach((item: CountryReportingLabelDTO) => {
             const fieldName = item.countryLabelFieldNameAndValidation?.fieldName?.trim()
             if (fieldName) {
@@ -58,12 +55,12 @@ const BeneficiaryDetailPage = () => {
               messagesMap[fieldName] = item.countryLabelFieldNameAndValidation?.validationMessageMandatory
             }
           })
-          
+
           setFieldLabels(labelsMap)
           setFieldMessages(messagesMap)
         }
       } catch (error) {
-        console.error("Error fetching field validations:", error)
+        console.error('Error fetching field validations:', error)
       }
     }
 
@@ -110,7 +107,7 @@ const BeneficiaryDetailPage = () => {
             </Button>
           )}
         </Box>
-        
+
         {/* Beneficiary Information Form */}
         <Box mt={2}>
           <Grid container spacing={2} marginBottom={2}>
@@ -211,107 +208,108 @@ const BeneficiaryDetailPage = () => {
         </Box>
 
         {/* Address Section */}
-        <Box mb={3}>
-          <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 2 }}>
-            <strong>{getLabel('Beneficiary_Address_Details') || 'Address'}</strong>
-          </Typography>
-          <Grid container spacing={2} marginBottom={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                size="small"
-                fullWidth
-                variant="filled"
-                label={getLabel('Address_Line_1') || 'Address Line 1'}
-                name="physicalAddressLine1"
-                value={beneficiaryData?.physicalAddressLine1 || ''}
-                InputProps={{
-                  readOnly: true,
-                }}
-              />
+        {userCountry !== 'UAE' && (
+          <Box mb={3}>
+            <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 2 }}>
+              <strong>{getLabel('Beneficiary_Address_Details') || 'Address'}</strong>
+            </Typography>
+            <Grid container spacing={2} marginBottom={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  size="small"
+                  fullWidth
+                  variant="filled"
+                  label={getLabel('Address_Line_1') || 'Address Line 1'}
+                  name="physicalAddressLine1"
+                  value={beneficiaryData?.physicalAddressLine1 || ''}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  variant="filled"
+                  size="small"
+                  fullWidth
+                  label={getLabel('Address_Line_2') || 'Address Line 2'}
+                  name="addressLine2"
+                  value={beneficiaryData?.physicalAddressLine2 || ''}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </Grid>
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                variant="filled"
-                size="small"
-                fullWidth
-                label={getLabel('Address_Line_2') || 'Address Line 2'}
-                name="addressLine2"
-                value={beneficiaryData?.physicalAddressLine2 || ''}
-                InputProps={{
-                  readOnly: true,
-                }}
-              />
+            <Grid container spacing={2} marginBottom={2}>
+              <Grid item xs={12} sm={2.3}>
+                <TextField
+                  variant="filled"
+                  size="small"
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  fullWidth
+                  label={getLabel('Suburb') || 'Suburb'}
+                  name="suburb"
+                  value={beneficiaryData?.suburb || ''}
+                />
+              </Grid>
+              <Grid item xs={12} sm={2.3}>
+                <TextField
+                  variant="filled"
+                  size="small"
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  fullWidth
+                  label={getLabel('City') || 'City'}
+                  name="city"
+                  value={beneficiaryData?.city || ''}
+                />
+              </Grid>
+              <Grid item xs={12} sm={2.3}>
+                <TextField
+                  variant="filled"
+                  size="small"
+                  fullWidth
+                  label={getLabel('Province_State') || 'State/Province'}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  name="state"
+                  value={beneficiaryData?.beneficiaryState || ''}
+                />
+              </Grid>
+              <Grid item xs={12} sm={2.3}>
+                <TextField
+                  variant="filled"
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  size="small"
+                  fullWidth
+                  label={getLabel('ZIP_PIN_Code') || 'ZipCode'}
+                  name="postCode"
+                  value={beneficiaryData?.postCode || ''}
+                />
+              </Grid>
+              <Grid item xs={12} sm={2.3}>
+                <TextField
+                  variant="filled"
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  size="small"
+                  fullWidth
+                  label={getLabel('Country') || 'Country'}
+                  name="country"
+                  value={beneficiaryData?.country || ''}
+                />
+              </Grid>
             </Grid>
-          </Grid>
-          <Grid container spacing={2} marginBottom={2}>
-            <Grid item xs={12} sm={2.3}>
-              <TextField
-                variant="filled"
-                size="small"
-                InputProps={{
-                  readOnly: true,
-                }}
-                fullWidth
-                label={getLabel('Suburb') || 'Suburb'}
-                name="suburb"
-                value={beneficiaryData?.suburb || ''}
-              />
-            </Grid>
-            <Grid item xs={12} sm={2.3}>
-              <TextField
-                variant="filled"
-                size="small"
-                InputProps={{
-                  readOnly: true,
-                }}
-                fullWidth
-                label={getLabel('City') || 'City'}
-                name="city"
-                value={beneficiaryData?.city || ''}
-              />
-            </Grid>
-            <Grid item xs={12} sm={2.3}>
-              <TextField
-                variant="filled"
-                size="small"
-                fullWidth
-                label={getLabel('Province_State') || 'State/Province'}
-                InputProps={{
-                  readOnly: true,
-                }}
-                name="state"
-                value={beneficiaryData?.beneficiaryState || ''}
-              />
-            </Grid>
-            <Grid item xs={12} sm={2.3}>
-              <TextField
-                variant="filled"
-                InputProps={{
-                  readOnly: true,
-                }}
-                size="small"
-                fullWidth
-                label={getLabel('ZIP_PIN_Code') || 'ZipCode'}
-                name="postCode"
-                value={beneficiaryData?.postCode || ''}
-              />
-            </Grid>
-            <Grid item xs={12} sm={2.3}>
-              <TextField
-                variant="filled"
-                InputProps={{
-                  readOnly: true,
-                }}
-                size="small"
-                fullWidth
-                label={getLabel('Country') || 'Country'}
-                name="country"
-                value={beneficiaryData?.country || ''}
-              />
-            </Grid>
-          </Grid>
-        </Box>
-
+          </Box>
+        )}
         {/* Bank Account Section */}
         <Box>
           <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 2 }}>
@@ -367,22 +365,24 @@ const BeneficiaryDetailPage = () => {
                   readOnly: true,
                 }}
                 name="bankBicCode"
-                value={beneficiaryData?.bankBicCode || ''}
+                value={beneficiaryData?.ifscCode || ''}
               />
             </Grid>
-            <Grid item xs={12} sm={8}>
-              <TextField
-                variant="filled"
-                size="small"
-                fullWidth
-                InputProps={{
-                  readOnly: true,
-                }}
-                label={getLabel('Bank_Location') || 'Bank Location'}
-                name="bankLocation"
-                value={beneficiaryData?.bankLocation || ''}
-              />
-            </Grid>
+            {userCountry !== 'UAE' && (
+              <Grid item xs={12} sm={8}>
+                <TextField
+                  variant="filled"
+                  size="small"
+                  fullWidth
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  label={getLabel('Bank_Location') || 'Bank Location'}
+                  name="bankLocation"
+                  value={beneficiaryData?.bankLocation || ''}
+                />
+              </Grid>
+            )}
           </Grid>
         </Box>
       </Box>

@@ -25,18 +25,6 @@ import CompactLocationBar from '@/components/location'
 import ProductConfigService from '@/services/product.config.service'
 
 const Dashboard = () => {
-  // Sample dashboard data
-  const theme = useTheme()
-  const dashboardData = {
-    totalTransactions: 1245,
-    totalActiveCustomers: 843,
-    totalApplicants: 312,
-    totalProfit: 125600,
-    monthlyGrowth: 4.5,
-  }
-
-  // Modal state
-
   const [applicatnData, setapplicantData] = useState<
     Array<{
       applicantId: String
@@ -73,22 +61,6 @@ const Dashboard = () => {
     })
   }
 
-  // const fetchProductConfig = async (countryCode: any) => {
-  //   try {
-  //     const response = await fetch(`https://api.impronics.com/api/static-table/countryCorridorProduct/getByCountryCode/${countryCode}`, {
-  //       method: 'GET',
-  //       headers: { 'Content-Type': 'application/json' },
-  //     })
-
-  //     const result = await response.json()
-
-  //     if (result.status && result.data && result.data.length > 0) {
-  //       localStorage.setItem('countryConfig', JSON.stringify(result.data[0]))
-  //     }
-  //   } catch (error) {
-  //     console.error('Error fetching product config:', error)
-  //   }
-  // }
   const fetchProductConfig = async (countryCode: string) => {
     try {
       // const res = await ProductConfigService.getByCountryCode(countryCode)
@@ -247,6 +219,9 @@ const Dashboard = () => {
     },
   ]
 
+  const filteredRecentTransColumns =
+    userCountry === 'UAE' ? RECENT_TRANSACTIONS_COLUMNS.filter((col) => col.field !== 'reported') : RECENT_TRANSACTIONS_COLUMNS
+
   // ✅ Custom Toolbar (same as ApplicantDataGrid)
   const handleExportCSV = () => {
     if (!recentTransaction || recentTransaction.length === 0) return
@@ -264,7 +239,7 @@ const Dashboard = () => {
         receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
         amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
         reported: transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
-        date: helper.convertDateAndTime(transaction?.transactionOutward?.owCreatedDate),
+        date: helper.convertDateAndTime(transaction?.transactionOutward?.createdLocaldatetime),
         status: transaction?.transactionOutward?.reportingStatus,
       }
 
@@ -293,7 +268,7 @@ const Dashboard = () => {
         receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
         amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
         reported: transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
-        date: helper.convertDateAndTime(transaction?.transactionOutward?.owCreatedDate),
+        date: helper.convertDateAndTime(transaction?.transactionOutward?.createdLocaldatetime),
         status: transaction?.transactionOutward?.reportingStatus,
       }
 
@@ -658,25 +633,28 @@ const Dashboard = () => {
                         </Typography>
                       </Box>
                     </Grid>
-                    <Grid item xs={4}>
-                      <Box
-                        sx={{
-                          background: 'linear-gradient(to bottom, #64B5F6,rgb(21, 103, 171))',
-                          borderRadius: 2,
-                          p: 2,
-                          textAlign: 'center',
-                          color: 'black',
-                        }}
-                      >
-                        <Typography variant="h6" fontWeight={700}>
-                          {consumersData?.kycVerified ?? 0}
-                        </Typography>
-                        <Typography variant="body2">Users</Typography>
-                        <Typography variant="caption" fontWeight="bold">
-                          Verified
-                        </Typography>
-                      </Box>
-                    </Grid>
+                    {userCountry !== 'UAE' && (
+                      <Grid item xs={4}>
+                        <Box
+                          sx={{
+                            background: 'linear-gradient(to bottom, #64B5F6,rgb(21, 103, 171))',
+                            borderRadius: 2,
+                            p: 2,
+                            textAlign: 'center',
+                            color: 'black',
+                          }}
+                        >
+                          <Typography variant="h6" fontWeight={700}>
+                            {consumersData?.kycVerified ?? 0}
+                          </Typography>
+                          <Typography variant="body2">Users</Typography>
+                          <Typography variant="caption" fontWeight="bold">
+                            Verified
+                          </Typography>
+                        </Box>
+                      </Grid>
+                    )}
+
                     <Grid item xs={4}>
                       <Box
                         sx={{
@@ -741,10 +719,10 @@ const Dashboard = () => {
                       amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
                       reported:
                         transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
-                      date: helper.convertDateAndTime(transaction?.transactionOutward?.owCreatedDate),
+                      date: helper.convertDateAndTime(transaction?.transactionOutward?.createdLocaldatetime),
                       status: transaction?.transactionOutward?.reportingStatus,
                     }))}
-                    columns={RECENT_TRANSACTIONS_COLUMNS}
+                    columns={filteredRecentTransColumns}
                     filterModel={filterModel}
                     onFilterModelChange={(model) => setFilterModel(model)}
                     columnVisibilityModel={columnVisibilityModel}
