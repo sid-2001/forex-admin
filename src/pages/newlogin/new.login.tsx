@@ -50,17 +50,36 @@ const LoginPage = () => {
   const field_validataion_service = new FieldValidationService()
   const navigate = useNavigate()
 
-  const checkType = (value: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    const phoneRegex = /^[6-9]\d{9}$/
-    const usernameRegex = /^[a-zA-Z0-9_.]{3,20}$/
+const checkType = (value: string) => {
+  const trimmed = value.trim()
 
-    if (emailRegex.test(value)) return 'email'
-    if (phoneRegex.test(value)) return 'phone'
-    if (usernameRegex.test(value)) return 'username'
-    return 'invalid'
+  const emailRegex =
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  const phoneRegex =
+    /^[6-9]\d{9}$/
+
+  // username:
+  // - 3 to 20 chars
+  // - letters, numbers, _ .
+  // - must contain at least one letter
+  const usernameRegex =
+    /^(?=.*[a-zA-Z])[a-zA-Z0-9_.]{3,20}$/
+
+  if (emailRegex.test(trimmed)) {
+    return 'email'
   }
 
+  if (phoneRegex.test(trimmed)) {
+    return 'phone'
+  }
+
+  if (usernameRegex.test(trimmed)) {
+    return 'username'
+  }
+
+  return 'invalid'
+}
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setEmail(value)
@@ -156,9 +175,9 @@ const LoginPage = () => {
         usename: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.label : 'username',
         password: password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation?.label : 'password',
         username_validataion_msg:
-          username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation.validationMessageMandatory : 'Enter Valid Username',
+          username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation.validationMessageMandatory : ' Please enter a valid Username',
         Password_validataion_msg:
-          password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation.validationMessageMandatory : 'Enter Valid Password',
+          password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation.validationMessageMandatory : 'Please enter a valid Password',
 
         username_minimum_legth: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.minLength : 1,
 
@@ -228,7 +247,12 @@ const LoginPage = () => {
               value={email}
               onChange={handleChange}
               error={!!error} // Show error state when there's an error
-              helperText={error || validataion?.username_validataion_msg} // Show validation message
+               helperText={
+    email
+      ? (error || validataion?.username_validataion_msg)
+      : ''
+  }
+              // helperText={error || validataion?.username_validataion_msg} // Show validation message
               inputProps={{
                 minLength: validataion?.username_minimum_legth,
                 maxLength: validataion?.username_max_length,
@@ -246,7 +270,12 @@ const LoginPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               //@ts-ignore
               error={!!password && password.length < (validataion?.Password_minimum_legth || 1)} // Add validation
-              helperText={validataion?.Password_validataion_msg}
+               helperText={
+    password
+      ? validataion?.Password_validataion_msg
+      : ''
+  }
+              // helperText={   validataion?.Password_validataion_msg}
               inputProps={{
                 minLength: validataion?.Password_minimum_legth,
                 maxLength: validataion?.Password_max_length,
@@ -268,7 +297,7 @@ const LoginPage = () => {
               disabled={!email || !password || !!error}
               sx={{ mt: 3, py: 1.5, backgroundColor: '#0361B1' }}
             >
-              Sign In 1
+              Sign In 
             </Button>
           </form>
 

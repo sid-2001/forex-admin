@@ -62,10 +62,7 @@ const TransactionListing = () => {
       field: 'id',
       headerName: 'Transaction ID',
       width: 200,
-      minWidth: 200,
-      maxWidth: 200,
       sortable: false,
-      resizable: false,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <a href="#" style={{ color: theme.palette.text.primary }} onClick={() => handleViewMore(params.row)}>
@@ -78,10 +75,7 @@ const TransactionListing = () => {
       field: 'transactionInwardNumber',
       headerName: 'Inward ID',
       width: 200,
-      minWidth: 200,
-      maxWidth: 200,
       sortable: false,
-      resizable: false,
       headerClassName: 'super-app-theme--header',
     },
 
@@ -241,6 +235,7 @@ const TransactionListing = () => {
       renderCell: (params: any) => (
         <IconButton
           onClick={() => {
+            console.log(params.row, 'rowww')
             handleNavigation(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`)
             handleViewMore(params.row)
           }}
@@ -1109,13 +1104,15 @@ const TransactionListing = () => {
                 columns={transactionType === 'inwards' ? inward_columns : filteredColumns}
                 getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
                 pageSizeOptions={[10, 20, 50]}
-                paginationMode="server"
-                filterMode="server"
-                paginationModel={paginationModel}
-                onPaginationModelChange={handlePaginationChange}
-                filterModel={filterModel}
-                onFilterModelChange={handleFilterChange}
+                // paginationMode="server"
+                // filterMode="server"
+                // paginationModel={paginationModel}
+                // onPaginationModelChange={handlePaginationChange}
+                // filterModel={filterModel}
+                // onFilterModelChange={handleFilterChange}
                 rowCount={1000}
+                disableColumnMenu
+                disableRowSelectionOnClick
                 loading={getLoadingState()}
                 columnVisibilityModel={columnVisibilityModel}
                 onColumnVisibilityModelChange={setColumnVisibilityModel}
