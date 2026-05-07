@@ -10,7 +10,7 @@ import { alertState, alertTextState, alertTypeState, countyState } from '@/state
 import { useRecoilState } from 'recoil'
 import { HelperService } from '@/helpers/helper'
 import { useTheme } from '@emotion/react'
-import { Chip} from '@mui/material';
+import { Chip } from '@mui/material'
 import { CheckIcon } from 'lucide-react'
 // import PhoneInput from 'react-phone-number-input'
 
@@ -568,79 +568,68 @@ const UserAdd = () => {
               </TextField>
             </Grid>
 
-          
+            <Grid item xs={12} sm={2}>
+              <label style={inputLabelStyle}>Access Country</label>
 
+              <TextField
+                select
+                fullWidth
+                name="staffCountries"
+                //@ts-ignore
+                value={staffData?.staffCountries || []}
+                onChange={handleChange}
+                InputProps={{ readOnly: !isEditable }}
+                SelectProps={{
+                  multiple: true,
 
-<Grid item xs={12} sm={2}>
-  <label style={inputLabelStyle}>Access Country</label>
+                  renderValue: (selected: any) => (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        gap: 0.5,
+                        overflowX: 'auto',
+                        whiteSpace: 'nowrap',
+                        flexWrap: 'nowrap',
+                        scrollbarWidth: 'thin',
+                        '&::-webkit-scrollbar': {
+                          height: 6,
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                          backgroundColor: '#bdbdbd',
+                          borderRadius: 10,
+                        },
+                      }}
+                    >
+                      {countryList
+                        .filter((c: any) => selected.includes(c.countryCode))
+                        .map((c: any) => (
+                          <Chip key={c.countryCode} label={c.countryName} size="small" sx={{ flexShrink: 0 }} />
+                        ))}
+                    </Box>
+                  ),
+                }}
+              >
+                {countryList.map((country: any) => {
+                  //@ts-ignore
+                  const isSelected = staffData?.staffCountries?.includes(country.countryCode)
 
-  <TextField
-    select
-    fullWidth
-    name="staffCountries"
-    value={staffData?.staffCountries || []}
-    onChange={handleChange}
-    InputProps={{ readOnly: !isEditable }}
-    SelectProps={{
-      multiple: true,
+                  return (
+                    <MenuItem key={country.countryCode} value={country.countryCode}>
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 30,
+                          color: isSelected ? 'primary.main' : 'transparent',
+                        }}
+                      >
+                        <CheckIcon fontSize="small" />
+                      </ListItemIcon>
 
-      renderValue: (selected: any) => (
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 0.5,
-            overflowX: 'auto',
-            whiteSpace: 'nowrap',
-            flexWrap: 'nowrap',
-            scrollbarWidth: 'thin',
-            '&::-webkit-scrollbar': {
-              height: 6,
-            },
-            '&::-webkit-scrollbar-thumb': {
-              backgroundColor: '#bdbdbd',
-              borderRadius: 10,
-            },
-          }}
-        >
-          {countryList
-            .filter((c: any) => selected.includes(c.countryCode))
-            .map((c: any) => (
-              <Chip
-                key={c.countryCode}
-                label={c.countryName}
-                size="small"
-                sx={{ flexShrink: 0 }}
-              />
-            ))}
-        </Box>
-      ),
-    }}
-  >
-    {countryList.map((country: any) => {
-      const isSelected = staffData?.staffCountries?.includes(
-        country.countryCode
-      );
-
-      return (
-        <MenuItem
-          key={country.countryCode}
-          value={country.countryCode}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 30,
-              color: isSelected ? 'primary.main' : 'transparent',
-            }}
-          >
-            <CheckIcon fontSize="small" />
-          </ListItemIcon>
-
-          <ListItemText primary={country.countryName} />
-        </MenuItem>
-      );
-    })}
-  </TextField>
-</Grid>
+                      <ListItemText primary={country.countryName} />
+                    </MenuItem>
+                  )
+                })}
+              </TextField>
+            </Grid>
             <Grid item xs={12} sm={2}>
               <label style={inputLabelStyle}>Postal Code</label>
               <TextField
