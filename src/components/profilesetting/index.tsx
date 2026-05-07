@@ -28,7 +28,7 @@ const getAvatarUrl = (seed: string) => {
   }
 
   const style = avatarStyles[Math.abs(hash) % avatarStyles.length]
-  return `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}`
+  return `https://api.dicebear.com/7.x/bottts/svg?seed=${seed}`
 }
 
 // Function to generate consistent color based on staff ID or name
