@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Box, Grid, TextField, Typography, Button, Switch, MenuItem, CircularProgress } from '@mui/material'
+import { Box, Grid, TextField, Typography, Button, Switch, MenuItem, CircularProgress, ListItemText, ListItemIcon } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
 import { DataGrid } from '@mui/x-data-grid'
 import HasPermission from '@/components/permissionWrapper'
@@ -10,6 +10,8 @@ import { alertState, alertTextState, alertTypeState, countyState } from '@/state
 import { useRecoilState } from 'recoil'
 import { HelperService } from '@/helpers/helper'
 import { useTheme } from '@emotion/react'
+import { Chip} from '@mui/material';
+import { CheckIcon } from 'lucide-react'
 // import PhoneInput from 'react-phone-number-input'
 
 //@ts-ignore
@@ -303,7 +305,7 @@ const UserAdd = () => {
           if (data.status) {
             settype('success')
             setText('Staff created successfully!')
-            // navigate('/profile')
+            navigate('/profile')
           } else {
             setText(data?.message)
             settype('error')
@@ -566,35 +568,79 @@ const UserAdd = () => {
               </TextField>
             </Grid>
 
-            <Grid item xs={12} sm={2}>
-              <label style={inputLabelStyle}>Access Country</label>
-              <TextField
-                select
-                fullWidth
-                name="staffCountries"
-                //@ts-ignore
-                value={staffData?.staffCountries || []}
-                //@ts-ignore
-                // must be array
-                onChange={handleChange}
-                InputProps={{ readOnly: !isEditable }}
-                SelectProps={{
-                  multiple: true,
-                  renderValue: (selected: any) =>
-                    countryList
-                      .filter((c: any) => selected.includes(c.countryCode))
-                      .map((c: any) => c.countryName)
-                      .join(', '),
-                }}
-              >
-                {countryList.map((country: any) => (
-                  <MenuItem key={country.countryCode} value={country.countryCode}>
-                    {country.countryName}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
+          
 
+
+<Grid item xs={12} sm={2}>
+  <label style={inputLabelStyle}>Access Country</label>
+
+  <TextField
+    select
+    fullWidth
+    name="staffCountries"
+    value={staffData?.staffCountries || []}
+    onChange={handleChange}
+    InputProps={{ readOnly: !isEditable }}
+    SelectProps={{
+      multiple: true,
+
+      renderValue: (selected: any) => (
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 0.5,
+            overflowX: 'auto',
+            whiteSpace: 'nowrap',
+            flexWrap: 'nowrap',
+            scrollbarWidth: 'thin',
+            '&::-webkit-scrollbar': {
+              height: 6,
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: '#bdbdbd',
+              borderRadius: 10,
+            },
+          }}
+        >
+          {countryList
+            .filter((c: any) => selected.includes(c.countryCode))
+            .map((c: any) => (
+              <Chip
+                key={c.countryCode}
+                label={c.countryName}
+                size="small"
+                sx={{ flexShrink: 0 }}
+              />
+            ))}
+        </Box>
+      ),
+    }}
+  >
+    {countryList.map((country: any) => {
+      const isSelected = staffData?.staffCountries?.includes(
+        country.countryCode
+      );
+
+      return (
+        <MenuItem
+          key={country.countryCode}
+          value={country.countryCode}
+        >
+          <ListItemIcon
+            sx={{
+              minWidth: 30,
+              color: isSelected ? 'primary.main' : 'transparent',
+            }}
+          >
+            <CheckIcon fontSize="small" />
+          </ListItemIcon>
+
+          <ListItemText primary={country.countryName} />
+        </MenuItem>
+      );
+    })}
+  </TextField>
+</Grid>
             <Grid item xs={12} sm={2}>
               <label style={inputLabelStyle}>Postal Code</label>
               <TextField
