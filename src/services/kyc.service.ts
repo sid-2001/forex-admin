@@ -84,7 +84,7 @@ export class KycService extends BaseService {
   }
 
   //@ts-ignore
-  async getCharges(sourceCountry, destinationCountry, amount, segment,applicatnId) {
+  async getCharges(sourceCountry, destinationCountry, amount, segment, applicatnId) {
     const url = `/api/charges/service/filterByApplicantId?sendingCountry=${sourceCountry}&receivingCountry=${destinationCountry}&amount=${amount}&marketSegment=02&applicantId=${applicatnId}`
     try {
       const data = await api1.get(url)
@@ -106,6 +106,26 @@ export class KycService extends BaseService {
 
   async getReferralRedeemedTransactions(applicantId: string) {
     const url = `/api/kyc/referral-transaction/redeemed/${applicantId}`
+    try {
+      const data = await api1.get(url)
+      return data as any
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  async getRedeemedReferralsByApplicantId(applicantId: string) {
+    const url = `/api/kyc/lulu/referral-redeem/web-panel/history/${applicantId}`
+    try {
+      const data = await api1.get(url)
+      return data as any
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  async getAllReferrals() {
+    const url = `/api/kyc/lulu/referral-redeem/web-panel/all`
     try {
       const data = await api1.get(url)
       return data as any

@@ -719,7 +719,7 @@ const Dashboard = () => {
                       amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
                       reported:
                         transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
-                      date: helper.convertDateAndTime(transaction?.transactionOutward?.createdLocaldatetime),
+                      date: helper.convertDateAndTime(transaction?.transactionOutward?.createdLocalDateTime),
                       status: transaction?.transactionOutward?.reportingStatus,
                     }))}
                     columns={filteredRecentTransColumns}

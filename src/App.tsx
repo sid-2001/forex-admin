@@ -96,6 +96,7 @@ import ProductSubServiceMaster from './pages/product-sub-service'
 import InactivityWarningModal from './components/inactivity-modal'
 import ServiceSubServiceMapping from './pages/subservice-mapping'
 import AuditScreen from './pages/audit-screen'
+import ReferralTable from './pages/referrals'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -306,6 +307,7 @@ function App() {
               <Route path="country-product-code" element={<CountryCorridorProductMaster />} />
               <Route path="product-subservice" element={<ProductSubServiceMaster />} />
               <Route path="service-sub-service-mapping" element={<ServiceSubServiceMapping />} />
+              <Route path="referrals" element={<ReferralTable />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 
