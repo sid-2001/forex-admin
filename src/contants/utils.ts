@@ -6,5 +6,7 @@ export const statusColors: any = {
   NACK: 'red',
   COMPLETED: 'green',
   FAILED: 'red',
-  SUCCESS:'green',
+  SUCCESS: 'green',
+  APPROVED: 'green',
+  REJECTED: 'black',
 }

@@ -1,7 +1,9 @@
 import react, { useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
-import { Box, Button, Dialog, DialogContent, DialogTitle, DialogActions } from '@mui/material'
+import { Box, Button, Dialog, DialogContent, DialogTitle, DialogActions, Chip } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
+import { HelperService } from '@/helpers/helper'
+import { statusColors } from '@/contants/utils'
 
 //@ts-ignore
 const ReferralDataGrid = ({ rows, columns, width }) => {
@@ -46,6 +48,7 @@ const ReferralTransactions = ({
   const [showTransactionModal, setShowTransactionModal] = useState<boolean>(false)
   const [transactionList, setTransactionList] = useState<any>([])
   const navigate = useNavigate()
+  const helper = new HelperService()
 
   const ReferralColumns = [
     {
@@ -81,6 +84,7 @@ const ReferralTransactions = ({
       // ),
     },
   ]
+
   const ReferralCreditedColumns = [
     {
       field: 'countryCode',
@@ -130,16 +134,73 @@ const ReferralTransactions = ({
     },
   ]
 
+  const RedeemedReferralsColumns = [
+    {
+      field: 'countryCode',
+      headerName: 'Country Code',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'code',
+      headerName: 'Code',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'status',
+      headerName: 'Status',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        const status = params?.row?.status?.toUpperCase?.() || ''
+
+        if (!status) {
+          return null // 👈 empty ho toh chip hi na render karo
+          // OR return <Chip label="N/A" size="small" />; // fallback chahiye toh
+        }
+
+        return (
+          <Chip
+            label={status}
+            sx={{
+              backgroundColor: statusColors[status] || 'grey',
+              color: 'white',
+              fontWeight: 'bold',
+            }}
+          />
+        )
+      },
+    },
+    {
+      field: 'amount',
+      headerName: 'Amount',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'createdLocalDateTime',
+      headerName: 'Date',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => helper.convertDateAndTime(params?.row?.createdLocalDateTime),
+    },
+  ]
+
   const handleModalClose = () => {
-    
     setShowTransactionModal(!setShowTransactionModal)
+  }
+
+  const gridColumns = () => {
+    if (referralType === 'Credited') return ReferralCreditedColumns
+    else if (referralType === 'Redeemed') return ReferralColumns
+    else if (referralType === 'RedeemReferral') return RedeemedReferralsColumns
   }
 
   return (
     <Box>
       {referralRecords && referralRecords.length > 0 ? (
-        <ReferralDataGrid rows={referralRecords} columns={referralType === 'Credited' ? ReferralCreditedColumns : ReferralColumns} width={'70vw'} 
-        />
+        <ReferralDataGrid rows={referralRecords} columns={gridColumns()} width={'70vw'} />
       ) : (
         <p>No Referral Found</p>
       )}
@@ -147,7 +208,7 @@ const ReferralTransactions = ({
       <Dialog open={showTransactionModal} onClose={handleModalClose} fullWidth maxWidth="md">
         <DialogTitle>All Transactions</DialogTitle>
         <DialogContent>
-          <div style={{ height: 400, width: '800', marginTop: 16 ,  }}>
+          <div style={{ height: 400, width: '800', marginTop: 16 }}>
             <ReferralDataGrid rows={transactionList} width={'600'} columns={ReferralColumns} />
           </div>
         </DialogContent>

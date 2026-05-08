@@ -14,7 +14,6 @@ import BeneficiaryTable from '@/components/beneficiary-table'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { FieldValidationService } from '@/services/fieldvalidstion.service'
 import { CountryLabelData, CountryReportingLabelDTO } from '@/types/field.validation.type'
-import { ConsoleLogger } from '@/helpers/logger'
 
 const ApplicantPage = () => {
   const navigate = useNavigate()
@@ -37,6 +36,7 @@ const ApplicantPage = () => {
   const [applicantDocuments, setApplicantDocuments] = useState<any[]>([])
   const [applicantDetails, setApplicantDetails] = useState<any>({})
   const [kycId, setKycId] = useState<string | null>(null)
+  const [redeemReferralTrans, setRedeemReferralTrans] = useState<any>([])
 
   // Field validation states
   const [fieldValidations, setFieldValidations] = useState<CountryLabelData>()
@@ -57,6 +57,7 @@ const ApplicantPage = () => {
     { label: `${getLabel('Transactions')}` || 'Transactions', value: 2 },
     { label: `${getLabel('Referral_Redeemed')}` || 'Referral Redeemed Transactions', value: 3 },
     { label: `${getLabel('Referral_Credited')}` || 'Referral Credited Transactions', value: 4 },
+    { label: 'Redeem Referral', value: 5, hidden: userCountry !== 'UAE' },
   ]
 
   // Helper function to get validation message by field name
@@ -144,6 +145,7 @@ const ApplicantPage = () => {
     fetchReferralRedeemedTransactions()
     fetchReferralCreditedTransactions()
     getdocumentlistByApplicantId()
+    fetchRedeemReferrals()
   }, [])
 
   const fetchComplianceLimitData = async () => {
@@ -171,8 +173,8 @@ const ApplicantPage = () => {
 
       setApplicantDetails({
         ...applicant,
-        email: applicantContactDetails?.[1]?.contactDetails,
-        phone: applicantContactDetails?.[0]?.contactDetails,
+        email: applicantContactDetails?.find((item: any) => item.contactType === 'email')?.contactDetails,
+        phone: applicantContactDetails?.find((item: any) => item.contactType === 'phone')?.contactDetails,
         beneficiaryList,
         kycStatus,
       })
@@ -239,6 +241,16 @@ const ApplicantPage = () => {
     try {
       const { data } = await kyc_service.getReferralCreditedTransactions(applicantId)
       setReferralCreditedTransaction(data || [])
+    } catch (error) {
+      console.error('Error fetching data:', error)
+    }
+  }, [applicantId])
+
+  const fetchRedeemReferrals = useCallback(async () => {
+    if (!applicantId) return
+    try {
+      const { data } = await kyc_service.getRedeemedReferralsByApplicantId(applicantId)
+      setRedeemReferralTrans(data || [])
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -612,6 +624,7 @@ const ApplicantPage = () => {
           )}
           {selectedTab === 3 && <ReferralTransactions referralRecords={referralRedeemTransaction || []} referralType={'Redeemed'} />}
           {selectedTab === 4 && <ReferralTransactions referralRecords={referralCreditedTransaction || []} referralType={'Credited'} />}
+          {selectedTab === 5 && <ReferralTransactions referralRecords={redeemReferralTrans || []} referralType={'RedeemReferral'} />}
         </Box>
       </Box>
     </HasPermission>

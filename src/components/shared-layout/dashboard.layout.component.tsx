@@ -719,6 +719,23 @@ const DashboardLayout = () => {
       label: 'Role',
       name: 'Roles',
     },
+
+    {
+      icon: (
+        <>
+          <SupervisedUserCircleIcon
+            sx={{
+              //@ts-ignore
+              fontSize: '2vh',
+              //@ts-ignore
+              color: theme.palette.primary.light, // Corrected theme usage
+            }}
+          />
+        </>
+      ),
+      label: 'Referrals',
+      name: 'Referrals',
+    },
     {
       icon: (
         <>
