@@ -429,11 +429,11 @@ const TransactionListing = () => {
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         console.log(params)
-        return helper.convertDateAndTime(params?.row?.utcDatetime)
+        return helper.convertDateAndTime(params?.row?.inCreatedDate)
       },
     },
     {
-      field: 'lcharges2',
+      field: 'charges',
       headerName: 'Charges',
       flex: 1,
       headerClassName: 'super-app-theme--header',
@@ -456,7 +456,9 @@ const TransactionListing = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        return <div style={{ color: statusColors[params?.row?.status?.toUpperCase()] }}>{params?.row?.status?.toUpperCase()}</div>
+        return (
+          <div style={{ color: statusColors[params?.row?.transactionStatus?.toUpperCase()] }}>{params?.row?.transactionStatus?.toUpperCase()}</div>
+        )
       },
     },
 
@@ -754,15 +756,6 @@ const TransactionListing = () => {
     },
     [userCountry],
   )
-
-  const getInwardTransactionList = useCallback(async () => {
-    try {
-      const transactions = await transaction_Service.getInwardTransaction(userCountry)
-      setInboundTransaction(transactions) // transactions is already the array
-    } catch (error) {
-      console.log(error)
-    }
-  }, [userCountry])
 
   const getAllTransactions = useCallback(
     async (
