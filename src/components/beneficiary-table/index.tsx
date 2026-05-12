@@ -10,6 +10,7 @@ const helper = new HelperService()
 
 const BeneficiaryTable = ({ beneficiary }: { beneficiary: any }) => {
   const navigate = useNavigate()
+  const userCountry = local_service?.get_staff_country()
 
   const handleBeneficiaryIdClick = (
     //@ts-ignore
@@ -63,7 +64,7 @@ const BeneficiaryTable = ({ beneficiary }: { beneficiary: any }) => {
     },
     {
       field: 'bankBicCode',
-      headerName: 'BIC Code',
+      headerName: userCountry === 'UAE' ? 'Bank Code' : 'BIC Code',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
@@ -80,6 +81,8 @@ const BeneficiaryTable = ({ beneficiary }: { beneficiary: any }) => {
       headerClassName: 'super-app-theme--header',
     },
   ]
+
+  const filteredColumns = userCountry === 'UAE' ? columns.filter((col) => col.field !== 'idType' && col.field !== 'bankName') : columns
 
   return (
     <>
@@ -105,7 +108,7 @@ const BeneficiaryTable = ({ beneficiary }: { beneficiary: any }) => {
                 fontSize: '16px',
               },
             }}
-            columns={columns}
+            columns={filteredColumns}
             rows={beneficiary}
             getRowId={(row) => row.beneficiaryId}
             //@ts-ignore

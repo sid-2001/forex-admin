@@ -60,6 +60,14 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
       : `${beneficiaryFirstName} ${beneficiaryLastName}`
   }
 
+  const renderTransactionStatus = (transStatus: string) => {
+    if (transStatus === 'IN_PROGRESS') {
+      return 'IN PROGRESS'
+    } else {
+      return transStatus
+    }
+  }
+
   const columns = [
     {
       field: 'id',
@@ -78,9 +86,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
             cursor: 'pointer',
             textDecoration: 'underline',
           }}
-          onClick={() =>
-            navigate(`/transaction?flow=outwards&id=${params?.row?.transactionNumber}`)
-          }
+          onClick={() => navigate(`/transaction?flow=outwards&id=${params?.row?.transactionNumber}`)}
         >
           {params.value}
         </span>
@@ -88,13 +94,13 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
     },
     {
       field: 'sendCountry',
-      headerName: 'Send Country',
+      headerName: 'Sender Country',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'receiveCountry',
-      headerName: 'Receive Country',
+      headerName: 'Receiver Country',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
@@ -116,12 +122,13 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
       headerName: 'Transaction Status',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => <div>{renderTransactionStatus(params?.row?.transactionStatus)}</div>,
     },
   ]
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.TRANSACTION_OUTWARD}>
-      <Box sx={{ width: '46vw'}}>
+      <Box sx={{ width: '46vw' }}>
         {transaction.length > 0 ? (
           <Box
             sx={{
