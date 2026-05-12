@@ -8,7 +8,22 @@ import {
   GridFilterModel,
   GridColDef,
 } from '@mui/x-data-grid'
-import { Box, Typography, Chip, Button } from '@mui/material'
+import {
+  Box,
+  Typography,
+  Chip,
+  Button,
+  TextField,
+  Grid,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  FormControl,
+  InputLabel,
+  Select,
+  DialogTitle,
+  MenuItem,
+} from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
@@ -21,6 +36,8 @@ import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { KycService } from '@/services/kyc.service'
+import { useRecoilState } from 'recoil'
+import { alertState, alertTextState, alertTypeState } from '@/states/state'
 
 const ReferralTable: React.FC = () => {
   const [referralData, setReferralData] = useState([])
@@ -32,7 +49,21 @@ const ReferralTable: React.FC = () => {
 
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<Record<string, boolean>>({})
+  const [actionModal, setActionModal] = useState(false)
+  const initialFormState = { action: '', actionBy: local_service?.get_staff_id(), remarks: '', id: 0 }
+  const [formData, setFormData] = useState(initialFormState)
   const apiRef = React.useRef<any>(null)
+
+  const [, setAlertOpen] = useRecoilState(alertState)
+  const [, setAlertText] = useRecoilState(alertTextState)
+  const [, setAlertType] = useRecoilState(alertTypeState)
+  const [errors, setErrors] = useState<any>({})
+
+  const showAlert = (type: 'Success' | 'Fail', text: string) => {
+    setAlertType(type)
+    setAlertText(text)
+    setAlertOpen(true)
+  }
 
   useEffect(() => {
     fetchReferralListingData()
@@ -112,6 +143,27 @@ const ReferralTable: React.FC = () => {
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => helper.convertDateAndTime(params?.row?.createdLocalDateTime),
     },
+    {
+      field: 'action',
+      headerName: 'Action',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => (
+        <>
+          {params?.row?.status === 'PENDING' && (
+            <Box
+              style={{ fontWeight: 'bold', cursor: 'pointer' }}
+              onClick={() => {
+                setActionModal(true)
+                setFormData((prev) => ({ ...prev, id: params?.row?.id }))
+              }}
+            >
+              Approve / Reject
+            </Box>
+          )}
+        </>
+      ),
+    },
   ]
 
   const getVisibleFilteredRows = () => {
@@ -188,6 +240,37 @@ const ReferralTable: React.FC = () => {
     </GridToolbarContainer>
   )
 
+  const handleAcceptRejectReferral = async () => {
+    try {
+      const response = await kyc_service.handleReferralAction(formData)
+
+      if (response.status !== false) {
+        showAlert('Success', `${response?.message || 'Operation completed successfully'}`)
+        setActionModal(false)
+        setFormData(initialFormState)
+
+        fetchReferralListingData()
+      } else {
+        showAlert('Fail', response.message || 'Server Error')
+      }
+    } catch (e) {
+      showAlert('Fail', 'Connection Error')
+    }
+  }
+
+  const handleCloseActionDialog = async () => {
+    setActionModal(false)
+    setFormData(initialFormState)
+  }
+
+  const handleChange = (field: string, value: any) => {
+    setFormData((prev: any) => ({ ...prev, [field]: value }))
+    // Clear error for this field
+    if (errors[field]) {
+      setErrors((prev: any) => ({ ...prev, [field]: '' }))
+    }
+  }
+
   return (
     // <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>
     //     </HasPermission>
@@ -225,6 +308,67 @@ const ReferralTable: React.FC = () => {
           }}
           disableColumnMenu
         />
+      )}
+
+      {actionModal && (
+        <Dialog open={actionModal} onClose={() => handleCloseActionDialog()} maxWidth="sm" fullWidth>
+          <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>Approve/Reject Referral </DialogTitle>
+          <DialogContent dividers>
+            <Grid container spacing={2} sx={{ mt: 0.5 }}>
+              <Grid item xs={12}>
+                <FormControl fullWidth required error={!!errors.action}>
+                  <InputLabel id="referral-action">Select Action</InputLabel>
+                  <Select
+                    labelId="referral-action"
+                    value={formData?.action}
+                    //@ts-ignore
+                    onChange={(e: any) => handleChange('action', e.target.value)}
+                    label="Select Action"
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: 300, // limit dropdown height if many options
+                        },
+                      },
+                      anchorOrigin: {
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                      },
+                      transformOrigin: {
+                        vertical: 'top',
+                        horizontal: 'left',
+                      },
+                      //@ts-ignore
+                      getContentAnchorEl: null,
+                    }}
+                  >
+                    <MenuItem value={'REJECT'}>REJECT</MenuItem>
+                    <MenuItem value={'APPROVE'}>APPROVE</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Remarks"
+                  value={formData.remarks}
+                  multiline
+                  onChange={(e: any) => handleChange('remarks', e.target.value)}
+                  required
+                  error={!!errors.remarks}
+                  helperText={errors.remarks}
+                />
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+            <Button onClick={() => handleCloseActionDialog()}>Cancel</Button>
+            <Button variant="contained" disabled={!(formData?.action && formData?.remarks)} onClick={() => handleAcceptRejectReferral()}>
+              Save
+            </Button>
+          </DialogActions>
+        </Dialog>
       )}
     </Box>
   )

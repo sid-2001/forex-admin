@@ -133,4 +133,15 @@ export class KycService extends BaseService {
       console.log(err)
     }
   }
+
+  async handleReferralAction(payload: any) {
+    const url = `/api/kyc/lulu/referral-redeem/web-panel/action/${payload?.id}`
+    try {
+      delete payload.id
+      const { data } = await api1.put(url, payload)
+      return data
+    } catch (err) {
+      console.log(err)
+    }
+  }
 }
