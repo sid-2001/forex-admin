@@ -121,7 +121,7 @@ const BeneficiaryDetailPage = () => {
                 variant="filled"
                 name="applicantId"
                 fullWidth
-                value={beneficiaryData?.applicant || ''}
+                value={beneficiaryData?.applicantId || ''}
               />
             </Grid>
             <Grid item xs={12} sm={4}>
@@ -178,19 +178,22 @@ const BeneficiaryDetailPage = () => {
                 }}
               />
             </Grid>
-            <Grid item xs={12} sm={2.3}>
-              <TextField
-                label={getLabel('Nationality') || 'Nationality'}
-                size="small"
-                variant="filled"
-                InputProps={{
-                  readOnly: true,
-                }}
-                name="nationality"
-                fullWidth
-                value={beneficiaryData?.nationality || ''}
-              />
-            </Grid>
+            {userCountry != 'UAE' && (
+              <Grid item xs={12} sm={2.3}>
+                <TextField
+                  label={getLabel('Nationality') || 'Nationality'}
+                  size="small"
+                  variant="filled"
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  name="nationality"
+                  fullWidth
+                  value={beneficiaryData?.nationality || ''}
+                />
+              </Grid>
+            )}
+
             <Grid item xs={12} sm={2.3}>
               <TextField
                 label={getLabel('Country_Of_Residence') || 'Resident Country'}
@@ -342,19 +345,21 @@ const BeneficiaryDetailPage = () => {
                 value={beneficiaryData?.accountNumber || ''}
               />
             </Grid>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                variant="filled"
-                InputProps={{
-                  readOnly: true,
-                }}
-                size="small"
-                fullWidth
-                label={getLabel('Bank_Name') || 'Bank Name'}
-                name="bankName"
-                value={beneficiaryData?.bankName || ''}
-              />
-            </Grid>
+            {userCountry != 'UAE' && (
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  variant="filled"
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  size="small"
+                  fullWidth
+                  label={getLabel('Bank_Name') || 'Bank Name'}
+                  name="bankName"
+                  value={beneficiaryData?.bankName || ''}
+                />
+              </Grid>
+            )}
             <Grid item xs={12} sm={4}>
               <TextField
                 variant="filled"
