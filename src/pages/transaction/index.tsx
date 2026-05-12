@@ -57,6 +57,14 @@ const TransactionListing = () => {
     DEFAULT: 'BOP',
   }
 
+  const renderTransactionStatus = (transStatus: string) => {
+    if (transStatus === 'IN_PROGRESS') {
+      return 'IN PROGRESS'
+    } else {
+      return transStatus
+    }
+  }
+
   const columns_outward = [
     {
       field: 'id',
@@ -192,7 +200,7 @@ const TransactionListing = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        const value = params?.row?.status?.toUpperCase()
+        const value = renderTransactionStatus(params?.row?.status?.toUpperCase())
         if (!value) return null
         return (
           <Chip
