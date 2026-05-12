@@ -52,7 +52,6 @@ const ApplicantPage = () => {
 
   const tabs = [
     { label: `${getLabel('Documents')}` || 'Documents', value: 0, hidden: userCountry === 'UAE' },
-
     { label: `${getLabel('Beneficiaries')}` || 'Beneficiaries', value: 1 },
     { label: `${getLabel('Transactions')}` || 'Transactions', value: 2 },
     { label: `${getLabel('Referral_Redeemed')}` || 'Referral Redeemed Transactions', value: 3 },
@@ -65,40 +64,35 @@ const ApplicantPage = () => {
     return fieldMessages[fieldName] || ''
   }
 
-  // Fetch field validations from API
-  useEffect(() => {
-    const fetchFieldValidations = async () => {
-      try {
-        const response = await validation.getScreenFieldvalidation('APPLICANT', local_service.get_staff_country(), 'W')
+  const fetchFieldValidations = async () => {
+    try {
+      const response = await validation.getScreenFieldvalidation('APPLICANT', local_service.get_staff_country(), 'W')
 
-        if (response?.data) {
-          setFieldValidations(response.data)
+      if (response?.data) {
+        setFieldValidations(response.data)
 
-          // Create lookup maps for labels and messages
-          const labelsMap: Record<string, string> = {}
-          const messagesMap: Record<string, string> = {}
+        // Create lookup maps for labels and messages
+        const labelsMap: Record<string, string> = {}
+        const messagesMap: Record<string, string> = {}
 
-          response.data.countryReportingLabelDTO?.forEach((item: CountryReportingLabelDTO) => {
-            const fieldName = item.countryLabelFieldNameAndValidation?.fieldName?.trim()
-            if (fieldName) {
-              labelsMap[fieldName] = item.countryLabelFieldNameAndValidation?.label
-              messagesMap[fieldName] = item.countryLabelFieldNameAndValidation?.validationMessageMandatory
-            }
-          })
+        response.data.countryReportingLabelDTO?.forEach((item: CountryReportingLabelDTO) => {
+          const fieldName = item.countryLabelFieldNameAndValidation?.fieldName?.trim()
+          if (fieldName) {
+            labelsMap[fieldName] = item.countryLabelFieldNameAndValidation?.label
+            messagesMap[fieldName] = item.countryLabelFieldNameAndValidation?.validationMessageMandatory
+          }
+        })
 
-          console.log(labelsMap, 'labelsMap')
-          console.log(messagesMap, 'messagesMap')
+        console.log(labelsMap, 'labelsMap')
+        console.log(messagesMap, 'messagesMap')
 
-          setFieldLabels(labelsMap)
-          setFieldMessages(messagesMap)
-        }
-      } catch (error) {
-        console.error('Error fetching field validations:', error)
+        setFieldLabels(labelsMap)
+        setFieldMessages(messagesMap)
       }
+    } catch (error) {
+      console.error('Error fetching field validations:', error)
     }
-
-    fetchFieldValidations()
-  }, [])
+  }
 
   function LimitPieChart() {
     const utilized = Math.abs(utilizedLimit)
@@ -139,6 +133,7 @@ const ApplicantPage = () => {
   }, [utilizedLimit, availableLimit, fieldLabels])
 
   useEffect(() => {
+    fetchFieldValidations()
     fetchComplianceLimitData()
     fetchApplicantData()
     fetchTransactionsList()
@@ -146,6 +141,9 @@ const ApplicantPage = () => {
     fetchReferralCreditedTransactions()
     getdocumentlistByApplicantId()
     fetchRedeemReferrals()
+
+    if (userCountry === 'UAE') setSelectedTab(1)
+    else setSelectedTab(0)
   }, [])
 
   const fetchComplianceLimitData = async () => {
@@ -280,10 +278,6 @@ const ApplicantPage = () => {
     newValue: number,
   ) => {
     setSelectedTab(newValue)
-  }
-
-  const handleBack = () => {
-    navigate('/applicant')
   }
 
   const renderNameInitials = () => {

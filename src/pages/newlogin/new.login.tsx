@@ -50,36 +50,33 @@ const LoginPage = () => {
   const field_validataion_service = new FieldValidationService()
   const navigate = useNavigate()
 
-const checkType = (value: string) => {
-  const trimmed = value.trim()
+  const checkType = (value: string) => {
+    const trimmed = value.trim()
 
-  const emailRegex =
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-  const phoneRegex =
-    /^[6-9]\d{9}$/
+    const phoneRegex = /^[6-9]\d{9}$/
 
-  // username:
-  // - 3 to 20 chars
-  // - letters, numbers, _ .
-  // - must contain at least one letter
-  const usernameRegex =
-    /^(?=.*[a-zA-Z])[a-zA-Z0-9_.]{3,20}$/
+    // username:
+    // - 3 to 20 chars
+    // - letters, numbers, _ .
+    // - must contain at least one letter
+    const usernameRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9_.]{3,20}$/
 
-  if (emailRegex.test(trimmed)) {
-    return 'email'
+    if (emailRegex.test(trimmed)) {
+      return 'email'
+    }
+
+    if (phoneRegex.test(trimmed)) {
+      return 'phone'
+    }
+
+    if (usernameRegex.test(trimmed)) {
+      return 'username'
+    }
+
+    return 'invalid'
   }
-
-  if (phoneRegex.test(trimmed)) {
-    return 'phone'
-  }
-
-  if (usernameRegex.test(trimmed)) {
-    return 'username'
-  }
-
-  return 'invalid'
-}
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setEmail(value)
@@ -126,7 +123,7 @@ const checkType = (value: string) => {
       if (response?.data) {
         const { data } = response
 
-        local_service.set_accesstoken('"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."')
+        local_service.set_accesstoken(data.token)
         local_service.set_staff_access(data)
         local_service.set_role(data?.roleDescription)
 
@@ -175,7 +172,9 @@ const checkType = (value: string) => {
         usename: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.label : 'username',
         password: password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation?.label : 'password',
         username_validataion_msg:
-          username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation.validationMessageMandatory : ' Please enter a valid Username',
+          username_data.length > 0
+            ? username_data[0].countryLabelFieldNameAndValidation.validationMessageMandatory
+            : ' Please enter a valid Username',
         Password_validataion_msg:
           password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation.validationMessageMandatory : 'Please enter a valid Password',
 
@@ -247,11 +246,7 @@ const checkType = (value: string) => {
               value={email}
               onChange={handleChange}
               error={!!error} // Show error state when there's an error
-               helperText={
-    email
-      ? (error || validataion?.username_validataion_msg)
-      : ''
-  }
+              helperText={email ? error || validataion?.username_validataion_msg : ''}
               // helperText={error || validataion?.username_validataion_msg} // Show validation message
               inputProps={{
                 minLength: validataion?.username_minimum_legth,
@@ -270,11 +265,7 @@ const checkType = (value: string) => {
               onChange={(e) => setPassword(e.target.value)}
               //@ts-ignore
               error={!!password && password.length < (validataion?.Password_minimum_legth || 1)} // Add validation
-               helperText={
-    password
-      ? validataion?.Password_validataion_msg
-      : ''
-  }
+              helperText={password ? validataion?.Password_validataion_msg : ''}
               // helperText={   validataion?.Password_validataion_msg}
               inputProps={{
                 minLength: validataion?.Password_minimum_legth,
@@ -297,7 +288,7 @@ const checkType = (value: string) => {
               disabled={!email || !password || !!error}
               sx={{ mt: 3, py: 1.5, backgroundColor: '#0361B1' }}
             >
-              Sign In 
+              Sign In
             </Button>
           </form>
 
