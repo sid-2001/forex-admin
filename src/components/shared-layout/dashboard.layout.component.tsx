@@ -481,14 +481,6 @@ const chunkArray = (arr: any[], size: number) => {
   return chunks
 }
 
-// {
-//   label: 'Screen Master',
-//   name: 'Screen master',
-//   icon: <WebIcon fontSize="small" />,
-//   path: 'screen',
-// },
-// ]
-
 const MasterDropdownIcon = ({ setSelectedApp, addToHistory, selectedApp }: any) => {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
@@ -549,7 +541,6 @@ const DashboardLayout = () => {
   const [openloader, setopenloader] = useRecoilState(loaderStateNew)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDrawerOpen, setDrawerOpen] = useState(false)
-  const [openFixedData, setOpenFixedData] = useState(false)
 
   const navigate = useNavigate()
 
@@ -990,7 +981,6 @@ const DashboardLayout = () => {
                       button
                       selected={selectedApp === item.label}
                       key={index}
-                      // id={}
                       id={'imp-' + item.label}
                       sx={{
                         justifyContent: isDrawerOpen ? 'flex-start' : 'center',

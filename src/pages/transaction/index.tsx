@@ -21,7 +21,7 @@ import {
 } from '@mui/material'
 import { DataGrid, GridColumnVisibilityModel, GridToolbarColumnsButton, GridToolbarDensitySelector, GridToolbarFilterButton } from '@mui/x-data-grid'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { TransactionInward, TransactionInwardCalclulated, TransactionOutward } from '@/types/transaction.type'
+import { TransactionInward, TransactionOutward } from '@/types/transaction.type'
 import { PreviewOutlined } from '@mui/icons-material'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState, loaderStateNew } from '@/states/state'
@@ -39,8 +39,7 @@ import autoTable from 'jspdf-autotable'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
 import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import React from 'react'
-import { GridColDef, GridToolbar, GridPaginationModel, GridFilterModel } from '@mui/x-data-grid'
-import StageTimeline from '@/components/stageTimeLine'
+import { GridColDef, GridPaginationModel, GridFilterModel } from '@mui/x-data-grid'
 
 const applicant_service = new ApplicantService()
 const transaction_Service = new TransactionService()
@@ -305,33 +304,6 @@ const TransactionListing = () => {
     // navigate('/transaction')
   }
 
-  const stageDetails = [
-    {
-      stage: 'INITIATED',
-      status: 'COMPLETED',
-      timestamp: '2025-10-28T09:42:18Z',
-      message: 'Payment request created.',
-    },
-    {
-      stage: 'PROCESSING',
-      status: 'FAILED',
-      timestamp: '2025-10-28T09:43:00Z',
-      message: 'Payment failed due to insufficient funds.',
-    },
-    {
-      stage: 'VERIFIED',
-      status: 'SKIPPED',
-      timestamp: null,
-      message: 'Verification not attempted as payment failed.',
-    },
-    {
-      stage: 'COMPLETED',
-      status: 'FAILED',
-      timestamp: '2025-10-28T09:43:50Z',
-      message: 'Transaction marked as failed.',
-    },
-  ]
-
   const handleAdumoPaymentClick = async () => {
     try {
       console.log(transactionDetails)
@@ -446,18 +418,6 @@ const TransactionListing = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
-
-    {
-      field: 'owCreatedDate',
-      headerName: 'Date',
-      type: 'Date',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return helper.convertDateAndTime(params?.row?.owCreatedDate)
-      },
-    },
-
     {
       field: 'transactionStatus',
       headerName: 'Status',
@@ -469,7 +429,6 @@ const TransactionListing = () => {
         )
       },
     },
-
     {
       field: 'stpError',
       headerName: 'STP',
@@ -547,11 +506,7 @@ const TransactionListing = () => {
   const [isLoading, setIsLoading] = useState(false)
 
   const [open, setOpen] = useRecoilState(alertState)
-  const [text, setText] = useRecoilState(alertTextState)
-  const [type, settype] = useRecoilState(alertTypeState)
   const [commonLoader, setCommonLoader] = useRecoilState(loaderStateNew)
-  // Add state for row count
-  const [rowCount, setRowCount] = useState(0)
 
   const theme = useTheme()
   const navigate = useNavigate()
@@ -564,12 +519,12 @@ const TransactionListing = () => {
 
   const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
     page: 0,
-    pageSize: 20,
+    pageSize: 100,
   })
 
   const [paginationInwardModel, setPaginationInwardModel] = React.useState<GridPaginationModel>({
-    page: 0,
-    pageSize: 20,
+    page: 1,
+    pageSize: 100,
   })
 
   // filter state
@@ -577,9 +532,6 @@ const TransactionListing = () => {
     items: [],
   })
 
-  const [inwardfilterModel, setInwardFilterModel] = React.useState<GridFilterModel>({
-    items: [],
-  })
   // Fetch API whenever pagination or filter changes
   React.useEffect(() => {
     const fetchData = async () => {
@@ -640,7 +592,6 @@ const TransactionListing = () => {
 
   // handle filter changes
   const handleFilterChange = (newFilterModel: GridFilterModel) => {
-    // console.log()
     const filter = newFilterModel.items[0]
     if (filter.field == 'id' && filter.value) {
       try {
@@ -684,27 +635,6 @@ const TransactionListing = () => {
       </Button>
     </GridToolbarContainer>
   )
-
-  function CustomColumnMenu(
-    props: //@ts-ignore
-    GridColumnMenuProps,
-  ) {
-    return (
-      //@ts-ignore
-      <GridColumnMenu
-        {...props}
-        slotProps={{
-          // Swap positions of filter and sort items
-          columnMenuFilterItem: {
-            displayOrder: 0, // Previously `10`
-          },
-          columnMenuSortItem: {
-            displayOrder: 10, // Previously `0`
-          },
-        }}
-      />
-    )
-  }
 
   const fetchStpErrorList = useCallback(async (transactionId: string) => {
     try {
@@ -755,8 +685,6 @@ const TransactionListing = () => {
     async (page: any, size: any) => {
       try {
         const transactions = await transaction_Service.getInwardTransactionFilted(page, size, userCountry)
-        console.log('inbound')
-        console.log(transactions)
         setInboundTransaction(transactions) // transactions is already the array
       } catch (error) {
         console.log(error)
@@ -821,13 +749,7 @@ const TransactionListing = () => {
             }
             return true
           })
-
-        console.log('outbound transaction', outbound)
-
         setOutboundTransaction(outbound)
-
-        // Set the total row count for pagination
-        setRowCount(data?.totalElements || 0)
 
         setcommonloader(false)
       } catch (error) {
@@ -846,7 +768,7 @@ const TransactionListing = () => {
       setTransactionType(flow)
     }
     getApplicantDetails()
-    getInwardTransactionListFilterd(1, 20)
+    // getInwardTransactionListFilterd(1, 20)
     //getAllTransactions(0, 20)
     setGivenTransaction(queryParams.get('id'))
   }, [])
@@ -953,7 +875,12 @@ const TransactionListing = () => {
     return commonloader
   }
 
-  const filteredColumns = userCountry === 'UAE' ? columns_outward.filter((col) => col.field !== 'gateway_status') : columns_outward
+  const filteredOutwardColumns = userCountry === 'UAE' ? columns_outward.filter((col) => col.field !== 'gateway_status') : columns_outward
+
+  const filteredInwardColumns =
+    userCountry === 'UAE'
+      ? inward_columns.filter((col) => col.field !== 'gatewayStatus' && col.field !== 'action' && col.field !== 'stpError')
+      : inward_columns
 
   return (
     <Box sx={{ width: '80vw', height: '70vh' }}>
@@ -1063,7 +990,7 @@ const TransactionListing = () => {
               <DataGrid
                 rows={transactionType === 'inwards' ? inboundTransaction : outboundTransaction || []}
                 //@ts-ignore
-                columns={transactionType === 'inwards' ? inward_columns : filteredColumns}
+                columns={transactionType === 'inwards' ? filteredInwardColumns : filteredOutwardColumns}
                 getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
                 pageSizeOptions={[10, 20, 50]}
                 // paginationMode="server"
@@ -1072,7 +999,6 @@ const TransactionListing = () => {
                 // onPaginationModelChange={handleInwardPaginationChange}
                 // filterModel={filterModel}
                 // onFilterModelChange={handleFilterChange}
-                rowCount={1000}
                 disableColumnMenu // ✅ Removes the 3-dot column menu icon globally
                 disableRowSelectionOnClick
                 loading={getLoadingState() || isLoading}
@@ -1102,7 +1028,7 @@ const TransactionListing = () => {
               <DataGrid
                 rows={transactionType === 'inwards' ? inboundTransaction : outboundTransaction || []}
                 //@ts-ignore
-                columns={transactionType === 'inwards' ? inward_columns : filteredColumns}
+                columns={transactionType === 'inwards' ? filteredInwardColumns : filteredOutwardColumns}
                 getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
                 pageSizeOptions={[10, 20, 50]}
                 // paginationMode="server"
@@ -1111,7 +1037,7 @@ const TransactionListing = () => {
                 // onPaginationModelChange={handlePaginationChange}
                 // filterModel={filterModel}
                 // onFilterModelChange={handleFilterChange}
-                rowCount={1000}
+                // rowCount={1000}
                 disableColumnMenu
                 disableRowSelectionOnClick
                 loading={getLoadingState()}
@@ -1169,12 +1095,6 @@ const TransactionListing = () => {
             </Typography>
 
             <Chip label={transactionDetails?.status} color="warning" sx={{ marginBottom: 2 }} />
-
-            <Grid container spacing={2} mb={2} p={3}>
-              {/* { JSON.stringify(transactionDetails?.stages)} */}
-
-              {/* <StageTimeline stageDetails={transactionDetails?.stages} /> */}
-            </Grid>
 
             {/* Transaction Details Section */}
             <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>
