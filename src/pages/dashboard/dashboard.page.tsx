@@ -1,8 +1,5 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react'
-import { Box, Card, CardContent, Typography, Grid, Avatar, Stack, CardMedia, Switch, IconButton, Skeleton, Button } from '@mui/material'
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import { useTheme } from '@mui/material/styles'
+import { Box, Card, CardContent, Typography, Grid, CardMedia, Switch, Skeleton, Button } from '@mui/material'
 import { TransactionService } from '@/services/transaction.service'
 import { PaymentGateway } from '@/types/static.type'
 import staticdataService from '@/services/staticdata.service'
@@ -66,9 +63,7 @@ const Dashboard = () => {
       // const res = await ProductConfigService.getByCountryCode(countryCode)
       const service = new ProductConfigService()
       const res = await service.getByCountryCode(countryCode)
-      console.log('jdbchy')
       if (res?.status && res?.data?.length > 0) {
-        console.log(res.data[0], 'res.data[0]')
         alert(res.data[0])
         localStorage.setItem('countryConfig', JSON.stringify(res.data[0]))
       }
@@ -495,12 +490,6 @@ const Dashboard = () => {
               key={index}
               sx={{
                 flex: '0 0 auto',
-                // width: {
-                //   xs: '80%',
-                //   sm: '45%',
-                //   md: '30%',
-
-                // },
                 scrollSnapAlign: 'start',
               }}
             >
@@ -540,72 +529,75 @@ const Dashboard = () => {
           <Grid container spacing={2}>
             <Grid item xs={12} md={5}>
               {/* Available Balances */}
-              <Card sx={{ border: '2px solid', borderColor: '#79CBF0', mb: 2, p: 1 }}>
-                <CardContent sx={{}}>
-                  {/* <Typography variant="subtitle1" fontWeight={800} gutterBottom>
+
+              {userCountry !== 'UAE' && (
+                <Card sx={{ border: '2px solid', borderColor: '#79CBF0', mb: 2, p: 1 }}>
+                  <CardContent sx={{}}>
+                    {/* <Typography variant="subtitle1" fontWeight={800} gutterBottom>
                   Payment Gateways
                   </Typography> */}
 
-                  <Grid container spacing={2}>
-                    <HorizontalCardCarousel></HorizontalCardCarousel>
+                    <Grid container spacing={2}>
+                      <HorizontalCardCarousel></HorizontalCardCarousel>
 
-                    {bankAccounts
-                      .filter((e) => e.country == userCountry)
-                      .map((bank, index) => {
-                        const colors = ['green', 'red', 'goldenrod'] // cycle
-                        const borderColor = colors[index % colors.length]
-                        const isActive = bank.name.toLowerCase().includes('icici')
+                      {bankAccounts
+                        .filter((e) => e.country == userCountry)
+                        .map((bank, index) => {
+                          const colors = ['green', 'red', 'goldenrod'] // cycle
+                          const borderColor = colors[index % colors.length]
+                          const isActive = bank.name.toLowerCase().includes('icici')
 
-                        return (
-                          <Grid item xs={6} key={index}>
-                            <Box
-                              sx={{
-                                border: `3px solid ${borderColor}`,
-                                borderRadius: 2,
-                                p: 2,
-                                mb: 0,
-                                display: 'flex',
-                                justifyContent: 'space-between',
-
-                                flexDirection: 'column',
-                                // alignItems: 'center',
-                                opacity: isActive ? 1 : 0.5,
-
-                                pointerEvents: isActive ? 'auto' : 'none',
-                              }}
-                            >
-                              {/* Left side: Country + Bank */}
+                          return (
+                            <Grid item xs={6} key={index}>
                               <Box
                                 sx={{
-                                  minWidth: '40%',
+                                  border: `3px solid ${borderColor}`,
+                                  borderRadius: 2,
+                                  p: 2,
+                                  mb: 0,
                                   display: 'flex',
                                   justifyContent: 'space-between',
-                                  flexDirection: 'row',
+
+                                  flexDirection: 'column',
+                                  // alignItems: 'center',
+                                  opacity: isActive ? 1 : 0.5,
+
+                                  pointerEvents: isActive ? 'auto' : 'none',
                                 }}
                               >
-                                <Typography variant="body2" color="text.secondary">
-                                  <strong> {bank.name}</strong>
-                                </Typography>
-                                <Typography variant="body2" fontWeight="bold" sx={{ color: 'primary.main' }}>
-                                  {bank.country}
-                                </Typography>
-                              </Box>
+                                {/* Left side: Country + Bank */}
+                                <Box
+                                  sx={{
+                                    minWidth: '40%',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    flexDirection: 'row',
+                                  }}
+                                >
+                                  <Typography variant="body2" color="text.secondary">
+                                    <strong> {bank.name}</strong>
+                                  </Typography>
+                                  <Typography variant="body2" fontWeight="bold" sx={{ color: 'primary.main' }}>
+                                    {bank.country}
+                                  </Typography>
+                                </Box>
 
-                              <Box>
-                                <Typography fontWeight="bold" variant="body1" sx={{ textAlign: 'center', mt: 1 }}>
-                                  {
-                                    //@ts-ignore
-                                    bank.balance.toLocaleString('en-IN')
-                                  }
-                                </Typography>
+                                <Box>
+                                  <Typography fontWeight="bold" variant="body1" sx={{ textAlign: 'center', mt: 1 }}>
+                                    {
+                                      //@ts-ignore
+                                      bank.balance.toLocaleString('en-IN')
+                                    }
+                                  </Typography>
+                                </Box>
                               </Box>
-                            </Box>
-                          </Grid>
-                        )
-                      })}
-                  </Grid>
-                </CardContent>
-              </Card>
+                            </Grid>
+                          )
+                        })}
+                    </Grid>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Consumers */}
               <Card sx={{ border: '2px solid', borderColor: '#79CBF0' }}>

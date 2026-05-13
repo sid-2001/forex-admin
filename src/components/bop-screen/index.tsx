@@ -15,13 +15,6 @@ import { TransactionService } from '@/services/transaction.service'
 import { FieldValidationService } from '@/services/fieldvalidstion.service'
 import { CountryLabelData, CountryReportingLabelDTO } from '@/types/field.validation.type'
 
-const countryCodes = {
-  India: 'IN',
-  'South Africa': 'ZA',
-  IN: 'IN',
-  ZA: 'ZA',
-}
-
 const genderArry = [
   { label: 'Male', value: 'M' },
   { label: 'Female', value: 'F' },
@@ -60,7 +53,6 @@ const BopScreen: React.FC = () => {
   const [confirmReleaseModal, setConfirmReleaseModal] = useState<boolean>(false)
   const [stpErrors, setStpErrors] = useState<any>([])
   const [validationRules, setValidationRules] = useState<any>([])
-  const theme = useTheme()
   const local_service = new LocalStorageService()
   const helper = new HelperService()
   const bopService = new BopService()
@@ -799,7 +791,7 @@ const BopScreen: React.FC = () => {
                   fullWidth
                   name="city"
                   variant="outlined"
-                  value={formData.postal_city || ''}
+                  value={formData.city || ''}
                   onChange={handleChange}
                   error={Boolean(formErrors.city)}
                   helperText={formErrors.city}

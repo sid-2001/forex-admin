@@ -171,7 +171,6 @@ const CountrySelector = () => {
             size="small"
             value={selectedCountry}
             onChange={(e) => {
-              console.log(e)
               local_service.set_usercountry(e.target.value)
               window.location.reload()
             }}
@@ -498,10 +497,12 @@ const MasterDropdownIcon = ({ setSelectedApp, addToHistory, selectedApp }: any) 
 
   return (
     <>
-      <IconButton onClick={() => setOpen(true)}>
-        <BubbleChartIcon color="primary" sx={{ color: 'white', fontColor: 'white' }} />
-      </IconButton>
-
+      <Box sx={{ color: 'white', fontColor: 'white' }}>
+        <IconButton onClick={() => setOpen(true)}>
+          <BubbleChartIcon color="primary" sx={{ color: 'white', fontColor: 'white' }} />
+        </IconButton>
+        Masterdata
+      </Box>
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogContent
           sx={{
@@ -590,6 +591,41 @@ const DashboardLayout = () => {
     },
     {
       icon: (
+        <PeopleOutlineIcon
+          sx={{
+            //@ts-ignore
+            color: theme.palette.secondary.light,
+            fontSize: '2vh',
+            //@ts-ignore
+            color: theme.palette.primary.light,
+            '&:hover': {
+              //@ts-ignore
+              color: theme.palette.primary.main, // Change the color to blue on hover
+            },
+          }}
+        />
+      ),
+      label: 'Applicant',
+      name: 'Applicants',
+    },
+    {
+      icon: (
+        <>
+          <SupervisedUserCircleIcon
+            sx={{
+              //@ts-ignore
+              fontSize: '2vh',
+              //@ts-ignore
+              color: theme.palette.primary.light, // Corrected theme usage
+            }}
+          />
+        </>
+      ),
+      label: 'Referrals',
+      name: 'Referrals',
+    },
+    {
+      icon: (
         <CompareArrowsIcon
           sx={{
             //@ts-ignore
@@ -627,25 +663,7 @@ const DashboardLayout = () => {
       label: 'Kyc',
       name: 'KYC',
     },
-    {
-      icon: (
-        <PeopleOutlineIcon
-          sx={{
-            //@ts-ignore
-            color: theme.palette.secondary.light,
-            fontSize: '2vh',
-            //@ts-ignore
-            color: theme.palette.primary.light,
-            '&:hover': {
-              //@ts-ignore
-              color: theme.palette.primary.main, // Change the color to blue on hover
-            },
-          }}
-        />
-      ),
-      label: 'Applicant',
-      name: 'Applicants',
-    },
+
     {
       icon: (
         <>
@@ -681,22 +699,6 @@ const DashboardLayout = () => {
     {
       icon: (
         <>
-          <ViewModuleIcon
-            sx={{
-              //@ts-ignore
-              fontSize: '2vh',
-              //@ts-ignore
-              color: theme.palette.primary.light, // Corrected theme usage
-            }}
-          />
-        </>
-      ),
-      label: 'Module',
-      name: 'Modules',
-    },
-    {
-      icon: (
-        <>
           <SupervisedUserCircleIcon
             sx={{
               //@ts-ignore
@@ -710,11 +712,10 @@ const DashboardLayout = () => {
       label: 'Role',
       name: 'Roles',
     },
-
     {
       icon: (
         <>
-          <SupervisedUserCircleIcon
+          <ViewModuleIcon
             sx={{
               //@ts-ignore
               fontSize: '2vh',
@@ -724,9 +725,10 @@ const DashboardLayout = () => {
           />
         </>
       ),
-      label: 'Referrals',
-      name: 'Referrals',
+      label: 'Module',
+      name: 'Modules',
     },
+
     {
       icon: (
         <>
@@ -878,7 +880,6 @@ const DashboardLayout = () => {
 
               <IconButton
                 onClick={() => {
-                  console.log('History is Here=>', window.history)
                   window.history.back()
                   setSelectedApp(history[history.length - 2])
                 }}
@@ -991,7 +992,6 @@ const DashboardLayout = () => {
                       onClick={() => {
                         setSelectedApp(item.label)
                         addToHistory(item.label)
-
                         navigate(item.label.toLocaleLowerCase())
                       }}
                     >

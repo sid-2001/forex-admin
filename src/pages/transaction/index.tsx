@@ -875,7 +875,8 @@ const TransactionListing = () => {
     return commonloader
   }
 
-  const filteredOutwardColumns = userCountry === 'UAE' ? columns_outward.filter((col) => col.field !== 'gateway_status') : columns_outward
+  const filteredOutwardColumns =
+    userCountry === 'UAE' ? columns_outward.filter((col) => col.field !== 'gateway_status' && col.field !== 'stpError') : columns_outward
 
   const filteredInwardColumns =
     userCountry === 'UAE'

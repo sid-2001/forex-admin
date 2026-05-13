@@ -172,9 +172,7 @@ const LoginPage = () => {
         usename: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.label : 'username',
         password: password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation?.label : 'password',
         username_validataion_msg:
-          username_data.length > 0
-            ? username_data[0].countryLabelFieldNameAndValidation.validationMessageMandatory
-            : ' Please enter a valid Username',
+          username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation.validationMessageMandatory : 'Please enter a valid Username',
         Password_validataion_msg:
           password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation.validationMessageMandatory : 'Please enter a valid Password',
 
@@ -246,7 +244,7 @@ const LoginPage = () => {
               value={email}
               onChange={handleChange}
               error={!!error} // Show error state when there's an error
-              helperText={email ? error || validataion?.username_validataion_msg : ''}
+              helperText={email ? error : ''}
               // helperText={error || validataion?.username_validataion_msg} // Show validation message
               inputProps={{
                 minLength: validataion?.username_minimum_legth,
@@ -265,7 +263,7 @@ const LoginPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               //@ts-ignore
               error={!!password && password.length < (validataion?.Password_minimum_legth || 1)} // Add validation
-              helperText={password ? validataion?.Password_validataion_msg : ''}
+              // helperText={password ? validataion?.Password_validataion_msg : ''}
               // helperText={   validataion?.Password_validataion_msg}
               inputProps={{
                 minLength: validataion?.Password_minimum_legth,

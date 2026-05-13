@@ -3,12 +3,10 @@ import { Box, Grid, Button, CircularProgress, Alert } from '@mui/material'
 import { AgCharts } from 'ag-charts-react'
 import staticdataService from '@/services/staticdata.service'
 import { useTheme } from '@mui/material/styles'
-import { useRecoilState } from 'recoil'
-import { selectedCountryState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 
 const TransactionPanel = () => {
-  const [year, setYear] = useState(2025)
+  const [year, setYear] = useState(new Date().getFullYear())
   const [monthlyData, setMonthlyData] = useState<any[]>([])
   const [dailyData, setDailyData] = useState<any[]>([])
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null)
