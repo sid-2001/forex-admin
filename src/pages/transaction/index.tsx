@@ -40,6 +40,7 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
 import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import React from 'react'
 import { GridColDef, GridPaginationModel, GridFilterModel } from '@mui/x-data-grid'
+import moment from 'moment'
 
 const applicant_service = new ApplicantService()
 const transaction_Service = new TransactionService()
@@ -164,11 +165,11 @@ const TransactionListing = () => {
     },
 
     {
-      field: 'createdLocalDateTime',
+      field: 'date',
       headerName: 'Date',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => helper.convertDateAndTime(params?.row?.createdLocalDateTime),
+      renderCell: (params: any) => helper.convertDateAndTime(params?.row?.date),
     },
     {
       field: 'gateway_status',
@@ -234,23 +235,22 @@ const TransactionListing = () => {
         />
       ),
     },
-    {
-      field: 'Bop action',
-      headerName: columnHeaderMap[userCountry] || columnHeaderMap.DEFAULT,
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => (
-        <IconButton
-          onClick={() => {
-            console.log(params.row, 'rowww')
-            handleNavigation(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`)
-            handleViewMore(params.row)
-          }}
-        >
-          <PreviewOutlined />
-        </IconButton>
-      ),
-    },
+    // {
+    //   field: 'Bop action',
+    //   headerName: columnHeaderMap[userCountry] || columnHeaderMap.DEFAULT,
+    //   flex: 1,
+    //   headerClassName: 'super-app-theme--header',
+    //   renderCell: (params: any) => (
+    //     <IconButton
+    //       onClick={() => {
+    //         handleNavigation(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`)
+    //         handleViewMore(params.row)
+    //       }}
+    //     >
+    //       <PreviewOutlined />
+    //     </IconButton>
+    //   ),
+    // },
   ]
   // --- export helpers ---
   const esc = (v: any) => {
@@ -306,9 +306,6 @@ const TransactionListing = () => {
 
   const handleAdumoPaymentClick = async () => {
     try {
-      console.log(transactionDetails)
-      console.log(transactionDetails)
-
       const response = await transaction_service.createAdumoOrder({
         amount: transactionDetails?.value,
         transactionId: transactionDetails?.transactionNumber,
@@ -390,7 +387,7 @@ const TransactionListing = () => {
     { field: 'sendingCountry', headerName: 'Sending Country', width: 130, headerClassName: 'super-app-theme--header' },
     { field: 'receivingCountry', headerName: 'Receiving Country', width: 130, headerClassName: 'super-app-theme--header' },
     { field: 'settlementCurrency', headerName: 'Settlement Currency', width: 150, headerClassName: 'super-app-theme--header' },
-    { field: 'principalCurrency', headerName: 'Principal Currency', width: 150, headerClassName: 'super-app-theme--header' },
+    // { field: 'principalCurrency', headerName: 'Principal Currency', width: 150, headerClassName: 'super-app-theme--header' },
 
     // { field: 'gatewayId', headerName: 'Gateway Id', width: 100, headerClassName: 'super-app-theme--header' },
 
@@ -424,8 +421,20 @@ const TransactionListing = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
+        const value = renderTransactionStatus(params?.row?.transactionStatus?.toUpperCase())
+        if (!value) return null
         return (
-          <div style={{ color: statusColors[params?.row?.transactionStatus?.toUpperCase()] }}>{params?.row?.transactionStatus?.toUpperCase()}</div>
+          <Chip
+            label={value}
+            sx={{
+              backgroundColor: statusColors[value],
+              color: 'white',
+              fontWeight: 500,
+              fontSize: '13px',
+              borderRadius: '8px',
+              height: 28,
+            }}
+          />
         )
       },
     },
@@ -455,7 +464,7 @@ const TransactionListing = () => {
       renderCell: (params: any) => (
         <IconButton
           onClick={() => {
-            handleNavigation(`/bop-details/${params.row.owTransactionNumber}/${params.row.tran_bop_attempt}`)
+            handleNavigation(`/bop-details/${params.row.owTransactionNumber}/${params.row.tranBopAttempt}`)
           }}
         >
           <PreviewOutlined />
@@ -725,7 +734,7 @@ const TransactionListing = () => {
               settlement: helper.roundToTwoFixed(e?.transactionGatewayDTO?.principalAmount * e?.transactionGatewayDTO?.exchangeRates),
               destinationBank: e?.transactionGatewayDTO?.destinationBankBicCode,
               forex: helper.roundToTwoFixed(e?.transactionGatewayDTO?.exchangeRates),
-              date: e?.utcDatetime,
+              date: e?.transactionGatewayDTO?.createdLocalDateTime,
 
               reporting: e?.transactionGatewayDTO?.reportingStatus,
               status: e?.transactionGatewayDTO?.transactionStatus,
@@ -1094,8 +1103,7 @@ const TransactionListing = () => {
             >
               TRANSACTION ID : {transactionDetails.id}
             </Typography>
-
-            <Chip label={transactionDetails?.status} color="warning" sx={{ marginBottom: 2 }} />
+            <Chip label={renderTransactionStatus(transactionDetails?.transactionStatus?.toUpperCase())} color="warning" sx={{ marginBottom: 2 }} />
 
             {/* Transaction Details Section */}
             <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>
@@ -1115,18 +1123,19 @@ const TransactionListing = () => {
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
-                  label="Value"
+                  label="Transaction Date"
                   variant="filled"
                   fullWidth
                   //@ts-ignore
-                  defaultValue={transactionDetails.value?.toFixed(2)}
+                  defaultValue={helper.convertDateAndTime(transactionDetails.date)}
                   size="small"
                   disabled
                 />
               </Grid>
+
               <Grid item xs={12} md={6}>
                 <TextField
-                  label="Currency"
+                  label="Receiver's Currency"
                   variant="filled"
                   fullWidth
                   //@ts-ignore
@@ -1135,19 +1144,42 @@ const TransactionListing = () => {
                   disabled
                 />
               </Grid>
+
               <Grid item xs={12} md={6}>
                 <TextField
-                  label="Date"
+                  label="Receiver's Amount"
                   variant="filled"
                   fullWidth
                   //@ts-ignore
-                  defaultValue={helper.convertDateAndTime(transactionDetails.createdLocalDateTime)}
+                  defaultValue={transactionDetails.value?.toFixed(2)}
+                  size="small"
+                  disabled
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Sender's Currency"
+                  variant="filled"
+                  fullWidth
+                  //@ts-ignore
+                  defaultValue={transactionDetails.settlementCurrency}
+                  size="small"
+                  disabled
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Sender's Amount"
+                  variant="filled"
+                  fullWidth
+                  //@ts-ignore
+                  defaultValue={transactionDetails.settlementAmount}
                   size="small"
                   disabled
                 />
               </Grid>
             </Grid>
-
             {/* Beneficiary Details Section */}
             <Divider sx={{ my: 2 }} />
             <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>
@@ -1157,11 +1189,20 @@ const TransactionListing = () => {
               <Grid item xs={12} md={6}>
                 <TextField label="Account Number" variant="filled" fullWidth defaultValue={transactionDetails?.accountNumber} size="small" disabled />
               </Grid>
+              {userCountry !== 'UAE' && (
+                <Grid item xs={12} md={6}>
+                  <TextField label="Bank" variant="filled" fullWidth defaultValue={transactionDetails?.bankName} size="small" disabled />
+                </Grid>
+              )}
               <Grid item xs={12} md={6}>
-                <TextField label="Bank" variant="filled" fullWidth defaultValue={transactionDetails?.bankName} size="small" disabled />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField label="Bank Code" variant="filled" fullWidth defaultValue={transactionDetails?.bankBicCode} size="small" disabled />
+                <TextField
+                  label="Bank Code"
+                  variant="filled"
+                  fullWidth
+                  defaultValue={transactionDetails?.receiveCountry === 'IN' ? transactionDetails?.ifscCode : transactionDetails?.bankBicCode}
+                  size="small"
+                  disabled
+                />
               </Grid>
 
               <Grid item xs={12} md={6}>
@@ -1179,7 +1220,6 @@ const TransactionListing = () => {
                 />
               </Grid>
             </Grid>
-
             <Divider sx={{ my: 2 }} />
             <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2, color: theme.palette.primary.main }}>
               Applicant Details
@@ -1206,7 +1246,6 @@ const TransactionListing = () => {
                 />
               </Grid>
             </Grid>
-
             {trxStatus == 'DRAFT' || trxStatus == 'PENDING' ? (
               <>
                 <Button

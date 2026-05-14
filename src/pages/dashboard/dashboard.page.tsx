@@ -674,7 +674,7 @@ const Dashboard = () => {
             <Grid item xs={12} md={7}>
               <Card sx={{ border: '2px solid', borderColor: '#79CBF0', height: '100%' }}>
                 <CardContent>
-                  <Typography variant="subtitle1" fontWeight={700} gutterBottom>
+                  <Typography variant="subtitle1" fontWeight={700}>
                     Volume
                   </Typography>
                   <TransactionPanel />

@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import {
-  DataGrid, GridToolbarContainer,
-  GridToolbarColumnsButton,
-  GridToolbarFilterButton,
-  GridFilterModel,
-  GridColDef,
-} from '@mui/x-data-grid'
+import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridFilterModel, GridColDef } from '@mui/x-data-grid'
 import { Box, Typography, IconButton, Chip, Button } from '@mui/material'
 import { useNavigate, Link } from 'react-router-dom'
 import VisibilityIcon from '@mui/icons-material/Visibility'
@@ -53,6 +47,8 @@ const BopTable: React.FC = () => {
       : `${benificiary_first_name} ${benificiary_last_name}`
   }
 
+  const renderStatus = (status: string) => (status === 'IN_PROGRESS' ? 'IN PROGRESS' : status)
+
   const columns = [
     {
       field: 'transaction_number',
@@ -97,23 +93,23 @@ const BopTable: React.FC = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        const status = params?.row?.transaction_status?.toUpperCase?.() || '';
+        const status = params?.row?.transaction_status?.toUpperCase?.() || ''
 
         if (!status) {
-          return null; // 👈 empty ho toh chip hi na render karo
+          return null // 👈 empty ho toh chip hi na render karo
           // OR return <Chip label="N/A" size="small" />; // fallback chahiye toh
         }
 
         return (
           <Chip
-            label={status}
+            label={renderStatus(status)}
             sx={{
               backgroundColor: statusColors[status] || 'grey',
               color: 'white',
               fontWeight: 'bold',
             }}
           />
-        );
+        )
       },
     },
     {
@@ -122,15 +118,15 @@ const BopTable: React.FC = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        const status = params?.row?.status?.toUpperCase?.() || '';
+        const status = params?.row?.status?.toUpperCase?.() || ''
 
         if (!status) {
-          return null; // 👈 empty ho toh chip skip
+          return null // 👈 empty ho toh chip skip
         }
 
         return (
           <Chip
-            label={status}
+            label={renderStatus(status)}
             sx={{
               backgroundColor: statusColors[status] || 'grey',
               color: 'white',
@@ -138,7 +134,7 @@ const BopTable: React.FC = () => {
             }}
             size="small"
           />
-        );
+        )
       },
     },
 
@@ -148,10 +144,10 @@ const BopTable: React.FC = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        const sapStatus = params?.row?.sap_status?.toUpperCase?.() || '';
+        const sapStatus = params?.row?.sap_status?.toUpperCase?.() || ''
 
         if (!sapStatus) {
-          return null; // 👈 agar empty hai toh chip na dikhe
+          return null // 👈 agar empty hai toh chip na dikhe
         }
 
         return (
@@ -164,7 +160,7 @@ const BopTable: React.FC = () => {
             }}
             size="small"
           />
-        );
+        )
       },
     },
 
@@ -198,16 +194,14 @@ const BopTable: React.FC = () => {
     },
   ]
   const getVisibleFilteredRows = () => {
-    const visibleCols = columns.filter(
-      (col) => columnVisibilityModel[col.field] !== false && col.field !== 'id1'
-    )
+    const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false && col.field !== 'id1')
 
     const filteredRows = bopData.filter((row: any) =>
       filterModel.items.every((filter) => {
         if (!filter.value) return true
         const cellValue = row[filter.field]?.toString().toLowerCase() || ''
         return cellValue.includes(filter.value.toLowerCase())
-      })
+      }),
     )
 
     return { visibleCols, filteredRows }
@@ -221,9 +215,7 @@ const BopTable: React.FC = () => {
     }
 
     const headers = visibleCols.map((col) => col.headerName).join(',')
-    const rows = filteredRows.map((row: any) =>
-      visibleCols.map((col) => `"${row[col.field] || ''}"`).join(',')
-    )
+    const rows = filteredRows.map((row: any) => visibleCols.map((col) => `"${row[col.field] || ''}"`).join(','))
 
     const csv = [headers, ...rows].join('\n')
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
@@ -242,9 +234,7 @@ const BopTable: React.FC = () => {
     }
 
     const headers = visibleCols.map((col) => col.headerName)
-    const data = filteredRows.map((row: any) =>
-      visibleCols.map((col) => row[col.field] || '')
-    )
+    const data = filteredRows.map((row: any) => visibleCols.map((col) => row[col.field] || ''))
 
     const doc = new jsPDF({ unit: 'pt' })
     doc.setFontSize(14)
@@ -263,33 +253,15 @@ const BopTable: React.FC = () => {
       <GridToolbarColumnsButton />
       <GridToolbarFilterButton />
 
-      <Button
-        variant="outlined"
-        color="primary"
-        size="small"
-        startIcon={<DownloadIcon />}
-        onClick={handleExportCSV}
-      >
+      <Button variant="outlined" color="primary" size="small" startIcon={<DownloadIcon />} onClick={handleExportCSV}>
         CSV
       </Button>
 
-      <Button
-        variant="outlined"
-        color="primary"
-        size="small"
-        startIcon={<PictureAsPdfIcon />}
-        onClick={handleExportPDF}
-      >
+      <Button variant="outlined" color="primary" size="small" startIcon={<PictureAsPdfIcon />} onClick={handleExportPDF}>
         PDF
       </Button>
 
-      <Button
-        variant="outlined"
-        color="primary"
-        size="small"
-        startIcon={<FindReplaceIcon />}
-        onClick={() => setFilterModel({ items: [] })}
-      >
+      <Button variant="outlined" color="primary" size="small" startIcon={<FindReplaceIcon />} onClick={() => setFilterModel({ items: [] })}>
         Reset Filters
       </Button>
     </GridToolbarContainer>

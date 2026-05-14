@@ -664,22 +664,22 @@ const DashboardLayout = () => {
       name: 'KYC',
     },
 
-    {
-      icon: (
-        <>
-          <SourceIcon
-            sx={{
-              //@ts-ignore
-              fontSize: '2vh',
-              //@ts-ignore
-              color: theme.palette.primary.light, // Corrected theme usage
-            }}
-          />
-        </>
-      ),
-      label: 'Bop',
-      name: 'BOP',
-    },
+    // {
+    //   icon: (
+    //     <>
+    //       <SourceIcon
+    //         sx={{
+    //           //@ts-ignore
+    //           fontSize: '2vh',
+    //           //@ts-ignore
+    //           color: theme.palette.primary.light, // Corrected theme usage
+    //         }}
+    //       />
+    //     </>
+    //   ),
+    //   label: 'Bop',
+    //   name: 'BOP',
+    // },
     {
       icon: (
         <>
