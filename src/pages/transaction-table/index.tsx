@@ -2,8 +2,6 @@ import React, { useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
 import { Box, Button, Chip, Divider, Drawer, Grid, IconButton, TextField, Typography, useTheme } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
-import VisibilityIcon from '@mui/icons-material/Visibility'
-import { TransactionService } from '@/services/transaction.service'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
@@ -28,45 +26,23 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
   const theme = useTheme()
   const helper = new HelperService()
 
-  const handleViewMore = (row: any) => {
-    console.log(row)
-    setDrawerOpen(true)
-    setTransactionDetails(row)
-  }
-
   const [transactionDetails, setTransactionDetails] = useState<any>(null)
   const [trxStatus, settrxStatus] = useState('')
   const [zaphierlink, setZaphierLink] = useState('')
   const [isDrawerOpen, setDrawerOpen] = useState(false)
 
   const closeDrawer = () => {
-    let trx_service = new TransactionService()
-
-    if (trxStatus == 'DRAFT' || trxStatus == 'PENDING') {
-      //  trx_service.createTransaction(creattrx).then(data => {
-      //    console.log(data)
-      //  })
-    }
     setDrawerOpen(false)
-    //  setZaphierLink('')
-    // window.location.href = zaphierlink;
   }
 
   const renderBeneficiaryFullName = (beneficiary: any) => {
-    console.log(beneficiary, '-----------------')
     const { beneficiaryFirstName, beneficiaryLastName } = beneficiary
     return beneficiary?.beneficiaryMiddleName
       ? `${beneficiaryFirstName} ${beneficiary?.beneficiaryMiddleName} ${beneficiaryLastName}`
       : `${beneficiaryFirstName} ${beneficiaryLastName}`
   }
 
-  const renderTransactionStatus = (transStatus: string) => {
-    if (transStatus === 'IN_PROGRESS') {
-      return 'IN PROGRESS'
-    } else {
-      return transStatus
-    }
-  }
+  const renderTransactionStatus = (transStatus: string) => (transStatus === 'IN_PROGRESS' ? 'IN PROGRESS' : transStatus)
 
   const columns = [
     {

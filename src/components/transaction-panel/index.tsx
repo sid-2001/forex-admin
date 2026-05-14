@@ -165,7 +165,7 @@ const TransactionPanel = () => {
   }
 
   return (
-    <Box>
+    <Box sx={{ height: 300 }}>
       {selectedMonth && (
         <Button onClick={handleBack} sx={{ mb: 2 }}>
           Back to Months
@@ -174,7 +174,7 @@ const TransactionPanel = () => {
 
       <Grid container spacing={2}>
         <Grid item xs={12} md={6}>
-          <Box sx={{ height: 250, cursor: 'pointer' }}>
+          <Box sx={{ cursor: 'pointer' }}>
             <AgCharts
               options={{
                 ...barOptions,
