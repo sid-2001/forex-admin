@@ -99,6 +99,7 @@ import RuleIcon from '@mui/icons-material/Rule'
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered'
+import GroupAddIcon from '@mui/icons-material/GroupAdd'
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
@@ -611,7 +612,7 @@ const DashboardLayout = () => {
     {
       icon: (
         <>
-          <SupervisedUserCircleIcon
+          <GroupAddIcon
             sx={{
               //@ts-ignore
               fontSize: '2vh',
@@ -664,22 +665,22 @@ const DashboardLayout = () => {
       name: 'KYC',
     },
 
-    // {
-    //   icon: (
-    //     <>
-    //       <SourceIcon
-    //         sx={{
-    //           //@ts-ignore
-    //           fontSize: '2vh',
-    //           //@ts-ignore
-    //           color: theme.palette.primary.light, // Corrected theme usage
-    //         }}
-    //       />
-    //     </>
-    //   ),
-    //   label: 'Bop',
-    //   name: 'BOP',
-    // },
+    {
+      icon: (
+        <>
+          <SourceIcon
+            sx={{
+              //@ts-ignore
+              fontSize: '2vh',
+              //@ts-ignore
+              color: theme.palette.primary.light, // Corrected theme usage
+            }}
+          />
+        </>
+      ),
+      label: 'Bop',
+      name: staffCountry === 'UAE' ? 'PaymentInfo' : 'BOP',
+    },
     {
       icon: (
         <>

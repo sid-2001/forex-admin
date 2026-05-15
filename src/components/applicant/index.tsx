@@ -16,7 +16,7 @@ import autoTable from 'jspdf-autotable'
 import 'jspdf-autotable'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
 import DownloadIcon from '@mui/icons-material/Download'
-import FindReplaceIcon from '@mui/icons-material/FindReplace';
+import FindReplaceIcon from '@mui/icons-material/FindReplace'
 
 interface Applicant {
   applicantId: string
@@ -68,12 +68,10 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     if (!rows || rows.length === 0) return
 
     // 🔹 Headers (DataGrid ke columns)
-    const headers = columns.map(col => col.headerName || col.field)
+    const headers = columns.map((col) => col.headerName || col.field)
 
     // 🔹 Body
-    const body = rows.map(row =>
-      columns.map(col => row[col.field as keyof typeof row])
-    )
+    const body = rows.map((row) => columns.map((col) => row[col.field as keyof typeof row]))
 
     const title = 'Applicants'
     const doc = new jsPDF({ unit: 'pt' })
@@ -100,7 +98,6 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     doc.save(`applicants_${title}_${new Date().toISOString().slice(0, 10)}.pdf`)
   }
 
-
   // 🛠️ Custom Toolbar
   const CustomToolbar = () => {
     return (
@@ -109,28 +106,12 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
         <GridToolbarFilterButton />
 
         {/* Export CSV */}
-        <Button
-          variant="outlined"
-          color="primary"
-          size="small"
-          startIcon={<DownloadIcon />}
-
-          onClick={downloadCSV}
-
-          sx={{ ml: 1 }}
-        >
+        <Button variant="outlined" color="primary" size="small" startIcon={<DownloadIcon />} onClick={downloadCSV} sx={{ ml: 1 }}>
           CSV
         </Button>
 
         {/* Export PDF */}
-        <Button
-          variant="outlined"
-          color="primary"
-          size="small"
-          startIcon={<PictureAsPdfIcon />}
-          onClick={downloadPDF}
-          sx={{ ml: 1 }}
-        >
+        <Button variant="outlined" color="primary" size="small" startIcon={<PictureAsPdfIcon />} onClick={downloadPDF} sx={{ ml: 1 }}>
           PDF
         </Button>
 
@@ -140,7 +121,6 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
           color="primary"
           size="small"
           startIcon={<FindReplaceIcon />}
-
           onClick={() => setFilterModel({ items: [] })}
           sx={{ ml: 1 }}
         >
@@ -150,7 +130,6 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     )
   }
 
-
   // 🗂️ Columns
   const columns: GridColDef[] = [
     {
@@ -159,17 +138,20 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: GridRenderCellParams) => (
-        <span
-          style={{ cursor: 'pointer', textDecoration: 'underline' }}
-          onClick={() => navigate(`/applicant-details/${params.value}`)}
-        >
+        <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate(`/applicant-details/${params.value}`)}>
           {params.value}
         </span>
       ),
     },
     { field: 'firstName', headerName: 'First Name', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'lastName', headerName: 'Last Name', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'gender', headerName: 'Gender', flex: 1, headerClassName: 'super-app-theme--header' },
+    {
+      field: 'gender',
+      headerName: 'Gender',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => (params.value === 'M' ? 'Male' : 'Female'),
+    },
     { field: 'dob', headerName: 'DOB', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'residentialAddressCountry', headerName: 'Residence Country', flex: 1, headerClassName: 'super-app-theme--header' },
   ]

@@ -41,7 +41,7 @@ export class TransactionService extends BaseService {
     }
   }
 
-    async getInwardTransactionFilted(page:any,size:any,  receving_country: any): Promise<Array<TransactionInward>> {
+  async getInwardTransactionFilted(page: any, size: any, receving_country: any): Promise<Array<TransactionInward>> {
     try {
       const url = `/api/transactions/transaction-inward/receivingCountry/${receving_country}?page=${page}&size=${size}`
       const response = await api1.get(url)
@@ -51,15 +51,14 @@ export class TransactionService extends BaseService {
     }
   }
 
-
-      async getTransactionReferalsPoints(applicantID:String,countryCode:String,charges:Number): Promise<any> {
+  async getTransactionReferalsPoints(applicantID: String, countryCode: String, charges: Number): Promise<any> {
     try {
       const url = `/api/kyc/totalReferral/get-referral-point`
-      const response = await api1.post(url,{
-    "applicantId": applicantID,
-    "countryCode": countryCode,
-    "charges": charges
-})
+      const response = await api1.post(url, {
+        applicantId: applicantID,
+        countryCode: countryCode,
+        charges: charges,
+      })
       return response?.data || []
     } catch (e) {
       throw new Error(e as any)
@@ -282,7 +281,7 @@ export class TransactionService extends BaseService {
     }
   }
 
-    async createSquadOrder(payload: any) {
+  async createSquadOrder(payload: any) {
     const url = `/api/transactions/squad/transaction/initiate`
     try {
       const { data } = await api1.post(url, payload)
@@ -291,7 +290,7 @@ export class TransactionService extends BaseService {
       console.log(err)
     }
   }
-      async createRexoayOrder(payload: any) {
+  async createRexoayOrder(payload: any) {
     const url = `/api/transactions/rexpay/createPayment`
     try {
       const { data } = await api1.post(url, payload)
@@ -362,6 +361,16 @@ export class TransactionService extends BaseService {
     const url = `api/zapper/create-session`
     try {
       const { data } = await api1.post(url, body)
+      return data
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  async getTransactionDatabyId(id: string) {
+    const url = `api/transactions/transaction-outward/transactionNumber/${id}`
+    try {
+      const data = await api1.get(url)
       return data
     } catch (err) {
       console.log(err)
