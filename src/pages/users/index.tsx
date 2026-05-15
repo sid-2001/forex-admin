@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { DataGrid, GridColDef , GridToolbarContainer,
-  GridToolbarColumnsButton,
-  GridToolbarFilterButton,} from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton } from '@mui/x-data-grid'
 import { Switch, Box, Typography, Button, useTheme } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { useNavigate } from 'react-router-dom'
@@ -57,12 +55,12 @@ const UserTable: React.FC = () => {
   const fetchAllStaffList = async () => {
     try {
       const response = await user_service.getAllStaffList()
-      const staffId=await  local_service.get_staff_access()?.staffId
+      const staffId = await local_service.get_staff_access()?.staffId
 
-//       setStaffList(  response.filter(
-//     (e) => e?.staffId != staffId
-// ))
-setStaffList(response)
+      //       setStaffList(  response.filter(
+      //     (e) => e?.staffId != staffId
+      // ))
+      setStaffList(response)
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error)
     }
@@ -81,7 +79,7 @@ setStaffList(response)
       renderCell: (params: any) => {
         return (
           <a
-            style={{ cursor: 'pointer', color: theme.palette.text.primary , textDecoration:"underline" }}
+            style={{ cursor: 'pointer', color: theme.palette.text.primary, textDecoration: 'underline' }}
             onClick={() => {
               navigate(`/profile/edit/${params.row.staffId}`)
             }}
@@ -106,28 +104,32 @@ setStaffList(response)
     { field: 'staffCountry', headerName: 'Country', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'username', headerName: 'Username', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'email', headerName: 'Email', flex: 1, headerClassName: 'super-app-theme--header' },
-     { field: 'utcDatetime', headerName: 'Date', flex: 1, headerClassName: 'super-app-theme--header' },
+    {
+      field: 'createdLocalDateTime',
+      headerName: 'Date',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => helper_service.convertDateAndTime(params?.row?.createdLocalDateTime),
+    },
   ]
 
-  
- const handleExportCSV = () => {
+  const handleExportCSV = () => {
     const visibleCols = columns.filter(
       //@ts-ignore
-      (col) => columnVisibilityModel[col.field] !== false
+      (col) => columnVisibilityModel[col.field] !== false,
     )
 
     const visibleRowIds = Array.from(apiRef.current?.getFilteredRows?.().keys?.() || [])
-    const visibleRows = staffList.filter((row: any) =>
-      visibleRowIds.includes(row.staffId)
-    )
+    const visibleRows = staffList.filter((row: any) => visibleRowIds.includes(row.staffId))
 
     const headers = visibleCols.map((col) => col.headerName).join(',')
     const rows = visibleRows.map((row: any) =>
-      visibleCols.map((col) => {
-        if (col.field === 'id1')
-          return `${row.staffFirstName} ${row.staffLastName}`
-        return row[col.field] || ''
-      }).join(',')
+      visibleCols
+        .map((col) => {
+          if (col.field === 'id1') return `${row.staffFirstName} ${row.staffLastName}`
+          return row[col.field] || ''
+        })
+        .join(','),
     )
 
     const csv = [headers, ...rows].join('\n')
@@ -142,21 +144,18 @@ setStaffList(response)
   const handleExportPDF = () => {
     const visibleCols = columns.filter(
       //@ts-ignore
-      (col) => columnVisibilityModel[col.field] !== false
+      (col) => columnVisibilityModel[col.field] !== false,
     )
 
     const visibleRowIds = Array.from(apiRef.current?.getFilteredRows?.().keys?.() || [])
-    const visibleRows = staffList.filter((row: any) =>
-      visibleRowIds.includes(row.staffId)
-    )
+    const visibleRows = staffList.filter((row: any) => visibleRowIds.includes(row.staffId))
 
     const headers = visibleCols.map((col) => col.headerName)
     const data = visibleRows.map((row: any) =>
       visibleCols.map((col) => {
-        if (col.field === 'id1')
-          return `${row.staffFirstName} ${row.staffLastName}`
+        if (col.field === 'id1') return `${row.staffFirstName} ${row.staffLastName}`
         return row[col.field] || ''
-      })
+      }),
     )
 
     const doc = new jsPDF({ unit: 'pt' })
@@ -178,31 +177,13 @@ setStaffList(response)
     <GridToolbarContainer sx={{ justifyContent: 'flex-start', gap: 1, py: 1 }}>
       <GridToolbarColumnsButton />
       <GridToolbarFilterButton />
-      <Button
-        variant="outlined"
-        color="primary"
-        size="small"
-        startIcon={<DownloadIcon />}
-        onClick={handleExportCSV}
-      >
+      <Button variant="outlined" color="primary" size="small" startIcon={<DownloadIcon />} onClick={handleExportCSV}>
         CSV
       </Button>
-      <Button
-        variant="outlined"
-        color="primary"
-        size="small"
-        startIcon={<PictureAsPdfIcon />}
-        onClick={handleExportPDF}
-      >
+      <Button variant="outlined" color="primary" size="small" startIcon={<PictureAsPdfIcon />} onClick={handleExportPDF}>
         PDF
       </Button>
-      <Button
-        variant="outlined"
-        color="primary"
-        size="small"
-        startIcon={<FindReplaceIcon />}
-        onClick={() => setFilterModel({ items: [] })}
-      >
+      <Button variant="outlined" color="primary" size="small" startIcon={<FindReplaceIcon />} onClick={() => setFilterModel({ items: [] })}>
         Reset Filters
       </Button>
     </GridToolbarContainer>
@@ -213,7 +194,7 @@ setStaffList(response)
       <Box sx={{ width: '80vw', height: '70vh' }}>
         <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'}>
           <Box>
-            <Typography variant="h4" gutterBottom >
+            <Typography variant="h4" gutterBottom>
               <strong>All Users</strong>
             </Typography>
           </Box>

@@ -169,12 +169,12 @@ const ModuleTable: React.FC = () => {
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'moduleCreatedDate',
+      field: 'createdLocalDateTime',
       headerName: 'Date',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        return helper.convertDateAndTime(params.row.moduleCreatedDate)
+        return helper.convertDateAndTime(params?.row?.createdLocalDateTime)
       },
     },
     {

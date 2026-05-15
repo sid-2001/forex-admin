@@ -16,15 +16,14 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Tooltip,
   Modal,
 } from '@mui/material'
-import { DataGrid, GridColumnVisibilityModel, GridToolbarColumnsButton, GridToolbarDensitySelector, GridToolbarFilterButton } from '@mui/x-data-grid'
+import { DataGrid, GridColumnVisibilityModel, GridToolbarColumnsButton, GridToolbarFilterButton } from '@mui/x-data-grid'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { TransactionInward, TransactionOutward } from '@/types/transaction.type'
 import { PreviewOutlined } from '@mui/icons-material'
 import { useRecoilState } from 'recoil'
-import { alertState, alertTextState, alertTypeState, loaderStateNew } from '@/states/state'
+import { alertState, loaderStateNew } from '@/states/state'
 import CompliancTool from '@/components/compliance-tool'
 import { HelperService } from '@/helpers/helper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
@@ -40,7 +39,7 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
 import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import React from 'react'
 import { GridColDef, GridPaginationModel, GridFilterModel } from '@mui/x-data-grid'
-import moment from 'moment'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 
 const applicant_service = new ApplicantService()
 const transaction_Service = new TransactionService()
@@ -76,6 +75,17 @@ const TransactionListing = () => {
         <a href="#" style={{ color: theme.palette.text.primary }} onClick={() => handleViewMore(params.row)}>
           {params?.value}
         </a>
+
+        // <span
+        //   onClick={() => handleNavigation(`/transaction-detail/${params.value}`)}
+        //   style={{
+        //     cursor: 'pointer',
+        //     color: theme.palette.text.primary,
+        //     textDecoration: 'underline',
+        //   }}
+        // >
+        //   {params?.value}
+        // </span>
       ),
     },
 
@@ -183,12 +193,10 @@ const TransactionListing = () => {
           <Chip
             label={value}
             sx={{
-              backgroundColor: statusColors[value],
+              backgroundColor: statusColors[value] || 'grey',
               color: 'white',
-              fontWeight: 500,
-              fontSize: '13px',
+              fontWeight: 'bold',
               borderRadius: '8px',
-              height: 28,
             }}
           />
         )
@@ -206,12 +214,10 @@ const TransactionListing = () => {
           <Chip
             label={value}
             sx={{
-              backgroundColor: statusColors[value],
+              backgroundColor: statusColors[value] || 'grey',
               color: 'white',
-              fontWeight: 500,
-              fontSize: '13px',
+              fontWeight: 'bold',
               borderRadius: '8px',
-              height: 28,
             }}
           />
         )
@@ -235,22 +241,26 @@ const TransactionListing = () => {
         />
       ),
     },
-    // {
-    //   field: 'Bop action',
-    //   headerName: columnHeaderMap[userCountry] || columnHeaderMap.DEFAULT,
-    //   flex: 1,
-    //   headerClassName: 'super-app-theme--header',
-    //   renderCell: (params: any) => (
-    //     <IconButton
-    //       onClick={() => {
-    //         handleNavigation(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`)
-    //         handleViewMore(params.row)
-    //       }}
-    //     >
-    //       <PreviewOutlined />
-    //     </IconButton>
-    //   ),
-    // },
+    {
+      field: 'Bop action',
+      headerName: columnHeaderMap[userCountry] || columnHeaderMap.DEFAULT,
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => (
+        <IconButton
+          onClick={() => {
+            handleNavigation(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`)
+            handleViewMore(params.row)
+          }}
+        >
+          <VisibilityIcon
+            style={{
+              cursor: 'pointer',
+            }}
+          />
+        </IconButton>
+      ),
+    },
   ]
   // --- export helpers ---
   const esc = (v: any) => {
@@ -427,12 +437,10 @@ const TransactionListing = () => {
           <Chip
             label={value}
             sx={{
-              backgroundColor: statusColors[value],
+              backgroundColor: statusColors[value] || 'grey',
               color: 'white',
-              fontWeight: 500,
-              fontSize: '13px',
+              fontWeight: 'bold',
               borderRadius: '8px',
-              height: 28,
             }}
           />
         )
@@ -772,7 +780,7 @@ const TransactionListing = () => {
 
   useEffect(() => {
     if (!flow) {
-      setTransactionType('inwards')
+      setTransactionType('outwards')
     } else {
       setTransactionType(flow)
     }

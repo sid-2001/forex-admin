@@ -26,6 +26,7 @@ const BopTable: React.FC = () => {
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<Record<string, boolean>>({})
   const apiRef = React.useRef<any>(null)
+  const userCountry = local_service?.get_staff_country()
   useEffect(() => {
     fetchBopListingData()
   }, [])
@@ -271,7 +272,7 @@ const BopTable: React.FC = () => {
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>
       <Box sx={{ width: '80vw', height: '70vh' }}>
         <Typography variant="h4" gutterBottom>
-          <strong>Bop Listing </strong>
+          {userCountry === 'UAE' ? <strong>Payment Information</strong> : <strong>BOP LISTING</strong>}
         </Typography>
         {bopData && (
           <DataGrid

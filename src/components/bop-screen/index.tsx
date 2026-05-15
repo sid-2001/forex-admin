@@ -73,6 +73,8 @@ const BopScreen: React.FC = () => {
     helper.checkUserHasPermission(local_service.get_modules()?.BOP, 'canUpdate')
   //@ts-ignore
   const userLoggedInCountry = parseData?.staffCountry
+  const userCountry = local_service?.get_staff_country()
+  const hideForUAE = userCountry === 'UAE'
 
   // Helper function to get label by field name
   const getLabel = (fieldName: string): string => {
@@ -232,14 +234,14 @@ const BopScreen: React.FC = () => {
   const fetchBopBetailById = async () => {
     try {
       const data = await bopService.getBopDetailByTransactionId(transactionId, transaction_attempt)
-      setBopData(data)
-      const userName = data?.name.replace(/\s+/g, ' ')
+      setBopData(data[0])
+      const userName = data[0]?.name.replace(/\s+/g, ' ')
       setFormData({
-        ...data,
+        ...data[0],
         first_name: userName.split(' ')[0],
         middle_name: userName.split(' ').length === 3 ? userName.split(' ')[1] : '',
         last_name: userName.split(' ').length === 3 ? userName.split(' ')[2] : userName.split(' ')[1],
-        dob: dayjs(data.dob).format('YYYY-MM-DD'),
+        dob: dayjs(data[0].dob).format('YYYY-MM-DD'),
       })
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error)
@@ -250,9 +252,9 @@ const BopScreen: React.FC = () => {
     try {
       const response = await bopService.getBopCategoryDetailByTransactionId(transactionId, transaction_attempt)
       setbopCat({
-        ...response,
-        principal_amount: helper.roundToTwoFixed(response?.principal_amount) || 0,
-        settlement_amount: helper.roundToTwoFixed(response?.settlement_amount) || 0,
+        ...response[0],
+        principal_amount: helper.roundToTwoFixed(response[0]?.principal_amount) || 0,
+        settlement_amount: helper.roundToTwoFixed(response[0]?.settlement_amount) || 0,
       })
 
       setBopCategorySelected(response?.bop_category)
@@ -317,41 +319,44 @@ const BopScreen: React.FC = () => {
     }
   }, [])
 
+  const renderStatus = (status: string) => (status === 'IN_PROGRESS' ? 'IN PROGRESS' : status)
+
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>
       <Box style={{ width: '80vw', height: '80vh', overflowY: 'scroll', padding: '10px 20px' }}>
-        <Box sx={{ textAlign: 'right', marginBottom: '10px' }}>
-          <Button variant="contained" sx={{ marginRight: '0.8%' }} onClick={() => setIsEditing(true)} disabled={isEditing}>
-            {getLabel('Edit') || 'Edit'}
-          </Button>
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={() => {
-              setConfirmReleaseModal(!confirmReleaseModal)
-            }}
-            disabled={
-              !(
-                stpErrors?.length === 0 &&
-                formData.transaction_status === 'RELEASED' &&
-                helper.checkUserHasPermission(local_service.get_modules()?.BOP, 'canUpdate') &&
-                formData.status === 'Pending'
-              )
-            }
-          >
-            {getLabel('Release') || 'Release'}
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{ marginLeft: '10px' }}
-            disabled={!(bopData?.sap_status === 'Nack')}
-            onClick={() => handleCancelReplaceBopFunc()}
-          >
-            {getLabel('Cancel_Replace') || 'Cancel Replace'}
-          </Button>
-        </Box>
-
+        {!hideForUAE && (
+          <Box sx={{ textAlign: 'right', marginBottom: '10px' }}>
+            <Button variant="contained" sx={{ marginRight: '0.8%' }} onClick={() => setIsEditing(true)} disabled={isEditing}>
+              {getLabel('Edit') || 'Edit'}
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => {
+                setConfirmReleaseModal(!confirmReleaseModal)
+              }}
+              disabled={
+                !(
+                  stpErrors?.length === 0 &&
+                  formData.transaction_status === 'RELEASED' &&
+                  helper.checkUserHasPermission(local_service.get_modules()?.BOP, 'canUpdate') &&
+                  formData.status === 'Pending'
+                )
+              }
+            >
+              {getLabel('Release') || 'Release'}
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ marginLeft: '10px' }}
+              disabled={!(bopData?.sap_status === 'Nack')}
+              onClick={() => handleCancelReplaceBopFunc()}
+            >
+              {getLabel('Cancel_Replace') || 'Cancel Replace'}
+            </Button>
+          </Box>
+        )}
         {stpErrors?.length > 0 && (
           <Box mb={2} border={'1px solid'} borderRadius={2} padding={'6px'}>
             <Typography variant="h5" gutterBottom>
@@ -387,17 +392,19 @@ const BopScreen: React.FC = () => {
                 fullWidth
               />
             </Grid>
-            <Grid item xs={2.3}>
-              <TextField
-                size="small"
-                label={getLabel('Transaction_Attempt_No') || 'Transaction Attempt'}
-                variant="outlined"
-                name="transaction_attempt"
-                value={formData.transaction_attempt || 0}
-                fullWidth
-                disabled
-              />
-            </Grid>
+            {!hideForUAE && (
+              <Grid item xs={2.3}>
+                <TextField
+                  size="small"
+                  label={getLabel('Transaction_Attempt_No') || 'Transaction Attempt'}
+                  variant="outlined"
+                  name="transaction_attempt"
+                  value={formData.transaction_attempt || 0}
+                  fullWidth
+                  disabled
+                />
+              </Grid>
+            )}
             <Grid item xs={2.3}>
               <TextField
                 size="small"
@@ -405,21 +412,23 @@ const BopScreen: React.FC = () => {
                 disabled
                 variant="outlined"
                 name="transaction_status"
-                value={formData.transaction_status || ''}
+                value={renderStatus(formData.transaction_status) || ''}
                 fullWidth
               />
             </Grid>
-            <Grid item xs={2.3}>
-              <TextField
-                size="small"
-                label={getLabel('SARB_Status') || 'Reserve Bank Status'}
-                disabled
-                variant="outlined"
-                name="sap_status"
-                value={formData.sap_status || ''}
-                fullWidth
-              />
-            </Grid>
+            {!hideForUAE && (
+              <Grid item xs={2.3}>
+                <TextField
+                  size="small"
+                  label={getLabel('SARB_Status') || 'Reserve Bank Status'}
+                  disabled
+                  variant="outlined"
+                  name="sap_status"
+                  value={formData.sap_status || ''}
+                  fullWidth
+                />
+              </Grid>
+            )}
           </Grid>
 
           <Box mt={3}>
@@ -431,70 +440,101 @@ const BopScreen: React.FC = () => {
           </Box>
 
           <Grid container spacing={2} mt={1}>
-            <Grid item xs={3}>
-              <FormControl fullWidth>
-                {bopCategorySelected ? (
+            {hideForUAE && (
+              <>
+                {/* <Grid item xs={6}>
                   <TextField
                     size="small"
-                    label={
-                      userLoggedInCountry === 'IN' || userLoggedInCountry === 'NG'
-                        ? getLabel('Purpose_Code') || 'Purpose Code'
-                        : getLabel('BOP_Category') || 'BOP Category'
-                    }
-                    disabled
-                    value={bopCategorySelected}
-                  />
-                ) : (
-                  <Select
-                    label={userLoggedInCountry === 'IN' ? getLabel('Purpose_Code') || 'Purpose Code' : getLabel('BOP_Category') || 'BOP Category'}
+                    label={'Source of Income'}
                     variant="outlined"
-                    name="bop_category"
-                    value={bopCat?.bop_category || ''}
-                    size="small"
-                    disabled={disableFormFieldsViaStatus || !isEditing}
-                    onChange={(e) => {
-                      const { value } = e.target
-                      const bopItem = bopCategory.find((item: any) => item.bopCategoryCd === value)
-                      setbopCat((prev: any) => ({
-                        ...prev,
-                        bop_category: value,
-                        bop_sub_category: bopItem.bopSubCategoryCd,
-                        bop_description: bopItem.categoryDescription,
-                      }))
-                    }}
-                  >
-                    {bopCategory.map((item: any, ind: any) => (
-                      <MenuItem key={ind} value={item.bopCategoryCd}>
-                        {item.bopCategoryCd}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                )}
-              </FormControl>
-            </Grid>
-            <Grid item xs={3}>
-              <TextField
-                size="small"
-                label={getLabel('Sub_Category') || 'Sub Category'}
-                variant="outlined"
-                name="bop_sub_category"
-                value={bopCat?.bop_sub_category || ''}
-                disabled={!isEditing}
-                fullWidth
-              />
-            </Grid>
+                    name="bop_description"
+                    value={bopCat?.bop_description || ''}
+                    disabled
+                    fullWidth
+                  />
+                </Grid> */}
 
-            <Grid item xs={6}>
-              <TextField
-                size="small"
-                label={getLabel('Category_Description') || 'Category Description'}
-                variant="outlined"
-                name="bop_description"
-                value={bopCat?.bop_description || ''}
-                disabled
-                fullWidth
-              />
-            </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    size="small"
+                    label={'Purpose of Transaction'}
+                    variant="outlined"
+                    name="bop_description"
+                    value={bopCat?.bop_category || ''}
+                    disabled
+                    fullWidth
+                  />
+                </Grid>
+              </>
+            )}
+            {!hideForUAE && (
+              <>
+                <Grid item xs={3}>
+                  <FormControl fullWidth>
+                    {bopCategorySelected ? (
+                      <TextField
+                        size="small"
+                        label={
+                          userLoggedInCountry === 'IN' || userLoggedInCountry === 'NG'
+                            ? getLabel('Purpose_Code') || 'Purpose Code'
+                            : getLabel('BOP_Category') || 'BOP Category'
+                        }
+                        disabled
+                        value={bopCategorySelected}
+                      />
+                    ) : (
+                      <Select
+                        label={userLoggedInCountry === 'IN' ? getLabel('Purpose_Code') || 'Purpose Code' : getLabel('BOP_Category') || 'BOP Category'}
+                        variant="outlined"
+                        name="bop_category"
+                        value={bopCat?.bop_category || ''}
+                        size="small"
+                        disabled={disableFormFieldsViaStatus || !isEditing}
+                        onChange={(e) => {
+                          const { value } = e.target
+                          const bopItem = bopCategory.find((item: any) => item.bopCategoryCd === value)
+                          setbopCat((prev: any) => ({
+                            ...prev,
+                            bop_category: value,
+                            bop_sub_category: bopItem.bopSubCategoryCd,
+                            bop_description: bopItem.categoryDescription,
+                          }))
+                        }}
+                      >
+                        {bopCategory.map((item: any, ind: any) => (
+                          <MenuItem key={ind} value={item.bopCategoryCd}>
+                            {item.bopCategoryCd}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    )}
+                  </FormControl>
+                </Grid>
+                <Grid item xs={3}>
+                  <TextField
+                    size="small"
+                    label={getLabel('Sub_Category') || 'Sub Category'}
+                    variant="outlined"
+                    name="bop_sub_category"
+                    value={bopCat?.bop_sub_category || ''}
+                    disabled={!isEditing}
+                    fullWidth
+                  />
+                </Grid>
+
+                <Grid item xs={6}>
+                  <TextField
+                    size="small"
+                    label={getLabel('Category_Description') || 'Category Description'}
+                    variant="outlined"
+                    name="bop_description"
+                    value={bopCat?.bop_description || ''}
+                    disabled
+                    fullWidth
+                  />
+                </Grid>
+              </>
+            )}
 
             <Grid item xs={3}>
               <TextField
@@ -729,232 +769,234 @@ const BopScreen: React.FC = () => {
               )}
             </Grid>
 
-            <Box mt={3}>
-              <Typography variant="h6" gutterBottom>
-                {getLabel('Physical_Address') || 'Physical Address'}
-              </Typography>
-            </Box>
-
-            <Grid container spacing={2} mt={1}>
-              <Grid item xs={6}>
-                <FormControl fullWidth>
-                  <TextField
-                    label={getLabel('Address_Line_1') || 'Address Line 1'}
-                    size="small"
-                    name="physical_address_line1"
-                    variant="outlined"
-                    value={formData.physical_address_line1 || ''}
-                    onChange={handleChange}
-                    error={Boolean(formErrors.physical_address_line1)}
-                    helperText={formErrors.physical_address_line1}
-                    disabled={disableFormFieldsViaStatus || !isEditing}
-                    required={true}
-                  />
-                </FormControl>
-              </Grid>
-              <Grid item xs={6}>
-                <FormControl fullWidth>
-                  <TextField
-                    label={getLabel('Address_Line_2') || 'Address Line 2'}
-                    size="small"
-                    name="physical_address_line2"
-                    variant="outlined"
-                    value={formData.physical_address_line2 || ''}
-                    onChange={handleChange}
-                    error={Boolean(formErrors.physical_address_line2)}
-                    helperText={formErrors.physical_address_line2}
-                    disabled={disableFormFieldsViaStatus || !isEditing}
-                    required={true}
-                  />
-                </FormControl>
-              </Grid>
-              {userLoggedInCountry === 'ZA' && (
-                <Grid item xs={2.3}>
-                  <TextField
-                    label={getLabel('Suburb') || 'Suburb'}
-                    fullWidth
-                    size="small"
-                    name="suburb"
-                    variant="outlined"
-                    value={formData.suburb || ''}
-                    onChange={handleChange}
-                    error={Boolean(formErrors.suburb)}
-                    helperText={formErrors.suburb}
-                    disabled={disableFormFieldsViaStatus || !isEditing}
-                  />
+            {!hideForUAE && (
+              <>
+                {' '}
+                <Box mt={3}>
+                  <Typography variant="h6" gutterBottom>
+                    {getLabel('Physical_Address') || 'Physical Address'}
+                  </Typography>
+                </Box>
+                <Grid container spacing={2} mt={1}>
+                  <Grid item xs={6}>
+                    <FormControl fullWidth>
+                      <TextField
+                        label={getLabel('Address_Line_1') || 'Address Line 1'}
+                        size="small"
+                        name="physical_address_line1"
+                        variant="outlined"
+                        value={formData.physical_address_line1 || ''}
+                        onChange={handleChange}
+                        error={Boolean(formErrors.physical_address_line1)}
+                        helperText={formErrors.physical_address_line1}
+                        disabled={disableFormFieldsViaStatus || !isEditing}
+                        required={true}
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <FormControl fullWidth>
+                      <TextField
+                        label={getLabel('Address_Line_2') || 'Address Line 2'}
+                        size="small"
+                        name="physical_address_line2"
+                        variant="outlined"
+                        value={formData.physical_address_line2 || ''}
+                        onChange={handleChange}
+                        error={Boolean(formErrors.physical_address_line2)}
+                        helperText={formErrors.physical_address_line2}
+                        disabled={disableFormFieldsViaStatus || !isEditing}
+                        required={true}
+                      />
+                    </FormControl>
+                  </Grid>
+                  {userLoggedInCountry === 'ZA' && (
+                    <Grid item xs={2.3}>
+                      <TextField
+                        label={getLabel('Suburb') || 'Suburb'}
+                        fullWidth
+                        size="small"
+                        name="suburb"
+                        variant="outlined"
+                        value={formData.suburb || ''}
+                        onChange={handleChange}
+                        error={Boolean(formErrors.suburb)}
+                        helperText={formErrors.suburb}
+                        disabled={disableFormFieldsViaStatus || !isEditing}
+                      />
+                    </Grid>
+                  )}
+                  <Grid item xs={2.3}>
+                    <TextField
+                      label={getLabel('City') || 'City'}
+                      size="small"
+                      fullWidth
+                      name="city"
+                      variant="outlined"
+                      value={formData.city || ''}
+                      onChange={handleChange}
+                      error={Boolean(formErrors.city)}
+                      helperText={formErrors.city}
+                      disabled={disableFormFieldsViaStatus || !isEditing}
+                    />
+                  </Grid>
+                  <Grid item xs={2.3}>
+                    <TextField
+                      label={getLabel('State_Province') || 'State/Province'}
+                      fullWidth
+                      size="small"
+                      name="residence_state"
+                      variant="outlined"
+                      value={formData.residence_state || ''}
+                      onChange={handleChange}
+                      error={Boolean(formErrors.residence_state)}
+                      helperText={formErrors.residence_state}
+                      disabled={disableFormFieldsViaStatus || !isEditing}
+                    />
+                  </Grid>
+                  <Grid item xs={2.3}>
+                    <TextField
+                      label={getLabel('Postal_Code') || 'Postal Code'}
+                      size="small"
+                      fullWidth
+                      name="postcode"
+                      variant="outlined"
+                      value={formData.postcode || ''}
+                      onChange={handleChange}
+                      error={Boolean(formErrors.postcode)}
+                      helperText={formErrors.postcode}
+                      disabled={disableFormFieldsViaStatus || !isEditing}
+                    />
+                  </Grid>
+                  <Grid item xs={2.3}>
+                    <TextField
+                      label={getLabel('Country') || 'Country'}
+                      size="small"
+                      fullWidth
+                      name="residence_country"
+                      variant="outlined"
+                      value={formData.residence_country || ''}
+                      onChange={handleChange}
+                      error={Boolean(formErrors.residence_country)}
+                      disabled={disableFormFieldsViaStatus || !isEditing}
+                      helperText={formErrors.residence_country}
+                    />
+                  </Grid>
                 </Grid>
-              )}
-              <Grid item xs={2.3}>
-                <TextField
-                  label={getLabel('City') || 'City'}
-                  size="small"
-                  fullWidth
-                  name="city"
-                  variant="outlined"
-                  value={formData.city || ''}
-                  onChange={handleChange}
-                  error={Boolean(formErrors.city)}
-                  helperText={formErrors.city}
-                  disabled={disableFormFieldsViaStatus || !isEditing}
-                />
-              </Grid>
-              <Grid item xs={2.3}>
-                <TextField
-                  label={getLabel('State_Province') || 'State/Province'}
-                  fullWidth
-                  size="small"
-                  name="residence_state"
-                  variant="outlined"
-                  value={formData.residence_state || ''}
-                  onChange={handleChange}
-                  error={Boolean(formErrors.residence_state)}
-                  helperText={formErrors.residence_state}
-                  disabled={disableFormFieldsViaStatus || !isEditing}
-                />
-              </Grid>
-              <Grid item xs={2.3}>
-                <TextField
-                  label={getLabel('Postal_Code') || 'Postal Code'}
-                  size="small"
-                  fullWidth
-                  name="postcode"
-                  variant="outlined"
-                  value={formData.postcode || ''}
-                  onChange={handleChange}
-                  error={Boolean(formErrors.postcode)}
-                  helperText={formErrors.postcode}
-                  disabled={disableFormFieldsViaStatus || !isEditing}
-                />
-              </Grid>
-              <Grid item xs={2.3}>
-                <TextField
-                  label={getLabel('Country') || 'Country'}
-                  size="small"
-                  fullWidth
-                  name="residence_country"
-                  variant="outlined"
-                  value={formData.residence_country || ''}
-                  onChange={handleChange}
-                  error={Boolean(formErrors.residence_country)}
-                  disabled={disableFormFieldsViaStatus || !isEditing}
-                  helperText={formErrors.residence_country}
-                />
-              </Grid>
-            </Grid>
+                <Box mt={3}>
+                  <Typography variant="h6" gutterBottom>
+                    {getLabel('Residential_Address') || 'Residential Address'}
+                  </Typography>
+                </Box>
+                <Grid container spacing={2} mt={2}>
+                  <Grid item xs={6}>
+                    <FormControl fullWidth>
+                      <TextField
+                        size="small"
+                        label={getLabel('Address_Line_1') || 'Address Line 1'}
+                        name="postal_address_line1"
+                        variant="outlined"
+                        value={formData.postal_address_line1 || ''}
+                        onChange={handleChange}
+                        error={Boolean(formErrors.postal_address_line1)}
+                        helperText={formErrors.postal_address_line1}
+                        disabled={disableFormFieldsViaStatus || !isEditing}
+                        required={true}
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <FormControl fullWidth>
+                      <TextField
+                        label={getLabel('Address_Line_2') || 'Address Line 2'}
+                        size="small"
+                        name="postal_address_line2"
+                        variant="outlined"
+                        value={formData.postal_address_line2 || ''}
+                        onChange={handleChange}
+                        error={Boolean(formErrors.postal_address_line2)}
+                        helperText={formErrors.postal_address_line2}
+                        disabled={disableFormFieldsViaStatus || !isEditing}
+                        required={true}
+                      />
+                    </FormControl>
+                  </Grid>
 
-            <Box mt={3}>
-              <Typography variant="h6" gutterBottom>
-                {getLabel('Residential_Address') || 'Residential Address'}
-              </Typography>
-            </Box>
-
-            <Grid container spacing={2} mt={2}>
-              <Grid item xs={6}>
-                <FormControl fullWidth>
-                  <TextField
-                    size="small"
-                    label={getLabel('Address_Line_1') || 'Address Line 1'}
-                    name="postal_address_line1"
-                    variant="outlined"
-                    value={formData.postal_address_line1 || ''}
-                    onChange={handleChange}
-                    error={Boolean(formErrors.postal_address_line1)}
-                    helperText={formErrors.postal_address_line1}
-                    disabled={disableFormFieldsViaStatus || !isEditing}
-                    required={true}
-                  />
-                </FormControl>
-              </Grid>
-              <Grid item xs={6}>
-                <FormControl fullWidth>
-                  <TextField
-                    label={getLabel('Address_Line_2') || 'Address Line 2'}
-                    size="small"
-                    name="postal_address_line2"
-                    variant="outlined"
-                    value={formData.postal_address_line2 || ''}
-                    onChange={handleChange}
-                    error={Boolean(formErrors.postal_address_line2)}
-                    helperText={formErrors.postal_address_line2}
-                    disabled={disableFormFieldsViaStatus || !isEditing}
-                    required={true}
-                  />
-                </FormControl>
-              </Grid>
-
-              {userLoggedInCountry === 'ZA' && (
-                <Grid item xs={2.3}>
-                  <TextField
-                    label={getLabel('Suburb') || 'Suburb'}
-                    fullWidth
-                    size="small"
-                    name="postal_suburb"
-                    variant="outlined"
-                    value={formData.postal_suburb || ''}
-                    onChange={handleChange}
-                    error={Boolean(formErrors.postal_suburb)}
-                    helperText={formErrors.postal_suburb}
-                    disabled={disableFormFieldsViaStatus || !isEditing}
-                  />
+                  {userLoggedInCountry === 'ZA' && (
+                    <Grid item xs={2.3}>
+                      <TextField
+                        label={getLabel('Suburb') || 'Suburb'}
+                        fullWidth
+                        size="small"
+                        name="postal_suburb"
+                        variant="outlined"
+                        value={formData.postal_suburb || ''}
+                        onChange={handleChange}
+                        error={Boolean(formErrors.postal_suburb)}
+                        helperText={formErrors.postal_suburb}
+                        disabled={disableFormFieldsViaStatus || !isEditing}
+                      />
+                    </Grid>
+                  )}
+                  <Grid item xs={2.3}>
+                    <TextField
+                      label={getLabel('City') || 'City'}
+                      fullWidth
+                      size="small"
+                      name="postal_city"
+                      variant="outlined"
+                      value={formData.postal_city || ''}
+                      onChange={handleChange}
+                      error={Boolean(formErrors.postal_city)}
+                      helperText={formErrors.postal_city}
+                      disabled={disableFormFieldsViaStatus || !isEditing}
+                    />
+                  </Grid>
+                  <Grid item xs={2.3}>
+                    <TextField
+                      label={getLabel('State_Province') || 'State/Province'}
+                      fullWidth
+                      size="small"
+                      name="postal_state"
+                      variant="outlined"
+                      value={formData.postal_state || ''}
+                      onChange={handleChange}
+                      error={Boolean(formErrors.postal_state)}
+                      helperText={formErrors.postal_state}
+                      disabled={disableFormFieldsViaStatus || !isEditing}
+                    />
+                  </Grid>
+                  <Grid item xs={2.3}>
+                    <TextField
+                      label={getLabel('Zip_Code') || 'Zip Code'}
+                      fullWidth
+                      size="small"
+                      name="postal_postcode"
+                      variant="outlined"
+                      value={formData.postal_postcode || ''}
+                      onChange={handleChange}
+                      error={Boolean(formErrors.postal_postcode)}
+                      helperText={formErrors.postal_postcode}
+                      disabled={disableFormFieldsViaStatus || !isEditing}
+                    />
+                  </Grid>
+                  <Grid item xs={2.3}>
+                    <TextField
+                      label={getLabel('Country') || 'Country'}
+                      fullWidth
+                      size="small"
+                      name="postal_country"
+                      variant="outlined"
+                      value={formData.postal_country || ''}
+                      onChange={handleChange}
+                      error={Boolean(formErrors.postal_country)}
+                      helperText={formErrors.postal_country}
+                      disabled={disableFormFieldsViaStatus || !isEditing}
+                    />
+                  </Grid>
                 </Grid>
-              )}
-              <Grid item xs={2.3}>
-                <TextField
-                  label={getLabel('City') || 'City'}
-                  fullWidth
-                  size="small"
-                  name="postal_city"
-                  variant="outlined"
-                  value={formData.postal_city || ''}
-                  onChange={handleChange}
-                  error={Boolean(formErrors.postal_city)}
-                  helperText={formErrors.postal_city}
-                  disabled={disableFormFieldsViaStatus || !isEditing}
-                />
-              </Grid>
-              <Grid item xs={2.3}>
-                <TextField
-                  label={getLabel('State_Province') || 'State/Province'}
-                  fullWidth
-                  size="small"
-                  name="postal_state"
-                  variant="outlined"
-                  value={formData.postal_state || ''}
-                  onChange={handleChange}
-                  error={Boolean(formErrors.postal_state)}
-                  helperText={formErrors.postal_state}
-                  disabled={disableFormFieldsViaStatus || !isEditing}
-                />
-              </Grid>
-              <Grid item xs={2.3}>
-                <TextField
-                  label={getLabel('Zip_Code') || 'Zip Code'}
-                  fullWidth
-                  size="small"
-                  name="postal_postcode"
-                  variant="outlined"
-                  value={formData.postal_postcode || ''}
-                  onChange={handleChange}
-                  error={Boolean(formErrors.postal_postcode)}
-                  helperText={formErrors.postal_postcode}
-                  disabled={disableFormFieldsViaStatus || !isEditing}
-                />
-              </Grid>
-              <Grid item xs={2.3}>
-                <TextField
-                  label={getLabel('Country') || 'Country'}
-                  fullWidth
-                  size="small"
-                  name="postal_country"
-                  variant="outlined"
-                  value={formData.postal_country || ''}
-                  onChange={handleChange}
-                  error={Boolean(formErrors.postal_country)}
-                  helperText={formErrors.postal_country}
-                  disabled={disableFormFieldsViaStatus || !isEditing}
-                />
-              </Grid>
-            </Grid>
+              </>
+            )}
           </Box>
 
           <Box mt={3}>
@@ -999,62 +1041,67 @@ const BopScreen: React.FC = () => {
                 fullWidth
               />
             </Grid>
-            <Grid item xs={2.3}>
-              <TextField
-                label={getLabel('Address_Line_1') || 'Address Line 1'}
-                fullWidth
-                size="small"
-                name="benificiary_physical_address_line1"
-                variant="outlined"
-                value={formData.benificiary_physical_address_line1 || ''}
-                disabled
-              />
-            </Grid>
-            <Grid item xs={2.3}>
-              <TextField
-                label={getLabel('Address_Line_2') || 'Address Line 2'}
-                fullWidth
-                size="small"
-                name="benificiary_physical_address_line2"
-                variant="outlined"
-                value={formData.benificiary_physical_address_line2 || ''}
-                disabled
-              />
-            </Grid>
+            {!hideForUAE && (
+              <>
+                <Grid item xs={2.3}>
+                  <TextField
+                    label={getLabel('Address_Line_1') || 'Address Line 1'}
+                    fullWidth
+                    size="small"
+                    name="benificiary_physical_address_line1"
+                    variant="outlined"
+                    value={formData.benificiary_physical_address_line1 || ''}
+                    disabled
+                  />
+                </Grid>
+                <Grid item xs={2.3}>
+                  <TextField
+                    label={getLabel('Address_Line_2') || 'Address Line 2'}
+                    fullWidth
+                    size="small"
+                    name="benificiary_physical_address_line2"
+                    variant="outlined"
+                    value={formData.benificiary_physical_address_line2 || ''}
+                    disabled
+                  />
+                </Grid>
 
-            <Grid item xs={2.3}>
-              <TextField
-                label={getLabel('City') || 'City'}
-                size="small"
-                fullWidth
-                name="benificiary_city"
-                variant="outlined"
-                value={formData.benificiary_city || ''}
-                disabled
-              />
-            </Grid>
-            <Grid item xs={2.3}>
-              <TextField
-                label={getLabel('State_Province') || 'State/Province'}
-                fullWidth
-                size="small"
-                name="benificiary_state"
-                variant="outlined"
-                value={formData.benificiary_state || ''}
-                disabled
-              />
-            </Grid>
-            <Grid item xs={2.3}>
-              <TextField
-                label={getLabel('Postal_Code') || 'Postal Code'}
-                size="small"
-                fullWidth
-                name="benificiary_post_code"
-                variant="outlined"
-                value={formData.benificiary_post_code || ''}
-                disabled
-              />
-            </Grid>
+                <Grid item xs={2.3}>
+                  <TextField
+                    label={getLabel('City') || 'City'}
+                    size="small"
+                    fullWidth
+                    name="benificiary_city"
+                    variant="outlined"
+                    value={formData.benificiary_city || ''}
+                    disabled
+                  />
+                </Grid>
+                <Grid item xs={2.3}>
+                  <TextField
+                    label={getLabel('State_Province') || 'State/Province'}
+                    fullWidth
+                    size="small"
+                    name="benificiary_state"
+                    variant="outlined"
+                    value={formData.benificiary_state || ''}
+                    disabled
+                  />
+                </Grid>
+                <Grid item xs={2.3}>
+                  <TextField
+                    label={getLabel('Postal_Code') || 'Postal Code'}
+                    size="small"
+                    fullWidth
+                    name="benificiary_post_code"
+                    variant="outlined"
+                    value={formData.benificiary_post_code || ''}
+                    disabled
+                  />
+                </Grid>
+              </>
+            )}
+
             <Grid item xs={2.3}>
               <TextField
                 label={getLabel('Country') || 'Country'}
@@ -1081,11 +1128,13 @@ const BopScreen: React.FC = () => {
             )}
           </Grid>
 
-          <Box mt={3}>
-            <Button variant="contained" color="primary" type="submit" disabled={disableFormFieldsViaStatus}>
-              {getLabel('Save') || 'Save'}
-            </Button>
-          </Box>
+          {!hideForUAE && (
+            <Box mt={3}>
+              <Button variant="contained" color="primary" type="submit" disabled={disableFormFieldsViaStatus}>
+                {getLabel('Save') || 'Save'}
+              </Button>
+            </Box>
+          )}
         </form>
       </Box>
 
