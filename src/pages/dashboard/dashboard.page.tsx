@@ -385,7 +385,7 @@ const Dashboard = () => {
             <Switch
               checked={status}
               value={status}
-              onChange={(e: any) => {
+              onChange={() => {
                 handleToggle(id, !status)
               }}
             />
