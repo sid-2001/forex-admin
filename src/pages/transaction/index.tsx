@@ -72,20 +72,20 @@ const TransactionListing = () => {
       sortable: false,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
-        <a href="#" style={{ color: theme.palette.text.primary }} onClick={() => handleViewMore(params.row)}>
-          {params?.value}
-        </a>
-
-        // <span
-        //   onClick={() => handleNavigation(`/transaction-detail/${params.value}`)}
-        //   style={{
-        //     cursor: 'pointer',
-        //     color: theme.palette.text.primary,
-        //     textDecoration: 'underline',
-        //   }}
-        // >
+        // <a href="#" style={{ color: theme.palette.text.primary }} onClick={() => handleViewMore(params.row)}>
         //   {params?.value}
-        // </span>
+        // </a>
+
+        <span
+          onClick={() => handleNavigation(`/transaction-detail/${params.value}`)}
+          style={{
+            cursor: 'pointer',
+            color: theme.palette.text.primary,
+            textDecoration: 'underline',
+          }}
+        >
+          {params?.value}
+        </span>
       ),
     },
 

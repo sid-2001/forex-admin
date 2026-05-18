@@ -1,22 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import {
-  Box,
-  Button,
-  Checkbox,
-  Typography,
-  TextField,
-  Modal,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  IconButton,
-  Grid,
-  InputAdornment,
-  Chip,
-  useTheme,
-  Divider,
-} from '@mui/material'
+import { Box, Typography, TextField, Grid, Chip, useTheme, Divider } from '@mui/material'
 import { TransactionService } from '@/services/transaction.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useParams } from 'react-router-dom'
@@ -40,16 +23,7 @@ const TransactionDetailScreen = () => {
     }
     try {
       const response = await transaction_Service.getTransactionDatabyId(transactionId)
-      console.log(response, 'response')
-      setTransactionDetails(response)
-
-      //   setTransactionDetails({
-      //     // ...applicant,
-      //     // email: applicantContactDetails?.find((item: any) => item.contactType === 'email')?.contactDetails,
-      //     // phone: applicantContactDetails?.find((item: any) => item.contactType === 'phone')?.contactDetails,
-      //     // beneficiaryList,
-      //     // kycStatus,
-      //   })
+      setTransactionDetails(response[0])
     } catch (error) {
       console.error('Error fetching transaction data:', error)
     }
@@ -69,19 +43,19 @@ const TransactionDetailScreen = () => {
               fontWeight="bold"
               sx={{
                 backgroundColor: theme.palette.primary.main,
-                p: '0.7%',
+                p: '1%',
                 color: 'white',
                 // marginBottom: 2,
                 // width: '40%',
               }}
             >
-              TRANSACTION ID : {transactionDetails.transactionNumber}
+              TRANSACTION ID : {transactionDetails?.transactionNumber}
             </Typography>
-            <Chip label={renderTransactionStatus(transactionDetails?.transactionStatus?.toUpperCase())} color="warning" sx={{ marginBottom: 2 }} />
+            <Chip label={renderTransactionStatus(transactionDetails?.transactionStatus?.toUpperCase())} color="warning" />
           </Box>
 
           {/* Transaction Details Section */}
-          <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>
+          <Typography variant="subtitle1" fontWeight="bold" sx={{ margin: '10px 0' }}>
             Transaction Details
           </Typography>
           <Grid container spacing={2} mb={2}>
@@ -102,7 +76,7 @@ const TransactionDetailScreen = () => {
                 variant="filled"
                 fullWidth
                 //@ts-ignore
-                defaultValue={helper.convertDateAndTime(transactionDetails.date)}
+                defaultValue={helper.convertDateAndTime(transactionDetails.createdLocalDateTime)}
                 size="small"
                 disabled
               />
@@ -196,7 +170,7 @@ const TransactionDetailScreen = () => {
             </Grid>
           </Grid>
           <Divider sx={{ my: 2 }} />
-          <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2, color: theme.palette.primary.main }}>
+          <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>
             Applicant Details
           </Typography>
           <Grid container spacing={2} mb={2}>
@@ -204,14 +178,7 @@ const TransactionDetailScreen = () => {
               <TextField label="Applicant Id" variant="filled" fullWidth defaultValue={transactionDetails?.applicantId} size="small" disabled />
             </Grid>
             <Grid item xs={12} md={6}>
-              <TextField
-                label="Applicant Name"
-                variant="filled"
-                fullWidth
-                defaultValue={transactionDetails?.applicant?.firstName}
-                size="small"
-                disabled
-              />
+              <TextField label="Applicant Name" variant="filled" fullWidth defaultValue={transactionDetails?.firstName} size="small" disabled />
             </Grid>
           </Grid>
         </Box>

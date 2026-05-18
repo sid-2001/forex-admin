@@ -368,9 +368,9 @@ export class TransactionService extends BaseService {
   }
 
   async getTransactionDatabyId(id: string) {
-    const url = `api/transactions/transaction-outward/transactionNumber/${id}`
+    const url = `api/transactions/transaction-outward/getByTransactionNumber/${id}`
     try {
-      const data = await api1.get(url)
+      const { data } = await api1.get(url)
       return data
     } catch (err) {
       console.log(err)

@@ -61,7 +61,7 @@ const BopTable: React.FC = () => {
 
         return (
           //@ts-ignore
-          <Link to={`/transaction?flow=outwards&id=${params?.row?.transaction_number}`} style={{ color: theme.palette.text.primary }}>
+          <Link to={`/transaction-detail/${params?.row?.transaction_number}`} style={{ color: theme.palette.text.primary }}>
             {params?.row?.transaction_number}
           </Link>
         )

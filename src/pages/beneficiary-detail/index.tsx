@@ -30,11 +30,6 @@ const BeneficiaryDetailPage = () => {
     return fieldLabels[fieldName] || fieldName.replace(/_/g, ' ')
   }
 
-  // Helper function to get validation message by field name
-  const getValidationMessage = (fieldName: string): string => {
-    return fieldMessages[fieldName] || ''
-  }
-
   // Fetch field validations from API
   useEffect(() => {
     const fetchFieldValidations = async () => {
