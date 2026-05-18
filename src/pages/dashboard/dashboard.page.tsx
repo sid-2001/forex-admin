@@ -207,8 +207,8 @@ const Dashboard = () => {
       headerName: 'Action',
       flex: 1,
       renderCell: (params: any) => (
-        <Link to={`/transaction?flow=outwards&id=${params?.row?.transactionId}`}>
-          <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>View more</span>
+        <Link to={`/transaction-detail/${params?.row?.transactionId}`}>
+          <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>View detail</span>
         </Link>
       ),
     },
@@ -383,15 +383,9 @@ const Dashboard = () => {
           <CardMedia component="img" image={image_url} alt={title} sx={{ width: 'auto', height: '3vh', borderRadius: 2 }} />
           <CardContent sx={{ ml: 2, flexGrow: 1 }}>
             <Switch
-              sx={
-                {
-                  // ml:20
-                }
-              }
               checked={status}
               value={status}
               onChange={(e: any) => {
-                console.log(e)
                 handleToggle(id, !status)
               }}
             />
