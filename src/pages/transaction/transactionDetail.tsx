@@ -33,6 +33,12 @@ const TransactionDetailScreen = () => {
     fetchTransactionDetailById()
   }, [])
 
+  const renderfullName = () => {
+    return transactionDetails && transactionDetails?.middleName
+      ? `${transactionDetails?.firstName} ${transactionDetails?.middleName} ${transactionDetails?.lastName}`
+      : `${transactionDetails?.firstName} ${transactionDetails?.lastName}`
+  }
+
   return (
     <Box>
       {transactionDetails && (
@@ -178,7 +184,7 @@ const TransactionDetailScreen = () => {
               <TextField label="Applicant Id" variant="filled" fullWidth defaultValue={transactionDetails?.applicantId} size="small" disabled />
             </Grid>
             <Grid item xs={12} md={6}>
-              <TextField label="Applicant Name" variant="filled" fullWidth defaultValue={transactionDetails?.firstName} size="small" disabled />
+              <TextField label="Applicant Name" variant="filled" fullWidth defaultValue={renderfullName()} size="small" disabled />
             </Grid>
           </Grid>
         </Box>
