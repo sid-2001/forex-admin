@@ -147,19 +147,21 @@ const BeneficiaryDetailPage = () => {
                 }}
               />
             </Grid>
-            <Grid item xs={12} sm={2.3}>
-              <TextField
-                label={getLabel('Middle_Name') || 'Beneficiary Middle Name'}
-                variant="filled"
-                name="beneficiaryMiddleName"
-                size="small"
-                fullWidth
-                value={beneficiaryData?.beneficiaryMiddleName || ''}
-                InputProps={{
-                  readOnly: true,
-                }}
-              />
-            </Grid>
+            {beneficiaryData?.beneficiaryMiddleName && (
+              <Grid item xs={12} sm={2.3}>
+                <TextField
+                  label={getLabel('Middle_Name') || 'Beneficiary Middle Name'}
+                  variant="filled"
+                  name="beneficiaryMiddleName"
+                  size="small"
+                  fullWidth
+                  value={beneficiaryData?.beneficiaryMiddleName || ''}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </Grid>
+            )}
             <Grid item xs={12} sm={2.3}>
               <TextField
                 label={getLabel('Last_Name_As_Per_The_Bank') || 'Beneficiary Last Name'}

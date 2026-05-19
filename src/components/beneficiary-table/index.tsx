@@ -63,7 +63,7 @@ const BeneficiaryTable = ({ beneficiary }: { beneficiary: any }) => {
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'bankBicCode',
+      field: userCountry === 'UAE' ? 'ifscCode' : 'bankBicCode',
       headerName: userCountry === 'UAE' ? 'Bank Code' : 'BIC Code',
       flex: 1,
       headerClassName: 'super-app-theme--header',

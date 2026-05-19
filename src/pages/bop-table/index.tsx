@@ -166,12 +166,12 @@ const BopTable: React.FC = () => {
     },
 
     {
-      field: 'created_at',
+      field: 'created_localdatetime',
       headerName: 'Date',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        return helper.convertDateAndTime(params.row.created_at)
+        return helper.convertDateAndTime(params.row.created_localdatetime)
       },
     },
     {
@@ -268,6 +268,8 @@ const BopTable: React.FC = () => {
     </GridToolbarContainer>
   )
 
+  const filteredColumns = userCountry === 'UAE' && columns.filter((col) => col.field !== 'sap_status' && col.field !== 'status')
+
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>
       <Box sx={{ width: '80vw', height: '70vh' }}>
@@ -278,7 +280,8 @@ const BopTable: React.FC = () => {
           <DataGrid
             apiRef={apiRef}
             rows={bopData || []}
-            columns={columns}
+            //@ts-ignore
+            columns={filteredColumns}
             filterModel={filterModel}
             onFilterModelChange={(model) => setFilterModel(model)}
             columnVisibilityModel={columnVisibilityModel}
