@@ -135,7 +135,8 @@ export class KycService extends BaseService {
   }
 
   async handleReferralAction(payload: any) {
-    const url = `/api/kyc/lulu/referral-redeem/web-panel/action/${payload?.id}`
+    // const url = `/api/kyc/lulu/referral-redeem/web-panel/action/${payload?.id}`
+    const url = `/api/transactions/loyalty-wallet/combined-action/${payload?.id}`
     try {
       delete payload.id
       const { data } = await api1.put(url, payload)
