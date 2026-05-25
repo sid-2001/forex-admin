@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import {
   Box,
   Button,
@@ -33,6 +33,7 @@ import ScreenService from '@/services/screen.service'
 import { formatTableDate } from '@/helpers/dateformate'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 import EditIcon from '@mui/icons-material/Edit'
+import SequenceApiService from '@/services/sequence.api.service'
 
 const termsService = new TermsConditionsService()
 
@@ -100,7 +101,8 @@ export default function TermsConditionsGridPage() {
   const [screens, setScreens] = useState<any>([])
   const [versions, setVersions] = useState<any[]>([])
   const [editorValue, setEditorValue] = useState('')
-  const countries = useRecoilValue(countyState)
+  const [countries, setcountries] = useState([])
+
   const [channels, setChannels] = useState([])
   const [form, setForm] = useState({
     countryCode: '',
@@ -118,6 +120,8 @@ export default function TermsConditionsGridPage() {
   const local_service = new LocalStorageService()
   const channel_service = new ChannelService()
   const screen_service = new ScreenService()
+  const sequenceService = new SequenceApiService()
+
   const userCountry = local_service?.get_staff_country()
 
   const [snackbar, setSnackbar] = useState({
@@ -134,6 +138,12 @@ export default function TermsConditionsGridPage() {
     loadData()
     fetchScreens()
     fetchchannel()
+    fetchCountryCodes()
+  }, [])
+
+  const fetchCountryCodes = useCallback(async () => {
+    const res: any = await sequenceService.getActiveCountryCorridors()
+    setcountries(res || [])
   }, [])
 
   const loadData = async () => {
@@ -429,7 +439,7 @@ export default function TermsConditionsGridPage() {
                   label="Destination Country"
                 >
                   {countries
-                    ?.filter((item) => item.status === 'A' && item.countryCode !== userCountry)
+                    ?.filter((item: any) => item.status === 'A')
                     .map((country: any, index: number) => (
                       <MenuItem
                         //@ts-ignore
@@ -469,7 +479,8 @@ export default function TermsConditionsGridPage() {
                             {
                               //@ts-ignore
                               channel.channel_code
-                            }
+                            }{' '}
+                            ({channel?.channel_description})
                           </Typography>
                         </MenuItem>
                       ))
@@ -495,7 +506,9 @@ export default function TermsConditionsGridPage() {
                     )
                     .map((screen: any, index: number) => (
                       <MenuItem key={index} value={screen.ScreenCode}>
-                        <Typography>{screen.ScreenCode}</Typography>
+                        <Typography>
+                          {screen.ScreenCode} ({screen.ScreenDescription})
+                        </Typography>
                       </MenuItem>
                     ))}
                 </Select>

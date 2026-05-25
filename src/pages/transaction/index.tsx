@@ -410,13 +410,13 @@ const TransactionListing = () => {
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'inCreatedDate',
+      field: 'createdLocaldatetime',
       headerName: 'Created Date',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         console.log(params)
-        return helper.convertDateAndTime(params?.row?.inCreatedDate)
+        return helper.convertDateAndTime(params?.row?.createdLocaldatetime)
       },
     },
     {
