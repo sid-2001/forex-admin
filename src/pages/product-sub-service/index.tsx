@@ -9,12 +9,7 @@ import {
   Typography,
   TextField,
   InputAdornment,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Grid,
-  Paper,
   Tooltip,
   Dialog,
   DialogTitle,
@@ -23,34 +18,25 @@ import {
   FormControlLabel,
   Checkbox,
   Autocomplete,
-  FormHelperText,
 } from '@mui/material'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DownloadIcon from '@mui/icons-material/Download'
-import SearchIcon from '@mui/icons-material/Search'
-import RefreshIcon from '@mui/icons-material/Refresh'
-import FilterListIcon from '@mui/icons-material/FilterList'
-import ClearIcon from '@mui/icons-material/Clear'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
 import PublicIcon from '@mui/icons-material/Public'
-import CodeIcon from '@mui/icons-material/Code'
 import FingerprintIcon from '@mui/icons-material/Fingerprint'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
-import { countyState } from '@/states/state'
 import { ProductSubServiceService } from '../../services/productSubService.service'
 import ProductService from '@/services/product.service'
-// import ServiceService from '@/services/service.service' // Add this import
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import dayjs from 'dayjs'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 import ServiceMasterService from '@/services/service-master.service'
-import ServiceSubServiceMapping from '../subservice-mapping'
-import SubServiceService from '@/services/sub-service.service'
 import ServiceSubServiceMappingService from '@/services/service-subservice-mapping.service'
 import { formatTableDate } from '@/helpers/dateformate'
+import SequenceApiService from '@/services/sequence.api.service'
 
 // ==================== MAIN COMPONENT ====================
 export default function ProductSubServiceMaster() {
@@ -77,7 +63,6 @@ export default function ProductSubServiceMaster() {
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(5)
 
-  const countries = useRecoilValue(countyState)
   const [uniqueCountries, setUniqueCountries] = useState<string[]>([])
   const [uniqueProducts, setUniqueProducts] = useState<string[]>([])
 
@@ -98,6 +83,9 @@ export default function ProductSubServiceMaster() {
     effectiveToDate: '',
   })
   const [originalFormData, setOriginalFormData] = useState<any>(null)
+  const sequenceService = new SequenceApiService()
+
+  const [countries, setcountries] = useState([])
 
   // ==================== HELPER FUNCTIONS ====================
   const showAlert = (type: 'Success' | 'Fail', text: string) => {
@@ -107,8 +95,8 @@ export default function ProductSubServiceMaster() {
   }
 
   const getCountryName = (countryCode: string) => {
-    const country = countries.find((c: any) => c.countryCode === countryCode)
-    return country ? country.countryName : countryCode
+    const country: any = countries.find((c: any) => c.countryCode === countryCode)
+    return country ? country?.countryName : countryCode
   }
 
   const getProductName = (productCode: string) => {
@@ -159,6 +147,15 @@ export default function ProductSubServiceMaster() {
       showAlert('Fail', 'Failed to fetch data')
     }
   }, [service])
+
+  const fetchCountryCodes = useCallback(async () => {
+    const res: any = await sequenceService.getActiveCountryCorridors()
+    setcountries(res || [])
+  }, [])
+
+  useEffect(() => {
+    fetchCountryCodes()
+  }, [])
 
   useEffect(() => {
     fetchProducts()
@@ -516,15 +513,6 @@ export default function ProductSubServiceMaster() {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1 }}>
         <GridToolbar />
-        {/* <Button
-          variant="outlined"
-          size="small"
-          startIcon={<DownloadIcon />}
-          onClick={downloadCSV}
-          sx={{ ml: 2 }}
-        >
-          Export CSV
-        </Button> */}
       </Box>
     )
   }

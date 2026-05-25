@@ -66,6 +66,7 @@ const CURRENCY_FORMATS = [
   { value: 'JPY', label: 'Japanese Yen (¥)' },
   { value: 'NGN', label: 'Nigerian Naira (₦)' },
   { value: 'ZAR', label: 'South African Rand (R)' },
+  { value: 'AED', label: 'United Arab Emirates dirham (AED)' },
 ]
 
 const PRECISION_OPTIONS = [0, 1, 2, 3, 4, 5, 6]
@@ -299,19 +300,11 @@ export default function CountryCorridorProductFormDialog({
       effectiveFromDate: `${form.effectiveFromDate}T00:00:00`,
       effectiveToDate: `${form.effectiveToDate}T00:00:00`,
       modifiedBy: local_service.get_staff_id(),
-      // modifiedLocalDateTime: now.split('.')[0],
-      // modifiedTimeZone: timeZone,
-      // modifiedOffset: offset,
-      // modifiedUtcDateTime: new Date().toISOString(),
     }
 
     if (!editData) {
       Object.assign(payload, {
         createdBy: local_service.get_staff_id(),
-        // createdLocalDateTime: now.split('.')[0],
-        // createdTimeZone: timeZone,
-        // createdOffset: offset,
-        // createdUtcDateTime: new Date().toISOString(),
       })
     }
 
@@ -324,6 +317,7 @@ export default function CountryCorridorProductFormDialog({
       if (res) {
         showAlert('Success', res?.message || `${editData ? 'Updated' : 'Created'} successfully`)
         refreshList()
+        handleClose()
       }
     } catch (e) {
       showAlert('Fail', 'Server Error')
@@ -533,24 +527,8 @@ export default function CountryCorridorProductFormDialog({
               required
               disabled={!form.effectiveFromDate}
             />
-
-            {/* <TextField
-              select
-              label="Decimal Precision"
-              required
-              fullWidth
-              size="small"
-              value={form.decimalPrecision}
-              error={!!errors.decimalPrecision}
-              helperText={errors.decimalPrecision}
-              onChange={(e) => handleChange('decimalPrecision', e.target.value)}
-            >
-              {PRECISION_OPTIONS.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option} decimal place{option !== 1 ? 's' : ''}
-                </MenuItem>
-              ))}
-            </TextField> */}
+          </Grid>
+          <Grid item xs={12}>
             <FormControlLabel
               control={<Checkbox checked={form.active} onChange={(e) => handleChange('active', e.target.checked)} />}
               label="Active Status"

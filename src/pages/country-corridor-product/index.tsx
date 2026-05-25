@@ -46,6 +46,7 @@ export default function CountryCorridorProductMaster() {
   const service = useMemo(() => new CountryCorridorProductService(), [])
   const productService = useMemo(() => new ProductService(), [])
   const subServiceService = useMemo(() => new ProductSubServiceService(), [])
+  const coutry_corridor_service = new CountryCorridorService()
 
   const [rows, setRows] = useState<any[]>([])
   const [filteredRows, setFilteredRows] = useState<any[]>([])
@@ -60,15 +61,12 @@ export default function CountryCorridorProductMaster() {
   const [countryFilter, setCountryFilter] = useState('all')
   const [productFilter, setProductFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [showFilters, setShowFilters] = useState(false)
 
   // Pagination
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(5)
-  
-  // const countries = useRecoilValue(countyState)
 
-  const[ countries, setcountries] =useState();
+  const [countries, setcountries] = useState()
 
   const [uniqueCountries, setUniqueCountries] = useState<string[]>([])
   const [uniqueProducts, setUniqueProducts] = useState<string[]>([])
@@ -83,23 +81,19 @@ export default function CountryCorridorProductMaster() {
     setAlertOpen(true)
   }
 
-
-
   const getCountryCode = (row: any) => {
     return row.countryCorridorMaster?.countryCode || row.countryCorridorCode?.substring(3, 5) || 'N/A'
   }
-
-
 
   const getProductName = (productCode: string) => {
     const product = products.find((p) => p.productCode === productCode)
     return product ? product.productName : productCode
   }
 
-  const getServiceName = (serviceCode: string) => {
-    const service = subServices.find((s) => s.productServiceMapCode === serviceCode)
-    return service ? service.productServiceMapCode : serviceCode
-  }
+  // const getServiceName = (serviceCode: string) => {
+  //   const service = subServices.find((s) => s.productServiceMapCode === serviceCode)
+  //   return service ? service.productServiceMapCode : serviceCode
+  // }
 
   // Fetch master data
   const fetchMasterData = useCallback(async () => {
@@ -117,6 +111,7 @@ export default function CountryCorridorProductMaster() {
   const fetchList = useCallback(async () => {
     try {
       const res: any = await service.getAllCountryCorridorProducts()
+      console.log(res, '==============')
       setRows(Array.isArray(res) ? res : res || [])
 
       // Extract unique values for filters
@@ -181,17 +176,11 @@ export default function CountryCorridorProductMaster() {
     applyFilters()
   }, [applyFilters])
 
-
-  const coutry_corridor_service=new CountryCorridorService()
-  useEffect(()=>{
-coutry_corridor_service.getAllCorridors().then(data=>{
-
-setcountries(data as any)
-
-
-})
-
-  },[])
+  useEffect(() => {
+    coutry_corridor_service.getAllCorridors().then((data) => {
+      setcountries(data as any)
+    })
+  }, [])
 
   // Reset filters
   const resetFilters = () => {
@@ -470,12 +459,12 @@ setcountries(data as any)
         disableColumnMenu
         // density="standard"
         //@ts-ignore
-           slotProps={{
-    toolbar: {
-      showQuickFilter: true,
-      showDensitySelector: true, // ✅ enable density
-    },
-  }}
+        slotProps={{
+          toolbar: {
+            showQuickFilter: true,
+            showDensitySelector: true, // ✅ enable density
+          },
+        }}
         paginationModel={{ page, pageSize }}
         onPaginationModelChange={(model) => {
           setPage(model.page)

@@ -93,6 +93,9 @@ export default function ProductManagement() {
     //   headerClassName: 'super-app-theme--header',
     //   valueGetter: (p) => p.row?.productCode || '',
     // },
+
+    { field: 'countryProductCode', headerName: 'Country Product Code', flex: 1, headerClassName: 'super-app-theme--header' },
+
     { field: 'productCode', headerName: 'Product Code', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'productName', headerName: 'Description', flex: 2, headerClassName: 'super-app-theme--header' },
     // {
@@ -110,35 +113,32 @@ export default function ProductManagement() {
     //   renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
     // },
 
-
     {
-  field: 'effective_from_date',
-  headerName: 'Effective From',
-  flex: 1,
-  minWidth: 150,
- headerClassName: 'super-app-theme--header',
-  //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivefromdate || row?.effectiveFromDate
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 1,
+      minWidth: 150,
+      headerClassName: 'super-app-theme--header',
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivefromdate || row?.effectiveFromDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
-{
-  field: 'effective_to_date',
-  headerName: 'Effective To',
-  flex: 1,
-   headerClassName: 'super-app-theme--header',
-  minWidth: 150,
-   //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivetodate || row?.effectiveToDate
+        return date ? formatTableDate(date) : ''
+      },
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      minWidth: 150,
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivetodate || row?.effectiveToDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
+        return date ? formatTableDate(date) : ''
+      },
+    },
     {
       field: 'active',
       headerName: 'Active',

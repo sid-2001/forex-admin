@@ -30,7 +30,6 @@ import SubdirectoryArrowRightIcon from '@mui/icons-material/SubdirectoryArrowRig
 import FingerprintIcon from '@mui/icons-material/Fingerprint'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
-import { countyState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import dayjs from 'dayjs'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
@@ -38,12 +37,16 @@ import ServiceSubServiceMappingService from '@/services/service-subservice-mappi
 import ServiceMasterService from '@/services/service-master.service'
 import SubServiceMasterService from '@/services/sub-service.service'
 import { formatTableDate } from '@/helpers/dateformate'
+import SequenceApiService from '@/services/sequence.api.service'
 
 // ==================== MAIN COMPONENT ====================
 export default function ServiceSubServiceMapping() {
   const mappingService = useMemo(() => new ServiceSubServiceMappingService(), [])
   const serviceService = useMemo(() => new ServiceMasterService(), [])
   const subServiceService = useMemo(() => new SubServiceMasterService(), [])
+  const sequenceService = new SequenceApiService()
+
+  const [countries, setcountries] = useState([])
 
   const [rows, setRows] = useState<any[]>([])
   const [filteredRows, setFilteredRows] = useState<any[]>([])
@@ -63,7 +66,6 @@ export default function ServiceSubServiceMapping() {
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(5)
 
-  const countries = useRecoilValue(countyState)
   const [uniqueCountries, setUniqueCountries] = useState<string[]>([])
   const [uniqueServices, setUniqueServices] = useState<string[]>([])
 
@@ -90,9 +92,18 @@ export default function ServiceSubServiceMapping() {
     setAlertOpen(true)
   }
 
+  const fetchCountryCodes = useCallback(async () => {
+    const res: any = await sequenceService.getActiveCountryCorridors()
+    setcountries(res || [])
+  }, [])
+
+  useEffect(() => {
+    fetchCountryCodes()
+  }, [])
+
   const getCountryName = (countryCode: string) => {
-    const country = countries.find((c: any) => c.countryCode === countryCode)
-    return country ? country.countryName : countryCode
+    const country: any = countries.find((c: any) => c.countryCode === countryCode)
+    return country ? country?.countryName : countryCode
   }
 
   const getServiceName = (serviceCode: string) => {
