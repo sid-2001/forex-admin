@@ -100,6 +100,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered'
 import GroupAddIcon from '@mui/icons-material/GroupAdd'
+import NotificationsIcon from '@mui/icons-material/Notifications'
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
@@ -460,6 +461,12 @@ const MASTER_MENU = [
     name: 'Service Sub Service Mapping',
     icon: <AddToQueueIcon fontSize="small" />,
     path: 'service-sub-service-mapping',
+  },
+  {
+    label: 'Notification Master',
+    name: 'Notification Master',
+    icon: <NotificationsIcon fontSize="small" />,
+    path: 'notifications',
   },
 
   // verification-partner

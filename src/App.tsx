@@ -97,6 +97,7 @@ import ServiceSubServiceMapping from './pages/subservice-mapping'
 import AuditScreen from './pages/audit-screen'
 import ReferralTable from './pages/referrals'
 import TransactionDetailScreen from './pages/transaction/transactionDetail'
+import Notifications from './pages/notifications'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -309,6 +310,7 @@ function App() {
               <Route path="service-sub-service-mapping" element={<ServiceSubServiceMapping />} />
               <Route path="referrals" element={<ReferralTable />} />
               <Route path="transaction-detail/:transactionId" element={<TransactionDetailScreen />} />
+              <Route path="notifications" element={<Notifications />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 
