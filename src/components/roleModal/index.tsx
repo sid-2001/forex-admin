@@ -19,9 +19,7 @@ import { DataGrid } from '@mui/x-data-grid'
 import { UserService } from '@/services/user.service'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
-import { HelperService } from '@/helpers/helper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-import HasPermission from '../permissionWrapper'
 
 const RoleModal = ({
   //@ts-ignore
@@ -50,14 +48,11 @@ const RoleModal = ({
     const user_service = new UserService()
     const local_service = new LocalStorageService()
     const [selectOpen, setSelectOpen] = useState(false)
-    const [inactivitytime, setinactivitytime] = useState(0);
-
-    const helper_service = new HelperService()
+    const [inactivitytime, setinactivitytime] = useState(0)
 
     const getModuleList = () => {
       try {
         user_service.getAllModulesData().then((data) => {
-          console.log('module', data)
           const active_module = data?.filter((e) => e.moduleStatus === 'active')
           setAllModules([...active_module])
         })
@@ -66,10 +61,9 @@ const RoleModal = ({
 
     useEffect(() => {
       if (initialData) {
-        console.log(initialData)
         setRoleName(initialData.roleDescription || '')
         setRoleId(initialData.roleId || null)
-setinactivitytime(initialData?.inactivityTime)
+        setinactivitytime(initialData?.inactivityTime)
         const selected = (initialData.modules || []).map((m: any) => m.moduleId)
         setSelectedModules(selected)
         const perms = {}
@@ -174,8 +168,8 @@ setinactivitytime(initialData?.inactivityTime)
           roleId,
           roleDescription: roleName,
           roleStatus: true,
-          inactivityTime:inactivitytime,
-          
+          inactivityTime: inactivitytime,
+
           modules: selectedModules.map((id) => {
             const mod = allModules.find((m: any) => m.moduleId === id)
             return {
@@ -196,7 +190,7 @@ setinactivitytime(initialData?.inactivityTime)
         payload = {
           roleId,
           roleDescription: roleName,
-          inactivityTime:inactivitytime,
+          inactivityTime: inactivitytime,
           roleStatus: true,
           modules: selectedModules.map((id) => {
             const mod = allModules.find((m: any) => m.moduleId === id)
@@ -221,30 +215,25 @@ setinactivitytime(initialData?.inactivityTime)
       setText(roleId ? 'Role updated succesfully!' : 'Role created succesfully!')
       setOpen(true)
       setSelectedRole(null)
-
-      // setTimeout(() => {
-
-      //   window.location.reload()
-      //   setRoleId(null)
-      // }, 1200)
-
-      // onSave(payload);
+      window.location.reload()
     }
     return (
       <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
         <DialogTitle> {roleId ? 'Edit Role' : 'Add Role'} </DialogTitle>
         <DialogContent>
           <TextField fullWidth margin="normal" label="Role Name" value={roleName} onChange={(e) => setRoleName(e.target.value)} />
-  {/* <TextField fullWidth  type="number" margin="normal" label="Timing" value={inactivitytime} onChange={(e) => setinactivitytime( e.target.value)} /> */}
-    <TextField  fullWidth  type="number" margin="normal"   inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} 
-    
-    value={inactivitytime} onChange={(e) => 
-      
-        //@ts-ignore
-      setinactivitytime( e.target.value)}
-    />
-    {/* <input type='number'></input> */}
-    {/* <NumberField label="Number Field" min={10} max={40} /> */}
+          {/* <TextField fullWidth  type="number" margin="normal" label="Timing" value={inactivitytime} onChange={(e) => setinactivitytime( e.target.value)} /> */}
+          <TextField
+            fullWidth
+            type="number"
+            margin="normal"
+            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+            value={inactivitytime}
+            onChange={(e) =>
+              //@ts-ignore
+              setinactivitytime(e.target.value)
+            }
+          />
           <FormControl fullWidth margin="normal">
             <InputLabel id="module-select-label">Select Modules</InputLabel>
             <Select
