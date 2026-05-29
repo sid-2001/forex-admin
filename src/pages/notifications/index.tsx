@@ -1,20 +1,22 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridFilterModel, GridColDef } from '@mui/x-data-grid'
-import { Box, Typography, IconButton, Chip, Button } from '@mui/material'
+import { Box, Typography, Button, Stack } from '@mui/material'
 import { useNavigate, Link } from 'react-router-dom'
-import VisibilityIcon from '@mui/icons-material/Visibility'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-import { statusColors } from '@/contants/utils'
 import LoaderUI from '@/components/loader/loader'
-import { useTheme } from '@emotion/react'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
 import DownloadIcon from '@mui/icons-material/Download'
 import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import NotificationService from '@/services/notification.service'
+import NotificationDialog from '@/components/notificationDialog'
+import SequenceApiService from '@/services/sequence.api.service'
+import { useRecoilState } from 'recoil'
+import { alertState, alertTextState, alertTypeState } from '@/states/state'
+import { Edit } from '@mui/icons-material'
 
 const Notifications: React.FC = () => {
   const [notificationData, setNotificationData] = useState([])
@@ -23,12 +25,28 @@ const Notifications: React.FC = () => {
   const helper = new HelperService()
   const local_service = new LocalStorageService()
   const notificationService = new NotificationService()
+  const sequenceService = new SequenceApiService()
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<Record<string, boolean>>({})
   const apiRef = React.useRef<any>(null)
 
+  const [openNotificationModal, setOpenNotificationModal] = useState(false)
+  const [formData, setformData] = useState({})
+  const [editData, setEditData] = useState<any>(null)
+  const [countriesData, setCountryCorridorsData] = useState([])
+  const [, setOpen] = useRecoilState(alertState)
+  const [, setText] = useRecoilState(alertTextState)
+  const [, setType] = useRecoilState(alertTypeState)
+
+  const showAlert = (t: 'success' | 'error', m: string) => {
+    setType(t)
+    setText(m)
+    setOpen(true)
+  }
+
   useEffect(() => {
     fetchNotificationListingData()
+    fetchCountryCodes()
   }, [])
 
   const fetchNotificationListingData = async () => {
@@ -41,6 +59,11 @@ const Notifications: React.FC = () => {
       console.error('There was a problem with the fetch operation:', error)
     }
   }
+
+  const fetchCountryCodes = useCallback(async () => {
+    const res: any = await sequenceService.getActiveCountryCorridors()
+    setCountryCorridorsData(res || [])
+  }, [])
 
   const columns = [
     {
@@ -83,26 +106,29 @@ const Notifications: React.FC = () => {
         return helper.convertDateAndTime(params.row.createdLocalDateTime)
       },
     },
-    // {
-    //   field: 'id1',
-    //   headerName: 'Action',
-    //   flex: 1,
-    //   headerClassName: 'super-app-theme--header',
-    //   renderCell: (params: any) => (
-    //     <IconButton
-    //       onClick={() => {
-    //         navigate(`/bop-details/${params.row.transaction_number}/${params.row.transaction_attempt}`)
-    //       }}
-    //     >
-    //       <VisibilityIcon
-    //         style={{
-    //           cursor: 'pointer',
-    //         }}
-    //       />
-    //     </IconButton>
-    //   ),
-    // },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => (
+        <Button
+          variant="outlined"
+          color="primary"
+          size="small"
+          startIcon={<Edit />}
+          onClick={() => {
+            setEditData(params.row)
+            setOpenNotificationModal(true)
+          }}
+          // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MODULE, 'canUpdate')}
+        >
+          Edit
+        </Button>
+      ),
+    },
   ]
+
   const getVisibleFilteredRows = () => {
     const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false && col.field !== 'id1')
 
@@ -116,6 +142,7 @@ const Notifications: React.FC = () => {
 
     return { visibleCols, filteredRows }
   }
+
   const handleExportCSV = () => {
     const { visibleCols, filteredRows } = getVisibleFilteredRows()
 
@@ -158,6 +185,7 @@ const Notifications: React.FC = () => {
     })
     doc.save('BOP_List.pdf')
   }
+
   const CustomToolbar = () => (
     <GridToolbarContainer sx={{ justifyContent: 'flex-start', gap: 1, py: 1 }}>
       <GridToolbarColumnsButton />
@@ -178,10 +206,26 @@ const Notifications: React.FC = () => {
   )
 
   return (
-    <Box sx={{ width: '80vw', height: '70vh' }}>
-      <Typography variant="h4" gutterBottom>
-        <strong>NOTIFICATION LISTING</strong>
-      </Typography>
+    <Box
+      //sx={{ width: '80vw', height: '70vh' }}
+      p={3}
+      sx={{ width: '100%', '& .header-bg': { fontWeight: 'bold', bgcolor: '#f5f5f5' } }}
+    >
+      <Stack direction="row" justifyContent="space-between" mb={2}>
+        <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
+          NOTIFICATION LISTING
+        </Typography>
+        <Button
+          variant="contained"
+          onClick={() => {
+            setEditData(null)
+            setOpenNotificationModal(true)
+          }}
+        >
+          Add
+        </Button>
+      </Stack>
+
       {notificationData && (
         <DataGrid
           apiRef={apiRef}
@@ -214,6 +258,15 @@ const Notifications: React.FC = () => {
           disableColumnMenu
         />
       )}
+
+      <NotificationDialog
+        open={openNotificationModal}
+        countryCorridorList={countriesData}
+        editData={editData}
+        onClose={() => setOpenNotificationModal(false)}
+        refreshList={fetchNotificationListingData}
+        showAlert={showAlert}
+      />
     </Box>
     // <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>
     // </HasPermission>
