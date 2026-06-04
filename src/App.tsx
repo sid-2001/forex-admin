@@ -100,6 +100,7 @@ import TransactionDetailScreen from './pages/transaction/transactionDetail'
 import Notifications from './pages/notifications'
 import PrivacyPolicy from './pages/privacy-policy'
 import NotificationCampaign from './pages/notification-campaign'
+import NotificationDelivery from './pages/notification-deliveries'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -315,6 +316,7 @@ function App() {
               <Route path="notifications" element={<Notifications />} />
               <Route path="notification-campaign" element={<NotificationCampaign />} />
               <Route path="privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="campaign-delivery/:campaignId" element={<NotificationDelivery />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 

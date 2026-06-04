@@ -1,57 +1,40 @@
 import React, { useEffect, useState } from 'react'
-import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridFilterModel, GridColDef } from '@mui/x-data-grid'
-import { Box, Typography, Button, Stack, Chip, IconButton } from '@mui/material'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridFilterModel } from '@mui/x-data-grid'
+import { Box, Typography, Chip, Button } from '@mui/material'
+import { Link, useParams } from 'react-router-dom'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
+import { getNotificationStatusColor, getNotificationStatusLabel } from '@/contants/utils'
 import LoaderUI from '@/components/loader/loader'
+import { useTheme } from '@emotion/react'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
 import DownloadIcon from '@mui/icons-material/Download'
 import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import NotificationService from '@/services/notification.service'
-import { useRecoilState } from 'recoil'
-import { alertState, alertTextState, alertTypeState } from '@/states/state'
-import { Edit } from '@mui/icons-material'
-import NotificationCampaignDialog from '@/components/campaignDialog'
-import { freqTypeMap, targetTypeMap, getNotificationStatusColor, getNotificationStatusLabel } from '@/contants/utils'
-import EditIcon from '@mui/icons-material/Edit'
-import VisibilityIcon from '@mui/icons-material/Visibility'
 
-const NotificationCampaign: React.FC = () => {
-  const [notificationCampaignData, setNotificationCampaignData] = useState([])
+const NotificationDelivery: React.FC = () => {
+  const [deliveryData, setDeliveryData] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-  const navigate = useNavigate()
   const helper = new HelperService()
   const local_service = new LocalStorageService()
   const notificationService = new NotificationService()
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<Record<string, boolean>>({})
   const apiRef = React.useRef<any>(null)
-
-  const [openCampaignModal, setOpenCampaignModal] = useState(false)
-  const [editData, setEditData] = useState<any>(null)
-  const [, setOpen] = useRecoilState(alertState)
-  const [, setText] = useRecoilState(alertTextState)
-  const [, setType] = useRecoilState(alertTypeState)
-
-  const showAlert = (t: 'success' | 'error', m: string) => {
-    setType(t)
-    setText(m)
-    setOpen(true)
-  }
+  const { campaignId } = useParams()
 
   useEffect(() => {
-    fetchNotificationCampaignListingData()
+    fetchDeliveriesListingData()
   }, [])
 
-  const fetchNotificationCampaignListingData = async () => {
+  const fetchDeliveriesListingData = async () => {
     try {
       setIsLoading(true)
-      const response = await notificationService.getAllNotificationCampaign()
-      setNotificationCampaignData(response?.data)
+      const response = await notificationService.getAllCampaignDeliveries(campaignId)
+      setDeliveryData(response?.data)
       setIsLoading(false)
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error)
@@ -60,60 +43,34 @@ const NotificationCampaign: React.FC = () => {
 
   const columns = [
     {
-      field: 'campaignId',
-      headerName: 'Campaign Id',
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'campaignName',
-      headerName: 'Campaign Name',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'countryCode',
-      headerName: 'Country Code',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'startDate',
-      headerName: 'Start Date',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'endDate',
-      headerName: 'End Date',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'frequencyType',
-      headerName: 'Frequency Type',
+      field: 'applicantId',
+      headerName: 'Applicant Id',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        return freqTypeMap[params?.row?.frequencyType]
-      },
-    },
-    {
-      field: 'targetType',
-      headerName: 'Target Type',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return targetTypeMap[params?.row?.targetType]
-      },
-    },
+        const theme = useTheme()
 
+        return (
+          //@ts-ignore
+          <Link to={`/applicant-details//${params?.row?.applicantId}`} style={{ color: theme.palette.text.primary }}>
+            {params?.row?.applicantId}
+          </Link>
+        )
+      },
+    },
     {
-      field: 'status',
-      headerName: 'Status',
+      field: 'title',
+      headerName: 'Title',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'deliveryStatus',
+      headerName: 'Delivery Status',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        const value = params?.row?.status?.toUpperCase()
+        const value = params?.row?.deliveryStatus?.toUpperCase()
         if (!value) return null
         return (
           <Chip
@@ -121,82 +78,34 @@ const NotificationCampaign: React.FC = () => {
             sx={{
               backgroundColor: getNotificationStatusColor(value),
               color: 'white',
-              fontWeight: 'bold',
+              fontWeight: '600',
               borderRadius: '8px',
             }}
           />
         )
       },
     },
-
     {
-      field: 'scheduledAt',
-      headerName: 'Scheduled At',
+      field: 'channelType',
+      headerName: 'Channel Type',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return helper.convertDateAndTime(params?.row?.schedule?.scheduledAt)
-      },
     },
 
     {
-      field: 'createdLocalDateTime',
-      headerName: 'Date',
+      field: 'sentAt',
+      headerName: 'Sent At',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        return helper.convertDateAndTime(params.row.createdLocalDateTime)
+        return helper.convertDateAndTime(params.row.sentAt)
       },
-    },
-
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => (
-        <Stack direction="row" padding={'8px 0px'}>
-          <IconButton
-            onClick={() => {
-              setEditData(params.row)
-              setOpenCampaignModal(true)
-            }}
-            color="primary"
-            size="small"
-            title="Edit Campaign"
-          >
-            <EditIcon
-              fontSize="small"
-              style={{
-                cursor: 'pointer',
-              }}
-            />
-          </IconButton>
-
-          <IconButton
-            onClick={() => {
-              navigate(`/campaign-delivery/${params?.row?.campaignId}`)
-            }}
-            color="primary"
-            size="small"
-            title="View Notification Delivery"
-          >
-            <VisibilityIcon
-              fontSize="small"
-              style={{
-                cursor: 'pointer',
-              }}
-            />
-          </IconButton>
-        </Stack>
-      ),
     },
   ]
-
   const getVisibleFilteredRows = () => {
     const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false && col.field !== 'id1')
 
-    const filteredRows = notificationCampaignData.filter((row: any) =>
+    const filteredRows = deliveryData.filter((row: any) =>
       filterModel.items.every((filter) => {
         if (!filter.value) return true
         const cellValue = row[filter.field]?.toString().toLowerCase() || ''
@@ -206,7 +115,6 @@ const NotificationCampaign: React.FC = () => {
 
     return { visibleCols, filteredRows }
   }
-
   const handleExportCSV = () => {
     const { visibleCols, filteredRows } = getVisibleFilteredRows()
 
@@ -222,7 +130,7 @@ const NotificationCampaign: React.FC = () => {
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
-    link.setAttribute('download', 'notification_campaign.csv')
+    link.setAttribute('download', 'delivery.csv')
     link.click()
   }
 
@@ -239,7 +147,7 @@ const NotificationCampaign: React.FC = () => {
 
     const doc = new jsPDF({ unit: 'pt' })
     doc.setFontSize(14)
-    doc.text('Campaign Listing Report', 40, 40)
+    doc.text('Deliveries Listing Report', 40, 40)
     autoTable(doc, {
       head: [headers],
       body: data,
@@ -247,9 +155,8 @@ const NotificationCampaign: React.FC = () => {
       styles: { fontSize: 9, cellPadding: 6 },
       headStyles: { fillColor: [0, 80, 153], textColor: 255 },
     })
-    doc.save('Campaign_List.pdf')
+    doc.save('BOP_List.pdf')
   }
-
   const CustomToolbar = () => (
     <GridToolbarContainer sx={{ justifyContent: 'flex-start', gap: 1, py: 1 }}>
       <GridToolbarColumnsButton />
@@ -270,26 +177,14 @@ const NotificationCampaign: React.FC = () => {
   )
 
   return (
-    <Box p={3} sx={{ width: '90vw', height: '80vh' }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
-          NOTIFICATION CAMPAIGN LISTING
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setOpenCampaignModal(true)
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
-
-      {notificationCampaignData && (
+    <Box sx={{ width: '80vw', height: '70vh' }}>
+      <Typography variant="h4" gutterBottom>
+        <strong>Notification Campaign Deliveries</strong>
+      </Typography>
+      {deliveryData && (
         <DataGrid
           apiRef={apiRef}
-          rows={notificationCampaignData || []}
+          rows={deliveryData || []}
           //@ts-ignore
           columns={columns}
           filterModel={filterModel}
@@ -302,7 +197,7 @@ const NotificationCampaign: React.FC = () => {
           pageSizeOptions={[10, 20, 50]}
           disableRowSelectionOnClick
           loading={isLoading}
-          getRowId={(row: any) => row.campaignId}
+          getRowId={(row: any) => row.id}
           slots={{
             toolbar: CustomToolbar,
             loadingOverlay: LoaderUI.LoadingOverlay,
@@ -318,18 +213,11 @@ const NotificationCampaign: React.FC = () => {
           disableColumnMenu
         />
       )}
-
-      <NotificationCampaignDialog
-        open={openCampaignModal}
-        editData={editData}
-        onClose={() => setOpenCampaignModal(false)}
-        refreshList={fetchNotificationCampaignListingData}
-        showAlert={showAlert}
-      />
     </Box>
     // <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>
+
     // </HasPermission>
   )
 }
 
-export default NotificationCampaign
+export default NotificationDelivery
