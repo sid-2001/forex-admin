@@ -31,4 +31,44 @@ export default class NotificationService extends BaseService {
       return err as any
     }
   }
+
+  async getAllNotificationCampaign(): Promise<any> {
+    const url = '/api/notifications/campaigns'
+    try {
+      const response = await api1.get(url)
+      return response
+    } catch (err) {
+      return err as any
+    }
+  }
+
+  async createNotificationCampaign(payload: Partial<any>): Promise<{ status: boolean; message: string }> {
+    const url = '/api/notifications/campaigns'
+    try {
+      const data = await api1.post(url, payload)
+      return data
+    } catch (err) {
+      return err as any
+    }
+  }
+
+  async updateNotificationCampaign(campaignId: number, payload: Partial<any>): Promise<{ status: boolean; message: string }> {
+    const url = `/api/notifications/campaigns/${campaignId}`
+    try {
+      const { data } = await api1.put(url, payload)
+      return data
+    } catch (err) {
+      return err as any
+    }
+  }
+
+  async getAllCampaignDeliveries(campaignId: any): Promise<any> {
+    const url = `/api/notifications/campaigns/${campaignId}/deliveries`
+    try {
+      const response = await api1.get(url)
+      return response
+    } catch (err) {
+      return err as any
+    }
+  }
 }

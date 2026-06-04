@@ -51,8 +51,8 @@ const Dashboard = () => {
   const [open, setOpen] = useRecoilState(alertState)
   const [text, setText] = useRecoilState(alertTextState)
   const [type, settype] = useRecoilState(alertTypeState)
+
   const getGatewayList = () => {
-    console.log('Hello i am ', local_service?.get_staff_country())
     static_service.getStaticPaymentGateway(local_service?.get_staff_country()).then((data: any) => {
       setCards(data?.data?.sort((e: any) => e.costFee))
     })
@@ -456,6 +456,7 @@ const Dashboard = () => {
       </Card>
     )
   }
+
   const HorizontalCardCarousel = () => {
     const scrollRef = React.useRef<HTMLDivElement>(null)
 
@@ -511,6 +512,32 @@ const Dashboard = () => {
       scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' })
     }
   }
+
+  const userAnalytics = [
+    {
+      background: 'linear-gradient(to bottom,#FFEB99,rgb(172, 169, 65))',
+      hidden: false,
+      subLabel: 'Sign-ups',
+      count: consumersData?.signup ?? 0,
+      label: 'Users',
+    },
+    {
+      background: 'linear-gradient(to bottom, #64B5F6,rgb(21, 103, 171))',
+      subLabel: 'Verified',
+      count: consumersData?.kycVerified ?? 0,
+      label: 'Users',
+      hidden: userCountry === 'UAE',
+    },
+    {
+      background: 'linear-gradient(to bottom, #81C784,rgb(40, 124, 44))',
+      subLabel: 'Active',
+      count: consumersData?.active ?? 0,
+      label: 'Users',
+      hidden: false,
+    },
+  ]
+  const visibleAnalytics = userAnalytics.filter((p) => !p.hidden)
+
   return (
     <Box sx={{ width: '85vw', overflowX: 'hidden', height: '85vh' }}>
       <Typography variant="h4" gutterBottom sx={{ mt: 0, mb: 1 }}>
@@ -600,30 +627,11 @@ const Dashboard = () => {
                     User Analytics
                   </Typography>
                   <Grid container spacing={2}>
-                    <Grid item xs={4}>
-                      <Box
-                        sx={{
-                          background: 'linear-gradient(to bottom,#FFEB99,rgb(172, 169, 65))',
-                          borderRadius: 2,
-                          p: 2,
-                          textAlign: 'center',
-                          color: 'black',
-                        }}
-                      >
-                        <Typography variant="h6" fontWeight={700}>
-                          {consumersData?.signup ?? 0}
-                        </Typography>
-                        <Typography variant="body2">Users</Typography>
-                        <Typography variant="caption" fontWeight="bold">
-                          Sign-ups
-                        </Typography>
-                      </Box>
-                    </Grid>
-                    {userCountry !== 'UAE' && (
-                      <Grid item xs={4}>
+                    {visibleAnalytics.map((userItem: any) => (
+                      <Grid item xs={Math.floor(12 / visibleAnalytics.length)}>
                         <Box
                           sx={{
-                            background: 'linear-gradient(to bottom, #64B5F6,rgb(21, 103, 171))',
+                            background: userItem.background,
                             borderRadius: 2,
                             p: 2,
                             textAlign: 'center',
@@ -631,35 +639,15 @@ const Dashboard = () => {
                           }}
                         >
                           <Typography variant="h6" fontWeight={700}>
-                            {consumersData?.kycVerified ?? 0}
+                            {userItem.count}
                           </Typography>
-                          <Typography variant="body2">Users</Typography>
+                          <Typography variant="body2">{userItem.label}</Typography>
                           <Typography variant="caption" fontWeight="bold">
-                            Verified
+                            {userItem.subLabel}
                           </Typography>
                         </Box>
                       </Grid>
-                    )}
-
-                    <Grid item xs={4}>
-                      <Box
-                        sx={{
-                          background: 'linear-gradient(to bottom, #81C784,rgb(40, 124, 44))',
-                          borderRadius: 2,
-                          p: 2,
-                          textAlign: 'center',
-                          color: 'black',
-                        }}
-                      >
-                        <Typography variant="h6" fontWeight={700}>
-                          {consumersData?.active ?? 0}
-                        </Typography>
-                        <Typography variant="body2">Users</Typography>
-                        <Typography variant="caption" fontWeight="bold">
-                          Active
-                        </Typography>
-                      </Box>
-                    </Grid>
+                    ))}
                   </Grid>
                 </CardContent>
               </Card>
@@ -740,8 +728,6 @@ const Dashboard = () => {
 
         {/* RIGHT SIDE (Active Channels + Integrations) */}
       </Grid>
-
-      <Grid spacing={2}></Grid>
     </Box>
   )
 }

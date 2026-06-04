@@ -101,6 +101,8 @@ import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered'
 import GroupAddIcon from '@mui/icons-material/GroupAdd'
 import NotificationsIcon from '@mui/icons-material/Notifications'
+import PrivacyTipIcon from '@mui/icons-material/PrivacyTip'
+import CampaignIcon from '@mui/icons-material/Campaign'
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
@@ -467,6 +469,18 @@ const MASTER_MENU = [
     name: 'Notification Master',
     icon: <NotificationsIcon fontSize="small" />,
     path: 'notifications',
+  },
+  {
+    label: 'Notification Campaign',
+    name: 'Notification Campaign',
+    icon: <CampaignIcon fontSize="small" />,
+    path: 'notification-campaign',
+  },
+  {
+    label: 'Privacy Policy',
+    name: 'Privacy Policy',
+    icon: <PrivacyTipIcon fontSize="small" />,
+    path: 'privacy-policy',
   },
 
   // verification-partner
