@@ -103,6 +103,8 @@ import GroupAddIcon from '@mui/icons-material/GroupAdd'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import PrivacyTipIcon from '@mui/icons-material/PrivacyTip'
 import CampaignIcon from '@mui/icons-material/Campaign'
+import LocalOfferIcon from '@mui/icons-material/LocalOffer'
+;<LocalOfferIcon />
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
@@ -226,12 +228,12 @@ const CountrySelector = () => {
 }
 
 const MASTER_MENU = [
-  {
-    label: 'Field-Validation',
-    name: 'Field-Validation',
-    icon: <LoyaltyIcon fontSize="small" />,
-    path: '/field-validation',
-  },
+  // {
+  //   label: 'Field-Validation',
+  //   name: 'Field-Validation',
+  //   icon: <LoyaltyIcon fontSize="small" />,
+  //   path: '/field-validation',
+  // },
   {
     label: 'Static-Gender',
     name: 'Gender',
@@ -329,24 +331,24 @@ const MASTER_MENU = [
     icon: <WhatsAppIcon fontSize="small" />,
     path: 'whatsapp',
   },
-  {
-    label: 'Sms Master',
-    name: 'Sms manegement master',
-    icon: <SmsIcon fontSize="small" />,
-    path: 'smsmanegement',
-  },
+  // {
+  //   label: 'Sms Master',
+  //   name: 'Sms manegement master',
+  //   icon: <SmsIcon fontSize="small" />,
+  //   path: 'smsmanegement',
+  // },
   {
     label: 'Email Master',
     name: 'Email manegement master',
     icon: <EmailIcon fontSize="small" />,
     path: 'email-manegement',
   },
-  {
-    label: 'Verification Master',
-    name: 'Email manegement master',
-    icon: <VerifiedIcon fontSize="small" />,
-    path: 'verification-partner',
-  },
+  // {
+  //   label: 'Verification Master',
+  //   name: 'Email manegement master',
+  //   icon: <VerifiedIcon fontSize="small" />,
+  //   path: 'verification-partner',
+  // },
   {
     label: 'Country Kyc Master',
     name: 'Country Kyc master',
@@ -482,8 +484,12 @@ const MASTER_MENU = [
     icon: <PrivacyTipIcon fontSize="small" />,
     path: 'privacy-policy',
   },
-
-  // verification-partner
+  {
+    label: 'Coupons',
+    name: 'Coupons',
+    icon: <LocalOfferIcon fontSize="small" />,
+    path: 'coupons',
+  },
 ]
 
 // const chunkArray = (arr: any[], size: number) => {
