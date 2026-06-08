@@ -51,7 +51,7 @@ const RoleManagementPage: React.FC = () => {
     { field: 'roleStatus', headerName: 'Status', flex: 1, headerClassName: 'super-app-theme--header' },
 
     {
-      field: 'actions',
+      field: 'action',
       headerName: 'Actions',
       flex: 1,
       headerClassName: 'super-app-theme--header',
@@ -78,7 +78,7 @@ const RoleManagementPage: React.FC = () => {
   ]
 
   const getVisibleFilteredRows = () => {
-    const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false)
+    const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false && col.field !== 'action')
     const filteredRows = roles.filter((row) =>
       filterModel.items.every((filter) => {
         if (!filter.value) return true

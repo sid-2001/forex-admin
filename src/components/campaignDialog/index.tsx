@@ -26,7 +26,7 @@ export default function NotificationCampaignDialog({ open, editData, onClose, re
     countryCode: '',
     targetCountry: 'IN',
     frequencyValue: 0,
-    frequencyUnit: 0,
+    frequencyUnit: '',
     scheduledAt: '',
     // status: '',
   }
@@ -35,6 +35,10 @@ export default function NotificationCampaignDialog({ open, editData, onClose, re
   const [countriesData, setCountryCorridorsData] = useState([])
   const [notificationsData, setNotificationsData] = useState([])
   const [errors, setErrors] = useState<any>({})
+  const frequencyUnitList = [
+    { label: 'HOURS', value: 'HOURS' },
+    { label: 'DAYS', value: 'DAYS' },
+  ]
 
   useEffect(() => {
     if (editData) {
@@ -73,8 +77,8 @@ export default function NotificationCampaignDialog({ open, editData, onClose, re
       'frequencyType',
       'maxRetryCount',
       'targetCountry',
-      'frequencyValue',
-      'frequencyUnit',
+      //   'frequencyValue',
+      //   'frequencyUnit',
       'scheduledAt',
     ]
 
@@ -256,7 +260,6 @@ export default function NotificationCampaignDialog({ open, editData, onClose, re
             <TextField
               fullWidth
               label="Frequency Value"
-              required
               type="number"
               value={formData.frequencyValue}
               inputProps={{ min: 0 }}
@@ -265,6 +268,7 @@ export default function NotificationCampaignDialog({ open, editData, onClose, re
                   e.preventDefault()
                 }
               }}
+              disabled={formData?.frequencyType !== 'INTERVAL'}
               onChange={(e) => {
                 const value = e.target.value
                 if (value === '' || Number(value) >= 0) {
@@ -275,24 +279,16 @@ export default function NotificationCampaignDialog({ open, editData, onClose, re
           </Grid>
 
           <Grid item xs={4}>
-            <TextField
-              fullWidth
-              label="Frequency Unit"
-              required
-              type="number"
-              value={formData.frequencyUnit}
-              inputProps={{ min: 0 }}
-              onKeyDown={(e) => {
-                if (e.key === '-') {
-                  e.preventDefault()
-                }
+            <Autocomplete
+              options={frequencyUnitList}
+              value={frequencyUnitList.find((c: any) => c.value === formData.frequencyUnit) || null}
+              getOptionLabel={(option: any) => option.label}
+              isOptionEqualToValue={(option: any, value: any) => option.value === value.value}
+              disabled={formData?.frequencyType !== 'INTERVAL'}
+              onChange={(_, newValue) => {
+                setFormData({ ...formData, frequencyUnit: newValue ? newValue.value : '' })
               }}
-              onChange={(e) => {
-                const value = e.target.value
-                if (value === '' || Number(value) >= 0) {
-                  handleChange('frequencyUnit', Number(value))
-                }
-              }}
+              renderInput={(params) => <TextField {...params} required label="Frequency Unit" fullWidth />}
             />
           </Grid>
 

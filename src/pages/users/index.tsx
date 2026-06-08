@@ -119,9 +119,15 @@ const UserTable: React.FC = () => {
       (col) => columnVisibilityModel[col.field] !== false,
     )
 
-    const visibleRowIds = Array.from(apiRef.current?.getFilteredRows?.().keys?.() || [])
-    const visibleRows = staffList.filter((row: any) => visibleRowIds.includes(row.staffId))
-
+    // const visibleRowIds = Array.from(apiRef.current?.getFilteredRows?.().keys?.() || [])
+    // const visibleRows = staffList.filter((row: any) => visibleRowIds.includes(row.staffId))
+    const visibleRows = staffList.filter((row: any) =>
+      filterModel.items.every((filter: any) => {
+        if (!filter.value) return true
+        const cellValue = row[filter.field]?.toString().toLowerCase() || ''
+        return cellValue.includes(filter.value.toLowerCase())
+      }),
+    )
     const headers = visibleCols.map((col) => col.headerName).join(',')
     const rows = visibleRows.map((row: any) =>
       visibleCols
@@ -147,8 +153,16 @@ const UserTable: React.FC = () => {
       (col) => columnVisibilityModel[col.field] !== false,
     )
 
-    const visibleRowIds = Array.from(apiRef.current?.getFilteredRows?.().keys?.() || [])
-    const visibleRows = staffList.filter((row: any) => visibleRowIds.includes(row.staffId))
+    // const visibleRowIds = Array.from(apiRef.current?.getFilteredRows?.().keys?.() || [])
+    // const visibleRows = staffList.filter((row: any) => visibleRowIds.includes(row.staffId))
+
+    const visibleRows = staffList.filter((row: any) =>
+      filterModel.items.every((filter: any) => {
+        if (!filter.value) return true
+        const cellValue = row[filter.field]?.toString().toLowerCase() || ''
+        return cellValue.includes(filter.value.toLowerCase())
+      }),
+    )
 
     const headers = visibleCols.map((col) => col.headerName)
     const data = visibleRows.map((row: any) =>

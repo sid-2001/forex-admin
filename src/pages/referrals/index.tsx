@@ -167,7 +167,7 @@ const ReferralTable: React.FC = () => {
   ]
 
   const getVisibleFilteredRows = () => {
-    const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false && col.field !== 'id1')
+    const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false && col.field !== 'action')
 
     const filteredRows = referralData.filter((row: any) =>
       filterModel.items.every((filter) => {
@@ -194,7 +194,7 @@ const ReferralTable: React.FC = () => {
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
-    link.setAttribute('download', 'BOP_List.csv')
+    link.setAttribute('download', 'Referral_List.csv')
     link.click()
   }
 
@@ -272,105 +272,105 @@ const ReferralTable: React.FC = () => {
   }
 
   return (
-    // <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>
-    //     </HasPermission>
-    <Box sx={{ width: '80vw', height: '70vh' }}>
-      <Typography variant="h4" gutterBottom>
-        <strong>Referral Listing </strong>
-      </Typography>
-      {referralData && (
-        <DataGrid
-          apiRef={apiRef}
-          rows={referralData || []}
-          columns={columns}
-          filterModel={filterModel}
-          onFilterModelChange={(model) => setFilterModel(model)}
-          columnVisibilityModel={columnVisibilityModel}
-          onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
-          initialState={{
-            pagination: { paginationModel: { pageSize: 20, page: 0 } },
-          }}
-          pageSizeOptions={[10, 20, 50]}
-          disableRowSelectionOnClick
-          loading={isLoading}
-          getRowId={(row: any) => row.id}
-          slots={{
-            toolbar: CustomToolbar,
-            loadingOverlay: LoaderUI.LoadingOverlay,
-          }}
-          sx={{
-            '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: '#005099',
-              color: 'white',
-            },
-            '& .MuiDataGrid-cell': { fontSize: '14px' },
-            '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold', fontSize: '16px' },
-          }}
-          disableColumnMenu
-        />
-      )}
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.REFERRAL}>
+      <Box sx={{ width: '80vw', height: '70vh' }}>
+        <Typography variant="h4" gutterBottom>
+          <strong>Referral Listing </strong>
+        </Typography>
+        {referralData && (
+          <DataGrid
+            apiRef={apiRef}
+            rows={referralData || []}
+            columns={columns}
+            filterModel={filterModel}
+            onFilterModelChange={(model) => setFilterModel(model)}
+            columnVisibilityModel={columnVisibilityModel}
+            onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
+            initialState={{
+              pagination: { paginationModel: { pageSize: 20, page: 0 } },
+            }}
+            pageSizeOptions={[10, 20, 50]}
+            disableRowSelectionOnClick
+            loading={isLoading}
+            getRowId={(row: any) => row.id}
+            slots={{
+              toolbar: CustomToolbar,
+              loadingOverlay: LoaderUI.LoadingOverlay,
+            }}
+            sx={{
+              '& .MuiDataGrid-columnHeaders': {
+                backgroundColor: '#005099',
+                color: 'white',
+              },
+              '& .MuiDataGrid-cell': { fontSize: '14px' },
+              '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold', fontSize: '16px' },
+            }}
+            disableColumnMenu
+          />
+        )}
 
-      {actionModal && (
-        <Dialog open={actionModal} onClose={() => handleCloseActionDialog()} maxWidth="sm" fullWidth>
-          <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>Approve/Reject Referral </DialogTitle>
-          <DialogContent dividers>
-            <Grid container spacing={2} sx={{ mt: 0.5 }}>
-              <Grid item xs={12}>
-                <FormControl fullWidth required error={!!errors.action}>
-                  <InputLabel id="referral-action">Select Action</InputLabel>
-                  <Select
-                    labelId="referral-action"
-                    value={formData?.action}
-                    //@ts-ignore
-                    onChange={(e: any) => handleChange('action', e.target.value)}
-                    label="Select Action"
-                    MenuProps={{
-                      PaperProps: {
-                        style: {
-                          maxHeight: 300, // limit dropdown height if many options
-                        },
-                      },
-                      anchorOrigin: {
-                        vertical: 'bottom',
-                        horizontal: 'left',
-                      },
-                      transformOrigin: {
-                        vertical: 'top',
-                        horizontal: 'left',
-                      },
+        {actionModal && (
+          <Dialog open={actionModal} onClose={() => handleCloseActionDialog()} maxWidth="sm" fullWidth>
+            <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>Approve/Reject Referral </DialogTitle>
+            <DialogContent dividers>
+              <Grid container spacing={2} sx={{ mt: 0.5 }}>
+                <Grid item xs={12}>
+                  <FormControl fullWidth required error={!!errors.action}>
+                    <InputLabel id="referral-action">Select Action</InputLabel>
+                    <Select
+                      labelId="referral-action"
+                      value={formData?.action}
                       //@ts-ignore
-                      getContentAnchorEl: null,
-                    }}
-                  >
-                    <MenuItem value={'REJECT'}>REJECT</MenuItem>
-                    <MenuItem value={'APPROVE'}>APPROVE</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
+                      onChange={(e: any) => handleChange('action', e.target.value)}
+                      label="Select Action"
+                      MenuProps={{
+                        PaperProps: {
+                          style: {
+                            maxHeight: 300, // limit dropdown height if many options
+                          },
+                        },
+                        anchorOrigin: {
+                          vertical: 'bottom',
+                          horizontal: 'left',
+                        },
+                        transformOrigin: {
+                          vertical: 'top',
+                          horizontal: 'left',
+                        },
+                        //@ts-ignore
+                        getContentAnchorEl: null,
+                      }}
+                    >
+                      <MenuItem value={'REJECT'}>REJECT</MenuItem>
+                      <MenuItem value={'APPROVE'}>APPROVE</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
 
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Remarks"
-                  value={formData.remarks}
-                  multiline
-                  onChange={(e: any) => handleChange('remarks', e.target.value)}
-                  required
-                  error={!!errors.remarks}
-                  helperText={errors.remarks}
-                />
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Remarks"
+                    value={formData.remarks}
+                    multiline
+                    onChange={(e: any) => handleChange('remarks', e.target.value)}
+                    required
+                    error={!!errors.remarks}
+                    helperText={errors.remarks}
+                  />
+                </Grid>
               </Grid>
-            </Grid>
-          </DialogContent>
-          <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
-            <Button onClick={() => handleCloseActionDialog()}>Cancel</Button>
-            <Button variant="contained" disabled={!(formData?.action && formData?.remarks)} onClick={() => handleAcceptRejectReferral()}>
-              Save
-            </Button>
-          </DialogActions>
-        </Dialog>
-      )}
-    </Box>
+            </DialogContent>
+            <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+              <Button onClick={() => handleCloseActionDialog()}>Cancel</Button>
+              <Button variant="contained" disabled={!(formData?.action && formData?.remarks)} onClick={() => handleAcceptRejectReferral()}>
+                Save
+              </Button>
+            </DialogActions>
+          </Dialog>
+        )}
+      </Box>{' '}
+    </HasPermission>
   )
 }
 

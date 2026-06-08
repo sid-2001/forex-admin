@@ -106,6 +106,24 @@ const NotificationCampaign: React.FC = () => {
         return targetTypeMap[params?.row?.targetType]
       },
     },
+    {
+      field: 'frequencyUnit',
+      headerName: 'Frequency Unit',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'frequencyValue',
+      headerName: 'Frequency Value',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'maxRetryCount',
+      headerName: 'Retry Count',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
 
     {
       field: 'status',

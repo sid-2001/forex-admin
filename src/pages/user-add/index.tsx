@@ -489,7 +489,7 @@ const UserAdd = () => {
                 name="username"
                 value={staffData?.username || ''}
                 onChange={(e) => {
-                  const value = handleRegexChange(e, /^[a-zA-Z]*$/) // ALLOW ONLY UPPER AND LOWER CASE LETTERS
+                  const value = handleRegexChange(e, /^[a-zA-Z0-9]*$/) // ALLOW ONLY UPPER AND LOWER CASE LETTERS
                   if (value !== null) handleChange(e)
                 }}
                 InputProps={{ readOnly: !isEditable }}
