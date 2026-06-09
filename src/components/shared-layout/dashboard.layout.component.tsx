@@ -1056,7 +1056,7 @@ const DashboardLayout = () => {
               <ListItem
                 button
                 id="imp-master-data"
-                key="logout"
+                key="logout1"
                 sx={{
                   textAlign: 'center',
                   alignItems: 'center',
@@ -1125,7 +1125,7 @@ const DashboardLayout = () => {
               <ListItem
                 id="imp-logout-parent"
                 button
-                key="logout"
+                key="logout1"
                 sx={{
                   textAlign: 'center',
                   alignItems: 'center',

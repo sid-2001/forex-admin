@@ -69,7 +69,7 @@ const RoleManagementPage: React.FC = () => {
       ),
     },
     {
-      field: 'Total Modules',
+      field: 'totalModules',
       headerName: 'Total Modules',
       flex: 1,
       headerClassName: 'super-app-theme--header',
@@ -97,7 +97,23 @@ const RoleManagementPage: React.FC = () => {
     }
 
     const headers = visibleCols.map((col) => col.headerName).join(',')
-    const rows = filteredRows.map((row) => visibleCols.map((col) => `"${(row as any)[col.field] || ''}"`).join(','))
+    // const rows = filteredRows.map((row) => visibleCols.map((col) => `"${(row as any)[col.field] || ''}"`).join(','))
+
+    //  const rows = filteredRows.map((row: any) =>
+    //    visibleCols.map((col) => {
+    //      if (col.field === 'totalModules') return `${row.modules.length}`
+    //      return row[col.field] || ''
+    //    }),
+    //  )
+
+    const rows = filteredRows.map((row: any) =>
+      visibleCols
+        .map((col) => {
+          if (col.field === 'totalModules') return `${row.modules.length}`
+          return row[col.field] || ''
+        })
+        .join(','),
+    )
     const csv = [headers, ...rows].join('\n')
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
@@ -114,7 +130,13 @@ const RoleManagementPage: React.FC = () => {
     }
 
     const headers = visibleCols.map((col) => col.headerName)
-    const data = filteredRows.map((row) => visibleCols.map((col) => (row as any)[col.field] || ''))
+
+    const data = filteredRows.map((row: any) =>
+      visibleCols.map((col) => {
+        if (col.field === 'totalModules') return `${row.modules.length}`
+        return row[col.field] || ''
+      }),
+    )
     const doc = new jsPDF({ unit: 'pt' })
     doc.setFontSize(14)
     doc.text('Roles Report', 40, 40)

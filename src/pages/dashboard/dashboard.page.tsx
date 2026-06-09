@@ -222,7 +222,8 @@ const Dashboard = () => {
     if (!recentTransaction || recentTransaction.length === 0) return
 
     // Get all column definitions
-    const visibleCols = RECENT_TRANSACTIONS_COLUMNS.filter((col) => columnVisibilityModel[col.field] !== false)
+    // const visibleCols = RECENT_TRANSACTIONS_COLUMNS.filter((col) => columnVisibilityModel[col.field] !== false)
+    const visibleCols = filteredRecentTransColumns.filter((col) => columnVisibilityModel[col.field] !== false && col.field !== 'action')
 
     const headers = visibleCols.map((col) => col.headerName).join(',')
 
@@ -233,7 +234,7 @@ const Dashboard = () => {
         sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
         receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
         amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
-        reported: transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
+        //  reported: transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
         date: helper.convertDateAndTime(transaction?.transactionOutward?.createdLocaldatetime),
         status: transaction?.transactionOutward?.reportingStatus,
       }
@@ -252,7 +253,8 @@ const Dashboard = () => {
   const handleExportPDF = () => {
     if (!recentTransaction || recentTransaction.length === 0) return
 
-    const visibleCols = RECENT_TRANSACTIONS_COLUMNS.filter((col) => columnVisibilityModel[col.field] !== false)
+    // const visibleCols = RECENT_TRANSACTIONS_COLUMNS.filter((col) => columnVisibilityModel[col.field] !== false )
+    const visibleCols = filteredRecentTransColumns.filter((col) => columnVisibilityModel[col.field] !== false && col.field !== 'action')
 
     const headers = visibleCols.map((col) => col.headerName)
     const data = recentTransaction.map((transaction: any, index: number) => {
@@ -262,7 +264,7 @@ const Dashboard = () => {
         sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
         receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
         amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
-        reported: transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
+        //  reported: transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
         date: helper.convertDateAndTime(transaction?.transactionOutward?.createdLocaldatetime),
         status: transaction?.transactionOutward?.reportingStatus,
       }

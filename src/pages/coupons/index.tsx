@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridFilterModel } from '@mui/x-data-grid'
-import { Box, Typography, Button, Stack } from '@mui/material'
+import { Box, Typography, Button, Stack, IconButton } from '@mui/material'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
@@ -15,6 +15,7 @@ import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import CouponService from '@/services/coupons.service'
 import CouponDialog from '@/components/couponFormDialog'
+import EditIcon from '@mui/icons-material/Edit'
 
 const Coupons: React.FC = () => {
   const [couponsData, setCouponsData] = useState([])
@@ -117,10 +118,29 @@ const Coupons: React.FC = () => {
         return helper.convertDateAndTime(params.row.createdLocalDateTime)
       },
     },
+    {
+      field: 'action',
+      headerName: 'Action',
+      width: 120,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => (
+        <Stack direction="row" spacing={1}>
+          <IconButton
+            color="primary"
+            onClick={() => {
+              setEditData(params.row)
+              setOpenCouponModal(true)
+            }}
+          >
+            <EditIcon />
+          </IconButton>
+        </Stack>
+      ),
+    },
   ]
 
   const getVisibleFilteredRows = () => {
-    const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false && col.field !== 'id1')
+    const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false && col.field !== 'action')
 
     const filteredRows = couponsData.filter((row: any) =>
       filterModel.items.every((filter) => {
@@ -247,13 +267,13 @@ const Coupons: React.FC = () => {
           />
         )}
 
-        {/* <CouponDialog
+        <CouponDialog
           open={openCouponModal}
           editData={editData}
           onClose={() => setOpenCouponModal(false)}
           refreshList={fetchCouponListingData}
           showAlert={showAlert}
-        /> */}
+        />
       </Box>
     </HasPermission>
   )
