@@ -242,7 +242,7 @@ const TransactionListing = () => {
       ),
     },
     {
-      field: 'Bop action',
+      field: 'bopAction',
       headerName: columnHeaderMap[userCountry] || columnHeaderMap.DEFAULT,
       flex: 1,
       headerClassName: 'super-app-theme--header',
@@ -267,17 +267,15 @@ const TransactionListing = () => {
     const s = v == null ? '' : String(v)
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
   }
-  const fmt = (n: any) => (typeof n === 'number' ? n.toFixed(2) : (n ?? ''))
-  const fmtDate = (d: any) => (d ? helper.convertDateAndTime(d) : '')
 
   // Build headers + rows from current tab
   const rowsForExport = () => {
     const isInwards = transactionType === 'inwards'
     const rows = isInwards ? inboundTransaction || [] : outboundTransaction || []
-    const allCols: GridColDef[] = (isInwards ? inward_columns : columns_outward) as any
+    const allCols: GridColDef[] = (isInwards ? filteredInwardColumns : filteredOutwardColumns) as any
 
     // keep order from the grid; visible if not explicitly false
-    const visibleCols = allCols.filter((col) => columnVisibilityModel[col.field] ?? true)
+    const visibleCols = allCols.filter((col) => columnVisibilityModel[col.field] !== false && col.field !== 'bopAction')
 
     const headers = visibleCols?.map((c) => c.headerName ?? c.field)
 
@@ -286,8 +284,7 @@ const TransactionListing = () => {
       if (typeof v === 'number') return v?.toFixed(2)
       if (field === 'applicant') return r?.applicant?.firstName ?? r?.applicant?.applicantId ?? ''
       if (field === 'stpError') return v === 'Y' ? 'Error' : 'No Error'
-      if (field === 'status' || field === 'payment_status' || field === 'paymentStatus' || field === 'transactionStatus')
-        return (v ?? '').toString().toUpperCase()
+      if (field === 'status' || field === 'transactionStatus') return (v ? renderTransactionStatus(v) : '').toString().toUpperCase()
       if (field === 'date' || /Date$/i.test(field)) return v ? helper.convertDateAndTime(v) : ''
       return v ?? ''
     }

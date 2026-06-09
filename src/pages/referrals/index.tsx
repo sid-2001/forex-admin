@@ -179,6 +179,7 @@ const ReferralTable: React.FC = () => {
 
     return { visibleCols, filteredRows }
   }
+
   const handleExportCSV = () => {
     const { visibleCols, filteredRows } = getVisibleFilteredRows()
 

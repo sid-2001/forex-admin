@@ -51,12 +51,10 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
   const downloadCSV = () => {
     if (!rows || rows.length === 0) return
 
-    const csv = [
-      Object.keys(rows[0]).join(','), // headers
-      ...rows.map((row) => Object.values(row).join(',')),
-    ].join('\n')
+    const headers = columns.map((col: any) => col.headerName)
+    const csvRows = [headers.join(','), ...rows.map((row: any) => columns.map((col: any) => `"${row[col.field] || ''}"`).join(','))].join('\n')
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const blob = new Blob([csvRows], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
     link.setAttribute('download', 'applicants.csv')

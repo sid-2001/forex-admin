@@ -144,6 +144,7 @@ const ModuleTable: React.FC = () => {
   const [moduleData, setModuleData] = useState<any>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedModule, setSelectedModule] = useState<any>({})
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState<Record<string, boolean>>({})
 
   const [open, setOpen] = useRecoilState(alertState)
   const [text, setText] = useRecoilState(alertTextState)
@@ -187,8 +188,8 @@ const ModuleTable: React.FC = () => {
       },
     },
     {
-      field: 'actions',
-      headerName: 'Actions',
+      field: 'action',
+      headerName: 'Action',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
@@ -243,8 +244,12 @@ const ModuleTable: React.FC = () => {
   const theme = useTheme()
   const CustomToolbar = ({ rows, columns }: any) => {
     const handleDownloadCSV = () => {
-      const headers = columns.map((col: any) => col.headerName)
-      const csvRows = [headers.join(','), ...rows.map((row: any) => columns.map((col: any) => `"${row[col.field] || ''}"`).join(','))].join('\n')
+      const visibleCols = columns.filter(
+        //@ts-ignore
+        (col) => columnVisibilityModel[col.field] !== false && col.field !== 'action',
+      )
+      const headers = visibleCols.map((col: any) => col.headerName)
+      const csvRows = [headers.join(','), ...rows.map((row: any) => visibleCols.map((col: any) => `"${row[col.field] || ''}"`).join(','))].join('\n')
 
       const blob = new Blob([csvRows], { type: 'text/csv;charset=utf-8;' })
       const link = document.createElement('a')
@@ -255,8 +260,12 @@ const ModuleTable: React.FC = () => {
 
     const handleDownloadPDF = () => {
       const doc = new jsPDF()
-      const tableColumn = columns.map((col: any) => col.headerName)
-      const tableRows = rows.map((row: any) => columns.map((col: any) => row[col.field] || ''))
+      const visibleCols = columns.filter(
+        //@ts-ignore
+        (col) => columnVisibilityModel[col.field] !== false && col.field !== 'action',
+      )
+      const tableColumn = visibleCols.map((col: any) => col.headerName)
+      const tableRows = rows.map((row: any) => visibleCols.map((col: any) => row[col.field] || ''))
 
       autoTable(doc, { head: [tableColumn], body: tableRows })
       doc.save('modules.pdf')
@@ -304,6 +313,8 @@ const ModuleTable: React.FC = () => {
           columns={MODULE_COLUMNS}
           rows={moduleData}
           getRowId={(row: any) => row.moduleId}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
           slots={{
             toolbar: () => <CustomToolbar rows={moduleData} columns={MODULE_COLUMNS} />,
             loadingOverlay: LoaderUI.LoadingOverlay,

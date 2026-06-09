@@ -12,7 +12,7 @@ export default class CouponService extends BaseService {
     }
   }
 
-  async createCoupon(payload: Partial<any>): Promise<{ status: boolean; message: string }> {
+  async createCoupon(payload: Partial<any>): Promise<any> {
     const url = '/api/bop/gender/coupon/create'
     try {
       const data = await api1.post(url, payload)
@@ -22,7 +22,7 @@ export default class CouponService extends BaseService {
     }
   }
 
-  async updateCoupon(payload: Partial<any>): Promise<{ status: boolean; message: string }> {
+  async updateCoupon(payload: Partial<any>): Promise<any> {
     const url = `/api/bop/gender/coupon/update`
     try {
       const { data } = await api1.put(url, payload)

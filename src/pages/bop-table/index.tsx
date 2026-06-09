@@ -194,8 +194,12 @@ const BopTable: React.FC = () => {
       ),
     },
   ]
+  const filteredColumns = (userCountry === 'UAE' && columns.filter((col) => col.field !== 'sap_status' && col.field !== 'status')) || columns
+
   const getVisibleFilteredRows = () => {
-    const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false && col.field !== 'id1')
+    const visibleCols = filteredColumns.filter(
+      (col: any) => columnVisibilityModel[col.field] !== false && col.field !== 'id1' && col.field !== 'transaction_attempt',
+    )
 
     const filteredRows = bopData.filter((row: any) =>
       filterModel.items.every((filter) => {
@@ -216,7 +220,18 @@ const BopTable: React.FC = () => {
     }
 
     const headers = visibleCols.map((col) => col.headerName).join(',')
-    const rows = filteredRows.map((row: any) => visibleCols.map((col) => `"${row[col.field] || ''}"`).join(','))
+
+    const rows = filteredRows.map((row: any) =>
+      visibleCols
+        .map((col) => {
+          // if (col.field === 'transaction_attempt') return `${row.transaction_attempt}`
+          if (col.field === 'beneficiary_name') return renderBeneficiaryFullName(row)
+          if (col.field === 'transaction_status') return renderStatus(row.transaction_status)
+          if (col.field === 'created_localdatetime') return helper.convertDateAndTime(row.created_localdatetime)
+          return row[col.field] || ''
+        })
+        .join(','),
+    )
 
     const csv = [headers, ...rows].join('\n')
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
@@ -235,7 +250,17 @@ const BopTable: React.FC = () => {
     }
 
     const headers = visibleCols.map((col) => col.headerName)
-    const data = filteredRows.map((row: any) => visibleCols.map((col) => row[col.field] || ''))
+    // const data = filteredRows.map((row: any) => visibleCols.map((col) => row[col.field] || ''))
+
+    const data = filteredRows.map((row: any) =>
+      visibleCols.map((col) => {
+        // if (col.field === 'transaction_attempt') return `${row.transaction_attempt}`
+        if (col.field === 'beneficiary_name') return renderBeneficiaryFullName(row)
+        if (col.field === 'transaction_status') return renderStatus(row.transaction_status)
+        if (col.field === 'created_localdatetime') return helper.convertDateAndTime(row.created_localdatetime)
+        return row[col.field] || ''
+      }),
+    )
 
     const doc = new jsPDF({ unit: 'pt' })
     doc.setFontSize(14)
@@ -267,8 +292,6 @@ const BopTable: React.FC = () => {
       </Button>
     </GridToolbarContainer>
   )
-
-  const filteredColumns = userCountry === 'UAE' && columns.filter((col) => col.field !== 'sap_status' && col.field !== 'status')
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>

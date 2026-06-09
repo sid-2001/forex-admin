@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Grid, TextField, Autocomplete } from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Grid, TextField, Autocomplete, FormControlLabel, Checkbox } from '@mui/material'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 import SequenceApiService from '@/services/sequence.api.service'
@@ -50,7 +50,7 @@ export default function CouponDialog({ open, editData, onClose, refreshList, sho
   }, [])
 
   const handleSubmit = async () => {
-    const mandatoryFields = ['countryCode', 'title', 'description', 'active', 'effectivefromdate', 'effectivetodate']
+    const mandatoryFields = ['countrycode', 'title', 'couponcode', 'description', 'effectivefromdate', 'effectivetodate']
 
     const isFormIncomplete = mandatoryFields.some((field) => !formData[field] || formData[field].toString().trim() === '')
 
@@ -63,7 +63,7 @@ export default function CouponDialog({ open, editData, onClose, refreshList, sho
     try {
       if (editData) {
         const res = await coupon_service.updateCoupon({
-          applicant_id: formData?.applicant_id,
+          applicant_id: local_service?.get_staff_id(),
           couponcode: formData?.couponcode,
           description: formData?.description,
           amount: formData?.amount,
@@ -77,9 +77,10 @@ export default function CouponDialog({ open, editData, onClose, refreshList, sho
           effectivefromdate: formData.effectivefromdate + 'T00:00:00',
           effectivetodate: formData.effectivetodate + 'T00:00:00',
         })
-        if (res.status === false) {
-          showAlert('fail', res.message)
-        } else {
+        if (res.status === false || !res.status) {
+          showAlert('error', res.message)
+        }
+        if (res.success) {
           showAlert('success', 'Coupon updated successfully')
           refreshList()
           onClose()
@@ -88,15 +89,17 @@ export default function CouponDialog({ open, editData, onClose, refreshList, sho
         console.log(formData, 'formdata')
         let payload = {
           ...formData,
-          createdBy: local_service?.get_staff_id(),
-          scheduledAt: formData.scheduledAt?.format('YYYY-MM-DDTHH:mm:ss'),
+          effectivefromdate: formData.effectivefromdate + 'T00:00:00',
+          effectivetodate: formData.effectivetodate + 'T00:00:00',
+          applicant_id: local_service?.get_staff_id(),
         }
         const res = await coupon_service.createCoupon(payload)
         console.log(res, 'response')
-        if (res.status === false) {
-          showAlert('fail', res.message)
-        } else {
-          showAlert('success', res.message)
+        if (res.status === false || !res.status) {
+          showAlert('error', res.message)
+        }
+        if (res.success) {
+          showAlert('success', 'Coupon created successfully')
           refreshList()
           onClose()
         }
@@ -118,19 +121,17 @@ export default function CouponDialog({ open, editData, onClose, refreshList, sho
       <DialogTitle>{editData ? 'Edit Coupon' : 'Add Coupon'}</DialogTitle>
       <DialogContent dividers>
         <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid item xs={4}>
-            <Autocomplete
-              options={countries}
-              value={countries.find((c: any) => c.countryCode === formData.countryCode) || null}
-              getOptionLabel={(option: any) => `${option.countryName} (${option.countryCode})` || ''}
-              isOptionEqualToValue={(option: any, value: any) => option.countryCode === value.countryCode}
-              onChange={(_, newValue) => {
-                setFormData({ ...formData, countryCode: newValue ? newValue.countryCode : '' })
-              }}
-              renderInput={(params) => <TextField {...params} label="Country" fullWidth />}
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              label="Coupon Code"
+              required
+              value={formData.couponcode}
+              onChange={(e) => handleChange('couponcode', e.target.value)}
             />
           </Grid>
-          <Grid item xs={12}>
+
+          <Grid item xs={6}>
             <TextField
               fullWidth
               label="Description"
@@ -139,26 +140,44 @@ export default function CouponDialog({ open, editData, onClose, refreshList, sho
               onChange={(e) => handleChange('description', e.target.value)}
             />
           </Grid>
-
-          <Grid item xs={4}>
-            <TextField
-              fullWidth
-              label="Background Color"
-              required
-              value={formData.bgcolor}
-              onChange={(e) => handleChange('maxRetryCount', e.target.value)}
-            />
-          </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <TextField fullWidth label="Title" required value={formData.title} onChange={(e) => handleChange('title', e.target.value)} />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
+            <Autocomplete
+              options={countries}
+              value={countries.find((c: any) => c.countryCode === formData.countrycode) || null}
+              getOptionLabel={(option: any) => `${option.countryName} (${option.countryCode})` || ''}
+              isOptionEqualToValue={(option: any, value: any) => option.countryCode === value.countryCode}
+              onChange={(_, newValue) => {
+                setFormData({ ...formData, countrycode: newValue ? newValue.countryCode : '' })
+              }}
+              renderInput={(params) => <TextField {...params} label="Country" fullWidth />}
+            />
+          </Grid>
+
+          <Grid item xs={6}>
+            <TextField fullWidth label="Background Color" value={formData.bgcolor} onChange={(e) => handleChange('bgcolor', e.target.value)} />
+          </Grid>
+
+          <Grid item xs={6}>
             <TextField
               fullWidth
               label="Expiry Days"
-              required
+              type="number"
               value={formData.expirydays}
-              onChange={(e) => handleChange('expirydays', e.target.value)}
+              inputProps={{ min: 0 }}
+              onKeyDown={(e) => {
+                if (e.key === '-') {
+                  e.preventDefault()
+                }
+              }}
+              onChange={(e) => {
+                const value = e.target.value
+                if (value === '' || Number(value) >= 0) {
+                  handleChange('expirydays', Number(value))
+                }
+              }}
             />
           </Grid>
 
@@ -246,6 +265,12 @@ export default function CouponDialog({ open, editData, onClose, refreshList, sho
               error={!!errors.effectivetodate}
               helperText={errors.effectivetodate}
               required
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={<Checkbox checked={formData.active} onChange={(e) => handleChange('active', e.target.checked)} color="primary" />}
+              label="Active Status"
             />
           </Grid>
         </Grid>
