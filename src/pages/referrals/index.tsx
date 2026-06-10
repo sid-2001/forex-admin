@@ -276,7 +276,7 @@ const ReferralTable: React.FC = () => {
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.REFERRAL}>
       <Box sx={{ width: '80vw', height: '70vh' }}>
         <Typography variant="h4" gutterBottom>
-          <strong>Referral Listing </strong>
+          <strong>Reward Redemption</strong>
         </Typography>
         {referralData && (
           <DataGrid

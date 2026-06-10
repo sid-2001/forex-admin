@@ -169,11 +169,17 @@ const TransactionListing = () => {
     },
     {
       field: 'charges',
-      headerName: 'Charges',
+      headerName: 'Charges (Inc Vat)',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => params.row.charges + params.row.vatCharges,
     },
-
+    // {
+    //   field: 'vatCharges',
+    //   headerName: 'Vat Charges',
+    //   flex: 1,
+    //   headerClassName: 'super-app-theme--header',
+    // },
     {
       field: 'date',
       headerName: 'Date',
@@ -286,6 +292,7 @@ const TransactionListing = () => {
       if (field === 'stpError') return v === 'Y' ? 'Error' : 'No Error'
       if (field === 'status' || field === 'transactionStatus') return (v ? renderTransactionStatus(v) : '').toString().toUpperCase()
       if (field === 'date' || /Date$/i.test(field)) return v ? helper.convertDateAndTime(v) : ''
+      if (field === 'charges') return isInwards ? r.charges + r.vatCharges : r.transactionOutward.charges + r.transactionOutward.vatCharges
       return v ?? ''
     }
 
@@ -416,12 +423,24 @@ const TransactionListing = () => {
         return helper.convertDateAndTime(params?.row?.createdLocaldatetime)
       },
     },
+    // {
+    //   field: 'vatCharges',
+    //   headerName: 'Vat Charges',
+    //   flex: 1,
+    //   headerClassName: 'super-app-theme--header',
+    // },
     {
+      // field: 'charges',
+      // headerName: 'Charges',
+      // flex: 1,
+      // headerClassName: 'super-app-theme--header',
       field: 'charges',
-      headerName: 'Charges',
+      headerName: 'Charges (Inc Vat)',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => params.row.charges + params.row.vatCharges,
     },
+
     {
       field: 'transactionStatus',
       headerName: 'Status',
@@ -502,7 +521,7 @@ const TransactionListing = () => {
   const [isDrawerOpen, setDrawerOpen] = useState(false)
   const [modalOpen, setmodalOpen] = useState(false)
   const [transactionDetails, setTransactionDetails] = useState<any>(null)
-  const [transactionType, setTransactionType] = useState('')
+  const [transactionType, setTransactionType] = useState('outwards')
   const [inboundTransaction, setInboundTransaction] = useState<Array<TransactionInward>>([])
   const [outboundTransaction, setOutboundTransaction] = useState<Array<TransactionOutward>>([])
   const [toolopen, setToolOpen] = useState(false)
@@ -776,15 +795,11 @@ const TransactionListing = () => {
   )
 
   useEffect(() => {
-    if (!flow) {
-      setTransactionType('outwards')
-    } else {
-      setTransactionType(flow)
-    }
+    if (flow) setTransactionType(flow)
     getApplicantDetails()
     // getInwardTransactionListFilterd(1, 20)
     //getAllTransactions(0, 20)
-    setGivenTransaction(queryParams.get('id'))
+    // setGivenTransaction(queryParams.get('id'))
   }, [])
 
   const openInNewTab = (url: any) => {
@@ -853,11 +868,12 @@ const TransactionListing = () => {
       setTransactionType(newType)
       //@ts-ignore
       setTransactionData(newType === 'inwards' ? inboundTransaction : outboundTransaction)
-      if (givenTransaction !== null) {
-        navigate(`/transaction?flow=${newType}&id=${givenTransaction}`)
-      } else {
-        navigate(`/transaction?flow=${newType}`)
-      }
+      navigate(`/transaction?flow=${newType}`)
+      // if (givenTransaction !== null) {
+      //   navigate(`/transaction?flow=${newType}&id=${givenTransaction}`)
+      // } else {
+      //   navigate(`/transaction?flow=${newType}`)
+      // }
     }
   }
 

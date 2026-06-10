@@ -134,6 +134,28 @@ const TransactionDetailScreen = () => {
                 disabled
               />
             </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Charges"
+                variant="filled"
+                fullWidth
+                //@ts-ignore
+                defaultValue={transactionDetails.charges}
+                size="small"
+                disabled
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Vat charges"
+                variant="filled"
+                fullWidth
+                //@ts-ignore
+                defaultValue={transactionDetails.vatCharges}
+                size="small"
+                disabled
+              />
+            </Grid>
           </Grid>
           {/* Beneficiary Details Section */}
           <Divider sx={{ my: 2 }} />

@@ -104,7 +104,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications'
 import PrivacyTipIcon from '@mui/icons-material/PrivacyTip'
 import CampaignIcon from '@mui/icons-material/Campaign'
 import LocalOfferIcon from '@mui/icons-material/LocalOffer'
-;<LocalOfferIcon />
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
@@ -639,7 +639,7 @@ const DashboardLayout = () => {
     {
       icon: (
         <>
-          <GroupAddIcon
+          <EmojiEventsIcon
             sx={{
               //@ts-ignore
               fontSize: '2vh',
@@ -649,8 +649,8 @@ const DashboardLayout = () => {
           />
         </>
       ),
-      label: 'Referrals',
-      name: 'Referrals',
+      label: 'Rewards',
+      name: 'Rewards',
     },
     {
       icon: (
