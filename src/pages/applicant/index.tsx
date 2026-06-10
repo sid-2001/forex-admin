@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { Box, Grid, TextField, Typography, Button, Tabs, Tab, Avatar, useTheme } from '@mui/material'
+import { Box, Grid, TextField, Typography, Button, Tabs, Tab, Avatar, useTheme, Card, CardContent } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
 import TransactionTable from '../transaction-table'
 import { ApplicantService } from '@/services/applicant.service'
@@ -58,11 +58,6 @@ const ApplicantPage = () => {
     { label: `${getLabel('Referral_Credited')}` || 'Referral Credited Transactions', value: 4 },
     { label: 'Redeem Referral', value: 5, hidden: userCountry !== 'UAE' },
   ]
-
-  // Helper function to get validation message by field name
-  const getValidationMessage = (fieldName: string): string => {
-    return fieldMessages[fieldName] || ''
-  }
 
   const fetchFieldValidations = async () => {
     try {
@@ -133,17 +128,16 @@ const ApplicantPage = () => {
   }, [utilizedLimit, availableLimit, fieldLabels])
 
   useEffect(() => {
+    if (userCountry !== 'UAE') fetchComplianceLimitData()
+    if (userCountry === 'UAE') setSelectedTab(1)
+    else setSelectedTab(0)
     fetchFieldValidations()
-    fetchComplianceLimitData()
     fetchApplicantData()
     fetchTransactionsList()
     fetchReferralRedeemedTransactions()
     fetchReferralCreditedTransactions()
     getdocumentlistByApplicantId()
     fetchRedeemReferrals()
-
-    if (userCountry === 'UAE') setSelectedTab(1)
-    else setSelectedTab(0)
   }, [])
 
   const fetchComplianceLimitData = async () => {
@@ -167,7 +161,7 @@ const ApplicantPage = () => {
     try {
       const response = await applicant_service.searchByApplicantId(applicantId)
       console.log(response, 'response')
-      const { applicant, applicantContactDetails, beneficiaryList, kycId, kycStatus }: any = response
+      const { applicant, applicantContactDetails, beneficiaryList, kycId, kycStatus, rewards }: any = response
 
       setApplicantDetails({
         ...applicant,
@@ -175,6 +169,7 @@ const ApplicantPage = () => {
         phone: applicantContactDetails?.find((item: any) => item.contactType === 'phone')?.contactDetails,
         beneficiaryList,
         kycStatus,
+        rewards,
       })
 
       if (kycId) {
@@ -258,12 +253,9 @@ const ApplicantPage = () => {
     if (!applicantId) return
     try {
       const data = await applicant_service.getDocumentByApplicantId(applicantId)
-      console.log(data)
       if (data.length > 0) {
-        console.log('here i am ')
         const imageRecord = data.find((doc: any) => doc.docCode.toLowerCase() == 'image')
-        console.log(imageRecord)
-        console.log('saf')
+
         setApplicantImage(imageRecord?.docFrontUrl || '')
         setApplicantDocuments(data)
       }
@@ -284,23 +276,29 @@ const ApplicantPage = () => {
     return applicantDetails?.firstName?.charAt(0) + '' + applicantDetails?.lastName?.charAt(0)
   }
 
+  const renderTierBgColor = (tier: any) => {
+    return tier === 'Bronze'
+      ? ['#804A00', '#CD7F32']
+      : tier === 'Silver'
+        ? ['#C0C0C0', '#D4D6D8']
+        : tier === 'Gold'
+          ? ['#B8860B', '#FFD700']
+          : tier === 'Platinum'
+            ? ['#A0A9B0', '#E8ECF0']
+            : ['#1468B7', '#1468B8']
+  }
+
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.APPLICANT}>
       <Box sx={{ width: '80vw' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
             {getLabel('Applicant') || 'Applicant Details'}
           </Typography>
 
-          <Button variant="outlined" startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)}>
-            {getLabel('Back') || 'Back'}
-          </Button>
-        </Box>
-
-        <Box mb={6} display="flex" alignItems="center">
           <Typography
             variant="body1"
-            mb={1}
+            ml={2}
             sx={{
               backgroundColor: 'primary.main',
               p: '0.5%',
@@ -314,7 +312,6 @@ const ApplicantPage = () => {
           {applicantDetails?.kycStatus === 'v' && (
             <Typography
               variant="body1"
-              mb={1}
               onClick={() => {
                 if (kycId) {
                   navigate(`/kyc/${kycId}`)
@@ -337,6 +334,82 @@ const ApplicantPage = () => {
               {`${getLabel('KYC_ID') || 'KYC ID'} - ${kycId}`}
             </Typography>
           )}
+
+          {/* <Button variant="outlined" startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)}>
+            {getLabel('Back') || 'Back'}
+          </Button> */}
+        </Box>
+
+        <Box mb={6} display="flex" alignItems="center">
+          <Grid container spacing={2}>
+            <Grid item xs={3}>
+              <Box
+                sx={{
+                  background: `linear-gradient(90deg, ${renderTierBgColor(applicantDetails?.userTier)[0]} 0%, ${renderTierBgColor(applicantDetails?.userTier)[1]} 100%)`,
+                  borderRadius: 6,
+                  p: 2,
+                  textAlign: 'center',
+                  color: 'black',
+                }}
+              >
+                <Typography variant="h6" fontWeight={700}>
+                  Loyalty Tier{' '}
+                </Typography>
+                <Typography variant="body2">{applicantDetails?.userTier}</Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={3}>
+              <Box
+                sx={{
+                  background: '#79CBF0',
+                  borderRadius: 6,
+                  p: 2,
+                  textAlign: 'center',
+                  color: 'black',
+                }}
+              >
+                <Typography variant="h6" fontWeight={700}>
+                  Loyalty Rewards
+                </Typography>
+                <Typography variant="body2">{applicantDetails?.rewards?.loyaltyAvailableRewards || 0}</Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={3}>
+              <Box
+                sx={{
+                  background: 'linear-gradient(to bottom, #81C784,rgb(40, 124, 44))',
+                  borderRadius: 6,
+                  p: 2,
+                  textAlign: 'center',
+                  color: 'black',
+                }}
+              >
+                <Typography variant="h6" fontWeight={700}>
+                  Referral Rewards
+                </Typography>
+                <Typography variant="body2">{applicantDetails?.rewards?.referralAvailableRewards || 0}</Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={3}>
+              <Box
+                sx={{
+                  background: 'linear-gradient(to bottom,#FFEB99,rgb(172, 169, 65))',
+                  borderRadius: 6,
+                  p: 2,
+                  textAlign: 'center',
+                  color: 'black',
+                }}
+              >
+                <Typography variant="h6" fontWeight={700}>
+                  ImproPay Rewards
+                </Typography>
+                <Typography variant="body2">
+                  {' '}
+                  {applicantDetails?.rewards?.referralAvailableRewards + applicantDetails?.rewards?.loyaltyAvailableRewards || 0}{' '}
+                </Typography>
+              </Box>
+            </Grid>
+          </Grid>
         </Box>
 
         {/* Applicant Information Form */}

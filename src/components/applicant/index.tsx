@@ -143,14 +143,16 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     },
     { field: 'firstName', headerName: 'First Name', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'lastName', headerName: 'Last Name', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'username', headerName: 'Username', flex: 1, headerClassName: 'super-app-theme--header' },
     {
       field: 'gender',
       headerName: 'Gender',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => (params.value === 'M' ? 'Male' : 'Female'),
+      renderCell: (params: any) => (params.row.gender === 'M' ? 'Male' : 'Female'),
     },
     { field: 'dob', headerName: 'DOB', flex: 1, headerClassName: 'super-app-theme--header' },
+
     { field: 'residentialAddressCountry', headerName: 'Residence Country', flex: 1, headerClassName: 'super-app-theme--header' },
   ]
 

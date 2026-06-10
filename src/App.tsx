@@ -312,7 +312,7 @@ function App() {
               <Route path="country-product-code" element={<CountryCorridorProductMaster />} />
               <Route path="product-subservice" element={<ProductSubServiceMaster />} />
               <Route path="service-sub-service-mapping" element={<ServiceSubServiceMapping />} />
-              <Route path="referrals" element={<ReferralTable />} />
+              <Route path="rewards" element={<ReferralTable />} />
               <Route path="transaction-detail/:transactionId" element={<TransactionDetailScreen />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="notification-campaign" element={<NotificationCampaign />} />

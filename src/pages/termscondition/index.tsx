@@ -25,8 +25,6 @@ import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import TermsConditionsService, { TermsConditions } from '../../services/termsandcondition.service'
-import { countyState } from '@/states/state'
-import { useRecoilState, useRecoilValue } from 'recoil'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import ChannelService from '@/services/channel.servive'
 import ScreenService from '@/services/screen.service'
@@ -305,24 +303,6 @@ export default function TermsConditionsGridPage() {
     { field: 'countryCode', headerName: 'Country', flex: 0.7, headerClassName: 'super-app-theme--header' },
     { field: 'channel', headerName: 'Channel', flex: 0.6, headerClassName: 'super-app-theme--header' },
     { field: 'screen', headerName: 'Screen', flex: 1, headerClassName: 'super-app-theme--header' },
-    // {
-    //   field: "effectiveFromDate",
-    //   headerName: "Effective From",
-    //   flex: 0.8,
-    //   valueFormatter: (params) => {
-    //     if (!params?.value) return '';
-    //     return(params?.value);
-    //   }
-    // },
-    // {
-    //   field: "effectiveToDate",
-    //   headerName: "Effective To",
-    //   flex: 0.8,
-    //   valueFormatter: (params) => {
-    //     if (!params.value || params.value === "9999-12-31T00:00:00") return 'N/A';
-    //     return (params.value)
-    //   }
-    // },
     {
       field: 'effective_from_date',
       headerName: 'Effective From',
@@ -360,18 +340,6 @@ export default function TermsConditionsGridPage() {
         </IconButton>
       ),
     },
-    // {
-    //   field: 'action',
-    //   headerName: 'Action',
-    //   flex: 1,
-    //   headerClassName: 'super-app-theme--header',
-    //   renderCell: (params) => (
-    //     <Button size="small" onClick={() => handleView(params.row)}>
-    //       <Edit3Icon></Edit3Icon>
-
-    //     </Button>
-    //   ),
-    // },
   ]
 
   return (
