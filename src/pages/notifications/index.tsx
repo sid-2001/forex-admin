@@ -121,7 +121,7 @@ const Notifications: React.FC = () => {
             setEditData(params.row)
             setOpenNotificationModal(true)
           }}
-          // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MODULE, 'canUpdate')}
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
         >
           Edit
         </Button>
@@ -175,7 +175,7 @@ const Notifications: React.FC = () => {
 
     const doc = new jsPDF({ unit: 'pt' })
     doc.setFontSize(14)
-    doc.text('BOP Listing Report', 40, 40)
+    doc.text('Notification Listing Report', 40, 40)
     autoTable(doc, {
       head: [headers],
       body: data,
@@ -183,7 +183,7 @@ const Notifications: React.FC = () => {
       styles: { fontSize: 9, cellPadding: 6 },
       headStyles: { fillColor: [0, 80, 153], textColor: 255 },
     })
-    doc.save('BOP_List.pdf')
+    doc.save('Notifications_List.pdf')
   }
 
   const CustomToolbar = () => (
@@ -206,70 +206,67 @@ const Notifications: React.FC = () => {
   )
 
   return (
-    <Box
-      //sx={{ width: '80vw', height: '70vh' }}
-      p={3}
-      sx={{ width: '100%', '& .header-bg': { fontWeight: 'bold', bgcolor: '#f5f5f5' } }}
-    >
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
-          NOTIFICATION LISTING
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setOpenNotificationModal(true)
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={3} sx={{ width: '100%', '& .header-bg': { fontWeight: 'bold', bgcolor: '#f5f5f5' } }}>
+        <Stack direction="row" justifyContent="space-between" mb={2}>
+          <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
+            NOTIFICATION LISTING
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setOpenNotificationModal(true)
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add
+          </Button>
+        </Stack>
 
-      {notificationData && (
-        <DataGrid
-          apiRef={apiRef}
-          rows={notificationData || []}
-          //@ts-ignore
-          columns={columns}
-          filterModel={filterModel}
-          onFilterModelChange={(model) => setFilterModel(model)}
-          columnVisibilityModel={columnVisibilityModel}
-          onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
-          initialState={{
-            pagination: { paginationModel: { pageSize: 20, page: 0 } },
-          }}
-          pageSizeOptions={[10, 20, 50]}
-          disableRowSelectionOnClick
-          loading={isLoading}
-          getRowId={(row: any) => row.notificationTypeCode}
-          slots={{
-            toolbar: CustomToolbar,
-            loadingOverlay: LoaderUI.LoadingOverlay,
-          }}
-          sx={{
-            '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: '#005099',
-              color: 'white',
-            },
-            '& .MuiDataGrid-cell': { fontSize: '14px' },
-            '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold', fontSize: '16px' },
-          }}
-          disableColumnMenu
+        {notificationData && (
+          <DataGrid
+            apiRef={apiRef}
+            rows={notificationData || []}
+            //@ts-ignore
+            columns={columns}
+            filterModel={filterModel}
+            onFilterModelChange={(model) => setFilterModel(model)}
+            columnVisibilityModel={columnVisibilityModel}
+            onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
+            initialState={{
+              pagination: { paginationModel: { pageSize: 20, page: 0 } },
+            }}
+            pageSizeOptions={[10, 20, 50]}
+            disableRowSelectionOnClick
+            loading={isLoading}
+            getRowId={(row: any) => row.notificationTypeCode}
+            slots={{
+              toolbar: CustomToolbar,
+              loadingOverlay: LoaderUI.LoadingOverlay,
+            }}
+            sx={{
+              '& .MuiDataGrid-columnHeaders': {
+                backgroundColor: '#005099',
+                color: 'white',
+              },
+              '& .MuiDataGrid-cell': { fontSize: '14px' },
+              '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold', fontSize: '16px' },
+            }}
+            disableColumnMenu
+          />
+        )}
+
+        <NotificationDialog
+          open={openNotificationModal}
+          countryCorridorList={countriesData}
+          editData={editData}
+          onClose={() => setOpenNotificationModal(false)}
+          refreshList={fetchNotificationListingData}
+          showAlert={showAlert}
         />
-      )}
-
-      <NotificationDialog
-        open={openNotificationModal}
-        countryCorridorList={countriesData}
-        editData={editData}
-        onClose={() => setOpenNotificationModal(false)}
-        refreshList={fetchNotificationListingData}
-        showAlert={showAlert}
-      />
-    </Box>
-    // <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>
-    // </HasPermission>
+      </Box>
+    </HasPermission>
   )
 }
 
