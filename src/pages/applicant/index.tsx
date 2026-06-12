@@ -290,383 +290,597 @@ const ApplicantPage = () => {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.APPLICANT}>
-      <Box sx={{ width: '80vw' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
-            {getLabel('Applicant') || 'Applicant Details'}
-          </Typography>
+      <Box sx={{ width: '90vw' }}>
+        <Box sx={{ display: 'flex' }}>
+          <Box sx={{ width: '75%' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
+                {getLabel('Applicant') || 'Applicant Details'}
+              </Typography>
 
-          <Typography
-            variant="body1"
-            ml={2}
-            sx={{
-              backgroundColor: 'primary.main',
-              p: '0.5%',
-              color: 'white',
-              paddingBlock: 1,
-              paddingInline: 1,
-            }}
-          >
-            {getLabel('Applicant_ID') || 'Applicant Id'} - {applicantId}
-          </Typography>
-          {applicantDetails?.kycStatus === 'v' && (
-            <Typography
-              variant="body1"
-              onClick={() => {
-                if (kycId) {
-                  navigate(`/kyc/${kycId}`)
-                }
-              }}
-              sx={{
-                backgroundColor: 'primary.main',
-                p: '0.5%',
-                color: 'white',
-                paddingBlock: 1,
-                paddingInline: 1,
-                cursor: 'pointer',
-                ml: 2,
-                '&:hover': {
-                  backgroundColor: theme.palette.primary.dark,
-                  textDecoration: 'underline',
-                },
-              }}
-            >
-              {`${getLabel('KYC_ID') || 'KYC ID'} - ${kycId}`}
-            </Typography>
-          )}
+              <Typography
+                variant="body1"
+                ml={2}
+                sx={{
+                  backgroundColor: 'primary.main',
+                  p: '0.5%',
+                  color: 'white',
+                  paddingBlock: 1,
+                  paddingInline: 1,
+                }}
+              >
+                {getLabel('Applicant_ID') || 'Applicant Id'} - {applicantId}
+              </Typography>
+              {applicantDetails?.kycStatus === 'v' && (
+                <Typography
+                  variant="body1"
+                  onClick={() => {
+                    if (kycId) {
+                      navigate(`/kyc/${kycId}`)
+                    }
+                  }}
+                  sx={{
+                    backgroundColor: 'primary.main',
+                    p: '0.5%',
+                    color: 'white',
+                    paddingBlock: 1,
+                    paddingInline: 1,
+                    cursor: 'pointer',
+                    ml: 2,
+                    '&:hover': {
+                      backgroundColor: theme.palette.primary.dark,
+                      textDecoration: 'underline',
+                    },
+                  }}
+                >
+                  {`${getLabel('KYC_ID') || 'KYC ID'} - ${kycId}`}
+                </Typography>
+              )}
+            </Box>
+            <Box mb={4}>
+              <Grid container spacing={2}>
+                <Grid item xs={3}>
+                  <Box
+                    sx={{
+                      background: `linear-gradient(90deg, ${renderTierBgColor(applicantDetails?.userTier)[0]} 0%, ${renderTierBgColor(applicantDetails?.userTier)[1]} 100%)`,
+                      borderRadius: 6,
+                      p: 1,
+                      textAlign: 'center',
+                      color: 'black',
+                    }}
+                  >
+                    <Typography variant="body1" fontWeight={400}>
+                      Loyalty Tier{' '}
+                    </Typography>
+                    <Typography variant="h6" fontWeight={600}>
+                      {applicantDetails?.userTier}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={3}>
+                  <Box
+                    sx={{
+                      background: '#79CBF0',
+                      borderRadius: 6,
+                      p: 1,
+                      textAlign: 'center',
+                      color: 'black',
+                    }}
+                  >
+                    <Typography variant="body1" fontWeight={400}>
+                      Loyalty Rewards
+                    </Typography>
+                    <Typography variant="h6" fontWeight={600}>
+                      {applicantDetails?.rewards?.loyaltyAvailableRewards || 0}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={3}>
+                  <Box
+                    sx={{
+                      background: 'linear-gradient(to bottom, #81C784,rgb(40, 124, 44))',
+                      borderRadius: 6,
+                      p: 1,
+                      textAlign: 'center',
+                      color: 'black',
+                    }}
+                  >
+                    <Typography fontWeight={400} variant="body1">
+                      Referral Rewards
+                    </Typography>
+                    <Typography variant="h6" fontWeight={600}>
+                      {applicantDetails?.rewards?.referralAvailableRewards || 0}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={3}>
+                  <Box
+                    sx={{
+                      background: 'linear-gradient(to bottom,#FFEB99,rgb(172, 169, 65))',
+                      borderRadius: 6,
+                      p: 1,
+                      textAlign: 'center',
+                      color: 'black',
+                    }}
+                  >
+                    <Typography variant="body1" fontWeight={400}>
+                      IMPROPAY Rewards
+                    </Typography>
+                    <Typography variant="h6" fontWeight={600}>
+                      {' '}
+                      {applicantDetails?.rewards?.referralAvailableRewards + applicantDetails?.rewards?.loyaltyAvailableRewards || 0}{' '}
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Box>
 
-          {/* <Button variant="outlined" startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)}>
-            {getLabel('Back') || 'Back'}
-          </Button> */}
-        </Box>
+            {/* Applicant Information Form */}
+            <Box>
+              <Grid container spacing={2} alignItems="flex-start" justifyContent="space-between">
+                <Grid item xs={12} sm={3} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+                  <Box
+                    width={150}
+                    height={150}
+                    border="4px solid green"
+                    borderRadius="50%"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Avatar
+                      src={applicantImage
+                        ?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')
+                        .replace('http://64.227.139.142/', 'https://api.impronics.com/')}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
+                    >
+                      {applicantDetails && applicantDetails?.firstName && renderNameInitials()}
+                    </Avatar>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={9}>
+                  <Grid container spacing={2} marginBottom={1}>
+                    <Grid item xs={12} sm={4}>
+                      <TextField
+                        label={getLabel('First_Name') || 'Applicant First Name'}
+                        variant="filled"
+                        size="small"
+                        value={applicantDetails?.firstName || ''}
+                        fullWidth
+                        InputProps={{ readOnly: true }}
+                      />
+                    </Grid>
+                    {applicantDetails?.middleName && (
+                      <Grid item xs={12} sm={4}>
+                        <TextField
+                          label={getLabel('Middle_Name') || 'Applicant Middle Name'}
+                          variant="filled"
+                          size="small"
+                          value={applicantDetails?.middleName || ''}
+                          fullWidth
+                          InputProps={{ readOnly: true }}
+                        />
+                      </Grid>
+                    )}
+                    <Grid item xs={12} sm={4}>
+                      <TextField
+                        label={getLabel('Last_Name') || 'Applicant Last Name'}
+                        variant="filled"
+                        size="small"
+                        value={applicantDetails?.lastName || ''}
+                        fullWidth
+                        InputProps={{ readOnly: true }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        label={getLabel('Nationality') || 'Nationality'}
+                        variant="filled"
+                        size="small"
+                        value={applicantDetails?.nationality || ''}
+                        fullWidth
+                        InputProps={{ readOnly: true }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        label={getLabel('Country_of_Residence') || 'Residence Country'}
+                        variant="filled"
+                        size="small"
+                        value={applicantDetails?.residentialAddressCountry || ''}
+                        fullWidth
+                        InputProps={{ readOnly: true }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        label={getLabel('Phone') || 'Phone'}
+                        variant="filled"
+                        size="small"
+                        value={applicantDetails?.phone || ''}
+                        fullWidth
+                        InputProps={{ readOnly: true }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        label={getLabel('Email') || 'Email'}
+                        variant="filled"
+                        size="small"
+                        value={applicantDetails?.email || ''}
+                        fullWidth
+                        InputProps={{ readOnly: true }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        label={getLabel('DOB') || 'DOB'}
+                        variant="filled"
+                        size="small"
+                        value={applicantDetails?.dob || ''}
+                        fullWidth
+                        InputProps={{ readOnly: true }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        label={getLabel('Gender') || 'Gender'}
+                        variant="filled"
+                        size="small"
+                        value={applicantDetails?.gender === 'M' ? 'Male' : 'Female'}
+                        fullWidth
+                        InputProps={{ readOnly: true }}
+                      />
+                    </Grid>
+                  </Grid>
+                </Grid>
 
-        <Box mb={6} display="flex" alignItems="center">
-          <Grid container spacing={2}>
-            <Grid item xs={3}>
+                {/* <Grid item xs={12} sm={3} sx={{ alignContent: 'top' }}>
+                  {userCountry !== 'UAE' && <>{MemoizedPieChart}</>}
+                </Grid> */}
+              </Grid>
+            </Box>
+
+            {/* Postal Address Section */}
+
+            {userCountry !== 'UAE' && (
+              <Box>
+                <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}>
+                  <strong>{getLabel('Postal_Address') || 'Postal Address'}</strong>
+                </Typography>
+                <Grid container spacing={2} marginBottom={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      variant="filled"
+                      fullWidth
+                      size="small"
+                      label={getLabel('Address_Line_1') || 'Address Line 1'}
+                      value={applicantDetails?.postalAddressLine1 || ''}
+                      InputProps={{ readOnly: true }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      variant="filled"
+                      size="small"
+                      fullWidth
+                      label={getLabel('Address_Line_2') || 'Address Line 2'}
+                      value={applicantDetails?.postalAddressLine2 || ''}
+                      InputProps={{ readOnly: true }}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Grid container spacing={2} marginBottom={2}>
+                  {parseData?.staffCountry === 'ZA' && (
+                    <Grid item xs={12} sm={2.3}>
+                      <TextField
+                        variant="filled"
+                        size="small"
+                        fullWidth
+                        label={getLabel('Suburb') || 'Suburb'}
+                        value={applicantDetails?.postalAddressSuburb || ''}
+                        InputProps={{ readOnly: true }}
+                      />
+                    </Grid>
+                  )}
+
+                  <Grid item xs={12} sm={2.3}>
+                    <TextField
+                      variant="filled"
+                      fullWidth
+                      size="small"
+                      label={getLabel('City') || 'City'}
+                      value={applicantDetails?.postalAddressCity || ''}
+                      InputProps={{ readOnly: true }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={2.3}>
+                    <TextField
+                      variant="filled"
+                      size="small"
+                      fullWidth
+                      label={getLabel('State') || 'State'}
+                      value={applicantDetails?.postalAddressStateProvince || ''}
+                      InputProps={{ readOnly: true }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={2.3}>
+                    <TextField
+                      variant="filled"
+                      fullWidth
+                      size="small"
+                      label={getLabel('Postal_Code') || 'Postal Code'}
+                      value={applicantDetails?.postalAddressPostalCode || ''}
+                      InputProps={{ readOnly: true }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={2.3}>
+                    <TextField
+                      variant="filled"
+                      fullWidth
+                      label={getLabel('Country') || 'Country'}
+                      size="small"
+                      value={applicantDetails?.postalAddressCountry || ''}
+                      InputProps={{ readOnly: true }}
+                    />
+                  </Grid>
+                </Grid>
+
+                {/* Residential Address Section */}
+                <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}>
+                  <strong>{getLabel('Residential_Address') || 'Residential Address'}</strong>
+                </Typography>
+
+                <Grid container spacing={2} marginBottom={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      variant="filled"
+                      fullWidth
+                      size="small"
+                      label={getLabel('Address_Line_1') || 'Address Line 1'}
+                      value={applicantDetails?.residentialAddressLine1 || ''}
+                      InputProps={{ readOnly: true }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      variant="filled"
+                      fullWidth
+                      size="small"
+                      label={getLabel('Address_Line_2') || 'Address Line 2'}
+                      value={applicantDetails?.residentialAddressLine2 || ''}
+                      InputProps={{ readOnly: true }}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Grid container spacing={2} marginBottom={2}>
+                  {parseData?.staffCountry === 'ZA' && (
+                    <Grid item xs={12} sm={2.3}>
+                      <TextField
+                        variant="filled"
+                        fullWidth
+                        label={getLabel('Suburb') || 'Suburb'}
+                        size="small"
+                        value={applicantDetails?.residentialAddressSuburb || ''}
+                        InputProps={{ readOnly: true }}
+                      />
+                    </Grid>
+                  )}
+
+                  <Grid item xs={12} sm={2.3}>
+                    <TextField
+                      variant="filled"
+                      fullWidth
+                      size="small"
+                      label={getLabel('City') || 'City'}
+                      value={applicantDetails?.residentialAddressCity || ''}
+                      InputProps={{ readOnly: true }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={2.3}>
+                    <TextField
+                      variant="filled"
+                      size="small"
+                      fullWidth
+                      label={getLabel('State') || 'State'}
+                      value={applicantDetails?.residentialAddressStateProvince || ''}
+                      InputProps={{ readOnly: true }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={2.3}>
+                    <TextField
+                      variant="filled"
+                      size="small"
+                      fullWidth
+                      label={getLabel('Postal_Code') || 'Zip Code'}
+                      value={applicantDetails?.residentialAddressPostalCode || ''}
+                      InputProps={{ readOnly: true }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={2.3}>
+                    <TextField
+                      variant="filled"
+                      size="small"
+                      fullWidth
+                      label={getLabel('Country') || 'Country'}
+                      value={applicantDetails?.residentialAddressCountry || ''}
+                      InputProps={{ readOnly: true }}
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+            )}
+          </Box>
+          <Box sx={{ width: '25%', margin: '0px 10px' }}>
+            <Box>
+              <Typography variant="body2" sx={{ textAlign: 'center', marginBottom: '6px', color: '#1468B7', fontWeight: '500' }}>
+                TO UNLOCK THE NEXT TIER
+              </Typography>
               <Box
                 sx={{
                   background: `linear-gradient(90deg, ${renderTierBgColor(applicantDetails?.userTier)[0]} 0%, ${renderTierBgColor(applicantDetails?.userTier)[1]} 100%)`,
-                  borderRadius: 6,
-                  p: 2,
+                  borderRadius: 4,
+                  p: 1,
                   textAlign: 'center',
-                  color: 'black',
+                  color: '#fff',
+                  marginBottom: 2,
                 }}
               >
-                <Typography variant="h6" fontWeight={700}>
-                  Loyalty Tier{' '}
+                <Typography variant="body1" fontWeight={400}>
+                  Next Tier{' '}
                 </Typography>
-                <Typography variant="body2">{applicantDetails?.userTier}</Typography>
+                <Typography variant="h6" fontWeight={600}>
+                  {applicantDetails?.userTier}
+                </Typography>
               </Box>
-            </Grid>
-            <Grid item xs={3}>
+
               <Box
                 sx={{
-                  background: '#79CBF0',
-                  borderRadius: 6,
-                  p: 2,
-                  textAlign: 'center',
-                  color: 'black',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  borderRadius: 2,
+                  p: '16px 12px',
+                  color: '#fff',
+                  background: 'linear-gradient(135deg, #2f7ed8 0%, #3b93e8 40%, #5db6f0 100%)',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: '-20%',
+                    right: '-10%',
+                    width: '70%',
+                    height: '120%',
+                    background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.25), transparent)',
+                    transform: 'rotate(-10deg)',
+                  },
+                  marginBottom: 2,
                 }}
               >
-                <Typography variant="h6" fontWeight={700}>
-                  Loyalty Rewards
-                </Typography>
-                <Typography variant="body2">{applicantDetails?.rewards?.loyaltyAvailableRewards || 0}</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body1" fontWeight={600}>
+                    Transactions{' '}
+                  </Typography>
+
+                  <Typography variant="body1" fontWeight={600}>
+                    3/<sub>3</sub>
+                  </Typography>
+                </Box>
               </Box>
-            </Grid>
-            <Grid item xs={3}>
+
               <Box
                 sx={{
-                  background: 'linear-gradient(to bottom, #81C784,rgb(40, 124, 44))',
-                  borderRadius: 6,
-                  p: 2,
-                  textAlign: 'center',
-                  color: 'black',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  borderRadius: 2,
+                  p: '16px 12px',
+                  color: '#fff',
+                  background: 'linear-gradient(135deg, #2f7ed8 0%, #3b93e8 40%, #5db6f0 100%)',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: '-20%',
+                    right: '-10%',
+                    width: '70%',
+                    height: '120%',
+                    background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.25), transparent)',
+                    transform: 'rotate(-10deg)',
+                  },
                 }}
               >
-                <Typography variant="h6" fontWeight={700}>
-                  Referral Rewards
-                </Typography>
-                <Typography variant="body2">{applicantDetails?.rewards?.referralAvailableRewards || 0}</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body1" fontWeight={600}>
+                    Amount{' '}
+                  </Typography>
+                  <Typography variant="body1" fontWeight={600}>
+                    349.13/<sub>6000</sub>
+                  </Typography>
+                </Box>
               </Box>
-            </Grid>
-            <Grid item xs={3}>
+            </Box>
+
+            <Box sx={{ padding: '10px 16px', borderRadius: '16px', marginTop: '40px', background: '#1468B7' }}>
+              <Typography variant="body2" sx={{ color: '#fff' }}>
+                TO RETAIN YOUR TIER
+              </Typography>
+
+              <Typography variant="h6" fontWeight={600} sx={{ color: '#fff' }}>
+                Silver
+              </Typography>
+
               <Box
                 sx={{
-                  background: 'linear-gradient(to bottom,#FFEB99,rgb(172, 169, 65))',
-                  borderRadius: 6,
-                  p: 2,
-                  textAlign: 'center',
-                  color: 'black',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  borderRadius: 2,
+                  p: '6px 10px',
+                  color: '#fff',
+                  background: 'linear-gradient(135deg, #2f7ed8 0%, #3b93e8 40%, #5db6f0 100%)',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: '-20%',
+                    right: '-10%',
+                    width: '70%',
+                    height: '120%',
+                    background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.25), transparent)',
+                    transform: 'rotate(-10deg)',
+                  },
+                  marginBottom: '20px',
                 }}
               >
-                <Typography variant="h6" fontWeight={700}>
-                  ImproPay Rewards
+                <Typography variant="body1" fontWeight={400}>
+                  Transactions{' '}
                 </Typography>
-                <Typography variant="body2">
-                  {' '}
-                  {applicantDetails?.rewards?.referralAvailableRewards + applicantDetails?.rewards?.loyaltyAvailableRewards || 0}{' '}
+
+                <Typography variant="body1" fontWeight={600}>
+                  3/5
                 </Typography>
               </Box>
-            </Grid>
-          </Grid>
-        </Box>
 
-        {/* Applicant Information Form */}
-        <Box>
-          <Grid container spacing={2} mb={2} alignItems="flex-start" justifyContent="space-between">
-            <Grid item xs={12} sm={2} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
-              <Box width={150} height={150} border="4px solid green" borderRadius="50%" display="flex" alignItems="center" justifyContent="center">
-                <Avatar
-                  src={applicantImage
-                    ?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')
-                    .replace('http://64.227.139.142/', 'https://api.impronics.com/')}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                  }}
-                >
-                  {applicantDetails && applicantDetails?.firstName && renderNameInitials()}
-                </Avatar>
+              <Box
+                sx={{
+                  position: 'relative',
+                  overflow: 'hidden',
+                  borderRadius: 2,
+                  p: '6px 10px',
+                  color: '#fff',
+                  background: 'linear-gradient(135deg, #2f7ed8 0%, #3b93e8 40%, #5db6f0 100%)',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: '-20%',
+                    right: '-10%',
+                    width: '70%',
+                    height: '120%',
+                    background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.25), transparent)',
+                    transform: 'rotate(-10deg)',
+                  },
+                }}
+              >
+                <Typography variant="body1" fontWeight={400}>
+                  Amount{' '}
+                </Typography>
+                <Typography variant="body1" fontWeight={600}>
+                  349.13/6000
+                </Typography>
               </Box>
-            </Grid>
-            <Grid item xs={12} sm={7}>
-              <Grid container spacing={2} marginBottom={1}>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    label={getLabel('First_Name') || 'Applicant First Name'}
-                    variant="filled"
-                    value={applicantDetails?.firstName || ''}
-                    fullWidth
-                    InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                  />
-                </Grid>
-                {applicantDetails?.middleName && (
-                  <Grid item xs={12} sm={4}>
-                    <TextField
-                      label={getLabel('Middle_Name') || 'Applicant Middle Name'}
-                      variant="filled"
-                      value={applicantDetails?.middleName || ''}
-                      fullWidth
-                      InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                    />
-                  </Grid>
-                )}
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    label={getLabel('Last_Name') || 'Applicant Last Name'}
-                    variant="filled"
-                    value={applicantDetails?.lastName || ''}
-                    fullWidth
-                    InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    label={getLabel('Nationality') || 'Nationality'}
-                    variant="filled"
-                    value={applicantDetails?.nationality || ''}
-                    fullWidth
-                    InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    label={getLabel('Country_of_Residence') || 'Residence Country'}
-                    variant="filled"
-                    value={applicantDetails?.residentialAddressCountry || ''}
-                    fullWidth
-                    InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    label={getLabel('Phone') || 'Phone'}
-                    variant="filled"
-                    value={applicantDetails?.phone || ''}
-                    fullWidth
-                    InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    label={getLabel('Email') || 'Email'}
-                    variant="filled"
-                    value={applicantDetails?.email || ''}
-                    fullWidth
-                    InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                  />
-                </Grid>
-              </Grid>
-            </Grid>
-
-            <Grid item xs={12} sm={3} sx={{ alignContent: 'top' }}>
-              {userCountry !== 'UAE' && <>{MemoizedPieChart}</>}
-            </Grid>
-          </Grid>
-        </Box>
-
-        {/* Postal Address Section */}
-
-        {userCountry !== 'UAE' && (
-          <Box>
-            <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}>
-              <strong>{getLabel('Postal_Address') || 'Postal Address'}</strong>
-            </Typography>
-            <Grid container spacing={2} marginBottom={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label={getLabel('Address_Line_1') || 'Address Line 1'}
-                  value={applicantDetails?.postalAddressLine1 || ''}
-                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label={getLabel('Address_Line_2') || 'Address Line 2'}
-                  value={applicantDetails?.postalAddressLine2 || ''}
-                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                />
-              </Grid>
-            </Grid>
-
-            <Grid container spacing={2} marginBottom={2}>
-              {parseData?.staffCountry === 'ZA' && (
-                <Grid item xs={12} sm={2.3}>
-                  <TextField
-                    variant="filled"
-                    fullWidth
-                    label={getLabel('Suburb') || 'Suburb'}
-                    value={applicantDetails?.postalAddressSuburb || ''}
-                    InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                  />
-                </Grid>
-              )}
-
-              <Grid item xs={12} sm={2.3}>
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label={getLabel('City') || 'City'}
-                  value={applicantDetails?.postalAddressCity || ''}
-                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={2.3}>
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label={getLabel('State') || 'State'}
-                  value={applicantDetails?.postalAddressStateProvince || ''}
-                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={2.3}>
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label={getLabel('Postal_Code') || 'Postal Code'}
-                  value={applicantDetails?.postalAddressPostalCode || ''}
-                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={2.3}>
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label={getLabel('Country') || 'Country'}
-                  value={applicantDetails?.postalAddressCountry || ''}
-                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                />
-              </Grid>
-            </Grid>
-
-            {/* Residential Address Section */}
-            <Typography variant="subtitle1" sx={{ color: 'grey', marginBottom: 1 }}>
-              <strong>{getLabel('Residential_Address') || 'Residential Address'}</strong>
-            </Typography>
-
-            <Grid container spacing={2} marginBottom={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label={getLabel('Address_Line_1') || 'Address Line 1'}
-                  value={applicantDetails?.residentialAddressLine1 || ''}
-                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label={getLabel('Address_Line_2') || 'Address Line 2'}
-                  value={applicantDetails?.residentialAddressLine2 || ''}
-                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                />
-              </Grid>
-            </Grid>
-
-            <Grid container spacing={2} marginBottom={2}>
-              {parseData?.staffCountry === 'ZA' && (
-                <Grid item xs={12} sm={2.3}>
-                  <TextField
-                    variant="filled"
-                    fullWidth
-                    label={getLabel('Suburb') || 'Suburb'}
-                    value={applicantDetails?.residentialAddressSuburb || ''}
-                    InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                  />
-                </Grid>
-              )}
-
-              <Grid item xs={12} sm={2.3}>
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label={getLabel('City') || 'City'}
-                  value={applicantDetails?.residentialAddressCity || ''}
-                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={2.3}>
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label={getLabel('State') || 'State'}
-                  value={applicantDetails?.residentialAddressStateProvince || ''}
-                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={2.3}>
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label={getLabel('Postal_Code') || 'Zip Code'}
-                  value={applicantDetails?.residentialAddressPostalCode || ''}
-                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={2.3}>
-                <TextField
-                  variant="filled"
-                  fullWidth
-                  label={getLabel('Country') || 'Country'}
-                  value={applicantDetails?.residentialAddressCountry || ''}
-                  InputProps={{ readOnly: true, sx: { color: 'grey' } }}
-                />
-              </Grid>
-            </Grid>
+              <Box sx={{ mt: '10px' }}>
+                <Typography sx={{ textAlign: 'center', color: '#fff' }} variant="body1">
+                  In 1 days
+                </Typography>
+              </Box>
+            </Box>
           </Box>
-        )}
-        <Box marginBottom={8}>
+        </Box>
+
+        <Box>
           {/* Tab Component */}
 
           <Tabs value={selectedTab} onChange={handleTabChange}>

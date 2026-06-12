@@ -294,7 +294,7 @@ const BopTable: React.FC = () => {
   )
 
   return (
-    <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.PAYMENT_INFORMATION}>
       <Box sx={{ width: '80vw', height: '70vh' }}>
         <Typography variant="h4" gutterBottom>
           {userCountry === 'UAE' ? <strong>Payment Information</strong> : <strong>BOP LISTING</strong>}

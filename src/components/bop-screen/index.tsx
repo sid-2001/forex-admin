@@ -70,7 +70,7 @@ const BopScreen: React.FC = () => {
   const disableFormFieldsViaStatus =
     stpErrors?.length === 0 &&
     formData.transaction_status === 'RELEASED' &&
-    helper.checkUserHasPermission(local_service.get_modules()?.BOP, 'canUpdate')
+    helper.checkUserHasPermission(local_service.get_modules()?.PAYMENT_INFORMATION, 'canUpdate')
   //@ts-ignore
   const userLoggedInCountry = parseData?.staffCountry
   const userCountry = local_service?.get_staff_country()
@@ -322,7 +322,7 @@ const BopScreen: React.FC = () => {
   const renderStatus = (status: string) => (status === 'IN_PROGRESS' ? 'IN PROGRESS' : status)
 
   return (
-    <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.PAYMENT_INFORMATION}>
       <Box style={{ width: '80vw', height: '80vh', overflowY: 'scroll', padding: '10px 20px' }}>
         {!hideForUAE && (
           <Box sx={{ textAlign: 'right', marginBottom: '10px' }}>
@@ -339,7 +339,7 @@ const BopScreen: React.FC = () => {
                 !(
                   stpErrors?.length === 0 &&
                   formData.transaction_status === 'RELEASED' &&
-                  helper.checkUserHasPermission(local_service.get_modules()?.BOP, 'canUpdate') &&
+                  helper.checkUserHasPermission(local_service.get_modules()?.PAYMENT_INFORMATION, 'canUpdate') &&
                   formData.status === 'Pending'
                 )
               }
