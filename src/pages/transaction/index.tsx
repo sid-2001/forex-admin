@@ -1025,7 +1025,7 @@ const TransactionListing = () => {
                 getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
                 pageSizeOptions={[10, 20, 50]}
                 // paginationMode="server"
-                // filterMode="server"
+                // filterMode="server"  
                 // paginationModel={paginationInwardModel}
                 // onPaginationModelChange={handleInwardPaginationChange}
                 // filterModel={filterModel}

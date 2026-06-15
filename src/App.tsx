@@ -38,6 +38,7 @@ import StaticData from './pages/static-data/staticdata.page'
 import Dashboard from './pages/dashboard/dashboard.page'
 import CdiScreen from './pages/cdi'
 import { inactivityTiming, themeModeState } from '@/states/state'
+import TransactionDashboard from './pages/transaction-dashboard'
 import { useRecoilState } from 'recoil'
 import { CssBaseline } from '@mui/material'
 import SarbErrorsListing from './pages/sarb-errors'
@@ -238,6 +239,9 @@ function App() {
               <Route index element={<Dashboard />}></Route>
               <Route path="dash" element={<EnhancedDashboard />} />
               <Route path="transaction" element={<TransactionListing />} />
+
+
+              <Route path="transaction-dashboard" element={<TransactionDashboard />} />
               <Route path="sendmoney" element={<SendMoneyPage />} />
               <Route path="kyc" element={<KYCPage />} />
               <Route path="kyc/:id" element={<KYCPage />} />

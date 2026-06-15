@@ -42,6 +42,7 @@ const Dashboard = () => {
   const local_service = new LocalStorageService()
   const helper = new HelperService()
   const userCountry = local_service?.get_staff_country()
+  console.log('USER COUNTRY =>', userCountry)
   const trx_service = new TransactionService()
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<{ [key: string]: boolean }>({})
@@ -74,6 +75,9 @@ const Dashboard = () => {
 
   const getOutwardTransactionsList = useCallback(async () => {
     const data = await transaction_service.getOutwardAllTransaction(userCountry, 0, 20)
+    console.log('RECENT TRANSACTION DATA - dashboard page ')
+console.log(data)
+console.log(data?.[0])
     setrecentTransaction(data || [])
     setIsLoading(false)
   }, [])
@@ -87,17 +91,21 @@ const Dashboard = () => {
     }
   }
 
-  useEffect(() => {
-    getGatewayList()
-    fetchProductConfig('IN')
-    fetchConsumersData()
-    setIsLoading(true)
-    getOutwardTransactionsList()
-    setSelectedApp('Dashboard')
-    transaction_service.getTransactionSummary(userCountry).then((data) => {
-      setapplicantData(data?.data)
-    })
-  }, [])
+ useEffect(() => {
+  getGatewayList()
+  fetchProductConfig('IN')
+  fetchConsumersData()
+  setIsLoading(true)
+  getOutwardTransactionsList()
+  setSelectedApp('Dashboard')
+
+  transaction_service.getTransactionSummary(userCountry).then((data) => {
+    console.log('SUMMARY API RESPONSE')
+    console.log(data)
+
+    setapplicantData(data?.data)
+  })
+}, [])
 
   const bankAccounts = [
     {
