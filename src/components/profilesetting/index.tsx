@@ -4,19 +4,32 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
+import ConfirmationModal from '../logout/logout.component'
 
 dayjs.extend(utc)
 
 // Array of random avatar background colors
 const avatarColors = [
-  '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
-  '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2',
-  '#F1948A', '#82E0AA', '#F5B041', '#5DADE2', '#E8DAEF'
+  '#FF6B6B',
+  '#4ECDC4',
+  '#45B7D1',
+  '#96CEB4',
+  '#FFEAA7',
+  '#DDA0DD',
+  '#98D8C8',
+  '#F7DC6F',
+  '#BB8FCE',
+  '#85C1E2',
+  '#F1948A',
+  '#82E0AA',
+  '#F5B041',
+  '#5DADE2',
+  '#E8DAEF',
 ]
 
 const avatarStyles = [
   // 'lorelei',     // animals / creatures 🐻🦊
-  'micah',       // clean professional 👔
+  'micah', // clean professional 👔
   // 'avataaars',   // human formal 👩‍💼
   // 'bottts',      // robot creatures 🤖
 ]
@@ -34,13 +47,13 @@ const getAvatarUrl = (seed: string) => {
 // Function to generate consistent color based on staff ID or name
 const getAvatarColor = (staffId: string) => {
   if (!staffId) return avatarColors[0]
-  
+
   // Simple hash function to get consistent color for same staff
   let hash = 0
   for (let i = 0; i < staffId.length; i++) {
     hash = staffId.charCodeAt(i) + ((hash << 5) - hash)
   }
-  
+
   const index = Math.abs(hash) % avatarColors.length
   return avatarColors[index]
 }
@@ -102,6 +115,7 @@ const ProfileMenu = () => {
   const local_service = new LocalStorageService()
   const staff = local_service?.get_staff_access()
   const navigate = useNavigate()
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   // Generate avatar seed when staff data is available
   useEffect(() => {
@@ -128,7 +142,7 @@ const ProfileMenu = () => {
             (error) => {
               console.error('Error getting location:', error)
               setLocationLoading(false)
-            }
+            },
           )
         } else {
           console.log('Geolocation is not supported by this browser.')
@@ -206,7 +220,7 @@ const ProfileMenu = () => {
           >
             {staff.staffCountries.map((code: string) => (
               <MenuItem key={code} value={code}>
-                <Box id={"imp-" + code} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box id={'imp-' + code} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <span>{getFlag(code)}</span>
                   <span>{countryNames[code] || code}</span>
                 </Box>
@@ -254,6 +268,15 @@ const ProfileMenu = () => {
 
   // Get avatar color based on staff ID
   const avatarColor = staff?.staffId ? getAvatarColor(staff.staffId) : avatarColors[0]
+  const handleModalClose = () => {
+    setIsModalOpen(!isModalOpen)
+  }
+
+  const handleLogout = () => {
+    local_service.delete_eaccestoke()
+    window.location.reload()
+    setAnchorEl(null)
+  }
 
   return (
     <>
@@ -271,31 +294,23 @@ const ProfileMenu = () => {
           '&:hover': { backgroundColor: 'rgba(255,255,255,0.08)' },
         }}
       >
-    
-
-
-
         <Avatar
-  src={getAvatarUrl(
-    `${staff?.staffId}-${staff?.staffFirstName}-${staff?.staffLastName}`
-  )}
-  sx={{
-    width: 42,
-    height: 42,
-    bgcolor: avatarColor,
-  }}
->
-  {staff.staffFirstName?.[0]}
-  {staff.staffLastName?.[0]}
-</Avatar>
+          src={getAvatarUrl(`${staff?.staffId}-${staff?.staffFirstName}-${staff?.staffLastName}`)}
+          sx={{
+            width: 42,
+            height: 42,
+            bgcolor: avatarColor,
+          }}
+        >
+          {staff.staffFirstName?.[0]}
+          {staff.staffLastName?.[0]}
+        </Avatar>
 
         <Box sx={{ display: { xs: 'none', sm: 'flex' }, flexDirection: 'column' }}>
           <Typography sx={{ color: 'white', fontWeight: 600, fontSize: '14px' }}>
             {staff?.staffFirstName} {staff?.staffLastName}
           </Typography>
-          <Typography sx={{ color: 'white', opacity: 0.7, fontSize: '12px' }}>
-            {staff?.userCategory || staff?.roleDescription || 'User'}
-          </Typography>
+          <Typography sx={{ color: 'white', opacity: 0.7, fontSize: '12px' }}>{staff?.userCategory || staff?.roleDescription || 'User'}</Typography>
         </Box>
       </Box>
 
@@ -315,30 +330,27 @@ const ProfileMenu = () => {
         }}
       >
         <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', gap: 2 }}>
-         <>
+          <>
+            <Avatar
+              //@ts-ignore
 
-           <Avatar
-           //@ts-ignore
-   
-  src={getAvatarUrl(
-    `${staff.staffId}-${staff.staffFirstName}-${staff.staffLastName}`
-  )}
-  sx={{
-    width: 42,
-    height: 42,
-    bgcolor: avatarColor,
-  }}
->
-            {/* Fallback to initials if avatar fails to load */}
-            {avatarError && (
-              <>
-                {staff?.staffFirstName?.[0]?.toUpperCase()}
-                {staff?.staffLastName?.[0]?.toUpperCase()}
-              </>
-            )}
-          </Avatar>
-         </>
-       
+              src={getAvatarUrl(`${staff.staffId}-${staff.staffFirstName}-${staff.staffLastName}`)}
+              sx={{
+                width: 42,
+                height: 42,
+                bgcolor: avatarColor,
+              }}
+            >
+              {/* Fallback to initials if avatar fails to load */}
+              {avatarError && (
+                <>
+                  {staff?.staffFirstName?.[0]?.toUpperCase()}
+                  {staff?.staffLastName?.[0]?.toUpperCase()}
+                </>
+              )}
+            </Avatar>
+          </>
+
           <Box>
             <Typography fontWeight={600}>
               {staff?.staffFirstName} {staff?.staffLastName}
@@ -398,15 +410,31 @@ const ProfileMenu = () => {
 
         <MenuItem
           onClick={() => {
-            local_service.delete_eaccestoke()
-            window.location.reload()
-            handleClose()
+            setIsModalOpen(true)
+            // local_service.delete_eaccestoke()
+            // window.location.reload()
+            // handleClose()
           }}
           sx={{ color: '#ff6b6b' }}
         >
           Logout
         </MenuItem>
       </Menu>
+
+      {isModalOpen && (
+        <ConfirmationModal
+          isOpen={isModalOpen}
+          message="Do you really want to logout?"
+          handleConfirm={() => {
+            handleLogout()
+          }}
+          handleClose={() => {
+            handleModalClose()
+          }}
+          confirmBtnText="Logout"
+          showIcon={true}
+        />
+      )}
     </>
   )
 }

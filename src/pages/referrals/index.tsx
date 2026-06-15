@@ -195,7 +195,7 @@ const ReferralTable: React.FC = () => {
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
-    link.setAttribute('download', 'Referral_List.csv')
+    link.setAttribute('download', 'Referral_Reward_List.csv')
     link.click()
   }
 
@@ -212,7 +212,7 @@ const ReferralTable: React.FC = () => {
 
     const doc = new jsPDF({ unit: 'pt' })
     doc.setFontSize(14)
-    doc.text('Referral Listing Report', 40, 40)
+    doc.text('Referral Reward Listing Report', 40, 40)
     autoTable(doc, {
       head: [headers],
       body: data,
@@ -273,7 +273,7 @@ const ReferralTable: React.FC = () => {
   }
 
   return (
-    <HasPermission permission={'canRead'} module={local_service.get_modules()?.REFERRAL}>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.REWARDS}>
       <Box sx={{ width: '80vw', height: '70vh' }}>
         <Typography variant="h4" gutterBottom>
           <strong>Reward Redemption</strong>
@@ -312,7 +312,7 @@ const ReferralTable: React.FC = () => {
 
         {actionModal && (
           <Dialog open={actionModal} onClose={() => handleCloseActionDialog()} maxWidth="sm" fullWidth>
-            <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>Approve/Reject Referral </DialogTitle>
+            <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>Approve/Reject Referral Reward</DialogTitle>
             <DialogContent dividers>
               <Grid container spacing={2} sx={{ mt: 0.5 }}>
                 <Grid item xs={12}>

@@ -90,8 +90,7 @@ const BeneficiaryTable = ({ beneficiary }: { beneficiary: any }) => {
         {beneficiary.length > 0 ? (
           <DataGrid
             sx={{
-              width: '70vw',
-              height: '30vh',
+              height: '70vh',
               '& .MuiDataGrid-columnHeaders': {
                 '& .super-app-theme--header': {
                   backgroundColor: '#005099',

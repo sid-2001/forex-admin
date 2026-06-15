@@ -174,7 +174,7 @@ const UserTable: React.FC = () => {
 
     const doc = new jsPDF({ unit: 'pt' })
     doc.setFontSize(14)
-    doc.text('User Listing Report', 40, 40)
+    doc.text('Staff Listing Report', 40, 40)
     autoTable(doc, {
       //@ts-ignore
       head: [headers],
@@ -183,7 +183,7 @@ const UserTable: React.FC = () => {
       styles: { fontSize: 9, cellPadding: 6 },
       headStyles: { fillColor: [0, 80, 153], textColor: 255 },
     })
-    doc.save('User_List.pdf')
+    doc.save('Staff_List.pdf')
   }
 
   // 🧰 Custom Toolbar
@@ -209,7 +209,7 @@ const UserTable: React.FC = () => {
         <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'}>
           <Box>
             <Typography variant="h4" gutterBottom>
-              <strong>All Users</strong>
+              <strong>All Staff</strong>
             </Typography>
           </Box>
           <Box>
@@ -221,7 +221,7 @@ const UserTable: React.FC = () => {
                 navigate('/profile/add')
               }}
             >
-              Add User
+              Add Staff
             </Button>
           </Box>
         </Box>

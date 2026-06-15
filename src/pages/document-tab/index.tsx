@@ -25,12 +25,10 @@ const DocumentsListComponent = ({ documentRecords }: { documentRecords: any }) =
 
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
-        <IconButton onClick={() => handleViewDocument(params.row.docUrl?.replace(
-  "http://164.90.252.179/",
-  "https://api.impronics.com/uat/"
-))} color="primary">
-
-
+        <IconButton
+          onClick={() => handleViewDocument(params.row.docUrl?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/'))}
+          color="primary"
+        >
           <VisibilityIcon />
         </IconButton>
       ),
@@ -41,8 +39,9 @@ const DocumentsListComponent = ({ documentRecords }: { documentRecords: any }) =
 
   const handleViewDocument = (url: string) => {
     console.log(url)
-    setSelectedDocUrl(url ?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/')
-  .replace('http://64.227.139.142/', 'https://api.impronics.com/'))
+    setSelectedDocUrl(
+      url?.replace('http://164.90.252.179/', 'https://api.impronics.com/uat/').replace('http://64.227.139.142/', 'https://api.impronics.com/'),
+    )
     setOpenDialog(true)
   }
 
@@ -52,7 +51,7 @@ const DocumentsListComponent = ({ documentRecords }: { documentRecords: any }) =
   }
 
   return (
-    <Box sx={{ width: '70vw', height: '30vh' }}>
+    <Box sx={{ height: '70vh' }}>
       <DataGrid
         rows={documentRecords}
         columns={docColumns}
@@ -63,7 +62,6 @@ const DocumentsListComponent = ({ documentRecords }: { documentRecords: any }) =
               backgroundColor: '#005099',
               color: 'white',
               fontWeight: 'bold',
-              
             },
           },
         }}
