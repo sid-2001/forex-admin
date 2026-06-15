@@ -15,6 +15,29 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { FieldValidationService } from '@/services/fieldvalidstion.service'
 import { CountryLabelData, CountryReportingLabelDTO } from '@/types/field.validation.type'
 
+const allLevels = [
+  {
+    levelName: 'Standard',
+    bgcolor: '',
+    rewardValue: 0,
+  },
+  {
+    levelName: 'Bronze',
+    bgcolor: '',
+    rewardValue: 1,
+  },
+  {
+    levelName: 'Silver',
+    bgcolor: '',
+    rewardValue: 2,
+  },
+  {
+    levelName: 'Gold',
+    bgcolor: '',
+    rewardValue: 3,
+  },
+]
+
 const ApplicantPage = () => {
   const navigate = useNavigate()
   const theme = useTheme()
@@ -42,6 +65,7 @@ const ApplicantPage = () => {
   const [fieldValidations, setFieldValidations] = useState<CountryLabelData>()
   const [fieldLabels, setFieldLabels] = useState<Record<string, string>>({})
   const [fieldMessages, setFieldMessages] = useState<Record<string, string>>({})
+  // const [allLevels, setLevels] = useState<Record<string, string>>({})
 
   const parseData = local_service.get_staff_access()
 
@@ -161,7 +185,8 @@ const ApplicantPage = () => {
     try {
       const response = await applicant_service.searchByApplicantId(applicantId)
       console.log(response, 'response')
-      const { applicant, applicantContactDetails, beneficiaryList, kycId, kycStatus, rewards }: any = response
+      const { applicant, applicantContactDetails, beneficiaryList, kycId, kycStatus, rewards, loyaltyResponse }: any = response
+      console.log(loyaltyResponse?.nextLevel, 'response level')
 
       setApplicantDetails({
         ...applicant,
@@ -170,6 +195,7 @@ const ApplicantPage = () => {
         beneficiaryList,
         kycStatus,
         rewards,
+        loyaltyResponse,
       })
 
       if (kycId) {
@@ -294,11 +320,11 @@ const ApplicantPage = () => {
         <Box sx={{ display: 'flex' }}>
           <Box sx={{ width: '75%' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
+              <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
                 {getLabel('Applicant') || 'Applicant Details'}
               </Typography>
 
-              <Typography
+              {/* <Typography
                 variant="body1"
                 ml={2}
                 sx={{
@@ -335,84 +361,7 @@ const ApplicantPage = () => {
                 >
                   {`${getLabel('KYC_ID') || 'KYC ID'} - ${kycId}`}
                 </Typography>
-              )}
-            </Box>
-            <Box mb={4}>
-              <Grid container spacing={2}>
-                <Grid item xs={3}>
-                  <Box
-                    sx={{
-                      background: `linear-gradient(90deg, ${renderTierBgColor(applicantDetails?.userTier)[0]} 0%, ${renderTierBgColor(applicantDetails?.userTier)[1]} 100%)`,
-                      borderRadius: 6,
-                      p: 1,
-                      textAlign: 'center',
-                      color: 'black',
-                    }}
-                  >
-                    <Typography variant="body1" fontWeight={400}>
-                      Loyalty Tier{' '}
-                    </Typography>
-                    <Typography variant="h6" fontWeight={600}>
-                      {applicantDetails?.userTier}
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid item xs={3}>
-                  <Box
-                    sx={{
-                      background: '#79CBF0',
-                      borderRadius: 6,
-                      p: 1,
-                      textAlign: 'center',
-                      color: 'black',
-                    }}
-                  >
-                    <Typography variant="body1" fontWeight={400}>
-                      Loyalty Rewards
-                    </Typography>
-                    <Typography variant="h6" fontWeight={600}>
-                      {applicantDetails?.rewards?.loyaltyAvailableRewards || 0}
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid item xs={3}>
-                  <Box
-                    sx={{
-                      background: 'linear-gradient(to bottom, #81C784,rgb(40, 124, 44))',
-                      borderRadius: 6,
-                      p: 1,
-                      textAlign: 'center',
-                      color: 'black',
-                    }}
-                  >
-                    <Typography fontWeight={400} variant="body1">
-                      Referral Rewards
-                    </Typography>
-                    <Typography variant="h6" fontWeight={600}>
-                      {applicantDetails?.rewards?.referralAvailableRewards || 0}
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid item xs={3}>
-                  <Box
-                    sx={{
-                      background: 'linear-gradient(to bottom,#FFEB99,rgb(172, 169, 65))',
-                      borderRadius: 6,
-                      p: 1,
-                      textAlign: 'center',
-                      color: 'black',
-                    }}
-                  >
-                    <Typography variant="body1" fontWeight={400}>
-                      IMPROPAY Rewards
-                    </Typography>
-                    <Typography variant="h6" fontWeight={600}>
-                      {' '}
-                      {applicantDetails?.rewards?.referralAvailableRewards + applicantDetails?.rewards?.loyaltyAvailableRewards || 0}{' '}
-                    </Typography>
-                  </Box>
-                </Grid>
-              </Grid>
+              )} */}
             </Box>
 
             {/* Applicant Information Form */}
@@ -444,6 +393,28 @@ const ApplicantPage = () => {
                 </Grid>
                 <Grid item xs={12} sm={9}>
                   <Grid container spacing={2} marginBottom={1}>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        label={getLabel('Applicant_ID') || 'Applicant Id'}
+                        variant="filled"
+                        size="small"
+                        value={applicantId || ''}
+                        fullWidth
+                        InputProps={{ readOnly: true }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      {userCountry !== 'UAE' && applicantDetails?.kycStatus === 'v' && (
+                        <TextField
+                          label={getLabel('KYC_ID') || 'KYC ID'}
+                          variant="filled"
+                          size="small"
+                          value={kycId || ''}
+                          fullWidth
+                          InputProps={{ readOnly: true }}
+                        />
+                      )}
+                    </Grid>
                     <Grid item xs={12} sm={4}>
                       <TextField
                         label={getLabel('First_Name') || 'Applicant First Name'}
@@ -718,194 +689,331 @@ const ApplicantPage = () => {
                 </Grid>
               </Box>
             )}
+
+            <Box mt={6}>
+              {/* Tab Component */}
+
+              <Tabs value={selectedTab} onChange={handleTabChange}>
+                {tabs
+                  .filter((t) => !t.hidden)
+                  .map((tab) => (
+                    //@ts-ignore
+                    <Tab key={tab.value} {...tab} x={{ marginRight: '2px' }} />
+                  ))}
+              </Tabs>
+
+              {/* Content Sections */}
+              {userCountry !== 'UAE' && selectedTab === 0 && <DocumentsListComponent documentRecords={applicantDocuments || []} />}
+              {selectedTab === 1 && <BeneficiaryTable beneficiary={applicantDetails?.beneficiaryList || []} />}
+              {selectedTab === 2 && (
+                <TransactionTable
+                  //@ts-ignore
+                  applicantId={applicantId || ''}
+                  //@ts-ignore
+                  transaction={transactions}
+                />
+              )}
+              {selectedTab === 3 && <ReferralTransactions referralRecords={referralRedeemTransaction || []} referralType={'Redeemed'} />}
+              {selectedTab === 4 && <ReferralTransactions referralRecords={referralCreditedTransaction || []} referralType={'Credited'} />}
+              {selectedTab === 5 && <ReferralTransactions referralRecords={redeemReferralTrans || []} referralType={'RedeemReferral'} />}
+            </Box>
           </Box>
-          <Box sx={{ width: '25%', margin: '0px 10px' }}>
+          <Box sx={{ width: '25%', margin: '0px 40px' }}>
             <Box>
-              <Typography variant="body2" sx={{ textAlign: 'center', marginBottom: '6px', color: '#1468B7', fontWeight: '500' }}>
-                TO UNLOCK THE NEXT TIER
-              </Typography>
-              <Box
-                sx={{
-                  background: `linear-gradient(90deg, ${renderTierBgColor(applicantDetails?.userTier)[0]} 0%, ${renderTierBgColor(applicantDetails?.userTier)[1]} 100%)`,
-                  borderRadius: 4,
-                  p: 1,
-                  textAlign: 'center',
-                  color: '#fff',
-                  marginBottom: 2,
-                }}
-              >
-                <Typography variant="body1" fontWeight={400}>
-                  Next Tier{' '}
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Box
+                    sx={{
+                      background: `linear-gradient(90deg, ${renderTierBgColor(applicantDetails?.userTier)[0]} 0%, ${renderTierBgColor(applicantDetails?.userTier)[1]} 100%)`,
+                      borderRadius: 6,
+                      p: 1,
+                      textAlign: 'center',
+                      color: '#fff',
+                    }}
+                  >
+                    <Typography variant="body1" fontWeight={400}>
+                      Loyalty Tier{' '}
+                    </Typography>
+                    <Typography variant="h6" fontWeight={600}>
+                      {applicantDetails?.userTier}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12}>
+                  <Box
+                    sx={{
+                      background: 'linear-gradient(to bottom,#FFEB99,rgb(172, 169, 65))',
+                      borderRadius: 6,
+                      p: 1,
+                      textAlign: 'center',
+                      color: '#fff',
+                    }}
+                  >
+                    <Typography variant="body1" fontWeight={400}>
+                      IMPROPAY Rewards
+                    </Typography>
+                    <Typography variant="h6" fontWeight={600}>
+                      {' '}
+                      {applicantDetails?.rewards?.referralAvailableRewards + applicantDetails?.rewards?.loyaltyAvailableRewards || 0}{' '}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box
+                    sx={{
+                      background: '#79CBF0',
+                      borderRadius: 6,
+                      p: 1,
+                      textAlign: 'center',
+                      color: '#fff',
+                    }}
+                  >
+                    <Typography variant="body1" fontWeight={400}>
+                      Loyalty Rewards
+                    </Typography>
+                    <Typography variant="h6" fontWeight={600}>
+                      {applicantDetails?.rewards?.loyaltyAvailableRewards || 0}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box
+                    sx={{
+                      background: 'linear-gradient(to bottom, #81C784,rgb(40, 124, 44))',
+                      borderRadius: 6,
+                      p: 1,
+                      textAlign: 'center',
+                      color: '#fff',
+                    }}
+                  >
+                    <Typography fontWeight={400} variant="body1">
+                      Referral Rewards
+                    </Typography>
+                    <Typography variant="h6" fontWeight={600}>
+                      {applicantDetails?.rewards?.referralAvailableRewards || 0}
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Box>
+
+            {applicantDetails && applicantDetails?.loyaltyResponse?.nextLevel ? (
+              <Box sx={{ marginTop: '30px' }}>
+                <Typography variant="body2" sx={{ textAlign: 'center', marginBottom: '6px', color: '#1468B7', fontWeight: '500' }}>
+                  TO UNLOCK THE NEXT TIER
                 </Typography>
-                <Typography variant="h6" fontWeight={600}>
-                  {applicantDetails?.userTier}
+                <Box
+                  sx={{
+                    background: `linear-gradient(90deg, ${renderTierBgColor(applicantDetails?.userTier)[0]} 0%, ${renderTierBgColor(applicantDetails?.userTier)[1]} 100%)`,
+                    borderRadius: 4,
+                    p: 1,
+                    textAlign: 'center',
+                    color: '#fff',
+                    marginBottom: 2,
+                  }}
+                >
+                  <Typography variant="body1" fontWeight={400}>
+                    Next Tier{' '}
+                  </Typography>
+                  <Typography variant="h6" fontWeight={600}>
+                    {applicantDetails?.loyaltyResponse?.nextLevel?.userTier}
+                  </Typography>
+                </Box>
+
+                <Box
+                  sx={{
+                    position: 'relative',
+                    overflow: 'hidden',
+                    borderRadius: 2,
+                    p: '16px 12px',
+                    color: '#fff',
+                    background: 'linear-gradient(135deg, #2f7ed8 0%, #3b93e8 40%, #5db6f0 100%)',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: '-20%',
+                      right: '-10%',
+                      width: '70%',
+                      height: '120%',
+                      background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.25), transparent)',
+                      transform: 'rotate(-10deg)',
+                    },
+                    marginBottom: 2,
+                  }}
+                >
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="body1" fontWeight={600}>
+                      Transactions{' '}
+                    </Typography>
+
+                    <Typography variant="body1" fontWeight={600}>
+                      {applicantDetails?.loyaltyResponse?.applicantLoyaltyData?.totalTransactions}/
+                      {applicantDetails?.loyaltyResponse?.nextLevel?.tierRetentionTransactions}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Box
+                  sx={{
+                    position: 'relative',
+                    overflow: 'hidden',
+                    borderRadius: 2,
+                    p: '16px 12px',
+                    color: '#fff',
+                    background: 'linear-gradient(135deg, #2f7ed8 0%, #3b93e8 40%, #5db6f0 100%)',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: '-20%',
+                      right: '-10%',
+                      width: '70%',
+                      height: '120%',
+                      background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.25), transparent)',
+                      transform: 'rotate(-10deg)',
+                    },
+                  }}
+                >
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="body1" fontWeight={600}>
+                      Amount{' '}
+                    </Typography>
+                    <Typography variant="body1" fontWeight={600}>
+                      {applicantDetails?.loyaltyResponse?.applicantLoyaltyData?.totalAmount}/
+                      {applicantDetails?.loyaltyResponse?.nextLevel?.tierRetentionAmount}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            ) : (
+              <Box sx={{ padding: '30px 0px', borderRadius: '16px', marginTop: '30px', background: '#000', textAlign: 'center' }}>
+                <Typography variant="h6" sx={{ color: '#fff', fontWeight: '600' }}>
+                  You're at the Top!
+                </Typography>
+                <Typography variant="body1" sx={{ color: '#fff', fontWeight: '400', margin: '10px 0px' }}>
+                  Enjoy {applicantDetails?.loyaltyResponse?.currentLevel?.discountPercentage} AED flat reward on every transaction
+                </Typography>
+
+                <Typography variant="body2" sx={{ color: '#fff', fontWeight: '300' }}>
+                  Hightest loyalty tier achieved
                 </Typography>
               </Box>
+            )}
 
-              <Box
-                sx={{
-                  position: 'relative',
-                  overflow: 'hidden',
-                  borderRadius: 2,
-                  p: '16px 12px',
-                  color: '#fff',
-                  background: 'linear-gradient(135deg, #2f7ed8 0%, #3b93e8 40%, #5db6f0 100%)',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: '-20%',
-                    right: '-10%',
-                    width: '70%',
-                    height: '120%',
-                    background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.25), transparent)',
-                    transform: 'rotate(-10deg)',
-                  },
-                  marginBottom: 2,
-                }}
-              >
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body1" fontWeight={600}>
+            {/* show retention box */}
+            {applicantDetails?.loyaltyResponse?.currentLevel?.userTier !== 'Standard' && (
+              <Box sx={{ padding: '10px 16px', borderRadius: '16px', marginTop: '30px', background: '#1468B7' }}>
+                <Typography variant="body2" sx={{ color: '#fff' }}>
+                  TO RETAIN YOUR TIER
+                </Typography>
+
+                <Typography variant="h6" fontWeight={600} sx={{ color: '#fff' }}>
+                  {applicantDetails?.loyaltyResponse?.currentLevel?.userTier}
+                </Typography>
+
+                <Box
+                  sx={{
+                    position: 'relative',
+                    overflow: 'hidden',
+                    borderRadius: 2,
+                    p: '6px 10px',
+                    color: '#fff',
+                    background: 'linear-gradient(135deg, #2f7ed8 0%, #3b93e8 40%, #5db6f0 100%)',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: '-20%',
+                      right: '-10%',
+                      width: '70%',
+                      height: '120%',
+                      background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.25), transparent)',
+                      transform: 'rotate(-10deg)',
+                    },
+                    marginBottom: '20px',
+                  }}
+                >
+                  <Typography variant="body1" fontWeight={400}>
                     Transactions{' '}
                   </Typography>
 
                   <Typography variant="body1" fontWeight={600}>
-                    3/<sub>3</sub>
+                    {applicantDetails?.loyaltyResponse?.applicantLoyaltyData?.totalTransactions}/
+                    {applicantDetails?.loyaltyResponse?.currentLevel?.tierRetentionTransactions}
                   </Typography>
                 </Box>
-              </Box>
 
-              <Box
-                sx={{
-                  position: 'relative',
-                  overflow: 'hidden',
-                  borderRadius: 2,
-                  p: '16px 12px',
-                  color: '#fff',
-                  background: 'linear-gradient(135deg, #2f7ed8 0%, #3b93e8 40%, #5db6f0 100%)',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: '-20%',
-                    right: '-10%',
-                    width: '70%',
-                    height: '120%',
-                    background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.25), transparent)',
-                    transform: 'rotate(-10deg)',
-                  },
-                }}
-              >
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body1" fontWeight={600}>
+                <Box
+                  sx={{
+                    position: 'relative',
+                    overflow: 'hidden',
+                    borderRadius: 2,
+                    p: '6px 10px',
+                    color: '#fff',
+                    background: 'linear-gradient(135deg, #2f7ed8 0%, #3b93e8 40%, #5db6f0 100%)',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: '-20%',
+                      right: '-10%',
+                      width: '70%',
+                      height: '120%',
+                      background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.25), transparent)',
+                      transform: 'rotate(-10deg)',
+                    },
+                  }}
+                >
+                  <Typography variant="body1" fontWeight={400}>
                     Amount{' '}
                   </Typography>
                   <Typography variant="body1" fontWeight={600}>
-                    349.13/<sub>6000</sub>
+                    {applicantDetails?.loyaltyResponse?.applicantLoyaltyData?.totalAmount}/
+                    {applicantDetails?.loyaltyResponse?.currentLevel?.tierRetentionAmount}
+                  </Typography>
+                </Box>
+                <Box sx={{ mt: '10px' }}>
+                  <Typography sx={{ textAlign: 'center', color: '#fff' }} variant="body1">
+                    In {applicantDetails?.loyaltyResponse?.currentLevel?.timePeriodDays} days
                   </Typography>
                 </Box>
               </Box>
-            </Box>
+            )}
 
-            <Box sx={{ padding: '10px 16px', borderRadius: '16px', marginTop: '40px', background: '#1468B7' }}>
-              <Typography variant="body2" sx={{ color: '#fff' }}>
-                TO RETAIN YOUR TIER
+            {/* show levels block */}
+            <Box sx={{ padding: '24px 16px', borderRadius: '16px', marginTop: '30px', background: '#0D1F35' }}>
+              <Typography variant="h5" sx={{ color: '#fff', textAlign: 'center', fontWeight: '700', marginBottom: 2 }}>
+                All Levels
               </Typography>
-
-              <Typography variant="h6" fontWeight={600} sx={{ color: '#fff' }}>
-                Silver
-              </Typography>
-
-              <Box
-                sx={{
-                  position: 'relative',
-                  overflow: 'hidden',
-                  borderRadius: 2,
-                  p: '6px 10px',
-                  color: '#fff',
-                  background: 'linear-gradient(135deg, #2f7ed8 0%, #3b93e8 40%, #5db6f0 100%)',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: '-20%',
-                    right: '-10%',
-                    width: '70%',
-                    height: '120%',
-                    background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.25), transparent)',
-                    transform: 'rotate(-10deg)',
-                  },
-                  marginBottom: '20px',
-                }}
-              >
-                <Typography variant="body1" fontWeight={400}>
-                  Transactions{' '}
-                </Typography>
-
-                <Typography variant="body1" fontWeight={600}>
-                  3/5
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  position: 'relative',
-                  overflow: 'hidden',
-                  borderRadius: 2,
-                  p: '6px 10px',
-                  color: '#fff',
-                  background: 'linear-gradient(135deg, #2f7ed8 0%, #3b93e8 40%, #5db6f0 100%)',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: '-20%',
-                    right: '-10%',
-                    width: '70%',
-                    height: '120%',
-                    background: 'linear-gradient(120deg, transparent, rgba(255,255,255,.25), transparent)',
-                    transform: 'rotate(-10deg)',
-                  },
-                }}
-              >
-                <Typography variant="body1" fontWeight={400}>
-                  Amount{' '}
-                </Typography>
-                <Typography variant="body1" fontWeight={600}>
-                  349.13/6000
-                </Typography>
-              </Box>
-              <Box sx={{ mt: '10px' }}>
-                <Typography sx={{ textAlign: 'center', color: '#fff' }} variant="body1">
-                  In 1 days
-                </Typography>
-              </Box>
+              <Grid container spacing={2}>
+                {applicantDetails?.loyaltyResponse?.allLevels.map((level: any) => (
+                  <Grid item xs={6}>
+                    <Box
+                      sx={{
+                        borderRadius: 6,
+                        textAlign: 'center',
+                        color: '#fff',
+                        border: '1px solid gray',
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        fontWeight={'bold'}
+                        sx={{
+                          borderTopLeftRadius: '22px',
+                          borderTopRightRadius: '22px',
+                          padding: '8px 0px',
+                          background: `linear-gradient(90deg, ${renderTierBgColor(level.userTier)} 0%, ${renderTierBgColor(level.userTier)[1]} 100%)`,
+                        }}
+                      >
+                        {level.userTier}
+                      </Typography>
+                      <Typography variant="h6" fontWeight={600} sx={{ padding: '20px 10px' }}>
+                        {level?.discountPercentage} AED
+                      </Typography>
+                    </Box>
+                  </Grid>
+                ))}
+              </Grid>
             </Box>
           </Box>
-        </Box>
-
-        <Box>
-          {/* Tab Component */}
-
-          <Tabs value={selectedTab} onChange={handleTabChange}>
-            {tabs
-              .filter((t) => !t.hidden)
-              .map((tab) => (
-                //@ts-ignore
-                <Tab key={tab.value} {...tab} x={{ marginRight: '2px' }} />
-              ))}
-          </Tabs>
-
-          {/* Content Sections */}
-          {userCountry !== 'UAE' && selectedTab === 0 && <DocumentsListComponent documentRecords={applicantDocuments || []} />}
-          {selectedTab === 1 && <BeneficiaryTable beneficiary={applicantDetails?.beneficiaryList || []} />}
-          {selectedTab === 2 && (
-            <TransactionTable
-              //@ts-ignore
-              applicantId={applicantId || ''}
-              //@ts-ignore
-              transaction={transactions}
-            />
-          )}
-          {selectedTab === 3 && <ReferralTransactions referralRecords={referralRedeemTransaction || []} referralType={'Redeemed'} />}
-          {selectedTab === 4 && <ReferralTransactions referralRecords={referralCreditedTransaction || []} referralType={'Credited'} />}
-          {selectedTab === 5 && <ReferralTransactions referralRecords={redeemReferralTrans || []} referralType={'RedeemReferral'} />}
         </Box>
       </Box>
     </HasPermission>

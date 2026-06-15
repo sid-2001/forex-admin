@@ -60,7 +60,6 @@ import ContactEmergencyIcon from '@mui/icons-material/ContactEmergency'
 import SourceIcon from '@mui/icons-material/Source'
 import ShowChartIcon from '@mui/icons-material/ShowChart'
 import ViewModuleIcon from '@mui/icons-material/ViewModule'
-import { TransactionService } from '@/services/transaction.service'
 import ConfirmationModal from '../logout/logout.component'
 import LoyaltyIcon from '@mui/icons-material/Loyalty'
 import ErrorIcon from '@mui/icons-material/Error'
@@ -77,7 +76,6 @@ import ReportOffIcon from '@mui/icons-material/ReportOff'
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing'
 import { FolderIcon, GavelIcon, LanguagesIcon, Menu, QrCodeIcon, SettingsIcon } from 'lucide-react'
-import WebIcon from '@mui/icons-material/Web'
 import MonitorIcon from '@mui/icons-material/Monitor'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'
 import SmsIcon from '@mui/icons-material/Sms'
@@ -568,16 +566,16 @@ const DashboardLayout = () => {
   const staffCountry = local_service?.get_staff_country()
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
   const [openloader, setopenloader] = useRecoilState(loaderStateNew)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  // const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDrawerOpen, setDrawerOpen] = useState(false)
 
   const navigate = useNavigate()
 
   const theme = useTheme()
 
-  const handleModalClose = () => {
-    setIsModalOpen(!isModalOpen)
-  }
+  // const handleModalClose = () => {
+  //   setIsModalOpen(!isModalOpen)
+  // }
 
   const [history, setHistory] = useRecoilState(menuHistoryState)
 
@@ -634,7 +632,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Applicant',
-      name: 'Applicants',
+      name: 'Users',
     },
     {
       icon: (
@@ -722,7 +720,7 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Profile',
-      name: 'Users',
+      name: 'Staff',
     },
     {
       icon: (
@@ -1079,7 +1077,7 @@ const DashboardLayout = () => {
                 </Stack>
               </ListItem>
 
-              <ListItem
+              {/* <ListItem
                 button
                 key="logout"
                 id="imp-logout"
@@ -1092,16 +1090,6 @@ const DashboardLayout = () => {
                 }}
               >
                 <Stack>
-                  {/* <Item>
-                    <ListItemIcon
-                      sx={{
-                        textAlign: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <LogoutIcon sx={{ color: 'red' }} />
-                    </ListItemIcon>
-                  </Item> */}
                   {isDrawerOpen && (
                     <Item
                       id="imp-logout-menu"
@@ -1114,10 +1102,10 @@ const DashboardLayout = () => {
                     </Item>
                   )}
                 </Stack>
-              </ListItem>
+              </ListItem> */}
             </List>
 
-            <List
+            {/* <List
               sx={{
                 textAlign: 'center',
               }}
@@ -1147,7 +1135,7 @@ const DashboardLayout = () => {
                   </Item>
                 </Stack>
               </ListItem>
-            </List>
+            </List> */}
           </Box>
 
           <Box
@@ -1173,7 +1161,7 @@ const DashboardLayout = () => {
               </Header>
               <Outlet />
             </MainContent>
-
+            {/* 
             {isModalOpen && (
               <ConfirmationModal
                 isOpen={isModalOpen}
@@ -1187,7 +1175,7 @@ const DashboardLayout = () => {
                 confirmBtnText="Logout"
                 showIcon={true}
               />
-            )}
+            )} */}
           </Box>
         </Box>
       </DashboardContainer>

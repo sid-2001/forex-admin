@@ -6,12 +6,11 @@ import { HelperService } from '@/helpers/helper'
 import { statusColors } from '@/contants/utils'
 
 //@ts-ignore
-const ReferralDataGrid = ({ rows, columns, width }) => {
+const ReferralDataGrid = ({ rows, columns }) => {
   return (
     <DataGrid
       sx={{
-        width: '70vw',
-        height: '30vh',
+        height: '70vh',
         '& .MuiDataGrid-columnHeaders': {
           '& .super-app-theme--header': {
             backgroundColor: '#005099',
@@ -199,17 +198,13 @@ const ReferralTransactions = ({
 
   return (
     <Box>
-      {referralRecords && referralRecords.length > 0 ? (
-        <ReferralDataGrid rows={referralRecords} columns={gridColumns()} width={'70vw'} />
-      ) : (
-        <p>No Referral Found</p>
-      )}
+      {referralRecords && referralRecords.length > 0 ? <ReferralDataGrid rows={referralRecords} columns={gridColumns()} /> : <p>No Referral Found</p>}
 
       <Dialog open={showTransactionModal} onClose={handleModalClose} fullWidth maxWidth="md">
         <DialogTitle>All Transactions</DialogTitle>
         <DialogContent>
           <div style={{ height: 400, width: '800', marginTop: 16 }}>
-            <ReferralDataGrid rows={transactionList} width={'600'} columns={ReferralColumns} />
+            <ReferralDataGrid rows={transactionList} columns={ReferralColumns} />
           </div>
         </DialogContent>
         <DialogActions>

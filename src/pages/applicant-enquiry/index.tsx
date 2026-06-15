@@ -14,8 +14,6 @@ const ApplicantEnquiry = () => {
 
   const staffCountry = local_service?.get_staff_country()
 
-  
-
   const getApplicantListByCountry = useCallback(async () => {
     try {
       setIsLoading(true)
@@ -32,10 +30,10 @@ const ApplicantEnquiry = () => {
   }, [])
 
   return (
-    <Box  sx={{ width: '80vw', height: '70vh' }}>
+    <Box sx={{ width: '80vw', height: '70vh' }}>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.APPLICANT}>
         <Typography variant="h4" gutterBottom>
-          <strong>Applicant </strong>
+          <strong>All Users</strong>
         </Typography>
         <ApplicantDataGrid data={applicantList} loading={isLoading} />
       </HasPermission>

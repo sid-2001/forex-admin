@@ -132,7 +132,7 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
   const columns: GridColDef[] = [
     {
       field: 'applicantId',
-      headerName: 'Applicant ID',
+      headerName: 'User ID',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: GridRenderCellParams) => (

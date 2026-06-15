@@ -72,10 +72,6 @@ const TransactionListing = () => {
       sortable: false,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
-        // <a href="#" style={{ color: theme.palette.text.primary }} onClick={() => handleViewMore(params.row)}>
-        //   {params?.value}
-        // </a>
-
         <span
           onClick={() => handleNavigation(`/transaction-detail/${params.value}`)}
           style={{
@@ -256,7 +252,6 @@ const TransactionListing = () => {
         <IconButton
           onClick={() => {
             handleNavigation(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`)
-            handleViewMore(params.row)
           }}
         >
           <VisibilityIcon
@@ -825,43 +820,6 @@ const TransactionListing = () => {
       })
   }
 
-  const handleViewMore = (row: any) => {
-    settrxStatus(row?.status)
-    let d = {
-      //@ts-ignore
-      benificary: { benificaryId: row?.beneficiaryId },
-      transferMethod: 'Bank Trannsfer',
-      destinationCountry: row.destination,
-      selectedTimeMethod: {
-        id: 2,
-        time: '8 hours',
-        charges: 5,
-        total: 200,
-        segment: 2,
-      },
-      gatewayStatus: 'Success',
-      amount: row?.settlementAmount,
-      applicant: {
-        applicantId: row.applicantId,
-      },
-      forex: row.exchangeRates,
-      gatewayId: '13122',
-      //@ts-ignore
-      timecharge: row?.charges,
-      sourceCurrency: userCountry === 'ZA' ? 'ZAR' : 'INR',
-      sourceCountry: userCountry,
-      destinationCurrency: userCountry === 'ZA' ? 'INR' : 'ZAR',
-      bopId: row?.bobId,
-      // totalpaybleamount: (Number(row.value) + Number(row.charges)),
-      totalpaybleamount: Number(row.value) * Number(row.exchangeRates),
-      transactionId: row?.transactionNumber,
-    }
-    setCreatetrx(d as any)
-    // addpayment(d as any)
-    console.log(row, 'row data')
-    setTransactionDetails(row)
-    setDrawerOpen(true)
-  }
   //@ts-ignore
   const handleToggleTransactionType = (event: any, newType: string) => {
     if (newType) {
