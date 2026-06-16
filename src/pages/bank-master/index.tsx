@@ -2,25 +2,26 @@ import { useEffect, useState, useMemo, useCallback } from 'react'
 import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
 import BankMasterDialog from '../../components/bank-dialog/BankMasterDialog'
 import BankMasterService, { BankMaster } from '../../services/bankmaster.service'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
-import ConfirmModal from '@/components/ConfirmModal'
 import { formatTableDate } from '@/helpers/dateformate'
+import HasPermission from '@/components/permissionWrapper'
+import { HelperService } from '@/helpers/helper'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
 export default function BankMasterScreen() {
   const service = useMemo(() => new BankMasterService(), [])
   const [rows, setRows] = useState<BankMaster[]>([])
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editData, setEditData] = useState<BankMaster | null>(null)
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-  const [selectedRow, setSelectedRow] = useState<any>(null)
 
   const [open, setOpen] = useRecoilState(alertState)
   const [text, setText] = useRecoilState(alertTextState)
   const [type, setType] = useRecoilState(alertTypeState)
+  const helper = new HelperService()
+  const local_service = useMemo(() => new LocalStorageService(), [])
 
   const showAlert = (alertType: 'Success' | 'Fail', alertText: string) => {
     setType(alertType)
@@ -43,13 +44,10 @@ export default function BankMasterScreen() {
   }, [fetchData])
 
   const handleAction = async (data: any, isUpdate: boolean) => {
-       console.log("we are updating")
-
     if (data.validationError) {
       showAlert('Fail', data.validationError)
       return
     }
-    console.log("we are updating")
 
     const res = isUpdate ? await service.updateBank(editData!.bankMasterCode, data) : await service.createBank(data)
 
@@ -67,13 +65,6 @@ export default function BankMasterScreen() {
   }
 
   const columns: GridColDef[] = [
-    // {
-    //   field: 'bankCode',
-    //   headerName: 'Bank Code',
-    //   flex: 0.7,
-    //   headerClassName: 'super-app-theme--header',
-    //   valueGetter: (p) => p.row?.bankCode || '',
-    // },
     {
       field: 'bankCode',
       headerName: 'Bank Code',
@@ -85,34 +76,32 @@ export default function BankMasterScreen() {
     { field: 'bankBranchCode', headerName: 'Branch Code', flex: 0.8, headerClassName: 'super-app-theme--header' },
     { field: 'bankIfscBicCode', headerName: 'IFSC/BIC', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'bankCity', headerName: 'City', flex: 0.7, headerClassName: 'super-app-theme--header' },
-   {
-  field: 'effective_from_date',
-  headerName: 'Effective From',
-  flex: 1,
-  minWidth: 150,
- headerClassName: 'super-app-theme--header',
- //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivefromdate || row?.effectiveFromDate
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 1,
+      minWidth: 150,
+      headerClassName: 'super-app-theme--header',
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivefromdate || row?.effectiveFromDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
-{
-  field: 'effective_to_date',
-  headerName: 'Effective To',
-  flex: 1,
-   headerClassName: 'super-app-theme--header',
-  minWidth: 150,
-  //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivetodate || row?.effectiveToDate
+        return date ? formatTableDate(date) : ''
+      },
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      minWidth: 150,
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivetodate || row?.effectiveToDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
+        return date ? formatTableDate(date) : ''
+      },
+    },
     { field: 'countryCode', headerName: 'Country', flex: 0.6, headerClassName: 'super-app-theme--header' },
     {
       field: 'active',
@@ -134,90 +123,69 @@ export default function BankMasterScreen() {
               setEditData(params.row)
               setDialogOpen(true)
             }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
           >
             <EditIcon />
           </IconButton>
-          {/* <IconButton
-            color="error"
-            onClick={() => {
-              setSelectedRow(params.row)
-              setDeleteModalOpen(true)
-            }}
-          >
-            <DeleteIcon />
-          </IconButton> */}
         </Stack>
       ),
     },
   ]
 
   return (
-    //@ts-ignore
-    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{
-            fontWeight: 700,
-            // color: 'text.primary',
-            letterSpacing: '-0.02em',
-            display: 'grid',
-            placeItems: 'center',
-            // mb: 5,
-            color: '#0061B1',
-          }}
-        >
-          {'Bank  Master'.toUpperCase()}
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setDialogOpen(true)
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
+        <Stack direction="row" justifyContent="space-between" mb={2}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              display: 'grid',
+              placeItems: 'center',
+              color: '#0061B1',
+            }}
+          >
+            {'Bank  Master'.toUpperCase()}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setDialogOpen(true)
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add
+          </Button>
+        </Stack>
 
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        getRowId={(row) => row.bankMasterCode || Math.random()}
-        autoHeight
-        disableRowSelectionOnClick
-        slots={{ toolbar: GridToolbar }}
-        slotProps={{ toolbar: { showQuickFilter: true } }}
-        disableColumnMenu
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5, // Default to 5
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={(row) => row.bankMasterCode || Math.random()}
+          autoHeight
+          disableRowSelectionOnClick
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5, // Default to 5
+              },
             },
-          },
-        }}
-      />
+          }}
+        />
 
-      <BankMasterDialog
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        editData={editData}
-        onSubmit={(data: any) => handleAction(data, !!editData)}
-      />
-
-      <ConfirmModal
-        open={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
-        onConfirm={async () => {
-          await service.deleteBank(selectedRow.bankMasterCode, false)
-          showAlert('Success', 'Bank Deleted Successfully')
-          setDeleteModalOpen(false)
-          fetchData()
-        }}
-        title="Delete Bank?"
-        message={`Are you sure you want to delete ${selectedRow?.bankName}?`}
-      />
-    </Box>
+        <BankMasterDialog
+          open={dialogOpen}
+          onClose={() => setDialogOpen(false)}
+          editData={editData}
+          onSubmit={(data: any) => handleAction(data, !!editData)}
+        />
+      </Box>
+    </HasPermission>
   )
 }

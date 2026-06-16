@@ -12,7 +12,8 @@ import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { getLiveAuditData } from '@/helpers/dynamicLocations'
 import { formatTableDate } from '@/helpers/dateformate'
-
+import HasPermission from '../permissionWrapper'
+import { HelperService } from '@/helpers/helper'
 dayjs.extend(utc)
 
 export default function ChannelManagement() {
@@ -29,6 +30,7 @@ export default function ChannelManagement() {
 
   const local_service = useMemo(() => new LocalStorageService(), [])
   const static_service = useMemo(() => new ChannelService(), [])
+  const helper = new HelperService()
 
   const showAlert = (type: 'Success' | 'Fail', message: string) => {
     setAlertType(type)
@@ -148,6 +150,7 @@ export default function ChannelManagement() {
               setEditData(params.row)
               setOpen(true)
             }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
           >
             <EditIcon />
           </IconButton>
@@ -157,67 +160,70 @@ export default function ChannelManagement() {
   ]
 
   return (
-    <Box p={3}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            display: 'grid',
-            placeItems: 'center',
-            // mb: 5,
-            color: '#0061B1',
-          }}
-        >
-          {'Channel Master'.toUpperCase()}
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setOpen(true)
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={3}>
+        <Stack direction="row" justifyContent="space-between" mb={2}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              display: 'grid',
+              placeItems: 'center',
+              // mb: 5,
+              color: '#0061B1',
+            }}
+          >
+            {'Channel Master'.toUpperCase()}
+          </Typography>
+          <Button
+            variant="contained"
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+            onClick={() => {
+              setEditData(null)
+              setOpen(true)
+            }}
+          >
+            Add
+          </Button>
+        </Stack>
 
-      <Box sx={{ height: 500, width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          loading={loading}
-          getRowId={(row) => `${row.channel_code}-${row.country_code}`}
-          slots={{ toolbar: GridToolbar }}
-          slotProps={{ toolbar: { showQuickFilter: true } }}
-          disableColumnMenu
-          disableRowSelectionOnClick
-          pageSizeOptions={[5, 10, 20]}
-          initialState={{
-            pagination: { paginationModel: { pageSize: 5 } },
+        <Box sx={{ height: 500, width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            loading={loading}
+            getRowId={(row) => `${row.channel_code}-${row.country_code}`}
+            slots={{ toolbar: GridToolbar }}
+            slotProps={{ toolbar: { showQuickFilter: true } }}
+            disableColumnMenu
+            disableRowSelectionOnClick
+            pageSizeOptions={[5, 10, 20]}
+            initialState={{
+              pagination: { paginationModel: { pageSize: 5 } },
+            }}
+          />
+        </Box>
+
+        <ChannelFormDialog open={open} onClose={() => setOpen(false)} editData={editData} onSubmit={(data: any) => handleAction(data, !!editData)} />
+
+        <ConfirmModal
+          open={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          onConfirm={async () => {
+            await static_service.deleteChannel({
+              channel_code: selectedRow.channel_code,
+              country_code: selectedRow.country_code,
+            })
+            showAlert('Success', 'Channel Deleted Successfully')
+            setDeleteModalOpen(false)
+            fetchData()
           }}
+          title="Delete Channel?"
+          message={`Are you sure you want to delete channel ${selectedRow?.channel_code}?`}
         />
       </Box>
-
-      <ChannelFormDialog open={open} onClose={() => setOpen(false)} editData={editData} onSubmit={(data: any) => handleAction(data, !!editData)} />
-
-      <ConfirmModal
-        open={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
-        onConfirm={async () => {
-          await static_service.deleteChannel({
-            channel_code: selectedRow.channel_code,
-            country_code: selectedRow.country_code,
-          })
-          showAlert('Success', 'Channel Deleted Successfully')
-          setDeleteModalOpen(false)
-          fetchData()
-        }}
-        title="Delete Channel?"
-        message={`Are you sure you want to delete channel ${selectedRow?.channel_code}?`}
-      />
-    </Box>
+    </HasPermission>
   )
 }

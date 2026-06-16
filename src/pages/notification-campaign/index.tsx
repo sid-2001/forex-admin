@@ -182,6 +182,7 @@ const NotificationCampaign: React.FC = () => {
             color="primary"
             size="small"
             title="Edit Campaign"
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
           >
             <EditIcon
               fontSize="small"
@@ -288,65 +289,66 @@ const NotificationCampaign: React.FC = () => {
   )
 
   return (
-    <Box p={3} sx={{ width: '90vw', height: '80vh' }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
-          NOTIFICATION CAMPAIGN LISTING
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setOpenCampaignModal(true)
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={3} sx={{ width: '90vw', height: '80vh' }}>
+        <Stack direction="row" justifyContent="space-between" mb={2}>
+          <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
+            NOTIFICATION CAMPAIGN LISTING
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setOpenCampaignModal(true)
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add
+          </Button>
+        </Stack>
 
-      {notificationCampaignData && (
-        <DataGrid
-          apiRef={apiRef}
-          rows={notificationCampaignData || []}
-          //@ts-ignore
-          columns={columns}
-          filterModel={filterModel}
-          onFilterModelChange={(model) => setFilterModel(model)}
-          columnVisibilityModel={columnVisibilityModel}
-          onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
-          initialState={{
-            pagination: { paginationModel: { pageSize: 20, page: 0 } },
-          }}
-          pageSizeOptions={[10, 20, 50]}
-          disableRowSelectionOnClick
-          loading={isLoading}
-          getRowId={(row: any) => row.campaignId}
-          slots={{
-            toolbar: CustomToolbar,
-            loadingOverlay: LoaderUI.LoadingOverlay,
-          }}
-          sx={{
-            '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: '#005099',
-              color: 'white',
-            },
-            '& .MuiDataGrid-cell': { fontSize: '14px' },
-            '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold', fontSize: '16px' },
-          }}
-          disableColumnMenu
+        {notificationCampaignData && (
+          <DataGrid
+            apiRef={apiRef}
+            rows={notificationCampaignData || []}
+            //@ts-ignore
+            columns={columns}
+            filterModel={filterModel}
+            onFilterModelChange={(model) => setFilterModel(model)}
+            columnVisibilityModel={columnVisibilityModel}
+            onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
+            initialState={{
+              pagination: { paginationModel: { pageSize: 20, page: 0 } },
+            }}
+            pageSizeOptions={[10, 20, 50]}
+            disableRowSelectionOnClick
+            loading={isLoading}
+            getRowId={(row: any) => row.campaignId}
+            slots={{
+              toolbar: CustomToolbar,
+              loadingOverlay: LoaderUI.LoadingOverlay,
+            }}
+            sx={{
+              '& .MuiDataGrid-columnHeaders': {
+                backgroundColor: '#005099',
+                color: 'white',
+              },
+              '& .MuiDataGrid-cell': { fontSize: '14px' },
+              '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold', fontSize: '16px' },
+            }}
+            disableColumnMenu
+          />
+        )}
+
+        <NotificationCampaignDialog
+          open={openCampaignModal}
+          editData={editData}
+          onClose={() => setOpenCampaignModal(false)}
+          refreshList={fetchNotificationCampaignListingData}
+          showAlert={showAlert}
         />
-      )}
-
-      <NotificationCampaignDialog
-        open={openCampaignModal}
-        editData={editData}
-        onClose={() => setOpenCampaignModal(false)}
-        refreshList={fetchNotificationCampaignListingData}
-        showAlert={showAlert}
-      />
-    </Box>
-    // <HasPermission permission={'canRead'} module={local_service.get_modules()?.BOP}>
-    // </HasPermission>
+      </Box>
+    </HasPermission>
   )
 }
 

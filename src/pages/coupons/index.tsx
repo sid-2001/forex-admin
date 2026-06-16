@@ -131,6 +131,7 @@ const Coupons: React.FC = () => {
               setEditData(params.row)
               setOpenCouponModal(true)
             }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
           >
             <EditIcon />
           </IconButton>

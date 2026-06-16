@@ -1,15 +1,6 @@
 // pages/CountryResProductChannelDocRequiredMaster.tsx
 import { useEffect, useState, useMemo, useCallback } from 'react'
-import { 
-  Box, 
-  Button, 
-  IconButton, 
-  Stack, 
-  Typography, 
-  Chip, 
-  Paper,
-  Tooltip
-} from '@mui/material'
+import { Box, Button, IconButton, Stack, Typography, Chip, Paper, Tooltip } from '@mui/material'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
@@ -39,6 +30,8 @@ import dayjs from 'dayjs'
 import { getLiveAuditData } from '@/helpers/dynamicLocations'
 import { formatTableDate } from '@/helpers/dateformate'
 import { CountryKycDocumentService } from '@/services/countryKycDocument.service'
+import HasPermission from '@/components/permissionWrapper'
+import { HelperService } from '@/helpers/helper'
 
 // Types
 interface DocRequiredData {
@@ -116,44 +109,44 @@ export default function CountryResProductChannelDocRequiredMaster() {
   const productService = useMemo(() => new ProductService(), [])
   const channelService = useMemo(() => new ChannelService(), [])
   const residentService = useMemo(() => new ResidentTypeService(), [])
-  const kycDocumentServicee = useMemo(() => new KycDocumentTypeService, [])
-
+  const kycDocumentServicee = useMemo(() => new KycDocumentTypeService(), [])
+  const helper = new HelperService()
 
   const getCountryName = (countryCode: string) => {
-    const country = countries.find(c => c.countryCode === countryCode)
+    const country = countries.find((c) => c.countryCode === countryCode)
     return country ? country.countryName : countryCode
   }
 
   const getProductName = (productCode: string) => {
-    const product = products.find(p => p.productCode === productCode)
+    const product = products.find((p) => p.productCode === productCode)
     return product ? product.productName : productCode
   }
 
   const getChannelDescription = (channelCode: string) => {
-    const channel = channels.find(c => c.channel_code === channelCode)
+    const channel = channels.find((c) => c.channel_code === channelCode)
     return channel ? channel.channel_description : channelCode
   }
 
   const getResidentTypeDescription = (code: string) => {
-    const resident = residentTypes.find(r => r.residentTypeCode === code)
+    const resident = residentTypes.find((r) => r.residentTypeCode === code)
     return resident ? resident.residentTypeDescription : code
   }
 
   const getKycDocumentDescription = (code: string) => {
-    const doc = kycDocuments.find(d => d.kycDocCode === code)
+    const doc = kycDocuments.find((d) => d.kycDocCode === code)
     return doc ? `${doc.docCode} - ${doc.docDescription}` : code
   }
 
   const getRequirementTypeLabel = (type: string) => {
-    const reqType = REQUIREMENT_TYPES.find(r => r.value === type)
+    const reqType = REQUIREMENT_TYPES.find((r) => r.value === type)
     return reqType ? reqType.label : type
   }
 
   const getBfaLabel = (bfa: string) => {
-    const option = BFA_OPTIONS.find(o => o.value === bfa)
+    const option = BFA_OPTIONS.find((o) => o.value === bfa)
     return option ? option.label : bfa
   }
-let country_kyc_doc_service=new   CountryKycDocumentService()
+  let country_kyc_doc_service = new CountryKycDocumentService()
 
   // Fetch all master data
   const fetchMasterData = useCallback(async () => {
@@ -162,24 +155,23 @@ let country_kyc_doc_service=new   CountryKycDocumentService()
         productService.getProductList(),
         channelService.getChannelList(),
         residentService.getAllResidentTypes(),
-        country_kyc_doc_service.getAllKycDocuments()
+        country_kyc_doc_service.getAllKycDocuments(),
       ])
       console.log(kycDocsRes)
       setProducts(productsRes)
       //@ts-ignore
       setChannels(channelsRes)
       setResidentTypes(Array.isArray(residentRes) ? residentRes : [])
-      
+
       setKycDocuments(kycDocsRes)
     } catch (error) {
       console.error('Error fetching master data:', error)
     }
   }, [productService, channelService, residentService, kycDocumentServicee])
 
-  useEffect(()=>{
-
-console.log(kycDocuments)
-  },[])
+  useEffect(() => {
+    console.log(kycDocuments)
+  }, [])
   // Fetch document requirements
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -222,9 +214,9 @@ console.log(kycDocuments)
     }
 
     const submitPayload = async (
-      
       //@ts-ignore
-      finalAudit:any) => {
+      finalAudit: any,
+    ) => {
       if (isUpdate && editData) {
         // Update existing
         const payload = {
@@ -247,10 +239,7 @@ console.log(kycDocuments)
 
         console.log('Sending Update Payload:', payload)
 
-        const response: any = await docRequiredService.updateDocRequired(
-          editData.reqDocCode,
-          payload
-        )
+        const response: any = await docRequiredService.updateDocRequired(editData.reqDocCode, payload)
 
         if (response?.status === true || response?.success === true) {
           showAlert('Success', 'Document Requirement Updated Successfully')
@@ -317,14 +306,10 @@ console.log(kycDocuments)
     if (!selectedRow || !statusAction) return
 
     const newStatus = statusAction === 'activate'
-    
+
     try {
-      const response: any = await docRequiredService.updateStatus(
-        selectedRow.reqDocCode,
-        newStatus,
-        local_service?.get_staff_id() || 'ADMIN'
-      )
-      
+      const response: any = await docRequiredService.updateStatus(selectedRow.reqDocCode, newStatus, local_service?.get_staff_id() || 'ADMIN')
+
       if (response?.status === true || response?.success === true) {
         showAlert('Success', `Document Requirement ${newStatus ? 'Activated' : 'Deactivated'} Successfully`)
         setStatusModalOpen(false)
@@ -340,30 +325,30 @@ console.log(kycDocuments)
   }
 
   const columns: GridColDef[] = [
-    { 
-      field: 'reqDocCode', 
-      headerName: 'Req Code', 
+    {
+      field: 'reqDocCode',
+      headerName: 'Req Code',
       width: 120,
-      flex:1,
-        headerClassName: 'super-app-theme--header',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
-        <Chip 
-          label={params.value} 
+        <Chip
+          label={params.value}
           size="small"
-          sx={{ 
+          sx={{
             fontFamily: 'monospace',
             fontWeight: 600,
             backgroundColor: '#eef4fa',
-            color: '#0061B1'
+            color: '#0061B1',
           }}
         />
-      )
+      ),
     },
-    { 
-      field: 'countryCode', 
-      headerName: 'Country', 
+    {
+      field: 'countryCode',
+      headerName: 'Country',
       width: 80,
-       flex:1,
+      flex: 1,
       renderCell: (params) => (
         <Stack direction="row" spacing={0.5} alignItems="center">
           <PublicIcon sx={{ fontSize: 16, color: '#666' }} />
@@ -372,150 +357,100 @@ console.log(kycDocuments)
           </Tooltip>
         </Stack>
       ),
-        headerClassName: 'super-app-theme--header'
+      headerClassName: 'super-app-theme--header',
     },
-    { 
-      field: 'residenceTypeCode', 
-      headerName: 'Residence', 
-     flex:1,
+    {
+      field: 'residenceTypeCode',
+      headerName: 'Residence',
+      flex: 1,
 
-        headerClassName: 'super-app-theme--header',
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Tooltip title={getResidentTypeDescription(params.value)}>
-          <Chip 
-            label={params.value} 
-            size="small"
-            variant="outlined"
-            sx={{ fontWeight: 500 }}
-          />
+          <Chip label={params.value} size="small" variant="outlined" sx={{ fontWeight: 500 }} />
         </Tooltip>
-      )
+      ),
     },
-    { 
-      field: 'productCode', 
-      headerName: 'Product', 
-       flex:1,
-        headerClassName: 'super-app-theme--header',
+    {
+      field: 'productCode',
+      headerName: 'Product',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Tooltip title={getProductName(params.value)}>
-          <Chip 
-            label={params.value} 
-            size="small"
-            icon={<ReceiptIcon />}
-            color="primary"
-            variant="outlined"
-          />
+          <Chip label={params.value} size="small" icon={<ReceiptIcon />} color="primary" variant="outlined" />
         </Tooltip>
-      )
+      ),
     },
-    { 
-      field: 'channelCode', 
-      headerName: 'Channel', 
-     flex:1,
-        headerClassName: 'super-app-theme--header',
+    {
+      field: 'channelCode',
+      headerName: 'Channel',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Tooltip title={getChannelDescription(params.value)}>
-          <Chip 
-            label={params.value} 
-            size="small"
-            icon={<DevicesIcon />}
-            color="secondary"
-            variant="outlined"
-          />
+          <Chip label={params.value} size="small" icon={<DevicesIcon />} color="secondary" variant="outlined" />
         </Tooltip>
-      )
+      ),
     },
-    { 
-      field: 'kycDocCode', 
-      headerName: 'KYC Doc', 
-        headerClassName: 'super-app-theme--header',
-       flex:1,
+    {
+      field: 'kycDocCode',
+      headerName: 'KYC Doc',
+      headerClassName: 'super-app-theme--header',
+      flex: 1,
       renderCell: (params) => (
         <Tooltip title={getKycDocumentDescription(params.value)}>
-          <Chip 
-            label={params.value} 
-            size="small"
-            icon={<DescriptionIcon />}
-            color="info"
-            variant="outlined"
-          />
+          <Chip label={params.value} size="small" icon={<DescriptionIcon />} color="info" variant="outlined" />
         </Tooltip>
-      )
+      ),
     },
-    { 
-      field: 'docRequirementType', 
-        headerClassName: 'super-app-theme--header',
-      headerName: 'Req Type', 
-      flex:1,
+    {
+      field: 'docRequirementType',
+      headerClassName: 'super-app-theme--header',
+      headerName: 'Req Type',
+      flex: 1,
       renderCell: (params) => {
         const color = params.value === 'M' ? 'error' : params.value === 'O' ? 'success' : 'warning'
-        return (
-          <Chip 
-            label={getRequirementTypeLabel(params.value)}
-            size="small"
-            color={color}
-            variant="outlined"
-          />
-        )
-      }
+        return <Chip label={getRequirementTypeLabel(params.value)} size="small" color={color} variant="outlined" />
+      },
     },
-    { 
-      field: 'bfa', 
-        headerClassName: 'super-app-theme--header',
-      headerName: 'BFA', 
-     flex:1,
+    {
+      field: 'bfa',
+      headerClassName: 'super-app-theme--header',
+      headerName: 'BFA',
+      flex: 1,
       renderCell: (params) => (
         <Tooltip title={getBfaLabel(params.value)}>
-          <Chip 
-            label={params.value} 
-            size="small"
-            icon={<SwapHorizIcon />}
-            variant="outlined"
-          />
+          <Chip label={params.value} size="small" icon={<SwapHorizIcon />} variant="outlined" />
         </Tooltip>
-      )
+      ),
     },
-    { 
-      field: 'docSequence', 
-        headerClassName: 'super-app-theme--header',
-      headerName: 'Seq', 
-       flex:1,
-      renderCell: (params) => (
-        <Chip 
-          label={params.value} 
-          size="small"
-          icon={<NumbersIcon />}
-          variant="outlined"
-        />
-      )
+    {
+      field: 'docSequence',
+      headerClassName: 'super-app-theme--header',
+      headerName: 'Seq',
+      flex: 1,
+      renderCell: (params) => <Chip label={params.value} size="small" icon={<NumbersIcon />} variant="outlined" />,
     },
-    { 
-      field: 'documentUpload', 
-        headerClassName: 'super-app-theme--header',
-      headerName: 'Upload', 
-      flex:1,
-      renderCell: (params) => (
-        params.value ? 
-          <CheckCircleIcon sx={{ color: '#4caf50' }} /> : 
-          <CancelIcon sx={{ color: '#f44336' }} />
-      )
+    {
+      field: 'documentUpload',
+      headerClassName: 'super-app-theme--header',
+      headerName: 'Upload',
+      flex: 1,
+      renderCell: (params) => (params.value ? <CheckCircleIcon sx={{ color: '#4caf50' }} /> : <CancelIcon sx={{ color: '#f44336' }} />),
     },
-    { 
-      field: 'documentNumberRequired', 
-        headerClassName: 'super-app-theme--header',
-      headerName: 'Doc No', 
-      flex:1,
-      renderCell: (params) => (
-        params.value ? 
-          <CheckCircleIcon sx={{ color: '#4caf50' }} /> : 
-          <CancelIcon sx={{ color: '#f44336' }} />
-      )
+    {
+      field: 'documentNumberRequired',
+      headerClassName: 'super-app-theme--header',
+      headerName: 'Doc No',
+      flex: 1,
+      renderCell: (params) => (params.value ? <CheckCircleIcon sx={{ color: '#4caf50' }} /> : <CancelIcon sx={{ color: '#f44336' }} />),
     },
     {
       field: 'active',
-        headerClassName: 'super-app-theme--header',
+      headerClassName: 'super-app-theme--header',
       headerName: 'Status',
-     flex:1,
+      flex: 1,
       renderCell: (params) => (
         <Chip
           icon={params.value ? <CheckCircleIcon sx={{ fontSize: 16 }} /> : <CancelIcon sx={{ fontSize: 16 }} />}
@@ -525,33 +460,33 @@ console.log(kycDocuments)
             backgroundColor: params.value ? '#e2f0e6' : '#ffece5',
             color: params.value ? '#0f6a3b' : '#b13e2d',
             fontWeight: 600,
-            width: '70px'
+            width: '70px',
           }}
         />
       ),
     },
     {
       field: 'effectiveFromDate',
-        headerClassName: 'super-app-theme--header',
+      headerClassName: 'super-app-theme--header',
       headerName: 'From',
-  
-      flex:1,
+
+      flex: 1,
       renderCell: (params) => formatTableDate(params.value),
     },
     {
       field: 'effectiveToDate',
-        headerClassName: 'super-app-theme--header',
+      headerClassName: 'super-app-theme--header',
       headerName: 'To',
-      flex:1,
+      flex: 1,
       width: 90,
-      renderCell: (params) => params.value === '2030-12-31T23:59:59' ? '2030' : formatTableDate(params.value),
+      renderCell: (params) => (params.value === '2030-12-31T23:59:59' ? '2030' : formatTableDate(params.value)),
     },
     {
       field: 'actions',
-        headerClassName: 'super-app-theme--header',
+      headerClassName: 'super-app-theme--header',
       headerName: 'Actions',
       width: 100,
-      flex:1,
+      flex: 1,
       renderCell: (params) => (
         <Stack direction="row" spacing={1}>
           <IconButton
@@ -562,19 +497,18 @@ console.log(kycDocuments)
             color="primary"
             size="small"
             title="Edit"
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
           >
             <EditIcon fontSize="small" />
           </IconButton>
-          
-      
         </Stack>
       ),
     },
   ]
 
   return (
-    <Box p={3}>
-     
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={3}>
         <Typography
           variant="h5"
           sx={{
@@ -587,35 +521,34 @@ console.log(kycDocuments)
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
           Configure document requirements by country, residence type, product, and channel
         </Typography>
-     
 
-      <Stack direction="row" justifyContent="flex-end" mb={2}>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => {
-            setEditData(null)
-            setDialogopen(true)
-          }}
-          sx={{
-            backgroundColor: '#0061B1',
-            '&:hover': {
-              backgroundColor: '#004d8c',
-            }
-          }}
-        >
-          Add Document Requirement
-        </Button>
-      </Stack>
+        <Stack direction="row" justifyContent="flex-end" mb={2}>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => {
+              setEditData(null)
+              setDialogopen(true)
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+            sx={{
+              backgroundColor: '#0061B1',
+              '&:hover': {
+                backgroundColor: '#004d8c',
+              },
+            }}
+          >
+            Add Document Requirement
+          </Button>
+        </Stack>
 
-    
         <DataGrid
           rows={rows}
           columns={columns}
           getRowId={(row: DocRequiredData) => row.reqDocCode}
           autoHeight
           loading={loading}
-           slots={{ toolbar: GridToolbar }}
+          slots={{ toolbar: GridToolbar }}
           disableRowSelectionOnClick
           pageSizeOptions={[5, 10, 25, 50]}
           sx={{
@@ -632,36 +565,36 @@ console.log(kycDocuments)
             },
           }}
         />
-     
 
-      <DocRequiredFormDialog
-        open={dialogopen}
-        onClose={() => setDialogopen(false)}
-        editData={editData}
-        onSubmit={(data: any) => handleAction(data, !!editData)}
-        countries={countries}
-        residentTypes={residentTypes.filter(r => r.active)}
-        products={products}
-        channels={channels}
-        kycDocuments={kycDocuments}
-        requirementTypes={REQUIREMENT_TYPES}
-        bfaOptions={BFA_OPTIONS}
-      />
+        <DocRequiredFormDialog
+          open={dialogopen}
+          onClose={() => setDialogopen(false)}
+          editData={editData}
+          onSubmit={(data: any) => handleAction(data, !!editData)}
+          countries={countries}
+          residentTypes={residentTypes.filter((r) => r.active)}
+          products={products}
+          channels={channels}
+          kycDocuments={kycDocuments}
+          requirementTypes={REQUIREMENT_TYPES}
+          bfaOptions={BFA_OPTIONS}
+        />
 
-      <ConfirmModal
-        open={statusModalOpen}
-        onClose={() => {
-          setStatusModalOpen(false)
-          setSelectedRow(null)
-          setStatusAction(null)
-        }}
-        onConfirm={handleStatusToggle}
-        title={statusAction === 'activate' ? 'Activate Requirement?' : 'Deactivate Requirement?'}
-        message={`Are you sure you want to ${statusAction} document requirement "${selectedRow?.reqDocCode}"?`}
-        //@ts-ignore
-        confirmText={statusAction === 'activate' ? 'Activate' : 'Deactivate'}
-        confirmColor={statusAction === 'activate' ? 'success' : 'warning'}
-      />
-    </Box>
+        <ConfirmModal
+          open={statusModalOpen}
+          onClose={() => {
+            setStatusModalOpen(false)
+            setSelectedRow(null)
+            setStatusAction(null)
+          }}
+          onConfirm={handleStatusToggle}
+          title={statusAction === 'activate' ? 'Activate Requirement?' : 'Deactivate Requirement?'}
+          message={`Are you sure you want to ${statusAction} document requirement "${selectedRow?.reqDocCode}"?`}
+          //@ts-ignore
+          confirmText={statusAction === 'activate' ? 'Activate' : 'Deactivate'}
+          confirmColor={statusAction === 'activate' ? 'success' : 'warning'}
+        />
+      </Box>
+    </HasPermission>
   )
 }

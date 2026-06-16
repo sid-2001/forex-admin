@@ -32,6 +32,8 @@ import { formatTableDate } from '@/helpers/dateformate'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 import EditIcon from '@mui/icons-material/Edit'
 import SequenceApiService from '@/services/sequence.api.service'
+import HasPermission from '@/components/permissionWrapper'
+import { HelperService } from '@/helpers/helper'
 
 const termsService = new TermsConditionsService()
 
@@ -119,6 +121,7 @@ export default function TermsConditionsGridPage() {
   const channel_service = new ChannelService()
   const screen_service = new ScreenService()
   const sequenceService = new SequenceApiService()
+  const helper = new HelperService()
 
   const userCountry = local_service?.get_staff_country()
 
@@ -335,7 +338,11 @@ export default function TermsConditionsGridPage() {
       width: 80,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
-        <IconButton color="primary" onClick={() => handleView(params.row)}>
+        <IconButton
+          color="primary"
+          onClick={() => handleView(params.row)}
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
+        >
           <EditIcon />
         </IconButton>
       ),
@@ -343,236 +350,251 @@ export default function TermsConditionsGridPage() {
   ]
 
   return (
-    <Box sx={{ height: '100vh', p: 3 }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography variant="h5">Terms & Conditions</Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setSelected(null)
-            setVersions([])
-            setEditorValue('')
-            // setSelectedCountry('')
-            // setSelectedChannel('')
-            // setSelectedScreen('')
-            setForm({
-              countryCode: '',
-              channel: '',
-              screen: '',
-              headerSectionCount: 0,
-              contentCount: 0,
-              version: '1.0',
-              active: true,
-              effectiveFromDate: '',
-              effectiveToDate: '',
-            })
-            setOpen(true)
-          }}
-        >
-          + Create Terms
-        </Button>
-      </Stack>
-      <Box sx={{ height: 500, width: '100%' }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          loading={loading}
-          slots={{ toolbar: GridToolbar }}
-          slotProps={{ toolbar: { showQuickFilter: true } }}
-          disableColumnMenu
-          getRowId={(r) => r.termsCode!}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 5,
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box sx={{ height: '100vh', p: 3 }}>
+        <Stack direction="row" justifyContent="space-between" mb={2}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              display: 'grid',
+              placeItems: 'center',
+              color: '#0061B1',
+            }}
+          >
+            Terms & Conditions
+          </Typography>
+          <Button
+            variant="contained"
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+            onClick={() => {
+              setSelected(null)
+              setVersions([])
+              setEditorValue('')
+              // setSelectedCountry('')
+              // setSelectedChannel('')
+              // setSelectedScreen('')
+              setForm({
+                countryCode: '',
+                channel: '',
+                screen: '',
+                headerSectionCount: 0,
+                contentCount: 0,
+                version: '1.0',
+                active: true,
+                effectiveFromDate: '',
+                effectiveToDate: '',
+              })
+              setOpen(true)
+            }}
+          >
+            + Create Terms
+          </Button>
+        </Stack>
+        <Box sx={{ height: 500, width: '100%' }}>
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            loading={loading}
+            slots={{ toolbar: GridToolbar }}
+            slotProps={{ toolbar: { showQuickFilter: true } }}
+            disableColumnMenu
+            getRowId={(r) => r.termsCode!}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 5,
+                },
               },
-            },
-          }}
-        />
-      </Box>
+            }}
+          />
+        </Box>
 
-      {/* ---------- DIALOG ---------- */}
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle>{selected ? 'Edit Terms' : 'Create Terms'}</DialogTitle>
+        {/* ---------- DIALOG ---------- */}
+        <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
+          <DialogTitle>{selected ? 'Edit Terms' : 'Create Terms'}</DialogTitle>
 
-        <DialogContent dividers>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
-              {/* Country Selection */}
-              <FormControl fullWidth required error={!!errors.countryCode}>
-                <InputLabel>Destination Country</InputLabel>
-                <Select
-                  value={form?.countryCode}
-                  onChange={(e: any) => handleChange('countryCode', e.target.value || '')}
-                  label="Destination Country"
-                >
-                  {countries
-                    ?.filter((item: any) => item.status === 'A')
-                    .map((country: any, index: number) => (
-                      <MenuItem
-                        //@ts-ignore
-                        key={index}
-                        value={country.countryCode}
-                      >
-                        <Typography>
-                          {country.countryName} ({country.countryCode})
-                        </Typography>
-                      </MenuItem>
-                    ))}
-                </Select>
-                <FormHelperText>{errors?.countryCode}</FormHelperText>
-              </FormControl>
-            </Grid>
-
-            <Grid item xs={12}>
-              {/* Channel Selection */}
-              <FormControl fullWidth required error={!!errors.channel}>
-                <InputLabel>Channel</InputLabel>
-                <Select value={form?.channel} onChange={(e: any) => handleChange('channel', e.target.value || '')} label="Channel">
-                  {channels ? (
-                    channels
-                      ?.filter(
-                        (item) =>
-                          //@ts-ignore
-                          item.active === true,
-                      )
-                      .map((channel: any, index: number) => (
+          <DialogContent dividers>
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              <Grid item xs={12}>
+                {/* Country Selection */}
+                <FormControl fullWidth required error={!!errors.countryCode}>
+                  <InputLabel>Destination Country</InputLabel>
+                  <Select
+                    value={form?.countryCode}
+                    onChange={(e: any) => handleChange('countryCode', e.target.value || '')}
+                    label="Destination Country"
+                  >
+                    {countries
+                      ?.filter((item: any) => item.status === 'A')
+                      .map((country: any, index: number) => (
                         <MenuItem
                           //@ts-ignore
                           key={index}
-                          //@ts-ignore
-                          value={channel.channel_code}
+                          value={country.countryCode}
                         >
                           <Typography>
-                            {
-                              //@ts-ignore
-                              channel.channel_code
-                            }{' '}
-                            ({channel?.channel_description})
+                            {country.countryName} ({country.countryCode})
                           </Typography>
                         </MenuItem>
-                      ))
-                  ) : (
-                    <></>
-                  )}
-                </Select>
-                <FormHelperText>{errors?.channel}</FormHelperText>
-              </FormControl>
-            </Grid>
+                      ))}
+                  </Select>
+                  <FormHelperText>{errors?.countryCode}</FormHelperText>
+                </FormControl>
+              </Grid>
 
-            <Grid item xs={12}>
-              {/* Screen Selection */}
-              <FormControl fullWidth required error={!!errors.screen}>
-                <InputLabel>Screen</InputLabel>
-                <Select value={form?.screen} onChange={(e: any) => handleChange('screen', e.target.value || '')} label="Screen">
-                  {screens
-                    ?.filter(
-                      (item: any) =>
+              <Grid item xs={12}>
+                {/* Channel Selection */}
+                <FormControl fullWidth required error={!!errors.channel}>
+                  <InputLabel>Channel</InputLabel>
+                  <Select value={form?.channel} onChange={(e: any) => handleChange('channel', e.target.value || '')} label="Channel">
+                    {channels ? (
+                      channels
+                        ?.filter(
+                          (item) =>
+                            //@ts-ignore
+                            item.active === true,
+                        )
+                        .map((channel: any, index: number) => (
+                          <MenuItem
+                            //@ts-ignore
+                            key={index}
+                            //@ts-ignore
+                            value={channel.channel_code}
+                          >
+                            <Typography>
+                              {
+                                //@ts-ignore
+                                channel.channel_code
+                              }{' '}
+                              ({channel?.channel_description})
+                            </Typography>
+                          </MenuItem>
+                        ))
+                    ) : (
+                      <></>
+                    )}
+                  </Select>
+                  <FormHelperText>{errors?.channel}</FormHelperText>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12}>
+                {/* Screen Selection */}
+                <FormControl fullWidth required error={!!errors.screen}>
+                  <InputLabel>Screen</InputLabel>
+                  <Select value={form?.screen} onChange={(e: any) => handleChange('screen', e.target.value || '')} label="Screen">
+                    {screens
+                      ?.filter(
+                        (item: any) =>
+                          //@ts-ignore
+                          item.Active === true,
                         //@ts-ignore
-                        item.Active === true,
-                      //@ts-ignore
-                    )
-                    .map((screen: any, index: number) => (
-                      <MenuItem key={index} value={screen.ScreenCode}>
-                        <Typography>
-                          {screen.ScreenCode} ({screen.ScreenDescription})
-                        </Typography>
-                      </MenuItem>
-                    ))}
-                </Select>
-                <FormHelperText>{errors.screen}</FormHelperText>
-              </FormControl>
+                      )
+                      .map((screen: any, index: number) => (
+                        <MenuItem key={index} value={screen.ScreenCode}>
+                          <Typography>
+                            {screen.ScreenCode} ({screen.ScreenDescription})
+                          </Typography>
+                        </MenuItem>
+                      ))}
+                  </Select>
+                  <FormHelperText>{errors.screen}</FormHelperText>
+                </FormControl>
+              </Grid>
+
+              {/* Effective From Date */}
+              <Grid item xs={6}>
+                <DynamicDatePicker
+                  label="Effective From"
+                  value={form.effectiveFromDate}
+                  onChange={(val: string) => {
+                    setForm({ ...form, effectiveFromDate: val })
+                    if (errors.effectiveFromDate) setErrors({ ...errors, effectiveFromDate: '' })
+                  }}
+                  error={!!errors.effectiveFromDate}
+                  helperText={errors.effectiveFromDate}
+                  required
+                />
+              </Grid>
+
+              {/* Effective To Date */}
+              <Grid item xs={6}>
+                <DynamicEndDatePicker
+                  label="Effective To"
+                  value={form.effectiveToDate}
+                  minDate={form.effectiveFromDate}
+                  onChange={(val: string) => {
+                    setForm({ ...form, effectiveToDate: val })
+                    if (errors.effectiveToDate) setErrors({ ...errors, effectiveToDate: '' })
+                  }}
+                  error={!!errors.effectiveToDate}
+                  helperText={errors.effectiveToDate}
+                  required
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={form.active}
+                      onChange={(e) => {
+                        setForm({ ...form, active: e.target.checked })
+                        if (errors.active) setErrors({ ...errors, active: '' })
+                      }}
+                    />
+                  }
+                  label="Active"
+                />
+              </Grid>
+
+              <Divider />
+
+              <Grid item xs={12}>
+                {/* Rich Text Editor */}
+                <Typography variant="subtitle2">Content</Typography>
+                <QuillToolbar />
+                <ReactQuill
+                  theme="snow"
+                  value={editorValue}
+                  onChange={setEditorValue}
+                  modules={{ toolbar: '#quill-toolbar' }}
+                  style={{ height: 250 }}
+                />
+              </Grid>
             </Grid>
+          </DialogContent>
 
-            {/* Effective From Date */}
-            <Grid item xs={6}>
-              <DynamicDatePicker
-                label="Effective From"
-                value={form.effectiveFromDate}
-                onChange={(val: string) => {
-                  setForm({ ...form, effectiveFromDate: val })
-                  if (errors.effectiveFromDate) setErrors({ ...errors, effectiveFromDate: '' })
-                }}
-                error={!!errors.effectiveFromDate}
-                helperText={errors.effectiveFromDate}
-                required
-              />
-            </Grid>
+          <DialogActions>
+            <Button onClick={() => setOpen(false)}>Cancel</Button>
+            <Button variant="contained" onClick={selected ? handleUpdate : handleCreate}>
+              {selected ? 'Update' : 'Create'}
+            </Button>
+          </DialogActions>
+        </Dialog>
 
-            {/* Effective To Date */}
-            <Grid item xs={6}>
-              <DynamicEndDatePicker
-                label="Effective To"
-                value={form.effectiveToDate}
-                minDate={form.effectiveFromDate}
-                onChange={(val: string) => {
-                  setForm({ ...form, effectiveToDate: val })
-                  if (errors.effectiveToDate) setErrors({ ...errors, effectiveToDate: '' })
-                }}
-                error={!!errors.effectiveToDate}
-                helperText={errors.effectiveToDate}
-                required
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={form.active}
-                    onChange={(e) => {
-                      setForm({ ...form, active: e.target.checked })
-                      if (errors.active) setErrors({ ...errors, active: '' })
-                    }}
-                  />
-                }
-                label="Active"
-              />
-            </Grid>
-
-            <Divider />
-
-            <Grid item xs={12}>
-              {/* Rich Text Editor */}
-              <Typography variant="subtitle2">Content</Typography>
-              <QuillToolbar />
-              <ReactQuill
-                theme="snow"
-                value={editorValue}
-                onChange={setEditorValue}
-                modules={{ toolbar: '#quill-toolbar' }}
-                style={{ height: 250 }}
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-
-        <DialogActions>
-          <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={selected ? handleUpdate : handleCreate}>
-            {selected ? 'Update' : 'Create'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Centered Snackbar */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        sx={{
-          top: { xs: '10%', sm: '20%' },
-          '& .MuiAlert-root': {
-            fontSize: '0.9rem',
-            padding: '8px 16px',
-          },
-        }}
-      >
-        <Alert severity={snackbar.severity} variant="filled" elevation={6}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+        {/* Centered Snackbar */}
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={3000}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          sx={{
+            top: { xs: '10%', sm: '20%' },
+            '& .MuiAlert-root': {
+              fontSize: '0.9rem',
+              padding: '8px 16px',
+            },
+          }}
+        >
+          <Alert severity={snackbar.severity} variant="filled" elevation={6}>
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </Box>
+    </HasPermission>
   )
 }

@@ -1,5 +1,5 @@
 // pages/forex-country/index.tsx
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Box, Button, IconButton, Stack, Typography } from '@mui/material'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
@@ -8,9 +8,14 @@ import ForexCountryService, { ForexCountry } from '../../services/forextcoutnry.
 import ForexCountryDialog from '../../components/forex-county-dialog'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
+import HasPermission from '@/components/permissionWrapper'
+import { LocalStorageService } from '@/helpers/local-storage-service'
+import { HelperService } from '@/helpers/helper'
 
 export default function ForexCountryMaster() {
   const service = new ForexCountryService()
+  const local_service = useMemo(() => new LocalStorageService(), [])
+  const helper = new HelperService()
 
   const [rows, setRows] = useState<ForexCountry[]>([])
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -78,6 +83,7 @@ export default function ForexCountryMaster() {
               setEditData(params.row)
               setDialogOpen(true)
             }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
           >
             <EditIcon />
           </IconButton>
@@ -92,57 +98,60 @@ export default function ForexCountryMaster() {
   ]
 
   return (
-    <Box p={2} sx={{ width: '85vw' }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            display: 'grid',
-            placeItems: 'center',
-            // mb: 5,
-            color: '#0061B1',
-          }}
-        >
-          {'Country master'.toUpperCase()}
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setDialogOpen(true)
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={2} sx={{ width: '85vw' }}>
+        <Stack direction="row" justifyContent="space-between" mb={2}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              display: 'grid',
+              placeItems: 'center',
+              // mb: 5,
+              color: '#0061B1',
+            }}
+          >
+            {'Country master'.toUpperCase()}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setDialogOpen(true)
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add
+          </Button>
+        </Stack>
 
-      <DataGrid
-        rows={rows}
-        getRowId={(row) => row.countryCode}
-        columns={columns}
-        autoHeight
-        pageSizeOptions={[5]}
-        slots={{ toolbar: GridToolbar }}
-        slotProps={{ toolbar: { showQuickFilter: true } }}
-        disableColumnMenu
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5, // Default to 5
+        <DataGrid
+          rows={rows}
+          getRowId={(row) => row.countryCode}
+          columns={columns}
+          autoHeight
+          pageSizeOptions={[5]}
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5, // Default to 5
+              },
             },
-          },
-        }}
-      />
+          }}
+        />
 
-      <ForexCountryDialog
-        open={dialogOpen}
-        editData={editData}
-        onClose={() => setDialogOpen(false)}
-        onSubmit={editData ? handleUpdate : handleCreate}
-      />
-    </Box>
+        <ForexCountryDialog
+          open={dialogOpen}
+          editData={editData}
+          onClose={() => setDialogOpen(false)}
+          onSubmit={editData ? handleUpdate : handleCreate}
+        />
+      </Box>
+    </HasPermission>
   )
 }

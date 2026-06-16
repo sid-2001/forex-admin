@@ -15,6 +15,8 @@ import dayjs from 'dayjs'
 import { getLiveAuditData } from '@/helpers/dynamicLocations'
 import { Chip } from '@mui/material'
 import { KycLimitTypeService } from '@/services/kycLimitType.service'
+import HasPermission from '@/components/permissionWrapper'
+import { HelperService } from '@/helpers/helper'
 
 // Types
 interface KycLimitTypeData {
@@ -50,6 +52,7 @@ export default function KycLimitTypeMaster() {
 
   const local_service = useMemo(() => new LocalStorageService(), [])
   const kycLimitTypeService = useMemo(() => new KycLimitTypeService(), [])
+  const helper = new HelperService()
 
   const formatTableDate = (dateString: string) => {
     if (!dateString) return ''
@@ -305,6 +308,7 @@ export default function KycLimitTypeMaster() {
             color="primary"
             size="small"
             title="Edit"
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
           >
             <EditIcon fontSize="small" />
           </IconButton>
@@ -342,109 +346,112 @@ export default function KycLimitTypeMaster() {
   ]
 
   return (
-    <Box p={3} sx={{ width: '100%' }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography
-          variant="h4"
-          component="h1"
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={3} sx={{ width: '100%' }}>
+        <Stack direction="row" justifyContent="space-between" mb={2}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              display: 'grid',
+              placeItems: 'center',
+              // mb: 5,
+              color: '#0061B1',
+            }}
+          >
+            {'KYC Limit Type Master'.toUpperCase()}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setDialogopen(true)
+            }}
+            sx={{
+              backgroundColor: '#0061B1',
+              '&:hover': {
+                backgroundColor: '#004d8c',
+              },
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add
+          </Button>
+        </Stack>
+
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={(row: KycLimitTypeData) => row.kycLimitTypeCode}
+          autoHeight
+          disableRowSelectionOnClick
+          slots={{ toolbar: GridToolbar }}
+          // slotProps={{ toolbar: { showQuickFilter: true } }}
+          // pageSizeOptions={[5, 10, 25, 50]}
           sx={{
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            display: 'grid',
-            placeItems: 'center',
-            // mb: 5,
-            color: '#0061B1',
-          }}
-        >
-          {'KYC Limit Type Master'.toUpperCase()}
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setDialogopen(true)
-          }}
-          sx={{
-            backgroundColor: '#0061B1',
-            '&:hover': {
-              backgroundColor: '#004d8c',
+            '& .MuiDataGrid-cell': {
+              borderBottom: '1px solid #f0f0f0',
+            },
+            '& .MuiDataGrid-row:hover': {
+              backgroundColor: '#f9f9f9',
             },
           }}
-        >
-          Add
-        </Button>
-      </Stack>
-
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        getRowId={(row: KycLimitTypeData) => row.kycLimitTypeCode}
-        autoHeight
-        disableRowSelectionOnClick
-        slots={{ toolbar: GridToolbar }}
-        // slotProps={{ toolbar: { showQuickFilter: true } }}
-        // pageSizeOptions={[5, 10, 25, 50]}
-        sx={{
-          '& .MuiDataGrid-cell': {
-            borderBottom: '1px solid #f0f0f0',
-          },
-          '& .MuiDataGrid-row:hover': {
-            backgroundColor: '#f9f9f9',
-          },
-        }}
-        // initialState={{
-        //   pagination: {
-        //     paginationModel: {
-        //       pageSize: 10,
-        //     },
-        //   },
-        //   sorting: {
-        //     sortModel: [{ field: 'createdLocalDateTime', sort: 'desc' }],
-        //   },
-        // }}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5,
+          // initialState={{
+          //   pagination: {
+          //     paginationModel: {
+          //       pageSize: 10,
+          //     },
+          //   },
+          //   sorting: {
+          //     sortModel: [{ field: 'createdLocalDateTime', sort: 'desc' }],
+          //   },
+          // }}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5,
+              },
             },
-          },
-        }}
-      />
+          }}
+        />
 
-      <KycLimitTypeFormDialog
-        open={dialogopen}
-        onClose={() => setDialogopen(false)}
-        editData={editData}
-        onSubmit={(data: any) => handleAction(data, !!editData)}
-      />
+        <KycLimitTypeFormDialog
+          open={dialogopen}
+          onClose={() => setDialogopen(false)}
+          editData={editData}
+          onSubmit={(data: any) => handleAction(data, !!editData)}
+        />
 
-      {/* Status Change Confirmation Modal */}
-      <ConfirmModal
-        open={statusModalOpen}
-        onClose={() => {
-          setStatusModalOpen(false)
-          setSelectedRow(null)
-          setStatusAction(null)
-        }}
-        onConfirm={handleStatusToggle}
-        title={statusAction === 'activate' ? 'Activate Limit Type?' : 'Deactivate Limit Type?'}
-        message={`Are you sure you want to ${statusAction} limit type "${selectedRow?.kycLimitTypeCode}"?`}
-        //@ts-ignore
-        confirmText={statusAction === 'activate' ? 'Activate' : 'Deactivate'}
-        confirmColor={statusAction === 'activate' ? 'success' : 'warning'}
-      />
+        {/* Status Change Confirmation Modal */}
+        <ConfirmModal
+          open={statusModalOpen}
+          onClose={() => {
+            setStatusModalOpen(false)
+            setSelectedRow(null)
+            setStatusAction(null)
+          }}
+          onConfirm={handleStatusToggle}
+          title={statusAction === 'activate' ? 'Activate Limit Type?' : 'Deactivate Limit Type?'}
+          message={`Are you sure you want to ${statusAction} limit type "${selectedRow?.kycLimitTypeCode}"?`}
+          //@ts-ignore
+          confirmText={statusAction === 'activate' ? 'Activate' : 'Deactivate'}
+          confirmColor={statusAction === 'activate' ? 'success' : 'warning'}
+        />
 
-      {/* Delete/Deactivate Modal */}
-      <ConfirmModal
-        open={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
-        onConfirm={handleDelete}
-        title="Deactivate Limit Type?"
-        message={`Are you sure you want to deactivate limit type "${selectedRow?.kycLimitTypeCode}"?`}
-        //@ts-ignore
-        confirmText="Deactivate"
-        confirmColor="error"
-      />
-    </Box>
+        {/* Delete/Deactivate Modal */}
+        <ConfirmModal
+          open={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          onConfirm={handleDelete}
+          title="Deactivate Limit Type?"
+          message={`Are you sure you want to deactivate limit type "${selectedRow?.kycLimitTypeCode}"?`}
+          //@ts-ignore
+          confirmText="Deactivate"
+          confirmColor="error"
+        />
+      </Box>
+    </HasPermission>
   )
 }

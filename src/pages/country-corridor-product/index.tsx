@@ -41,12 +41,16 @@ import ProductService from '@/services/product.service'
 import { formatTableDate } from '@/helpers/dateformate'
 
 import { CountryCorridorService } from '@/services/countryCorridor.service'
+import HasPermission from '@/components/permissionWrapper'
+import { HelperService } from '@/helpers/helper'
 
 export default function CountryCorridorProductMaster() {
   const service = useMemo(() => new CountryCorridorProductService(), [])
   const productService = useMemo(() => new ProductService(), [])
   const subServiceService = useMemo(() => new ProductSubServiceService(), [])
   const coutry_corridor_service = new CountryCorridorService()
+  const helper = new HelperService()
+  const local_service = new LocalStorageService()
 
   const [rows, setRows] = useState<any[]>([])
   const [filteredRows, setFilteredRows] = useState<any[]>([])
@@ -410,6 +414,7 @@ export default function CountryCorridorProductMaster() {
             setOpen(true)
             setIsFormChanged(false)
           }}
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
         >
           <EditIcon fontSize="small" />
         </IconButton>
@@ -418,84 +423,87 @@ export default function CountryCorridorProductMaster() {
   ]
 
   return (
-    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { backgroundColor: '#f5f5f5', fontWeight: 'bold' } }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography
-          variant="h4"
-          component="h1"
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { backgroundColor: '#f5f5f5', fontWeight: 'bold' } }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              display: 'grid',
+              placeItems: 'center',
+              color: '#0061B1',
+            }}
+          >
+            {'Country Corridor Product Master'.toUpperCase()}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setOpen(true)
+              setIsFormChanged(false)
+            }}
+            sx={{ backgroundColor: '#0061B1' }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add
+          </Button>
+        </Stack>
+
+        {/* Search and Filter Bar */}
+
+        <DataGrid
+          rows={filteredRows}
+          columns={columns}
+          getRowId={(row) => row.countryCorridorProductCode || Math.random()}
+          autoHeight
+          disableRowSelectionOnClick
+          slots={{ toolbar: CustomToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
+          // density="standard"
+          //@ts-ignore
+          slotProps={{
+            toolbar: {
+              showQuickFilter: true,
+              showDensitySelector: true, // ✅ enable density
+            },
+          }}
+          paginationModel={{ page, pageSize }}
+          onPaginationModelChange={(model) => {
+            setPage(model.page)
+            setPageSize(model.pageSize)
+          }}
+          pageSizeOptions={[5, 10, 25, 50]}
           sx={{
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            display: 'grid',
-            placeItems: 'center',
-            color: '#0061B1',
+            boxShadow: 2,
+            border: 2,
+            borderColor: '#f5f5f5',
+            '& .MuiDataGrid-cell:hover': {
+              color: 'primary.main',
+            },
+            '& .MuiDataGrid-columnHeaders': {
+              backgroundColor: '#f5f5f5',
+            },
           }}
-        >
-          {'Country Corridor Product Master'.toUpperCase()}
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setOpen(true)
-            setIsFormChanged(false)
-          }}
-          sx={{ backgroundColor: '#0061B1' }}
-        >
-          Add
-        </Button>
-      </Stack>
+        />
 
-      {/* Search and Filter Bar */}
-
-      <DataGrid
-        rows={filteredRows}
-        columns={columns}
-        getRowId={(row) => row.countryCorridorProductCode || Math.random()}
-        autoHeight
-        disableRowSelectionOnClick
-        slots={{ toolbar: CustomToolbar }}
-        slotProps={{ toolbar: { showQuickFilter: true } }}
-        disableColumnMenu
-        // density="standard"
-        //@ts-ignore
-        slotProps={{
-          toolbar: {
-            showQuickFilter: true,
-            showDensitySelector: true, // ✅ enable density
-          },
-        }}
-        paginationModel={{ page, pageSize }}
-        onPaginationModelChange={(model) => {
-          setPage(model.page)
-          setPageSize(model.pageSize)
-        }}
-        pageSizeOptions={[5, 10, 25, 50]}
-        sx={{
-          boxShadow: 2,
-          border: 2,
-          borderColor: '#f5f5f5',
-          '& .MuiDataGrid-cell:hover': {
-            color: 'primary.main',
-          },
-          '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: '#f5f5f5',
-          },
-        }}
-      />
-
-      <CountryCorridorProductFormDialog
-        open={open}
-        handleClose={handleDialogClose}
-        editData={editData}
-        refreshList={fetchList}
-        showAlert={showAlert}
-        onFormChange={handleFormChange}
-        isUpdateDisabled={editData ? !isFormChanged : false}
-        products={products}
-        subServices={subServices}
-        countries={countries as any}
-      />
-    </Box>
+        <CountryCorridorProductFormDialog
+          open={open}
+          handleClose={handleDialogClose}
+          editData={editData}
+          refreshList={fetchList}
+          showAlert={showAlert}
+          onFormChange={handleFormChange}
+          isUpdateDisabled={editData ? !isFormChanged : false}
+          products={products}
+          subServices={subServices}
+          countries={countries as any}
+        />
+      </Box>
+    </HasPermission>
   )
 }

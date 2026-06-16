@@ -22,13 +22,13 @@ import CompactLocationBar from '@/components/location'
 import ProductConfigService from '@/services/product.config.service'
 
 const Dashboard = () => {
-  const [applicatnData, setapplicantData] = useState<
-    Array<{
-      applicantId: String
-      applicantName: String
-      numberOfTransactions: Number
-    }>
-  >([])
+  // const [applicatnData, setapplicantData] = useState<
+  //   Array<{
+  //     applicantId: String
+  //     applicantName: String
+  //     numberOfTransactions: Number
+  //   }>
+  // >([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [recentTransaction, setrecentTransaction] = useState<any>([])
   const [cards, setCards] = useState<Array<PaymentGateway>>([])
@@ -51,6 +51,7 @@ const Dashboard = () => {
   const [open, setOpen] = useRecoilState(alertState)
   const [text, setText] = useRecoilState(alertTextState)
   const [type, settype] = useRecoilState(alertTypeState)
+  const service = new ProductConfigService()
 
   const getGatewayList = () => {
     static_service.getStaticPaymentGateway(local_service?.get_staff_country()).then((data: any) => {
@@ -60,8 +61,6 @@ const Dashboard = () => {
 
   const fetchProductConfig = async (countryCode: string) => {
     try {
-      // const res = await ProductConfigService.getByCountryCode(countryCode)
-      const service = new ProductConfigService()
       const res = await service.getByCountryCode(countryCode)
       if (res?.status && res?.data?.length > 0) {
         alert(res.data[0])
@@ -88,15 +87,16 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
-    getGatewayList()
-    fetchProductConfig('IN')
+    // commented out for uae corridor
+    //  getGatewayList()
+    // fetchProductConfig('IN')
     fetchConsumersData()
     setIsLoading(true)
     getOutwardTransactionsList()
     setSelectedApp('Dashboard')
-    transaction_service.getTransactionSummary(userCountry).then((data) => {
-      setapplicantData(data?.data)
-    })
+    // transaction_service.getTransactionSummary(userCountry).then((data) => {
+    //   setapplicantData(data?.data)
+    // })
   }, [])
 
   const bankAccounts = [
@@ -138,55 +138,16 @@ const Dashboard = () => {
   ]
 
   useEffect(() => {
-    trx_service.getBalanceEnquiry().then((data) => {
-      setBalance(data as any)
-    })
+    if (userCountry !== 'UAE') {
+      trx_service.getBalanceEnquiry().then((data) => {
+        setBalance(data as any)
+      })
+    }
 
     setTimeout(() => {
       setLoader(false)
     }, 2000)
   }, [loader])
-
-  const [barOptions] = useState<AgChartOptions>({
-    title: { text: 'Monthly Volume' },
-    data: [
-      { month: 'Jan', volume: 4000 },
-      { month: 'Feb', volume: 3000 },
-      { month: 'Mar', volume: 2000 },
-      { month: 'Apr', volume: 2780 },
-      { month: 'May', volume: 1890 },
-      { month: 'Jun', volume: 2390 },
-    ],
-    series: [
-      {
-        //@ts-ignore
-        type: 'column',
-        xKey: 'month',
-        yKey: 'volume',
-        yName: 'Transaction Volume',
-      },
-    ],
-  })
-
-  const [lineOptions] = useState<AgChartOptions>({
-    title: { text: 'Monthly Transactions' },
-    data: [
-      { month: 'Jan', transactions: 240 },
-      { month: 'Feb', transactions: 139 },
-      { month: 'Mar', transactions: 980 },
-      { month: 'Apr', transactions: 390 },
-      { month: 'May', transactions: 480 },
-      { month: 'Jun', transactions: 380 },
-    ],
-    series: [
-      {
-        type: 'line',
-        xKey: 'month',
-        yKey: 'transactions',
-        yName: 'Transactions',
-      },
-    ],
-  })
 
   // 🔝 Put this at the top of your file (before the component)
   const RECENT_TRANSACTIONS_COLUMNS = [
@@ -317,36 +278,6 @@ const Dashboard = () => {
     </GridToolbarContainer>
   )
 
-  const BankBalanceCarousel = () => {
-    const scrollRef = React.useRef<HTMLDivElement>(null)
-
-    const scroll = (offset: number) => {
-      if (scrollRef.current) {
-        scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' })
-      }
-    }
-
-    return (
-      <Box position="relative" width="100%">
-        {/* Scroll Buttons */}
-
-        <Box>
-          {bankAccounts.map((bank, index) => (
-            <Box key={index}>
-              <BankCard
-                //@ts-ignore
-                description=""
-                title={bank?.name}
-                balance={bank?.balance}
-                image_url={bank?.image_url}
-              ></BankCard>
-            </Box>
-          ))}
-        </Box>
-      </Box>
-    )
-  }
-
   const handleToggle = (id: string, newStatus: boolean) => {
     setCards((prevCards) => prevCards.map((card) => (card.id === id ? { ...card, activeStatus: newStatus } : card)))
     static_service.paymentGatewayStatus(id, newStatus).catch(() => {
@@ -394,68 +325,6 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </Box>
-    )
-  }
-
-  const BankCard = ({
-    //@ts-ignore
-    image_url,
-    //@ts-ignore
-    title,
-    //@ts-ignore
-    description,
-    //@ts-ignore
-    balance,
-  }) => {
-    const handleToggle = () => {
-      setEnabled((prev) => !prev)
-    }
-
-    return (
-      <Card
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          p: 1.2,
-          borderRadius: 3,
-          height: '90%',
-          boxShadow: 3,
-          border: '1px solid',
-          borderColor: 'primary.light',
-          opacity: enabled ? 1 : 0.5, // dim when disabled
-          pointerEvents: enabled ? 'auto' : 'none', // disable interactions
-        }}
-      >
-        <CardMedia component="img" image={image_url} alt={title} sx={{ width: '50vw', height: '7vh', borderRadius: 2 }} />
-        <CardContent sx={{ ml: 2, flexGrow: 1 }}>
-          <Typography variant="h6">{title}</Typography>
-          <Typography variant="body2" color="text.secondary">
-            ${balance}
-            {/* <Switch checked={enabled} onChange={handleToggle} /> */}
-          </Typography>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  //@ts-ignore
-  const BankCards: React.FC<BankCardsProps> = ({ image_url, title }) => {
-    return (
-      <Card
-        sx={{
-          border: '1px solid',
-          borderColor: 'primary.light',
-          borderRadius: 2,
-          textAlign: 'center',
-        }}
-      >
-        <CardMedia component="img" image={image_url} alt={title} sx={{ height: 70, objectFit: 'contain', mt: 1 }} />
-        <CardContent sx={{ p: 1 }}>
-          <Typography variant="body2" fontWeight="bold">
-            {title}
-          </Typography>
-        </CardContent>
-      </Card>
     )
   }
 
@@ -556,12 +425,8 @@ const Dashboard = () => {
               {userCountry !== 'UAE' && (
                 <Card sx={{ border: '2px solid', borderColor: '#79CBF0', mb: 2, p: 1 }}>
                   <CardContent sx={{}}>
-                    {/* <Typography variant="subtitle1" fontWeight={800} gutterBottom>
-                  Payment Gateways
-                  </Typography> */}
-
                     <Grid container spacing={2}>
-                      <HorizontalCardCarousel></HorizontalCardCarousel>
+                      <HorizontalCardCarousel />
 
                       {bankAccounts
                         .filter((e) => e.country == userCountry)

@@ -2,7 +2,6 @@ import { ThemeProvider } from '@mui/material/styles'
 import {
   Box,
   Typography,
-  Avatar,
   List,
   ListItem,
   IconButton,
@@ -10,19 +9,13 @@ import {
   ListItemIcon,
   Toolbar,
   Tooltip,
-  Chip,
   MenuItem,
   Select,
   ListItemText,
-  ClickAwayListener,
-  Popper,
-  MenuList,
   DialogContent,
   Dialog,
-  CardMedia,
-  Divider,
 } from '@mui/material'
-import { color, styled } from '@mui/system'
+import { styled } from '@mui/system'
 import { LogoWhite } from '@/assets/images'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
@@ -38,16 +31,13 @@ import {
   Brightness7,
   CardMembershipRounded,
   CardTravel,
-  ExpandLess,
-  ExpandMore,
   FilterBAndW,
   HomeRepairServiceRounded,
   LeakRemove,
 } from '@mui/icons-material'
-import { alertState, loaderState, selectedAppState, loaderStateNew, availableBalanceState } from '@/states/state'
+import { alertState, selectedAppState, loaderStateNew } from '@/states/state'
 import { useState, useEffect } from 'react'
 import Backdrop from '@mui/material/Backdrop'
-import LogoutIcon from '@mui/icons-material/Logout'
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline'
 import Stack from '@mui/material/Stack'
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows'
@@ -60,7 +50,6 @@ import ContactEmergencyIcon from '@mui/icons-material/ContactEmergency'
 import SourceIcon from '@mui/icons-material/Source'
 import ShowChartIcon from '@mui/icons-material/ShowChart'
 import ViewModuleIcon from '@mui/icons-material/ViewModule'
-import ConfirmationModal from '../logout/logout.component'
 import LoyaltyIcon from '@mui/icons-material/Loyalty'
 import ErrorIcon from '@mui/icons-material/Error'
 import ProfileMenu from '../profilesetting'
@@ -72,10 +61,9 @@ import LanguageIcon from '@mui/icons-material/Language'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import ReportIcon from '@mui/icons-material/Report'
 import ReportOffIcon from '@mui/icons-material/ReportOff'
-// import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing'
-import { FolderIcon, GavelIcon, LanguagesIcon, Menu, QrCodeIcon, SettingsIcon } from 'lucide-react'
+import { LanguagesIcon, QrCodeIcon } from 'lucide-react'
 import MonitorIcon from '@mui/icons-material/Monitor'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'
 import SmsIcon from '@mui/icons-material/Sms'
@@ -97,7 +85,6 @@ import RuleIcon from '@mui/icons-material/Rule'
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered'
-import GroupAddIcon from '@mui/icons-material/GroupAdd'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import PrivacyTipIcon from '@mui/icons-material/PrivacyTip'
 import CampaignIcon from '@mui/icons-material/Campaign'
@@ -490,14 +477,6 @@ const MASTER_MENU = [
   },
 ]
 
-// const chunkArray = (arr: any[], size: number) => {
-//   const chunks = []
-//   for (let i = 0; i < arr.length; i += size) {
-//     chunks.push(arr.slice(i, i + size))
-//   }
-//   return chunks
-// }
-
 const chunkArray = (arr: any[], size: number) => {
   const chunks = []
   for (let i = 0; i < arr.length; i += size) {
@@ -566,16 +545,10 @@ const DashboardLayout = () => {
   const staffCountry = local_service?.get_staff_country()
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
   const [openloader, setopenloader] = useRecoilState(loaderStateNew)
-  // const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDrawerOpen, setDrawerOpen] = useState(false)
 
   const navigate = useNavigate()
-
   const theme = useTheme()
-
-  // const handleModalClose = () => {
-  //   setIsModalOpen(!isModalOpen)
-  // }
 
   const [history, setHistory] = useRecoilState(menuHistoryState)
 
@@ -586,14 +559,6 @@ const DashboardLayout = () => {
       return [...oldHistory, menuName]
     })
   }
-
-  // 2. REMOVE: Removes a specific item by name
-  const removeFromHistory = (menuName: string) => {
-    setHistory((oldHistory) => oldHistory.filter((item) => item !== menuName))
-  }
-
-  // 3. CLEAR: Empty the whole list
-  const clearHistory = () => setHistory([])
 
   const menuItems = [
     {
@@ -848,11 +813,6 @@ const DashboardLayout = () => {
     }, 2000)
   }, [open])
 
-  const handleLogout = () => {
-    navigate('/login')
-    localStorage.clear()
-  }
-
   return (
     <ThemeProvider theme={theme}>
       <LoaderBackdrop openloader={openloader} imageSrc=".." />
@@ -1076,66 +1036,7 @@ const DashboardLayout = () => {
                   ></MasterDropdownIcon>
                 </Stack>
               </ListItem>
-
-              {/* <ListItem
-                button
-                key="logout"
-                id="imp-logout"
-                sx={{
-                  textAlign: 'center',
-                  alignItems: 'center',
-                }}
-                onClick={() => {
-                  setIsModalOpen(true)
-                }}
-              >
-                <Stack>
-                  {isDrawerOpen && (
-                    <Item
-                      id="imp-logout-menu"
-                      style={{
-                        color: 'white',
-                        padding: '1%',
-                      }}
-                    >
-                      Logout
-                    </Item>
-                  )}
-                </Stack>
-              </ListItem> */}
             </List>
-
-            {/* <List
-              sx={{
-                textAlign: 'center',
-              }}
-            >
-              <ListItem
-                id="imp-logout-parent"
-                button
-                key="logout1"
-                sx={{
-                  textAlign: 'center',
-                  alignItems: 'center',
-                }}
-                onClick={() => {
-                  setIsModalOpen(true)
-                }}
-              >
-                <Stack>
-                  <Item>
-                    <ListItemIcon
-                      sx={{
-                        textAlign: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <LogoutIcon sx={{ color: 'white' }} />
-                    </ListItemIcon>
-                  </Item>
-                </Stack>
-              </ListItem>
-            </List> */}
           </Box>
 
           <Box
@@ -1161,21 +1062,6 @@ const DashboardLayout = () => {
               </Header>
               <Outlet />
             </MainContent>
-            {/* 
-            {isModalOpen && (
-              <ConfirmationModal
-                isOpen={isModalOpen}
-                message="Do you really want to logout?"
-                handleConfirm={() => {
-                  handleLogout()
-                }}
-                handleClose={() => {
-                  handleModalClose()
-                }}
-                confirmBtnText="Logout"
-                showIcon={true}
-              />
-            )} */}
           </Box>
         </Box>
       </DashboardContainer>

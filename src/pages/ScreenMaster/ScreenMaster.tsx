@@ -10,6 +10,8 @@ import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import dayjs from 'dayjs'
 import { getLiveAuditData } from '@/helpers/dynamicLocations'
 import { formatTableDate } from '@/helpers/dateformate'
+import { HelperService } from '@/helpers/helper'
+import HasPermission from '@/components/permissionWrapper'
 
 export default function ScreenMaster() {
   const [rows, setRows] = useState<Screen[]>([])
@@ -22,7 +24,7 @@ export default function ScreenMaster() {
 
   const local_service = useMemo(() => new LocalStorageService(), [])
   const screen_service = useMemo(() => new ScreenService(), [])
-
+  const helper = new HelperService()
   const fetchData = useCallback(async () => {
     try {
       const res: any = await screen_service.getScreenList()
@@ -98,12 +100,6 @@ export default function ScreenMaster() {
     )
   }
 
-  const formatDateForTable = (dateStr: any) => {
-    if (!dateStr) return '-'
-    const date = new Date(dateStr)
-    return isNaN(date.getTime()) ? '-' : date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-  }
-
   const columns: GridColDef[] = [
     {
       field: 'ScreenCode',
@@ -155,6 +151,7 @@ export default function ScreenMaster() {
             setEditData(params.row)
             setDialogopen(true)
           }}
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
           color="primary"
         >
           <EditIcon fontSize="small" />
@@ -164,59 +161,62 @@ export default function ScreenMaster() {
   ]
 
   return (
-    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            display: 'grid',
-            placeItems: 'center',
-            // mb: 5,
-            color: '#0061B1',
-          }}
-        >
-          {'Screen master'.toUpperCase()}
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setDialogopen(true)
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              display: 'grid',
+              placeItems: 'center',
+              // mb: 5,
+              color: '#0061B1',
+            }}
+          >
+            {'Screen master'.toUpperCase()}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setDialogopen(true)
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add
+          </Button>
+        </Stack>
 
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        getRowId={(row: any) => `${row.ScreenCode}-${row.CountryCode}`}
-        autoHeight
-        // density="standard"
-        slots={{ toolbar: GridToolbar }}
-        slotProps={{ toolbar: { showQuickFilter: true } }}
-        disableColumnMenu
-        disableRowSelectionOnClick
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5,
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={(row: any) => `${row.ScreenCode}-${row.CountryCode}`}
+          autoHeight
+          // density="standard"
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
+          disableRowSelectionOnClick
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5,
+              },
             },
-          },
-        }}
-        // pageSizeOptions={[5, 10, 20]}
-      />
+          }}
+          // pageSizeOptions={[5, 10, 20]}
+        />
 
-      <ScreenFormDialog
-        open={dialogopen}
-        onClose={() => setDialogopen(false)}
-        editData={editData}
-        onSubmit={(data: any) => handleAction(data, !!editData)}
-      />
-    </Box>
+        <ScreenFormDialog
+          open={dialogopen}
+          onClose={() => setDialogopen(false)}
+          editData={editData}
+          onSubmit={(data: any) => handleAction(data, !!editData)}
+        />
+      </Box>
+    </HasPermission>
   )
 }

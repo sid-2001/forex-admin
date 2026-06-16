@@ -32,6 +32,9 @@ import ConfirmationModal from '@/components/logout/logout.component'
 import SequenceApiService from '../../services/sequence.api.service'
 import SequenceDialog from '../../components/sequence-dialog'
 import { formatTableDate } from '@/helpers/dateformate'
+import HasPermission from '@/components/permissionWrapper'
+import { LocalStorageService } from '@/helpers/local-storage-service'
+import { HelperService } from '@/helpers/helper'
 
 function CustomToolbar({ selectedRows, clearSelection, onClickCopy }: { selectedRows: any; clearSelection: any; onClickCopy: any }) {
   if (selectedRows.length > 0) {
@@ -85,6 +88,8 @@ export default function SequenceMasterTable() {
   const [copiedCountry, setCopiedCountry] = useState(null)
 
   const sequenceService = useMemo(() => new SequenceApiService(), [])
+  const helper = new HelperService()
+  const local_service = new LocalStorageService()
 
   const showAlert = (t: 'success' | 'error', m: string) => {
     setType(t)
@@ -207,6 +212,7 @@ export default function SequenceMasterTable() {
             setEditData(params.row)
             setDialogOpen(true)
           }}
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
         >
           <EditIcon fontSize="small" />
         </IconButton>
@@ -215,142 +221,145 @@ export default function SequenceMasterTable() {
   ]
 
   return (
-    <Box p={3} sx={{ width: '100%', '& .header-bg': { fontWeight: 'bold', bgcolor: '#f5f5f5' } }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
-          GENERATE SEQUENCE MASTER
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setDialogOpen(true)
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={3} sx={{ width: '100%', '& .header-bg': { fontWeight: 'bold', bgcolor: '#f5f5f5' } }}>
+        <Stack direction="row" justifyContent="space-between" mb={2}>
+          <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
+            GENERATE SEQUENCE MASTER
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setDialogOpen(true)
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add
+          </Button>
+        </Stack>
 
-      <Box sx={{ height: 400, width: '100%', bgcolor: 'white' }}>
-        <DataGrid
-          rows={filteredRows}
-          columns={columns}
-          loading={loading}
-          getRowId={(row) => row.sequenceId}
-          slots={{
-            toolbar: () => (
-              <CustomToolbar
-                selectedRows={selectedRows}
-                clearSelection={() => setSelectedRows([])}
-                onClickCopy={() => setOpenCopyConfirmDialog(true)}
-              />
-            ),
-          }}
-          slotProps={{ toolbar: { showQuickFilter: true } }}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 5,
+        <Box sx={{ height: 400, width: '100%', bgcolor: 'white' }}>
+          <DataGrid
+            rows={filteredRows}
+            columns={columns}
+            loading={loading}
+            getRowId={(row) => row.sequenceId}
+            slots={{
+              toolbar: () => (
+                <CustomToolbar
+                  selectedRows={selectedRows}
+                  clearSelection={() => setSelectedRows([])}
+                  onClickCopy={() => setOpenCopyConfirmDialog(true)}
+                />
+              ),
+            }}
+            slotProps={{ toolbar: { showQuickFilter: true } }}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 5,
+                },
               },
-            },
+            }}
+            checkboxSelection
+            disableRowSelectionOnClick
+            rowSelectionModel={selectedRows}
+            onRowSelectionModelChange={(ids: any) => {
+              setSelectedRows(ids)
+            }}
+          />
+        </Box>
+
+        <SequenceDialog
+          open={dialogOpen}
+          countryCorridorList={countriesData}
+          editData={editData}
+          onClose={() => setDialogOpen(false)}
+          refreshList={fetchData}
+          showAlert={showAlert}
+        />
+        <ConfirmationModal
+          showIcon={false}
+          confirmBtnText={'Yes, Copy'}
+          isOpen={openCopyConfirmDialog}
+          message={'Do you want to copy ' + `${selectedRows.length}` + `${selectedRows.length > 1 ? ' records' : ' record'}`}
+          handleConfirm={() => {
+            // open new dialog box
+            setShowCountryModal(true)
+            setOpenCopyConfirmDialog(false)
           }}
-          checkboxSelection
-          disableRowSelectionOnClick
-          rowSelectionModel={selectedRows}
-          onRowSelectionModelChange={(ids: any) => {
-            setSelectedRows(ids)
+          handleClose={() => {
+            setOpenCopyConfirmDialog(false)
+            setSelectedRows([])
           }}
         />
-      </Box>
-
-      <SequenceDialog
-        open={dialogOpen}
-        countryCorridorList={countriesData}
-        editData={editData}
-        onClose={() => setDialogOpen(false)}
-        refreshList={fetchData}
-        showAlert={showAlert}
-      />
-      <ConfirmationModal
-        showIcon={false}
-        confirmBtnText={'Yes, Copy'}
-        isOpen={openCopyConfirmDialog}
-        message={'Do you want to copy ' + `${selectedRows.length}` + `${selectedRows.length > 1 ? ' records' : ' record'}`}
-        handleConfirm={() => {
-          // open new dialog box
-          setShowCountryModal(true)
-          setOpenCopyConfirmDialog(false)
-        }}
-        handleClose={() => {
-          setOpenCopyConfirmDialog(false)
-          setSelectedRows([])
-        }}
-      />
-      <Dialog
-        open={showCountrySelectionModal}
-        onClose={() => {
-          setShowCountryModal(false)
-        }}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Select Country To Proceed</DialogTitle>
-        <DialogContent dividers>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={6}>
-              <FormControl sx={{ minWidth: 210 }} size="small">
-                <InputLabel id="country-label">Select Country</InputLabel>
-                <Select
-                  labelId="country-label"
-                  value={copiedCountry}
-                  //@ts-ignore
-                  onChange={(e) => setCopiedCountry(e.target.value)}
-                  label="Select Country"
-                  MenuProps={{
-                    PaperProps: {
-                      style: {
-                        maxHeight: 300, // limit dropdown height if many options
-                      },
-                    },
-                    anchorOrigin: {
-                      vertical: 'bottom',
-                      horizontal: 'left',
-                    },
-                    transformOrigin: {
-                      vertical: 'top',
-                      horizontal: 'left',
-                    },
+        <Dialog
+          open={showCountrySelectionModal}
+          onClose={() => {
+            setShowCountryModal(false)
+          }}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>Select Country To Proceed</DialogTitle>
+          <DialogContent dividers>
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              <Grid item xs={6}>
+                <FormControl sx={{ minWidth: 210 }} size="small">
+                  <InputLabel id="country-label">Select Country</InputLabel>
+                  <Select
+                    labelId="country-label"
+                    value={copiedCountry}
                     //@ts-ignore
-                    getContentAnchorEl: null,
-                  }}
-                >
-                  {countriesData &&
-                    countriesData.map((item: any, index: number) => (
-                      <MenuItem key={index} value={item.countryCode}>
-                        {item.countryName} {item.countryCode}
-                      </MenuItem>
-                    ))}
-                </Select>
-              </FormControl>
+                    onChange={(e) => setCopiedCountry(e.target.value)}
+                    label="Select Country"
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: 300, // limit dropdown height if many options
+                        },
+                      },
+                      anchorOrigin: {
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                      },
+                      transformOrigin: {
+                        vertical: 'top',
+                        horizontal: 'left',
+                      },
+                      //@ts-ignore
+                      getContentAnchorEl: null,
+                    }}
+                  >
+                    {countriesData &&
+                      countriesData.map((item: any, index: number) => (
+                        <MenuItem key={index} value={item.countryCode}>
+                          {item.countryName} {item.countryCode}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                </FormControl>
+              </Grid>
             </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              setShowCountryModal(false)
-              setSelectedRows([])
-              setCopiedCountry(null)
-            }}
-            color="inherit"
-          >
-            Cancel
-          </Button>
-          <Button variant="contained" onClick={handleCopyApiCall} color="primary">
-            Proceed
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => {
+                setShowCountryModal(false)
+                setSelectedRows([])
+                setCopiedCountry(null)
+              }}
+              color="inherit"
+            >
+              Cancel
+            </Button>
+            <Button variant="contained" onClick={handleCopyApiCall} color="primary">
+              Proceed
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
+    </HasPermission>
   )
 }

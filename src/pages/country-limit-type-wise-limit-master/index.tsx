@@ -19,6 +19,8 @@ import ConfirmModal from '@/components/ConfirmModal'
 import dayjs from 'dayjs'
 import { getLiveAuditData } from '@/helpers/dynamicLocations'
 import { formatTableDate } from '@/helpers/dateformate'
+import HasPermission from '@/components/permissionWrapper'
+import { HelperService } from '@/helpers/helper'
 
 // Types
 interface CountryLimitTypeWiseLimitData {
@@ -66,7 +68,7 @@ export default function CountryLimitTypeWiseLimitMaster() {
   const local_service = useMemo(() => new LocalStorageService(), [])
   const limitService = useMemo(() => new CountryLimitTypeWiseLimitService(), [])
   const kycLimitTypeService = useMemo(() => new KycLimitTypeService(), [])
-
+  const helper = new HelperService()
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -76,12 +78,12 @@ export default function CountryLimitTypeWiseLimitMaster() {
   }
 
   const getCountryName = (countryCode: string) => {
-    const country = countries.find(c => c.countryCode === countryCode)
+    const country = countries.find((c) => c.countryCode === countryCode)
     return country ? country.countryName : countryCode
   }
 
   const getLimitTypeDescription = (limitCode: string) => {
-    const limit = limitTypes.find(l => l.limitCode === limitCode)
+    const limit = limitTypes.find((l) => l.limitCode === limitCode)
     return limit ? limit.limitDescription : limitCode
   }
 
@@ -138,9 +140,7 @@ export default function CountryLimitTypeWiseLimitMaster() {
       localDateTime: now.format('YYYY-MM-DD HH:mm:ss.SSS'),
     }
 
-    const submitPayload = async (
-
-    ) => {
+    const submitPayload = async () => {
       if (isUpdate && editData) {
         // Update existing
         const payload = {
@@ -155,10 +155,7 @@ export default function CountryLimitTypeWiseLimitMaster() {
 
         console.log('Sending Update Payload:', payload)
 
-        const response: any = await limitService.updateCountryLimit(
-          editData.countryLimitTypeLimitCode,
-          payload
-        )
+        const response: any = await limitService.updateCountryLimit(editData.countryLimitTypeLimitCode, payload)
 
         if (response?.status === true || response?.success === true) {
           showAlert('Success', 'Country Limit Updated Successfully')
@@ -196,31 +193,34 @@ export default function CountryLimitTypeWiseLimitMaster() {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
-          const 
-          //@ts-ignore
-          liveAudit = await getLiveAuditData(pos.coords.latitude, pos.coords.longitude)
+          const //@ts-ignore
+            liveAudit = await getLiveAuditData(pos.coords.latitude, pos.coords.longitude)
           if (liveAudit) {
             await submitPayload(
               //@ts-ignore
-              liveAudit)
+              liveAudit,
+            )
           } else {
             await submitPayload(
               //@ts-ignore
-              audit)
+              audit,
+            )
           }
         },
         async (_) => {
           console.warn('Location denied, using fallback.')
           await submitPayload(
             //@ts-ignore
-            audit)
+            audit,
+          )
         },
         { timeout: 5000 },
       )
     } else {
       await submitPayload(
         //@ts-ignore
-        audit)
+        audit,
+      )
     }
   }
 
@@ -228,14 +228,14 @@ export default function CountryLimitTypeWiseLimitMaster() {
     if (!selectedRow || !statusAction) return
 
     const newStatus = statusAction === 'activate'
-    
+
     try {
       const response: any = await limitService.updateStatus(
         selectedRow.countryLimitTypeLimitCode,
         newStatus,
-        local_service?.get_staff_id() || 'ADMIN'
+        local_service?.get_staff_id() || 'ADMIN',
       )
-      
+
       if (response?.status === true || response?.success === true) {
         showAlert('Success', `Country Limit ${newStatus ? 'Activated' : 'Deactivated'} Successfully`)
         setStatusModalOpen(false)
@@ -251,27 +251,27 @@ export default function CountryLimitTypeWiseLimitMaster() {
   }
 
   const columns: GridColDef[] = [
-    { 
-      field: 'countryLimitTypeLimitCode', 
-      headerName: 'Limit Code', 
+    {
+      field: 'countryLimitTypeLimitCode',
+      headerName: 'Limit Code',
       width: 130,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
-        <Chip 
-          label={params.value} 
+        <Chip
+          label={params.value}
           size="small"
-          sx={{ 
+          sx={{
             fontFamily: 'monospace',
             fontWeight: 600,
             backgroundColor: '#eef4fa',
-            color: '#0061B1'
+            color: '#0061B1',
           }}
         />
-      )
+      ),
     },
-    { 
-      field: 'countryCode', 
-      headerName: 'Country', 
+    {
+      field: 'countryCode',
+      headerName: 'Country',
       width: 120,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
@@ -279,30 +279,30 @@ export default function CountryLimitTypeWiseLimitMaster() {
           <PublicIcon sx={{ fontSize: 16, color: '#666' }} />
           <Typography>{getCountryName(params.value)}</Typography>
         </Stack>
-      )
+      ),
     },
-    { 
-      field: 'limitTypeCode', 
-      headerName: 'Limit Type', 
+    {
+      field: 'limitTypeCode',
+      headerName: 'Limit Type',
       width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Tooltip title={getLimitTypeDescription(params.value)}>
-          <Chip 
-            label={params.value} 
+          <Chip
+            label={params.value}
             size="small"
             variant="outlined"
-            sx={{ 
+            sx={{
               fontWeight: 500,
-              backgroundColor: '#f0f0f0'
+              backgroundColor: '#f0f0f0',
             }}
           />
         </Tooltip>
-      )
+      ),
     },
-    { 
-      field: 'limitAmount', 
-      headerName: 'Limit Amount', 
+    {
+      field: 'limitAmount',
+      headerName: 'Limit Amount',
       width: 130,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
@@ -310,7 +310,7 @@ export default function CountryLimitTypeWiseLimitMaster() {
           <AttachMoneyIcon sx={{ fontSize: 16, color: '#4caf50' }} />
           <Typography fontWeight={600}>{formatCurrency(params.value)}</Typography>
         </Stack>
-      )
+      ),
     },
     {
       field: 'active',
@@ -326,7 +326,7 @@ export default function CountryLimitTypeWiseLimitMaster() {
             backgroundColor: params.value ? '#e2f0e6' : '#ffece5',
             color: params.value ? '#0f6a3b' : '#b13e2d',
             fontWeight: 600,
-            width: '80px'
+            width: '80px',
           }}
         />
       ),
@@ -343,7 +343,7 @@ export default function CountryLimitTypeWiseLimitMaster() {
       headerName: 'To',
       width: 100,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => params.value === '9999-12-31T23:59:59' ? '∞' : formatTableDate(params.value),
+      renderCell: (params) => (params.value === '9999-12-31T23:59:59' ? '∞' : formatTableDate(params.value)),
     },
     {
       field: 'createdBy',
@@ -366,19 +366,18 @@ export default function CountryLimitTypeWiseLimitMaster() {
             color="primary"
             size="small"
             title="Edit"
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
           >
             <EditIcon fontSize="small" />
           </IconButton>
-          
-    
         </Stack>
       ),
     },
   ]
 
   return (
-    <Box p={3}>
-     
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={3}>
         <Typography
           variant="h5"
           sx={{
@@ -391,79 +390,80 @@ export default function CountryLimitTypeWiseLimitMaster() {
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
           Configure country-specific limits for different KYC limit types
         </Typography>
-     
 
-      <Stack direction="row" justifyContent="flex-end" mb={2}>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => {
-            setEditData(null)
-            setDialogopen(true)
-          }}
-          sx={{
-            backgroundColor: '#0061B1',
-            '&:hover': {
-              backgroundColor: '#004d8c',
-            }
-          }}
-        >
-          Add Country Limit
-        </Button>
-      </Stack>
-
-      <Paper elevation={2} sx={{ p: 2 }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          getRowId={(row: CountryLimitTypeWiseLimitData) => row.countryLimitTypeLimitCode}
-          autoHeight
-          slots={{ toolbar: GridToolbar }}
-          loading={loading}
-          disableRowSelectionOnClick
-          pageSizeOptions={[5, 10, 25, 50]}
-          sx={{
-            '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: '#f5f5f5',
-              fontWeight: 'bold',
-            },
-          }}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 10,
+        <Stack direction="row" justifyContent="flex-end" mb={2}>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => {
+              setEditData(null)
+              setDialogopen(true)
+            }}
+            sx={{
+              backgroundColor: '#0061B1',
+              '&:hover': {
+                backgroundColor: '#004d8c',
               },
-            },
-            sorting: {
-              sortModel: [{ field: 'createdLocalDateTime', sort: 'desc' }],
-            },
-          }}
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add Country Limit
+          </Button>
+        </Stack>
+
+        <Paper elevation={2} sx={{ p: 2 }}>
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            getRowId={(row: CountryLimitTypeWiseLimitData) => row.countryLimitTypeLimitCode}
+            autoHeight
+            slots={{ toolbar: GridToolbar }}
+            loading={loading}
+            disableRowSelectionOnClick
+            pageSizeOptions={[5, 10, 25, 50]}
+            sx={{
+              '& .MuiDataGrid-columnHeaders': {
+                backgroundColor: '#f5f5f5',
+                fontWeight: 'bold',
+              },
+            }}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 10,
+                },
+              },
+              sorting: {
+                sortModel: [{ field: 'createdLocalDateTime', sort: 'desc' }],
+              },
+            }}
+          />
+        </Paper>
+
+        <CountryLimitTypeWiseLimitFormDialog
+          open={dialogopen}
+          onClose={() => setDialogopen(false)}
+          editData={editData}
+          onSubmit={(data: any) => handleAction(data, !!editData)}
+          countries={countries}
+          limitTypes={limitTypes}
         />
-      </Paper>
 
-      <CountryLimitTypeWiseLimitFormDialog
-        open={dialogopen}
-        onClose={() => setDialogopen(false)}
-        editData={editData}
-        onSubmit={(data: any) => handleAction(data, !!editData)}
-        countries={countries}
-        limitTypes={limitTypes}
-      />
-
-      <ConfirmModal
-        open={statusModalOpen}
-        onClose={() => {
-          setStatusModalOpen(false)
-          setSelectedRow(null)
-          setStatusAction(null)
-        }}
-        onConfirm={handleStatusToggle}
-        title={statusAction === 'activate' ? 'Activate Country Limit?' : 'Deactivate Country Limit?'}
-        message={`Are you sure you want to ${statusAction} country limit "${selectedRow?.countryLimitTypeLimitCode}"?`}
-        //@ts-ignore
-        confirmText={statusAction === 'activate' ? 'Activate' : 'Deactivate'}
-        confirmColor={statusAction === 'activate' ? 'success' : 'warning'}
-      />
-    </Box>
+        <ConfirmModal
+          open={statusModalOpen}
+          onClose={() => {
+            setStatusModalOpen(false)
+            setSelectedRow(null)
+            setStatusAction(null)
+          }}
+          onConfirm={handleStatusToggle}
+          title={statusAction === 'activate' ? 'Activate Country Limit?' : 'Deactivate Country Limit?'}
+          message={`Are you sure you want to ${statusAction} country limit "${selectedRow?.countryLimitTypeLimitCode}"?`}
+          //@ts-ignore
+          confirmText={statusAction === 'activate' ? 'Activate' : 'Deactivate'}
+          confirmColor={statusAction === 'activate' ? 'success' : 'warning'}
+        />
+      </Box>
+    </HasPermission>
   )
 }
