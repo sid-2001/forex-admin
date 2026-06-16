@@ -78,9 +78,11 @@ const ApplicantPage = () => {
     { label: `${getLabel('Documents')}` || 'Documents', value: 0, hidden: userCountry === 'UAE' },
     { label: `${getLabel('Beneficiaries')}` || 'Beneficiaries', value: 1 },
     { label: `${getLabel('Transactions')}` || 'Transactions', value: 2 },
-    { label: `${getLabel('Referral_Redeemed')}` || 'Referral Redeemed Transactions', value: 3 },
-    { label: `${getLabel('Referral_Credited')}` || 'Referral Credited Transactions', value: 4 },
-    { label: 'Redeem Referral', value: 5, hidden: userCountry !== 'UAE' },
+    // { label: `${getLabel('Referral_Redeemed')}` || 'Referral Redeemed Transactions', value: 3 },
+    // { label: `${getLabel('Referral_Credited')}` || 'Referral Credited Transactions', value: 4 },
+    { label: 'Active Referrals', value: 4 },
+
+    { label: 'Redeemption Requests', value: 5, hidden: userCountry !== 'UAE' },
   ]
 
   const fetchFieldValidations = async () => {
