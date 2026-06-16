@@ -3,7 +3,7 @@ import api1 from './apis/api1'
 
 export default class CouponService extends BaseService {
   async getAllCoupons(): Promise<any> {
-    const url = '/api/bop/gender/coupon/getCouponList'
+    const url = '/api/bop/gender/getCouponList'
     try {
       const response = await api1.get(url)
       return response
