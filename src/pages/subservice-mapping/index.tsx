@@ -30,7 +30,6 @@ import SubdirectoryArrowRightIcon from '@mui/icons-material/SubdirectoryArrowRig
 import FingerprintIcon from '@mui/icons-material/Fingerprint'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
-import { LocalStorageService } from '@/helpers/local-storage-service'
 import dayjs from 'dayjs'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 import ServiceSubServiceMappingService from '@/services/service-subservice-mapping.service'
@@ -38,6 +37,9 @@ import ServiceMasterService from '@/services/service-master.service'
 import SubServiceMasterService from '@/services/sub-service.service'
 import { formatTableDate } from '@/helpers/dateformate'
 import SequenceApiService from '@/services/sequence.api.service'
+import HasPermission from '@/components/permissionWrapper'
+import { HelperService } from '@/helpers/helper'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
 // ==================== MAIN COMPONENT ====================
 export default function ServiceSubServiceMapping() {
@@ -45,6 +47,7 @@ export default function ServiceSubServiceMapping() {
   const serviceService = useMemo(() => new ServiceMasterService(), [])
   const subServiceService = useMemo(() => new SubServiceMasterService(), [])
   const sequenceService = new SequenceApiService()
+  const helper = new HelperService()
 
   const [countries, setcountries] = useState([])
 
@@ -504,7 +507,7 @@ export default function ServiceSubServiceMapping() {
     {
       field: 'subServiceCode',
       headerName: 'Sub Service',
-      width: 130,
+      flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Tooltip title={getSubServiceName(params.value)}>
@@ -566,6 +569,7 @@ export default function ServiceSubServiceMapping() {
             setOpen(true)
             setIsFormChanged(false)
           }}
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
         >
           <EditIcon fontSize="small" />
         </IconButton>
@@ -575,188 +579,191 @@ export default function ServiceSubServiceMapping() {
 
   // ==================== RENDER ====================
   return (
-    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { backgroundColor: '#f5f5f5', fontWeight: 'bold' } }}>
-      {/* Header */}
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography
-          variant="h4"
-          component="h1"
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { backgroundColor: '#f5f5f5', fontWeight: 'bold' } }}>
+        {/* Header */}
+        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              display: 'grid',
+              placeItems: 'center',
+              color: '#0061B1',
+            }}
+          >
+            {'Service Sub Service Mapping'.toUpperCase()}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setOpen(true)
+              setIsFormChanged(false)
+            }}
+            sx={{ backgroundColor: '#0061B1' }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add Mapping
+          </Button>
+        </Stack>
+
+        {/* Filters */}
+
+        {/* Data Grid */}
+        <DataGrid
+          rows={filteredRows}
+          columns={columns}
+          getRowId={(row) => row.serviceSubServiceMapCode || Math.random()}
+          autoHeight
+          disableRowSelectionOnClick
+          slotProps={{
+            toolbar: {
+              showQuickFilter: true,
+              showDensitySelector: true, // ✅ enable density
+            },
+          }}
+          slots={{ toolbar: CustomToolbar }}
+          // slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
+          paginationModel={{ page, pageSize }}
+          onPaginationModelChange={(model) => {
+            setPage(model.page)
+            setPageSize(model.pageSize)
+          }}
+          pageSizeOptions={[5, 10, 25, 50]}
           sx={{
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            display: 'grid',
-            placeItems: 'center',
-            color: '#0061B1',
+            boxShadow: 2,
+            border: 2,
+            borderColor: '#f5f5f5',
+            '& .MuiDataGrid-cell:hover': {
+              color: 'primary.main',
+            },
+            '& .MuiDataGrid-columnHeaders': {
+              backgroundColor: '#f5f5f5',
+            },
           }}
-        >
-          {'Service Sub Service Mapping'.toUpperCase()}
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setOpen(true)
-            setIsFormChanged(false)
-          }}
-          sx={{ backgroundColor: '#0061B1' }}
-        >
-          Add Mapping
-        </Button>
-      </Stack>
+        />
 
-      {/* Filters */}
+        {/* Form Dialog */}
+        <Dialog open={open} onClose={handleDialogClose} fullWidth maxWidth="md">
+          <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>
+            {editData ? 'Update Service Sub Service Mapping' : 'Create Service Sub Service Mapping'}
+          </DialogTitle>
 
-      {/* Data Grid */}
-      <DataGrid
-        rows={filteredRows}
-        columns={columns}
-        getRowId={(row) => row.serviceSubServiceMapCode || Math.random()}
-        autoHeight
-        disableRowSelectionOnClick
-        slotProps={{
-          toolbar: {
-            showQuickFilter: true,
-            showDensitySelector: true, // ✅ enable density
-          },
-        }}
-        slots={{ toolbar: CustomToolbar }}
-        // slotProps={{ toolbar: { showQuickFilter: true } }}
-        disableColumnMenu
-        paginationModel={{ page, pageSize }}
-        onPaginationModelChange={(model) => {
-          setPage(model.page)
-          setPageSize(model.pageSize)
-        }}
-        pageSizeOptions={[5, 10, 25, 50]}
-        sx={{
-          boxShadow: 2,
-          border: 2,
-          borderColor: '#f5f5f5',
-          '& .MuiDataGrid-cell:hover': {
-            color: 'primary.main',
-          },
-          '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: '#f5f5f5',
-          },
-        }}
-      />
-
-      {/* Form Dialog */}
-      <Dialog open={open} onClose={handleDialogClose} fullWidth maxWidth="md">
-        <DialogTitle sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5' }}>
-          {editData ? 'Update Service Sub Service Mapping' : 'Create Service Sub Service Mapping'}
-        </DialogTitle>
-
-        <DialogContent dividers>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            {/* Country Dropdown */}
-            <Grid item xs={12} md={6}>
-              <Autocomplete
-                options={countries?.filter((c: any) => c.status === 'A') || []}
-                getOptionLabel={(o: any) => `${o.countryName} (${o.countryCode})`}
-                value={countries?.find((c: any) => c.countryCode === form.countryCode) || null}
-                onChange={(_, val) => handleFormChange('countryCode', val?.countryCode || '')}
-                disabled={!!editData}
-                renderInput={(params) => (
-                  <TextField {...params} label="Country" required error={!!formErrors.countryCode} helperText={formErrors.countryCode} />
-                )}
-              />
-            </Grid>
-
-            {/* Service Dropdown */}
-            <Grid item xs={12} md={6}>
-              <Autocomplete
-                disabled={!form?.countryCode}
-                options={services.filter((s) => s.active !== false && s.countryCode == form?.countryCode)}
-                getOptionLabel={(option) => `${option.serviceCodeGenerated} - ${option.serviceName || option.serviceDescription}`}
-                value={services.find((s) => s.serviceCodeGenerated === form.serviceCode) || null}
-                onChange={(_, val) => handleFormChange('serviceCode', val?.serviceCodeGenerated || '')}
-                renderInput={(params) => (
-                  <TextField {...params} label="Service" required error={!!formErrors.serviceCode} helperText={formErrors.serviceCode} />
-                )}
-              />
-            </Grid>
-
-            {/* Sub Service Dropdown */}
-            <Grid item xs={12} md={6}>
-              <Autocomplete
-                disabled={!form?.countryCode}
-                //@ts-ignore
-                options={subServices.filter((s) => (s.active !== false) & (s.countryCode == form?.countryCode))}
-                getOptionLabel={(option) => `${option.subServiceCodeGenerated} - ${option.subServiceName || option.subServiceDescription}`}
-                value={subServices.find((s) => s.subServiceCodeGenerated === form.subServiceCode) || null}
-                onChange={(_, val) => handleFormChange('subServiceCode', val?.subServiceCodeGenerated || '')}
-                renderInput={(params) => (
-                  <TextField {...params} label="Sub Service" required error={!!formErrors.subServiceCode} helperText={formErrors.subServiceCode} />
-                )}
-              />
-            </Grid>
-
-            {/* Map Code Display for Edit */}
-            {editData && editData.serviceSubServiceMapCode && (
+          <DialogContent dividers>
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              {/* Country Dropdown */}
               <Grid item xs={12} md={6}>
-                <TextField
-                  label="Map Code"
-                  fullWidth
-                  value={editData.serviceSubServiceMapCode}
-                  disabled
-                  variant="filled"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <FingerprintIcon />
-                      </InputAdornment>
-                    ),
-                  }}
+                <Autocomplete
+                  options={countries?.filter((c: any) => c.status === 'A') || []}
+                  getOptionLabel={(o: any) => `${o.countryName} (${o.countryCode})`}
+                  value={countries?.find((c: any) => c.countryCode === form.countryCode) || null}
+                  onChange={(_, val) => handleFormChange('countryCode', val?.countryCode || '')}
+                  disabled={!!editData}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Country" required error={!!formErrors.countryCode} helperText={formErrors.countryCode} />
+                  )}
                 />
               </Grid>
-            )}
 
-            {/* Active Status */}
-            <Grid item xs={12}>
-              <FormControlLabel
-                control={<Checkbox checked={form.active} onChange={(e) => handleFormChange('active', e.target.checked)} />}
-                label="Active Status"
-              />
+              {/* Service Dropdown */}
+              <Grid item xs={12} md={6}>
+                <Autocomplete
+                  disabled={!form?.countryCode}
+                  options={services.filter((s) => s.active !== false && s.countryCode == form?.countryCode)}
+                  getOptionLabel={(option) => `${option.serviceCodeGenerated} - ${option.serviceName || option.serviceDescription}`}
+                  value={services.find((s) => s.serviceCodeGenerated === form.serviceCode) || null}
+                  onChange={(_, val) => handleFormChange('serviceCode', val?.serviceCodeGenerated || '')}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Service" required error={!!formErrors.serviceCode} helperText={formErrors.serviceCode} />
+                  )}
+                />
+              </Grid>
+
+              {/* Sub Service Dropdown */}
+              <Grid item xs={12} md={6}>
+                <Autocomplete
+                  disabled={!form?.countryCode}
+                  //@ts-ignore
+                  options={subServices.filter((s) => (s.active !== false) & (s.countryCode == form?.countryCode))}
+                  getOptionLabel={(option) => `${option.subServiceCodeGenerated} - ${option.subServiceName || option.subServiceDescription}`}
+                  value={subServices.find((s) => s.subServiceCodeGenerated === form.subServiceCode) || null}
+                  onChange={(_, val) => handleFormChange('subServiceCode', val?.subServiceCodeGenerated || '')}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Sub Service" required error={!!formErrors.subServiceCode} helperText={formErrors.subServiceCode} />
+                  )}
+                />
+              </Grid>
+
+              {/* Map Code Display for Edit */}
+              {editData && editData.serviceSubServiceMapCode && (
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    label="Map Code"
+                    fullWidth
+                    value={editData.serviceSubServiceMapCode}
+                    disabled
+                    variant="filled"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <FingerprintIcon />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+              )}
+
+              {/* Active Status */}
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={<Checkbox checked={form.active} onChange={(e) => handleFormChange('active', e.target.checked)} />}
+                  label="Active Status"
+                />
+              </Grid>
+
+              {/* Effective From Date */}
+              <Grid item xs={6}>
+                <DynamicEndDatePicker
+                  label="Effective From"
+                  value={form.effectiveFromDate}
+                  onChange={(val: string) => handleFormChange('effectiveFromDate', val)}
+                  error={!!formErrors.effectiveFromDate}
+                  helperText={formErrors.effectiveFromDate}
+                  required
+                />
+              </Grid>
+
+              {/* Effective To Date - Disabled until Effective From is selected */}
+              <Grid item xs={6}>
+                <DynamicEndDatePicker
+                  label="Effective To"
+                  value={form.effectiveToDate}
+                  minDate={form.effectiveFromDate}
+                  onChange={(val: string) => handleFormChange('effectiveToDate', val)}
+                  error={!!formErrors.effectiveToDate}
+                  helperText={formErrors.effectiveToDate}
+                  required
+                  disabled={!form.effectiveFromDate}
+                />
+              </Grid>
             </Grid>
+          </DialogContent>
 
-            {/* Effective From Date */}
-            <Grid item xs={6}>
-              <DynamicEndDatePicker
-                label="Effective From"
-                value={form.effectiveFromDate}
-                onChange={(val: string) => handleFormChange('effectiveFromDate', val)}
-                error={!!formErrors.effectiveFromDate}
-                helperText={formErrors.effectiveFromDate}
-                required
-              />
-            </Grid>
-
-            {/* Effective To Date - Disabled until Effective From is selected */}
-            <Grid item xs={6}>
-              <DynamicEndDatePicker
-                label="Effective To"
-                value={form.effectiveToDate}
-                minDate={form.effectiveFromDate}
-                onChange={(val: string) => handleFormChange('effectiveToDate', val)}
-                error={!!formErrors.effectiveToDate}
-                helperText={formErrors.effectiveToDate}
-                required
-                disabled={!form.effectiveFromDate}
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-
-        <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
-          <Button onClick={handleDialogClose} color="inherit">
-            Cancel
-          </Button>
-          <Button variant="contained" onClick={handleSubmit} disabled={editData ? !isFormChanged : false} sx={{ backgroundColor: '#0061B1' }}>
-            {editData ? 'Update' : 'Save'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+          <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+            <Button onClick={handleDialogClose} color="inherit">
+              Cancel
+            </Button>
+            <Button variant="contained" onClick={handleSubmit} disabled={editData ? !isFormChanged : false} sx={{ backgroundColor: '#0061B1' }}>
+              {editData ? 'Update' : 'Save'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
+    </HasPermission>
   )
 }

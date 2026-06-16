@@ -9,6 +9,9 @@ import CountryBusinessPayoutPartnerFormDialog from '../../components/countrybuis
 import CountryBusinessPayoutPartnerService from '@/services/countryBusinessPayoutPartner.service'
 import dayjs from 'dayjs'
 import { formatTableDate } from '@/helpers/dateformate'
+import HasPermission from '@/components/permissionWrapper'
+import { HelperService } from '@/helpers/helper'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
 const CountryBusinessPayoutPartner = () => {
   const [rows, setRows] = useState<any[]>([])
@@ -23,6 +26,8 @@ const CountryBusinessPayoutPartner = () => {
   const [, setAlertType] = useRecoilState(alertTypeState)
 
   const service = useMemo(() => new CountryBusinessPayoutPartnerService(), [])
+  const local_service = useMemo(() => new LocalStorageService(), [])
+  const helper = new HelperService()
 
   const showAlert = (type: 'Success' | 'Fail', text: string) => {
     setAlertType(type)
@@ -164,6 +169,7 @@ const CountryBusinessPayoutPartner = () => {
             setOpen(true)
             setIsFormChanged(false)
           }}
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
         >
           <EditIcon fontSize="small" />
         </IconButton>
@@ -172,61 +178,64 @@ const CountryBusinessPayoutPartner = () => {
   ]
 
   return (
-    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            display: 'grid',
-            placeItems: 'center',
-            color: '#0061B1',
-          }}
-        >
-          {'Country Business Railand Payout Mapping'.toUpperCase()}
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setOpen(true)
-            setIsFormChanged(false)
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              display: 'grid',
+              placeItems: 'center',
+              color: '#0061B1',
+            }}
+          >
+            {'Country Business Railand Payout Mapping'.toUpperCase()}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setOpen(true)
+              setIsFormChanged(false)
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'cancreate')}
+          >
+            Add
+          </Button>
+        </Stack>
 
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        loading={loading}
-        autoHeight
-        slots={{ toolbar: GridToolbar }}
-        slotProps={{ toolbar: { showQuickFilter: true } }}
-        disableColumnMenu
-        getRowId={(row) => row.countryBusinessPayoutPartnerCode || Math.random()}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5,
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          loading={loading}
+          autoHeight
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
+          getRowId={(row) => row.countryBusinessPayoutPartnerCode || Math.random()}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5,
+              },
             },
-          },
-        }}
-      />
+          }}
+        />
 
-      <CountryBusinessPayoutPartnerFormDialog
-        open={open}
-        handleClose={handleDialogClose}
-        editData={editData}
-        refreshList={fetchData}
-        showAlert={showAlert}
-        onFormChange={handleFormChange}
-        isUpdateDisabled={editData ? !isFormChanged : false}
-      />
-    </Box>
+        <CountryBusinessPayoutPartnerFormDialog
+          open={open}
+          handleClose={handleDialogClose}
+          editData={editData}
+          refreshList={fetchData}
+          showAlert={showAlert}
+          onFormChange={handleFormChange}
+          isUpdateDisabled={editData ? !isFormChanged : false}
+        />
+      </Box>
+    </HasPermission>
   )
 }
 

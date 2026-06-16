@@ -48,7 +48,8 @@ import CountryLabelCodesService from '../../services/country-label-codes.service
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import dayjs from 'dayjs'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
-import { formatTableDate } from '@/helpers/dateformate'
+import { HelperService } from '@/helpers/helper'
+import HasPermission from '@/components/permissionWrapper'
 
 const countryReportingMappingsService = new CountryReportingMappingsService()
 const countryLabelCodesService = new CountryLabelCodesService()
@@ -83,6 +84,7 @@ export default function CountryReportingMappingsGridPage() {
 
   const local_service = new LocalStorageService()
   const user = local_service?.get_user()
+  const helper = new HelperService()
 
   const showSuccess = (msg: string) => setSnackbar({ open: true, message: msg, severity: 'success' })
 
@@ -264,9 +266,7 @@ export default function CountryReportingMappingsGridPage() {
           id: selected.id,
         }
 
-    
-
-        const result = await countryReportingMappingsService.update(updatePayload,updatePayload?.id)
+        const result = await countryReportingMappingsService.update(updatePayload, updatePayload?.id)
         if (result.status) {
           showSuccess('Mapping updated successfully')
           setOpen(false)
@@ -428,34 +428,32 @@ export default function CountryReportingMappingsGridPage() {
         </Tooltip>
       ),
     },
-   {
-  field: 'effective_from_date',
-  headerName: 'Effective From',
-  flex: 1,
-  minWidth: 150,
- headerClassName: 'super-app-theme--header',
- //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivefromdate || row?.effectiveFromDate
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 1,
+      minWidth: 150,
+      headerClassName: 'super-app-theme--header',
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivefromdate || row?.effectiveFromDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
-{
-  field: 'effective_to_date',
-  headerName: 'Effective To',
-  flex: 1,
-   headerClassName: 'super-app-theme--header',
-  minWidth: 150,
-   //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivetodate || row?.effectiveToDate
+        return date ? formatTableDate(date) : ''
+      },
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      minWidth: 150,
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivetodate || row?.effectiveToDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
+        return date ? formatTableDate(date) : ''
+      },
+    },
     {
       field: 'active',
       headerName: 'Status',
@@ -476,7 +474,12 @@ export default function CountryReportingMappingsGridPage() {
       renderCell: (params: GridRenderCellParams) => (
         <Stack direction="row" spacing={1}>
           <Tooltip title="Edit mapping">
-            <IconButton size="small" color="primary" onClick={() => handleEdit(params.row)}>
+            <IconButton
+              size="small"
+              color="primary"
+              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
+              onClick={() => handleEdit(params.row)}
+            >
               <EditIcon />
             </IconButton>
           </Tooltip>
@@ -531,446 +534,432 @@ export default function CountryReportingMappingsGridPage() {
       const config = JSON.parse(storedConfig)
       format = config.dateFormat.replace(/d/g, 'D').replace(/y/g, 'Y')
     }
-  
+
     return dayjs(dateString).format(format.toUpperCase())
   }
 
   return (
-    <Box sx={{ height: '100vh', p: 3 }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography variant="h5">Country Reporting Mappings</Typography>
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button
-            variant="outlined"
-            onClick={handleRefresh}
-            startIcon={refreshing ? <CircularProgress size={20} /> : <RefreshIcon />}
-            disabled={refreshing}
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box sx={{ height: '100vh', p: 3 }}>
+        <Stack direction="row" justifyContent="space-between" mb={2}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              display: 'grid',
+              placeItems: 'center',
+              color: '#0061B1',
+            }}
           >
-            Refresh
-          </Button>
-          <Button variant="contained" onClick={handleCreate}>
-            + Create Mapping
-          </Button>
+            Country Reporting Mappings
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button
+              variant="outlined"
+              onClick={handleRefresh}
+              startIcon={refreshing ? <CircularProgress size={20} /> : <RefreshIcon />}
+              disabled={refreshing}
+            >
+              Refresh
+            </Button>
+            <Button
+              variant="contained"
+              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+              onClick={handleCreate}
+            >
+              + Create Mapping
+            </Button>
+          </Box>
+        </Stack>
+
+        <Box sx={{ height: 500, width: '100%' }}>
+          <DataGrid
+            rows={filteredRows}
+            columns={columns}
+            loading={loading}
+            getRowId={(row) => row.id || `${row.countryLabelCode}-${row.fieldLabelCode}`}
+            slots={{ toolbar: GridToolbar }}
+            slotProps={{ toolbar: { showQuickFilter: true } }}
+            disableColumnMenu
+            initialState={{
+              pagination: {
+                paginationModel: { pageSize: 10 },
+              },
+            }}
+            pageSizeOptions={[5, 10, 25]}
+            disableRowSelectionOnClick
+          />
         </Box>
-      </Stack>
 
- 
+        {/* Create/Edit Dialog */}
+        <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
+          <DialogTitle>
+            {selected ? 'Edit Mapping' : 'Create New Mapping'}
+            <Typography variant="caption" display="block" color="textSecondary">
+              ID: {selected?.id || 'New'}
+            </Typography>
+          </DialogTitle>
 
-      <Box sx={{ height: 500, width: '100%' }}>
-        <DataGrid
-          rows={filteredRows}
-          columns={columns}
-          loading={loading}
-          getRowId={(row) => row.id || `${row.countryLabelCode}-${row.fieldLabelCode}`}
-          slots={{ toolbar: GridToolbar }}
-          slotProps={{ toolbar: { showQuickFilter: true } }}
-          disableColumnMenu
-          initialState={{
-            pagination: {
-              paginationModel: { pageSize: 10 },
+          <DialogContent dividers>
+            <Stack spacing={2} sx={{ mt: 1 }}>
+              {/* Country Label Code */}
+              <FormControl fullWidth required>
+                <InputLabel>Country Label Code *</InputLabel>
+                <Select
+                  value={form.countryLabelCode}
+                  label="Country Label Code *"
+                  onChange={(e) => setForm({ ...form, countryLabelCode: e.target.value })}
+                  startAdornment={
+                    form.countryLabelCode && (
+                      <InputAdornment position="start">
+                        <BusinessIcon fontSize="small" />
+                      </InputAdornment>
+                    )
+                  }
+                  disabled={loadingCountryLabels}
+                >
+                  {loadingCountryLabels ? (
+                    <MenuItem disabled>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <CircularProgress size={20} />
+                        <Typography>Loading country labels...</Typography>
+                      </Box>
+                    </MenuItem>
+                  ) : countryLabelOptions.length === 0 ? (
+                    <MenuItem disabled>
+                      <Typography color="textSecondary">No country label codes found. Please check API connection.</Typography>
+                    </MenuItem>
+                  ) : (
+                    countryLabelOptions.map((option) => (
+                      <MenuItem key={option.countryLabelCode} value={option.countryLabelCode}>
+                        <Box sx={{ width: '100%' }}>
+                          <Typography variant="body2" fontWeight="medium">
+                            {option.displayName}
+                          </Typography>
+                          <Box sx={{ display: 'flex', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>
+                            <Chip size="small" label={`Country: ${option.countryCode}`} variant="outlined" color="primary" />
+                            {
+                              //@ts-ignore
+                              option.channel && (
+                                <Chip
+                                  size="small"
+                                  label={`Channel: ${
+                                    //@ts-ignore
+                                    option.channel
+                                  }`}
+                                  variant="outlined"
+                                  color="secondary"
+                                />
+                              )
+                            }
+                          </Box>
+                          <Typography variant="caption" color="textSecondary" display="block" sx={{ mt: 0.5 }}>
+                            Rail Payout: {option.railPayoutMappingCode} | Reporting: {option.countryReportingCode}
+                          </Typography>
+                          <Typography variant="caption" color="textSecondary" display="block">
+                            Code: {option.countryLabelCode}
+                          </Typography>
+                        </Box>
+                      </MenuItem>
+                    ))
+                  )}
+                </Select>
+                <Typography variant="caption" color="textSecondary" sx={{ mt: 0.5 }}>
+                  {countryLabelOptions.length} country label codes available
+                </Typography>
+              </FormControl>
+
+              {/* Field Label Code */}
+              <FormControl fullWidth required>
+                <InputLabel>Field Label Code *</InputLabel>
+                <Select
+                  value={form.fieldLabelCode}
+                  label="Field Label Code *"
+                  onChange={(e) => setForm({ ...form, fieldLabelCode: e.target.value })}
+                  disabled={loadingFieldLabels}
+                >
+                  {loadingFieldLabels ? (
+                    <MenuItem disabled>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <CircularProgress size={20} />
+                        <Typography>Loading field labels...</Typography>
+                      </Box>
+                    </MenuItem>
+                  ) : fieldLabelOptions.length === 0 ? (
+                    <MenuItem disabled>
+                      <Typography color="textSecondary">No field label codes found. Please check API connection.</Typography>
+                    </MenuItem>
+                  ) : (
+                    fieldLabelOptions.map((option: any) => (
+                      <MenuItem key={option.fieldLabelCode} value={option.fieldLabelCode}>
+                        <Box sx={{ width: '100%' }}>
+                          <Typography variant="body2" fontWeight="medium">
+                            {option.displayName}
+                          </Typography>
+                          <Typography variant="caption" color="textSecondary" display="block">
+                            Field: {option.fieldName} | Label: {option.label}
+                          </Typography>
+                          <Typography variant="caption" color="textSecondary" display="block">
+                            Channel: {option.channelCode} | Screen: {option.screen}
+                          </Typography>
+                          <Typography variant="caption" color="textSecondary" display="block">
+                            Code: {option.fieldLabelCode}
+                          </Typography>
+                        </Box>
+                      </MenuItem>
+                    ))
+                  )}
+                </Select>
+                <Typography variant="caption" color="textSecondary" sx={{ mt: 0.5 }}>
+                  {fieldLabelOptions.length} field label codes available
+                </Typography>
+              </FormControl>
+
+              {/* Requirement Levels & Visibility */}
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <FormControl fullWidth required>
+                    <InputLabel>Requirement Level *</InputLabel>
+                    <Select
+                      value={form.requirementLevels}
+                      label="Requirement Level *"
+                      onChange={(e) => setForm({ ...form, requirementLevels: e.target.value as 'M' | 'O' | 'C' })}
+                    >
+                      {requirementLevels.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          <Box>
+                            <Typography>{option.label}</Typography>
+                            <Typography variant="caption" color="textSecondary">
+                              {option.description}
+                            </Typography>
+                          </Box>
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={6}>
+                  <FormControl fullWidth required>
+                    <InputLabel>Visibility *</InputLabel>
+                    <Select
+                      value={form.visibility}
+                      label="Visibility *"
+                      onChange={(e) => setForm({ ...form, visibility: e.target.value as 'Y' | 'N' })}
+                    >
+                      {visibilityOptions.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          <Box>
+                            <Typography>{option.label}</Typography>
+                            <Typography variant="caption" color="textSecondary">
+                              {option.description}
+                            </Typography>
+                          </Box>
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </Grid>
+
+              <Divider>Effective Dates</Divider>
+
+              {/* Effective Dates */}
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <DynamicDatePicker
+                    label="Effective From"
+                    value={form.effectiveFromDate}
+                    onChange={(val: string) => {
+                      setForm({ ...form, effectiveFromDate: val })
+                    }}
+                    // error={!!errors.effectiveFromDate}
+                    // helperText={errors.effectiveFromDate}
+                    required
+                  />
+                </Grid>
+
+                <Grid item xs={6}>
+                  <DynamicEndDatePicker
+                    label="Effective To"
+                    value={form.effectiveToDate}
+                    minDate={form.effectiveFromDate}
+                    onChange={(val: string) => {
+                      setForm({ ...form, effectiveToDate: val })
+                    }}
+                    // error={!!errors.effectiveToDate}
+                    // helperText={errors.effectiveToDate}
+                    required
+                  />
+                </Grid>
+              </Grid>
+
+              {/* Active Status */}
+              <FormControlLabel
+                control={<Switch checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />}
+                label="Active"
+              />
+
+              {/* Preview Section */}
+              {(form.countryLabelCode || form.fieldLabelCode) && (
+                <>
+                  <Divider>Mapping Preview</Divider>
+                  <Paper variant="outlined" sx={{ p: 2, bgcolor: 'grey.50' }}>
+                    <Typography variant="subtitle2" gutterBottom color="primary">
+                      Mapping Details:
+                    </Typography>
+
+                    <Grid container spacing={2}>
+                      {/* Country Label Details */}
+                      <Grid item xs={12} md={6}>
+                        <Paper variant="outlined" sx={{ p: 1.5 }}>
+                          <Typography variant="subtitle2" gutterBottom>
+                            <BusinessIcon fontSize="small" sx={{ mr: 1, verticalAlign: 'middle' }} />
+                            Country Label
+                          </Typography>
+                          {getSelectedCountryLabelDetails() ? (
+                            <Stack spacing={0.5}>
+                              <Typography variant="body2">
+                                <strong>Code:</strong> {getSelectedCountryLabelDetails()?.countryLabelCode}
+                              </Typography>
+                              <Typography variant="body2">
+                                <strong>Country:</strong> {getSelectedCountryLabelDetails()?.countryCode}
+                              </Typography>
+                              <Typography variant="body2">
+                                <strong>Rail Payout:</strong> {getSelectedCountryLabelDetails()?.railPayoutMappingCode}
+                              </Typography>
+                              <Typography variant="body2">
+                                <strong>Reporting:</strong> {getSelectedCountryLabelDetails()?.countryReportingCode}
+                              </Typography>
+                              <Typography variant="body2">
+                                <strong>Channel:</strong>{' '}
+                                {
+                                  //@ts-ignore
+                                  getSelectedCountryLabelDetails()?.channel || 'N/A'
+                                }
+                              </Typography>
+                            </Stack>
+                          ) : (
+                            <Typography variant="body2" color="textSecondary">
+                              No country label selected
+                            </Typography>
+                          )}
+                        </Paper>
+                      </Grid>
+
+                      {/* Field Label Details */}
+                      <Grid item xs={12} md={6}>
+                        <Paper variant="outlined" sx={{ p: 1.5 }}>
+                          <Typography variant="subtitle2" gutterBottom>
+                            <AccountBalanceIcon fontSize="small" sx={{ mr: 1, verticalAlign: 'middle' }} />
+                            Field Label
+                          </Typography>
+                          {getSelectedFieldLabelDetails() ? (
+                            <Stack spacing={0.5}>
+                              <Typography variant="body2">
+                                <strong>Code:</strong> {getSelectedFieldLabelDetails()?.fieldLabelCode}
+                              </Typography>
+                              <Typography variant="body2">
+                                <strong>Field:</strong> {getSelectedFieldLabelDetails()?.fieldName}
+                              </Typography>
+                              <Typography variant="body2">
+                                <strong>Label:</strong> {getSelectedFieldLabelDetails()?.label}
+                              </Typography>
+                              <Typography variant="body2">
+                                <strong>Channel:</strong> {getSelectedFieldLabelDetails()?.channelCode}
+                              </Typography>
+                              <Typography variant="body2">
+                                <strong>Screen:</strong> {getSelectedFieldLabelDetails()?.screen}
+                              </Typography>
+                            </Stack>
+                          ) : (
+                            <Typography variant="body2" color="textSecondary">
+                              No field label selected
+                            </Typography>
+                          )}
+                        </Paper>
+                      </Grid>
+
+                      {/* Mapping Configuration */}
+                      <Grid item xs={12}>
+                        <Paper variant="outlined" sx={{ p: 1.5 }}>
+                          <Typography variant="subtitle2" gutterBottom>
+                            <CategoryIcon fontSize="small" sx={{ mr: 1, verticalAlign: 'middle' }} />
+                            Mapping Configuration
+                          </Typography>
+                          <Grid container spacing={2}>
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="body2">
+                                <strong>Requirement:</strong> {requirementLevels.find((r) => r.value === form.requirementLevels)?.label}
+                              </Typography>
+                              <Typography variant="caption" color="textSecondary">
+                                {requirementLevels.find((r) => r.value === form.requirementLevels)?.description}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                              <Typography variant="body2">
+                                <strong>Visibility:</strong> {visibilityOptions.find((v) => v.value === form.visibility)?.label}
+                              </Typography>
+                              <Typography variant="caption" color="textSecondary">
+                                {visibilityOptions.find((v) => v.value === form.visibility)?.description}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={12}>
+                              <Typography variant="body2">
+                                <strong>Status:</strong> {form.active ? 'Active' : 'Inactive'}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={12}>
+                              <Typography variant="body2">
+                                <strong>Effective From:</strong> {form.effectiveFromDate || 'Not set'}
+                              </Typography>
+                              <Typography variant="body2">
+                                <strong>Effective To:</strong>{' '}
+                                {form.effectiveToDate === '2026-12-31T23:59:59' ? 'Default (2026-12-31)' : form.effectiveToDate}
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                        </Paper>
+                      </Grid>
+                    </Grid>
+                  </Paper>
+                </>
+              )}
+            </Stack>
+          </DialogContent>
+
+          <DialogActions>
+            <Button onClick={() => setOpen(false)}>Cancel</Button>
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              disabled={!form.countryLabelCode || !form.fieldLabelCode || !form.effectiveFromDate || loadingCountryLabels || loadingFieldLabels}
+            >
+              {selected ? 'Update' : 'Create'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Snackbar for notifications */}
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={3000}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          sx={{
+            top: { xs: '10%', sm: '20%' },
+            '& .MuiAlert-root': {
+              fontSize: '0.9rem',
+              padding: '8px 16px',
             },
           }}
-          pageSizeOptions={[5, 10, 25]}
-          disableRowSelectionOnClick
-        />
+        >
+          <Alert severity={snackbar.severity} variant="filled" elevation={6}>
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
       </Box>
-
-      {/* Create/Edit Dialog */}
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle>
-          {selected ? 'Edit Mapping' : 'Create New Mapping'}
-          <Typography variant="caption" display="block" color="textSecondary">
-            ID: {selected?.id || 'New'}
-          </Typography>
-        </DialogTitle>
-
-        <DialogContent dividers>
-          <Stack spacing={2} sx={{ mt: 1 }}>
-            {/* Country Label Code */}
-            <FormControl fullWidth required>
-              <InputLabel>Country Label Code *</InputLabel>
-              <Select
-                value={form.countryLabelCode}
-                label="Country Label Code *"
-                onChange={(e) => setForm({ ...form, countryLabelCode: e.target.value })}
-                startAdornment={
-                  form.countryLabelCode && (
-                    <InputAdornment position="start">
-                      <BusinessIcon fontSize="small" />
-                    </InputAdornment>
-                  )
-                }
-                disabled={loadingCountryLabels}
-              >
-                {loadingCountryLabels ? (
-                  <MenuItem disabled>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <CircularProgress size={20} />
-                      <Typography>Loading country labels...</Typography>
-                    </Box>
-                  </MenuItem>
-                ) : countryLabelOptions.length === 0 ? (
-                  <MenuItem disabled>
-                    <Typography color="textSecondary">No country label codes found. Please check API connection.</Typography>
-                  </MenuItem>
-                ) : (
-                  countryLabelOptions.map((option) => (
-                    <MenuItem key={option.countryLabelCode} value={option.countryLabelCode}>
-                      <Box sx={{ width: '100%' }}>
-                        <Typography variant="body2" fontWeight="medium">
-                          {option.displayName}
-                        </Typography>
-                        <Box sx={{ display: 'flex', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>
-                          <Chip size="small" label={`Country: ${option.countryCode}`} variant="outlined" color="primary" />
-                          {
-                            //@ts-ignore
-                            option.channel && (
-                              <Chip
-                                size="small"
-                                label={`Channel: ${
-                                  //@ts-ignore
-                                  option.channel
-                                }`}
-                                variant="outlined"
-                                color="secondary"
-                              />
-                            )
-                          }
-                        </Box>
-                        <Typography variant="caption" color="textSecondary" display="block" sx={{ mt: 0.5 }}>
-                          Rail Payout: {option.railPayoutMappingCode} | Reporting: {option.countryReportingCode}
-                        </Typography>
-                        <Typography variant="caption" color="textSecondary" display="block">
-                          Code: {option.countryLabelCode}
-                        </Typography>
-                      </Box>
-                    </MenuItem>
-                  ))
-                )}
-              </Select>
-              <Typography variant="caption" color="textSecondary" sx={{ mt: 0.5 }}>
-                {countryLabelOptions.length} country label codes available
-              </Typography>
-            </FormControl>
-
-            {/* Field Label Code */}
-            <FormControl fullWidth required>
-              <InputLabel>Field Label Code *</InputLabel>
-              <Select
-                value={form.fieldLabelCode}
-                label="Field Label Code *"
-                onChange={(e) => setForm({ ...form, fieldLabelCode: e.target.value })}
-                disabled={loadingFieldLabels}
-              >
-                {loadingFieldLabels ? (
-                  <MenuItem disabled>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <CircularProgress size={20} />
-                      <Typography>Loading field labels...</Typography>
-                    </Box>
-                  </MenuItem>
-                ) : fieldLabelOptions.length === 0 ? (
-                  <MenuItem disabled>
-                    <Typography color="textSecondary">No field label codes found. Please check API connection.</Typography>
-                  </MenuItem>
-                ) : (
-                  fieldLabelOptions.map((option: any) => (
-                    <MenuItem key={option.fieldLabelCode} value={option.fieldLabelCode}>
-                      <Box sx={{ width: '100%' }}>
-                        <Typography variant="body2" fontWeight="medium">
-                          {option.displayName}
-                        </Typography>
-                        <Typography variant="caption" color="textSecondary" display="block">
-                          Field: {option.fieldName} | Label: {option.label}
-                        </Typography>
-                        <Typography variant="caption" color="textSecondary" display="block">
-                          Channel: {option.channelCode} | Screen: {option.screen}
-                        </Typography>
-                        <Typography variant="caption" color="textSecondary" display="block">
-                          Code: {option.fieldLabelCode}
-                        </Typography>
-                      </Box>
-                    </MenuItem>
-                  ))
-                )}
-              </Select>
-              <Typography variant="caption" color="textSecondary" sx={{ mt: 0.5 }}>
-                {fieldLabelOptions.length} field label codes available
-              </Typography>
-            </FormControl>
-
-            {/* Requirement Levels & Visibility */}
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <FormControl fullWidth required>
-                  <InputLabel>Requirement Level *</InputLabel>
-                  <Select
-                    value={form.requirementLevels}
-                    label="Requirement Level *"
-                    onChange={(e) => setForm({ ...form, requirementLevels: e.target.value as 'M' | 'O' | 'C' })}
-                  >
-                    {requirementLevels.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        <Box>
-                          <Typography>{option.label}</Typography>
-                          <Typography variant="caption" color="textSecondary">
-                            {option.description}
-                          </Typography>
-                        </Box>
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={6}>
-                <FormControl fullWidth required>
-                  <InputLabel>Visibility *</InputLabel>
-                  <Select
-                    value={form.visibility}
-                    label="Visibility *"
-                    onChange={(e) => setForm({ ...form, visibility: e.target.value as 'Y' | 'N' })}
-                  >
-                    {visibilityOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        <Box>
-                          <Typography>{option.label}</Typography>
-                          <Typography variant="caption" color="textSecondary">
-                            {option.description}
-                          </Typography>
-                        </Box>
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
-
-            <Divider>Effective Dates</Divider>
-
-            {/* Effective Dates */}
-            <Grid container spacing={2}>
-              {/* <Grid item xs={6}>
-                <TextField
-                  fullWidth
-                  type="date"
-                  label="Effective From *"
-                  value={form.effectiveFromDate ? form.effectiveFromDate.split('T')[0] : ''}
-                  onChange={(e) => setForm({ ...form, effectiveFromDate: e.target.value })}
-                  InputLabelProps={{ shrink: true }}
-                  required
-                />
-              </Grid> */}
-              <Grid item xs={6}>
-                <DynamicDatePicker
-                  label="Effective From"
-                  value={form.effectiveFromDate}
-                  onChange={(val: string) => {
-                    console.log(val, 'kdjhchdvy')
-                    setForm({ ...form, effectiveFromDate: val })
-                  }}
-                  // error={!!errors.effectiveFromDate}
-                  // helperText={errors.effectiveFromDate}
-                  required
-                />
-              </Grid>
-
-              <Grid item xs={6}>
-                <DynamicEndDatePicker
-                  label="Effective To"
-                  value={form.effectiveToDate}
-                  minDate={form.effectiveFromDate}
-                  onChange={(val: string) => {
-                    setForm({ ...form, effectiveToDate: val })
-                  }}
-                  // error={!!errors.effectiveToDate}
-                  // helperText={errors.effectiveToDate}
-                  required
-                />
-              </Grid>
-              {/* <Grid item xs={6}>
-                <TextField
-                  fullWidth
-                  type="date"
-                  label="Effective To"
-                  value={form.effectiveToDate ? form.effectiveToDate.split('T')[0] : ''}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      effectiveToDate: e.target.value,
-                    })
-                  }
-                  InputLabelProps={{ shrink: true }}
-                  inputProps={{
-                    min: form.effectiveFromDate ? form.effectiveFromDate.split('T')[0] : undefined,
-                  }}
-                />
-              </Grid> */}
-            </Grid>
-
-            {/* Active Status */}
-            <FormControlLabel
-              control={<Switch checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />}
-              label="Active"
-            />
-
-            {/* Preview Section */}
-            {(form.countryLabelCode || form.fieldLabelCode) && (
-              <>
-                <Divider>Mapping Preview</Divider>
-                <Paper variant="outlined" sx={{ p: 2, bgcolor: 'grey.50' }}>
-                  <Typography variant="subtitle2" gutterBottom color="primary">
-                    Mapping Details:
-                  </Typography>
-
-                  <Grid container spacing={2}>
-                    {/* Country Label Details */}
-                    <Grid item xs={12} md={6}>
-                      <Paper variant="outlined" sx={{ p: 1.5 }}>
-                        <Typography variant="subtitle2" gutterBottom>
-                          <BusinessIcon fontSize="small" sx={{ mr: 1, verticalAlign: 'middle' }} />
-                          Country Label
-                        </Typography>
-                        {getSelectedCountryLabelDetails() ? (
-                          <Stack spacing={0.5}>
-                            <Typography variant="body2">
-                              <strong>Code:</strong> {getSelectedCountryLabelDetails()?.countryLabelCode}
-                            </Typography>
-                            <Typography variant="body2">
-                              <strong>Country:</strong> {getSelectedCountryLabelDetails()?.countryCode}
-                            </Typography>
-                            <Typography variant="body2">
-                              <strong>Rail Payout:</strong> {getSelectedCountryLabelDetails()?.railPayoutMappingCode}
-                            </Typography>
-                            <Typography variant="body2">
-                              <strong>Reporting:</strong> {getSelectedCountryLabelDetails()?.countryReportingCode}
-                            </Typography>
-                            <Typography variant="body2">
-                              <strong>Channel:</strong>{' '}
-                              {
-                                //@ts-ignore
-                                getSelectedCountryLabelDetails()?.channel || 'N/A'
-                              }
-                            </Typography>
-                          </Stack>
-                        ) : (
-                          <Typography variant="body2" color="textSecondary">
-                            No country label selected
-                          </Typography>
-                        )}
-                      </Paper>
-                    </Grid>
-
-                    {/* Field Label Details */}
-                    <Grid item xs={12} md={6}>
-                      <Paper variant="outlined" sx={{ p: 1.5 }}>
-                        <Typography variant="subtitle2" gutterBottom>
-                          <AccountBalanceIcon fontSize="small" sx={{ mr: 1, verticalAlign: 'middle' }} />
-                          Field Label
-                        </Typography>
-                        {getSelectedFieldLabelDetails() ? (
-                          <Stack spacing={0.5}>
-                            <Typography variant="body2">
-                              <strong>Code:</strong> {getSelectedFieldLabelDetails()?.fieldLabelCode}
-                            </Typography>
-                            <Typography variant="body2">
-                              <strong>Field:</strong> {getSelectedFieldLabelDetails()?.fieldName}
-                            </Typography>
-                            <Typography variant="body2">
-                              <strong>Label:</strong> {getSelectedFieldLabelDetails()?.label}
-                            </Typography>
-                            <Typography variant="body2">
-                              <strong>Channel:</strong> {getSelectedFieldLabelDetails()?.channelCode}
-                            </Typography>
-                            <Typography variant="body2">
-                              <strong>Screen:</strong> {getSelectedFieldLabelDetails()?.screen}
-                            </Typography>
-                          </Stack>
-                        ) : (
-                          <Typography variant="body2" color="textSecondary">
-                            No field label selected
-                          </Typography>
-                        )}
-                      </Paper>
-                    </Grid>
-
-                    {/* Mapping Configuration */}
-                    <Grid item xs={12}>
-                      <Paper variant="outlined" sx={{ p: 1.5 }}>
-                        <Typography variant="subtitle2" gutterBottom>
-                          <CategoryIcon fontSize="small" sx={{ mr: 1, verticalAlign: 'middle' }} />
-                          Mapping Configuration
-                        </Typography>
-                        <Grid container spacing={2}>
-                          <Grid item xs={12} sm={6}>
-                            <Typography variant="body2">
-                              <strong>Requirement:</strong> {requirementLevels.find((r) => r.value === form.requirementLevels)?.label}
-                            </Typography>
-                            <Typography variant="caption" color="textSecondary">
-                              {requirementLevels.find((r) => r.value === form.requirementLevels)?.description}
-                            </Typography>
-                          </Grid>
-                          <Grid item xs={12} sm={6}>
-                            <Typography variant="body2">
-                              <strong>Visibility:</strong> {visibilityOptions.find((v) => v.value === form.visibility)?.label}
-                            </Typography>
-                            <Typography variant="caption" color="textSecondary">
-                              {visibilityOptions.find((v) => v.value === form.visibility)?.description}
-                            </Typography>
-                          </Grid>
-                          <Grid item xs={12}>
-                            <Typography variant="body2">
-                              <strong>Status:</strong> {form.active ? 'Active' : 'Inactive'}
-                            </Typography>
-                          </Grid>
-                          <Grid item xs={12}>
-                            <Typography variant="body2">
-                              <strong>Effective From:</strong> {form.effectiveFromDate || 'Not set'}
-                            </Typography>
-                            <Typography variant="body2">
-                              <strong>Effective To:</strong>{' '}
-                              {form.effectiveToDate === '2026-12-31T23:59:59' ? 'Default (2026-12-31)' : form.effectiveToDate}
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                      </Paper>
-                    </Grid>
-                  </Grid>
-                </Paper>
-              </>
-            )}
-          </Stack>
-        </DialogContent>
-
-        <DialogActions>
-          <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleSubmit}
-            disabled={!form.countryLabelCode || !form.fieldLabelCode || !form.effectiveFromDate || loadingCountryLabels || loadingFieldLabels}
-          >
-            {selected ? 'Update' : 'Create'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Snackbar for notifications */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        sx={{
-          top: { xs: '10%', sm: '20%' },
-          '& .MuiAlert-root': {
-            fontSize: '0.9rem',
-            padding: '8px 16px',
-          },
-        }}
-      >
-        <Alert severity={snackbar.severity} variant="filled" elevation={6}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+    </HasPermission>
   )
 }

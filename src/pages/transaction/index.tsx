@@ -1,23 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import {
-  Box,
-  Button,
-  Divider,
-  Grid,
-  Typography,
-  Chip,
-  TextField,
-  Drawer,
-  ToggleButton,
-  ToggleButtonGroup,
-  useTheme,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Modal,
-} from '@mui/material'
+import { Box, Button, Typography, Chip, ToggleButton, ToggleButtonGroup, useTheme, IconButton, Modal } from '@mui/material'
 import { DataGrid, GridColumnVisibilityModel, GridToolbarColumnsButton, GridToolbarFilterButton } from '@mui/x-data-grid'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { TransactionInward, TransactionOutward } from '@/types/transaction.type'
@@ -50,6 +32,35 @@ const userCountry = local_service?.get_staff_country()
 
 const TransactionListing = () => {
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<GridColumnVisibilityModel>({})
+  const [modalOpen, setmodalOpen] = useState(false)
+  const [transactionType, setTransactionType] = useState('outwards')
+  const [inboundTransaction, setInboundTransaction] = useState<Array<TransactionInward>>([])
+  const [outboundTransaction, setOutboundTransaction] = useState<Array<TransactionOutward>>([])
+  const [toolopen, setToolOpen] = useState(false)
+  const [transactionData, setTransactionData] = useState(inboundTransaction)
+  const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
+  const [userList, setUserList] = useState([])
+  const [stpErrors, setStpErrors] = useState<any>([])
+  const [isLoading, setIsLoading] = useState(false)
+  // pagination state
+  const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
+    page: 0,
+    pageSize: 100,
+  })
+  const [paginationInwardModel, setPaginationInwardModel] = React.useState<GridPaginationModel>({
+    page: 1,
+    pageSize: 100,
+  })
+  // filter state
+  const [filterModel, setFilterModel] = React.useState<GridFilterModel>({
+    items: [],
+  })
+
+  const theme = useTheme()
+  const navigate = useNavigate()
+  const { search } = useLocation()
+  const queryParams = new URLSearchParams(search)
+  const flow = queryParams.get('flow')
 
   const columnHeaderMap: any = {
     UAE: 'Payment Details',
@@ -295,59 +306,6 @@ const TransactionListing = () => {
     return { headers, body, title: isInwards ? 'inwards' : 'outwards' }
   }
 
-  const handleZapperPaymentGateway = async () => {
-    setCommonLoader(true)
-
-    let zapper_trans = await transaction_service.createZaphierTransaction({
-      amount: transactionDetails?.value,
-      currencyISOCode: 'ZAR',
-      transactionNumber: transactionDetails?.transactionNumber,
-    })
-
-    setcommonloader(false)
-
-    console.log(zapper_trans?.data?.redirectUrl)
-
-    window.location.href = zapper_trans?.data?.redirectUrl
-
-    // navigate('/transaction')
-  }
-
-  const handleAdumoPaymentClick = async () => {
-    try {
-      const response = await transaction_service.createAdumoOrder({
-        amount: transactionDetails?.value,
-        transactionId: transactionDetails?.transactionNumber,
-      })
-      const { data } = response
-
-      console.log()
-
-      if (!data) {
-        alert('Failed to get session ID')
-        return
-      }
-      window.location.replace(JSON.parse(data)?.redirect_url)
-    } catch (error) {
-      console.error('Payment initiation failed:', error)
-      // alert('Payment failed. Please try again.')
-    }
-  }
-
-  const ConfirmAndPayButton = ({ handleClick = () => {}, imgUrl = '' }) => {
-    return (
-      <Button
-        variant="outlined"
-        color="primary"
-        sx={{ marginTop: 3, display: 'flex', alignItems: 'center', gap: 1, padding: '6px 16px' }}
-        disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
-        onClick={() => handleClick()}
-      >
-        <img src={imgUrl} alt="Ozow" style={{ height: '20px' }} />
-        Confirm & Pay
-      </Button>
-    )
-  }
   const downloadCSV = () => {
     const { headers, body, title } = rowsForExport()
     if (!body.length) return
@@ -512,53 +470,6 @@ const TransactionListing = () => {
       headerClassName: 'super-app-theme--header',
     },
   ]
-
-  const [isDrawerOpen, setDrawerOpen] = useState(false)
-  const [modalOpen, setmodalOpen] = useState(false)
-  const [transactionDetails, setTransactionDetails] = useState<any>(null)
-  const [transactionType, setTransactionType] = useState('outwards')
-  const [inboundTransaction, setInboundTransaction] = useState<Array<TransactionInward>>([])
-  const [outboundTransaction, setOutboundTransaction] = useState<Array<TransactionOutward>>([])
-  const [toolopen, setToolOpen] = useState(false)
-  const [trxStatus, settrxStatus] = useState('')
-  const [transactionData, setTransactionData] = useState(inboundTransaction)
-  const [commonloader, setcommonloader] = useRecoilState(loaderStateNew)
-  const [userList, setUserList] = useState([])
-  const [creattrx, setCreatetrx] = useState('')
-  const [zaphierlink, setZaphierLink] = useState('')
-  // const [open, setOpen] = useState(false)
-  const [startDate, setStartDate] = useState<string | null>(null)
-  const [endDate, setEndDate] = useState<string | null>(null)
-  const [stpErrors, setStpErrors] = useState<any>([])
-  const [givenTransaction, setGivenTransaction] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(false)
-
-  const [open, setOpen] = useRecoilState(alertState)
-  const [commonLoader, setCommonLoader] = useRecoilState(loaderStateNew)
-
-  const theme = useTheme()
-  const navigate = useNavigate()
-  const { search } = useLocation()
-  const queryParams = new URLSearchParams(search)
-
-  const flow = queryParams.get('flow')
-
-  // pagination state
-
-  const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
-    page: 0,
-    pageSize: 100,
-  })
-
-  const [paginationInwardModel, setPaginationInwardModel] = React.useState<GridPaginationModel>({
-    page: 1,
-    pageSize: 100,
-  })
-
-  // filter state
-  const [filterModel, setFilterModel] = React.useState<GridFilterModel>({
-    items: [],
-  })
 
   // Fetch API whenever pagination or filter changes
   React.useEffect(() => {
@@ -729,7 +640,6 @@ const TransactionListing = () => {
       filterQuery: string = '',
     ) => {
       try {
-        // setcommonloader(true)
         setIsLoading(true)
         var data: any
         if (filterQuery.length > 0) {
@@ -791,34 +701,8 @@ const TransactionListing = () => {
 
   useEffect(() => {
     if (flow) setTransactionType(flow)
-    getApplicantDetails()
-    // getInwardTransactionListFilterd(1, 20)
-    //getAllTransactions(0, 20)
-    // setGivenTransaction(queryParams.get('id'))
+    if (userCountry !== 'UAE') getApplicantDetails()
   }, [])
-
-  const openInNewTab = (url: any) => {
-    const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
-    if (newWindow) newWindow.opener = null
-  }
-
-  const addpayment = (create_trx: any) => {
-    if (trxStatus.toLocaleLowerCase() == 'DRAFT' || trxStatus.toLocaleLowerCase() == 'PENDING') {
-      transaction_Service.createTransaction(creattrx).then((data) => {
-        console.log(data)
-      })
-    }
-
-    transaction_Service
-      .createZaphierTransaction({
-        amount: Number(create_trx?.totalpaybleamount),
-        //@ts-ignore
-        currency: 'ZAR',
-      })
-      .then((data) => {
-        setZaphierLink(data?.redirectUrl)
-      })
-  }
 
   //@ts-ignore
   const handleToggleTransactionType = (event: any, newType: string) => {
@@ -827,28 +711,7 @@ const TransactionListing = () => {
       //@ts-ignore
       setTransactionData(newType === 'inwards' ? inboundTransaction : outboundTransaction)
       navigate(`/transaction?flow=${newType}`)
-      // if (givenTransaction !== null) {
-      //   navigate(`/transaction?flow=${newType}&id=${givenTransaction}`)
-      // } else {
-      //   navigate(`/transaction?flow=${newType}`)
-      // }
     }
-  }
-
-  const closeDrawer = () => {
-    setDrawerOpen(false)
-    setZaphierLink('')
-    // window.location.href = zaphierlink;
-  }
-
-  // Close the dialog
-  const handleClose = () => {
-    setOpen(false)
-  }
-
-  // Handle applying filters
-  const handleApply = () => {
-    setOpen(false)
   }
 
   const handleNavigation = (url: string) => {
@@ -1054,267 +917,6 @@ const TransactionListing = () => {
             </>
           ))}
       </Box>
-
-      <Drawer
-        anchor="right"
-        open={isDrawerOpen}
-        onClose={closeDrawer}
-        sx={{
-          '& .MuiDrawer-paper': {
-            width: '60%',
-            padding: 2,
-            // backgroundColor: 'white',
-          },
-        }}
-      >
-        {transactionDetails && (
-          <Box>
-            <Typography
-              variant="h6"
-              fontWeight="bold"
-              sx={{
-                backgroundColor: theme.palette.primary.main,
-                p: '0.7%',
-                color: 'white',
-                marginBottom: 2,
-                width: '40%',
-              }}
-            >
-              TRANSACTION ID : {transactionDetails.id}
-            </Typography>
-            <Chip label={renderTransactionStatus(transactionDetails?.transactionStatus?.toUpperCase())} color="warning" sx={{ marginBottom: 2 }} />
-
-            {/* Transaction Details Section */}
-            <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>
-              Transaction Details
-            </Typography>
-            <Grid container spacing={2} mb={2}>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="Destination"
-                  variant="filled"
-                  fullWidth
-                  //@ts-ignore
-                  defaultValue={transactionDetails.destination}
-                  size="small"
-                  disabled
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="Transaction Date"
-                  variant="filled"
-                  fullWidth
-                  //@ts-ignore
-                  defaultValue={helper.convertDateAndTime(transactionDetails.date)}
-                  size="small"
-                  disabled
-                />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="Receiver's Currency"
-                  variant="filled"
-                  fullWidth
-                  //@ts-ignore
-                  defaultValue={transactionDetails?.principalCurrency}
-                  size="small"
-                  disabled
-                />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="Receiver's Amount"
-                  variant="filled"
-                  fullWidth
-                  //@ts-ignore
-                  defaultValue={transactionDetails.value?.toFixed(2)}
-                  size="small"
-                  disabled
-                />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="Sender's Currency"
-                  variant="filled"
-                  fullWidth
-                  //@ts-ignore
-                  defaultValue={transactionDetails.settlementCurrency}
-                  size="small"
-                  disabled
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="Sender's Amount"
-                  variant="filled"
-                  fullWidth
-                  //@ts-ignore
-                  defaultValue={transactionDetails.settlementAmount}
-                  size="small"
-                  disabled
-                />
-              </Grid>
-            </Grid>
-            {/* Beneficiary Details Section */}
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2 }}>
-              Beneficiary Details
-            </Typography>
-            <Grid container spacing={2} mb={2}>
-              <Grid item xs={12} md={6}>
-                <TextField label="Account Number" variant="filled" fullWidth defaultValue={transactionDetails?.accountNumber} size="small" disabled />
-              </Grid>
-              {userCountry !== 'UAE' && (
-                <Grid item xs={12} md={6}>
-                  <TextField label="Bank" variant="filled" fullWidth defaultValue={transactionDetails?.bankName} size="small" disabled />
-                </Grid>
-              )}
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="Bank Code"
-                  variant="filled"
-                  fullWidth
-                  defaultValue={transactionDetails?.receiveCountry === 'IN' ? transactionDetails?.ifscCode : transactionDetails?.bankBicCode}
-                  size="small"
-                  disabled
-                />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="Account Holder Name"
-                  variant="filled"
-                  fullWidth
-                  defaultValue={
-                    transactionDetails?.beneficiaryMiddleName
-                      ? `${transactionDetails.beneficiaryFirstName} ${transactionDetails.beneficiaryMiddleName} ${transactionDetails.beneficiaryLastName}`
-                      : `${transactionDetails.beneficiaryFirstName} ${transactionDetails.beneficiaryLastName}`
-                  }
-                  size="small"
-                  disabled
-                />
-              </Grid>
-            </Grid>
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 2, color: theme.palette.primary.main }}>
-              Applicant Details
-            </Typography>
-            <Grid container spacing={2} mb={2}>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="Applicant Id"
-                  variant="filled"
-                  fullWidth
-                  defaultValue={transactionDetails?.applicant?.applicantId}
-                  size="small"
-                  disabled
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="Applicant Name"
-                  variant="filled"
-                  fullWidth
-                  defaultValue={transactionDetails?.applicant?.firstName}
-                  size="small"
-                  disabled
-                />
-              </Grid>
-            </Grid>
-            {trxStatus == 'DRAFT' || trxStatus == 'PENDING' ? (
-              <>
-                <Button
-                  disabled={zaphierlink?.length > 0 ? false : true}
-                  variant="outlined"
-                  onClick={() => {
-                    closeDrawer()
-                    // window.location.href=zaphierlink;
-                    openInNewTab(zaphierlink)
-                    addpayment(creattrx)
-                  }}
-                >
-                  <img
-                    src="https://media.licdn.com/dms/image/v2/C560BAQEH3RSdlorC_g/company-logo_200_200/company-logo_200_200/0/1675795834026/zapier_logo?e=2147483647&v=beta&t=Hx-pHbieeJMPM-LUGcTe3O8iwYPYW7xUBc0W1uC2tBs"
-                    alt="Zapier Logo"
-                    style={{ width: 24, height: 24, marginRight: 8, borderRadius: '50%' }}
-                  />
-                  Complete Payment
-                </Button>
-
-                {userCountry === 'ZA' ? (
-                  <>
-                    {/* <ConfirmAndPayButton
-                    imgUrl="https://cdn.prod.website-files.com/6282d4840afd19e1afa62e70/6491490c213c45a9d600d387_ozow_small_xs.png"
-                    handleClick={() => handleOzowPaymentClick()}
-                  /> */}
-
-                    <ConfirmAndPayButton
-                      imgUrl="https://media.licdn.com/dms/image/v2/D4D0BAQFafwhXng3fkQ/company-logo_200_200/company-logo_200_200/0/1730292941961/adumo_online_logo?e=2147483647&v=beta&t=agng3yUCjdKlMYt76saZvTJHFC3Tx1BC9uaGlVTLh4c"
-                      handleClick={() => handleAdumoPaymentClick()}
-                    />
-                    {/* <ConfirmAndPayButton
-                    imgUrl="https://www.peachpayments.com/hubfs/peachpayments-logo.svg"
-                    handleClick={() => handlePeachPaymentsClick()}
-                  /> */}
-
-                    <ConfirmAndPayButton
-                      imgUrl="https://zapper.gitbook.io/zapper-platform/~gitbook/image?url=https%3A%2F%2F3889691800-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F-M4tIVi0eT23PM2ng2_g%252Ficon%252Ffg6xU4qKsy5lQJ83OvI0%252FRounded.svg%3Falt%3Dmedia%26token%3D28b1c6cc-492e-43da-a8d8-230b9ac27b70&width=32&dpr=4&quality=100&sign=9960cbd3&sv=2"
-                      handleClick={() => handleZapperPaymentGateway()}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <ConfirmAndPayButton imgUrl="https://cashfreelogo.cashfree.com/website/landings-cache/landings/logo-lightbg_3x.webp" />
-                  </>
-                )}
-              </>
-            ) : (
-              <></>
-            )}
-          </Box>
-        )}
-      </Drawer>
-
-      <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
-        <DialogTitle>Select Date Range</DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-            {/* Start Date */}
-            <TextField
-              label="Start Date"
-              type="date"
-              value={startDate || ''}
-              onChange={(e) => setStartDate(e.target.value)}
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-
-            {/* End Date */}
-            <TextField
-              label="End Date"
-              type="date"
-              value={endDate || ''}
-              onChange={(e) => setEndDate(e.target.value)}
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="secondary">
-            Cancel
-          </Button>
-          <Button onClick={handleApply} variant="contained" color="primary">
-            Apply
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       <CompliancTool open={toolopen} setOpen={setToolOpen} userList={userList} fetchUserDetails={() => {}} />
 

@@ -11,10 +11,13 @@ import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import dayjs from 'dayjs'
 import { formatTableDate } from '@/helpers/dateformate'
+import HasPermission from '@/components/permissionWrapper'
+import { HelperService } from '@/helpers/helper'
 
 export default function ProductManagement() {
   const productService = useMemo(() => new ProductService(), [])
   const local_service = useMemo(() => new LocalStorageService(), [])
+  const helper = new HelperService()
 
   const [open, setOpen] = useState(false)
   const [editData, setEditData] = useState<any | null>(null)
@@ -159,6 +162,7 @@ export default function ProductManagement() {
               setEditData(params.row)
               setOpen(true)
             }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
           >
             <EditIcon />
           </IconButton>
@@ -171,49 +175,52 @@ export default function ProductManagement() {
   ]
 
   return (
-    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{
-            fontWeight: 700,
-            // color: 'text.primary',
-            letterSpacing: '-0.02em',
-            display: 'grid',
-            placeItems: 'center',
-            // mb: 5,
-            color: '#0061B1',
-          }}
-        >
-          {'Product Master'.toUpperCase()}
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setOpen(true)
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
+        <Stack direction="row" justifyContent="space-between" mb={2}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              // color: 'text.primary',
+              letterSpacing: '-0.02em',
+              display: 'grid',
+              placeItems: 'center',
+              // mb: 5,
+              color: '#0061B1',
+            }}
+          >
+            {'Product Master'.toUpperCase()}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setOpen(true)
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add
+          </Button>
+        </Stack>
 
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        loading={loading}
-        getRowId={(row) => row.countryProductCode || Math.random()}
-        slots={{ toolbar: GridToolbar }}
-        slotProps={{ toolbar: { showQuickFilter: true } }}
-        disableColumnMenu
-        autoHeight
-        initialState={{
-          pagination: { paginationModel: { page: 0, pageSize: 5 } },
-        }}
-      />
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          loading={loading}
+          getRowId={(row) => row.countryProductCode || Math.random()}
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
+          autoHeight
+          initialState={{
+            pagination: { paginationModel: { page: 0, pageSize: 5 } },
+          }}
+        />
 
-      <ProductFormDialog open={open} onClose={() => setOpen(false)} editData={editData} onSubmit={handleAction} />
-    </Box>
+        <ProductFormDialog open={open} onClose={() => setOpen(false)} editData={editData} onSubmit={handleAction} />
+      </Box>
+    </HasPermission>
   )
 }

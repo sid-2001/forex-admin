@@ -12,6 +12,8 @@ import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import { BopCategoryType } from '../../types/bop.type'
 import { formatTableDate } from '@/helpers/dateformate'
+import { HelperService } from '@/helpers/helper'
+import HasPermission from '@/components/permissionWrapper'
 
 export default function BopCategoryTypeMaster() {
   const [rows, setRows] = useState<BopCategoryType[]>([])
@@ -25,6 +27,7 @@ export default function BopCategoryTypeMaster() {
 
   const service = new BopCategoryTypeService()
   const localService = new LocalStorageService()
+  const helper = new HelperService()
 
   // Then add the helper function
   const showAlert = (type: 'Success' | 'Fail') => {
@@ -196,6 +199,7 @@ export default function BopCategoryTypeMaster() {
               setDialogOpen(true)
               setIsFormChanged(false)
             }}
+            disabled={!helper.checkUserHasPermission(localService.get_modules()?.MASTER_DATA, 'canUpdate')}
           >
             <EditIcon />
           </IconButton>
@@ -217,58 +221,61 @@ export default function BopCategoryTypeMaster() {
   }
 
   return (
-    <Box p={2} sx={{ width: '85vw' }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            display: 'grid',
-            placeItems: 'center',
-            color: '#0061B1',
-          }}
-        >
-          {'Bop Category Type Master'.toUpperCase()}
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setDialogOpen(true)
-            setIsFormChanged(false)
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
+    <HasPermission permission={'canRead'} module={localService.get_modules()?.MASTER_DATA}>
+      <Box p={2} sx={{ width: '85vw' }}>
+        <Stack direction="row" justifyContent="space-between" mb={2}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              display: 'grid',
+              placeItems: 'center',
+              color: '#0061B1',
+            }}
+          >
+            {'Bop Category Type Master'.toUpperCase()}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setDialogOpen(true)
+              setIsFormChanged(false)
+            }}
+            disabled={!helper.checkUserHasPermission(localService.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add
+          </Button>
+        </Stack>
 
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        getRowId={(row) => row.bopCategoryTypeCode}
-        autoHeight
-        slots={{ toolbar: CustomToolbar }}
-        slotProps={{ toolbar: { showQuickFilter: true } }}
-        disableColumnMenu
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5,
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={(row) => row.bopCategoryTypeCode}
+          autoHeight
+          slots={{ toolbar: CustomToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5,
+              },
             },
-          },
-        }}
-      />
+          }}
+        />
 
-      <BopCategoryTypeFormDialog
-        open={dialogOpen}
-        editData={editData}
-        onClose={handleDialogClose}
-        onSubmit={editData ? handleUpdate : handleCreate}
-        onFormChange={handleFormChange}
-        isUpdateDisabled={editData ? !isFormChanged : false}
-      />
-    </Box>
+        <BopCategoryTypeFormDialog
+          open={dialogOpen}
+          editData={editData}
+          onClose={handleDialogClose}
+          onSubmit={editData ? handleUpdate : handleCreate}
+          onFormChange={handleFormChange}
+          isUpdateDisabled={editData ? !isFormChanged : false}
+        />
+      </Box>
+    </HasPermission>
   )
 }

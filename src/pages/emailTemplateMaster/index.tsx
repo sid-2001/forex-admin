@@ -9,6 +9,8 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { formatTableDate } from '@/helpers/dateformate'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
+import HasPermission from '@/components/permissionWrapper'
+import { HelperService } from '@/helpers/helper'
 
 export default function EmailTemplateManagement() {
   const [open, setOpen] = useState(false)
@@ -19,6 +21,7 @@ export default function EmailTemplateManagement() {
 
   const emailService = useMemo(() => new EmailTemplateService(), [])
   const local_service = useMemo(() => new LocalStorageService(), [])
+  const helper = new HelperService()
   const [alertOpen, setAlertOpen] = useRecoilState(alertState)
   const [alertText, setAlertText] = useRecoilState(alertTextState)
   const [alertType, setAlertType] = useRecoilState(alertTypeState)
@@ -125,6 +128,7 @@ export default function EmailTemplateManagement() {
             setEditData(params.row)
             setOpen(true)
           }}
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
         >
           <EditIcon />
         </IconButton>
@@ -133,54 +137,57 @@ export default function EmailTemplateManagement() {
   ]
 
   return (
-    <Box>
-      <Stack direction="row" mb={2} mt={2} justifyContent={'space-between'}>
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            display: 'grid',
-            placeItems: 'center',
-            // mb: 5,
-            color: '#0061B1',
-          }}
-        >
-          {'Email master'.toUpperCase()}
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setOpen(true)
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
-      <div style={{ height: 500, width: '100%' }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          loading={loading}
-          getRowId={(row) => row.emailTemplateCode}
-          slots={{ toolbar: GridToolbar }}
-          slotProps={{ toolbar: { showQuickFilter: true } }}
-          disableColumnMenu
-          initialState={{ pagination: { paginationModel: { page: 0, pageSize: 5 } } }}
-        />
-      </div>
-      {open && (
-        <EmailTemplateMasterDialog
-          key={editData ? editData.emailTemplateCode : 'new'}
-          open={open}
-          onClose={() => setOpen(false)}
-          editData={editData}
-          onSubmit={editData ? handleUpdate : handleCreate}
-          errMassage={errMassage}
-        />
-      )}
-    </Box>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box>
+        <Stack direction="row" mb={2} mt={2} justifyContent={'space-between'}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              display: 'grid',
+              placeItems: 'center',
+              // mb: 5,
+              color: '#0061B1',
+            }}
+          >
+            {'Email master'.toUpperCase()}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setOpen(true)
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add
+          </Button>
+        </Stack>
+        <div style={{ height: 500, width: '100%' }}>
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            loading={loading}
+            getRowId={(row) => row.emailTemplateCode}
+            slots={{ toolbar: GridToolbar }}
+            slotProps={{ toolbar: { showQuickFilter: true } }}
+            disableColumnMenu
+            initialState={{ pagination: { paginationModel: { page: 0, pageSize: 5 } } }}
+          />
+        </div>
+        {open && (
+          <EmailTemplateMasterDialog
+            key={editData ? editData.emailTemplateCode : 'new'}
+            open={open}
+            onClose={() => setOpen(false)}
+            editData={editData}
+            onSubmit={editData ? handleUpdate : handleCreate}
+            errMassage={errMassage}
+          />
+        )}
+      </Box>
+    </HasPermission>
   )
 }

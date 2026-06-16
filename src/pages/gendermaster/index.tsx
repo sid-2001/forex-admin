@@ -7,11 +7,11 @@ import GenderService from '@/services/gender.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
-import ConfirmModal from '@/components/ConfirmModal'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 import { GridToolbar } from '@mui/x-data-grid'
+import { HelperService } from '@/helpers/helper'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -19,6 +19,7 @@ dayjs.extend(timezone)
 dayjs.extend(utc)
 import { getLiveAuditData } from '@/helpers/dynamicLocations'
 import { formatTableDate } from '@/helpers/dateformate'
+import HasPermission from '@/components/permissionWrapper'
 
 export default function GenderMaster() {
   const [rows, setRows] = useState<any[]>([])
@@ -26,12 +27,11 @@ export default function GenderMaster() {
   const [open, setOpen] = useRecoilState(alertState)
   const [text, setText] = useRecoilState(alertTextState)
   const [type, settype] = useRecoilState(alertTypeState)
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-  const [selectedRow, setSelectedRow] = useState<any>(null)
   const [editData, setEditData] = useState<any>(null)
 
   const local_service = useMemo(() => new LocalStorageService(), [])
   const static_service = useMemo(() => new GenderService(), [])
+  const helper = new HelperService()
 
   const fetchData = useCallback(async () => {
     const res: any = await static_service.getGenderList()
@@ -49,64 +49,6 @@ export default function GenderMaster() {
     setOpen(true)
   }
 
-  // const handleAction = async (data: any, isUpdate: boolean) => {
-  //   if (data.validationError) {
-  //     showAlert('Fail', data.validationError)
-  //     return
-  //   }
-
-  //   const now = dayjs()
-
-  //   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-
-  //   const auditTime = {
-  //     timeZone: userTimeZone,
-  //     offset: dayjs().tz(userTimeZone).format('Z'),
-  //     utcDateTime: dayjs().utc().format('YYYY-MM-DD HH:mm:ss.SSS'),
-  //     localDateTime: dayjs().tz(userTimeZone).format('YYYY-MM-DD HH:mm:ss.SSS'),
-  //   }
-  //   console.log(auditTime, 'bhanu', auditTime.localDateTime)
-
-  //   const payload = {
-  //     applicant_id: local_service?.get_staff_id(),
-  //     gendercode: data.gendercode?.substring(0, 1).toUpperCase(),
-  //     countrycode: data.selectedCountry?.substring(0, 3).toUpperCase(),
-  //     description: data.description?.substring(0, 25),
-  //     active: data.active,
-  //     effectivefromdate: `${data.effectiveFrom}T00:00:00.000Z`,
-  //     effectivetodate: `${data.effectiveTo}T00:00:00.000Z`,
-
-  //     ...(isUpdate
-  //       ? {
-  //           modified_time: auditTime.timeZone,
-  //           modified_off: auditTime.offset,
-  //           Modified_UTCDateTime: auditTime.utcDateTime,
-  //           modified_local_date_time: auditTime.localDateTime,
-  //           modifiedby: local_service?.get_staff_id(),
-  //         }
-  //       : {
-  //           created_time: auditTime.timeZone,
-  //           created_off: auditTime.offset,
-  //           Created_UTCDateTime: auditTime.utcDateTime,
-  //           created_local_date_time: auditTime.localDateTime, // Correct Local Time
-  //           createdby: local_service?.get_staff_id(),
-  //         }),
-  //   }
-
-  //   try {
-  //     const response: any = isUpdate ? await static_service.updateGender(payload as any) : await static_service.createGender(payload)
-
-  //     if (response?.success || response?.status === 'Success' || response?.status === true) {
-  //       showAlert('Success', `Gender ${isUpdate ? 'Updated' : 'Created'} Successfully`)
-  //       setDialogopen(false)
-  //       fetchData()
-  //     } else {
-  //       showAlert('Fail', response?.error || response?.message || 'Server Error')
-  //     }
-  //   } catch (err: any) {
-  //     showAlert('Fail', err.message || 'Network Error')
-  //   }
-  // }
   const handleAction = async (data: any, isUpdate: boolean) => {
     if (data.validationError) {
       showAlert('Fail', data.validationError)
@@ -203,6 +145,7 @@ export default function GenderMaster() {
               setDialogopen(true)
             }}
             color="primary"
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
           >
             <EditIcon />
           </IconButton>
@@ -212,76 +155,65 @@ export default function GenderMaster() {
   ]
 
   return (
-    <Box p={3} sx={{ width: '100%' }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography
-          variant="h4"
-          component="h1"
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box>
+        <Stack direction="row" justifyContent="space-between" mb={2}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              display: 'grid',
+              placeItems: 'center',
+              color: '#0061B1',
+            }}
+          >
+            {'Gender Master'.toUpperCase()}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setDialogopen(true)
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add
+          </Button>
+        </Stack>
+
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={(row: any) => `${row.gendercode}-${row.countrycode}`}
+          autoHeight
+          disableRowSelectionOnClick
+          pageSizeOptions={[5]}
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
           sx={{
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            display: 'grid',
-            placeItems: 'center',
-            // mb: 5,
-            color: '#0061B1',
-          }}
-        >
-          {'Gender Master'.toUpperCase()}
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setDialogopen(true)
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
-
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        getRowId={(row: any) => `${row.gendercode}-${row.countrycode}`}
-        autoHeight
-        disableRowSelectionOnClick
-        pageSizeOptions={[5]}
-        slots={{ toolbar: GridToolbar }}
-        slotProps={{ toolbar: { showQuickFilter: true } }}
-        disableColumnMenu
-        sx={{
-          '& .super-app-theme--header': {
-            fontWeight: 'bold',
-          },
-        }}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5,
+            '& .super-app-theme--header': {
+              fontWeight: 'bold',
             },
-          },
-        }}
-      />
+          }}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5,
+              },
+            },
+          }}
+        />
 
-      <GenderFormDialog
-        open={dialogopen}
-        onClose={() => setDialogopen(false)}
-        editData={editData}
-        onSubmit={(data: any) => handleAction(data, !!editData)}
-      />
-
-      <ConfirmModal
-        open={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
-        onConfirm={async () => {
-          await static_service.deleteGender({ gendercode: selectedRow.gendercode, countrycode: selectedRow.countrycode })
-          showAlert('Success', 'Deleted Successfully')
-          setDeleteModalOpen(false)
-          fetchData()
-        }}
-        title="Delete Gender?"
-        message={`Delete ${selectedRow?.gendercode}?`}
-      />
-    </Box>
+        <GenderFormDialog
+          open={dialogopen}
+          onClose={() => setDialogopen(false)}
+          editData={editData}
+          onSubmit={(data: any) => handleAction(data, !!editData)}
+        />
+      </Box>
+    </HasPermission>
   )
 }

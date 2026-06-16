@@ -13,8 +13,10 @@ import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import ConfirmModal from '@/components/ConfirmModal'
 import dayjs from 'dayjs'
-import { formattedDate, getLiveAuditData } from '@/helpers/dynamicLocations'
+import { getLiveAuditData } from '@/helpers/dynamicLocations'
 import { formatTableDate } from '@/helpers/dateformate'
+import HasPermission from '@/components/permissionWrapper'
+import { HelperService } from '@/helpers/helper'
 
 // Types
 interface KycDocumentTypeData {
@@ -48,6 +50,7 @@ export default function KycDocumentTypeMaster() {
 
   const local_service = useMemo(() => new LocalStorageService(), [])
   const documentService = useMemo(() => new KycDocumentTypeService(), [])
+  const helper = new HelperService()
 
   const fetchData = useCallback(async () => {
     try {
@@ -270,6 +273,7 @@ export default function KycDocumentTypeMaster() {
             color="primary"
             size="small"
             title="Edit"
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
           >
             <EditIcon fontSize="small" />
           </IconButton>
@@ -279,85 +283,86 @@ export default function KycDocumentTypeMaster() {
   ]
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{
-          fontWeight: 700,
-          letterSpacing: '-0.02em',
-          display: 'grid',
-          placeItems: 'center',
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box sx={{ width: '100%' }}>
+        <Stack direction="row" justifyContent="space-between" mb={2}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              display: 'grid',
 
-          color: '#0061B1',
-        }}
-      >
-        {'KYC Document Type Master'.toUpperCase()}
-      </Typography>
-
-      <Stack direction="row" justifyContent="flex-end" mb={2}>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setDialogopen(true)
-          }}
-          sx={{
-            backgroundColor: '#0061B1',
-            '&:hover': {
-              backgroundColor: '#004d8c',
-            },
-          }}
-        >
-          Add New Document Type
-        </Button>
-      </Stack>
-
-      <Box>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          getRowId={(row: KycDocumentTypeData) => row.kycDocTypeCode}
-          autoHeight
-          disableRowSelectionOnClick
-          pageSizeOptions={[5, 10, 25, 50]}
-          slots={{ toolbar: GridToolbar }}
-          sx={{}}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 10,
+              color: '#0061B1',
+            }}
+          >
+            {'KYC Document Type Master'.toUpperCase()}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setDialogopen(true)
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+            sx={{
+              backgroundColor: '#0061B1',
+              '&:hover': {
+                backgroundColor: '#004d8c',
               },
-            },
-            sorting: {
-              sortModel: [{ field: 'createdLocalDateTime', sort: 'desc' }],
-            },
+            }}
+          >
+            Add New Document Type
+          </Button>
+        </Stack>
+
+        <Box>
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            getRowId={(row: KycDocumentTypeData) => row.kycDocTypeCode}
+            autoHeight
+            disableRowSelectionOnClick
+            pageSizeOptions={[5, 10, 25, 50]}
+            slots={{ toolbar: GridToolbar }}
+            sx={{}}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 10,
+                },
+              },
+              sorting: {
+                sortModel: [{ field: 'createdLocalDateTime', sort: 'desc' }],
+              },
+            }}
+          />
+        </Box>
+
+        <KycDocumentTypeFormDialog
+          open={dialogopen}
+          onClose={() => setDialogopen(false)}
+          editData={editData}
+          onSubmit={(data: any) => handleAction(data, !!editData)}
+        />
+
+        {/* Status Change Confirmation Modal */}
+        <ConfirmModal
+          open={statusModalOpen}
+          onClose={() => {
+            setStatusModalOpen(false)
+            setSelectedRow(null)
+            setStatusAction(null)
           }}
+          onConfirm={handleStatusToggle}
+          title={statusAction === 'activate' ? 'Activate Document Type?' : 'Deactivate Document Type?'}
+          message={`Are you sure you want to ${statusAction} document type "${selectedRow?.kycDocTypeDescription}"?`}
+          //@ts-ignore
+          confirmText={statusAction === 'activate' ? 'Activate' : 'Deactivate'}
+          confirmColor={statusAction === 'activate' ? 'success' : 'warning'}
         />
       </Box>
-
-      <KycDocumentTypeFormDialog
-        open={dialogopen}
-        onClose={() => setDialogopen(false)}
-        editData={editData}
-        onSubmit={(data: any) => handleAction(data, !!editData)}
-      />
-
-      {/* Status Change Confirmation Modal */}
-      <ConfirmModal
-        open={statusModalOpen}
-        onClose={() => {
-          setStatusModalOpen(false)
-          setSelectedRow(null)
-          setStatusAction(null)
-        }}
-        onConfirm={handleStatusToggle}
-        title={statusAction === 'activate' ? 'Activate Document Type?' : 'Deactivate Document Type?'}
-        message={`Are you sure you want to ${statusAction} document type "${selectedRow?.kycDocTypeDescription}"?`}
-        //@ts-ignore
-        confirmText={statusAction === 'activate' ? 'Activate' : 'Deactivate'}
-        confirmColor={statusAction === 'activate' ? 'success' : 'warning'}
-      />
-    </Box>
+    </HasPermission>
   )
 }

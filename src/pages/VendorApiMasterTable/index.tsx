@@ -14,6 +14,9 @@ import UrlTypeApiService from '../../services/urlType.api.service'
 // Dialog Component
 import VendorApiConfigDialog from '../../components/VendorApiConfigDialog'
 import { formatTableDate } from '@/helpers/dateformate'
+import HasPermission from '@/components/permissionWrapper'
+import { LocalStorageService } from '@/helpers/local-storage-service'
+import { HelperService } from '@/helpers/helper'
 
 export default function VendorApiMasterTable() {
   const [rows, setRows] = useState([])
@@ -34,6 +37,8 @@ export default function VendorApiMasterTable() {
   const configService = useMemo(() => new VendorApiConfigService(), [])
   const vendorService = useMemo(() => new VendorApiService(), [])
   const urlTypeService = useMemo(() => new UrlTypeApiService(), [])
+  const local_service = new LocalStorageService()
+  const helper = new HelperService()
 
   const showAlert = (t: 'success' | 'error', m: string) => {
     setType(t)
@@ -88,34 +93,32 @@ export default function VendorApiMasterTable() {
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (params.value ? `****${String(params.value).slice(-4)}` : '-'),
     },
-   {
-  field: 'effective_from_date',
-  headerName: 'Effective From',
-  flex: 1,
-  minWidth: 150,
- headerClassName: 'super-app-theme--header',
-  //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivefromdate || row?.effectiveFromDate
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 1,
+      minWidth: 150,
+      headerClassName: 'super-app-theme--header',
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivefromdate || row?.effectiveFromDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
-{
-  field: 'effective_to_date',
-  headerName: 'Effective To',
-  flex: 1,
-   headerClassName: 'super-app-theme--header',
-  minWidth: 150,
-  //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivetodate || row?.effectiveToDate
+        return date ? formatTableDate(date) : ''
+      },
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      minWidth: 150,
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivetodate || row?.effectiveToDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
+        return date ? formatTableDate(date) : ''
+      },
+    },
     {
       field: 'active',
       headerName: 'Status',
@@ -137,6 +140,7 @@ export default function VendorApiMasterTable() {
             setEditData(params.row)
             setDialogOpen(true)
           }}
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
         >
           <EditIcon fontSize="small" />
         </IconButton>
@@ -149,51 +153,54 @@ export default function VendorApiMasterTable() {
   })
 
   return (
-    <Box p={3} sx={{ width: '100%', '& .header-bg': { fontWeight: 'bold', bgcolor: '#f5f5f5' } }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
-          VENDOR API CONFIGURATION
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setDialogOpen(true)
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={3} sx={{ width: '100%', '& .header-bg': { fontWeight: 'bold', bgcolor: '#f5f5f5' } }}>
+        <Stack direction="row" justifyContent="space-between" mb={2}>
+          <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
+            VENDOR API CONFIGURATION
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setDialogOpen(true)
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add
+          </Button>
+        </Stack>
 
-      <DataGrid
-        rows={filteredRows}
-        columns={columns}
-        loading={loading}
-        getRowId={(row) => row.id || `${row.vendorCode}-${row.urlCode}`}
-        autoHeight
-        slots={{ toolbar: GridToolbar }}
-        slotProps={{ toolbar: { showQuickFilter: true } }}
-        // initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5,
+        <DataGrid
+          rows={filteredRows}
+          columns={columns}
+          loading={loading}
+          getRowId={(row) => row.id || `${row.vendorCode}-${row.urlCode}`}
+          autoHeight
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          // initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5,
+              },
             },
-          },
-        }}
-        sx={{ bgcolor: 'white' }}
-      />
+          }}
+          sx={{ bgcolor: 'white' }}
+        />
 
-      {/* Connected Dialog */}
-      <VendorApiConfigDialog
-        open={dialogOpen}
-        editData={editData}
-        vendors={vendors}
-        urlTypes={urlTypes}
-        onClose={() => setDialogOpen(false)}
-        refreshList={fetchData}
-        showAlert={showAlert}
-      />
-    </Box>
+        {/* Connected Dialog */}
+        <VendorApiConfigDialog
+          open={dialogOpen}
+          editData={editData}
+          vendors={vendors}
+          urlTypes={urlTypes}
+          onClose={() => setDialogOpen(false)}
+          refreshList={fetchData}
+          showAlert={showAlert}
+        />
+      </Box>
+    </HasPermission>
   )
 }

@@ -10,6 +10,9 @@ import { formatTableDate } from '@/helpers/dateformate'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import dayjs from 'dayjs'
+import HasPermission from '@/components/permissionWrapper'
+import { LocalStorageService } from '@/helpers/local-storage-service'
+import { HelperService } from '@/helpers/helper'
 
 export default function ForexCurrencyMaster() {
   const service = useMemo(() => new ForexCurrencyService(), [])
@@ -30,6 +33,9 @@ export default function ForexCurrencyMaster() {
     setAlertText(text)
     setAlertOpen(true)
   }
+
+  const local_service = useMemo(() => new LocalStorageService(), [])
+  const helper = new HelperService()
 
   const fetchData = useCallback(async () => {
     const res = await service.getAll()
@@ -175,6 +181,7 @@ export default function ForexCurrencyMaster() {
               setDialogOpen(true)
               setIsFormChanged(false)
             }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
           >
             <EditIcon />
           </IconButton>
@@ -188,55 +195,58 @@ export default function ForexCurrencyMaster() {
   ]
 
   return (
-    <Box p={2} sx={{ width: '85vw' }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            display: 'grid',
-            placeItems: 'center',
-            color: '#0061B1',
-          }}
-        >
-          {'Currency master'.toUpperCase()}
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setDialogOpen(true)
-            setIsFormChanged(false)
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={2} sx={{ width: '85vw' }}>
+        <Stack direction="row" justifyContent="space-between" mb={2}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              display: 'grid',
+              placeItems: 'center',
+              color: '#0061B1',
+            }}
+          >
+            {'Currency master'.toUpperCase()}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setDialogOpen(true)
+              setIsFormChanged(false)
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add
+          </Button>
+        </Stack>
 
-      <DataGrid
-        rows={rows}
-        getRowId={(row) => row.countryCode}
-        columns={columns}
-        autoHeight
-        slots={{ toolbar: GridToolbar }}
-        slotProps={{ toolbar: { showQuickFilter: true } }}
-        disableColumnMenu
-        pageSizeOptions={[5]}
-        initialState={{
-          pagination: { paginationModel: { page: 0, pageSize: 5 } },
-        }}
-      />
+        <DataGrid
+          rows={rows}
+          getRowId={(row) => row.countryCode}
+          columns={columns}
+          autoHeight
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
+          pageSizeOptions={[5]}
+          initialState={{
+            pagination: { paginationModel: { page: 0, pageSize: 5 } },
+          }}
+        />
 
-      <ForexCurrencyDialog
-        open={dialogOpen}
-        editData={editData}
-        onClose={handleDialogClose}
-        onSubmit={editData ? handleUpdate : handleCreate}
-        onFormChange={handleFormChange}
-        isUpdateDisabled={editData ? !isFormChanged : false}
-      />
-    </Box>
+        <ForexCurrencyDialog
+          open={dialogOpen}
+          editData={editData}
+          onClose={handleDialogClose}
+          onSubmit={editData ? handleUpdate : handleCreate}
+          onFormChange={handleFormChange}
+          isUpdateDisabled={editData ? !isFormChanged : false}
+        />
+      </Box>
+    </HasPermission>
   )
 }

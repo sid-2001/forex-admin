@@ -6,6 +6,8 @@ import CountryKycDocDialog from '../../components/countryKycDocDialog'
 import CountryKycDocService from '../../services/country-kyc-doc.service'
 import { formatTableDate } from '@/helpers/dateformate'
 import { LocalStorageService } from '@/helpers/local-storage-service'
+import HasPermission from '@/components/permissionWrapper'
+import { HelperService } from '@/helpers/helper'
 
 export default function CountryKycDocManagement() {
   const [open, setOpen] = useState(false)
@@ -18,6 +20,7 @@ export default function CountryKycDocManagement() {
 
   const docService = useMemo(() => new CountryKycDocService(), [])
   const local_service = new LocalStorageService()
+  const helper = new HelperService()
 
   const showSuccessMessage = (message: string) => {
     setSuccessMessage(message)
@@ -206,6 +209,7 @@ export default function CountryKycDocManagement() {
             setOpen(true)
             setErrMessage(null)
           }}
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
         >
           <EditIcon />
         </IconButton>
@@ -214,79 +218,82 @@ export default function CountryKycDocManagement() {
   ]
 
   return (
-    <Box p={3}>
-      <Stack direction="row" mb={2} justifyContent={'space-between'}>
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            display: 'grid',
-            placeItems: 'center',
-            color: '#0061B1',
-          }}
-        >
-          {'kyc master'.toUpperCase()}
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setOpen(true)
-            setErrMessage(null)
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={3}>
+        <Stack direction="row" mb={2} justifyContent={'space-between'}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              display: 'grid',
+              placeItems: 'center',
+              color: '#0061B1',
+            }}
+          >
+            {'kyc master'.toUpperCase()}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setOpen(true)
+              setErrMessage(null)
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add
+          </Button>
+        </Stack>
 
-      <div style={{ height: 500, width: '100%' }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          loading={loading}
-          getRowId={(r) => r.kycDocCode}
-          slots={{ toolbar: GridToolbar }}
-          slotProps={{ toolbar: { showQuickFilter: true } }}
-          disableColumnMenu
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 5,
+        <div style={{ height: 500, width: '100%' }}>
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            loading={loading}
+            getRowId={(r) => r.kycDocCode}
+            slots={{ toolbar: GridToolbar }}
+            slotProps={{ toolbar: { showQuickFilter: true } }}
+            disableColumnMenu
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 5,
+                },
               },
-            },
-          }}
-        />
-      </div>
+            }}
+          />
+        </div>
 
-      {open && (
-        <CountryKycDocDialog
-          key={editData ? editData.countryKycDocCode : 'new'}
-          open={open}
-          onClose={() => {
-            setOpen(false)
-            setErrMessage(null)
-          }}
-          editData={editData}
-          onSubmit={editData ? handleUpdate : handleCreate}
-          errMassage={errMessage}
-        />
-      )}
+        {open && (
+          <CountryKycDocDialog
+            key={editData ? editData.countryKycDocCode : 'new'}
+            open={open}
+            onClose={() => {
+              setOpen(false)
+              setErrMessage(null)
+            }}
+            editData={editData}
+            onSubmit={editData ? handleUpdate : handleCreate}
+            errMassage={errMessage}
+          />
+        )}
 
-      {/* Success Snackbar */}
-      <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
-          {successMessage}
-        </Alert>
-      </Snackbar>
+        {/* Success Snackbar */}
+        <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+          <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+            {successMessage}
+          </Alert>
+        </Snackbar>
 
-      {/* Display error message if exists */}
-      <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-        <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
-          {errMessage}
-        </Alert>
-      </Snackbar>
-    </Box>
+        {/* Display error message if exists */}
+        <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+          <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+            {errMessage}
+          </Alert>
+        </Snackbar>
+      </Box>
+    </HasPermission>
   )
 }

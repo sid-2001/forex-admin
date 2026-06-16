@@ -8,6 +8,9 @@ import UrlTypeApiService, { IUrlType } from '../../services/urlType.api.service'
 import UrlTypeFormDialog from '../../components/UrlTypeFormDialog'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
+import HasPermission from '@/components/permissionWrapper'
+import { LocalStorageService } from '@/helpers/local-storage-service'
+import { HelperService } from '@/helpers/helper'
 
 export default function UrlTypeMaster() {
   const [rows, setRows] = useState<IUrlType[]>([])
@@ -21,6 +24,8 @@ export default function UrlTypeMaster() {
   const [, setType] = useRecoilState(alertTypeState)
 
   const service = useMemo(() => new UrlTypeApiService(), [])
+  const local_service = new LocalStorageService()
+  const helper = new HelperService()
 
   const fetchData = async () => {
     setLoading(true)
@@ -72,6 +77,7 @@ export default function UrlTypeMaster() {
               setEditData(params.row)
               setDialogOpen(true)
             }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
           >
             <EditIcon fontSize="small" />
           </IconButton>
@@ -85,52 +91,55 @@ export default function UrlTypeMaster() {
   )
 
   return (
-    <Box p={3} sx={{ width: '100%', '& .header-bg': { fontWeight: 'bold', bgcolor: '#f5f5f5' } }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
-          URL TYPE MASTER
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setDialogOpen(true)
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={3} sx={{ width: '100%', '& .header-bg': { fontWeight: 'bold', bgcolor: '#f5f5f5' } }}>
+        <Stack direction="row" justifyContent="space-between" mb={2}>
+          <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
+            URL TYPE MASTER
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setDialogOpen(true)
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add
+          </Button>
+        </Stack>
 
-      <DataGrid
-        rows={filteredRows}
-        columns={columns}
-        loading={loading}
-        getRowId={(row) => row.urlCode}
-        autoHeight
-        slots={{ toolbar: GridToolbar }}
-        slotProps={{ toolbar: { showQuickFilter: true } }}
-        disableColumnMenu
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5,
+        <DataGrid
+          rows={filteredRows}
+          columns={columns}
+          loading={loading}
+          getRowId={(row) => row.urlCode}
+          autoHeight
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5,
+              },
             },
-          },
-        }}
-        sx={{ bgcolor: 'white' }}
-      />
+          }}
+          sx={{ bgcolor: 'white' }}
+        />
 
-      <UrlTypeFormDialog
-        open={dialogOpen}
-        editData={editData}
-        onClose={() => setDialogOpen(false)}
-        refreshList={fetchData}
-        showAlert={(t: any, m: any) => {
-          setType(t)
-          setText(m)
-          setOpen(true)
-        }}
-      />
-    </Box>
+        <UrlTypeFormDialog
+          open={dialogOpen}
+          editData={editData}
+          onClose={() => setDialogOpen(false)}
+          refreshList={fetchData}
+          showAlert={(t: any, m: any) => {
+            setType(t)
+            setText(m)
+            setOpen(true)
+          }}
+        />
+      </Box>
+    </HasPermission>
   )
 }

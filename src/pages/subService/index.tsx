@@ -1,16 +1,16 @@
 import { Button, Stack, IconButton, Typography } from '@mui/material'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
 import { useEffect, useState, useMemo } from 'react'
 
 import SubServiceFormDialog from '../../components/subServiceDialog'
 import SubServiceService from '../../services/sub-service.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-import dayjs from 'dayjs'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import { formatTableDate } from '@/helpers/dateformate'
+import { HelperService } from '@/helpers/helper'
+import HasPermission from '@/components/permissionWrapper'
 
 export default function SubServiceManagement() {
   const [open, setOpen] = useState(false)
@@ -20,6 +20,7 @@ export default function SubServiceManagement() {
 
   const subService = useMemo(() => new SubServiceService(), [])
   const local_service = useMemo(() => new LocalStorageService(), [])
+  const helper = new HelperService()
 
   const [alertOpen, setAlertOpen] = useRecoilState(alertState)
   const [alertText, setAlertText] = useRecoilState(alertTextState)
@@ -90,65 +91,62 @@ export default function SubServiceManagement() {
     { field: 'subServiceName', headerName: 'Sub Service Name', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'countryCode', headerName: 'Country', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'active', headerName: 'Active', flex: 0.7, renderCell: (p) => (p.value ? 'Yes' : 'No'), headerClassName: 'super-app-theme--header' },
-// {
-//   field: 'effective_from_date',
-//   headerName: 'Effective From',
-//   flex: 1,
-//   minWidth: 150,
+    // {
+    //   field: 'effective_from_date',
+    //   headerName: 'Effective From',
+    //   flex: 1,
+    //   minWidth: 150,
 
-//   // formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate)
-//   valueGetter: (params) => {
-//     console.log(params)
-//     const date =
-//       params?.row?.effectivefromdate ||
-//       params?.row?.effectiveFromDate
-//       console.log(date)
-//     return date ? formatTableDate(date) : ''
-//   },
-// },
+    //   // formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate)
+    //   valueGetter: (params) => {
+    //     console.log(params)
+    //     const date =
+    //       params?.row?.effectivefromdate ||
+    //       params?.row?.effectiveFromDate
+    //       console.log(date)
+    //     return date ? formatTableDate(date) : ''
+    //   },
+    // },
 
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 1,
+      minWidth: 150,
+      headerClassName: 'super-app-theme--header',
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivefromdate || row?.effectiveFromDate
 
-{
-  field: 'effective_from_date',
-  headerName: 'Effective From',
-  flex: 1,
-  minWidth: 150,
- headerClassName: 'super-app-theme--header',
-  //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivefromdate || row?.effectiveFromDate
+        return date ? formatTableDate(date) : ''
+      },
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      minWidth: 150,
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivetodate || row?.effectiveToDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
-{
-  field: 'effective_to_date',
-  headerName: 'Effective To',
-  flex: 1,
-   headerClassName: 'super-app-theme--header',
-  minWidth: 150,
-   //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivetodate || row?.effectiveToDate
-
-    return date ? formatTableDate(date) : ''
-  },
-},
-// {
-//   field: 'effective_to_date',
-//   headerName: 'Effective To',
-//   flex: 1,
-//   minWidth: 150,
-//   valueGetter: (params) => {
-//     const date =
-//       params?.row?.effectivetodate ||
-//       params?.row?.effectiveToDate
-//       console.log(date)
-//     return date ? formatTableDate(date) : ''
-//   },
-// },
+        return date ? formatTableDate(date) : ''
+      },
+    },
+    // {
+    //   field: 'effective_to_date',
+    //   headerName: 'Effective To',
+    //   flex: 1,
+    //   minWidth: 150,
+    //   valueGetter: (params) => {
+    //     const date =
+    //       params?.row?.effectivetodate ||
+    //       params?.row?.effectiveToDate
+    //       console.log(date)
+    //     return date ? formatTableDate(date) : ''
+    //   },
+    // },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -162,6 +160,7 @@ export default function SubServiceManagement() {
               setEditData(params.row)
               setOpen(true)
             }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
           >
             <EditIcon />
           </IconButton>
@@ -174,7 +173,7 @@ export default function SubServiceManagement() {
   ]
 
   return (
-    <>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
       <Stack direction="row" justifyContent="space-between" mb={2} mt={2} style={{ marginRight: -75 }}>
         <Typography
           variant="h4"
@@ -197,6 +196,7 @@ export default function SubServiceManagement() {
             setEditData(null)
             setOpen(true)
           }}
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
         >
           Add
         </Button>
@@ -227,6 +227,6 @@ export default function SubServiceManagement() {
       {open && (
         <SubServiceFormDialog open={open} onClose={() => setOpen(false)} editData={editData} onSubmit={editData ? handleUpdate : handleCreate} />
       )}
-    </>
+    </HasPermission>
   )
 }

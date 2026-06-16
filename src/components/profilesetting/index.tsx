@@ -411,9 +411,6 @@ const ProfileMenu = () => {
         <MenuItem
           onClick={() => {
             setIsModalOpen(true)
-            // local_service.delete_eaccestoke()
-            // window.location.reload()
-            // handleClose()
           }}
           sx={{ color: '#ff6b6b' }}
         >

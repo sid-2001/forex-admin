@@ -1,186 +1,3 @@
-// import { useEffect, useState } from "react";
-// import { Box, Button, IconButton, Stack } from "@mui/material";
-// import { DataGrid, GridColDef } from "@mui/x-data-grid";
-// import EditIcon from "@mui/icons-material/Edit";
-// import DeleteIcon from "@mui/icons-material/Delete";
-// import BopCategoryFormDialog from "../../components/bopcategorydialog";
-// import BopCategoryService from "../../services/bop.category.service";
-// import { LocalStorageService } from "@/helpers/local-storage-service";
-// import { useRecoilState } from "recoil";
-// import { alertState, alertTextState, alertTypeState } from "@/states/state";
-// import BopCategoryTypeService from "@/services/bop.category.type.service";
-
-// export interface BopCategory {
-//   bopPurposeCategoryCode: string;
-//   countryCode: string;
-//   categoryType: string;
-//   bopPurposeCode: string;
-//   bopPurposeDescription: string;
-//   bopPurposeSubCode: string;
-//   bopPurposeSubDescription: string;
-//   active: boolean;
-//   effective_from_date: string;
-//   effective_to_date: string;
-// }
-
-// export default function BopCategoryMaster() {
-//   const [rows, setRows] = useState<BopCategory[]>([]);
-//   const [dialogOpen, setDialogOpen] = useState(false);
-//   const [editData, setEditData] = useState<BopCategory | null>(null);
-//   const [categorylist, setCategorylist] = useState<BopCategory | null>(null);
-//   // const [C]
-
-//   const [open, setOpen] = useRecoilState(alertState);
-//   const [text, setText] = useRecoilState(alertTextState);
-//   const [type, setType] = useRecoilState(alertTypeState);
-
-//   const service = new BopCategoryService();
-//   const localService = new LocalStorageService();
-//   const bopcategorytypeservice=new BopCategoryTypeService()
-
-//   const fetchData = async () => {
-//     const res = await service.getAll();
-//     // if (res?.status) {
-
-//       setRows(res);
-//     // }
-//   };
-//    const fetchCategoryType = async () => {
-//     const res = await service.getCategoryType();
-//     // if (res?.status) {
-
-//      console.log(res);
-//     // }
-//   };
-
-//   useEffect(() => {
-
-//          bopcategorytypeservice.getAll().then(data=>{
-
-//             console.log(data)
-//             setCategorylist(data)
-//              fetchData();
-//           })
-
-//   }, []);
-
-//   const handleCreate = async (data: any) => {
-//     const res = await service.create({
-//       ...data,
-//       created_by: localService.get_staff_id(),
-//     });
-
-//     if (res?.status) {
-//       setType("Success");
-//       setText("BOP Category Created Successfully");
-//     } else {
-//       setType("Fail");
-//       setText("Server Error");
-//     }
-//     setOpen(true);
-//     setDialogOpen(false);
-//     fetchData();
-//   };
-
-//   const handleUpdate = async (data: any) => {
-//     const res = await service.update(data);
-
-//     if (res?.status) {
-//       setType("Success");
-//       setText("BOP Category Updated Successfully");
-//     } else {
-//       setType("Fail");
-//       setText("Server Error");
-//     }
-//     setOpen(true);
-//     setEditData(null);
-//     setDialogOpen(false);
-//     fetchData();
-//   };
-
-//   const handleDelete = async (row: BopCategory) => {
-//     await service.delete({
-//       bopPurposeCategoryCode: row.bopPurposeCategoryCode,
-//       countryCode: row.countryCode,
-//     });
-//     fetchData();
-//   };
-
-//   const columns: GridColDef[] = [
-//     { field: "bopPurposeCategoryCode", headerName: "Category Code", flex: 0.6, headerClassName: 'super-app-theme--header'  },
-//     { field: "countryCode", headerName: "Country", flex: 0.4 , headerClassName: 'super-app-theme--header' },
-//     { field: "categoryType", headerName: "Category Type", flex: 0.6, headerClassName: 'super-app-theme--header'  },
-//     { field: "bopPurposeCode", headerName: "Purpose Code", flex: 0.5, headerClassName: 'super-app-theme--header'  },
-//     { field: "bopPurposeDescription", headerName: "Purpose Description", flex: 1, headerClassName: 'super-app-theme--header'  },
-//     { field: "bopPurposeSubCode", headerName: "Sub Code", flex: 0.5 , headerClassName: 'super-app-theme--header' },
-//     { field: "bopPurposeSubDescription", headerName: "Sub Description", flex: 1 , headerClassName: 'super-app-theme--header' },
-//     {
-//       field: "active",
-//       headerName: "Active",
-//       width: 120,
-//       renderCell: (p) => (p.value ? "Yes" : "No"),
-//        headerClassName: 'super-app-theme--header'
-//     },
-//     {
-//       field: "actions",
-//       headerName: "Actions",
-//       width: 140,
-//       renderCell: (params) => (
-//         <>
-//           <IconButton
-//             onClick={() => {
-//               setEditData(params.row);
-//               setDialogOpen(true);
-//             }}
-//           >
-//             <EditIcon />
-//           </IconButton>
-
-//         </>
-//       ), headerClassName: 'super-app-theme--header'
-//     },
-//   ];
-
-//   return (
-//     <Box p={2} sx={{ width: "85vw" }}>
-//       <Stack direction="row" justifyContent="space-between" mb={2}>
-//         <Button
-//           variant="contained"
-//           onClick={() => {
-//             setEditData(null);
-//             setDialogOpen(true);
-//           }}
-//         >
-//           Add BOP Category
-//         </Button>
-//       </Stack>
-
-//       <DataGrid
-//         rows={rows}
-//         columns={columns}
-//         getRowId={(row) => row.bopPurposeCategoryCode}
-//         autoHeight
-//         pageSizeOptions={[5, 10]}
-//                 initialState={{
-//     pagination: {
-//       paginationModel: {
-//         page: 0,
-//         pageSize: 5,
-//       },
-//     },
-//   }}
-//       />
-
-//       <BopCategoryFormDialog
-//         open={dialogOpen}
-//         editData={editData}
-//         onClose={() => setDialogOpen(false)}
-//         onSubmit={editData ? handleUpdate : handleCreate}
-//         categorylist={categorylist}
-//       />
-//     </Box>
-//   );
-// }
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Box, Button, IconButton, Stack, Typography, TextField, InputAdornment } from '@mui/material'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
@@ -194,6 +11,8 @@ import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import dayjs from 'dayjs'
 import { formatTableDate } from '@/helpers/dateformate'
+import { HelperService } from '@/helpers/helper'
+import HasPermission from '@/components/permissionWrapper'
 
 export default function BopCategoryMaster() {
   const [rows, setRows] = useState<any[]>([])
@@ -209,6 +28,8 @@ export default function BopCategoryMaster() {
 
   const service = useMemo(() => new BopCategoryService(), [])
   const bopcategorytypeservice = useMemo(() => new BopCategoryTypeService(), [])
+  const local_service = useMemo(() => new LocalStorageService(), [])
+  const helper = new HelperService()
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -240,34 +61,32 @@ export default function BopCategoryMaster() {
     { field: 'countryCode', headerName: 'Country', flex: 0.4, headerClassName: 'super-app-theme--header' },
     { field: 'categoryType', headerName: 'Type', flex: 0.6, headerClassName: 'super-app-theme--header' },
     { field: 'bopPurposeDescription', headerName: 'Description', flex: 1, headerClassName: 'super-app-theme--header' },
-   {
-  field: 'effective_from_date',
-  headerName: 'Effective From',
-  flex: 1,
-  minWidth: 150,
- headerClassName: 'super-app-theme--header',
- //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivefromdate || row?.effectiveFromDate
+    {
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 1,
+      minWidth: 150,
+      headerClassName: 'super-app-theme--header',
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivefromdate || row?.effectiveFromDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
-{
-  field: 'effective_to_date',
-  headerName: 'Effective To',
-  flex: 1,
-   headerClassName: 'super-app-theme--header',
-  minWidth: 150,
-  //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivetodate || row?.effectiveToDate
+        return date ? formatTableDate(date) : ''
+      },
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      minWidth: 150,
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivetodate || row?.effectiveToDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
+        return date ? formatTableDate(date) : ''
+      },
+    },
     { field: 'active', headerName: 'Active', flex: 0.4, headerClassName: 'super-app-theme--header', renderCell: (p) => (p.value ? 'Yes' : 'No') },
     {
       field: 'actions',
@@ -281,6 +100,7 @@ export default function BopCategoryMaster() {
             setEditData(params.row)
             setDialogOpen(true)
           }}
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
         >
           <EditIcon fontSize="small" />
         </IconButton>
@@ -289,66 +109,69 @@ export default function BopCategoryMaster() {
   ]
 
   return (
-    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{
-            fontWeight: 700,
-            // color: 'text.primary',
-            letterSpacing: '-0.02em',
-            display: 'grid',
-            placeItems: 'center',
-            // mb: 5,
-            color: '#0061B1',
-          }}
-        >
-          {'Bop Category Master'.toUpperCase()}
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setDialogOpen(true)
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
+        <Stack direction="row" justifyContent="space-between" mb={2}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              // color: 'text.primary',
+              letterSpacing: '-0.02em',
+              display: 'grid',
+              placeItems: 'center',
+              // mb: 5,
+              color: '#0061B1',
+            }}
+          >
+            {'Bop Category Master'.toUpperCase()}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setDialogOpen(true)
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add
+          </Button>
+        </Stack>
 
-      <DataGrid
-        rows={filteredRows}
-        columns={columns}
-        loading={loading}
-        getRowId={(row) => row.bopPurposeCategoryCode}
-        autoHeight
-        slots={{ toolbar: GridToolbar }}
-        slotProps={{ toolbar: { showQuickFilter: true } }}
-        disableColumnMenu
-        // initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
-        // pageSizeOptions={[5, 10, 20]}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5,
+        <DataGrid
+          rows={filteredRows}
+          columns={columns}
+          loading={loading}
+          getRowId={(row) => row.bopPurposeCategoryCode}
+          autoHeight
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
+          // initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+          // pageSizeOptions={[5, 10, 20]}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5,
+              },
             },
-          },
-        }}
-      />
+          }}
+        />
 
-      <BopCategoryFormDialog
-        open={dialogOpen}
-        editData={editData}
-        categorylist={categorylist}
-        onClose={() => setDialogOpen(false)}
-        refreshList={fetchData}
-        showAlert={(type: any, text: any) => {
-          setType(type)
-          setText(text)
-          setOpen(true)
-        }}
-      />
-    </Box>
+        <BopCategoryFormDialog
+          open={dialogOpen}
+          editData={editData}
+          categorylist={categorylist}
+          onClose={() => setDialogOpen(false)}
+          refreshList={fetchData}
+          showAlert={(type: any, text: any) => {
+            setType(type)
+            setText(text)
+            setOpen(true)
+          }}
+        />
+      </Box>
+    </HasPermission>
   )
 }

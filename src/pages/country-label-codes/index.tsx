@@ -55,6 +55,8 @@ import { CountryData } from '@/types/static.type'
 import dayjs from 'dayjs'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
 import { formatTableDate } from '@/helpers/dateformate'
+import { HelperService } from '@/helpers/helper'
+import HasPermission from '@/components/permissionWrapper'
 
 const countryLabelCodesService = new CountryLabelCodesService()
 const countryBusinessPayoutPartnerService = new CountryBusinessPayoutPartnerService()
@@ -95,6 +97,7 @@ export default function CountryLabelCodesGridPage() {
   const [filteredBopCategories, setFilteredBopCategories] = useState<BopCategory[]>([])
   const [loadingRailMappings, setLoadingRailMappings] = useState(false)
   const [loadingBopCategories, setLoadingBopCategories] = useState(false)
+  const helper = new HelperService()
 
   const [form, setForm] = useState({
     countryCode: '',
@@ -547,7 +550,12 @@ export default function CountryLabelCodesGridPage() {
       renderCell: (params: GridRenderCellParams) => (
         <Stack direction="row" spacing={1}>
           <Tooltip title="Edit">
-            <IconButton size="small" color="primary" onClick={() => handleEdit(params.row)}>
+            <IconButton
+              size="small"
+              color="primary"
+              onClick={() => handleEdit(params.row)}
+              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
+            >
               <EditIcon />
             </IconButton>
           </Tooltip>
@@ -584,346 +592,353 @@ export default function CountryLabelCodesGridPage() {
   }
 
   return (
-    <Box sx={{ height: '100vh', p: 3 }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography variant="h5">
-          <b>Country Label Codes</b>
-        </Typography>
-        <Button variant="contained" onClick={handleCreate} startIcon={<UpdateIcon />}>
-          + Create Label Code
-        </Button>
-      </Stack>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box sx={{ height: '100vh', p: 3 }}>
+        <Stack direction="row" justifyContent="space-between" mb={2}>
+          <Typography variant="h5">
+            <b>Country Label Codes</b>
+          </Typography>
+          <Button
+            variant="contained"
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+            onClick={handleCreate}
+            startIcon={<UpdateIcon />}
+          >
+            + Create Label Code
+          </Button>
+        </Stack>
 
-      {/* Summary Cards */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'primary.light', color: 'white' }}>
-            <Typography variant="h6">{rows.length}</Typography>
-            <Typography variant="body2">Total Label Codes</Typography>
-          </Paper>
+        {/* Summary Cards */}
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'primary.light', color: 'white' }}>
+              <Typography variant="h6">{rows.length}</Typography>
+              <Typography variant="body2">Total Label Codes</Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'success.light', color: 'white' }}>
+              <Typography variant="h6">{rows.filter((r) => r.active).length}</Typography>
+              <Typography variant="body2">Active Codes</Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'info.light', color: 'white' }}>
+              <Typography variant="h6">{[...new Set(rows.map((r) => r.countryCode))].length}</Typography>
+              <Typography variant="body2">Countries</Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'warning.light', color: 'white' }}>
+              <Typography variant="h6">{[...new Set(rows.map((r) => r.channel))].length}</Typography>
+              <Typography variant="body2">Channels</Typography>
+            </Paper>
+          </Grid>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'success.light', color: 'white' }}>
-            <Typography variant="h6">{rows.filter((r) => r.active).length}</Typography>
-            <Typography variant="body2">Active Codes</Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'info.light', color: 'white' }}>
-            <Typography variant="h6">{[...new Set(rows.map((r) => r.countryCode))].length}</Typography>
-            <Typography variant="body2">Countries</Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'warning.light', color: 'white' }}>
-            <Typography variant="h6">{[...new Set(rows.map((r) => r.channel))].length}</Typography>
-            <Typography variant="body2">Channels</Typography>
-          </Paper>
-        </Grid>
-      </Grid>
 
-      <Box sx={{ height: 500, width: '100%' }}>
-        <DataGrid
-          rows={filteredRows}
-          columns={columns}
-          loading={loading}
-          getRowId={(row) => row.countryLabelCode || `${row.countryCode}-${row.railPayoutMappingCode}`}
-          initialState={{
-            pagination: {
-              paginationModel: { pageSize: 10 },
-            },
-          }}
-          pageSizeOptions={[5, 10, 25]}
-          disableRowSelectionOnClick
-        />
-      </Box>
+        <Box sx={{ height: 500, width: '100%' }}>
+          <DataGrid
+            rows={filteredRows}
+            columns={columns}
+            loading={loading}
+            getRowId={(row) => row.countryLabelCode || `${row.countryCode}-${row.railPayoutMappingCode}`}
+            initialState={{
+              pagination: {
+                paginationModel: { pageSize: 10 },
+              },
+            }}
+            pageSizeOptions={[5, 10, 25]}
+            disableRowSelectionOnClick
+          />
+        </Box>
 
-      {/* Create/Edit Dialog */}
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle>
-          {selected ? 'Edit Country Label Code' : 'Create New Country Label Code'}
-          {selected && (
-            <Typography variant="caption" display="block" color="textSecondary">
-              ID: {selected.countryLabelCode}
-            </Typography>
-          )}
-        </DialogTitle>
-
-        <DialogContent dividers>
-          <Stack spacing={2} sx={{ mt: 1 }}>
-            {/* Auto-generated Code Preview */}
+        {/* Create/Edit Dialog */}
+        <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
+          <DialogTitle>
+            {selected ? 'Edit Country Label Code' : 'Create New Country Label Code'}
             {selected && (
-              <Paper sx={{ p: 2, bgcolor: 'grey.50' }}>
-                <Typography variant="subtitle2" gutterBottom>
-                  Generated Label Code:
-                </Typography>
-                <Typography variant="body1" fontWeight="bold">
-                  {selected.countryLabelCode}
-                </Typography>
-              </Paper>
+              <Typography variant="caption" display="block" color="textSecondary">
+                ID: {selected.countryLabelCode}
+              </Typography>
             )}
+          </DialogTitle>
 
-            {/* Country Code */}
-            <FormControl fullWidth required>
-              <InputLabel>Country Code</InputLabel>
-              <Select value={form.countryCode} label="Country Code *" onChange={(e) => handleCountryChange(e.target.value)}>
-                {countries
-                  .filter((country) => country.status === 'A')
-                  .map((country: CountryData) => (
-                    <MenuItem
-                      //@ts-ignore
-                      key={country.countryCode}
-                      value={country.countryCode}
-                    >
-                      <Box>
-                        <Typography variant="body2">{country.countryCode}</Typography>
-                        <Typography variant="caption" color="textSecondary">
-                          {country.countryName}
-                        </Typography>
+          <DialogContent dividers>
+            <Stack spacing={2} sx={{ mt: 1 }}>
+              {/* Auto-generated Code Preview */}
+              {selected && (
+                <Paper sx={{ p: 2, bgcolor: 'grey.50' }}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Generated Label Code:
+                  </Typography>
+                  <Typography variant="body1" fontWeight="bold">
+                    {selected.countryLabelCode}
+                  </Typography>
+                </Paper>
+              )}
+
+              {/* Country Code */}
+              <FormControl fullWidth required>
+                <InputLabel>Country Code</InputLabel>
+                <Select value={form.countryCode} label="Country Code *" onChange={(e) => handleCountryChange(e.target.value)}>
+                  {countries
+                    .filter((country) => country.status === 'A')
+                    .map((country: CountryData) => (
+                      <MenuItem
+                        //@ts-ignore
+                        key={country.countryCode}
+                        value={country.countryCode}
+                      >
+                        <Box>
+                          <Typography variant="body2">{country.countryCode}</Typography>
+                          <Typography variant="caption" color="textSecondary">
+                            {country.countryName}
+                          </Typography>
+                        </Box>
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+
+              {/* Rail Payout Mapping Code */}
+              <FormControl fullWidth required>
+                <InputLabel>Rail Payout Mapping Code</InputLabel>
+                <Select
+                  value={form.railPayoutMappingCode}
+                  label="Rail Payout Mapping Code"
+                  onChange={(e) => setForm({ ...form, railPayoutMappingCode: e.target.value })}
+                  startAdornment={
+                    form.railPayoutMappingCode && (
+                      <InputAdornment position="start">
+                        <BusinessIcon fontSize="small" />
+                      </InputAdornment>
+                    )
+                  }
+                  disabled={!form.countryCode || loadingRailMappings || filteredRailPayoutMappings.length === 0}
+                >
+                  {loadingRailMappings ? (
+                    <MenuItem disabled>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <CircularProgress size={20} />
+                        <Typography>Loading rail mappings...</Typography>
                       </Box>
                     </MenuItem>
-                  ))}
-              </Select>
-            </FormControl>
+                  ) : filteredRailPayoutMappings.length === 0 ? (
+                    <MenuItem disabled>
+                      {form.countryCode ? `No rail payout mappings found for ${getCountryName(form.countryCode)}` : 'Please select a country first'}
+                    </MenuItem>
+                  ) : (
+                    filteredRailPayoutMappings
+                      .filter((mapping) => mapping.active)
+                      .map((mapping) => (
+                        <MenuItem key={mapping.countryBusinessPayoutPartnerCode} value={mapping.countryBusinessPayoutPartnerCode}>
+                          <Box>
+                            <Typography variant="body2">{mapping.countryBusinessPayoutPartnerCode}</Typography>
+                            <Typography variant="caption" color="textSecondary">
+                              Business: {mapping.businessTypeCode} | Payout: {mapping.payoutPartner} | Rail:{' '}
+                              {
+                                //@ts-ignore
+                                mapping.productBusinessResponseDTO?.paymentRail || 'N/A'
+                              }
+                            </Typography>
+                            <Typography variant="caption" display="block" color="textSecondary">
+                              Recipient:{' '}
+                              {
+                                //@ts-ignore
+                                mapping.productBusinessResponseDTO?.recipientCountry || 'N/A'
+                              }
+                            </Typography>
+                          </Box>
+                        </MenuItem>
+                      ))
+                  )}
+                </Select>
+                {form.countryCode && filteredRailPayoutMappings.length === 0 && !loadingRailMappings && (
+                  <Typography variant="caption" color="textSecondary" sx={{ mt: 1 }}>
+                    No active rail payout mappings found for {getCountryName(form.countryCode)}. Please add mappings in the Country Business Payout
+                    Partner section first.
+                  </Typography>
+                )}
+              </FormControl>
 
-            {/* Rail Payout Mapping Code */}
-            <FormControl fullWidth required>
-              <InputLabel>Rail Payout Mapping Code</InputLabel>
-              <Select
-                value={form.railPayoutMappingCode}
-                label="Rail Payout Mapping Code"
-                onChange={(e) => setForm({ ...form, railPayoutMappingCode: e.target.value })}
-                startAdornment={
-                  form.railPayoutMappingCode && (
-                    <InputAdornment position="start">
-                      <BusinessIcon fontSize="small" />
-                    </InputAdornment>
-                  )
-                }
-                disabled={!form.countryCode || loadingRailMappings || filteredRailPayoutMappings.length === 0}
-              >
-                {loadingRailMappings ? (
-                  <MenuItem disabled>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <CircularProgress size={20} />
-                      <Typography>Loading rail mappings...</Typography>
-                    </Box>
-                  </MenuItem>
-                ) : filteredRailPayoutMappings.length === 0 ? (
-                  <MenuItem disabled>
-                    {form.countryCode ? `No rail payout mappings found for ${getCountryName(form.countryCode)}` : 'Please select a country first'}
-                  </MenuItem>
-                ) : (
-                  filteredRailPayoutMappings
-                    .filter((mapping) => mapping.active)
-                    .map((mapping) => (
-                      <MenuItem key={mapping.countryBusinessPayoutPartnerCode} value={mapping.countryBusinessPayoutPartnerCode}>
+              {/* Country Reporting Code (BOP Category) */}
+              <FormControl fullWidth required>
+                <InputLabel>Country Reporting Code (BOP Category)</InputLabel>
+                <Select
+                  value={form.countryReportingCode}
+                  label="Country Reporting Code (BOP Category)"
+                  onChange={(e) => setForm({ ...form, countryReportingCode: e.target.value })}
+                  startAdornment={
+                    form.countryReportingCode && (
+                      <InputAdornment position="start">
+                        <CategoryIcon fontSize="small" />
+                      </InputAdornment>
+                    )
+                  }
+                  disabled={!form.countryCode || loadingBopCategories || filteredBopCategories.length === 0}
+                >
+                  {loadingBopCategories ? (
+                    <MenuItem disabled>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <CircularProgress size={20} />
+                        <Typography>Loading BOP categories...</Typography>
+                      </Box>
+                    </MenuItem>
+                  ) : filteredBopCategories.length === 0 ? (
+                    <MenuItem disabled>
+                      {form.countryCode ? `No BOP categories found for ${getCountryName(form.countryCode)}` : 'Please select a country first'}
+                    </MenuItem>
+                  ) : (
+                    filteredBopCategories.map((category) => (
+                      <MenuItem key={category.bopPurposeCategoryCode} value={category.bopPurposeCategoryCode}>
                         <Box>
-                          <Typography variant="body2">{mapping.countryBusinessPayoutPartnerCode}</Typography>
+                          <Typography variant="body2">{category.bopPurposeCategoryCode}</Typography>
                           <Typography variant="caption" color="textSecondary">
-                            Business: {mapping.businessTypeCode} | Payout: {mapping.payoutPartner} | Rail:{' '}
-                            {
-                              //@ts-ignore
-                              mapping.productBusinessResponseDTO?.paymentRail || 'N/A'
-                            }
+                            {category.bopCategoryType} - {category.bopCategoryDescription}
                           </Typography>
-                          <Typography variant="caption" display="block" color="textSecondary">
-                            Recipient:{' '}
-                            {
-                              //@ts-ignore
-                              mapping.productBusinessResponseDTO?.recipientCountry || 'N/A'
-                            }
+                          <Typography variant="caption" display="block" color={category.effectiveDateValid ? 'success' : 'error'}>
+                            {category.effectiveDateValid ? 'Active' : 'Inactive'} |{new Date(category.effectiveFromDate).toLocaleDateString()} -{' '}
+                            {new Date(category.effectiveToDate).toLocaleDateString()}
                           </Typography>
                         </Box>
                       </MenuItem>
                     ))
+                  )}
+                </Select>
+                {form.countryCode && filteredBopCategories.length === 0 && !loadingBopCategories && (
+                  <Typography variant="caption" color="textSecondary" sx={{ mt: 1 }}>
+                    No active BOP categories found for {getCountryName(form.countryCode)}. Please add BOP categories first.
+                  </Typography>
                 )}
-              </Select>
-              {form.countryCode && filteredRailPayoutMappings.length === 0 && !loadingRailMappings && (
-                <Typography variant="caption" color="textSecondary" sx={{ mt: 1 }}>
-                  No active rail payout mappings found for {getCountryName(form.countryCode)}. Please add mappings in the Country Business Payout
-                  Partner section first.
-                </Typography>
-              )}
-            </FormControl>
-
-            {/* Country Reporting Code (BOP Category) */}
-            <FormControl fullWidth required>
-              <InputLabel>Country Reporting Code (BOP Category)</InputLabel>
-              <Select
-                value={form.countryReportingCode}
-                label="Country Reporting Code (BOP Category)"
-                onChange={(e) => setForm({ ...form, countryReportingCode: e.target.value })}
-                startAdornment={
-                  form.countryReportingCode && (
-                    <InputAdornment position="start">
-                      <CategoryIcon fontSize="small" />
-                    </InputAdornment>
-                  )
-                }
-                disabled={!form.countryCode || loadingBopCategories || filteredBopCategories.length === 0}
-              >
-                {loadingBopCategories ? (
-                  <MenuItem disabled>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <CircularProgress size={20} />
-                      <Typography>Loading BOP categories...</Typography>
-                    </Box>
-                  </MenuItem>
-                ) : filteredBopCategories.length === 0 ? (
-                  <MenuItem disabled>
-                    {form.countryCode ? `No BOP categories found for ${getCountryName(form.countryCode)}` : 'Please select a country first'}
-                  </MenuItem>
-                ) : (
-                  filteredBopCategories.map((category) => (
-                    <MenuItem key={category.bopPurposeCategoryCode} value={category.bopPurposeCategoryCode}>
-                      <Box>
-                        <Typography variant="body2">{category.bopPurposeCategoryCode}</Typography>
-                        <Typography variant="caption" color="textSecondary">
-                          {category.bopCategoryType} - {category.bopCategoryDescription}
-                        </Typography>
-                        <Typography variant="caption" display="block" color={category.effectiveDateValid ? 'success' : 'error'}>
-                          {category.effectiveDateValid ? 'Active' : 'Inactive'} |{new Date(category.effectiveFromDate).toLocaleDateString()} -{' '}
-                          {new Date(category.effectiveToDate).toLocaleDateString()}
-                        </Typography>
-                      </Box>
-                    </MenuItem>
-                  ))
-                )}
-              </Select>
-              {form.countryCode && filteredBopCategories.length === 0 && !loadingBopCategories && (
-                <Typography variant="caption" color="textSecondary" sx={{ mt: 1 }}>
-                  No active BOP categories found for {getCountryName(form.countryCode)}. Please add BOP categories first.
-                </Typography>
-              )}
-            </FormControl>
-
-            {/* Channel */}
-            <FormControl fullWidth required>
-              <InputLabel>Channel </InputLabel>
-              <Select value={form.channel} label="Channel" onChange={(e) => setForm({ ...form, channel: e.target.value })}>
-                {channels
-                  .filter((ch: any) => ch.active === true)
-                  .map((channel: any) => (
-                    <MenuItem key={channel.channel_code} value={channel.channel_code}>
-                      {channel.channel_name || channel.channel_code}
-                    </MenuItem>
-                  ))}
-              </Select>
-            </FormControl>
-
-            <Divider>Effective Dates</Divider>
-
-            {/* Effective Dates */}
-
-            <Box sx={{ display: 'flex' }}>
-              <FormControl required sx={{ width: '50%', marginRight: '8px' }}>
-                <DynamicDatePicker
-                  label="Effective From"
-                  value={form.effectiveFromDate}
-                  onChange={(val: string) => {
-                    setForm({ ...form, effectiveFromDate: val })
-                  }}
-                  minDate={new Date().toISOString().split('T')[0]}
-                  required
-                />
               </FormControl>
 
-              <FormControl required sx={{ width: '50%', marginLeft: '8px' }}>
-                <DynamicEndDatePicker
-                  label="Effective To"
-                  value={form.effectiveToDate}
-                  minDate={form.effectiveFromDate}
-                  onChange={(val: string) => {
-                    setForm({ ...form, effectiveToDate: val })
-                  }}
-                  required
-                />
+              {/* Channel */}
+              <FormControl fullWidth required>
+                <InputLabel>Channel </InputLabel>
+                <Select value={form.channel} label="Channel" onChange={(e) => setForm({ ...form, channel: e.target.value })}>
+                  {channels
+                    .filter((ch: any) => ch.active === true)
+                    .map((channel: any) => (
+                      <MenuItem key={channel.channel_code} value={channel.channel_code}>
+                        {channel.channel_name || channel.channel_code}
+                      </MenuItem>
+                    ))}
+                </Select>
               </FormControl>
-            </Box>
 
-            {/* Active Status */}
+              <Divider>Effective Dates</Divider>
 
-            <FormControlLabel
-              control={<Checkbox checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />}
-              label="Active"
-            />
+              {/* Effective Dates */}
 
-            {/* Preview Section */}
-            {(form.countryCode || form.railPayoutMappingCode || form.countryReportingCode) && (
-              <>
-                <Divider>Preview</Divider>
-                <TableContainer component={Paper} variant="outlined">
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Field</TableCell>
-                        <TableCell>Value</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell>Country</TableCell>
-                        <TableCell>{getCountryName(form.countryCode)}</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>Rail Payout Mapping</TableCell>
-                        <TableCell>{getRailPayoutMappingInfo(form.railPayoutMappingCode)}</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>BOP Category</TableCell>
-                        <TableCell>{getBopCategoryInfo(form.countryReportingCode)}</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>Channel</TableCell>
-                        <TableCell>{form.channel}</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>Generated Code</TableCell>
-                        <TableCell>
-                          <Typography variant="body2" fontWeight="bold">
-                            {`${form.countryCode}${form.railPayoutMappingCode}${form.countryReportingCode}${form.channel}`}
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </>
-            )}
-          </Stack>
-        </DialogContent>
+              <Box sx={{ display: 'flex' }}>
+                <FormControl required sx={{ width: '50%', marginRight: '8px' }}>
+                  <DynamicDatePicker
+                    label="Effective From"
+                    value={form.effectiveFromDate}
+                    onChange={(val: string) => {
+                      setForm({ ...form, effectiveFromDate: val })
+                    }}
+                    minDate={new Date().toISOString().split('T')[0]}
+                    required
+                  />
+                </FormControl>
 
-        <DialogActions>
-          <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleSubmit}
-            disabled={!form.countryCode || !form.railPayoutMappingCode || !form.countryReportingCode || !form.channel || !form.effectiveFromDate}
-          >
-            {selected ? 'Update' : 'Create'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+                <FormControl required sx={{ width: '50%', marginLeft: '8px' }}>
+                  <DynamicEndDatePicker
+                    label="Effective To"
+                    value={form.effectiveToDate}
+                    minDate={form.effectiveFromDate}
+                    onChange={(val: string) => {
+                      setForm({ ...form, effectiveToDate: val })
+                    }}
+                    required
+                  />
+                </FormControl>
+              </Box>
 
-      {/* Snackbar for notifications */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        sx={{
-          top: { xs: '10%', sm: '20%' },
-          '& .MuiAlert-root': {
-            fontSize: '0.9rem',
-            padding: '8px 16px',
-          },
-        }}
-      >
-        <Alert severity={snackbar.severity} variant="filled" elevation={6}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+              {/* Active Status */}
+
+              <FormControlLabel
+                control={<Checkbox checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />}
+                label="Active"
+              />
+
+              {/* Preview Section */}
+              {(form.countryCode || form.railPayoutMappingCode || form.countryReportingCode) && (
+                <>
+                  <Divider>Preview</Divider>
+                  <TableContainer component={Paper} variant="outlined">
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Field</TableCell>
+                          <TableCell>Value</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell>Country</TableCell>
+                          <TableCell>{getCountryName(form.countryCode)}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Rail Payout Mapping</TableCell>
+                          <TableCell>{getRailPayoutMappingInfo(form.railPayoutMappingCode)}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>BOP Category</TableCell>
+                          <TableCell>{getBopCategoryInfo(form.countryReportingCode)}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Channel</TableCell>
+                          <TableCell>{form.channel}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Generated Code</TableCell>
+                          <TableCell>
+                            <Typography variant="body2" fontWeight="bold">
+                              {`${form.countryCode}${form.railPayoutMappingCode}${form.countryReportingCode}${form.channel}`}
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </>
+              )}
+            </Stack>
+          </DialogContent>
+
+          <DialogActions>
+            <Button onClick={() => setOpen(false)}>Cancel</Button>
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              disabled={!form.countryCode || !form.railPayoutMappingCode || !form.countryReportingCode || !form.channel || !form.effectiveFromDate}
+            >
+              {selected ? 'Update' : 'Create'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Snackbar for notifications */}
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={3000}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          sx={{
+            top: { xs: '10%', sm: '20%' },
+            '& .MuiAlert-root': {
+              fontSize: '0.9rem',
+              padding: '8px 16px',
+            },
+          }}
+        >
+          <Alert severity={snackbar.severity} variant="filled" elevation={6}>
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </Box>
+    </HasPermission>
   )
 }

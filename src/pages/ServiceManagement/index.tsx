@@ -1,16 +1,16 @@
 import { Button, Stack, IconButton, Typography } from '@mui/material'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
 import { useEffect, useState, useMemo } from 'react'
 
 import ServiceFormDialog from '../../components/serviceDialog'
 import ServiceMasterService from '../../services/service-master.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-import dayjs from 'dayjs'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import { formatTableDate } from '@/helpers/dateformate'
+import HasPermission from '@/components/permissionWrapper'
+import { HelperService } from '@/helpers/helper'
 
 export default function ServiceManagement() {
   const [open, setOpen] = useState(false)
@@ -20,6 +20,8 @@ export default function ServiceManagement() {
 
   const serviceService = useMemo(() => new ServiceMasterService(), [])
   const local_service = useMemo(() => new LocalStorageService(), [])
+  const helper = new HelperService()
+
   // Inside your function component at the top
   const [alertOpen, setAlertOpen] = useRecoilState(alertState)
   const [alertText, setAlertText] = useRecoilState(alertTextState)
@@ -109,20 +111,15 @@ export default function ServiceManagement() {
   }
 
   const handleDelete = async (row: any) => {
-    console.log('Row object received for deletion:', row)
-
     const id = row.serviceCodeGenerated || row.id
 
     if (!id) {
-      console.error('Delete failed: No ID found in row object', row)
       alert('Error: ID not found for this row.')
       return
     }
 
     try {
-      console.log('Calling API with ID:', id)
       const res = await serviceService.deleteService(id, false)
-      console.log('Delete Response:', res)
       fetchData()
     } catch (e) {
       console.error('Network Error during delete:', e)
@@ -138,53 +135,35 @@ export default function ServiceManagement() {
       headerName: 'Active',
       flex: 1,
       renderCell: (p) => (p.value ? 'Yes' : 'No'),
-      headerClassName: 'super-app-theme--header'},
-    // },
-    // {
-    //   field: 'effective_from_date',
-    //   headerName: 'Effective From',
-    //   flex: 0.8,
-    //   headerClassName: 'super-app-theme--header',
-    //   renderCell: (params) => formatTableDate(params.row?.effectivefromdate || params.row?.effectiveFromDate),
-    // },
-
-    // {
-    //   field: 'effective_to_date',
-    //   headerName: 'Effective To',
-    //   flex: 0.8,
-    //   headerClassName: 'super-app-theme--header',
-    //   renderCell: (params) => formatTableDate(params.row?.effectivetodate || params.row?.effectiveToDate),
-    // },
-
+      headerClassName: 'super-app-theme--header',
+    },
 
     {
-  field: 'effective_from_date',
-  headerName: 'Effective From',
-  flex: 1,
-  minWidth: 150,
- headerClassName: 'super-app-theme--header',
- //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivefromdate || row?.effectiveFromDate
+      field: 'effective_from_date',
+      headerName: 'Effective From',
+      flex: 1,
+      minWidth: 150,
+      headerClassName: 'super-app-theme--header',
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivefromdate || row?.effectiveFromDate
 
-    return date ? formatTableDate(date) : ''
-  }
-},
-{
-  field: 'effective_to_date',
-  headerName: 'Effective To',
-  flex: 1,
-   headerClassName: 'super-app-theme--header',
-  minWidth: 150,
-  //@ts-ignore
-  valueGetter: (value, row) => {
-    const date =
-      row?.effectivetodate || row?.effectiveToDate
+        return date ? formatTableDate(date) : ''
+      },
+    },
+    {
+      field: 'effective_to_date',
+      headerName: 'Effective To',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      minWidth: 150,
+      //@ts-ignore
+      valueGetter: (value, row) => {
+        const date = row?.effectivetodate || row?.effectiveToDate
 
-    return date ? formatTableDate(date) : ''
-  },
-},
+        return date ? formatTableDate(date) : ''
+      },
+    },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -198,6 +177,7 @@ export default function ServiceManagement() {
               setEditData(params.row)
               setOpen(true)
             }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
           >
             <EditIcon />
           </IconButton>
@@ -210,7 +190,7 @@ export default function ServiceManagement() {
   ]
 
   return (
-    <>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
       <Stack direction="row" justifyContent="space-between" mb={2} style={{ marginRight: -75 }}>
         <Typography
           variant="h4"
@@ -233,6 +213,7 @@ export default function ServiceManagement() {
             setEditData(null)
             setOpen(true)
           }}
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
         >
           Add
         </Button>
@@ -261,6 +242,6 @@ export default function ServiceManagement() {
       </div>
 
       {open && <ServiceFormDialog open={open} onClose={() => setOpen(false)} editData={editData} onSubmit={editData ? handleUpdate : handleCreate} />}
-    </>
+    </HasPermission>
   )
 }

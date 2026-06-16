@@ -10,6 +10,9 @@ import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import dayjs from 'dayjs'
 import ProductService from '@/services/product.service'
 import { formatTableDate } from '@/helpers/dateformate'
+import HasPermission from '@/components/permissionWrapper'
+import { LocalStorageService } from '@/helpers/local-storage-service'
+import { HelperService } from '@/helpers/helper'
 
 export default function ProductBusinessCountryMapping() {
   const service = useMemo(() => new ProductBusinessCountryMappingService(), [])
@@ -29,6 +32,8 @@ export default function ProductBusinessCountryMapping() {
     setAlertOpen(true)
   }
   const product_service = new ProductService()
+  const local_service = useMemo(() => new LocalStorageService(), [])
+  const helper = new HelperService()
 
   const fetchList = useCallback(async () => {
     try {
@@ -177,6 +182,7 @@ export default function ProductBusinessCountryMapping() {
             setOpen(true)
             setIsFormChanged(false)
           }}
+          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
         >
           <EditIcon fontSize="small" />
         </IconButton>
@@ -185,77 +191,80 @@ export default function ProductBusinessCountryMapping() {
   ]
 
   return (
-    <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { backgroundColor: '#f5f5f5', fontWeight: 'bold' } }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            display: 'grid',
-            placeItems: 'center',
-            color: '#0061B1',
-          }}
-        >
-          {'Product Business Country Mapping'.toUpperCase()}
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setOpen(true)
-            setIsFormChanged(false)
-          }}
-        >
-          Add
-        </Button>
-      </Stack>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
+      <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { backgroundColor: '#f5f5f5', fontWeight: 'bold' } }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              display: 'grid',
+              placeItems: 'center',
+              color: '#0061B1',
+            }}
+          >
+            {'Product Business Country Mapping'.toUpperCase()}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setOpen(true)
+              setIsFormChanged(false)
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add
+          </Button>
+        </Stack>
 
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        getRowId={(row) => row.businessMapCode || Math.random()}
-        autoHeight
-        disableRowSelectionOnClick
-        slots={{ toolbar: GridToolbar }}
-        slotProps={{ toolbar: { showQuickFilter: true } }}
-        disableColumnMenu
-        // density="standard"
-        //@ts-ignore
-        slotProps={{
-          toolbar: {
-            showQuickFilter: true,
-            showDensitySelector: true, // ✅ enable density
-          },
-        }}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 5,
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={(row) => row.businessMapCode || Math.random()}
+          autoHeight
+          disableRowSelectionOnClick
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
+          // density="standard"
+          //@ts-ignore
+          slotProps={{
+            toolbar: {
+              showQuickFilter: true,
+              showDensitySelector: true, // ✅ enable density
             },
-          },
-        }}
-        sx={{
-          boxShadow: 2,
-          border: 2,
-          borderColor: '#f5f5f5',
-          '& .MuiDataGrid-cell:hover': {
-            color: 'primary.main',
-          },
-        }}
-      />
+          }}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5,
+              },
+            },
+          }}
+          sx={{
+            boxShadow: 2,
+            border: 2,
+            borderColor: '#f5f5f5',
+            '& .MuiDataGrid-cell:hover': {
+              color: 'primary.main',
+            },
+          }}
+        />
 
-      <ProductBusinessCountryMappingDialog
-        open={open}
-        handleClose={handleDialogClose}
-        editData={editData}
-        refreshList={fetchList}
-        showAlert={showAlert}
-        onFormChange={handleFormChange}
-        isUpdateDisabled={editData ? !isFormChanged : false}
-        productList={productlist}
-      />
-    </Box>
+        <ProductBusinessCountryMappingDialog
+          open={open}
+          handleClose={handleDialogClose}
+          editData={editData}
+          refreshList={fetchList}
+          showAlert={showAlert}
+          onFormChange={handleFormChange}
+          isUpdateDisabled={editData ? !isFormChanged : false}
+          productList={productlist}
+        />
+      </Box>
+    </HasPermission>
   )
 }
