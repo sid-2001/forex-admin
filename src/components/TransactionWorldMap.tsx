@@ -105,6 +105,30 @@ console.log(
   selectedCountry
 )
 
+const usedPositions: [number, number][] = []
+
+const getAdjustedCoords = (
+  coords: [number, number]
+): [number, number] => {
+  let [lng, lat] = coords
+
+  for (const [usedLng, usedLat] of usedPositions) {
+    const distance = Math.sqrt(
+      Math.pow(lng - usedLng, 2) +
+      Math.pow(lat - usedLat, 2)
+    )
+
+    if (distance < 10) {
+      lng += 4
+      lat += 2
+    }
+  }
+
+  usedPositions.push([lng, lat])
+
+  return [lng, lat]
+}
+
   return (
     <ComposableMap
   projection="geoMercator"
@@ -149,13 +173,18 @@ console.log(
 
         if (!coords) return null
 
-        const radius =
-          (item.volume / maxVolume) * 35 + 6
+        const adjustedCoords =
+  getAdjustedCoords(coords)
+
+       const radius = Math.min(
+  (item.volume / maxVolume) * 20 + 5,
+  22
+)
 
         return (
           <Marker
             key={item.country}
-            coordinates={coords}
+            coordinates={adjustedCoords}
           >
             <circle
               r={radius}

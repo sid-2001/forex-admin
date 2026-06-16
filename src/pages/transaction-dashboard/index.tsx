@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { TransactionService } from '@/services/transaction.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { AgCharts } from 'ag-charts-react'
+import './TransactionDashboard.css'
 import {
   MenuItem,
   TextField,
@@ -639,14 +640,20 @@ console.log(
 }, [userCountry])
 
   return (
-    <Box sx={{ width: '80vw', minHeight: '70vh' }}>
+    <Box className="css-1y3zs5r" sx={{  width: '100%',
+    minHeight: '70vh', }}>
       <Typography  gutterBottom>
         <strong>Transaction Dashboard</strong>
       </Typography>
 
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-  <Grid item xs={12} md={3}>
+      <Grid
+  container
+  spacing={1.5}
+  sx={{ mb: 2 }}
+>
+  <Grid item xs={12} md={2}>
     <TextField
+      size="small"
       fullWidth
       type="date"
       label="From Date"
@@ -657,9 +664,10 @@ console.log(
   </Grid>
 
 
-  <Grid item xs={12} md={3}>
+  <Grid item xs={12} md={2}>
     <TextField
       fullWidth
+      size="small"
       type="date"
       label="To Date"
       InputLabelProps={{ shrink: true }}
@@ -668,10 +676,11 @@ console.log(
     />
   </Grid>
 
-  <Grid item xs={12} md={3}>
+  <Grid item xs={12} md={2}>
     <TextField
       select
       fullWidth
+      size="small"
       label="Status"
       value={statusFilter}
       onChange={(e) => setStatusFilter(e.target.value)}
@@ -684,10 +693,11 @@ console.log(
   </Grid>
 
 
-  <Grid item xs={12} md={3}>
+  <Grid item xs={12} md={2}>
   <TextField
     select
     fullWidth
+    size="small"
     label="Destination Country"
     value={destinationCountryFilter}
     onChange={(e) =>
@@ -709,7 +719,7 @@ console.log(
   </TextField>
 </Grid>
 
-<Grid item xs={12} md={4}>
+<Grid item xs={12} md={2.5}>
   <Autocomplete
     freeSolo
     options={transactionNumbers}
@@ -723,6 +733,7 @@ console.log(
         {...params}
         label="Transaction Number"
         fullWidth
+        size="small"
       />
     )}
   />
@@ -760,12 +771,13 @@ console.log(
 <Box
   sx={{
     display: 'flex',
-    gap: 1,
-    mb: 3,
+  gap: 0.75,
+  mb: 2,
     flexWrap: 'wrap',
   }}
 >
   <Button
+    size="small"
     variant={
       quickFilter === 'TODAY'
         ? 'contained'
@@ -842,7 +854,7 @@ console.log(
     boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
     transition: '0.3s',
 
-    height: 170,            // sab cards same height
+    height: 100,            // sab cards same height
     display: 'flex',
     alignItems: 'center',
 
@@ -856,7 +868,7 @@ console.log(
   sx={{
     width: '100%',
     height: '100%',
-    p: 2,
+    p: 1.5,
     '&:last-child': {
       pb: 2,
     },
@@ -880,7 +892,7 @@ console.log(
         sx={{
           fontSize: '0.9rem',
           color: 'text.secondary',
-          minHeight: 44,
+          minHeight: 28,
           fontWeight: 500,
         }}
       >
@@ -889,7 +901,7 @@ console.log(
 
       <Typography
         sx={{
-          fontSize: '1.7rem',
+          fontSize: '1.3rem',
     fontWeight: 700,
     lineHeight: 1.2,
     mt: 1,
@@ -902,9 +914,9 @@ console.log(
 
     <Box
       sx={{
-        width: 56,
-        height: 56,
-        minWidth: 56,
+        width: 42,
+height: 42,
+minWidth: 42,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
