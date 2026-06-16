@@ -13,6 +13,7 @@ import {
   Button,
    Autocomplete
 } from '@mui/material'
+import TransactionWorldMap from '@/components/TransactionWorldMap'
 const TransactionDashboard = () => {
 const transactionService = new TransactionService()
 const localService = new LocalStorageService()
@@ -31,7 +32,8 @@ const [sourceCountryFilter, setSourceCountryFilter] =
   useState('ALL')
 const [summaryData, setSummaryData] = useState<any>(null)
 const [transactions, setTransactions] = useState<any[]>([])
-
+const [selectedCountry, setSelectedCountry] =
+  useState<string | null>(null)
 const userCountry = localService.get_staff_country()
 const transactionNumbers = [
   'ALL',
@@ -407,6 +409,46 @@ const topCorridors = Object.values(
   .sort((a: any, b: any) => b.volume - a.volume)
   .slice(0, 5)
 
+  const topSources = Object.values(
+  filteredTransactions.reduce(
+    (acc: any, item: any) => {
+      const country =
+        item?.transactionGatewayDTO?.sendCountry
+
+      const amount = Number(
+        item?.transactionGatewayDTO
+          ?.settlementAmount || 0
+      )
+
+      if (!country) return acc
+
+      if (!acc[country]) {
+        acc[country] = {
+          country,
+          volume: 0,
+          transactions: 0,
+        }
+      }
+
+      acc[country].volume += amount
+      acc[country].transactions += 1
+
+      return acc
+    },
+    {}
+  )
+)
+  .sort(
+    (a: any, b: any) =>
+      b.volume - a.volume
+  )
+  .slice(0, 5)
+
+  const mapData = topDestinations.map((item: any) => ({
+  country: item.country,
+  volume: item.volume,
+  transactions: item.transactions,
+}))
 console.log(
   'TOP DESTINATIONS =>',
   topDestinations
@@ -996,7 +1038,65 @@ console.log(
     </Card>
   </Grid>
 
+
   <Grid item xs={12} md={6}>
+  <Card
+    sx={{
+      borderRadius: 3,
+      p: 2,
+      height: '100%',
+    }}
+  >
+    <Typography
+      variant="h6"
+      fontWeight={600}
+      mb={2}
+    >
+      Top Source Countries
+    </Typography>
+
+    {topSources.map(
+      (item: any, index) => (
+        <Box
+          key={index}
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            py: 1.5,
+            borderBottom:
+              index !== topSources.length - 1
+                ? '1px solid #eee'
+                : 'none',
+          }}
+        >
+          <Box>
+            <Typography fontWeight={600}>
+              {item.country}
+            </Typography>
+
+            <Typography
+              variant="body2"
+              color="text.secondary"
+            >
+              {item.transactions} Transactions
+            </Typography>
+          </Box>
+
+          <Typography
+            fontWeight={700}
+            color="success.main"
+          >
+            {Number(
+              item.volume
+            ).toLocaleString()} AED
+          </Typography>
+        </Box>  
+      )
+    )}
+  </Card>
+</Grid>
+
+  {/* <Grid item xs={12} md={6}>
     <Card
       sx={{
         borderRadius: 3,
@@ -1047,6 +1147,104 @@ console.log(
           </Typography>
         </Box>
       ))}
+    </Card>
+  </Grid> */}
+
+
+</Grid>
+
+<Grid container spacing={3} sx={{ mt: 1 }}>
+  <Grid item xs={12} md={8}>
+    <Card
+      sx={{
+        borderRadius: 3,
+        p: 2,
+        height: 650,
+      }}
+    >
+      <Typography
+        variant="h6"
+        fontWeight={600}
+        mb={2}
+      >
+        Global Transaction Volume
+      </Typography>
+
+      <TransactionWorldMap
+  data={mapData}
+  selectedCountry={selectedCountry}
+/>
+    </Card>
+  </Grid>
+
+  <Grid item xs={12} md={4}>
+    <Card
+      sx={{
+        borderRadius: 3,
+        p: 2,
+        height: 500,
+      }}
+    >
+      <Typography
+        variant="h6"
+        fontWeight={600}
+        mb={2}
+      >
+        Top Destination Countries
+      </Typography>
+
+      <Box
+  sx={{
+    display: 'flex',
+    justifyContent: 'space-between',
+    pb: 1,
+    mb: 1,
+    borderBottom: '2px solid #eee',
+  }}
+>
+  <Typography fontWeight={700}>
+    Country
+  </Typography>
+
+  <Typography fontWeight={700}>
+    Volume (AED)
+  </Typography>
+</Box>
+
+      {topDestinations.map(
+        (item: any, index) => (
+          <Box
+            key={index}
+             onClick={() =>
+           setSelectedCountry(item.country)
+      } 
+           sx={{
+  display: 'flex',
+  justifyContent: 'space-between',
+  py: 1.5,
+  px: 1,
+  borderBottom: '1px solid #eee',
+  cursor: 'pointer',
+
+  '&:hover': {
+    backgroundColor: '#f5f8ff',
+  },     
+}}
+          >
+            <Typography>
+              {item.country}
+            </Typography>
+
+            <Typography
+              fontWeight={600}
+            >
+              {Number(
+                item.volume
+              ).toLocaleString()} AED
+            </Typography>
+          </Box>
+        )
+      )}
     </Card>
   </Grid>
 </Grid>
