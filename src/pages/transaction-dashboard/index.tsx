@@ -136,11 +136,13 @@ if (quickFilter === 'MONTH') {
  const matchesStatus =
   statusFilter === 'ALL'
     ? true
-    : statusFilter === 'SUCCESS'
-    ? ['SUCCESS', 'COMPLETED'].includes(status)
-    : statusFilter === 'PENDING'
-    ? ['PENDING', 'IN_PROGRESS'].includes(status)
-    : status === statusFilter
+   : statusFilter === 'SUCCESS'
+? ['SUCCESS', 'COMPLETED', 'ACCEPTED'].includes(status)
+: statusFilter === 'PENDING'
+? ['PENDING', 'IN_PROGRESS'].includes(status)
+: statusFilter === 'FAILED'
+? ['FAILED', 'REJECTED'].includes(status)
+: status === statusFilter
 
   const matchesFrom =
     !fromDate
@@ -282,10 +284,14 @@ console.log('STATUS COUNTS =>', statusCounts)
 
 const successfulTransactions = filteredTransactions.filter(
   (item) =>
-    item?.transactionGatewayDTO?.transactionStatus === 'SUCCESS' ||
-    item?.transactionGatewayDTO?.transactionStatus === 'COMPLETED'
+    [
+      'SUCCESS',
+      'COMPLETED',
+      'ACCEPTED',
+    ].includes(
+      item?.transactionGatewayDTO?.transactionStatus
+    )
 ).length
-
 
 
 
@@ -297,7 +303,12 @@ const pendingTransactions = filteredTransactions.filter(
 
 const failedTransactions = filteredTransactions.filter(
   (item) =>
-    item?.transactionGatewayDTO?.transactionStatus === 'FAILED'
+    [
+      'FAILED',
+      'REJECTED',
+    ].includes(
+      item?.transactionGatewayDTO?.transactionStatus
+    )
 ).length
 
 const totalVolume = filteredTransactions.reduce(
