@@ -6,6 +6,8 @@ import CancelIcon from '@mui/icons-material/Cancel'
 import { useEffect, useState } from 'react'
 import { TransactionService } from '@/services/transaction.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
+import { CountryCorridorService } from '@/services/countryCorridor.service'
+
 import { AgCharts } from 'ag-charts-react'
 import './TransactionDashboard.css'
 import {
@@ -560,12 +562,12 @@ value: totalTransactions,
   icon: <ReceiptLongIcon fontSize="large" />,
   color: '#9c27b0',
 },
-{
-  title: 'Revenue Generated',
-  value: `${totalRevenue.toFixed(2)} AED`,
-  icon: <ReceiptLongIcon fontSize="large" />,
-  color: '#00a76f',
-},
+// {
+//   title: 'Revenue Generated',
+//   value: `${totalRevenue.toFixed(2)} AED`,
+//   icon: <ReceiptLongIcon fontSize="large" />,
+//   color: '#00a76f',
+// },
 {
   title: 'Success Rate',
   value: `${successRate}%`,
@@ -612,11 +614,25 @@ const fetchSummary = async () => {
 
 useEffect(() => {
      fetchSummary() 
+
+     const countryCorridorService = new CountryCorridorService()
+
+countryCorridorService
+  .getAllCorridors()
+  .then((data) => {
+    console.log('COUNTRY CORRIDORS =>', data)
+  })
+  .catch((err) => {
+    console.log(err)
+  })
+
   transactionService
     .getOutwardAllTransaction(userCountry, 0, 5000)
     .then((data) => {
       console.log('OUTWARD TRANSACTIONS')
       console.log(data)
+
+      
 
       console.log('FIRST TRANSACTION')
       console.log(data?.[0])
@@ -624,6 +640,9 @@ useEffect(() => {
   'TRANSACTION GATEWAY DTO',
   (data?.[0] as any)?.transactionGatewayDTO
 )
+
+
+
 
 console.log(
   'ALL DTO KEYS',
@@ -640,7 +659,7 @@ console.log(
 }, [userCountry])
 
   return (
-    <Box className="css-1y3zs5r" sx={{  width: '100%',
+    <Box className="transaction-dashboard-page" sx={{  width: '100%',
     minHeight: '70vh', }}>
       <Typography  gutterBottom>
         <strong>Transaction Dashboard</strong>
