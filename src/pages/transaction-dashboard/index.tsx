@@ -230,7 +230,100 @@ const trendData = filteredTransactions.reduce((acc: any, item: any) => {
   return acc
 }, [])
 
+const amountDistributionData = [
+  {
+    range: '0-500',
+    count: filteredTransactions.filter(
+      (item: any) =>
+        Number(
+          item?.transactionGatewayDTO?.settlementAmount || 0
+        ) < 500
+    ).length,
+  },
+  {
+    range: '500-1000',
+    count: filteredTransactions.filter(
+      (item: any) => {
+        const amount = Number(
+          item?.transactionGatewayDTO?.settlementAmount || 0
+        )
 
+        return amount >= 500 && amount < 1000
+      }
+    ).length,
+  },
+  {
+    range: '1000-5000',
+    count: filteredTransactions.filter(
+      (item: any) => {
+        const amount = Number(
+          item?.transactionGatewayDTO?.settlementAmount || 0
+        )
+
+        return amount >= 1000 && amount < 5000
+      }
+    ).length,
+  },
+  {
+    range: '5000-10000',
+    count: filteredTransactions.filter(
+      (item: any) => {
+        const amount = Number(
+          item?.transactionGatewayDTO?.settlementAmount || 0
+        )
+
+        return amount >= 5000 && amount < 10000
+      }
+    ).length,
+  },
+  {
+    range: '10000+',
+    count: filteredTransactions.filter(
+      (item: any) =>
+        Number(
+          item?.transactionGatewayDTO?.settlementAmount || 0
+        ) >= 10000
+    ).length,
+  },
+]
+
+const amountDistributionOptions: any = {
+  title: {
+    text: 'Transaction Amount Distribution',
+  },
+
+  subtitle: {
+    text: 'Amount Range Histogram',
+  },
+
+  data: amountDistributionData,
+
+  series: [
+    {
+      type: 'bar',
+      xKey: 'range',
+      yKey: 'count',
+      yName: 'Transactions',
+    },
+  ],
+
+  axes: [
+    {
+      type: 'category',
+      position: 'bottom',
+      title: {
+        text: 'Amount Range (AED)',
+      },
+    },
+    {
+      type: 'number',
+      position: 'left',
+      title: {
+        text: 'Transaction Count',
+      },
+    },
+  ],
+}
 const trendOptions: any = {
   title: {
     text: 'Transaction Volume',
@@ -568,7 +661,7 @@ value: totalTransactions,
     color: '#d32f2f',
   },
   {
-  title: 'Total Volume',
+  title: 'Total Value',
   value: `${totalVolume.toFixed(2)} AED`,
   icon: <ReceiptLongIcon fontSize="large" />,
   color: '#9c27b0',
@@ -651,8 +744,6 @@ countryCorridorService
   'TRANSACTION GATEWAY DTO',
   (data?.[0] as any)?.transactionGatewayDTO
 )
-
-
 
 
 console.log(
@@ -881,7 +972,8 @@ console.log(
       <Card
   sx={{
     borderRadius: 3,
-    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+    boxShadow: '0 2px 12px rgba(15,23,42,0.08)',
+border: '1px solid #E2E8F0',
     transition: '0.3s',
 
     height: 100,            // sab cards same height
@@ -950,7 +1042,8 @@ minWidth: 42,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: `${card.color}15`,
+       backgroundColor: `${card.color}20`,
+border: `1px solid ${card.color}30`,
         borderRadius: 2,
         color: card.color,
       }}
@@ -965,65 +1058,68 @@ minWidth: 42,
 </Grid>
 
 
+    <Grid container spacing={3} sx={{ mb: 4 }}>
 
-     <Grid container spacing={3} sx={{ mb: 4 }}>
-  <Grid item xs={12} md={8}>
-    <Card
-      sx={{
-        borderRadius: 3,
-        height: 350,
-      }}
-    >
+  {/* Amount Distribution */}
+  <Grid item xs={12} md={4}>
+    <Card sx={{ borderRadius: 3, height: 350 }}>
+      <CardContent>
+        <Typography variant="h6" fontWeight={600}>
+          Transaction Amount Distribution
+        </Typography>
+
+        <Box sx={{ height: 260 }}>
+          <AgCharts
+            options={{
+              ...amountDistributionOptions,
+              height: 260,
+            }}
+          />
+        </Box>
+      </CardContent>
+    </Card>
+  </Grid>
+
+  {/* Transaction Trend */}
+  <Grid item xs={12} md={4}>
+    <Card sx={{ borderRadius: 3, height: 350 }}>
       <CardContent>
         <Typography variant="h6" fontWeight={600}>
           Transaction Trend
         </Typography>
 
-       <Box
-  sx={{
-    height: 280,
-    width: '100%',
-  }}
->
-  <AgCharts
-    options={{
-      ...trendOptions,
-      height: 280,
-    }}
-  />
-</Box>
+        <Box sx={{ height: 260 }}>
+          <AgCharts
+            options={{
+              ...trendOptions,
+              height: 260,
+            }}
+          />
+        </Box>
       </CardContent>
     </Card>
   </Grid>
 
+  {/* Status Distribution */}
   <Grid item xs={12} md={4}>
-    <Card
-      sx={{
-        borderRadius: 3,
-        height: 350,
-      }}
-    >
+    <Card sx={{ borderRadius: 3, height: 350 }}>
       <CardContent>
         <Typography variant="h6" fontWeight={600}>
           Status Distribution
         </Typography>
 
-        <Box
-  sx={{
-    height: 260,
-    width: '100%',
-  }}
->
-  <AgCharts
-    options={{
-      ...pieOptions,
-      height: 260,
-    }}
-  />
-</Box>
+        <Box sx={{ height: 260 }}>
+          <AgCharts
+            options={{
+              ...pieOptions,
+              height: 260,
+            }}
+          />
+        </Box>
       </CardContent>
     </Card>
   </Grid>
+
 </Grid>
 
 <Grid container spacing={3}>
@@ -1071,7 +1167,7 @@ minWidth: 42,
 
           <Typography
             fontWeight={700}
-            color="primary"
+           color="primary" 
           >
             {Number(item.volume).toLocaleString()} AED
           </Typography>
