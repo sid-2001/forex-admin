@@ -16,6 +16,7 @@ import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import CouponService from '@/services/coupons.service'
 import CouponDialog from '@/components/couponFormDialog'
 import EditIcon from '@mui/icons-material/Edit'
+import UploadFileIcon from '@mui/icons-material/UploadFile'
 
 const Coupons: React.FC = () => {
   const [couponsData, setCouponsData] = useState([])
@@ -215,6 +216,24 @@ const Coupons: React.FC = () => {
       </Button>
     </GridToolbarContainer>
   )
+  const handleFileChange = (event: any) => {
+    const file = event.target.files[0]
+
+    if (file) {
+      console.log(file)
+      console.log(file.name)
+      // handleUpload(file)
+    }
+  }
+
+  const handleUpload = async (selectedFile: any) => {
+    console.log(selectedFile, 'file')
+    const formData = new FormData()
+    formData.append('file', selectedFile)
+    formData.append('applicant_id', local_service?.get_staff_id())
+    const response = await couponService.bulkUploadCoupons(formData)
+    console.log(response, '-----------------')
+  }
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
@@ -223,16 +242,28 @@ const Coupons: React.FC = () => {
           <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
             COUPONS LISTING
           </Typography>
-          <Button
-            variant="contained"
-            onClick={() => {
-              setEditData(null)
-              setOpenCouponModal(true)
-            }}
-            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
-          >
-            Add
-          </Button>
+          <Box>
+            <>
+              <input accept=".xlsx,.xls" style={{ display: 'none' }} id="excel-upload" type="file" onChange={handleFileChange} />
+
+              <label htmlFor="excel-upload">
+                <Button variant="contained" component="span" startIcon={<UploadFileIcon />}>
+                  Bulk Upload
+                </Button>
+              </label>
+            </>
+            <Button
+              variant="contained"
+              onClick={() => {
+                setEditData(null)
+                setOpenCouponModal(true)
+              }}
+              sx={{ ml: 2 }}
+              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+            >
+              Add
+            </Button>
+          </Box>
         </Stack>
 
         {couponsData && (

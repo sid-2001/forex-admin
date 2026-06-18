@@ -33,7 +33,7 @@ const ApplicantEnquiry = () => {
     <Box sx={{ width: '80vw', height: '70vh' }}>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.APPLICANT}>
         <Typography variant="h4" gutterBottom>
-          <strong>All Users</strong>
+          <strong>All Customers</strong>
         </Typography>
         <ApplicantDataGrid data={applicantList} loading={isLoading} />
       </HasPermission>

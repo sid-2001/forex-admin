@@ -52,7 +52,7 @@ const NotificationDelivery: React.FC = () => {
 
         return (
           //@ts-ignore
-          <Link to={`/applicant-details//${params?.row?.applicantId}`} style={{ color: theme.palette.text.primary }}>
+          <Link to={`/applicant-details/${params?.row?.applicantId}`} style={{ color: theme.palette.text.primary }}>
             {params?.row?.applicantId}
           </Link>
         )
