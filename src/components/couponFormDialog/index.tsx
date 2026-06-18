@@ -24,6 +24,10 @@ export default function CouponDialog({ open, editData, onClose, refreshList, sho
     active: true,
     effectivefromdate: '',
     effectivetodate: '',
+    brand: '',
+    points_required: 500,
+    minimum_points_required: 600,
+    opening_stock: 100,
   }
 
   const [formData, setFormData] = useState<any>(initialFormState)
@@ -76,6 +80,10 @@ export default function CouponDialog({ open, editData, onClose, refreshList, sho
           active: formData?.active,
           effectivefromdate: formData.effectivefromdate + 'T00:00:00',
           effectivetodate: formData.effectivetodate + 'T00:00:00',
+          brand: formData?.brand,
+          points_required: formData?.points_required,
+          minimum_points_required: formData?.minimum_points_required,
+          opening_stock: formData?.opening_stock,
         })
         if (res.status === false || !res.status) {
           showAlert('error', res.message)
@@ -241,6 +249,34 @@ export default function CouponDialog({ open, editData, onClose, refreshList, sho
               }}
             />
           </Grid>
+          <Grid item xs={6}>
+            <TextField fullWidth label="Brand" value={formData.brand} onChange={(e) => handleChange('brand', e.target.value)} />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              label="Points Required"
+              value={formData.points_required}
+              onChange={(e) => handleChange('points_required', e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              label="Minimum Points Required"
+              value={formData.minimum_points_required}
+              onChange={(e) => handleChange('minimum_points_required', e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              label="Opening Stock"
+              value={formData.opening_stock}
+              onChange={(e) => handleChange('opening_stock', e.target.value)}
+            />
+          </Grid>
+
           <Grid item xs={6}>
             <DynamicDatePicker
               label="Effective From"

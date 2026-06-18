@@ -84,52 +84,45 @@ const ReferralTransactions = ({
     },
   ]
 
+  const renderRewardPercentage = (item: any) => {
+    return item.transactionCnt === 1 ? (50 * item.totalRewards) / 100 : item.transactionCnt === 2 ? (75 * item.totalRewards) / 100 : item.totalRewards
+  }
+
   const ReferralCreditedColumns = [
     {
-      field: 'countryCode',
-      headerName: 'Country Code',
+      field: 'referreeId',
+      headerName: 'Referree Id',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'applicantReferralTransaction',
-      headerName: 'Transactions Count',
+      field: 'refereeName',
+      headerName: 'Referee Name',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'referralCode',
+      headerName: 'Referral Code',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'totalRewards',
+      headerName: 'Earned Rewards/Total Rewards',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
-        <span
-          style={{
-            cursor: 'pointer',
-            color: '#1976d2',
-          }}
-          onClick={() => {
-            setShowTransactionModal(!showTransactionModal)
-            setTransactionList(params.row.applicantReferralTransaction)
-          }}
-        >
-          {params.row.applicantReferralTransaction.length}
+        <span>
+          {renderRewardPercentage(params.row)} / {params.row.totalRewards || 0}
         </span>
       ),
     },
     {
-      field: 'totalRewards',
-      headerName: 'Total Rewards',
+      field: 'transactionCnt',
+      headerName: 'Transaction Count',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'referreeId',
-      headerName: 'Applicant Id',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      // renderCell: (params: any) => (
-      //     <span
-      //         style={{ color: '#1976d2', cursor: 'pointer' }}
-      //         onClick={() => navigate(`/applicant-details/${params.value}`)}
-      //     >
-      //         {params.value}
-      //     </span>
-      // ),
     },
   ]
 

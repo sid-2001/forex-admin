@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { Box, Grid, TextField, Typography, Button, Tabs, Tab, Avatar, useTheme, Card, CardContent } from '@mui/material'
+import { Box, Grid, TextField, Typography, Tabs, Tab, Avatar, useTheme } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
 import TransactionTable from '../transaction-table'
 import { ApplicantService } from '@/services/applicant.service'
@@ -11,36 +11,12 @@ import { KycService } from '@/services/kyc.service'
 import ReferralTransactions from '@/components/referralTransactionTable'
 import DocumentsListComponent from '../document-tab'
 import BeneficiaryTable from '@/components/beneficiary-table'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { FieldValidationService } from '@/services/fieldvalidstion.service'
 import { CountryLabelData, CountryReportingLabelDTO } from '@/types/field.validation.type'
 
-const allLevels = [
-  {
-    levelName: 'Standard',
-    bgcolor: '',
-    rewardValue: 0,
-  },
-  {
-    levelName: 'Bronze',
-    bgcolor: '',
-    rewardValue: 1,
-  },
-  {
-    levelName: 'Silver',
-    bgcolor: '',
-    rewardValue: 2,
-  },
-  {
-    levelName: 'Gold',
-    bgcolor: '',
-    rewardValue: 3,
-  },
-]
-
 const ApplicantPage = () => {
-  const navigate = useNavigate()
-  const theme = useTheme()
+  // const navigate = useNavigate()
+  // const theme = useTheme()
   const { applicantId } = useParams()
   const applicant_service = new ApplicantService()
   const helper = new HelperService()
@@ -54,7 +30,7 @@ const ApplicantPage = () => {
   const [utilizedLimit, setutilizedLimit] = useState(0)
   const [availableLimit, setAvailableLimit] = useState(0)
   const [referralRedeemTransaction, setReferralRedeemTransaction] = useState<any>([])
-  const [referralCreditedTransaction, setReferralCreditedTransaction] = useState<any>([])
+  const [activeReferrals, setActiveReferrals] = useState<any>([])
   const [applicantImage, setApplicantImage] = useState<string>('')
   const [applicantDocuments, setApplicantDocuments] = useState<any[]>([])
   const [applicantDetails, setApplicantDetails] = useState<any>({})
@@ -62,10 +38,9 @@ const ApplicantPage = () => {
   const [redeemReferralTrans, setRedeemReferralTrans] = useState<any>([])
 
   // Field validation states
-  const [fieldValidations, setFieldValidations] = useState<CountryLabelData>()
+  // const [fieldValidations, setFieldValidations] = useState<CountryLabelData>()
   const [fieldLabels, setFieldLabels] = useState<Record<string, string>>({})
-  const [fieldMessages, setFieldMessages] = useState<Record<string, string>>({})
-  // const [allLevels, setLevels] = useState<Record<string, string>>({})
+  // const [fieldMessages, setFieldMessages] = useState<Record<string, string>>({})
 
   const parseData = local_service.get_staff_access()
 
@@ -81,8 +56,7 @@ const ApplicantPage = () => {
     // { label: `${getLabel('Referral_Redeemed')}` || 'Referral Redeemed Transactions', value: 3 },
     // { label: `${getLabel('Referral_Credited')}` || 'Referral Credited Transactions', value: 4 },
     { label: 'Active Referrals', value: 4 },
-
-    { label: 'Redeemption Requests', value: 5, hidden: userCountry !== 'UAE' },
+    { label: 'Redemption Requests', value: 5, hidden: userCountry !== 'UAE' },
   ]
 
   const fetchFieldValidations = async () => {
@@ -90,7 +64,7 @@ const ApplicantPage = () => {
       const response = await validation.getScreenFieldvalidation('APPLICANT', local_service.get_staff_country(), 'W')
 
       if (response?.data) {
-        setFieldValidations(response.data)
+        // setFieldValidations(response.data)
 
         // Create lookup maps for labels and messages
         const labelsMap: Record<string, string> = {}
@@ -104,11 +78,8 @@ const ApplicantPage = () => {
           }
         })
 
-        console.log(labelsMap, 'labelsMap')
-        console.log(messagesMap, 'messagesMap')
-
         setFieldLabels(labelsMap)
-        setFieldMessages(messagesMap)
+        // setFieldMessages(messagesMap)
       }
     } catch (error) {
       console.error('Error fetching field validations:', error)
@@ -154,15 +125,17 @@ const ApplicantPage = () => {
   }, [utilizedLimit, availableLimit, fieldLabels])
 
   useEffect(() => {
-    if (userCountry !== 'UAE') fetchComplianceLimitData()
+    if (userCountry !== 'UAE') {
+      fetchComplianceLimitData()
+      getdocumentlistByApplicantId()
+    }
     if (userCountry === 'UAE') setSelectedTab(1)
     else setSelectedTab(0)
     fetchFieldValidations()
     fetchApplicantData()
     fetchTransactionsList()
-    fetchReferralRedeemedTransactions()
+    // fetchReferralRedeemedTransactions()
     fetchReferralCreditedTransactions()
-    getdocumentlistByApplicantId()
     fetchRedeemReferrals()
   }, [])
 
@@ -186,9 +159,7 @@ const ApplicantPage = () => {
     }
     try {
       const response = await applicant_service.searchByApplicantId(applicantId)
-      console.log(response, 'response')
       const { applicant, applicantContactDetails, beneficiaryList, kycId, kycStatus, rewards, loyaltyResponse }: any = response
-      console.log(loyaltyResponse?.nextLevel, 'response level')
 
       setApplicantDetails({
         ...applicant,
@@ -246,22 +217,23 @@ const ApplicantPage = () => {
     }
   }, [applicantId])
 
-  const fetchReferralRedeemedTransactions = useCallback(async () => {
-    if (!applicantId) return
+  // const fetchReferralRedeemedTransactions = useCallback(async () => {
+  //   if (!applicantId) return
 
-    try {
-      const data = await kyc_service.getReferralRedeemedTransactions(applicantId)
-      setReferralRedeemTransaction(data.data || [])
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }, [applicantId])
+  //   try {
+  //     const data = await kyc_service.getReferralRedeemedTransactions(applicantId)
+  //     setReferralRedeemTransaction(data.data || [])
+  //   } catch (error) {
+  //     console.error('Error fetching data:', error)
+  //   }
+  // }, [applicantId])
 
   const fetchReferralCreditedTransactions = useCallback(async () => {
     if (!applicantId) return
     try {
       const { data } = await kyc_service.getReferralCreditedTransactions(applicantId)
-      setReferralCreditedTransaction(data || [])
+      console.log(data, '---------------')
+      setActiveReferrals(data || [])
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -326,19 +298,7 @@ const ApplicantPage = () => {
                 {getLabel('Applicant') || 'Applicant Details'}
               </Typography>
 
-              {/* <Typography
-                variant="body1"
-                ml={2}
-                sx={{
-                  backgroundColor: 'primary.main',
-                  p: '0.5%',
-                  color: 'white',
-                  paddingBlock: 1,
-                  paddingInline: 1,
-                }}
-              >
-                {getLabel('Applicant_ID') || 'Applicant Id'} - {applicantId}
-              </Typography>
+              {/* 
               {applicantDetails?.kycStatus === 'v' && (
                 <Typography
                   variant="body1"
@@ -715,8 +675,8 @@ const ApplicantPage = () => {
                   transaction={transactions}
                 />
               )}
-              {selectedTab === 3 && <ReferralTransactions referralRecords={referralRedeemTransaction || []} referralType={'Redeemed'} />}
-              {selectedTab === 4 && <ReferralTransactions referralRecords={referralCreditedTransaction || []} referralType={'Credited'} />}
+              {/* {selectedTab === 3 && <ReferralTransactions referralRecords={referralRedeemTransaction || []} referralType={'Redeemed'} />} */}
+              {selectedTab === 4 && <ReferralTransactions referralRecords={activeReferrals || []} referralType={'Credited'} />}
               {selectedTab === 5 && <ReferralTransactions referralRecords={redeemReferralTrans || []} referralType={'RedeemReferral'} />}
             </Box>
           </Box>
@@ -744,7 +704,7 @@ const ApplicantPage = () => {
                 <Grid item xs={12}>
                   <Box
                     sx={{
-                      background: 'linear-gradient(to bottom,#FFEB99,rgb(172, 169, 65))',
+                      background: 'linear-gradient(to bottom, #81C784,rgb(40, 124, 44))',
                       borderRadius: 6,
                       p: 1,
                       textAlign: 'center',
@@ -763,7 +723,7 @@ const ApplicantPage = () => {
                 <Grid item xs={6}>
                   <Box
                     sx={{
-                      background: '#79CBF0',
+                      background: '#2f7ed8',
                       borderRadius: 6,
                       p: 1,
                       textAlign: 'center',
@@ -781,7 +741,7 @@ const ApplicantPage = () => {
                 <Grid item xs={6}>
                   <Box
                     sx={{
-                      background: 'linear-gradient(to bottom, #81C784,rgb(40, 124, 44))',
+                      background: '#2f7ed8',
                       borderRadius: 6,
                       p: 1,
                       textAlign: 'center',

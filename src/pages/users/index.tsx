@@ -209,7 +209,7 @@ const UserTable: React.FC = () => {
         <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'}>
           <Box>
             <Typography variant="h4" gutterBottom>
-              <strong>All Staff</strong>
+              <strong>All Users</strong>
             </Typography>
           </Box>
           <Box>
@@ -221,7 +221,7 @@ const UserTable: React.FC = () => {
                 navigate('/profile/add')
               }}
             >
-              Add Staff
+              Add User
             </Button>
           </Box>
         </Box>

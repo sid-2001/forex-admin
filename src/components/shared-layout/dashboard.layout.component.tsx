@@ -597,7 +597,7 @@ const DashboardLayout = () => {
         />
       ),
       label: 'Applicant',
-      name: 'Users',
+      name: 'Customers',
     },
     {
       icon: (
@@ -685,7 +685,7 @@ const DashboardLayout = () => {
         </>
       ),
       label: 'Profile',
-      name: 'Staff',
+      name: 'Users',
     },
     {
       icon: (
