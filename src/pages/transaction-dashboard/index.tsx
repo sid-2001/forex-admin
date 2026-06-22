@@ -288,9 +288,7 @@ const amountDistributionData = [
 ]
 
 const amountDistributionOptions: any = {
-  title: {
-    text: 'Transaction Amount Distribution',
-  },
+
 
   subtitle: {
     text: 'Amount Range Histogram',
@@ -326,7 +324,7 @@ const amountDistributionOptions: any = {
 }
 const trendOptions: any = {
   title: {
-    text: 'Transaction Volume',
+    enabled: false,
   },
 
   subtitle: {
@@ -566,6 +564,14 @@ const highestCorridor : any =
     ? topCorridors[0]
     : null
 
+    const maxCorridorVolume =
+  topCorridors.length > 0
+    ? Math.max(
+        ...topCorridors.map(
+          (item: any) => item.volume
+        )
+      )
+    : 1
 
 console.log('TOP CORRIDORS saksham =>', topCorridors)
 
@@ -767,7 +773,17 @@ console.log(
         <strong>Transaction Dashboard</strong>
       </Typography>
 
-      <Grid
+ <Card
+  sx={{
+    mb: 3,
+    borderRadius: 4,
+    border: '1px solid #E2E8F0',
+    boxShadow: '0 2px 12px rgba(15,23,42,0.06)',
+  }}
+>
+  <CardContent>
+
+<Grid
   container
   spacing={1.5}
   sx={{ mb: 2 }}
@@ -963,26 +979,38 @@ console.log(
     Reset
   </Button>
 </Box>
-      
 
-    
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+  </CardContent>
+</Card>
+
+<Grid container spacing={3} sx={{ mb: 4 }}>
   {summaryCards.map((card, index) => (
     <Grid item xs={12} sm={6} md={2}key={index}>
-      <Card
+     <Card
   sx={{
-    borderRadius: 3,
-    boxShadow: '0 2px 12px rgba(15,23,42,0.08)',
-border: '1px solid #E2E8F0',
-    transition: '0.3s',
+    borderRadius: 4,
 
-    height: 100,            // sab cards same height
+    borderTop: `4px solid ${card.color}`,
+
+    border: '1px solid #E2E8F0',
+
+    background:
+      'linear-gradient(180deg,#ffffff 0%,#f8fafc 100%)',
+
+    boxShadow:
+      '0 4px 14px rgba(15,23,42,0.06)',
+
+    transition: 'all 0.3s ease',
+
+    height: 110,
+
     display: 'flex',
     alignItems: 'center',
 
     '&:hover': {
-      transform: 'translateY(-4px)',
-      boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+      transform: 'translateY(-6px)',
+      boxShadow:
+        '0 12px 28px rgba(15,23,42,0.12)',
     },
   }}
 >
@@ -990,7 +1018,7 @@ border: '1px solid #E2E8F0',
   sx={{
     width: '100%',
     height: '100%',
-    p: 1.5,
+    p: 2,
     '&:last-child': {
       pb: 2,
     },
@@ -1013,9 +1041,11 @@ border: '1px solid #E2E8F0',
       <Typography
         sx={{
           fontSize: '0.9rem',
-          color: 'text.secondary',
-          minHeight: 28,
-          fontWeight: 500,
+color: '#334155',
+minHeight: 24,
+fontWeight: 700,
+textTransform: 'uppercase',
+letterSpacing: '1px',
         }}
       >
         {card.title}
@@ -1026,7 +1056,7 @@ border: '1px solid #E2E8F0',
           fontSize: '1.3rem',
     fontWeight: 700,
     lineHeight: 1.2,
-    mt: 1,
+    mt: 2,
     whiteSpace: 'nowrap',
         }}
       >
@@ -1042,8 +1072,8 @@ minWidth: 42,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-       backgroundColor: `${card.color}20`,
-border: `1px solid ${card.color}30`,
+background: `linear-gradient(135deg, ${card.color}20, ${card.color}08)`,
+border: `1px solid ${card.color}25`,
         borderRadius: 2,
         color: card.color,
       }}
@@ -1139,52 +1169,92 @@ border: `1px solid ${card.color}30`,
         Top Corridors
       </Typography>
 
-      {topCorridors.map((item: any, index) => (
-        <Box
-          key={index}
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            py: 1.5,
-            borderBottom:
-              index !== topCorridors.length - 1
-                ? '1px solid #eee'
-                : 'none',
-          }}
+   {topCorridors.map((item: any, index) => {
+  const percentage =
+    (item.volume / maxCorridorVolume) * 100
+
+  return (
+    <Box
+      key={index}
+      sx={{
+        mb: 2.5,
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          mb: 0.5,
+        }}
+      >
+        <Typography
+          fontWeight={600}
+          fontSize="0.92rem"
         >
-          <Box>
-            <Typography fontWeight={600}>
-              {item.corridor}
-            </Typography>
+          {item.corridor}
+        </Typography>
 
-            <Typography
-              variant="body2"
-              color="text.secondary"
-            >
-              {item.transactions} Transactions
-            </Typography>
-          </Box>
+        <Typography
+          fontWeight={700}
+          color="#2563EB"
+          fontSize="0.85rem"
+        >
+          {Number(
+            item.volume
+          ).toLocaleString()} AED
+        </Typography>
+      </Box>
 
-          <Typography
-            fontWeight={700}
-           color="primary" 
-          >
-            {Number(item.volume).toLocaleString()} AED
-          </Typography>
-        </Box>
-      ))}
+      <Box
+        sx={{
+          height: 8,
+          borderRadius: 10,
+          bgcolor: '#E2E8F0',
+          overflow: 'hidden',
+        }}
+      >
+        <Box
+          sx={{
+            
+            width: `${percentage}%`,
+            height: '100%',
+            borderRadius: 10,
+            background:
+              'linear-gradient(90deg,#2563EB,#60A5FA)',
+          }}
+        />
+      </Box>
+
+    <Typography
+  sx={{
+    fontSize: '0.8rem',
+    fontWeight: 700,
+    color: '#1E293B',
+    mt: 0.5,
+    textTransform: 'uppercase',
+    letterSpacing: '0.4px',
+  }}
+>
+  {item.transactions} Transactions
+</Typography>
+    </Box>
+  )
+})}
     </Card>
   </Grid>
 
 
   <Grid item xs={12} md={6}>
-  <Card
-    sx={{
-      borderRadius: 3,
-      p: 2,
-      height: '100%',
-    }}
-  >
+ <Card
+  sx={{
+    borderRadius: 4,
+    p: 2,
+    height: '100%',
+    border: '1px solid #E2E8F0',
+    boxShadow:
+      '0 2px 12px rgba(15,23,42,0.06)',
+  }}
+>
     <Typography
       variant="h6"
       fontWeight={600}
@@ -1213,6 +1283,7 @@ border: `1px solid ${card.color}30`,
             </Typography>
 
             <Typography
+            
               variant="body2"
               color="text.secondary"
             >
@@ -1305,7 +1376,7 @@ border: `1px solid ${card.color}30`,
         fontWeight={600}
         mb={2}
       >
-        Global Transaction Volume
+        Global Transaction 
       </Typography>
 
       <TransactionWorldMap
@@ -1320,7 +1391,7 @@ border: `1px solid ${card.color}30`,
       sx={{
         borderRadius: 3,
         p: 2,
-        height: 500,
+        height: 650,
       }}
     >
       <Typography

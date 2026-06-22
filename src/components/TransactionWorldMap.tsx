@@ -3,6 +3,7 @@ import {
   Geographies,
   Geography,
   Marker,
+  Annotation,
 } from 'react-simple-maps'
 
 const geoUrl =
@@ -37,6 +38,24 @@ const countryCoordinates: Record<
   ZA: [22.9375, -30.5595],
 }
 
+const countryLabels: Record<
+  string,
+  string
+> = {
+  IN: 'India',
+  PK: 'Pakistan',
+  BD: 'Bangladesh',
+  NP: 'Nepal',
+  LK: 'Sri Lanka',
+  AE: 'UAE',
+  SA: 'Saudi Arabia',
+  QA: 'Qatar',
+  KW: 'Kuwait',
+  OM: 'Oman',
+  US: 'USA',
+  GB: 'UK',
+  ZA: 'South Africa',
+}
 const zoomCoordinates: Record<
   string,
   {
@@ -186,15 +205,29 @@ const getAdjustedCoords = (
             key={item.country}
             coordinates={adjustedCoords}
           >
-            <circle
-              r={radius}
-              fill="#2563EB"
-              fillOpacity={0.45}
-              stroke="#1D4ED8"
-              strokeWidth={2}
-            />
+       <circle
+  r={radius}
+  fill="#2563EB"
+  fillOpacity={0.45}
+  stroke="#1D4ED8"
+  strokeWidth={2}
+/>
 
-            <title>
+<text
+  y={-(radius + 6)}
+  textAnchor="middle"
+  style={{
+    fontSize: '10px',
+    fontWeight: 600,
+fill: '#334155',
+    pointerEvents: 'none',
+  }}
+>
+  {countryLabels[item.country] ||
+    item.country}
+</text>
+
+<title>
               {item.country}
               {'\n'}
               Volume: AED{' '}
