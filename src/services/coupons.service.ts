@@ -32,13 +32,13 @@ export default class CouponService extends BaseService {
     }
   }
 
-  async bulkUploadCoupons(formData: any) {
+  async bulkUploadCoupons(payload: any) {
     const url = '/api/bop/gender/bulk-upload'
     try {
-      console.log(formData, '---------------')
+      console.log(payload, '--------------')
 
       //@ts-ignore
-      const { data } = await api1.post(url, formData)
+      const { data } = await api1.post(url, payload)
       return data
     } catch (err) {
       console.error('Error uploading file:', err)

@@ -216,22 +216,35 @@ const Coupons: React.FC = () => {
       </Button>
     </GridToolbarContainer>
   )
-  const handleFileChange = (event: any) => {
+
+  const toBase64 = (file: any) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = () => resolve(reader.result)
+      reader.onerror = reject
+    })
+
+  const handleFileChange = async (event: any) => {
     const file = event.target.files[0]
 
     if (file) {
       console.log(file)
       console.log(file.name)
-      // handleUpload(file)
+      console.log(await toBase64(file))
+      const base64 = await toBase64(file)
+      // handleUpload(base64)
     }
   }
 
   const handleUpload = async (selectedFile: any) => {
     console.log(selectedFile, 'file')
-    const formData = new FormData()
-    formData.append('file', selectedFile)
-    formData.append('applicant_id', local_service?.get_staff_id())
-    const response = await couponService.bulkUploadCoupons(formData)
+
+    const response = await couponService.bulkUploadCoupons({
+      fileName: 'coupons.xls',
+      fileContent: selectedFile,
+      applicant_id: local_service?.get_staff_id(),
+    })
     console.log(response, '-----------------')
   }
 
