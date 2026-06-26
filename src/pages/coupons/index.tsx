@@ -233,7 +233,7 @@ const Coupons: React.FC = () => {
       console.log(file.name)
       console.log(await toBase64(file))
       const base64 = await toBase64(file)
-      // handleUpload(base64)
+      handleUpload(base64)
     }
   }
 
@@ -246,6 +246,7 @@ const Coupons: React.FC = () => {
       applicant_id: local_service?.get_staff_id(),
     })
     console.log(response, '-----------------')
+    //  fetchCouponListingData()
   }
 
   return (
