@@ -262,7 +262,7 @@ const TransactionListing = () => {
       renderCell: (params: any) => (
         <IconButton
           onClick={() => {
-            handleNavigation(`/bop-details/${params.row.transactionNumber}/${params.row.tran_bop_attempt}`)
+            handleNavigation(`/bop-details/${params.row.transactionNumber}/${params.row.tranBopAttempt}`)
           }}
         >
           <VisibilityIcon
