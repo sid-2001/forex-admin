@@ -246,6 +246,7 @@ const Coupons: React.FC = () => {
       applicant_id: local_service?.get_staff_id(),
     })
     console.log(response, '-----------------')
+    //  fetchCouponListingData()
   }
 
   return (
