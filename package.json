@@ -34,6 +34,7 @@
     "date-fns": "^3.6.0",
     "date-fns-tz": "^3.2.0",
     "dayjs": "^1.11.11",
+    "filereader": "^0.10.3",
     "firebase": "^11.0.1",
     "i": "^0.3.7",
     "install": "^0.13.0",

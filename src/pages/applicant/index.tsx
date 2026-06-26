@@ -856,7 +856,7 @@ const ApplicantPage = () => {
                 </Typography>
 
                 <Typography variant="body2" sx={{ color: '#fff', fontWeight: '300' }}>
-                  Hightest loyalty tier achieved
+                  Highest loyalty tier achieved
                 </Typography>
               </Box>
             )}
