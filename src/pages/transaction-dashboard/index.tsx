@@ -21,8 +21,17 @@ const TransactionDashboard = () => {
 const transactionService = new TransactionService()
 const localService = new LocalStorageService()
 
-const [fromDate, setFromDate] = useState('')
-const [toDate, setToDate] = useState('')
+const today = new Date()
+
+const threeMonthsAgo = new Date()
+threeMonthsAgo.setMonth(today.getMonth() - 3)
+
+const formatDate = (date: Date) => {
+  return date.toISOString().split('T')[0]
+}
+
+const [fromDate, setFromDate] = useState(formatDate(threeMonthsAgo))
+const [toDate, setToDate] = useState(formatDate(today))
 const [statusFilter, setStatusFilter] = useState('ALL')
 const [selectedTransaction, setSelectedTransaction] =
   useState('')
@@ -207,8 +216,11 @@ const trendData = filteredTransactions.reduce((acc: any, item: any) => {
 
   if (!date) return acc
 
-  const day = new Date(date).toLocaleDateString()
+const d = new Date(date)
 
+const day = `${String(d.getDate()).padStart(2, '0')}-${String(
+  d.getMonth() + 1
+).padStart(2, '0')}-${d.getFullYear()}`
   const existing = acc.find((x: any) => x.date === day)
 
   if (existing) {
@@ -369,47 +381,45 @@ const trendOptions: any = {
   ],
 }
 
-
-
 console.log('STATUS COUNTS =>', statusCounts)
 
-const successfulTransactions = filteredTransactions.filter(
-  (item) =>
-    [
-      'SUCCESS',
-      'COMPLETED',
-      'ACCEPTED',
-    ].includes(
-      item?.transactionGatewayDTO?.transactionStatus
-    )
-).length
+  const successfulTransactions = filteredTransactions.filter(
+    (item) =>
+      [
+        'SUCCESS',
+        'COMPLETED',
+        'ACCEPTED',
+      ].includes(
+        item?.transactionGatewayDTO?.transactionStatus
+      )
+  ).length
 
 
 
-const pendingTransactions = filteredTransactions.filter(
-  (item) =>
-    item?.transactionGatewayDTO?.transactionStatus === 'PENDING' ||
-    item?.transactionGatewayDTO?.transactionStatus === 'IN_PROGRESS'
-).length
+  const pendingTransactions = filteredTransactions.filter(
+    (item) =>
+      item?.transactionGatewayDTO?.transactionStatus === 'PENDING' ||
+      item?.transactionGatewayDTO?.transactionStatus === 'IN_PROGRESS'
+  ).length
 
-const failedTransactions = filteredTransactions.filter(
-  (item) =>
-    [
-      'FAILED',
-      'REJECTED',
-    ].includes(
-      item?.transactionGatewayDTO?.transactionStatus
-    )
-).length
+  const failedTransactions = filteredTransactions.filter(
+    (item) =>
+      [
+        'FAILED',
+        'REJECTED',
+      ].includes(
+        item?.transactionGatewayDTO?.transactionStatus
+      )
+  ).length
 
-const totalVolume = filteredTransactions.reduce(
-  (sum, item: any) =>
-    sum +
-    Number(
-      item?.transactionGatewayDTO?.settlementAmount || 0
-    ),
-  0
-)
+  const totalVolume = filteredTransactions.reduce(
+    (sum, item: any) =>
+      sum +
+      Number(
+        item?.transactionGatewayDTO?.settlementAmount || 0
+      ),
+    0
+  )
 
 const totalRevenue = filteredTransactions.reduce(
   (sum, item: any) =>
@@ -553,7 +563,7 @@ const topCorridors = Object.values(
   country: item.country,
   volume: item.volume,
   transactions: item.transactions,
-}))
+  }))
 console.log(
   'TOP DESTINATIONS =>',
   topDestinations
@@ -573,78 +583,78 @@ const highestCorridor : any =
       )
     : 1
 
-console.log('TOP CORRIDORS saksham =>', topCorridors)
+    console.log('TOP CORRIDORS saksham =>', topCorridors)
 
-console.log('TOTAL REVENUE =>', totalRevenue)
+    console.log('TOTAL REVENUE =>', totalRevenue)
 
-console.log('TOTAL VOLUME =>', totalVolume)
+    console.log('TOTAL VOLUME =>', totalVolume)
 
-console.log(
-  'AMOUNT & CHARGES CHECK',
-  filteredTransactions.map((item: any) => ({
-    settlementAmount:
-      item?.transactionGatewayDTO?.settlementAmount,
-    charges:
-      item?.transactionGatewayDTO?.charges,
-  }))
-)
+    console.log(
+      'AMOUNT & CHARGES CHECK',
+      filteredTransactions.map((item: any) => ({
+        settlementAmount:
+          item?.transactionGatewayDTO?.settlementAmount,
+        charges:
+          item?.transactionGatewayDTO?.charges,
+      }))
+    )
 
-const pieData = [
-  {
-    status: 'Successful',
-    value: successfulTransactions,
-    percentage:
-      totalTransactions > 0
-        ? ((successfulTransactions / totalTransactions) * 100).toFixed(1)
-        : 0,
-  },
-  {
-    status: 'Pending',
-    value: pendingTransactions,
-    percentage:
-      totalTransactions > 0
-        ? ((pendingTransactions / totalTransactions) * 100).toFixed(1)
-        : 0,
-  },
-  {
-    status: 'Failed',
-    value: failedTransactions,
-    percentage:
-      totalTransactions > 0
-        ? ((failedTransactions / totalTransactions) * 100).toFixed(1)
-        : 0,
-  },
-]
+    const pieData = [
+      {
+        status: 'Successful',
+        value: successfulTransactions,
+        percentage:
+          totalTransactions > 0
+            ? ((successfulTransactions / totalTransactions) * 100).toFixed(1)
+            : 0,
+      },
+      {
+        status: 'Pending',
+        value: pendingTransactions,
+        percentage:
+          totalTransactions > 0
+            ? ((pendingTransactions / totalTransactions) * 100).toFixed(1)
+            : 0,
+      },
+      {
+        status: 'Failed',
+        value: failedTransactions,
+        percentage:
+          totalTransactions > 0
+            ? ((failedTransactions / totalTransactions) * 100).toFixed(1)
+            : 0,
+      },
+    ]
 
-const pieOptions: any = {
-  data: pieData,
+    const pieOptions: any = {
+      data: pieData,
 
-  series: [
-    {
-      type: 'pie',
-      angleKey: 'value',
-      calloutLabelKey: 'status',
-      sectorLabelKey: 'value',
+      series: [
+        {
+          type: 'pie',
+          angleKey: 'value',
+          calloutLabelKey: 'status',
+          sectorLabelKey: 'value',
 
-      fills: [
-        '#2e7d32',
-        '#ed6c02',
-        '#d32f2f',
+          fills: [
+            '#2e7d32',
+            '#ed6c02',
+            '#d32f2f',
+          ],
+
+          strokeWidth: 0,
+        },
       ],
 
-      strokeWidth: 0,
-    },
-  ],
-
-  legend: {
-    position: 'bottom',
-  },
-}
+      legend: {
+        position: 'bottom',
+      },
+    }
 
     const summaryCards = [
   {
     title: 'Total Transactions',
-value: totalTransactions,
+    value: totalTransactions,
     icon: <ReceiptLongIcon fontSize="large" />,
     color: '#1976d2',
   },
@@ -673,7 +683,7 @@ value: totalTransactions,
   color: '#9c27b0',
 },
 // {
-//   title: 'Revenue Generated',
+//   title: 'Charges(Inc Vat)',
 //   value: `${totalRevenue.toFixed(2)} AED`,
 //   icon: <ReceiptLongIcon fontSize="large" />,
 //   color: '#00a76f',
@@ -698,13 +708,13 @@ value: totalTransactions,
   icon: <ReceiptLongIcon fontSize="large" />,
   color: '#ff9800',
 },
-{
-  title: 'Best Corridor',
-  value:
-    (highestCorridor as any)?.corridor || '-',
-  icon: <ReceiptLongIcon fontSize="large" />,
-  color: '#ff9800',
-}
+// {
+//   title: 'Best Corridor',
+//   value:
+//     (highestCorridor as any)?.corridor || '-',
+//   icon: <ReceiptLongIcon fontSize="large" />,
+//   color: '#ff9800',
+// }
 ]
 
 const fetchSummary = async () => {
@@ -722,7 +732,23 @@ const fetchSummary = async () => {
   }
 }
 
+
 useEffect(() => {
+  console.log('FOREX API HIT')
+
+  transactionService
+    .getForexRate('AED', 'USD')
+    .then((rate) => {
+      console.log('AED TO USD RATE =>', rate)
+    })
+    .catch((err) => {
+      console.log('FOREX ERROR =>', err)
+    })
+}, [])
+
+
+useEffect(() => {
+  
      fetchSummary() 
 
      const countryCorridorService = new CountryCorridorService()
@@ -1111,7 +1137,7 @@ border: `1px solid ${card.color}25`,
   </Grid>
 
   {/* Transaction Trend */}
-  <Grid item xs={12} md={4}>
+  <Grid item xs={12} md={8}>
     <Card sx={{ borderRadius: 3, height: 350 }}>
       <CardContent>
         <Typography variant="h6" fontWeight={600}>
@@ -1131,7 +1157,7 @@ border: `1px solid ${card.color}25`,
   </Grid>
 
   {/* Status Distribution */}
-  <Grid item xs={12} md={4}>
+  {/* <Grid item xs={12} md={4}>
     <Card sx={{ borderRadius: 3, height: 350 }}>
       <CardContent>
         <Typography variant="h6" fontWeight={600}>
@@ -1148,12 +1174,12 @@ border: `1px solid ${card.color}25`,
         </Box>
       </CardContent>
     </Card>
-  </Grid>
+  </Grid> */}
 
 </Grid>
 
 <Grid container spacing={3}>
-  <Grid item xs={12} md={6}>
+  <Grid item xs={12} md={4}>
     <Card
       sx={{
         borderRadius: 3,
@@ -1244,7 +1270,7 @@ border: `1px solid ${card.color}25`,
   </Grid>
 
 
-  <Grid item xs={12} md={6}>
+  <Grid item xs={12} md={4}>
  <Card
   sx={{
     borderRadius: 4,
@@ -1304,6 +1330,25 @@ border: `1px solid ${card.color}25`,
     )}
   </Card>
 </Grid>
+
+  <Grid item xs={12} md={4}>
+    <Card sx={{ borderRadius: 3, height: 379 }}>
+      <CardContent>
+        <Typography variant="h6" fontWeight={600}>
+          Transaction Status 
+        </Typography>
+
+        <Box sx={{ height: 260 }}>
+          <AgCharts
+            options={{
+              ...pieOptions,
+              height: 260,
+            }}
+          />
+        </Box>
+      </CardContent>
+    </Card>
+  </Grid>
 
   {/* <Grid item xs={12} md={6}>
     <Card
