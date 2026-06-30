@@ -84,8 +84,16 @@ const ReferralTransactions = ({
     },
   ]
 
-  const renderRewardPercentage = (item: any) => {
-    return item.transactionCnt === 1 ? (50 * item.totalRewards) / 100 : item.transactionCnt === 2 ? (75 * item.totalRewards) / 100 : item.totalRewards
+  const percentageMap: any = {
+    0: 0,
+    1: 50,
+    2: 75,
+    3: 100,
+  }
+
+  const renderUtilisedRewards = (item: any) => {
+    const transactionCnt = item?.transactionCnt ?? 0
+    return ((percentageMap[transactionCnt] ?? 0) * item.totalRewards) / 100
   }
 
   const ReferralCreditedColumns = [
@@ -114,7 +122,7 @@ const ReferralTransactions = ({
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <span>
-          {renderRewardPercentage(params.row)} / {params.row.totalRewards || 0}
+          {renderUtilisedRewards(params.row)} / {params.row.totalRewards || 0}
         </span>
       ),
     },
