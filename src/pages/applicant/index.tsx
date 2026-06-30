@@ -766,7 +766,7 @@ const ApplicantPage = () => {
                 </Typography>
                 <Box
                   sx={{
-                    background: `linear-gradient(90deg, ${renderTierBgColor(applicantDetails?.userTier)[0]} 0%, ${renderTierBgColor(applicantDetails?.userTier)[1]} 100%)`,
+                    background: `linear-gradient(90deg, ${renderTierBgColor(applicantDetails?.loyaltyResponse?.nextLevel?.userTier)[0]} 0%, ${renderTierBgColor(applicantDetails?.loyaltyResponse?.nextLevel?.userTier)[1]} 100%)`,
                     borderRadius: 4,
                     p: 1,
                     textAlign: 'center',
