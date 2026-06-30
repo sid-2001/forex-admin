@@ -362,6 +362,7 @@ const AuditScreen: React.FC = () => {
           <></>
         )}
 
+
         {auditLogData && auditLogData.length > 0 && (
           <DataGrid
             sx={{

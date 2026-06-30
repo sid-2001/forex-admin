@@ -73,6 +73,7 @@ const Dashboard = () => {
 
   const getOutwardTransactionsList = useCallback(async () => {
     const data = await transaction_service.getOutwardAllTransaction(userCountry, 0, 20)
+
     setrecentTransaction(data || [])
     setIsLoading(false)
   }, [])
@@ -86,18 +87,22 @@ const Dashboard = () => {
     }
   }
 
-  useEffect(() => {
-    // commented out for uae corridor
-    //  getGatewayList()
-    // fetchProductConfig('IN')
-    fetchConsumersData()
-    setIsLoading(true)
-    getOutwardTransactionsList()
-    setSelectedApp('Dashboard')
-    // transaction_service.getTransactionSummary(userCountry).then((data) => {
-    //   setapplicantData(data?.data)
-    // })
-  }, [])
+
+ useEffect(() => {
+  // commented out for uae corridor
+  // getGatewayList()
+  // fetchProductConfig('IN')
+  fetchConsumersData()
+  setIsLoading(true)
+  getOutwardTransactionsList()
+  setSelectedApp('Dashboard')
+
+  // transaction_service.getTransactionSummary(userCountry).then((data) => {
+  
+
+  //   setapplicantData(data?.data)
+  // })
+}, [])
 
   const bankAccounts = [
     {

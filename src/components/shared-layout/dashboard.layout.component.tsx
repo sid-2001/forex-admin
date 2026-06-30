@@ -63,7 +63,9 @@ import ReportIcon from '@mui/icons-material/Report'
 import ReportOffIcon from '@mui/icons-material/ReportOff'
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing'
-import { LanguagesIcon, QrCodeIcon } from 'lucide-react'
+// import AssessmentIcon from '@mui/icons-material/Assessment'
+import { FolderIcon, GavelIcon, LanguagesIcon, Menu, QrCodeIcon, SettingsIcon } from 'lucide-react'
+import WebIcon from '@mui/icons-material/Web'
 import MonitorIcon from '@mui/icons-material/Monitor'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'
 import SmsIcon from '@mui/icons-material/Sms'
@@ -273,6 +275,7 @@ const MASTER_MENU = [
     icon: <ReportOffIcon fontSize="small" />,
     path: 'bop-category-type',
   },
+  
   {
     label: 'Bop Category',
     name: 'Bop Category',
@@ -634,6 +637,25 @@ const DashboardLayout = () => {
       label: 'Transaction',
       name: 'Transactions',
     },
+    
+
+    {
+  icon: (
+    <AssessmentIcon
+      sx={{
+        fontSize: '2vh',
+        //@ts-ignore
+        color: theme.palette.primary.light,
+        '&:hover': {
+          //@ts-ignore
+          color: theme.palette.primary.main,
+        },
+      }}
+    />
+  ),
+  label: 'transaction-dashboard',
+name: 'Transaction Dashboard',
+},
 
     {
       icon: (
