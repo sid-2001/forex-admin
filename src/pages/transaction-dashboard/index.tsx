@@ -14,7 +14,14 @@ import {
   MenuItem,
   TextField,
   Button,
-   Autocomplete
+  Autocomplete,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper
 } from '@mui/material'
 import TransactionWorldMap from '@/components/TransactionWorldMap'
 const TransactionDashboard = () => {
@@ -427,6 +434,27 @@ const totalRevenue = filteredTransactions.reduce(
     Number(
       item?.transactionGatewayDTO?.charges || 0
     ),
+  0
+)
+
+const principalAmount = filteredTransactions.reduce(
+  (sum, item: any) =>
+    sum +
+    Number(item?.transactionGatewayDTO?.principalAmount || 0),
+  0
+)
+
+const settlementAmount = filteredTransactions.reduce(
+  (sum, item: any) =>
+    sum +
+    Number(item?.transactionGatewayDTO?.settlementAmount || 0),
+  0
+)
+
+const chargesAmount = filteredTransactions.reduce(
+  (sum, item: any) =>
+    sum +
+    Number(item?.transactionGatewayDTO?.charges || 0),
   0
 )
 const successRate =
@@ -1178,6 +1206,76 @@ border: `1px solid ${card.color}25`,
 
 </Grid>
 
+
+{destinationCountryFilter !== 'ALL' && (
+  <Card
+    sx={{
+      mb: 3,
+      borderRadius: 3,
+      border: '1px solid #E2E8F0',
+      boxShadow: '0 2px 12px rgba(15,23,42,0.06)',
+    }}
+  >
+    <CardContent>
+      <Typography
+        variant="h6"
+        fontWeight={600}
+        mb={2}
+      >
+        Corridor Financial Summary
+      </Typography>
+
+      <Typography
+        sx={{
+          color: '#64748B',
+          mb: 2,
+        }}
+      >
+        {userCountry} → {destinationCountryFilter}
+      </Typography>
+
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell
+              sx={{ fontWeight: 700 }}
+            >
+              Principal Amount
+            </TableCell>
+
+            <TableCell
+              sx={{ fontWeight: 700 }}
+            >
+              Settlement Amount
+            </TableCell>
+
+            <TableCell
+              sx={{ fontWeight: 700 }}
+            >
+              Charges
+            </TableCell>
+          </TableRow>
+        </TableHead>
+
+        <TableBody>
+          <TableRow>
+            <TableCell>
+              {principalAmount.toLocaleString()} AED
+            </TableCell>
+
+            <TableCell>
+              {settlementAmount.toLocaleString()} AED
+            </TableCell>
+
+            <TableCell>
+              {chargesAmount.toLocaleString()} AED
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </CardContent>
+  </Card>
+)}
 <Grid container spacing={3}>
   <Grid item xs={12} md={4}>
     <Card
