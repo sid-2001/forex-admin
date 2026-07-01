@@ -237,6 +237,16 @@ const TransactionListing = () => {
       },
     },
     {
+      field: 'paymentStatus',
+      headerName: 'Current Progress',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return <span>{params.row.paymentStatus.replace('_', ' ')}</span>
+      },
+    },
+
+    {
       field: 'stpError',
       headerName: 'STP',
       flex: 1,
@@ -846,7 +856,7 @@ const TransactionListing = () => {
                 getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
                 pageSizeOptions={[10, 20, 50]}
                 // paginationMode="server"
-                // filterMode="server"  
+                // filterMode="server"
                 // paginationModel={paginationInwardModel}
                 // onPaginationModelChange={handleInwardPaginationChange}
                 // filterModel={filterModel}

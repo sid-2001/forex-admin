@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Typography, TextField, Grid, Chip, useTheme, Divider } from '@mui/material'
+import { Box, Typography, TextField, Grid, Chip, useTheme, Divider, Card } from '@mui/material'
 import { TransactionService } from '@/services/transaction.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useParams } from 'react-router-dom'
@@ -43,22 +43,53 @@ const TransactionDetailScreen = () => {
     <Box>
       {transactionDetails && (
         <Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography
-              variant="h6"
-              fontWeight="bold"
-              sx={{
-                backgroundColor: theme.palette.primary.main,
-                p: '1%',
-                color: 'white',
-                // marginBottom: 2,
-                // width: '40%',
-              }}
-            >
-              TRANSACTION ID : {transactionDetails?.transactionNumber}
-            </Typography>
-            <Chip label={renderTransactionStatus(transactionDetails?.transactionStatus?.toUpperCase())} color="warning" />
-          </Box>
+          <Card
+            sx={{
+              mb: 3,
+              borderRadius: 4,
+              border: '1px solid #E2E8F0',
+              boxShadow: '0 2px 12px rgba(15,23,42,0.06)',
+              padding: '20px',
+            }}
+          >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography
+                sx={{
+                  fontSize: '0.9rem',
+                  color: '#334155',
+                  minHeight: 24,
+                  fontWeight: 700,
+                  letterSpacing: '1px',
+                }}
+              >
+                TRANSACTION ID : {transactionDetails?.transactionNumber}
+              </Typography>
+
+              <Typography
+                sx={{
+                  fontSize: '0.9rem',
+                  color: '#334155',
+                  minHeight: 24,
+                  fontWeight: 700,
+                  letterSpacing: '1px',
+                }}
+              >
+                PAYMENT STATUS: {transactionDetails?.paymentStatus.replace('_', ' ')}
+              </Typography>
+
+              <Typography
+                sx={{
+                  fontSize: '0.9rem',
+                  color: '#334155',
+                  minHeight: 24,
+                  fontWeight: 700,
+                  letterSpacing: '1px',
+                }}
+              >
+                TRANSACTION STATUS: {renderTransactionStatus(transactionDetails?.transactionStatus?.toUpperCase())}
+              </Typography>
+            </Box>
+          </Card>
 
           {/* Transaction Details Section */}
           <Typography variant="subtitle1" fontWeight="bold" sx={{ margin: '10px 0' }}>
@@ -181,7 +212,6 @@ const TransactionDetailScreen = () => {
                 disabled
               />
             </Grid>
-
             <Grid item xs={12} md={6}>
               <TextField
                 label="Account Holder Name"
@@ -192,6 +222,16 @@ const TransactionDetailScreen = () => {
                     ? `${transactionDetails.beneficiaryFirstName} ${transactionDetails.beneficiaryMiddleName} ${transactionDetails.beneficiaryLastName}`
                     : `${transactionDetails.beneficiaryFirstName} ${transactionDetails.beneficiaryLastName}`
                 }
+                size="small"
+                disabled
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Nationality"
+                variant="filled"
+                fullWidth
+                defaultValue={transactionDetails?.beneficiaryNationality}
                 size="small"
                 disabled
               />
