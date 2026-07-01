@@ -188,7 +188,6 @@ const RoleModal = ({
         const res = await user_service.editRoles(local_service.get_staff_id(), { ...payload, roleId: roleId })
       } else {
         payload = {
-          roleId,
           roleDescription: roleName,
           inactivityTime: inactivitytime,
           roleStatus: true,
@@ -208,7 +207,7 @@ const RoleModal = ({
           }),
         }
 
-        user_service.addRole(payload, local_service?.get_staff_id())
+        const res = await user_service.addRole(payload, local_service?.get_staff_id())
       }
 
       settype('success')

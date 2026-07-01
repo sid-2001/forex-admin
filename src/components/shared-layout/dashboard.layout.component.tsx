@@ -275,7 +275,7 @@ const MASTER_MENU = [
     icon: <ReportOffIcon fontSize="small" />,
     path: 'bop-category-type',
   },
-  
+
   {
     label: 'Bop Category',
     name: 'Bop Category',
@@ -509,7 +509,7 @@ const MasterDropdownIcon = ({ setSelectedApp, addToHistory, selectedApp }: any) 
         <IconButton onClick={() => setOpen(true)}>
           <BubbleChartIcon color="primary" sx={{ color: 'white', fontColor: 'white' }} />
         </IconButton>
-        Masterdata
+        Master Data
       </Box>
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogContent
@@ -637,25 +637,24 @@ const DashboardLayout = () => {
       label: 'Transaction',
       name: 'Transactions',
     },
-    
 
     {
-  icon: (
-    <AssessmentIcon
-      sx={{
-        fontSize: '2vh',
-        //@ts-ignore
-        color: theme.palette.primary.light,
-        '&:hover': {
-          //@ts-ignore
-          color: theme.palette.primary.main,
-        },
-      }}
-    />
-  ),
-  label: 'transaction-dashboard',
-name: 'Transaction Dashboard',
-},
+      icon: (
+        <AssessmentIcon
+          sx={{
+            fontSize: '2vh',
+            //@ts-ignore
+            color: theme.palette.primary.light,
+            '&:hover': {
+              //@ts-ignore
+              color: theme.palette.primary.main,
+            },
+          }}
+        />
+      ),
+      label: 'transaction-dashboard',
+      name: 'Transaction Dashboard',
+    },
 
     {
       icon: (
@@ -679,19 +678,17 @@ name: 'Transaction Dashboard',
 
     {
       icon: (
-        <>
-          <SourceIcon
-            sx={{
-              //@ts-ignore
-              fontSize: '2vh',
-              //@ts-ignore
-              color: theme.palette.primary.light, // Corrected theme usage
-            }}
-          />
-        </>
+        <SourceIcon
+          sx={{
+            //@ts-ignore
+            fontSize: '2vh',
+            //@ts-ignore
+            color: theme.palette.primary.light, // Corrected theme usage
+          }}
+        />
       ),
       label: 'Bop',
-      name: staffCountry === 'UAE' ? 'PaymentInfo' : 'BOP',
+      name: staffCountry === 'UAE' ? 'Regulatory Information' : 'BOP',
     },
     {
       icon: (

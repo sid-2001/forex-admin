@@ -273,22 +273,6 @@ const get = async (url: string) => {
   }
 }
 
-// const post = async (url: string, object: any) => {
-//   try {
-//     const response = await instance.post(url, object, {
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//     })
-//     console.log(response, '----------------')
-
-//     return response?.data
-//   } catch (error) {
-//     console.log(error, '0000000080080')
-//     throw error
-//   }
-// }
-
 const post = async (url: string, payload: any) => {
   const res = await instance.post(url, payload, {
     headers: {
@@ -332,20 +316,6 @@ const del = async (url: string, object?: any) => {
     throw error
   }
 }
-
-// const del = async (url: string, object: any) => {
-//   try {
-//  const data = await instance.delete(url, object, {
-//       headers: {
-//         'Content-Type': 'application/json',
-//       }});
-
-//       return data
-
-//   } catch (error) {
-//     throw error
-//   }
-// }
 
 const upload = async (url: string, formData: any, onUploadProgress: (progressEvent: AxiosProgressEvent) => void) => {
   try {

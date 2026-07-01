@@ -158,7 +158,7 @@ const ReferralTable: React.FC = () => {
                 setFormData((prev) => ({ ...prev, id: params?.row?.id }))
               }}
             >
-              Approve / Reject
+              Approve | Reject
             </Box>
           )}
         </>
