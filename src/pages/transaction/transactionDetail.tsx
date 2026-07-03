@@ -53,41 +53,102 @@ const TransactionDetailScreen = () => {
             }}
           >
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography
-                sx={{
-                  fontSize: '0.9rem',
-                  color: '#334155',
-                  minHeight: 24,
-                  fontWeight: 700,
-                  letterSpacing: '1px',
-                }}
-              >
-                TRANSACTION ID : {transactionDetails?.transactionNumber}
-              </Typography>
-
-              <Typography
-                sx={{
-                  fontSize: '0.9rem',
-                  color: '#334155',
-                  minHeight: 24,
-                  fontWeight: 700,
-                  letterSpacing: '1px',
-                }}
-              >
-                PAYMENT STATUS: {transactionDetails?.paymentStatus.replace('_', ' ')}
-              </Typography>
-
-              <Typography
-                sx={{
-                  fontSize: '0.9rem',
-                  color: '#334155',
-                  minHeight: 24,
-                  fontWeight: 700,
-                  letterSpacing: '1px',
-                }}
-              >
-                TRANSACTION STATUS: {renderTransactionStatus(transactionDetails?.transactionStatus?.toUpperCase())}
-              </Typography>
+              <Box>
+                <Typography
+                  sx={{
+                    fontSize: '0.9rem',
+                    color: '#334155',
+                    minHeight: 24,
+                    fontWeight: 700,
+                    letterSpacing: '1px',
+                  }}
+                >
+                  Transaction Id
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: '0.9rem',
+                    color: '#334155',
+                    minHeight: 24,
+                    fontWeight: 700,
+                    letterSpacing: '1px',
+                  }}
+                >
+                  {transactionDetails?.transactionNumber}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography
+                  sx={{
+                    fontSize: '0.9rem',
+                    color: '#334155',
+                    minHeight: 24,
+                    fontWeight: 700,
+                    letterSpacing: '1px',
+                  }}
+                >
+                  Payment Status
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: '0.9rem',
+                    color: '#334155',
+                    minHeight: 24,
+                    fontWeight: 700,
+                    letterSpacing: '1px',
+                  }}
+                >
+                  {transactionDetails?.paymentStatus.replace('_', ' ')}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography
+                  sx={{
+                    fontSize: '0.9rem',
+                    color: '#334155',
+                    minHeight: 24,
+                    fontWeight: 700,
+                    letterSpacing: '1px',
+                  }}
+                >
+                  Transaction Status
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: '0.9rem',
+                    color: '#334155',
+                    minHeight: 24,
+                    fontWeight: 700,
+                    letterSpacing: '1px',
+                  }}
+                >
+                  {renderTransactionStatus(transactionDetails?.transactionStatus?.toUpperCase())}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography
+                  sx={{
+                    fontSize: '0.9rem',
+                    color: '#334155',
+                    minHeight: 24,
+                    fontWeight: 700,
+                    letterSpacing: '1px',
+                  }}
+                >
+                  Status Description
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: '0.9rem',
+                    color: '#334155',
+                    minHeight: 24,
+                    fontWeight: 700,
+                    letterSpacing: '1px',
+                  }}
+                >
+                  {transactionDetails?.transactionStatusDescription || ''}
+                </Typography>
+              </Box>
             </Box>
           </Card>
 
