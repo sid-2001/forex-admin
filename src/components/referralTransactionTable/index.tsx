@@ -76,7 +76,7 @@ const ReferralTransactions = ({
       // renderCell: (params: any) => (
       //     <span
       //         style={{ color: '#1976d2', cursor: 'pointer' }}
-      //         onClick={() => navigate(`/applicant-details/${params.value}`)}
+      //         onClick={() => navigate(`/customer-details/${params.value}`)}
       //     >
       //         {params.value}
       //     </span>

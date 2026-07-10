@@ -204,7 +204,7 @@ const UserTable: React.FC = () => {
   )
 
   return (
-    <HasPermission permission={'canRead'} module={local_service.get_modules()?.STAFF}>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.USER}>
       <Box sx={{ width: '80vw', height: '70vh' }}>
         <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'}>
           <Box>
@@ -216,7 +216,7 @@ const UserTable: React.FC = () => {
             <Button
               variant="contained"
               color="primary"
-              disabled={!helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canCreate')}
+              disabled={!helper_service.checkUserHasPermission(local_service.get_modules()?.USER, 'canCreate')}
               onClick={() => {
                 navigate('/profile/add')
               }}

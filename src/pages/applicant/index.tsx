@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { Box, Grid, TextField, Typography, Tabs, Tab, Avatar, useTheme } from '@mui/material'
+import { Box, Grid, TextField, Typography, Tabs, Tab, Avatar, useTheme, Card } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
 import TransactionTable from '../transaction-table'
 import { ApplicantService } from '@/services/applicant.service'
@@ -166,9 +166,10 @@ const ApplicantPage = () => {
         email: applicantContactDetails?.find((item: any) => item.contactType === 'email')?.contactDetails,
         phone: applicantContactDetails?.find((item: any) => item.contactType === 'phone')?.contactDetails,
         beneficiaryList,
-        kycStatus,
+        // kycStatus,
         rewards,
         loyaltyResponse,
+        // kyc_Status: applicant?.kycStatus,
       })
 
       if (kycId) {
@@ -289,13 +290,13 @@ const ApplicantPage = () => {
   }
 
   return (
-    <HasPermission permission={'canRead'} module={local_service.get_modules()?.APPLICANT}>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.CUSTOMER}>
       <Box sx={{ width: '90vw' }}>
         <Box sx={{ display: 'flex' }}>
           <Box sx={{ width: '75%' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
               <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
-                {getLabel('Applicant') || 'Applicant Details'}
+                {getLabel('Applicant') || 'Customer Details'}
               </Typography>
 
               {/* 
@@ -328,6 +329,119 @@ const ApplicantPage = () => {
 
             {/* Applicant Information Form */}
             <Box>
+              {applicantDetails && (
+                <Box>
+                  <Card
+                    sx={{
+                      mb: 3,
+                      borderRadius: 4,
+                      border: '1px solid #E2E8F0',
+                      boxShadow: '0 2px 12px rgba(15,23,42,0.06)',
+                      padding: '20px',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          {getLabel('Applicant_ID') || 'Customer Id'}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          {applicantDetails?.applicantId}
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          KYC Status
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          {applicantDetails?.kycStatus}
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          AML Status
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          {applicantDetails?.amlKycStatus}
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          Lulu Customer Id
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          {applicantDetails?.platformReferenceId}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Card>
+                </Box>
+              )}
+
               <Grid container spacing={2} alignItems="flex-start" justifyContent="space-between">
                 <Grid item xs={12} sm={3} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
                   <Box
@@ -355,7 +469,7 @@ const ApplicantPage = () => {
                 </Grid>
                 <Grid item xs={12} sm={9}>
                   <Grid container spacing={2} marginBottom={1}>
-                    <Grid item xs={12} sm={6}>
+                    {/* <Grid item xs={12} sm={6}>
                       <TextField
                         label={getLabel('Applicant_ID') || 'Applicant Id'}
                         variant="filled"
@@ -376,7 +490,7 @@ const ApplicantPage = () => {
                           InputProps={{ readOnly: true }}
                         />
                       )}
-                    </Grid>
+                    </Grid> */}
                     <Grid item xs={12} sm={4}>
                       <TextField
                         label={getLabel('First_Name') || 'Applicant First Name'}

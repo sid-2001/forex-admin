@@ -68,6 +68,14 @@ instance.interceptors.request.use(
 
       config.headers['X-Device-IP'] = ip
       config.headers['X-Device-Name'] = deviceName
+    } else if (!token) {
+      if (sessionStorage.getItem('deviceUUID')) {
+        config.headers['x-device-id'] = sessionStorage.getItem('deviceUUID')
+      } else {
+        const deviceUUID = crypto.randomUUID()
+        sessionStorage.setItem('deviceUUID', deviceUUID)
+        config.headers['x-device-id'] = deviceUUID
+      }
     }
 
     return config

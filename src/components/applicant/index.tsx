@@ -136,7 +136,7 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: GridRenderCellParams) => (
-        <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate(`/applicant-details/${params.value}`)}>
+        <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate(`/customer-details/${params.value}`)}>
           {params.value}
         </span>
       ),
@@ -154,6 +154,12 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     { field: 'dob', headerName: 'DOB', flex: 1, headerClassName: 'super-app-theme--header' },
 
     { field: 'residentialAddressCountry', headerName: 'Residence Country', flex: 1, headerClassName: 'super-app-theme--header' },
+
+    { field: 'kycStatus', headerName: 'KYC Status', flex: 1, headerClassName: 'super-app-theme--header' },
+
+    { field: 'amlKycStatus', headerName: 'AML Status', flex: 1, headerClassName: 'super-app-theme--header' },
+
+    { field: 'platformReferenceId', headerName: 'Lulu Customer Id', flex: 1, headerClassName: 'super-app-theme--header' },
   ]
 
   return (

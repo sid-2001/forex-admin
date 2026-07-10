@@ -111,8 +111,7 @@ const LoginPage = () => {
 
     try {
       setCommonLoader(true)
-      setSelectedTab('Price')
-      fetchAllModulesList()
+      // setSelectedTab('Price')
 
       const response: any = await auth_service.loginStaff({
         usernameOrEmailOrPhone: loginType,
@@ -122,6 +121,7 @@ const LoginPage = () => {
 
       if (response?.data) {
         const { data } = response
+        fetchAllModulesList()
 
         local_service.set_accesstoken(data.token)
         local_service.set_staff_access(data)

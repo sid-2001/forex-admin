@@ -207,11 +207,13 @@ function App() {
       // }
     },
   })
+
   const handleInactivity = () => {
     if (local_service.get_accesstoken() != null) {
       setWarningOpen(true)
     }
   }
+
   const handleLogout = useCallback(() => {
     if (local_service?.get_accesstoken() != null) {
       localStorage.clear()
@@ -219,6 +221,7 @@ function App() {
       window.location.reload()
     }
   }, [])
+
   const INACTIVITY_TIME = 1 * 60 * 1000 // 1 minutes
   // ✅ Enable auto logout (30 min inactivity)
   // useAutoLogout(handleLogout, Number(inactivity) * 60000 > INACTIVITY_TIME ? Number(inactivity) * 60000 : INACTIVITY_TIME)
@@ -239,8 +242,6 @@ function App() {
               <Route index element={<Dashboard />}></Route>
               <Route path="dash" element={<EnhancedDashboard />} />
               <Route path="transaction" element={<TransactionListing />} />
-
-
               <Route path="transaction-dashboard" element={<TransactionDashboard />} />
               <Route path="sendmoney" element={<SendMoneyPage />} />
               <Route path="kyc" element={<KYCPage />} />
@@ -250,8 +251,8 @@ function App() {
               <Route path="profile" element={<UserTable />} />
               <Route path="profile/add" element={<UserAdd />} />
               <Route path="profile/edit/:staffId" element={<UserAdd />} />
-              <Route path="applicant-details/:applicantId" element={<ApplicantPage />} />
-              <Route path="applicant" element={<ApplicantEnquiry />} />
+              <Route path="customer-details/:applicantId" element={<ApplicantPage />} />
+              <Route path="customer" element={<ApplicantEnquiry />} />
               <Route path="add-applicant" element={<AddApplicant />} />
               <Route path="recon" element={<ReconPage />} />
               <Route path="utilization" element={<UtilizationEnquiryForm />} />

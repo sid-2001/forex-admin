@@ -50,7 +50,6 @@ const BeneficiaryDetailPage = () => {
               messagesMap[fieldName] = item.countryLabelFieldNameAndValidation?.validationMessageMandatory
             }
           })
-
           setFieldLabels(labelsMap)
           setFieldMessages(messagesMap)
         }
@@ -108,7 +107,7 @@ const BeneficiaryDetailPage = () => {
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={12} sm={4}>
               <TextField
-                label={getLabel('Applicant_ID') || 'Applicant ID'}
+                label={getLabel('Applicant_ID') || 'Customer ID'}
                 InputProps={{
                   readOnly: true,
                 }}

@@ -274,6 +274,7 @@ const ProfileMenu = () => {
 
   const handleLogout = () => {
     local_service.delete_eaccestoke()
+    localStorage.clear()
     window.location.reload()
     setAnchorEl(null)
   }

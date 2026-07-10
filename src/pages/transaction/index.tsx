@@ -144,7 +144,7 @@ const TransactionListing = () => {
     },
     {
       field: 'applicant',
-      headerName: 'Applicant',
+      headerName: 'Customer Id',
       width: 200,
       minWidth: 200,
       maxWidth: 200,
@@ -155,7 +155,7 @@ const TransactionListing = () => {
         const nameOrId = params.value?.name || params.value?.applicantId || 'N/A'
         return (
           <span
-            onClick={() => handleNavigation(`/applicant-details/${params.value?.applicantId}`)}
+            onClick={() => handleNavigation(`/customer-details/${params.value?.applicantId}`)}
             style={{
               cursor: 'pointer',
               color: theme.palette.text.primary,
@@ -238,7 +238,7 @@ const TransactionListing = () => {
     },
     {
       field: 'paymentStatus',
-      headerName: 'Current Progress',
+      headerName: 'Transaction Sub Status',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
