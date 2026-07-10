@@ -40,6 +40,14 @@ const TransactionDetailScreen = () => {
       : `${transactionDetails?.firstName} ${transactionDetails?.lastName}`
   }
 
+  const displayCountryNameWithCountryCode = (item: any) => {
+    return `${item.countryCode} (${item.countryName})`
+  }
+
+  const displayCurrencyNameWithCurrencyCode = (item: any) => {
+    return `${item.currencyCode} (${item.currencyName})`
+  }
+
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.TRANSACTION_OUTWARD}>
       <Box>
@@ -190,7 +198,7 @@ const TransactionDetailScreen = () => {
                   variant="filled"
                   fullWidth
                   //@ts-ignore
-                  defaultValue={transactionDetails.receiveCountry}
+                  defaultValue={displayCountryNameWithCountryCode(transactionDetails?.receiveCountryCurrency)}
                   size="small"
                   disabled
                 />
@@ -213,7 +221,8 @@ const TransactionDetailScreen = () => {
                   variant="filled"
                   fullWidth
                   //@ts-ignore
-                  defaultValue={transactionDetails?.principalCurrency}
+                  // defaultValue={transactionDetails?.principalCurrency}
+                  defaultValue={displayCurrencyNameWithCurrencyCode(transactionDetails?.receiveCountryCurrency)}
                   size="small"
                   disabled
                 />
@@ -237,7 +246,8 @@ const TransactionDetailScreen = () => {
                   variant="filled"
                   fullWidth
                   //@ts-ignore
-                  defaultValue={transactionDetails.settlementCurrency}
+                  // defaultValue={transactionDetails.settlementCurrency}
+                  defaultValue={displayCurrencyNameWithCurrencyCode(transactionDetails?.sendCountryCurrency)}
                   size="small"
                   disabled
                 />
