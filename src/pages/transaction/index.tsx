@@ -242,7 +242,7 @@ const TransactionListing = () => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
-        return <span>{params.row.paymentStatus.replace('_', ' ')}</span>
+        return <span>{params.row.paymentStatus.replace(/_/g, ' ')}</span>
       },
     },
 
