@@ -368,8 +368,8 @@ export default function CountryLabelFieldsGridPage() {
                 {/* Channel */}
                 <Grid item xs={6}>
                   <FormControl fullWidth required>
-                    <InputLabel>Channel *</InputLabel>
-                    <Select value={form.channelCode} label="Channel *" onChange={(e) => setForm({ ...form, channelCode: e.target.value })}>
+                    <InputLabel>Channel</InputLabel>
+                    <Select value={form.channelCode} label="Channel" onChange={(e) => setForm({ ...form, channelCode: e.target.value })}>
                       {channels
                         .filter((ch: any) => ch.active === true)
                         .map((channel: any) => (
@@ -384,8 +384,8 @@ export default function CountryLabelFieldsGridPage() {
                 {/* Screen */}
                 <Grid item xs={6}>
                   <FormControl fullWidth required>
-                    <InputLabel>Screen *</InputLabel>
-                    <Select value={form.screen} label="Screen *" onChange={(e) => setForm({ ...form, screen: e.target.value })}>
+                    <InputLabel>Screen</InputLabel>
+                    <Select value={form.screen} label="Screen" onChange={(e) => setForm({ ...form, screen: e.target.value })}>
                       {screens
                         .filter((screen: any) => screen.Active == true)
                         .map((screen: any) => (
@@ -403,7 +403,7 @@ export default function CountryLabelFieldsGridPage() {
                 <Grid item xs={6}>
                   <TextField
                     fullWidth
-                    label="Field Name *"
+                    label="Field Name"
                     value={form.fieldName}
                     onChange={(e) => setForm({ ...form, fieldName: e.target.value })}
                     placeholder="e.g., firstName, country"
@@ -412,7 +412,7 @@ export default function CountryLabelFieldsGridPage() {
                 <Grid item xs={6}>
                   <TextField
                     fullWidth
-                    label="Label *"
+                    label="Label"
                     value={form.label}
                     onChange={(e) => setForm({ ...form, label: e.target.value })}
                     placeholder="e.g., First Name, Country"
