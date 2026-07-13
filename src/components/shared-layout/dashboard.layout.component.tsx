@@ -599,7 +599,7 @@ const DashboardLayout = () => {
           }}
         />
       ),
-      label: 'Applicant',
+      label: 'Customer',
       name: 'Customers',
     },
     {

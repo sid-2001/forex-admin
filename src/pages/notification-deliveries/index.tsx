@@ -44,7 +44,7 @@ const NotificationDelivery: React.FC = () => {
   const columns = [
     {
       field: 'applicantId',
-      headerName: 'Applicant Id',
+      headerName: 'Customer Id',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
@@ -52,7 +52,7 @@ const NotificationDelivery: React.FC = () => {
 
         return (
           //@ts-ignore
-          <Link to={`/applicant-details/${params?.row?.applicantId}`} style={{ color: theme.palette.text.primary }}>
+          <Link to={`/customer-details/${params?.row?.applicantId}`} style={{ color: theme.palette.text.primary }}>
             {params?.row?.applicantId}
           </Link>
         )

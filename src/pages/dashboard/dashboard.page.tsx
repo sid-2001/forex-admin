@@ -20,6 +20,7 @@ import autoTable from 'jspdf-autotable'
 import { ApplicantService } from '@/services/applicant.service'
 import CompactLocationBar from '@/components/location'
 import ProductConfigService from '@/services/product.config.service'
+import HasPermission from '@/components/permissionWrapper'
 
 const Dashboard = () => {
   // const [applicatnData, setapplicantData] = useState<
@@ -87,22 +88,20 @@ const Dashboard = () => {
     }
   }
 
+  useEffect(() => {
+    // commented out for uae corridor
+    // getGatewayList()
+    // fetchProductConfig('IN')
+    fetchConsumersData()
+    setIsLoading(true)
+    getOutwardTransactionsList()
+    setSelectedApp('Dashboard')
 
- useEffect(() => {
-  // commented out for uae corridor
-  // getGatewayList()
-  // fetchProductConfig('IN')
-  fetchConsumersData()
-  setIsLoading(true)
-  getOutwardTransactionsList()
-  setSelectedApp('Dashboard')
+    // transaction_service.getTransactionSummary(userCountry).then((data) => {
 
-  // transaction_service.getTransactionSummary(userCountry).then((data) => {
-  
-
-  //   setapplicantData(data?.data)
-  // })
-}, [])
+    //   setapplicantData(data?.data)
+    // })
+  }, [])
 
   const bankAccounts = [
     {
@@ -415,192 +414,194 @@ const Dashboard = () => {
   const visibleAnalytics = userAnalytics.filter((p) => !p.hidden)
 
   return (
-    <Box sx={{ width: '85vw', overflowX: 'hidden', height: '85vh' }}>
-      <Typography variant="h4" gutterBottom sx={{ mt: 0, mb: 1 }}>
-        <b>Dashboard </b>
-      </Typography>
-      <CompactLocationBar />
-      <Grid container spacing={2}>
-        {/* LEFT SIDE (Balances + Consumers + Volume + Recent Transactions) */}
-        <Grid item xs={12} md={12}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={5}>
-              {/* Available Balances */}
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.DASHBOARD}>
+      <Box sx={{ width: '85vw', overflowX: 'hidden', height: '85vh' }}>
+        <Typography variant="h4" gutterBottom sx={{ mt: 0, mb: 1 }}>
+          <b>Dashboard</b>
+        </Typography>
+        <CompactLocationBar />
+        <Grid container spacing={2}>
+          {/* LEFT SIDE (Balances + Consumers + Volume + Recent Transactions) */}
+          <Grid item xs={12} md={12}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={5}>
+                {/* Available Balances */}
 
-              {userCountry !== 'UAE' && (
-                <Card sx={{ border: '2px solid', borderColor: '#79CBF0', mb: 2, p: 1 }}>
-                  <CardContent sx={{}}>
-                    <Grid container spacing={2}>
-                      <HorizontalCardCarousel />
+                {userCountry !== 'UAE' && (
+                  <Card sx={{ border: '2px solid', borderColor: '#79CBF0', mb: 2, p: 1 }}>
+                    <CardContent sx={{}}>
+                      <Grid container spacing={2}>
+                        <HorizontalCardCarousel />
 
-                      {bankAccounts
-                        .filter((e) => e.country == userCountry)
-                        .map((bank, index) => {
-                          const colors = ['green', 'red', 'goldenrod'] // cycle
-                          const borderColor = colors[index % colors.length]
-                          const isActive = bank.name.toLowerCase().includes('icici')
+                        {bankAccounts
+                          .filter((e) => e.country == userCountry)
+                          .map((bank, index) => {
+                            const colors = ['green', 'red', 'goldenrod'] // cycle
+                            const borderColor = colors[index % colors.length]
+                            const isActive = bank.name.toLowerCase().includes('icici')
 
-                          return (
-                            <Grid item xs={6} key={index}>
-                              <Box
-                                sx={{
-                                  border: `3px solid ${borderColor}`,
-                                  borderRadius: 2,
-                                  p: 2,
-                                  mb: 0,
-                                  display: 'flex',
-                                  justifyContent: 'space-between',
-
-                                  flexDirection: 'column',
-                                  // alignItems: 'center',
-                                  opacity: isActive ? 1 : 0.5,
-
-                                  pointerEvents: isActive ? 'auto' : 'none',
-                                }}
-                              >
-                                {/* Left side: Country + Bank */}
+                            return (
+                              <Grid item xs={6} key={index}>
                                 <Box
                                   sx={{
-                                    minWidth: '40%',
+                                    border: `3px solid ${borderColor}`,
+                                    borderRadius: 2,
+                                    p: 2,
+                                    mb: 0,
                                     display: 'flex',
                                     justifyContent: 'space-between',
-                                    flexDirection: 'row',
+
+                                    flexDirection: 'column',
+                                    // alignItems: 'center',
+                                    opacity: isActive ? 1 : 0.5,
+
+                                    pointerEvents: isActive ? 'auto' : 'none',
                                   }}
                                 >
-                                  <Typography variant="body2" color="text.secondary">
-                                    <strong> {bank.name}</strong>
-                                  </Typography>
-                                  <Typography variant="body2" fontWeight="bold" sx={{ color: 'primary.main' }}>
-                                    {bank.country}
-                                  </Typography>
-                                </Box>
+                                  {/* Left side: Country + Bank */}
+                                  <Box
+                                    sx={{
+                                      minWidth: '40%',
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      flexDirection: 'row',
+                                    }}
+                                  >
+                                    <Typography variant="body2" color="text.secondary">
+                                      <strong> {bank.name}</strong>
+                                    </Typography>
+                                    <Typography variant="body2" fontWeight="bold" sx={{ color: 'primary.main' }}>
+                                      {bank.country}
+                                    </Typography>
+                                  </Box>
 
-                                <Box>
-                                  <Typography fontWeight="bold" variant="body1" sx={{ textAlign: 'center', mt: 1 }}>
-                                    {
-                                      //@ts-ignore
-                                      bank.balance.toLocaleString('en-IN')
-                                    }
-                                  </Typography>
+                                  <Box>
+                                    <Typography fontWeight="bold" variant="body1" sx={{ textAlign: 'center', mt: 1 }}>
+                                      {
+                                        //@ts-ignore
+                                        bank.balance.toLocaleString('en-IN')
+                                      }
+                                    </Typography>
+                                  </Box>
                                 </Box>
-                              </Box>
-                            </Grid>
-                          )
-                        })}
+                              </Grid>
+                            )
+                          })}
+                      </Grid>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Consumers */}
+                <Card sx={{ border: '2px solid', borderColor: '#79CBF0' }}>
+                  <CardContent>
+                    <Typography variant="subtitle1" fontWeight={700} gutterBottom>
+                      User Analytics
+                    </Typography>
+                    <Grid container spacing={2}>
+                      {visibleAnalytics.map((userItem: any) => (
+                        <Grid item xs={Math.floor(12 / visibleAnalytics.length)}>
+                          <Box
+                            sx={{
+                              background: userItem.background,
+                              borderRadius: 2,
+                              p: 2,
+                              textAlign: 'center',
+                              color: 'black',
+                            }}
+                          >
+                            <Typography variant="h6" fontWeight={700}>
+                              {userItem.count}
+                            </Typography>
+                            <Typography variant="body2">{userItem.label}</Typography>
+                            <Typography variant="caption" fontWeight="bold">
+                              {userItem.subLabel}
+                            </Typography>
+                          </Box>
+                        </Grid>
+                      ))}
                     </Grid>
                   </CardContent>
                 </Card>
-              )}
+              </Grid>
 
-              {/* Consumers */}
-              <Card sx={{ border: '2px solid', borderColor: '#79CBF0' }}>
-                <CardContent>
-                  <Typography variant="subtitle1" fontWeight={700} gutterBottom>
-                    User Analytics
-                  </Typography>
-                  <Grid container spacing={2}>
-                    {visibleAnalytics.map((userItem: any) => (
-                      <Grid item xs={Math.floor(12 / visibleAnalytics.length)}>
-                        <Box
-                          sx={{
-                            background: userItem.background,
-                            borderRadius: 2,
-                            p: 2,
-                            textAlign: 'center',
-                            color: 'black',
-                          }}
-                        >
-                          <Typography variant="h6" fontWeight={700}>
-                            {userItem.count}
-                          </Typography>
-                          <Typography variant="body2">{userItem.label}</Typography>
-                          <Typography variant="caption" fontWeight="bold">
-                            {userItem.subLabel}
-                          </Typography>
-                        </Box>
-                      </Grid>
-                    ))}
-                  </Grid>
-                </CardContent>
-              </Card>
+              <Grid item xs={12} md={7}>
+                <Card sx={{ border: '2px solid', borderColor: '#79CBF0', height: '100%' }}>
+                  <CardContent>
+                    <Typography variant="subtitle1" fontWeight={700}>
+                      Volume
+                    </Typography>
+                    <TransactionPanel />
+                  </CardContent>
+                </Card>
+              </Grid>
             </Grid>
 
-            <Grid item xs={12} md={7}>
-              <Card sx={{ border: '2px solid', borderColor: '#79CBF0', height: '100%' }}>
-                <CardContent>
-                  <Typography variant="subtitle1" fontWeight={700}>
-                    Volume
-                  </Typography>
-                  <TransactionPanel />
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
+            {/* Recent Transactions */}
 
-          {/* Recent Transactions */}
-
-          <Grid item xs={12} md={12}>
-            <Box sx={{ mt: 0, mb: 1, marginTop: '20px' }}>
-              <Typography variant="h4" gutterBottom fontWeight="bold" color="primary">
-                Recent Transactions
-              </Typography>
-              <Box sx={{ height: 400, width: '100%' }}>
-                {isLoading ? (
-                  <>
-                    <Skeleton variant="rectangular" height={40} sx={{ mb: 1 }} />
-                    <Skeleton variant="rectangular" height={40} sx={{ mb: 1 }} />
-                  </>
-                ) : recentTransaction?.length === 0 ? (
-                  <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
-                    No data found
-                  </Typography>
-                ) : (
-                  <DataGrid
-                    rows={recentTransaction.map((transaction: any, index: number) => ({
-                      id: index + 1,
-                      sno: index + 1,
-                      transactionId: transaction?.transactionOutward?.transactionNumber,
-                      sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
-                      receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
-                      amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
-                      reported:
-                        transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
-                      date: helper.convertDateAndTime(transaction?.transactionOutward?.createdLocalDateTime),
-                      status: transaction?.transactionOutward?.reportingStatus,
-                    }))}
-                    columns={filteredRecentTransColumns}
-                    filterModel={filterModel}
-                    onFilterModelChange={(model) => setFilterModel(model)}
-                    columnVisibilityModel={columnVisibilityModel}
-                    onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
-                    initialState={{
-                      pagination: { paginationModel: { pageSize: 10, page: 0 } },
-                    }}
-                    pageSizeOptions={[5, 10, 20]}
-                    disableRowSelectionOnClick
-                    slots={{ toolbar: CustomToolbar }}
-                    sx={{
-                      '& .MuiDataGrid-cell': { borderBottom: '1px solid #e0e0e0' },
-                      '& .MuiDataGrid-columnHeaders': {
-                        fontWeight: 'bold',
-                        borderBottom: '2px solid #1976d2',
-                      },
-                      '& .MuiDataGrid-columnHeaderTitle': {
-                        fontWeight: 'bold',
-                        fontSize: '1.1rem',
-                      },
-                    }}
-                    disableColumnMenu
-                  />
-                )}
+            <Grid item xs={12} md={12}>
+              <Box sx={{ mt: 0, mb: 1, marginTop: '20px' }}>
+                <Typography variant="h4" gutterBottom fontWeight="bold" color="primary">
+                  Recent Transactions
+                </Typography>
+                <Box sx={{ height: 400, width: '100%' }}>
+                  {isLoading ? (
+                    <>
+                      <Skeleton variant="rectangular" height={40} sx={{ mb: 1 }} />
+                      <Skeleton variant="rectangular" height={40} sx={{ mb: 1 }} />
+                    </>
+                  ) : recentTransaction?.length === 0 ? (
+                    <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                      No data found
+                    </Typography>
+                  ) : (
+                    <DataGrid
+                      rows={recentTransaction.map((transaction: any, index: number) => ({
+                        id: index + 1,
+                        sno: index + 1,
+                        transactionId: transaction?.transactionOutward?.transactionNumber,
+                        sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
+                        receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
+                        amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
+                        reported:
+                          transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
+                        date: helper.convertDateAndTime(transaction?.transactionOutward?.createdLocalDateTime),
+                        status: transaction?.transactionOutward?.reportingStatus,
+                      }))}
+                      columns={filteredRecentTransColumns}
+                      filterModel={filterModel}
+                      onFilterModelChange={(model) => setFilterModel(model)}
+                      columnVisibilityModel={columnVisibilityModel}
+                      onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
+                      initialState={{
+                        pagination: { paginationModel: { pageSize: 10, page: 0 } },
+                      }}
+                      pageSizeOptions={[5, 10, 20]}
+                      disableRowSelectionOnClick
+                      slots={{ toolbar: CustomToolbar }}
+                      sx={{
+                        '& .MuiDataGrid-cell': { borderBottom: '1px solid #e0e0e0' },
+                        '& .MuiDataGrid-columnHeaders': {
+                          fontWeight: 'bold',
+                          borderBottom: '2px solid #1976d2',
+                        },
+                        '& .MuiDataGrid-columnHeaderTitle': {
+                          fontWeight: 'bold',
+                          fontSize: '1.1rem',
+                        },
+                      }}
+                      disableColumnMenu
+                    />
+                  )}
+                </Box>
               </Box>
-            </Box>
+            </Grid>
           </Grid>
-        </Grid>
 
-        {/* RIGHT SIDE (Active Channels + Integrations) */}
-      </Grid>
-    </Box>
+          {/* RIGHT SIDE (Active Channels + Integrations) */}
+        </Grid>
+      </Box>
+    </HasPermission>
   )
 }
 

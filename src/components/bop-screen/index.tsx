@@ -91,7 +91,6 @@ const BopScreen: React.FC = () => {
     const fetchFieldValidations = async () => {
       try {
         const response = await validation.getScreenFieldvalidation('BOP', local_service.get_staff_country(), 'W')
-
         if (response?.data) {
           setFieldValidations(response.data)
 
@@ -633,7 +632,8 @@ const BopScreen: React.FC = () => {
 
           <Box mt={3}>
             <Typography variant="h5" gutterBottom>
-              {getLabel('Resident_Details') || 'Resident Details'}
+              {/* {getLabel('Resident_Details') || 'Customer Details'} */}
+              Customer Details
             </Typography>
 
             <Grid container spacing={2} mt={1}>
@@ -1009,7 +1009,8 @@ const BopScreen: React.FC = () => {
             <Grid item xs={2.3}>
               <TextField
                 size="small"
-                label={getLabel('Non_Resident_First_Name') || 'Non Resident First Name'}
+                label={getLabel('First_Name') || 'First Name'}
+                // label={getLabel('Non_Resident_First_Name') || 'Non Resident First Name'}
                 variant="outlined"
                 name="benificiary_first_name"
                 value={formData.benificiary_first_name || ''}
@@ -1021,7 +1022,8 @@ const BopScreen: React.FC = () => {
               <Grid item xs={2.3}>
                 <TextField
                   size="small"
-                  label={getLabel('Non_Resident_Middle_Name') || 'Non Resident Middle Name'}
+                  label={getLabel('Middle_Name') || 'Middle Name'}
+                  // label={getLabel('Non_Resident_Middle_Name') || 'Non Resident Middle Name'}
                   variant="outlined"
                   name="benificiary_middle_name"
                   value={formData.benificiary_middle_name || ''}
@@ -1033,7 +1035,8 @@ const BopScreen: React.FC = () => {
             <Grid item xs={2.3}>
               <TextField
                 size="small"
-                label={getLabel('Non_Resident_Last_Name') || 'Non Resident Last Name'}
+                label={getLabel('Last_Name') || 'Last Name'}
+                // label={getLabel('Non_Resident_Last_Name') || 'Non Resident Last Name'}
                 variant="outlined"
                 name="benificiary_last_name"
                 value={formData.benificiary_last_name || ''}

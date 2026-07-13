@@ -75,13 +75,13 @@ const BopTable: React.FC = () => {
     },
     {
       field: 'name',
-      headerName: 'Resident Name',
+      headerName: 'Customer Name',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'beneficiary_name',
-      headerName: 'Non Resident Name',
+      headerName: 'Beneficiary Name',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
@@ -194,7 +194,9 @@ const BopTable: React.FC = () => {
       ),
     },
   ]
-  const filteredColumns = (userCountry === 'UAE' && columns.filter((col) => col.field !== 'sap_status' && col.field !== 'status')) || columns
+  const filteredColumns =
+    (userCountry === 'UAE' && columns.filter((col) => col.field !== 'sap_status' && col.field !== 'status' && col.field !== 'transaction_attempt')) ||
+    columns
 
   const getVisibleFilteredRows = () => {
     const visibleCols = filteredColumns.filter(
@@ -297,7 +299,7 @@ const BopTable: React.FC = () => {
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.PAYMENT_INFORMATION}>
       <Box sx={{ width: '80vw', height: '70vh' }}>
         <Typography variant="h4" gutterBottom>
-          {userCountry === 'UAE' ? <strong>Payment Information</strong> : <strong>BOP LISTING</strong>}
+          {userCountry === 'UAE' ? <strong>Regulatory Information</strong> : <strong>BOP LISTING</strong>}
         </Typography>
         {bopData && (
           <DataGrid

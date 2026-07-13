@@ -337,8 +337,8 @@ const UserAdd = () => {
     const isAnyFieldEmpty = requiredFields.some((field) => !field || field.toString().trim() === '')
 
     const hasPermission = staffId
-      ? helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canUpdate')
-      : helper_service.checkUserHasPermission(local_service.get_modules()?.STAFF, 'canCreate')
+      ? helper_service.checkUserHasPermission(local_service.get_modules()?.USER, 'canUpdate')
+      : helper_service.checkUserHasPermission(local_service.get_modules()?.USER, 'canCreate')
 
     return !hasPermission || isAnyFieldEmpty
   }
@@ -360,7 +360,7 @@ const UserAdd = () => {
   }
 
   return (
-    <HasPermission permission={'canRead'} module={local_service.get_modules()?.STAFF}>
+    <HasPermission permission={'canRead'} module={local_service.get_modules()?.USER}>
       <Box sx={{ width: '50vw' }}>
         <Typography
           mb={2}

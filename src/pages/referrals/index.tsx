@@ -89,7 +89,7 @@ const ReferralTable: React.FC = () => {
     },
     {
       field: 'code',
-      headerName: 'Code',
+      headerName: 'Coupon Code',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
@@ -127,11 +127,11 @@ const ReferralTable: React.FC = () => {
 
     {
       field: 'applicantId',
-      headerName: 'Applicant ID',
+      headerName: 'Customer ID',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: GridRenderCellParams) => (
-        <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate(`/applicant-details/${params.value}`)}>
+        <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate(`/customer-details/${params.value}`)}>
           {params.value}
         </span>
       ),
