@@ -190,7 +190,7 @@ const TransactionDetailScreen = () => {
                   variant="filled"
                   fullWidth
                   //@ts-ignore
-                  defaultValue={transactionDetails.receiveCountry}
+                  defaultValue={transactionDetails?.receiveCountry}
                   size="small"
                   disabled
                 />
