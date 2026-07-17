@@ -184,14 +184,4 @@ export class UserService extends BaseService {
       throw new Error(e as any)
     }
   }
-
-  //   async getSuburbList() {
-  //   const url = '/api/static-table/states/ZA';
-  //   try {
-  //     const { data } = await api1.get(url);
-  //     return data;
-  //   } catch (error) {
-  //     throw new Error(error as any);
-  //   }
-  // }
 }

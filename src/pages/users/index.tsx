@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { DataGrid, GridColDef, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton } from '@mui/x-data-grid'
-import { Switch, Box, Typography, Button, useTheme } from '@mui/material'
+import { Switch, Box, Typography, Button, useTheme, Tooltip } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { useNavigate } from 'react-router-dom'
 import { UserService } from '@/services/user.service'
@@ -101,7 +101,30 @@ const UserTable: React.FC = () => {
     { field: 'roleDescription', headerName: 'Role', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'staffBranch', headerName: 'Staff Branch', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'staffContactNumber', headerName: 'Contact', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'staffCountry', headerName: 'Country', flex: 1, headerClassName: 'super-app-theme--header' },
+    {
+      field: 'staffCountry',
+      headerName: 'Country',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
+    },
     { field: 'username', headerName: 'Username', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'email', headerName: 'Email', flex: 1, headerClassName: 'super-app-theme--header' },
     {

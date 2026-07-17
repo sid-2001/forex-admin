@@ -9,7 +9,7 @@ import {
   GridFilterModel,
 } from '@mui/x-data-grid'
 import { useNavigate } from 'react-router-dom'
-import { Box, Button } from '@mui/material'
+import { Box, Button, Tooltip } from '@mui/material'
 import LoaderUI from '@/components/loader/loader'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
@@ -153,7 +153,30 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     },
     { field: 'dob', headerName: 'DOB', flex: 1, headerClassName: 'super-app-theme--header' },
 
-    { field: 'residentialAddressCountry', headerName: 'Residence Country', flex: 1, headerClassName: 'super-app-theme--header' },
+    {
+      field: 'residentialAddressCountry',
+      headerName: 'Residence Country',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
+    },
 
     { field: 'kycStatus', headerName: 'KYC Status', flex: 1, headerClassName: 'super-app-theme--header' },
 

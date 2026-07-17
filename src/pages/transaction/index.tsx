@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Box, Button, Typography, Chip, ToggleButton, ToggleButtonGroup, useTheme, IconButton, Modal } from '@mui/material'
+import { Box, Button, Typography, Chip, ToggleButton, ToggleButtonGroup, useTheme, IconButton, Modal, Tooltip } from '@mui/material'
 import { DataGrid, GridColumnVisibilityModel, GridToolbarColumnsButton, GridToolbarFilterButton } from '@mui/x-data-grid'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { TransactionInward, TransactionOutward } from '@/types/transaction.type'
@@ -109,6 +109,24 @@ const TransactionListing = () => {
       headerName: 'Destination',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
     },
     {
       field: 'value',
@@ -122,6 +140,24 @@ const TransactionListing = () => {
       headerName: 'Principal Currency',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
     },
     {
       field: 'settlementAmount',
@@ -141,6 +177,24 @@ const TransactionListing = () => {
       headerName: 'Settlement Currency',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
     },
     {
       field: 'applicant',
@@ -361,9 +415,78 @@ const TransactionListing = () => {
   const inward_columns = [
     { field: 'transactionNumberIw', headerName: 'Transaction Number IW', width: 200, headerClassName: 'super-app-theme--header' },
     { field: 'owTransactionNumber', headerName: 'OW Transaction Number', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'sendingCountry', headerName: 'Sending Country', width: 130, headerClassName: 'super-app-theme--header' },
-    { field: 'receivingCountry', headerName: 'Receiving Country', width: 130, headerClassName: 'super-app-theme--header' },
-    { field: 'settlementCurrency', headerName: 'Settlement Currency', width: 150, headerClassName: 'super-app-theme--header' },
+    {
+      field: 'sendingCountry',
+      headerName: 'Sending Country',
+      width: 130,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
+    },
+    {
+      field: 'receivingCountry',
+      headerName: 'Receiving Country',
+      width: 130,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
+    },
+    {
+      field: 'settlementCurrency',
+      headerName: 'Settlement Currency',
+      width: 150,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
+    },
     // { field: 'principalCurrency', headerName: 'Principal Currency', width: 150, headerClassName: 'super-app-theme--header' },
 
     // { field: 'gatewayId', headerName: 'Gateway Id', width: 100, headerClassName: 'super-app-theme--header' },
