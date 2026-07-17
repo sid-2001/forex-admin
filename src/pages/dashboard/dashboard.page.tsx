@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react'
-import { Box, Card, CardContent, Typography, Grid, CardMedia, Switch, Skeleton, Button } from '@mui/material'
+import { Box, Card, CardContent, Typography, Grid, CardMedia, Switch, Skeleton, Button, Tooltip } from '@mui/material'
 import { TransactionService } from '@/services/transaction.service'
 import { PaymentGateway } from '@/types/static.type'
 import staticdataService from '@/services/staticdata.service'
@@ -153,17 +153,86 @@ const Dashboard = () => {
     }, 2000)
   }, [loader])
 
+  const reformatCountryCurrencyValue = (value: any) =>
+    value
+      .split('|')
+      .map((part: any) => part.trim().replace(/\s*\(.*?\)/, ''))
+      .join(' | ')
+
   // 🔝 Put this at the top of your file (before the component)
   const RECENT_TRANSACTIONS_COLUMNS = [
     { field: 'sno', headerName: 'Sno.', flex: 0.5 },
     { field: 'transactionId', headerName: 'Transaction ID', flex: 1 },
-    { field: 'sentFrom', headerName: 'Sent From', flex: 1 },
-    { field: 'receivedIn', headerName: 'Received In', flex: 1 },
+    {
+      field: 'sentFrom',
+      headerName: 'Sent From',
+      flex: 1,
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {reformatCountryCurrencyValue(params?.value)}
+            </Box>
+          </Tooltip>
+        )
+      },
+      // renderCell: (params: any) => (params.value ? reformatCountryCurrencyValue(params.value) : '')
+    },
+    {
+      field: 'receivedIn',
+      headerName: 'Received In',
+      flex: 1,
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {reformatCountryCurrencyValue(params?.value)}
+            </Box>
+          </Tooltip>
+        )
+      },
+    },
     {
       field: 'amount',
       headerName: 'Amount',
       flex: 1,
-      renderCell: (params: any) => <span style={{ color: 'green', fontWeight: 'bold' }}>{params.value}</span>,
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                color: 'green',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
     },
     { field: 'reported', headerName: 'Reported', flex: 0.8 },
     { field: 'date', headerName: 'Date & Time', flex: 1 },

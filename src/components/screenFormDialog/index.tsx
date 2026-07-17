@@ -13,11 +13,11 @@ const VALIDATION_RULES = {
     patternMessage: 'Country code should be 2-3 uppercase letters',
   },
   screencode: {
-    message: 'Screen Code cannot exceed 3 characters',
+    message: 'Screen Code cannot exceed 20 characters',
     pattern: /^[A-Za-z\s]+$/,
     patternMessage: 'Only alphabets allowed',
     required: true,
-    max: 3,
+    max: 20,
   },
   description: {
     message: 'Description is required',

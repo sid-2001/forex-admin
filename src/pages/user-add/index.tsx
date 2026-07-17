@@ -65,6 +65,7 @@ const UserAdd = () => {
     ZA: 4,
     GR: 5, // Example for Greece
     UAE: 5,
+    ZAF: 4,
   }
 
   const handleToggleChangePermisson = (
