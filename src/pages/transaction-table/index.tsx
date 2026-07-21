@@ -56,6 +56,13 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
       ),
     },
     {
+      field: 'platformTransactionReferenceId',
+      headerName: 'Lulu Transaction ID',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+
+    {
       field: 'sendCountry',
       headerName: 'Sender Country',
       flex: 1,

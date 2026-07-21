@@ -119,7 +119,10 @@ const LoginPage = () => {
         password,
       })
 
+      console.log(response, '-------------')
+
       if (response?.data) {
+        console.log(response.data, '------data-------')
         const { data } = response
         fetchAllModulesList()
 

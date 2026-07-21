@@ -141,6 +141,8 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
         </span>
       ),
     },
+    { field: 'platformReferenceId', headerName: 'Lulu Customer ID', flex: 1, headerClassName: 'super-app-theme--header' },
+
     { field: 'firstName', headerName: 'First Name', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'lastName', headerName: 'Last Name', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'username', headerName: 'Username', flex: 1, headerClassName: 'super-app-theme--header' },
@@ -153,36 +155,34 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     },
     { field: 'dob', headerName: 'DOB', flex: 1, headerClassName: 'super-app-theme--header' },
 
-    {
-      field: 'residentialAddressCountry',
-      headerName: 'Residence Country',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return (
-          <Tooltip title={params?.value} placement="top">
-            <Box
-              component="span"
-              sx={{
-                cursor: 'pointer',
-                color: 'text.primary',
-                '&:hover': {
-                  color: 'primary.main',
-                },
-              }}
-            >
-              {params?.value?.replace(/\s*\(.*?\)/, '')}
-            </Box>
-          </Tooltip>
-        )
-      },
-    },
+    // {
+    //   field: 'residentialAddressCountry',
+    //   headerName: 'Residence Country',
+    //   flex: 1,
+    //   headerClassName: 'super-app-theme--header',
+    //   renderCell: (params: any) => {
+    //     return (
+    //       <Tooltip title={params?.value} placement="top">
+    //         <Box
+    //           component="span"
+    //           sx={{
+    //             cursor: 'pointer',
+    //             color: 'text.primary',
+    //             '&:hover': {
+    //               color: 'primary.main',
+    //             },
+    //           }}
+    //         >
+    //           {params?.value?.replace(/\s*\(.*?\)/, '')}
+    //         </Box>
+    //       </Tooltip>
+    //     )
+    //   },
+    // },
 
     { field: 'kycStatus', headerName: 'KYC Status', flex: 1, headerClassName: 'super-app-theme--header' },
 
     { field: 'amlKycStatus', headerName: 'AML Status', flex: 1, headerClassName: 'super-app-theme--header' },
-
-    { field: 'platformReferenceId', headerName: 'Lulu Customer Id', flex: 1, headerClassName: 'super-app-theme--header' },
   ]
 
   return (

@@ -413,30 +413,32 @@ const ApplicantPage = () => {
                           {applicantDetails?.amlKycStatus}
                         </Typography>
                       </Box>
-                      <Box>
-                        <Typography
-                          sx={{
-                            fontSize: '0.9rem',
-                            color: '#334155',
-                            minHeight: 24,
-                            fontWeight: 700,
-                            letterSpacing: '1px',
-                          }}
-                        >
-                          Lulu Customer Id
-                        </Typography>
-                        <Typography
-                          sx={{
-                            fontSize: '0.9rem',
-                            color: '#334155',
-                            minHeight: 24,
-                            fontWeight: 700,
-                            letterSpacing: '1px',
-                          }}
-                        >
-                          {applicantDetails?.platformReferenceId}
-                        </Typography>
-                      </Box>
+                      {userCountry === 'UAE' && (
+                        <Box>
+                          <Typography
+                            sx={{
+                              fontSize: '0.9rem',
+                              color: '#334155',
+                              minHeight: 24,
+                              fontWeight: 700,
+                              letterSpacing: '1px',
+                            }}
+                          >
+                            Lulu Customer ID
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontSize: '0.9rem',
+                              color: '#334155',
+                              minHeight: 24,
+                              fontWeight: 700,
+                              letterSpacing: '1px',
+                            }}
+                          >
+                            {applicantDetails?.platformReferenceId}
+                          </Typography>
+                        </Box>
+                      )}
                     </Box>
                   </Card>
                 </Box>
