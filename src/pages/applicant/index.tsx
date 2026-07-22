@@ -365,54 +365,7 @@ const ApplicantPage = () => {
                           {applicantDetails?.applicantId}
                         </Typography>
                       </Box>
-                      <Box>
-                        <Typography
-                          sx={{
-                            fontSize: '0.9rem',
-                            color: '#334155',
-                            minHeight: 24,
-                            fontWeight: 700,
-                            letterSpacing: '1px',
-                          }}
-                        >
-                          KYC Status
-                        </Typography>
-                        <Typography
-                          sx={{
-                            fontSize: '0.9rem',
-                            color: '#334155',
-                            minHeight: 24,
-                            fontWeight: 700,
-                            letterSpacing: '1px',
-                          }}
-                        >
-                          {applicantDetails?.kycStatus}
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography
-                          sx={{
-                            fontSize: '0.9rem',
-                            color: '#334155',
-                            minHeight: 24,
-                            fontWeight: 700,
-                            letterSpacing: '1px',
-                          }}
-                        >
-                          AML Status
-                        </Typography>
-                        <Typography
-                          sx={{
-                            fontSize: '0.9rem',
-                            color: '#334155',
-                            minHeight: 24,
-                            fontWeight: 700,
-                            letterSpacing: '1px',
-                          }}
-                        >
-                          {applicantDetails?.amlKycStatus}
-                        </Typography>
-                      </Box>
+
                       {userCountry === 'UAE' && (
                         <Box>
                           <Typography
@@ -439,6 +392,81 @@ const ApplicantPage = () => {
                           </Typography>
                         </Box>
                       )}
+
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          Status
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          {applicantDetails?.activeStatus ? 'Active' : 'Inactive'}
+                        </Typography>
+                      </Box>
+
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          KYC Status
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          {applicantDetails?.kycStatus}
+                        </Typography>
+                      </Box>
+
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          AML Status
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          {applicantDetails?.amlKycStatus}
+                        </Typography>
+                      </Box>
                     </Box>
                   </Card>
                 </Box>

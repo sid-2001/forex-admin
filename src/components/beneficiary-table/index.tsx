@@ -1,9 +1,12 @@
-import { DataGrid } from '@mui/x-data-grid'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Box, Button } from '@mui/material'
 import HasPermission from '../permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { HelperService } from '@/helpers/helper'
+import LoaderUI from '../loader/loader'
+import FindReplaceIcon from '@mui/icons-material/FindReplace'
+import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridFilterModel } from '@mui/x-data-grid'
 
 const local_service = new LocalStorageService()
 const helper = new HelperService()
@@ -11,6 +14,7 @@ const helper = new HelperService()
 const BeneficiaryTable = ({ beneficiary }: { beneficiary: any }) => {
   const navigate = useNavigate()
   const userCountry = local_service?.get_staff_country()
+  const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
 
   const handleBeneficiaryIdClick = (
     //@ts-ignore
@@ -24,6 +28,27 @@ const BeneficiaryTable = ({ beneficiary }: { beneficiary: any }) => {
     return row?.beneficiaryMiddleName
       ? `${beneficiaryFirstName} ${row?.beneficiaryMiddleName} ${beneficiaryLastName}`
       : `${beneficiaryFirstName} ${beneficiaryLastName}`
+  }
+
+  const CustomToolbar = () => {
+    return (
+      <GridToolbarContainer sx={{ justifyContent: 'flex-start', gap: 1, py: 1 }}>
+        <GridToolbarColumnsButton />
+        <GridToolbarFilterButton />
+
+        {/* Reset Filters */}
+        <Button
+          variant="outlined"
+          color="primary"
+          size="small"
+          startIcon={<FindReplaceIcon />}
+          onClick={() => setFilterModel({ items: [] })}
+          sx={{ ml: 1 }}
+        >
+          Reset Filters
+        </Button>
+      </GridToolbarContainer>
+    )
   }
 
   const columns = [
@@ -110,9 +135,17 @@ const BeneficiaryTable = ({ beneficiary }: { beneficiary: any }) => {
             columns={filteredColumns}
             rows={beneficiary}
             getRowId={(row) => row.beneficiaryId}
-            //@ts-ignore
-            pageSize={5}
-            rowsPerPageOptions={[5]}
+            initialState={{
+              pagination: { paginationModel: { pageSize: 20, page: 0 } },
+            }}
+            pageSizeOptions={[10, 20, 50]}
+            slots={{
+              loadingOverlay: LoaderUI.LoadingOverlay,
+              toolbar: CustomToolbar, // 👈 Toolbar with reset filters
+            }}
+            disableColumnMenu
+            filterModel={filterModel}
+            onFilterModelChange={(model) => setFilterModel(model)}
           />
         ) : (
           <p>No beneficiaries found</p>

@@ -1,12 +1,36 @@
 import react, { useState } from 'react'
-import { DataGrid } from '@mui/x-data-grid'
-import { Box, Button, Dialog, DialogContent, DialogTitle, DialogActions, Chip } from '@mui/material'
+import { Box, Button, Dialog, DialogContent, DialogTitle, DialogActions, Chip, Tooltip } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { HelperService } from '@/helpers/helper'
 import { statusColors } from '@/contants/utils'
-
+import FindReplaceIcon from '@mui/icons-material/FindReplace'
+import LoaderUI from '../loader/loader'
+import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridFilterModel } from '@mui/x-data-grid'
 //@ts-ignore
 const ReferralDataGrid = ({ rows, columns }) => {
+  const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
+
+  const CustomToolbar = () => {
+    return (
+      <GridToolbarContainer sx={{ justifyContent: 'flex-start', gap: 1, py: 1 }}>
+        <GridToolbarColumnsButton />
+        <GridToolbarFilterButton />
+
+        {/* Reset Filters */}
+        <Button
+          variant="outlined"
+          color="primary"
+          size="small"
+          startIcon={<FindReplaceIcon />}
+          onClick={() => setFilterModel({ items: [] })}
+          sx={{ ml: 1 }}
+        >
+          Reset Filters
+        </Button>
+      </GridToolbarContainer>
+    )
+  }
+
   return (
     <DataGrid
       sx={{
@@ -29,11 +53,18 @@ const ReferralDataGrid = ({ rows, columns }) => {
       }}
       columns={columns}
       rows={rows || []}
-      //@ts-ignore
-      pageSize={5}
-      rowsPerPageOptions={[5]}
-      disableSelectionOnClick
       getRowId={(row) => row.referreeId || row.id}
+      initialState={{
+        pagination: { paginationModel: { pageSize: 20, page: 0 } },
+      }}
+      pageSizeOptions={[10, 20, 50]}
+      slots={{
+        loadingOverlay: LoaderUI.LoadingOverlay,
+        toolbar: CustomToolbar, // 👈 Toolbar with reset filters
+      }}
+      disableColumnMenu
+      filterModel={filterModel}
+      onFilterModelChange={(model) => setFilterModel(model)}
     />
   )
 }
@@ -55,10 +86,28 @@ const ReferralTransactions = ({
       headerName: 'Country Code',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
     },
     {
       field: 'transactionNumber',
-      headerName: 'Transaction Number',
+      headerName: 'Transaction ID',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
@@ -140,6 +189,24 @@ const ReferralTransactions = ({
       headerName: 'Country Code',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
     },
     {
       field: 'code',

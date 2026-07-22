@@ -1,8 +1,11 @@
-import React from 'react'
-import { DataGrid } from '@mui/x-data-grid'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import HasPermission from '@/components/permissionWrapper'
+import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridFilterModel } from '@mui/x-data-grid'
 import { LocalStorageService } from '@/helpers/local-storage-service'
+import LoaderUI from '@/components/loader/loader'
+import { Box, Button, Tooltip } from '@mui/material'
+import FindReplaceIcon from '@mui/icons-material/FindReplace'
 
 const local_service = new LocalStorageService()
 
@@ -21,6 +24,9 @@ interface TransactionTableProps {
 //@ts-ignore
 const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applicantId }) => {
   let navigate = useNavigate()
+  const userCountry = local_service?.get_staff_country()
+  // 🧹 Filter model state
+  const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
 
   const renderBeneficiaryFullName = (beneficiary: any) => {
     const { beneficiaryFirstName, beneficiaryLastName } = beneficiary
@@ -33,14 +39,8 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
 
   const columns = [
     {
-      field: 'id',
-      headerName: 'S. No',
-      flex: 0.5,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
       field: 'transactionNumber',
-      headerName: 'Transaction No.',
+      headerName: 'Transaction ID',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
@@ -67,12 +67,96 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
       headerName: 'Sender Country',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
+    },
+    {
+      field: 'currency',
+      headerName: 'Sender Currency',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
     },
     {
       field: 'receiveCountry',
       headerName: 'Receiver Country',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
+    },
+    {
+      field: 'principalCurrency',
+      headerName: 'Receiver Currency',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
     },
     {
       field: 'beneficiaryName',
@@ -96,6 +180,29 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
     },
   ]
 
+  const filteredColumns = userCountry !== 'UAE' ? columns.filter((item) => item.field !== 'platformTransactionReferenceId') : columns
+
+  const CustomToolbar = () => {
+    return (
+      <GridToolbarContainer sx={{ justifyContent: 'flex-start', gap: 1, py: 1 }}>
+        <GridToolbarColumnsButton />
+        <GridToolbarFilterButton />
+
+        {/* Reset Filters */}
+        <Button
+          variant="outlined"
+          color="primary"
+          size="small"
+          startIcon={<FindReplaceIcon />}
+          onClick={() => setFilterModel({ items: [] })}
+          sx={{ ml: 1 }}
+        >
+          Reset Filters
+        </Button>
+      </GridToolbarContainer>
+    )
+  }
+
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.TRANSACTION_OUTWARD}>
       {transaction.length > 0 ? (
@@ -118,12 +225,20 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
               fontSize: '16px',
             },
           }}
-          columns={columns}
+          columns={filteredColumns}
           rows={transaction}
-          //@ts-ignore
-          pageSize={5}
-          rowsPerPageOptions={[5]}
+          initialState={{
+            pagination: { paginationModel: { pageSize: 20, page: 0 } },
+          }}
+          pageSizeOptions={[10, 20, 50]}
           getRowId={(row: any) => row.id}
+          slots={{
+            loadingOverlay: LoaderUI.LoadingOverlay,
+            toolbar: CustomToolbar, // 👈 Toolbar with reset filters
+          }}
+          disableColumnMenu
+          filterModel={filterModel}
+          onFilterModelChange={(model) => setFilterModel(model)}
         />
       ) : (
         <p>No Transactions Found</p>
