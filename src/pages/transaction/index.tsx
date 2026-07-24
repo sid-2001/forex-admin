@@ -516,10 +516,6 @@ const TransactionListing = () => {
     //   headerClassName: 'super-app-theme--header',
     // },
     {
-      // field: 'charges',
-      // headerName: 'Charges',
-      // flex: 1,
-      // headerClassName: 'super-app-theme--header',
       field: 'charges',
       headerName: 'Charges (Inc Vat)',
       flex: 1,
@@ -886,77 +882,79 @@ const TransactionListing = () => {
           </ToggleButtonGroup>
         </Box>
 
-        {userCountry !== 'UAE' && (
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {/* Left group: text-style buttons */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 3 }}>
-              <Button
-                variant="text"
-                sx={{
-                  textTransform: 'none',
-                  borderBottom: '1px solid transparent',
-                  borderRadius: 0,
-                  color: 'text.primary',
-                  '&:hover': {
-                    borderBottomColor: 'primary.main',
-                    fontWeight: 'bold',
-                    backgroundColor: 'transparent',
-                  },
-                }}
-                onClick={() => handleNavigation('/recon-trx')}
-              >
-                Reconciliation
-              </Button>
-
-              <Button
-                variant="text"
-                sx={{
-                  textTransform: 'none',
-                  borderBottom: '1px solid transparent',
-                  borderRadius: 0,
-                  color: 'text.primary',
-                  '&:hover': {
-                    borderBottomColor: 'primary.main',
-                    fontWeight: 'bold',
-                    backgroundColor: 'transparent',
-                  },
-                }}
-                // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
-                onClick={() => handleNavigation('/utilization')}
-              >
-                Utilization Limit
-              </Button>
-
-              <Button
-                variant="text"
-                sx={{
-                  textTransform: 'none',
-                  borderBottom: '1px solid transparent',
-                  borderRadius: 0,
-                  color: 'text.primary',
-                  '&:hover': {
-                    borderBottomColor: 'primary.main',
-                    fontWeight: 'bold',
-                    backgroundColor: 'transparent',
-                  },
-                }}
-                // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
-                onClick={() => handleNavigation('/recon')}
-              >
-                Settlement
-              </Button>
-            </Box>
-
-            {/* Right: Transaction button */}
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {/* Left group: text-style buttons */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 3 }}>
             <Button
-              variant="contained"
-              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
-              onClick={() => handleNavigation('/sendmoney')}
+              variant="text"
+              sx={{
+                textTransform: 'none',
+                borderBottom: '1px solid transparent',
+                borderRadius: 0,
+                color: 'text.primary',
+                '&:hover': {
+                  borderBottomColor: 'primary.main',
+                  fontWeight: 'bold',
+                  backgroundColor: 'transparent',
+                },
+              }}
+              onClick={() => handleNavigation('/recon-trx')}
             >
-              + Transaction
+              Reconciliation
             </Button>
+
+            {userCountry !== 'UAE' && (
+              <>
+                <Button
+                  variant="text"
+                  sx={{
+                    textTransform: 'none',
+                    borderBottom: '1px solid transparent',
+                    borderRadius: 0,
+                    color: 'text.primary',
+                    '&:hover': {
+                      borderBottomColor: 'primary.main',
+                      fontWeight: 'bold',
+                      backgroundColor: 'transparent',
+                    },
+                  }}
+                  // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
+                  onClick={() => handleNavigation('/utilization')}
+                >
+                  Utilization Limit
+                </Button>
+
+                <Button
+                  variant="text"
+                  sx={{
+                    textTransform: 'none',
+                    borderBottom: '1px solid transparent',
+                    borderRadius: 0,
+                    color: 'text.primary',
+                    '&:hover': {
+                      borderBottomColor: 'primary.main',
+                      fontWeight: 'bold',
+                      backgroundColor: 'transparent',
+                    },
+                  }}
+                  // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
+                  onClick={() => handleNavigation('/recon')}
+                >
+                  Settlement
+                </Button>
+
+                {/* Right: Transaction button */}
+                <Button
+                  variant="contained"
+                  disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
+                  onClick={() => handleNavigation('/sendmoney')}
+                >
+                  + Transaction
+                </Button>
+              </>
+            )}
           </Box>
-        )}
+        </Box>
       </Box>
 
       <Box

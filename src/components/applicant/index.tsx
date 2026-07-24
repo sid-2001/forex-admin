@@ -17,6 +17,7 @@ import 'jspdf-autotable'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
 import DownloadIcon from '@mui/icons-material/Download'
 import FindReplaceIcon from '@mui/icons-material/FindReplace'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
 interface Applicant {
   applicantId: string
@@ -26,22 +27,36 @@ interface Applicant {
   dob: string
   residenceCountry: string
   applicantCreatedDate: string
+  email: string
+  phone: string
+}
+interface ContactDetails {
+  applicant: string
+  applicantContactDetailsId: string
+  contactCountryCode: string
+  contactDetails: string
+  contactType: string
 }
 
 interface Props {
   data: {
     applicant: Applicant
+    applicantContactDetails: ContactDetails[]
   }[]
   loading: boolean
 }
 
 const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
+  const local_service = new LocalStorageService()
+  const userCountry = local_service?.get_staff_country()
   const navigate = useNavigate()
 
   // Rows
   const rows = data.map((item) => ({
     id: item.applicant.applicantId,
     ...item.applicant,
+    email: item?.applicantContactDetails?.find((contactItem: any) => contactItem.contactType === 'email')?.contactDetails,
+    phone: item?.applicantContactDetails?.find((contactItem: any) => contactItem.contactType === 'phone')?.contactDetails,
   }))
 
   // 🧹 Filter model state
@@ -69,7 +84,7 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     const headers = columns.map((col) => col.headerName || col.field)
 
     // 🔹 Body
-    const body = rows.map((row) => columns.map((col) => row[col.field as keyof typeof row]))
+    const body: any = rows.map((row) => columns.map((col) => row[col.field as keyof typeof row]))
 
     const title = 'Applicants'
     const doc = new jsPDF({ unit: 'pt' })
@@ -141,6 +156,8 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
         </span>
       ),
     },
+    { field: 'platformReferenceId', headerName: 'Lulu Customer ID', flex: 1, headerClassName: 'super-app-theme--header' },
+
     { field: 'firstName', headerName: 'First Name', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'lastName', headerName: 'Last Name', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'username', headerName: 'Username', flex: 1, headerClassName: 'super-app-theme--header' },
@@ -152,38 +169,56 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
       renderCell: (params: any) => (params.row.gender === 'M' ? 'Male' : 'Female'),
     },
     { field: 'dob', headerName: 'DOB', flex: 1, headerClassName: 'super-app-theme--header' },
-
     {
-      field: 'residentialAddressCountry',
-      headerName: 'Residence Country',
+      field: 'email',
+      headerName: 'Email',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return (
-          <Tooltip title={params?.value} placement="top">
-            <Box
-              component="span"
-              sx={{
-                cursor: 'pointer',
-                color: 'text.primary',
-                '&:hover': {
-                  color: 'primary.main',
-                },
-              }}
-            >
-              {params?.value?.replace(/\s*\(.*?\)/, '')}
-            </Box>
-          </Tooltip>
-        )
-      },
+    },
+    {
+      field: 'phone',
+      headerName: 'Phone No',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'active',
+      headerName: 'Active/Inactive',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => (params.row.activeStatus ? 'Active' : 'Inactive'),
     },
 
+    // {
+    //   field: 'residentialAddressCountry',
+    //   headerName: 'Residence Country',
+    //   flex: 1,
+    //   headerClassName: 'super-app-theme--header',
+    //   renderCell: (params: any) => {
+    //     return (
+    //       <Tooltip title={params?.value} placement="top">
+    //         <Box
+    //           component="span"
+    //           sx={{
+    //             cursor: 'pointer',
+    //             color: 'text.primary',
+    //             '&:hover': {
+    //               color: 'primary.main',
+    //             },
+    //           }}
+    //         >
+    //           {params?.value?.replace(/\s*\(.*?\)/, '')}
+    //         </Box>
+    //       </Tooltip>
+    //     )
+    //   },
+    // },
+
     { field: 'kycStatus', headerName: 'KYC Status', flex: 1, headerClassName: 'super-app-theme--header' },
-
     { field: 'amlKycStatus', headerName: 'AML Status', flex: 1, headerClassName: 'super-app-theme--header' },
-
-    { field: 'platformReferenceId', headerName: 'Lulu Customer Id', flex: 1, headerClassName: 'super-app-theme--header' },
   ]
+
+  const filteredColumns = userCountry !== 'UAE' ? columns.filter((item) => item.field !== 'platformReferenceId') : columns
 
   return (
     <Box
@@ -198,7 +233,7 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     >
       <DataGrid
         rows={rows}
-        columns={columns}
+        columns={filteredColumns}
         filterModel={filterModel}
         onFilterModelChange={(model) => setFilterModel(model)}
         initialState={{

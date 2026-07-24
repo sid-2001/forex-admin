@@ -365,6 +365,59 @@ const ApplicantPage = () => {
                           {applicantDetails?.applicantId}
                         </Typography>
                       </Box>
+
+                      {userCountry === 'UAE' && (
+                        <Box>
+                          <Typography
+                            sx={{
+                              fontSize: '0.9rem',
+                              color: '#334155',
+                              minHeight: 24,
+                              fontWeight: 700,
+                              letterSpacing: '1px',
+                            }}
+                          >
+                            Lulu Customer ID
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontSize: '0.9rem',
+                              color: '#334155',
+                              minHeight: 24,
+                              fontWeight: 700,
+                              letterSpacing: '1px',
+                            }}
+                          >
+                            {applicantDetails?.platformReferenceId}
+                          </Typography>
+                        </Box>
+                      )}
+
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          Status
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          {applicantDetails?.activeStatus ? 'Active' : 'Inactive'}
+                        </Typography>
+                      </Box>
+
                       <Box>
                         <Typography
                           sx={{
@@ -389,6 +442,7 @@ const ApplicantPage = () => {
                           {applicantDetails?.kycStatus}
                         </Typography>
                       </Box>
+
                       <Box>
                         <Typography
                           sx={{
@@ -411,30 +465,6 @@ const ApplicantPage = () => {
                           }}
                         >
                           {applicantDetails?.amlKycStatus}
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography
-                          sx={{
-                            fontSize: '0.9rem',
-                            color: '#334155',
-                            minHeight: 24,
-                            fontWeight: 700,
-                            letterSpacing: '1px',
-                          }}
-                        >
-                          Lulu Customer Id
-                        </Typography>
-                        <Typography
-                          sx={{
-                            fontSize: '0.9rem',
-                            color: '#334155',
-                            minHeight: 24,
-                            fontWeight: 700,
-                            letterSpacing: '1px',
-                          }}
-                        >
-                          {applicantDetails?.platformReferenceId}
                         </Typography>
                       </Box>
                     </Box>
