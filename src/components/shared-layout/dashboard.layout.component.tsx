@@ -478,6 +478,18 @@ const MASTER_MENU = [
     icon: <LocalOfferIcon fontSize="small" />,
     path: 'coupons',
   },
+  {
+    label: 'FAQ',
+    name: 'FAQ',
+    icon: <LocalOfferIcon fontSize="small" />,
+    path: 'faq',
+  },
+  {
+    label: 'Menu Items',
+    name: 'Menu Items',
+    icon: <LocalOfferIcon fontSize="small" />,
+    path: 'menu-items',
+  },
 ]
 
 const chunkArray = (arr: any[], size: number) => {
@@ -563,264 +575,97 @@ const DashboardLayout = () => {
     })
   }
 
+  const iconStyle = {
+    fontSize: '2vh',
+    //@ts-ignore
+    color: theme.palette.primary.light,
+    '&:hover': {
+      //@ts-ignore
+      color: theme.palette.primary.main, // Change the color to blue on hover
+    },
+  }
+
   const menuItems = [
     {
-      icon: (
-        <ShowChartIcon
-          sx={{
-            //@ts-ignore
-            color: theme.palette.secondary.light,
-            fontSize: '2vh',
-            //@ts-ignore
-            color: theme.palette.primary.light,
-            '&:hover': {
-              //@ts-ignore
-              color: theme.palette.primary.main, // Change the color to blue on hover
-            },
-          }}
-        />
-      ),
+      icon: <ShowChartIcon sx={iconStyle} />,
       label: 'Dashboard',
       name: 'Dashboard',
     },
     {
-      icon: (
-        <PeopleOutlineIcon
-          sx={{
-            //@ts-ignore
-            color: theme.palette.secondary.light,
-            fontSize: '2vh',
-            //@ts-ignore
-            color: theme.palette.primary.light,
-            '&:hover': {
-              //@ts-ignore
-              color: theme.palette.primary.main, // Change the color to blue on hover
-            },
-          }}
-        />
-      ),
+      icon: <PeopleOutlineIcon sx={iconStyle} />,
       label: 'Customer',
       name: 'Customers',
     },
     {
-      icon: (
-        <>
-          <EmojiEventsIcon
-            sx={{
-              //@ts-ignore
-              fontSize: '2vh',
-              //@ts-ignore
-              color: theme.palette.primary.light, // Corrected theme usage
-            }}
-          />
-        </>
-      ),
+      icon: <EmojiEventsIcon sx={iconStyle} />,
       label: 'Rewards',
       name: 'Rewards',
     },
     {
-      icon: (
-        <CompareArrowsIcon
-          sx={{
-            //@ts-ignore
-            color: theme.palette.secondary.light,
-            fontSize: '2vh',
-            //@ts-ignore
-            color: theme.palette.primary.light,
-            '&:hover': {
-              //@ts-ignore
-              color: theme.palette.primary.main, // Change the color to blue on hover
-            },
-          }}
-        />
-      ),
+      icon: <CompareArrowsIcon sx={iconStyle} />,
       label: 'Transaction',
       name: 'Transactions',
     },
 
     {
-      icon: (
-        <AssessmentIcon
-          sx={{
-            fontSize: '2vh',
-            //@ts-ignore
-            color: theme.palette.primary.light,
-            '&:hover': {
-              //@ts-ignore
-              color: theme.palette.primary.main,
-            },
-          }}
-        />
-      ),
+      icon: <AssessmentIcon sx={iconStyle} />,
       label: 'transaction-dashboard',
       name: 'Transaction Dashboard',
     },
 
     {
-      icon: (
-        <ContactEmergencyIcon
-          sx={{
-            //@ts-ignore
-            color: theme.palette.secondary.light,
-            fontSize: '2vh',
-            //@ts-ignore
-            color: theme.palette.primary.light,
-            '&:hover': {
-              //@ts-ignore
-              color: theme.palette.primary.main, // Change the color to blue on hover
-            },
-          }}
-        />
-      ),
+      icon: <ContactEmergencyIcon sx={iconStyle} />,
       label: 'Kyc',
       name: 'KYC',
     },
 
     {
-      icon: (
-        <SourceIcon
-          sx={{
-            //@ts-ignore
-            fontSize: '2vh',
-            //@ts-ignore
-            color: theme.palette.primary.light, // Corrected theme usage
-          }}
-        />
-      ),
+      icon: <SourceIcon sx={iconStyle} />,
       label: 'Bop',
       name: staffCountry === 'UAE' ? 'Regulatory Information' : 'BOP',
     },
     {
-      icon: (
-        <>
-          <Person2Icon
-            sx={{
-              //@ts-ignore
-              fontSize: '2vh',
-              //@ts-ignore
-              color: theme.palette.primary.light, // Corrected theme usage
-            }}
-          />
-        </>
-      ),
+      icon: <Person2Icon sx={iconStyle} />,
       label: 'Profile',
       name: 'Users',
     },
     {
-      icon: (
-        <>
-          <SupervisedUserCircleIcon
-            sx={{
-              //@ts-ignore
-              fontSize: '2vh',
-              //@ts-ignore
-              color: theme.palette.primary.light, // Corrected theme usage
-            }}
-          />
-        </>
-      ),
+      icon: <SupervisedUserCircleIcon sx={iconStyle} />,
       label: 'Role',
       name: 'Roles',
     },
     {
-      icon: (
-        <>
-          <ViewModuleIcon
-            sx={{
-              //@ts-ignore
-              fontSize: '2vh',
-              //@ts-ignore
-              color: theme.palette.primary.light, // Corrected theme usage
-            }}
-          />
-        </>
-      ),
+      icon: <ViewModuleIcon sx={iconStyle} />,
       label: 'Module',
       name: 'Modules',
     },
 
     {
-      icon: (
-        <>
-          <AccountBalanceIcon
-            sx={{
-              //@ts-ignore
-              fontSize: '2vh',
-              //@ts-ignore
-              color: theme.palette.primary.light, // Corrected theme usage
-            }}
-          />
-        </>
-      ),
+      icon: <AccountBalanceIcon sx={iconStyle} />,
       label: 'Cdi',
       name: 'CDI',
     },
 
     {
-      icon: (
-        <>
-          <IconButton>
-            <WaterfallChartIcon
-              sx={{
-                fontSize: '2vh',
-                //@ts-ignore
-                color: theme.palette.primary.light,
-              }}
-            />
-          </IconButton>
-        </>
-      ),
+      icon: <WaterfallChartIcon sx={iconStyle} />,
       label: 'Static',
       name: 'Static Data',
     },
 
     {
-      icon: (
-        <>
-          <ErrorIcon
-            sx={{
-              //@ts-ignore
-              fontSize: '2vh',
-              //@ts-ignore
-              color: theme.palette.primary.light, // Corrected theme usage
-            }}
-          />
-        </>
-      ),
+      icon: <ErrorIcon sx={iconStyle} />,
       label: 'SarbErrors',
       name: 'Error Codes',
     },
 
     {
-      icon: (
-        <>
-          <LoyaltyIcon
-            sx={{
-              //@ts-ignore
-              fontSize: '2vh',
-              //@ts-ignore
-              color: theme.palette.primary.light, // Corrected theme usage
-            }}
-          />
-        </>
-      ),
+      icon: <LoyaltyIcon sx={iconStyle} />,
       label: 'Loyalty',
       name: 'Loyalty',
     },
 
     {
-      icon: (
-        <>
-          <LoyaltyIcon
-            sx={{
-              //@ts-ignore
-              fontSize: '2vh',
-              //@ts-ignore
-              color: theme.palette.primary.light, // Corrected theme usage
-            }}
-          />
-        </>
-      ),
+      icon: <LoyaltyIcon sx={iconStyle} />,
       label: 'Audit-Logs',
       name: 'Audit-Logs',
     },

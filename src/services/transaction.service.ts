@@ -232,7 +232,8 @@ export class TransactionService extends BaseService {
     }
   }
   async getReconTrx(): Promise<any> {
-    const url = `/api/transactions/recon/reconList`
+    // const url = `/api/transactions/recon/reconList`
+    const url = '/api/transactions/reconciliation/data'
     try {
       const data = await api1.get(url)
       return data

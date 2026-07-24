@@ -27,6 +27,8 @@ interface Applicant {
   dob: string
   residenceCountry: string
   applicantCreatedDate: string
+  email: string
+  phone: string
 }
 interface ContactDetails {
   applicant: string
@@ -82,7 +84,7 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     const headers = columns.map((col) => col.headerName || col.field)
 
     // 🔹 Body
-    const body = rows.map((row) => columns.map((col) => row[col.field as keyof typeof row]))
+    const body: any = rows.map((row) => columns.map((col) => row[col.field as keyof typeof row]))
 
     const title = 'Applicants'
     const doc = new jsPDF({ unit: 'pt' })
