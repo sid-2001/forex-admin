@@ -103,6 +103,8 @@ import PrivacyPolicy from './pages/privacy-policy'
 import NotificationCampaign from './pages/notification-campaign'
 import NotificationDelivery from './pages/notification-deliveries'
 import Coupons from './pages/coupons'
+import MenuIems from './pages/menuItems'
+import Faq from './pages/faq'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -257,7 +259,7 @@ function App() {
               <Route path="recon" element={<ReconPage />} />
               <Route path="utilization" element={<UtilizationEnquiryForm />} />
               <Route path="beneficiary-details/:beneficiaryId" element={<BeneficiaryDetailPage />} />
-              <Route path="configuration" element={<MainTabsPage />} />f
+              <Route path="configuration" element={<MainTabsPage />} />
               <Route path="users/add" element={<UserAdd />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="bop-details/:transactionId/:transaction_attempt" element={<BopScreen />} />
@@ -324,6 +326,9 @@ function App() {
               <Route path="privacy-policy" element={<PrivacyPolicy />} />
               <Route path="campaign-delivery/:campaignId" element={<NotificationDelivery />} />
               <Route path="coupons" element={<Coupons />} />
+              <Route path="menu-items" element={<MenuIems />} />
+              <Route path="faq" element={<Faq />} />
+
               <Route path="*" element={<Dashboard />} />
             </Route>
 
