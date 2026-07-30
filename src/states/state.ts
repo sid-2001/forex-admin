@@ -66,13 +66,10 @@ export const alertTypeState = atom({
 export const themeModeState = atom<'light' | 'dark'>({
   key: 'themeModeState',
   default: 'light',
-    effects_UNSTABLE: [localStorageEffect('themeModeState')],
-
+  effects_UNSTABLE: [localStorageEffect('themeModeState')],
 })
 
-
 // <STUDENT>
-
 
 export const notificationState = atom({
   key: 'studentlist',
@@ -84,15 +81,15 @@ export const applicantView = atom({
   default: false,
 })
 
-export const countyState = atom<Array< CountryData>>({
+export const countyState = atom<Array<CountryData>>({
   key: 'countryList',
   default: [],
-    effects_UNSTABLE: [localStorageEffect('countryList')],
+  effects_UNSTABLE: [localStorageEffect('countryList')],
 })
-export const backState = atom<Array< CountryData>>({
+export const backState = atom<Array<CountryData>>({
   key: 'backstate',
   default: [],
-    effects_UNSTABLE: [localStorageEffect('backstate')],
+  effects_UNSTABLE: [localStorageEffect('backstate')],
 })
 
 export const selectedAppState = atom({
@@ -131,6 +128,11 @@ export const inactivityTiming = atom({
   effects_UNSTABLE: [localStorageEffect('inactivityTime')],
 })
 
+export const sidebarMenusState = atom({
+  key: 'sidebarMenuItems',
+  default: '',
+  effects_UNSTABLE: [localStorageEffect('sidebarMenuItems')],
+})
 
 export const staticTableState = atom({
   key: 'staticTableState',

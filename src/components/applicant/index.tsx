@@ -143,6 +143,16 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     )
   }
 
+  const titleCase = (str: string) => {
+    return str
+      ? str
+          .toLowerCase()
+          .split(' ')
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ')
+      : ''
+  }
+
   // 🗂️ Columns
   const columns: GridColDef[] = [
     {
@@ -214,8 +224,26 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     //   },
     // },
 
-    { field: 'kycStatus', headerName: 'KYC Status', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'amlKycStatus', headerName: 'AML Status', flex: 1, headerClassName: 'super-app-theme--header' },
+    // str
+    // .toLowerCase()
+    // .split(" ")
+    // .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    // .join(" ");
+
+    {
+      field: 'kycStatus',
+      headerName: 'KYC Status',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => titleCase(params.row.kycStatu),
+    },
+    {
+      field: 'amlKycStatus',
+      headerName: 'AML Status',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => titleCase(params.row.amlKycStatus),
+    },
   ]
 
   const filteredColumns = userCountry !== 'UAE' ? columns.filter((item) => item.field !== 'platformReferenceId') : columns

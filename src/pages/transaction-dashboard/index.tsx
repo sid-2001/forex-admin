@@ -6,7 +6,6 @@ import CancelIcon from '@mui/icons-material/Cancel'
 import { useEffect, useState } from 'react'
 import { TransactionService } from '@/services/transaction.service'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-import { CountryCorridorService } from '@/services/countryCorridor.service'
 
 import { AgCharts } from 'ag-charts-react'
 import './TransactionDashboard.css'
@@ -38,7 +37,6 @@ const TransactionDashboard = () => {
   const [transactions, setTransactions] = useState<any[]>([])
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
   const userCountry = localService.get_staff_country()
-  const countryCorridorService = new CountryCorridorService()
   const selectedCountryCurrency = localStorage.getItem('staffAccessCurrency')
 
   const transactionNumbers = ['ALL', ...new Set(transactions.map((item: any) => item?.transactionGatewayDTO?.transactionNumber).filter(Boolean))]

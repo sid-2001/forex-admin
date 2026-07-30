@@ -15,6 +15,7 @@ import {
   selectedCountryState,
   userAccessCountry,
   userCurrencyState,
+  sidebarMenusState,
 } from '@/states/state'
 import { UserService } from '@/services/user.service'
 import staticdataService from '@/services/staticdata.service'
@@ -22,6 +23,8 @@ import LoaderUI from '@/components/loader/loader'
 import { TransactionService } from '@/services/transaction.service'
 import { FieldValidationService } from '@/services/fieldvalidstion.service'
 import { CountryLabelData, LoginPageLabel } from '@/types/field.validation.type'
+import MasterService from '@/services/master.service'
+import ForexCurrencyService from '@/services/forex-currency.service'
 
 const LoginPage = () => {
   const [email, setEmail] = useState('')
@@ -40,6 +43,7 @@ const LoginPage = () => {
   const [, setCountry] = useRecoilState(countyState)
   const [, setUserCurrency] = useRecoilState(userCurrencyState)
   const [, setInactivityTiming] = useRecoilState(inactivityTiming)
+  const [, setSidebarMenus] = useRecoilState(sidebarMenusState)
   const [validataion, setValidation] = useState<LoginPageLabel>()
 
   const auth_service = new AuthService()
@@ -48,6 +52,9 @@ const LoginPage = () => {
   const static_service = new staticdataService()
   const transaction_service = new TransactionService()
   const field_validataion_service = new FieldValidationService()
+  const master_service = new MasterService()
+  const currency_service = new ForexCurrencyService()
+
   const navigate = useNavigate()
 
   const checkType = (value: string) => {
@@ -124,19 +131,35 @@ const LoginPage = () => {
       if (response?.data) {
         console.log(response.data, '------data-------')
         const { data } = response
+
         fetchAllModulesList()
 
         local_service.set_accesstoken(data.token)
         local_service.set_staff_access(data)
         local_service.set_role(data?.roleDescription)
 
-        const currency = await static_service.getCountryCurrency(data?.staffCountry)
+        const [currency, countries, txnValidations, menuResp, staffAccessCurrencyResp] = await Promise.all([
+          //@ts-ignore
+          // fetchAllModulesList(),
+          static_service.getCountryCurrency(data?.staffCountry),
+          static_service.getCountryList(),
+          transaction_service.getAllValidationsList(data?.staffCountry),
+          master_service.getAllSideBarMenus(data.staffCountries[0], data?.roleId),
+          currency_service.getCurrencyByCountryCode(data.staffCountries[0]),
+        ])
+
+        localStorage.setItem('staffAccessCurrency', staffAccessCurrencyResp?.currencyCode)
+
+        // const menuResp = await master_service.getAllSideBarMenus(data.staffCountries[0], data?.roleId)
+        setSidebarMenus(menuResp?.data)
+
+        //  const currency = await static_service.getCountryCurrency(data?.staffCountry)
         setUserCurrency(currency as any)
 
-        const countries = await static_service.getCountryList()
+        // const countries = await static_service.getCountryList()
         setCountry(countries)
 
-        await transaction_service.getAllValidationsList(data?.staffCountry)
+        //  await transaction_service.getAllValidationsList(data?.staffCountry)
 
         setUserAccessCountry(data?.staffCountries)
         setInactivityTiming(data?.inactivityTime)

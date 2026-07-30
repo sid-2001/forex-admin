@@ -81,7 +81,7 @@ const UserTable: React.FC = () => {
           <a
             style={{ cursor: 'pointer', color: theme.palette.text.primary, textDecoration: 'underline' }}
             onClick={() => {
-              navigate(`/profile/edit/${params.row.staffId}`)
+              navigate(`/user/edit/${params.row.staffId}`)
             }}
           >
             {params.row.staffId}
@@ -241,7 +241,7 @@ const UserTable: React.FC = () => {
               color="primary"
               disabled={!helper_service.checkUserHasPermission(local_service.get_modules()?.USER, 'canCreate')}
               onClick={() => {
-                navigate('/profile/add')
+                navigate('/user/add')
               }}
             >
               Add User

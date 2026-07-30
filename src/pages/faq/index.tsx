@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridFilterModel } from '@mui/x-data-grid'
 import { Box, Typography, Button, Stack, IconButton } from '@mui/material'
-import { Navigate, useNavigate } from 'react-router-dom'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
@@ -13,27 +12,67 @@ import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
-import CouponService from '@/services/coupons.service'
-import CouponDialog from '@/components/couponFormDialog'
 import EditIcon from '@mui/icons-material/Edit'
-import UploadFileIcon from '@mui/icons-material/UploadFile'
+import MasterService from '@/services/master.service'
+import FAQHeadDialog from '@/components/faq-head-dialog'
+import { styled } from '@mui/material/styles'
+import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp'
+import MuiAccordion, { AccordionProps } from '@mui/material/Accordion'
+import MuiAccordionSummary, { AccordionSummaryProps, accordionSummaryClasses } from '@mui/material/AccordionSummary'
+import MuiAccordionDetails from '@mui/material/AccordionDetails'
+
+const Accordion = styled((props: AccordionProps) => <MuiAccordion disableGutters elevation={0} square {...props} />)(({ theme }) => ({
+  border: `1px solid ${theme.palette.divider}`,
+  '&:not(:last-child)': {
+    borderBottom: 0,
+  },
+  '&::before': {
+    display: 'none',
+  },
+}))
+
+const AccordionSummary = styled((props: AccordionSummaryProps) => (
+  <MuiAccordionSummary expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: '0.9rem' }} />} {...props} />
+))(({ theme }) => ({
+  backgroundColor: 'rgba(0, 0, 0, .03)',
+  flexDirection: 'row-reverse',
+  [`& .${accordionSummaryClasses.expandIconWrapper}.${accordionSummaryClasses.expanded}`]: {
+    transform: 'rotate(90deg)',
+  },
+  [`& .${accordionSummaryClasses.content}`]: {
+    marginLeft: theme.spacing(1),
+  },
+  ...theme.applyStyles('dark', {
+    backgroundColor: 'rgba(255, 255, 255, .05)',
+  }),
+}))
+
+const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
+  padding: theme.spacing(2),
+  borderTop: '1px solid rgba(0, 0, 0, .125)',
+}))
 
 const Faq: React.FC = () => {
   const [faqData, setfaqData] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-  const navigate = useNavigate()
   const helper = new HelperService()
   const local_service = new LocalStorageService()
-  const couponService = new CouponService()
+  const masterService = new MasterService()
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<Record<string, boolean>>({})
   const apiRef = React.useRef<any>(null)
 
-  const [openCouponModal, setOpenCouponModal] = useState(false)
+  const [openFaqHeadModal, setOpenFaqHeadModal] = useState(false)
   const [editData, setEditData] = useState<any>(null)
   const [, setOpen] = useRecoilState(alertState)
   const [, setText] = useRecoilState(alertTextState)
   const [, setType] = useRecoilState(alertTypeState)
+
+  const [expanded, setExpanded] = React.useState<string | false>('panel1')
+
+  //   const handleChange = (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+  //     setExpanded(newExpanded ? panel : false)
+  //   }
 
   const showAlert = (t: 'success' | 'error', m: string) => {
     setType(t)
@@ -42,13 +81,13 @@ const Faq: React.FC = () => {
   }
 
   useEffect(() => {
-    fetchCouponListingData()
+    fetchFaqs()
   }, [])
 
-  const fetchCouponListingData = async () => {
+  const fetchFaqs = async () => {
     try {
       setIsLoading(true)
-      const response = await couponService.getAllCoupons()
+      const response = await masterService.getAllFaq()
       setfaqData(response?.data)
       setIsLoading(false)
     } catch (error) {
@@ -58,54 +97,54 @@ const Faq: React.FC = () => {
 
   const columns = [
     {
-      field: 'couponcode',
-      headerName: 'Coupon Code',
+      field: 'faqHeadCode',
+      headerName: 'FAQ Head Code',
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'description',
-      headerName: 'Description',
+      field: 'faqChannel',
+      headerName: 'Channel',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'title',
-      headerName: 'Title',
+      field: 'faqQuestion',
+      headerName: 'FAQ Question',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'amount',
-      headerName: 'Amount',
+      field: 'faqSectionDescription',
+      headerName: 'FAQ Section Description',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'bgcolor',
-      headerName: 'Background Color',
+      field: 'faqSectionLabelName',
+      headerName: 'FAQ Section Label Name',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'min_balance_required',
-      headerName: 'Min Balance Required',
+      field: 'faqSubSectionDescription',
+      headerName: 'FAQ Sub Section Description',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'max_redemption_limit',
-      headerName: 'Max Redemption Limit',
+      field: 'faqSubSectionLabelName',
+      headerName: 'FAQ Sub Section Label Name',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'expirydays',
-      headerName: 'Expiry Days',
+      field: 'faqType',
+      headerName: 'FAQ Type',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'countrycode',
+      field: 'countryCode',
       headerName: 'Country Code',
       flex: 1,
       headerClassName: 'super-app-theme--header',
@@ -130,7 +169,7 @@ const Faq: React.FC = () => {
             color="primary"
             onClick={() => {
               setEditData(params.row)
-              setOpenCouponModal(true)
+              setOpenFaqHeadModal(true)
             }}
             disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
           >
@@ -217,38 +256,6 @@ const Faq: React.FC = () => {
     </GridToolbarContainer>
   )
 
-  const toBase64 = (file: any) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
-      reader.onload = () => resolve(reader.result)
-      reader.onerror = reject
-    })
-
-  const handleFileChange = async (event: any) => {
-    const file = event.target.files[0]
-
-    if (file) {
-      console.log(file)
-      console.log(file.name)
-      console.log(await toBase64(file))
-      const base64 = await toBase64(file)
-      handleUpload(base64)
-    }
-  }
-
-  const handleUpload = async (selectedFile: any) => {
-    console.log(selectedFile, 'file')
-
-    const response = await couponService.bulkUploadCoupons({
-      fileName: 'coupons.xls',
-      fileContent: selectedFile,
-      applicant_id: local_service?.get_staff_id(),
-    })
-    console.log(response, '-----------------')
-    //  fetchCouponListingData()
-  }
-
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
       <Box p={3} sx={{ width: '90vw', height: '80vh' }}>
@@ -256,12 +263,13 @@ const Faq: React.FC = () => {
           <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
             FAQ LISTING
           </Typography>
+
           <Box>
             <Button
               variant="contained"
               onClick={() => {
                 setEditData(null)
-                setOpenCouponModal(true)
+                setOpenFaqHeadModal(true)
               }}
               sx={{ ml: 2 }}
               disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
@@ -271,7 +279,43 @@ const Faq: React.FC = () => {
           </Box>
         </Stack>
 
-        {faqData && (
+        <div>
+          {/* <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
+            <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
+              <Typography component="span">Collapsible Group Item #1</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem
+                ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.
+              </Typography>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion expanded={expanded === 'panel2'} onChange={handleChange('panel2')}>
+            <AccordionSummary aria-controls="panel2d-content" id="panel2d-header">
+              <Typography component="span">Collapsible Group Item #2</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem
+                ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.
+              </Typography>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion expanded={expanded === 'panel3'} onChange={handleChange('panel3')}>
+            <AccordionSummary aria-controls="panel3d-content" id="panel3d-header">
+              <Typography component="span">Collapsible Group Item #3</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem
+                ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.
+              </Typography>
+            </AccordionDetails>
+          </Accordion> */}
+        </div>
+
+        {/* {faqData && (
           <DataGrid
             apiRef={apiRef}
             rows={faqData || []}
@@ -287,7 +331,7 @@ const Faq: React.FC = () => {
             pageSizeOptions={[10, 20, 50]}
             disableRowSelectionOnClick
             loading={isLoading}
-            getRowId={(row: any) => row.couponcode}
+            getRowId={(row: any) => row.faqHeadCode}
             slots={{
               toolbar: CustomToolbar,
               loadingOverlay: LoaderUI.LoadingOverlay,
@@ -304,11 +348,11 @@ const Faq: React.FC = () => {
           />
         )}
 
-        {/* <CouponDialog
-          open={openCouponModal}
+        <FAQHeadDialog
+          open={openFaqHeadModal}
           editData={editData}
-          onClose={() => setOpenCouponModal(false)}
-          refreshList={fetchCouponListingData}
+          onClose={() => setOpenFaqHeadModal(false)}
+          refreshList={fetchFaqs}
           showAlert={showAlert}
         /> */}
       </Box>

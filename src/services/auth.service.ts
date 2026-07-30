@@ -174,6 +174,16 @@ class AuthService extends BaseService {
       throw new Error("Can't Verify your Identiy")
     }
   }
+
+  async staffLogout(staffId: string): Promise<any> {
+    let url = `/api/staff/staff-details/logout/${staffId}`
+    try {
+      let data = await api1.post(url, {})
+      return data
+    } catch (err) {
+      throw new Error("Can't Verify your Identiy")
+    }
+  }
 }
 
 export { AuthService }

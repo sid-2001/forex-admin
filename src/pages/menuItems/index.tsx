@@ -17,6 +17,7 @@ import CouponService from '@/services/coupons.service'
 import CouponDialog from '@/components/couponFormDialog'
 import EditIcon from '@mui/icons-material/Edit'
 import MasterService from '@/services/master.service'
+import MenuItemsDialog from '@/components/menu-items-dialog'
 
 const MenuIems: React.FC = () => {
   const [menusData, setMenusData] = useState([])
@@ -29,7 +30,7 @@ const MenuIems: React.FC = () => {
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<Record<string, boolean>>({})
   const apiRef = React.useRef<any>(null)
 
-  const [openCouponModal, setOpenCouponModal] = useState(false)
+  const [openMenuItemModal, setOpenMenuItemModal] = useState(false)
   const [editData, setEditData] = useState<any>(null)
   const [, setOpen] = useRecoilState(alertState)
   const [, setText] = useRecoilState(alertTextState)
@@ -59,55 +60,61 @@ const MenuIems: React.FC = () => {
 
   const columns = [
     {
-      field: 'couponcode',
-      headerName: 'Coupon Code',
+      field: 'menuCode',
+      headerName: 'Menu Code',
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'description',
-      headerName: 'Description',
+      field: 'menuName',
+      headerName: 'Menu Name',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'title',
-      headerName: 'Title',
+      field: 'groupCode',
+      headerName: 'Group Code',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'amount',
-      headerName: 'Amount',
+      field: 'groupName',
+      headerName: 'Group Name',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'bgcolor',
-      headerName: 'Background Color',
+      field: 'menuType',
+      headerName: 'Menu Type',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'min_balance_required',
-      headerName: 'Min Balance Required',
+      field: 'parentMenuCode',
+      headerName: 'Parent Menu Code',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'max_redemption_limit',
-      headerName: 'Max Redemption Limit',
+      field: 'parentMenuName',
+      headerName: 'Parent Menu Name',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'expirydays',
-      headerName: 'Expiry Days',
+      field: 'childMenuCode',
+      headerName: 'Child Menu Code',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
     {
-      field: 'countrycode',
-      headerName: 'Country Code',
+      field: 'childMenuName',
+      headerName: 'Child Menu Name',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'path',
+      headerName: 'Path',
       flex: 1,
       headerClassName: 'super-app-theme--header',
     },
@@ -131,7 +138,7 @@ const MenuIems: React.FC = () => {
             color="primary"
             onClick={() => {
               setEditData(params.row)
-              setOpenCouponModal(true)
+              setOpenMenuItemModal(true)
             }}
             disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
           >
@@ -230,7 +237,7 @@ const MenuIems: React.FC = () => {
               variant="contained"
               onClick={() => {
                 setEditData(null)
-                setOpenCouponModal(true)
+                setOpenMenuItemModal(true)
               }}
               sx={{ ml: 2 }}
               disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
@@ -273,13 +280,13 @@ const MenuIems: React.FC = () => {
           />
         )}
 
-        {/* <CouponDialog
-          open={openCouponModal}
+        <MenuItemsDialog
+          open={openMenuItemModal}
           editData={editData}
-          onClose={() => setOpenCouponModal(false)}
-          refreshList={fetchCouponListingData}
+          onClose={() => setOpenMenuItemModal(false)}
+          refreshList={fetchMenuItemsLists}
           showAlert={showAlert}
-        /> */}
+        />
       </Box>
     </HasPermission>
   )

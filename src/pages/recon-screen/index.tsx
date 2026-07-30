@@ -192,7 +192,7 @@ export default function TransactionPage() {
   useEffect(() => {
     trx_service.getReconTrx().then((data) => {
       console.log(data)
-      setRows(data)
+      setRows(data?.transactions)
     })
   }, [])
 
@@ -231,15 +231,8 @@ export default function TransactionPage() {
   return (
     <Box
       sx={{
-        height: 600,
-        width: '80vw',
-        // '& .super-app-theme--header': {
-        //   backgroundColor: '#005099',
-        //   color: 'white',
-        // },
-        // '& .MuiDataGrid-row:nth-of-type(even)': {
-        //   backgroundColor: '#e3f2fd',
-        // },
+        height: '70vh',
+        width: '90vw',
       }}
     >
       {/* Heading */}
@@ -258,13 +251,7 @@ export default function TransactionPage() {
       </Box>
 
       {/* Data Grid */}
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        //@ts-ignore
-        pageSize={5}
-        getRowId={(row: any) => row.transactionId}
-      />
+      <DataGrid rows={rows} columns={columns} getRowId={(row: any) => row.transactionId} />
 
       <Drawer anchor="right" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
         <Box sx={{ width: '50vw', p: 3 }}>
