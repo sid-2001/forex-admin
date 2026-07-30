@@ -24,6 +24,7 @@ const ApplicantPage = () => {
   const kyc_service = new KycService()
   const validation = new FieldValidationService()
   const userCountry = local_service?.get_staff_country()
+  const staffAccessCurrency = localStorage.getItem('staffAccessCurrency')
 
   const [selectedTab, setSelectedTab] = useState(0)
   const [transactions, setTransactions] = useState<any[]>([])
@@ -954,7 +955,7 @@ const ApplicantPage = () => {
 
                     <Typography variant="body1" fontWeight={600}>
                       {applicantDetails?.loyaltyResponse?.applicantLoyaltyData?.totalTransactions}/
-                      {applicantDetails?.loyaltyResponse?.nextLevel?.tierRetentionTransactions}
+                      {applicantDetails?.loyaltyResponse?.nextLevel?.totalTransactionsRequired}
                     </Typography>
                   </Box>
                 </Box>
@@ -985,7 +986,7 @@ const ApplicantPage = () => {
                     </Typography>
                     <Typography variant="body1" fontWeight={600}>
                       {applicantDetails?.loyaltyResponse?.applicantLoyaltyData?.totalAmount}/
-                      {applicantDetails?.loyaltyResponse?.nextLevel?.tierRetentionAmount}
+                      {applicantDetails?.loyaltyResponse?.nextLevel?.totalAmountRequired}
                     </Typography>
                   </Box>
                 </Box>
@@ -996,7 +997,7 @@ const ApplicantPage = () => {
                   You're at the Top!
                 </Typography>
                 <Typography variant="body1" sx={{ color: '#fff', fontWeight: '400', margin: '10px 0px' }}>
-                  Enjoy {applicantDetails?.loyaltyResponse?.currentLevel?.discountPercentage} AED flat reward on every transaction
+                  Enjoy {applicantDetails?.loyaltyResponse?.currentLevel?.discountPercentage} ${staffAccessCurrency} flat reward on every transaction
                 </Typography>
 
                 <Typography variant="body2" sx={{ color: '#fff', fontWeight: '300' }}>
@@ -1112,7 +1113,7 @@ const ApplicantPage = () => {
                         {level.userTier}
                       </Typography>
                       <Typography variant="h6" fontWeight={600} sx={{ padding: '20px 10px' }}>
-                        {level?.discountPercentage} AED
+                        {level?.discountPercentage} ${staffAccessCurrency}
                       </Typography>
                     </Box>
                   </Grid>

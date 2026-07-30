@@ -14,14 +14,16 @@ import {
   ListItemText,
   DialogContent,
   Dialog,
+  ListItemButton,
+  Collapse,
 } from '@mui/material'
 import { styled } from '@mui/system'
 import { LogoWhite } from '@/assets/images'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
-import { useRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue } from 'recoil'
 import Person2Icon from '@mui/icons-material/Person2'
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
-import { menuHistoryState, themeModeState } from '@/states/state'
+import { menuHistoryState, sidebarMenusState, themeModeState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import AddToQueueIcon from '@mui/icons-material/AddToQueue'
 import CompactLocationBar from '../location'
@@ -36,7 +38,7 @@ import {
   LeakRemove,
 } from '@mui/icons-material'
 import { alertState, selectedAppState, loaderStateNew } from '@/states/state'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Backdrop from '@mui/material/Backdrop'
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline'
 import Stack from '@mui/material/Stack'
@@ -92,6 +94,22 @@ import PrivacyTipIcon from '@mui/icons-material/PrivacyTip'
 import CampaignIcon from '@mui/icons-material/Campaign'
 import LocalOfferIcon from '@mui/icons-material/LocalOffer'
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
+import ExpandLess from '@mui/icons-material/ExpandLess'
+import ExpandMore from '@mui/icons-material/ExpandMore'
+
+const mapMenuIcons: any = {
+  Modules: <ViewModuleIcon />,
+  Customers: <PeopleOutlineIcon />,
+  Rewards: <EmojiEventsIcon />,
+  Users: <Person2Icon />,
+  Roles: <SupervisedUserCircleIcon />,
+  'Transaction Outward': <CompareArrowsIcon />,
+  'Transaction Inward': <CompareArrowsIcon />,
+  Transactions: <CompareArrowsIcon />,
+  BOP: <SourceIcon />,
+  'Transaction Dashboard': <CompareArrowsIcon />,
+  'Master Data': <BubbleChartIcon />,
+}
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: 'transparent',
@@ -119,16 +137,9 @@ const DashboardContainer = styled(Box)({
 
 //@ts-nocheck
 const MainContent = styled(Box)({
-  width: '80%', // Adjusted to fit the screen
+  //width: '80%', // Adjusted to fit the screen
   padding: '1rem',
-  marginLeft: 100,
-})
-
-const Header = styled(Box)({
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  paddingBottom: '1rem',
+  marginLeft: 120,
 })
 
 const CountrySelector = () => {
@@ -484,6 +495,7 @@ const MASTER_MENU = [
     icon: <LocalOfferIcon fontSize="small" />,
     path: 'faq',
   },
+
   {
     label: 'Menu Items',
     name: 'Menu Items',
@@ -500,11 +512,10 @@ const chunkArray = (arr: any[], size: number) => {
   return chunks
 }
 
-const MasterDropdownIcon = ({ setSelectedApp, addToHistory, selectedApp }: any) => {
-  const [open, setOpen] = useState(false)
+const MasterDropdownIcon = ({ setSelectedApp, addToHistory, selectedApp, onClose, isOpen }: any) => {
   const navigate = useNavigate()
 
-  const handleClose = () => setOpen(false)
+  const handleClose = () => onClose()
 
   const handleNavigate = (item: any) => {
     setSelectedApp(item.label)
@@ -517,13 +528,7 @@ const MasterDropdownIcon = ({ setSelectedApp, addToHistory, selectedApp }: any) 
 
   return (
     <>
-      <Box sx={{ color: 'white', fontColor: 'white' }}>
-        <IconButton onClick={() => setOpen(true)}>
-          <BubbleChartIcon color="primary" sx={{ color: 'white', fontColor: 'white' }} />
-        </IconButton>
-        Master Data
-      </Box>
-      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+      <Dialog open={isOpen} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogContent
           sx={{
             display: 'flex',
@@ -561,11 +566,22 @@ const DashboardLayout = () => {
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
   const [openloader, setopenloader] = useRecoilState(loaderStateNew)
   const [isDrawerOpen, setDrawerOpen] = useState(false)
+  const [openSubMenu, setOpenSubMenu] = useState(false)
+
+  const sidebarMenus = useRecoilValue(sidebarMenusState)
 
   const navigate = useNavigate()
   const theme = useTheme()
 
   const [history, setHistory] = useRecoilState(menuHistoryState)
+  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({})
+
+  const handleToggle = (menu: string) => {
+    setOpenMenus((prev) => ({
+      ...prev,
+      [menu]: !prev[menu],
+    }))
+  }
 
   // 1. ADD: Adds item to the end (prevents duplicates if desired)
   const addToHistory = (menuName: string) => {
@@ -770,164 +786,162 @@ const DashboardLayout = () => {
         </Toolbar>
       </AppBar>
       <DashboardContainer>
-        <Box sx={{ position: 'relative' }}>
-          {/* Sidebar */}
-          <Box
-            sx={{
-              width: isDrawerOpen ? 200 : 100,
-              //@ts-ignore
-              backgroundColor: theme.palette.secondary.main,
-              position: 'fixed',
-              top: '10vh',
-              left: 0,
-              height: 'calc(100vh - 10vh)',
-              overflowY: 'auto',
-              boxShadow: '2px 0 5px rgba(0,0,0,0.3)',
-              transition: 'width 0.3s',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              zIndex: 1500,
-            }}
-          >
-            <List
-              sx={{
-                flexGrow: 1,
-                overflowY: 'auto',
-                textAlign: 'center',
-                height: '100%',
-                '@media (max-height: 700px)': {
-                  maxHeight: 'calc(100vh - 80px)',
-                },
-                '&::-webkit-scrollbar': {
-                  width: '8px',
-                },
-                '&::-webkit-scrollbar-track': {
-                  //@ts-ignore
-                  backgroundColor: theme.palette.secondary.main,
-                },
-                '&::-webkit-scrollbar-thumb': {
-                  //@ts-ignore
-                  backgroundColor: theme.palette.secondary.main,
-                  borderRadius: '8px',
-                },
-                '&::-webkit-scrollbar-thumb:hover': {
-                  //@ts-ignore
-                  backgroundColor: theme.palette.secondary.dark,
-                },
-              }}
-            >
-              {menuItems.map((item, index) => (
-                <>
-                  {!(
-                    (item.name === 'KYC' ||
-                      item.name === 'CDI' ||
-                      item.name === 'Error Codes' ||
-                      item.name === 'Loyalty' ||
-                      item.name === 'Audit-Logs' ||
-                      item.name === 'Static Data') &&
-                    staffCountry === 'UAE'
-                  ) && (
-                    <ListItem
-                      button
-                      selected={selectedApp === item.label}
-                      key={index}
-                      id={'imp-' + item.label}
-                      sx={{
-                        justifyContent: isDrawerOpen ? 'flex-start' : 'center',
-                        textAlign: 'center',
-                        alignItems: 'center',
-                        backgroundColor: 'transparent',
-                      }}
-                      onClick={() => {
-                        setSelectedApp(item.label)
-                        addToHistory(item.label)
-                        navigate(item.label.toLocaleLowerCase())
-                      }}
-                    >
-                      <Stack sx={{ padding: '1%' }}>
-                        <Item>
-                          <ListItemIcon
-                            sx={{
-                              textAlign: 'center',
-                              justifyContent: 'center',
-                              //@ts-ignore
-                              // color: selectedApp === item.label ? theme.palette.primary.main : 'red', // Change color if selected
-                            }}
-                            onClick={() => {
-                              navigate(item.label.toLocaleLowerCase())
-                            }}
-                          >
-                            {item.icon}
-                          </ListItemIcon>
-                        </Item>
-                        <Item
-                          style={{
-                            color: 'white',
-                            padding: '1%',
-                          }}
-                        >
-                          {item.name}
-                        </Item>
-                      </Stack>
-                    </ListItem>
-                  )}
-                </>
-              ))}
+        {/* <Box sx={{ position: 'relative' }}> */}
+        {/* Sidebar */}
 
-              <ListItem
-                button
-                id="imp-master-data"
-                key="logout1"
-                sx={{
-                  textAlign: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                <Stack
+        <Box
+          sx={{
+            width: isDrawerOpen ? 200 : 120,
+            //@ts-ignore
+            backgroundColor: theme.palette.secondary.main,
+            position: 'fixed',
+            top: '10vh',
+            left: 0,
+            height: 'calc(100vh - 10vh)',
+            overflowY: 'auto',
+            boxShadow: '2px 0 5px rgba(0,0,0,0.3)',
+            transition: 'width 0.3s',
+            // display: 'flex',
+            // flexDirection: 'column',
+            // justifyContent: 'space-between',
+            zIndex: 1500,
+          }}
+        >
+          <List>
+            <ListItemButton
+              id="imp-master-data"
+              onClick={() => {
+                setSelectedApp('Dashboard')
+                addToHistory('Dashboard')
+                navigate('/dashboard')
+              }}
+              selected={selectedApp === 'Dashboard'}
+            >
+              <Stack direction="column" alignItems="center" justifyContent="center" width="100%" spacing={1.5}>
+                <ListItemIcon
                   sx={{
-                    textAlign: 'center',
-                    width: '100%',
+                    minWidth: 0,
+                    justifyContent: 'center',
+                    color: '#fff',
                   }}
                 >
-                  <MasterDropdownIcon
-                    //@ts-ignore
-                    setSelectedApp={setSelectedApp}
-                    addToHistory={addToHistory}
-                    //@ts-ignore
-                    selectedApp={selectedApp}
-                    item={undefined}
-                  ></MasterDropdownIcon>
-                </Stack>
-              </ListItem>
-            </List>
-          </Box>
+                  <ShowChartIcon />
+                </ListItemIcon>
 
-          <Box
-            sx={{
-              flexGrow: 1,
-              overflowY: 'auto',
-              '&::-webkit-scrollbar': {
-                width: '6px',
-              },
-              '&::-webkit-scrollbar-thumb': {
-                backgroundColor: '#b0b0b0',
-                borderRadius: '4px',
-              },
-              width: '100vw',
-              padding: '2%',
-              paddingLeft: '1 %',
-              // marginLeft: 0, // Prevent the sidebar from affecting the content
-            }}
-          >
-            <MainContent>
-              <Header>
-                <Typography variant="h5"></Typography>
-              </Header>
-              <Outlet />
-            </MainContent>
-          </Box>
+                <Typography variant="body1" align="center" color="#fff">
+                  Dashboard
+                </Typography>
+              </Stack>
+            </ListItemButton>
+            {[...sidebarMenus].map((item: any, index: any) => (
+              <React.Fragment key={index}>
+                <ListItem disablePadding>
+                  <ListItemButton
+                    selected={selectedApp === item.menuName}
+                    onClick={() => {
+                      if (item.menuName === 'Master Data') {
+                        setOpenSubMenu(true)
+                      } else {
+                        setSelectedApp(item.menuName)
+                        addToHistory(item.menuName)
+                        navigate(item.path.toLowerCase())
+                      }
+
+                      // if (item.children) {
+                      //   handleToggle(item.parentMenuName)
+                      // } else {
+                      //   setSelectedApp(item.parentMenuName)
+                      //   addToHistory(item.parentMenuName)
+                      //   navigate(item.path.toLowerCase())
+                      // }
+                    }}
+                  >
+                    {/* <ListItemIcon>{item.icon}</ListItemIcon>
+                    <ListItemText primary={item.menuName} /> */}
+
+                    <Stack direction="column" alignItems="center" justifyContent="center" width="100%" spacing={1.5}>
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 0,
+                          justifyContent: 'center',
+                          color: '#fff',
+                        }}
+                      >
+                        {/* {item.icon} */}
+                        {mapMenuIcons[item.menuName]}
+                      </ListItemIcon>
+
+                      <Typography variant="body1" align="center" color="#fff">
+                        {item.menuName}
+                      </Typography>
+                    </Stack>
+
+                    {/* {item.children && (openMenus[item.menuName] ? <ExpandLess sx={{ color: '#fff' }} /> : <ExpandMore sx={{ color: '#fff' }} />)} */}
+                  </ListItemButton>
+                </ListItem>
+
+                {/* {item.children && (
+                  <Collapse in={openMenus[item.parentMenuName]} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                      {item.children.map((child: any, childIndex: number) => (
+                        <ListItemButton
+                          key={childIndex}
+                          //sx={{ pl: 2 }}
+                          selected={selectedApp === child.childMenuName}
+                          onClick={() => {
+                            setSelectedApp(child.childMenuName)
+                            addToHistory(child.childMenuName)
+                            navigate(child.path.toLowerCase())
+                          }}
+                        >
+                          <ListItemText sx={{ color: '#fff' }} primary={`> ${child.childMenuName}`} />
+                        </ListItemButton>
+                      ))}
+                    </List>
+                  </Collapse>
+                )} */}
+              </React.Fragment>
+            ))}
+          </List>
         </Box>
+
+        <Box
+          sx={{
+            // width: 'calc(100vw - 120px)',
+            // flexGrow: 1,
+            overflowY: 'auto',
+            '&::-webkit-scrollbar': {
+              width: '6px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: '#b0b0b0',
+              borderRadius: '4px',
+            },
+            // width: '100vw',
+            // padding: '2%',
+            // paddingLeft: '1%',
+
+            // marginLeft: 0, // Prevent the sidebar from affecting the content
+          }}
+        >
+          <MainContent>
+            <Outlet />
+          </MainContent>
+        </Box>
+        {/* </Box> */}
+
+        {openSubMenu && (
+          <MasterDropdownIcon
+            //@ts-ignore
+            setSelectedApp={setSelectedApp}
+            addToHistory={addToHistory}
+            //@ts-ignore
+            selectedApp={selectedApp}
+            item={undefined}
+            onClose={() => setOpenSubMenu(false)}
+            isOpen={openSubMenu}
+          />
+        )}
       </DashboardContainer>
     </ThemeProvider>
   )

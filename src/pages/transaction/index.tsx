@@ -28,7 +28,6 @@ const transaction_Service = new TransactionService()
 const helper = new HelperService()
 const local_service = new LocalStorageService()
 const transaction_service = new TransactionService()
-const userCountry = local_service?.get_staff_country()
 
 const TransactionListing = () => {
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<GridColumnVisibilityModel>({})
@@ -61,6 +60,7 @@ const TransactionListing = () => {
   const { search } = useLocation()
   const queryParams = new URLSearchParams(search)
   const flow = queryParams.get('flow')
+  const userCountry = local_service?.get_staff_country()
 
   const columnHeaderMap: any = {
     UAE: 'Payment Details',
@@ -891,6 +891,8 @@ const TransactionListing = () => {
                 textTransform: 'none',
                 borderBottom: '1px solid transparent',
                 borderRadius: 0,
+                fontSize: '15px',
+                fontWeight: 'bold',
                 color: 'text.primary',
                 '&:hover': {
                   borderBottomColor: 'primary.main',

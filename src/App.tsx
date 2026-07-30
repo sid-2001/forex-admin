@@ -21,7 +21,6 @@ import CustomSnackbar from './components/customsnackbar/snackbar'
 import KYCPage from './pages/kyc'
 import ApplicantPage from './pages/applicant'
 import ApplicantEnquiry from './pages/applicant-enquiry'
-import AddApplicant from './pages/add-applicant'
 import BeneficiaryDetailPage from './pages/beneficiary-detail'
 import SendMoneyPage from './pages/send-money'
 import MainTabsPage from './pages/static-data/staticdata.page'
@@ -46,10 +45,9 @@ import Loyality from './pages/loyality'
 // import AuditLogTable from './pages/audit-log'
 import FieldValidationTable from './pages/field-validation'
 import ForexBranchesPage from './pages/branches'
-import { lazy, useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useAutoLogout } from './helpers/useAutoLogout'
 import { LocalStorageService } from './helpers/local-storage-service'
-import { CrossBorderPaymentsDashboard } from './pages/dashboard'
 import EnhancedDashboard from './pages/dashboard/dashboard-new'
 import GenderMaster from './pages/gendermaster'
 import ChannelManagement from './components/channelmaster'
@@ -61,7 +59,6 @@ import BankMasterScreen from './pages/bank-master'
 import BankTypeMaster from './pages/bank-type-master'
 import BopCategoryMaster from './pages/bopcategorymaster'
 import BopCategoryTypeMaster from './pages/bopcategorytypemaster'
-import CountryBusinessPayoutPartnerFormDialog from './components/countrybuisnesspayoutformformdialog'
 import CountryBusinessPayoutPartner from './pages/country-business-payout-partners'
 import ProductBusinessCountryMapping from './pages/product-buisness-country-mapping'
 import EmailTemplateMasterPage from './pages/emailtemplatelist'
@@ -82,7 +79,6 @@ import UrlTypeMaster from './pages/UrlTypeMaster'
 import VendorApiMasterTable from './pages/VendorApiMasterTable'
 import CountryCorridorPage from './pages/country-corridor-page'
 import KycLimitTypeMaster from './pages/kyc-limit'
-import ResidentTypeFormDialog from './components/residenttypeformDialog'
 import ResidentTypeMaster from './pages/resident-type-master'
 import KycDocumentTypeMaster from './pages/kycDocumentTypeMaster'
 import CountryLimitTypeWiseLimitMaster from './pages/country-limit-type-wise-limit-master'
@@ -91,7 +87,6 @@ import CountryResProductChannelDocRequiredMaster from './pages/contryresproductc
 import SequenceMasterTable from './pages/sequence-master'
 import ExchangeRateMasterScreen from './pages/exchangeRateMaster'
 import CountryCorridorProductMaster from './pages/country-corridor-product'
-import ProductService from './services/product.service'
 import ProductSubServiceMaster from './pages/product-sub-service'
 import InactivityWarningModal from './components/inactivity-modal'
 import ServiceSubServiceMapping from './pages/subservice-mapping'
@@ -105,6 +100,7 @@ import NotificationDelivery from './pages/notification-deliveries'
 import Coupons from './pages/coupons'
 import MenuIems from './pages/menuItems'
 import Faq from './pages/faq'
+import { AuthService } from './services/auth.service'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -114,6 +110,8 @@ function App() {
   const [inactivity, setinactivityTiming] = useRecoilState(inactivityTiming)
   const [warningOpen, setWarningOpen] = useState(false)
   const local_service: any = new LocalStorageService()
+  const auth_service = new AuthService()
+  const staff = local_service?.get_staff_access()
 
   const theme = createTheme({
     palette: {
@@ -216,11 +214,14 @@ function App() {
     }
   }
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = useCallback(async () => {
     if (local_service?.get_accesstoken() != null) {
-      localStorage.clear()
-      sessionStorage.clear()
-      window.location.reload()
+      const response = await auth_service.staffLogout(staff.staffId)
+      if (response?.status) {
+        localStorage.clear()
+        sessionStorage.clear()
+        window.location.reload()
+      }
     }
   }, [])
 
@@ -250,12 +251,11 @@ function App() {
               <Route path="kyc/:id" element={<KYCPage />} />
               <Route path="cdi" element={<CdiScreen />} />
               <Route path="loyalty" element={<Loyality />} />
-              <Route path="profile" element={<UserTable />} />
-              <Route path="profile/add" element={<UserAdd />} />
-              <Route path="profile/edit/:staffId" element={<UserAdd />} />
+              <Route path="user" element={<UserTable />} />
+              <Route path="user/add" element={<UserAdd />} />
+              <Route path="user/edit/:staffId" element={<UserAdd />} />
               <Route path="customer-details/:applicantId" element={<ApplicantPage />} />
               <Route path="customer" element={<ApplicantEnquiry />} />
-              <Route path="add-applicant" element={<AddApplicant />} />
               <Route path="recon" element={<ReconPage />} />
               <Route path="utilization" element={<UtilizationEnquiryForm />} />
               <Route path="beneficiary-details/:beneficiaryId" element={<BeneficiaryDetailPage />} />
@@ -343,7 +343,3 @@ function App() {
 }
 
 export default App
-
-function handleLogout(): void {
-  throw new Error('Function not implemented.')
-}
