@@ -70,9 +70,9 @@ const Faq: React.FC = () => {
 
   const [expanded, setExpanded] = React.useState<string | false>('panel1')
 
-  const handleChange = (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
-    setExpanded(newExpanded ? panel : false)
-  }
+  //   const handleChange = (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+  //     setExpanded(newExpanded ? panel : false)
+  //   }
 
   const showAlert = (t: 'success' | 'error', m: string) => {
     setType(t)
@@ -280,7 +280,7 @@ const Faq: React.FC = () => {
         </Stack>
 
         <div>
-          <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
+          {/* <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
             <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
               <Typography component="span">Collapsible Group Item #1</Typography>
             </AccordionSummary>
@@ -312,7 +312,7 @@ const Faq: React.FC = () => {
                 ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.
               </Typography>
             </AccordionDetails>
-          </Accordion>
+          </Accordion> */}
         </div>
 
         {/* {faqData && (
