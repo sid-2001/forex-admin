@@ -13,6 +13,7 @@ import DocumentsListComponent from '../document-tab'
 import BeneficiaryTable from '@/components/beneficiary-table'
 import { FieldValidationService } from '@/services/fieldvalidstion.service'
 import { CountryLabelData, CountryReportingLabelDTO } from '@/types/field.validation.type'
+import { convertStrToTitleCase } from '@/contants/utils'
 
 const ApplicantPage = () => {
   // const navigate = useNavigate()
@@ -234,7 +235,6 @@ const ApplicantPage = () => {
     if (!applicantId) return
     try {
       const { data } = await kyc_service.getReferralCreditedTransactions(applicantId)
-      console.log(data, '---------------')
       setActiveReferrals(data || [])
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -440,7 +440,7 @@ const ApplicantPage = () => {
                             letterSpacing: '1px',
                           }}
                         >
-                          {applicantDetails?.kycStatus}
+                          {convertStrToTitleCase(applicantDetails?.kycStatus)}
                         </Typography>
                       </Box>
 
@@ -465,7 +465,7 @@ const ApplicantPage = () => {
                             letterSpacing: '1px',
                           }}
                         >
-                          {applicantDetails?.amlKycStatus}
+                          {convertStrToTitleCase(applicantDetails?.amlKycStatus)}
                         </Typography>
                       </Box>
                     </Box>

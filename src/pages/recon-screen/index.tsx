@@ -1,14 +1,19 @@
-import React, { useEffect, useState } from 'react'
-import { DataGrid, GridColDef, GridActionsCellItem } from '@mui/x-data-grid'
-import { Drawer, Box, Typography, TextField, Grid, Button, Divider } from '@mui/material'
-import VisibilityIcon from '@mui/icons-material/Visibility'
+import React, { useCallback, useEffect, useState } from 'react'
+import { DataGrid, GridColDef, GridFilterModel, GridToolbarFilterButton, GridToolbarColumnsButton, GridToolbarContainer } from '@mui/x-data-grid'
+import { Drawer, Box, Typography, TextField, Grid, Button, Divider, Card } from '@mui/material'
 import { TransactionService } from '@/services/transaction.service'
 import { useTheme } from '@emotion/react'
 import StatusDropdown from '../../components/status-recon'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import { useNavigate } from 'react-router-dom'
+import { convertStrToTitleCase } from '@/contants/utils'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import dayjs from 'dayjs'
+import DownloadIcon from '@mui/icons-material/Download'
+import LoaderUI from '@/components/loader/loader'
+import FindReplaceIcon from '@mui/icons-material/FindReplace'
 
 // Define types
 interface TransactionRow {
@@ -113,7 +118,29 @@ export default function TransactionPage() {
   const [type, setType] = useRecoilState(alertTypeState)
   const [open, setOpen] = useRecoilState(alertState)
   const [reconStatus, setreconStatus] = useState('')
-  const navigate = useNavigate()
+  const [amountDetails, setAmountDetails] = useState({
+    aedAmount: 0,
+    inrPayout: 0,
+    luluFee: 0,
+    platformFee: 0,
+    vatOnFee: 0,
+    vatOnLuluFee: 0,
+  })
+  const [filters, setFilters] = useState({
+    fromDate: null,
+    toDate: null,
+  })
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState<any>({})
+  const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
+
+  const [loading, setLoading] = useState(false)
+  const [rows, setRows] = useState<
+    Partial<Pick<TransactionRow, 'id' | 'gatewayUsed' | 'senderCtryTransId' | 'rcvCtryTransId' | 'senderCtryGatewaySettlInd' | 'reconStatus'>>[]
+  >([])
+  let trx_service = new TransactionService()
+  const theme: any = useTheme()
+
+  const isFilterEmpty = !filters.fromDate && !filters.toDate
 
   // error, processed, settled
   function getStatusColor(
@@ -162,12 +189,6 @@ export default function TransactionPage() {
     handleViewMore(transactionDetails?.id)
   }
 
-  const [rows, setRows] = useState<
-    Partial<Pick<TransactionRow, 'id' | 'gatewayUsed' | 'senderCtryTransId' | 'rcvCtryTransId' | 'senderCtryGatewaySettlInd' | 'reconStatus'>>[]
-  >([])
-  let trx_service = new TransactionService()
-  const theme: any = useTheme()
-
   const handleViewMore = async (id: number) => {
     // Simulating API call with sample data
     console.log(id)
@@ -189,11 +210,14 @@ export default function TransactionPage() {
     setDrawerOpen(true)
   }
 
+  const fetchReconTxns = useCallback(async (filterValue: string) => {
+    const response = await trx_service.getReconTrx(filterValue)
+    setRows(response?.transactions || [])
+    setAmountDetails(response?.total || {})
+  }, [])
+
   useEffect(() => {
-    trx_service.getReconTrx().then((data) => {
-      console.log(data)
-      setRows(data?.transactions)
-    })
+    fetchReconTxns('')
   }, [])
 
   // Sample data for the DataGrid
@@ -214,19 +238,93 @@ export default function TransactionPage() {
     // },
 
     { field: 'transactionId', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'sender', headerName: 'Sender', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'recipient', headerName: 'Recipient', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'aedAmount', headerName: 'AED Amount', flex: 1, headerClassName: 'super-app-theme--header' },
+
+    { field: 'sender', headerName: 'Settlement Country', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'aedAmount', headerName: 'Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'senderCurrency', headerName: 'Settlement Currency', flex: 1, headerClassName: 'super-app-theme--header' },
+
+    { field: 'recipient', headerName: 'Principal Country', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'inrPayout', headerName: 'Principal Amount', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'receiverCurrency', headerName: 'Principal Currency', flex: 1, headerClassName: 'super-app-theme--header' },
+
     { field: 'luluFxRate', headerName: 'LULU FX Rate', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'improPayFxRate', headerName: 'IMPROPAY FX Rate', flex: 1, headerClassName: 'super-app-theme--header' },
-
-    { field: 'inrPayout', headerName: 'INR Payout', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'platformFee', headerName: 'Platform Fee (IMPROPAY)', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'vatOnFee', headerName: 'VAT on Fee', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'luluFee', headerName: 'LULU Fee', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'fxMargin', headerName: 'FX Margin', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'status', headerName: 'Status', flex: 1, headerClassName: 'super-app-theme--header' },
+
+    { field: 'platformFee', headerName: 'Charges', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vatOnFee', headerName: 'VAT', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'luluFee', headerName: 'LULU Commission', flex: 1, headerClassName: 'super-app-theme--header' },
+    {
+      field: 'status',
+      headerName: 'Status',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => convertStrToTitleCase(params.row.status),
+    },
   ]
+
+  const handleFilterValueChange = (key: string, value: any) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: value,
+    }))
+  }
+
+  const handleSearch = async () => {
+    const payload = {
+      fromDate: filters.fromDate ? dayjs(filters.fromDate).format('YYYY-MM-DD') : '',
+      toDate: filters.toDate ? dayjs(filters.toDate).format('YYYY-MM-DD') : '',
+    }
+    const queryString = new URLSearchParams(Object.fromEntries(Object.entries(payload).filter(([_, v]) => v))).toString()
+    try {
+      setLoading(true)
+      await fetchReconTxns(queryString)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleClear = () => {
+    setFilters({
+      fromDate: null,
+      toDate: null,
+    })
+    fetchReconTxns('')
+  }
+
+  const handleExportCSV = () => {
+    const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false)
+    const headers = visibleCols.map((col) => col.headerName).join(',')
+    //@ts-ignore
+    const mappedRows = rows.map((row) => visibleCols.map((col) => row[col.field] ?? '').join(','))
+    const csv = [headers, ...mappedRows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.setAttribute('download', 'reconcilation.csv')
+    link.click()
+  }
+
+  const CustomToolbar = () => {
+    return (
+      <GridToolbarContainer sx={{ justifyContent: 'flex-start', gap: 1, py: 1 }}>
+        <GridToolbarColumnsButton />
+        <GridToolbarFilterButton />
+
+        {/* Reset Filters */}
+        <Button
+          variant="outlined"
+          color="primary"
+          size="small"
+          startIcon={<FindReplaceIcon />}
+          onClick={() => setFilterModel({ items: [] })}
+          sx={{ ml: 1 }}
+        >
+          Reset Filters
+        </Button>
+      </GridToolbarContainer>
+    )
+  }
 
   return (
     <Box
@@ -245,13 +343,261 @@ export default function TransactionPage() {
         >
           Reconciliation
         </Typography>
-        <Button variant="outlined" startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)}>
-          Back
+      </Box>
+
+      <Box
+        mb={2}
+        display="flex"
+        gap={1}
+        alignItems="center"
+        flexWrap="wrap"
+        sx={{
+          background: '#fff',
+          padding: 2,
+          borderRadius: 2,
+          boxShadow: 1,
+        }}
+      >
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DatePicker
+            label="From Date"
+            //@ts-ignore
+            format="YYYY-MM-DD"
+            value={filters?.fromDate}
+            onChange={(newValue: any) => handleFilterValueChange('fromDate', newValue)}
+            slotProps={{ textField: { size: 'small', sx: { width: 150 } } }}
+            //@ts-ignore
+            renderInput={(params) => <TextField {...params} fullWidth variant="outlined" />}
+          />
+
+          <DatePicker
+            label="To Date"
+            value={filters?.toDate}
+            onChange={(newValue: any) => handleFilterValueChange('toDate', newValue)}
+            minDate={filters?.fromDate}
+            format="YYYY-MM-DD"
+            slotProps={{
+              textField: {
+                size: 'small',
+                sx: { width: 150 },
+              },
+            }}
+          />
+        </LocalizationProvider>
+
+        <Button variant="contained" onClick={handleSearch} disabled={isFilterEmpty || loading}>
+          {loading ? 'Searching...' : 'Search'}
+        </Button>
+
+        <Button disabled={loading} variant="outlined" onClick={handleClear}>
+          Clear
+        </Button>
+
+        <Button variant="outlined" color="primary" size="small" startIcon={<DownloadIcon />} onClick={handleExportCSV}>
+          Export
         </Button>
       </Box>
 
+      <Box>
+        <Card
+          sx={{
+            mb: 3,
+            borderRadius: 4,
+            border: '1px solid #E2E8F0',
+            boxShadow: '0 2px 12px rgba(15,23,42,0.06)',
+            padding: '20px',
+          }}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: '0.9rem',
+                  color: '#334155',
+                  minHeight: 24,
+                  fontWeight: 700,
+                  letterSpacing: '1px',
+                }}
+              >
+                Settlement Amount
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: '0.9rem',
+                  color: '#334155',
+                  minHeight: 24,
+                  fontWeight: 700,
+                  letterSpacing: '1px',
+                }}
+              >
+                {amountDetails?.aedAmount}
+              </Typography>
+            </Box>
+
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: '0.9rem',
+                  color: '#334155',
+                  minHeight: 24,
+                  fontWeight: 700,
+                  letterSpacing: '1px',
+                }}
+              >
+                Principal Amount
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: '0.9rem',
+                  color: '#334155',
+                  minHeight: 24,
+                  fontWeight: 700,
+                  letterSpacing: '1px',
+                }}
+              >
+                {amountDetails?.inrPayout}
+              </Typography>
+            </Box>
+
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: '0.9rem',
+                  color: '#334155',
+                  minHeight: 24,
+                  fontWeight: 700,
+                  letterSpacing: '1px',
+                }}
+              >
+                Impro Fee
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: '0.9rem',
+                  color: '#334155',
+                  minHeight: 24,
+                  fontWeight: 700,
+                  letterSpacing: '1px',
+                }}
+              >
+                {amountDetails?.platformFee}
+              </Typography>
+            </Box>
+
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: '0.9rem',
+                  color: '#334155',
+                  minHeight: 24,
+                  fontWeight: 700,
+                  letterSpacing: '1px',
+                }}
+              >
+                VAT
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: '0.9rem',
+                  color: '#334155',
+                  minHeight: 24,
+                  fontWeight: 700,
+                  letterSpacing: '1px',
+                }}
+              >
+                {amountDetails?.vatOnFee}
+              </Typography>
+            </Box>
+
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: '0.9rem',
+                  color: '#334155',
+                  minHeight: 24,
+                  fontWeight: 700,
+                  letterSpacing: '1px',
+                }}
+              >
+                Lulu Commission
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: '0.9rem',
+                  color: '#334155',
+                  minHeight: 24,
+                  fontWeight: 700,
+                  letterSpacing: '1px',
+                }}
+              >
+                {amountDetails?.luluFee}
+              </Typography>
+            </Box>
+
+            {/* 
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: '0.9rem',
+                  color: '#334155',
+                  minHeight: 24,
+                  fontWeight: 700,
+                  letterSpacing: '1px',
+                }}
+              >
+                VAT On lulu Fee
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: '0.9rem',
+                  color: '#334155',
+                  minHeight: 24,
+                  fontWeight: 700,
+                  letterSpacing: '1px',
+                }}
+              >
+                {amountDetails?.vatOnLuluFee}
+              </Typography>
+            </Box> */}
+          </Box>
+        </Card>
+      </Box>
+
       {/* Data Grid */}
-      <DataGrid rows={rows} columns={columns} getRowId={(row: any) => row.transactionId} />
+      <DataGrid
+        sx={{
+          // height: '70vh',
+          '& .MuiDataGrid-columnHeaders': {
+            '& .super-app-theme--header': {
+              backgroundColor: '#005099',
+              color: 'white',
+            },
+          },
+          '& .MuiDataGrid-columnHeaderTitle': {
+            fontWeight: 'bold',
+          },
+          '& .MuiDataGrid-cell': {
+            fontSize: '14px',
+          },
+          '& .super-app-theme--header': {
+            fontSize: '16px',
+          },
+        }}
+        rows={rows}
+        columns={columns}
+        getRowId={(row: any) => row.transactionId}
+        initialState={{
+          pagination: { paginationModel: { pageSize: 20, page: 0 } },
+        }}
+        pageSizeOptions={[10, 20, 50]}
+        slots={{
+          loadingOverlay: LoaderUI.LoadingOverlay,
+          toolbar: CustomToolbar, // 👈 Toolbar with reset filters
+        }}
+        disableColumnMenu
+        filterModel={filterModel}
+        onFilterModelChange={(model) => setFilterModel(model)}
+      />
 
       <Drawer anchor="right" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
         <Box sx={{ width: '50vw', p: 3 }}>
