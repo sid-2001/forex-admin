@@ -23,8 +23,8 @@ export default class MasterService extends BaseService {
     }
   }
 
-  async getAllSideBarMenus(countryCode: string, roleId: number): Promise<any> {
-    const url = `/api/staff/menu-items/permissions?countryCode=${countryCode}&roleId=${roleId}`
+  async getAllSideBarMenus(countryCode: string, roleId: number, staffId: string): Promise<any> {
+    const url = `/api/staff/menu-items/permissions?countryCode=${countryCode}&roleId=${roleId}&staffId=${staffId}`
     try {
       const response = await api1.get(url)
       return response
