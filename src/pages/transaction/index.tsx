@@ -27,7 +27,6 @@ const applicant_service = new ApplicantService()
 const transaction_Service = new TransactionService()
 const helper = new HelperService()
 const local_service = new LocalStorageService()
-const transaction_service = new TransactionService()
 
 const TransactionListing = () => {
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<GridColumnVisibilityModel>({})

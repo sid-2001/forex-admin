@@ -37,3 +37,13 @@ export const targetTypeMap = Object.fromEntries(targetTypes.map((item) => [item.
 export const freqTypeMap = Object.fromEntries(freqTypes.map((item) => [item.value, item.label]))
 export const getNotificationStatusLabel = (value: string) => notificationStatus.find((item) => item.value === value)?.label || value
 export const getNotificationStatusColor = (value: string) => notificationStatus.find((item) => item.value === value)?.color || '#000'
+
+export const convertStrToTitleCase = (str: string) => {
+  return str
+    ? str
+        .toLowerCase()
+        .split(' ')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+    : ''
+}

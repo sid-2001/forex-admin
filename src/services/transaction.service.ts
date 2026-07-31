@@ -231,10 +231,11 @@ export class TransactionService extends BaseService {
       console.log(err)
     }
   }
-  async getReconTrx(): Promise<any> {
+  async getReconTrx(filters: any): Promise<any> {
     // const url = `/api/transactions/recon/reconList`
     // const url = '/api/transactions/reconciliation/data?fromDate=2025-01-10&toDate=2025-10-10'
-    const url = '/api/transactions/reconciliation/data'
+
+    const url = `/api/transactions/reconciliation/data${filters ? `?${filters}` : ''}`
 
     try {
       const data = await api1.get(url)

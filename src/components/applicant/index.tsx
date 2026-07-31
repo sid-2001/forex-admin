@@ -18,6 +18,7 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
 import DownloadIcon from '@mui/icons-material/Download'
 import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import { LocalStorageService } from '@/helpers/local-storage-service'
+import { convertStrToTitleCase } from '@/contants/utils'
 
 interface Applicant {
   applicantId: string
@@ -143,16 +144,6 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     )
   }
 
-  const titleCase = (str: string) => {
-    return str
-      ? str
-          .toLowerCase()
-          .split(' ')
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(' ')
-      : ''
-  }
-
   // 🗂️ Columns
   const columns: GridColDef[] = [
     {
@@ -235,14 +226,14 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
       headerName: 'KYC Status',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => titleCase(params.row.kycStatu),
+      renderCell: (params: any) => convertStrToTitleCase(params.row.kycStatus),
     },
     {
       field: 'amlKycStatus',
       headerName: 'AML Status',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => titleCase(params.row.amlKycStatus),
+      renderCell: (params: any) => convertStrToTitleCase(params.row.amlKycStatus),
     },
   ]
 
