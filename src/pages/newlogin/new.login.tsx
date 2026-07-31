@@ -144,7 +144,7 @@ const LoginPage = () => {
           static_service.getCountryCurrency(data?.staffCountry),
           static_service.getCountryList(),
           transaction_service.getAllValidationsList(data?.staffCountry),
-          master_service.getAllSideBarMenus(data.staffCountries[0], data?.roleId),
+          master_service.getAllSideBarMenus(data.staffCountries[0], data?.roleId, data.staffId),
           currency_service.getCurrencyByCountryCode(data.staffCountries[0]),
         ])
 
