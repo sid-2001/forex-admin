@@ -451,7 +451,7 @@ const Faq: React.FC = () => {
                       </Box>
 
                       {/* Edit button for individual FAQ */}
-                      <IconButton
+                      {/* <IconButton
                         size="small"
                         onClick={(e) => {
                           e.stopPropagation()
@@ -469,7 +469,7 @@ const Faq: React.FC = () => {
                         }}
                       >
                         <EditIcon sx={{ fontSize: '16px' }} />
-                      </IconButton>
+                      </IconButton> */}
                     </Box>
                   </Box>
                 ))}
