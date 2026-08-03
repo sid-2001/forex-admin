@@ -73,6 +73,29 @@ export default class MasterService extends BaseService {
       return err as any
     }
   }
+  // In master.service.ts
+
+  // Update individual FAQ detail
+  async updateFaqDetail(faqDetailCode: string, payload: any) {
+    try {
+      const response = await api1.put(`/api/static-table/faq_detail_master/update/${faqDetailCode}`, payload)
+      return response.data
+    } catch (error) {
+      console.error('Error updating FAQ detail:', error)
+      throw error
+    }
+  }
+
+  // Create new FAQ detail for existing FAQ Head
+  async createFaqDetail(payload: any) {
+    try {
+      const response = await api1.post('/static-table/faq_detail_master/create', payload)
+      return response.data
+    } catch (error) {
+      console.error('Error creating FAQ detail:', error)
+      throw error
+    }
+  }
 
   // async updateFaqHead(payload: Partial<any>): Promise<any> {
   //   const url = `/api/bop/gender/updatecoupon`

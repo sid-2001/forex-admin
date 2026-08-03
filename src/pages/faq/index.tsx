@@ -20,6 +20,7 @@ import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp'
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion'
 import MuiAccordionSummary, { AccordionSummaryProps, accordionSummaryClasses } from '@mui/material/AccordionSummary'
 import MuiAccordionDetails from '@mui/material/AccordionDetails'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 const Accordion = styled((props: AccordionProps) => <MuiAccordion disableGutters elevation={0} square {...props} />)(({ theme }) => ({
   border: `1px solid ${theme.palette.divider}`,
@@ -70,9 +71,10 @@ const Faq: React.FC = () => {
 
   const [expanded, setExpanded] = React.useState<string | false>('panel1')
 
-  //   const handleChange = (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
-  //     setExpanded(newExpanded ? panel : false)
-  //   }
+  const handleChange = (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+    console.log(event, '===========')
+    setExpanded(newExpanded ? panel : false)
+  }
 
   const showAlert = (t: 'success' | 'error', m: string) => {
     setType(t)
@@ -279,74 +281,209 @@ const Faq: React.FC = () => {
           </Box>
         </Stack>
 
-        <div>
-          {/* <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
-            <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
-              <Typography component="span">Collapsible Group Item #1</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem
-                ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.
-              </Typography>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion expanded={expanded === 'panel2'} onChange={handleChange('panel2')}>
-            <AccordionSummary aria-controls="panel2d-content" id="panel2d-header">
-              <Typography component="span">Collapsible Group Item #2</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem
-                ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.
-              </Typography>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion expanded={expanded === 'panel3'} onChange={handleChange('panel3')}>
-            <AccordionSummary aria-controls="panel3d-content" id="panel3d-header">
-              <Typography component="span">Collapsible Group Item #3</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem
-                ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.
-              </Typography>
-            </AccordionDetails>
-          </Accordion> */}
-        </div>
+        {/* <div>
+          {faqData.map((faqItem: any, index: any) => (
+            <Accordion key={index} expanded={expanded === faqItem.faqHeadCode} onChange={handleChange(faqItem.faqHeadCode)}>
+              <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
+                <Box sx={{ direction: 'row', display: 'flex' }}>
+                  <Typography variant="body1">{faqItem?.faqSectionLabelName}</Typography>
+                  <Typography variant="body1">{faqItem?.faqSubSectionDescription}</Typography>
+                  <Typography variant="body1">{faqItem?.faqQuestionCount}</Typography>
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails>
+                {faqItem?.faqDetailMasters.map((faqDetail: any, ind: any) => (
+                  <Box key={ind}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                      {faqDetail?.faqQuestion}
+                    </Typography>
+                    <Typography>{faqDetail?.faqAnswer}</Typography>
+                  </Box>
+                ))}
+              </AccordionDetails>
+            </Accordion>
+          ))}
+        </div> */}
+        <div className="faq-container">
+          {faqData.map((faqItem: any, index: any) => (
+            <Accordion
+              key={index}
+              expanded={expanded === faqItem.faqHeadCode}
+              onChange={handleChange(faqItem.faqHeadCode)}
+              sx={{
+                marginBottom: '12px',
+                boxShadow: 'none',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px !important',
+                '&:before': { display: 'none' },
+                '&.Mui-expanded': {
+                  borderColor: '#d1d5db',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                },
+              }}
+            >
+              <AccordionSummary
+                sx={{
+                  padding: '14px 20px',
+                  minHeight: 'auto',
+                  '& .MuiAccordionSummary-content': {
+                    margin: '0',
+                    alignItems: 'center',
+                  },
+                  '& .MuiAccordionSummary-expandIconWrapper': {
+                    color: '#6b7280',
+                    marginLeft: '8px',
+                  },
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: '15px',
+                        color: '#111827',
+                        marginLeft: 2,
+                      }}
+                    >
+                      {faqItem?.faqSectionLabelName}
+                    </Typography>
 
-        {/* {faqData && (
-          <DataGrid
-            apiRef={apiRef}
-            rows={faqData || []}
-            //@ts-ignore
-            columns={columns}
-            filterModel={filterModel}
-            onFilterModelChange={(model) => setFilterModel(model)}
-            columnVisibilityModel={columnVisibilityModel}
-            onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
-            initialState={{
-              pagination: { paginationModel: { pageSize: 20, page: 0 } },
-            }}
-            pageSizeOptions={[10, 20, 50]}
-            disableRowSelectionOnClick
-            loading={isLoading}
-            getRowId={(row: any) => row.faqHeadCode}
-            slots={{
-              toolbar: CustomToolbar,
-              loadingOverlay: LoaderUI.LoadingOverlay,
-            }}
-            sx={{
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#005099',
-                color: 'white',
-              },
-              '& .MuiDataGrid-cell': { fontSize: '14px' },
-              '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold', fontSize: '16px' },
-            }}
-            disableColumnMenu
-          />
-        )}
+                    {faqItem?.faqSubSectionDescription && (
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: '#6b7280',
+                          fontSize: '12px',
+                          backgroundColor: '#f3f4f6',
+                          padding: '2px 12px',
+                          borderRadius: '12px',
+                        }}
+                      >
+                        {faqItem?.faqSubSectionDescription}
+                      </Typography>
+                    )}
+
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: '#6b7280',
+                        fontSize: '12px',
+                        backgroundColor: '#f3f4f6',
+                        padding: '2px 12px',
+                        borderRadius: '12px',
+                      }}
+                    >
+                      {faqItem?.faqQuestionCount} Q&A
+                    </Typography>
+                  </Box>
+
+                  {/* Edit Button */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <IconButton
+                      size="small"
+                      // onClick={(e) => {
+                      //   e.stopPropagation()
+                      //   // Handle edit action here
+                      //   console.log('Edit FAQ:', faqItem.faqHeadCode)
+                      // }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        // Set the edit data and open modal
+                        setEditData(faqItem) // Pass the entire faqItem
+                        setOpenFaqHeadModal(true)
+                      }}
+                      sx={{
+                        color: '#6b7280',
+                        padding: '4px',
+                        '&:hover': {
+                          backgroundColor: '#f3f4f6',
+                          color: '#374151',
+                        },
+                      }}
+                    >
+                      <EditIcon sx={{ fontSize: '18px' }} />
+                    </IconButton>
+
+                    {/* Optional: Delete button */}
+                  </Box>
+                </Box>
+              </AccordionSummary>
+
+              <AccordionDetails
+                sx={{
+                  padding: '4px 20px 20px 20px',
+                }}
+              >
+                {faqItem?.faqDetailMasters.map((faqDetail: any, ind: any) => (
+                  <Box
+                    key={ind}
+                    sx={{
+                      padding: '14px 0',
+                      borderBottom: ind !== faqItem.faqDetailMasters.length - 1 ? '1px solid #f3f4f6' : 'none',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <Box sx={{ flex: 1 }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: '14px',
+                            color: '#111827',
+                            marginBottom: '6px',
+                          }}
+                        >
+                          {faqDetail?.faqQuestion}
+                        </Typography>
+
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: '#4b5563',
+                            fontSize: '13px',
+                            lineHeight: 1.7,
+                          }}
+                        >
+                          {faqDetail?.faqAnswer}
+                        </Typography>
+                      </Box>
+
+                      {/* Edit button for individual FAQ */}
+                      {/* <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          console.log('Edit question:', faqDetail)
+                        }}
+                        sx={{
+                          color: '#9ca3af',
+                          padding: '4px',
+                          marginLeft: '12px',
+                          flexShrink: 0,
+                          '&:hover': {
+                            backgroundColor: '#f3f4f6',
+                            color: '#374151',
+                          },
+                        }}
+                      >
+                        <EditIcon sx={{ fontSize: '16px' }} />
+                      </IconButton> */}
+                    </Box>
+                  </Box>
+                ))}
+              </AccordionDetails>
+            </Accordion>
+          ))}
+        </div>
 
         <FAQHeadDialog
           open={openFaqHeadModal}
@@ -354,7 +491,7 @@ const Faq: React.FC = () => {
           onClose={() => setOpenFaqHeadModal(false)}
           refreshList={fetchFaqs}
           showAlert={showAlert}
-        /> */}
+        />
       </Box>
     </HasPermission>
   )
