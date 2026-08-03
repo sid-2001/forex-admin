@@ -20,6 +20,7 @@ import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp'
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion'
 import MuiAccordionSummary, { AccordionSummaryProps, accordionSummaryClasses } from '@mui/material/AccordionSummary'
 import MuiAccordionDetails from '@mui/material/AccordionDetails'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 const Accordion = styled((props: AccordionProps) => <MuiAccordion disableGutters elevation={0} square {...props} />)(({ theme }) => ({
   border: `1px solid ${theme.palette.divider}`,
@@ -280,7 +281,7 @@ const Faq: React.FC = () => {
           </Box>
         </Stack>
 
-        <div>
+        {/* <div>
           {faqData.map((faqItem: any, index: any) => (
             <Accordion key={index} expanded={expanded === faqItem.faqHeadCode} onChange={handleChange(faqItem.faqHeadCode)}>
               <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
@@ -297,6 +298,179 @@ const Faq: React.FC = () => {
                       {faqDetail?.faqQuestion}
                     </Typography>
                     <Typography>{faqDetail?.faqAnswer}</Typography>
+                  </Box>
+                ))}
+              </AccordionDetails>
+            </Accordion>
+          ))}
+        </div> */}
+        <div className="faq-container">
+          {faqData.map((faqItem: any, index: any) => (
+            <Accordion
+              key={index}
+              expanded={expanded === faqItem.faqHeadCode}
+              onChange={handleChange(faqItem.faqHeadCode)}
+              sx={{
+                marginBottom: '12px',
+                boxShadow: 'none',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px !important',
+                '&:before': { display: 'none' },
+                '&.Mui-expanded': {
+                  borderColor: '#d1d5db',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                },
+              }}
+            >
+              <AccordionSummary
+                sx={{
+                  padding: '14px 20px',
+                  minHeight: 'auto',
+                  '& .MuiAccordionSummary-content': {
+                    margin: '0',
+                    alignItems: 'center',
+                  },
+                  '& .MuiAccordionSummary-expandIconWrapper': {
+                    color: '#6b7280',
+                    marginLeft: '8px',
+                  },
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: '15px',
+                        color: '#111827',
+                      }}
+                    >
+                      {faqItem?.faqSectionLabelName}
+                    </Typography>
+
+                    {faqItem?.faqSubSectionDescription && (
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: '#6b7280',
+                          fontSize: '12px',
+                          backgroundColor: '#f3f4f6',
+                          padding: '2px 12px',
+                          borderRadius: '12px',
+                        }}
+                      >
+                        {faqItem?.faqSubSectionDescription}
+                      </Typography>
+                    )}
+
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: '#6b7280',
+                        fontSize: '12px',
+                        backgroundColor: '#f3f4f6',
+                        padding: '2px 12px',
+                        borderRadius: '12px',
+                      }}
+                    >
+                      {faqItem?.faqQuestionCount} Q&A
+                    </Typography>
+                  </Box>
+
+                  {/* Edit Button */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        // Handle edit action here
+                        console.log('Edit FAQ:', faqItem.faqHeadCode)
+                      }}
+                      sx={{
+                        color: '#6b7280',
+                        padding: '4px',
+                        '&:hover': {
+                          backgroundColor: '#f3f4f6',
+                          color: '#374151',
+                        },
+                      }}
+                    >
+                      <EditIcon sx={{ fontSize: '18px' }} />
+                    </IconButton>
+
+                    {/* Optional: Delete button */}
+                  </Box>
+                </Box>
+              </AccordionSummary>
+
+              <AccordionDetails
+                sx={{
+                  padding: '4px 20px 20px 20px',
+                }}
+              >
+                {faqItem?.faqDetailMasters.map((faqDetail: any, ind: any) => (
+                  <Box
+                    key={ind}
+                    sx={{
+                      padding: '14px 0',
+                      borderBottom: ind !== faqItem.faqDetailMasters.length - 1 ? '1px solid #f3f4f6' : 'none',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <Box sx={{ flex: 1 }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: '14px',
+                            color: '#111827',
+                            marginBottom: '6px',
+                          }}
+                        >
+                          {faqDetail?.faqQuestion}
+                        </Typography>
+
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: '#4b5563',
+                            fontSize: '13px',
+                            lineHeight: 1.7,
+                          }}
+                        >
+                          {faqDetail?.faqAnswer}
+                        </Typography>
+                      </Box>
+
+                      {/* Edit button for individual FAQ */}
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          console.log('Edit question:', faqDetail)
+                        }}
+                        sx={{
+                          color: '#9ca3af',
+                          padding: '4px',
+                          marginLeft: '12px',
+                          flexShrink: 0,
+                          '&:hover': {
+                            backgroundColor: '#f3f4f6',
+                            color: '#374151',
+                          },
+                        }}
+                      >
+                        <EditIcon sx={{ fontSize: '16px' }} />
+                      </IconButton>
+                    </Box>
                   </Box>
                 ))}
               </AccordionDetails>
