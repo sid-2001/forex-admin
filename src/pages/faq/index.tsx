@@ -346,7 +346,7 @@ const Faq: React.FC = () => {
             }}
             disableColumnMenu
           />
-        )}
+        )} */}
 
         <FAQHeadDialog
           open={openFaqHeadModal}
@@ -354,7 +354,7 @@ const Faq: React.FC = () => {
           onClose={() => setOpenFaqHeadModal(false)}
           refreshList={fetchFaqs}
           showAlert={showAlert}
-        /> */}
+        />
       </Box>
     </HasPermission>
   )
