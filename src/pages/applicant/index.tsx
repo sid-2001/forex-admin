@@ -13,6 +13,7 @@ import DocumentsListComponent from '../document-tab'
 import BeneficiaryTable from '@/components/beneficiary-table'
 import { FieldValidationService } from '@/services/fieldvalidstion.service'
 import { CountryLabelData, CountryReportingLabelDTO } from '@/types/field.validation.type'
+import { convertStrToTitleCase } from '@/contants/utils'
 
 const ApplicantPage = () => {
   // const navigate = useNavigate()
@@ -24,6 +25,7 @@ const ApplicantPage = () => {
   const kyc_service = new KycService()
   const validation = new FieldValidationService()
   const userCountry = local_service?.get_staff_country()
+  const staffAccessCurrency = localStorage.getItem('staffAccessCurrency')
 
   const [selectedTab, setSelectedTab] = useState(0)
   const [transactions, setTransactions] = useState<any[]>([])
@@ -233,7 +235,6 @@ const ApplicantPage = () => {
     if (!applicantId) return
     try {
       const { data } = await kyc_service.getReferralCreditedTransactions(applicantId)
-      console.log(data, '---------------')
       setActiveReferrals(data || [])
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -365,6 +366,59 @@ const ApplicantPage = () => {
                           {applicantDetails?.applicantId}
                         </Typography>
                       </Box>
+
+                      {userCountry === 'UAE' && (
+                        <Box>
+                          <Typography
+                            sx={{
+                              fontSize: '0.9rem',
+                              color: '#334155',
+                              minHeight: 24,
+                              fontWeight: 700,
+                              letterSpacing: '1px',
+                            }}
+                          >
+                            Lulu Customer ID
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontSize: '0.9rem',
+                              color: '#334155',
+                              minHeight: 24,
+                              fontWeight: 700,
+                              letterSpacing: '1px',
+                            }}
+                          >
+                            {applicantDetails?.platformReferenceId}
+                          </Typography>
+                        </Box>
+                      )}
+
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          Status
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          {applicantDetails?.activeStatus ? 'Active' : 'Inactive'}
+                        </Typography>
+                      </Box>
+
                       <Box>
                         <Typography
                           sx={{
@@ -386,9 +440,10 @@ const ApplicantPage = () => {
                             letterSpacing: '1px',
                           }}
                         >
-                          {applicantDetails?.kycStatus}
+                          {convertStrToTitleCase(applicantDetails?.kycStatus)}
                         </Typography>
                       </Box>
+
                       <Box>
                         <Typography
                           sx={{
@@ -410,31 +465,7 @@ const ApplicantPage = () => {
                             letterSpacing: '1px',
                           }}
                         >
-                          {applicantDetails?.amlKycStatus}
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography
-                          sx={{
-                            fontSize: '0.9rem',
-                            color: '#334155',
-                            minHeight: 24,
-                            fontWeight: 700,
-                            letterSpacing: '1px',
-                          }}
-                        >
-                          Lulu Customer Id
-                        </Typography>
-                        <Typography
-                          sx={{
-                            fontSize: '0.9rem',
-                            color: '#334155',
-                            minHeight: 24,
-                            fontWeight: 700,
-                            letterSpacing: '1px',
-                          }}
-                        >
-                          {applicantDetails?.platformReferenceId}
+                          {convertStrToTitleCase(applicantDetails?.amlKycStatus)}
                         </Typography>
                       </Box>
                     </Box>
@@ -924,7 +955,7 @@ const ApplicantPage = () => {
 
                     <Typography variant="body1" fontWeight={600}>
                       {applicantDetails?.loyaltyResponse?.applicantLoyaltyData?.totalTransactions}/
-                      {applicantDetails?.loyaltyResponse?.nextLevel?.tierRetentionTransactions}
+                      {applicantDetails?.loyaltyResponse?.nextLevel?.totalTransactionsRequired}
                     </Typography>
                   </Box>
                 </Box>
@@ -955,7 +986,7 @@ const ApplicantPage = () => {
                     </Typography>
                     <Typography variant="body1" fontWeight={600}>
                       {applicantDetails?.loyaltyResponse?.applicantLoyaltyData?.totalAmount}/
-                      {applicantDetails?.loyaltyResponse?.nextLevel?.tierRetentionAmount}
+                      {applicantDetails?.loyaltyResponse?.nextLevel?.totalAmountRequired}
                     </Typography>
                   </Box>
                 </Box>
@@ -966,7 +997,7 @@ const ApplicantPage = () => {
                   You're at the Top!
                 </Typography>
                 <Typography variant="body1" sx={{ color: '#fff', fontWeight: '400', margin: '10px 0px' }}>
-                  Enjoy {applicantDetails?.loyaltyResponse?.currentLevel?.discountPercentage} AED flat reward on every transaction
+                  Enjoy {applicantDetails?.loyaltyResponse?.currentLevel?.discountPercentage} ${staffAccessCurrency} flat reward on every transaction
                 </Typography>
 
                 <Typography variant="body2" sx={{ color: '#fff', fontWeight: '300' }}>
@@ -1082,7 +1113,7 @@ const ApplicantPage = () => {
                         {level.userTier}
                       </Typography>
                       <Typography variant="h6" fontWeight={600} sx={{ padding: '20px 10px' }}>
-                        {level?.discountPercentage} AED
+                        {level?.discountPercentage} ${staffAccessCurrency}
                       </Typography>
                     </Box>
                   </Grid>

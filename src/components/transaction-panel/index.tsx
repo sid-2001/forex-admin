@@ -21,9 +21,6 @@ const TransactionPanel = () => {
     fetchMonthlyData(year)
   }, [year])
 
-  useEffect(() => {
-    console.log(local_service.get_staff_country())
-  }, [])
   // ✅ Updated: fetch monthly data for a given year
   const fetchMonthlyData = async (selectedYear: number) => {
     setLoading(true)

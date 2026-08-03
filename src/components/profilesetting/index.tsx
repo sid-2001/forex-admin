@@ -5,6 +5,12 @@ import { useNavigate } from 'react-router-dom'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import ConfirmationModal from '../logout/logout.component'
+import ProductConfigService from '@/services/product.config.service'
+import ForexCurrencyService from '@/services/forex-currency.service'
+import MasterService from '@/services/master.service'
+import { sidebarMenusState } from '@/states/state'
+import { useRecoilState } from 'recoil'
+import { AuthService } from '@/services/auth.service'
 
 dayjs.extend(utc)
 
@@ -56,12 +62,6 @@ const getAvatarColor = (staffId: string) => {
 
   const index = Math.abs(hash) % avatarColors.length
   return avatarColors[index]
-}
-
-// Function to generate random avatar SVG URL (using DiceBear API - free and open source)
-const getRandomAvatarUrl = (seed: string) => {
-  // You can choose different styles: 'adventurer', 'adventurer-neutral', 'avataaars', 'bottts', 'fun-emoji', etc.
-  return `https://api.dicebear.com/7.x/adventurer/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`
 }
 
 const getLiveAuditData = async (latitude: any, longitude: any) => {
@@ -116,6 +116,12 @@ const ProfileMenu = () => {
   const staff = local_service?.get_staff_access()
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const product_service = new ProductConfigService()
+  const currency_service = new ForexCurrencyService()
+  const master_service = new MasterService()
+  const auth_service = new AuthService()
+
+  const [, setSidebarMenus] = useRecoilState(sidebarMenusState)
 
   // Generate avatar seed when staff data is available
   useEffect(() => {
@@ -157,22 +163,6 @@ const ProfileMenu = () => {
     getUserLocation()
   }, [])
 
-  const updateCountryConfig = async (countryCode: string) => {
-    try {
-      const response = await fetch(`https://api.impronics.com/api/static-table/countryCorridorProduct/getByCountryCode/${countryCode}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      })
-      const result = await response.json()
-
-      if (result.status && result.data && result.data.length > 0) {
-        localStorage.setItem('countryConfig', JSON.stringify(result.data[0]))
-      }
-    } catch (error) {
-      console.error('Error updating country configuration:', error)
-    }
-  }
-
   const CountrySelector = () => {
     const staff = local_service?.get_staff_access()
     if (!staff) return null
@@ -189,13 +179,36 @@ const ProfileMenu = () => {
 
     const selectedCountry = local_service.get_staff_country()
 
+    console.log(selectedCountry, '------------------')
+
+    const handleApiCalls = async (countryCode: string) => {
+      const [countryResp, currencyResp, menuResp] = await Promise.all([
+        //@ts-ignore
+        product_service.getByCountryCode(countryCode),
+        currency_service.getCurrencyByCountryCode(countryCode),
+        master_service.getAllSideBarMenus(countryCode, staff?.roleId, staff?.staffId),
+      ])
+      localStorage.setItem('countryConfig', JSON.stringify(countryResp[0]))
+      localStorage.setItem('staffAccessCurrency', currencyResp?.currencyCode)
+      setSidebarMenus(menuResp?.data)
+      return { countryResp, currencyResp, menuResp }
+    }
+
     useEffect(() => {
       if (!selectedCountry && staff.staffCountries?.length) {
         const firstCountry = staff.staffCountries[0]
         local_service.set_usercountry(firstCountry)
-        updateCountryConfig(firstCountry)
+        handleApiCalls(firstCountry)
       }
     }, [staff, selectedCountry])
+
+    const handleStaffCountryChange = async (countryCode: any) => {
+      local_service.set_usercountry(countryCode)
+      const { countryResp, currencyResp, menuResp } = await handleApiCalls(countryCode)
+      if (countryResp && currencyResp && menuResp) {
+        window.location.reload()
+      }
+    }
 
     return (
       <Stack id="imp-Menu_Item_Selector" direction="row" alignItems="center" spacing={0.6} sx={{ mt: '2px' }}>
@@ -203,12 +216,7 @@ const ProfileMenu = () => {
           <Select
             size="small"
             value={selectedCountry || ''}
-            onChange={async (e) => {
-              const newCountry = e.target.value
-              await updateCountryConfig(newCountry)
-              local_service.set_usercountry(newCountry)
-              window.location.reload()
-            }}
+            onChange={async (e) => handleStaffCountryChange(e.target.value)}
             sx={{
               fontSize: { xs: '11px', md: '1.4vh' },
               color: 'white',
@@ -272,11 +280,16 @@ const ProfileMenu = () => {
     setIsModalOpen(!isModalOpen)
   }
 
-  const handleLogout = () => {
-    local_service.delete_eaccestoke()
-    localStorage.clear()
-    window.location.reload()
-    setAnchorEl(null)
+  const handleLogout = async () => {
+    if (local_service?.get_accesstoken() !== null) {
+      const response = await auth_service.staffLogout(staff.staffId)
+      if (response?.status) {
+        localStorage.clear()
+        sessionStorage.clear()
+        window.location.reload()
+        setAnchorEl(null)
+      }
+    }
   }
 
   return (
@@ -359,7 +372,7 @@ const ProfileMenu = () => {
             <Typography
               sx={{ cursor: 'pointer', fontSize: '13px', opacity: 0.8 }}
               onClick={() => {
-                navigate(`/profile/edit/${staff?.staffId}`)
+                navigate(`/user/edit/${staff?.staffId}`)
                 handleClose()
               }}
             >
@@ -400,7 +413,7 @@ const ProfileMenu = () => {
 
         <MenuItem
           onClick={() => {
-            navigate(`/profile/edit/${staff?.staffId}`)
+            navigate(`/user/edit/${staff?.staffId}`)
             handleClose()
           }}
         >

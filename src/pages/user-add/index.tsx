@@ -65,6 +65,7 @@ const UserAdd = () => {
     ZA: 4,
     GR: 5, // Example for Greece
     UAE: 5,
+    ZAF: 4,
   }
 
   const handleToggleChangePermisson = (
@@ -286,7 +287,7 @@ const UserAdd = () => {
           if (data) {
             settype('success')
             setText('Staff updated successfully!')
-            navigate('/profile')
+            navigate('/user')
           } else {
             settype('error')
             setText(data?.message)
@@ -305,7 +306,7 @@ const UserAdd = () => {
           if (data.status) {
             settype('success')
             setText('Staff created successfully!')
-            navigate('/profile')
+            navigate('/user')
           } else {
             setText(data?.message)
             settype('error')
@@ -361,9 +362,9 @@ const UserAdd = () => {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.USER}>
-      <Box sx={{ width: '50vw' }}>
+      <Box sx={{ width: '90vw', padding: '10px' }}>
         <Typography
-          mb={2}
+          mb={3}
           variant="h5"
           gutterBottom
           sx={{
@@ -373,7 +374,7 @@ const UserAdd = () => {
           Staff Details
         </Typography>
 
-        <Box sx={{ width: '80vw' }}>
+        <Box>
           <Grid container spacing={2} mb={2}>
             <Grid item xs={12} sm={4}>
               <label style={inputLabelStyle}>First Name</label>
@@ -498,7 +499,7 @@ const UserAdd = () => {
           </Grid>
         </Box>
 
-        <Box sx={{ width: '80vw' }}>
+        <Box>
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={12} sm={6}>
               <label style={inputLabelStyle}>Address Line 1</label>
@@ -751,10 +752,10 @@ const UserAdd = () => {
           </Button>
         </Grid>
 
-        <Box p={2}>
+        <Box p={'2 0'}>
           {/* DataGrid Appears When a Role Is Selected */}
           {selectedRole && (
-            <Box mt={4} height={400} width="80vw">
+            <Box mt={4} height={400}>
               <DataGrid
                 rows={permissions}
                 columns={columns}

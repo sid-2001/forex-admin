@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Box, Button, Typography, Chip, ToggleButton, ToggleButtonGroup, useTheme, IconButton, Modal } from '@mui/material'
+import { Box, Button, Typography, Chip, ToggleButton, ToggleButtonGroup, useTheme, IconButton, Modal, Tooltip } from '@mui/material'
 import { DataGrid, GridColumnVisibilityModel, GridToolbarColumnsButton, GridToolbarFilterButton } from '@mui/x-data-grid'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { TransactionInward, TransactionOutward } from '@/types/transaction.type'
@@ -27,8 +27,6 @@ const applicant_service = new ApplicantService()
 const transaction_Service = new TransactionService()
 const helper = new HelperService()
 const local_service = new LocalStorageService()
-const transaction_service = new TransactionService()
-const userCountry = local_service?.get_staff_country()
 
 const TransactionListing = () => {
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<GridColumnVisibilityModel>({})
@@ -61,6 +59,7 @@ const TransactionListing = () => {
   const { search } = useLocation()
   const queryParams = new URLSearchParams(search)
   const flow = queryParams.get('flow')
+  const userCountry = local_service?.get_staff_country()
 
   const columnHeaderMap: any = {
     UAE: 'Payment Details',
@@ -109,6 +108,24 @@ const TransactionListing = () => {
       headerName: 'Destination',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
     },
     {
       field: 'value',
@@ -122,6 +139,24 @@ const TransactionListing = () => {
       headerName: 'Principal Currency',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
     },
     {
       field: 'settlementAmount',
@@ -141,6 +176,24 @@ const TransactionListing = () => {
       headerName: 'Settlement Currency',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
     },
     {
       field: 'applicant',
@@ -361,9 +414,78 @@ const TransactionListing = () => {
   const inward_columns = [
     { field: 'transactionNumberIw', headerName: 'Transaction Number IW', width: 200, headerClassName: 'super-app-theme--header' },
     { field: 'owTransactionNumber', headerName: 'OW Transaction Number', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'sendingCountry', headerName: 'Sending Country', width: 130, headerClassName: 'super-app-theme--header' },
-    { field: 'receivingCountry', headerName: 'Receiving Country', width: 130, headerClassName: 'super-app-theme--header' },
-    { field: 'settlementCurrency', headerName: 'Settlement Currency', width: 150, headerClassName: 'super-app-theme--header' },
+    {
+      field: 'sendingCountry',
+      headerName: 'Sending Country',
+      width: 130,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
+    },
+    {
+      field: 'receivingCountry',
+      headerName: 'Receiving Country',
+      width: 130,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
+    },
+    {
+      field: 'settlementCurrency',
+      headerName: 'Settlement Currency',
+      width: 150,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
+    },
     // { field: 'principalCurrency', headerName: 'Principal Currency', width: 150, headerClassName: 'super-app-theme--header' },
 
     // { field: 'gatewayId', headerName: 'Gateway Id', width: 100, headerClassName: 'super-app-theme--header' },
@@ -393,10 +515,6 @@ const TransactionListing = () => {
     //   headerClassName: 'super-app-theme--header',
     // },
     {
-      // field: 'charges',
-      // headerName: 'Charges',
-      // flex: 1,
-      // headerClassName: 'super-app-theme--header',
       field: 'charges',
       headerName: 'Charges (Inc Vat)',
       flex: 1,
@@ -763,77 +881,81 @@ const TransactionListing = () => {
           </ToggleButtonGroup>
         </Box>
 
-        {userCountry !== 'UAE' && (
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {/* Left group: text-style buttons */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 3 }}>
-              <Button
-                variant="text"
-                sx={{
-                  textTransform: 'none',
-                  borderBottom: '1px solid transparent',
-                  borderRadius: 0,
-                  color: 'text.primary',
-                  '&:hover': {
-                    borderBottomColor: 'primary.main',
-                    fontWeight: 'bold',
-                    backgroundColor: 'transparent',
-                  },
-                }}
-                onClick={() => handleNavigation('/recon-trx')}
-              >
-                Reconciliation
-              </Button>
-
-              <Button
-                variant="text"
-                sx={{
-                  textTransform: 'none',
-                  borderBottom: '1px solid transparent',
-                  borderRadius: 0,
-                  color: 'text.primary',
-                  '&:hover': {
-                    borderBottomColor: 'primary.main',
-                    fontWeight: 'bold',
-                    backgroundColor: 'transparent',
-                  },
-                }}
-                // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
-                onClick={() => handleNavigation('/utilization')}
-              >
-                Utilization Limit
-              </Button>
-
-              <Button
-                variant="text"
-                sx={{
-                  textTransform: 'none',
-                  borderBottom: '1px solid transparent',
-                  borderRadius: 0,
-                  color: 'text.primary',
-                  '&:hover': {
-                    borderBottomColor: 'primary.main',
-                    fontWeight: 'bold',
-                    backgroundColor: 'transparent',
-                  },
-                }}
-                // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
-                onClick={() => handleNavigation('/recon')}
-              >
-                Settlement
-              </Button>
-            </Box>
-
-            {/* Right: Transaction button */}
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {/* Left group: text-style buttons */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 3 }}>
             <Button
-              variant="contained"
-              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
-              onClick={() => handleNavigation('/sendmoney')}
+              variant="text"
+              sx={{
+                textTransform: 'none',
+                borderBottom: '1px solid transparent',
+                borderRadius: 0,
+                fontSize: '15px',
+                fontWeight: 'bold',
+                color: 'text.primary',
+                '&:hover': {
+                  borderBottomColor: 'primary.main',
+                  fontWeight: 'bold',
+                  backgroundColor: 'transparent',
+                },
+              }}
+              onClick={() => handleNavigation('/recon-trx')}
             >
-              + Transaction
+              Reconciliation
             </Button>
+
+            {userCountry !== 'UAE' && (
+              <>
+                <Button
+                  variant="text"
+                  sx={{
+                    textTransform: 'none',
+                    borderBottom: '1px solid transparent',
+                    borderRadius: 0,
+                    color: 'text.primary',
+                    '&:hover': {
+                      borderBottomColor: 'primary.main',
+                      fontWeight: 'bold',
+                      backgroundColor: 'transparent',
+                    },
+                  }}
+                  // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.COMPLIANCE_MONITOR, 'canRead')}
+                  onClick={() => handleNavigation('/utilization')}
+                >
+                  Utilization Limit
+                </Button>
+
+                <Button
+                  variant="text"
+                  sx={{
+                    textTransform: 'none',
+                    borderBottom: '1px solid transparent',
+                    borderRadius: 0,
+                    color: 'text.primary',
+                    '&:hover': {
+                      borderBottomColor: 'primary.main',
+                      fontWeight: 'bold',
+                      backgroundColor: 'transparent',
+                    },
+                  }}
+                  // disabled={!helper.checkUserHasPermission(local_service.get_modules()?.RECONCILLATION, 'canRead')}
+                  onClick={() => handleNavigation('/recon')}
+                >
+                  Settlement
+                </Button>
+
+                {/* Right: Transaction button */}
+                <Button
+                  variant="contained"
+                  disabled={!helper.checkUserHasPermission(local_service.get_modules()?.TRANSACTION_OUTWARD, 'canCreate')}
+                  onClick={() => handleNavigation('/sendmoney')}
+                >
+                  + Transaction
+                </Button>
+              </>
+            )}
           </Box>
-        )}
+        </Box>
       </Box>
 
       <Box
