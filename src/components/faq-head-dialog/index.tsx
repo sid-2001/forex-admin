@@ -19,6 +19,7 @@ import {
   DialogTitle as MuiDialogTitle,
   DialogContent as MuiDialogContent,
   DialogActions as MuiDialogActions,
+  Alert,
 } from '@mui/material'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
@@ -26,6 +27,8 @@ import SequenceApiService from '@/services/sequence.api.service'
 import MasterService from '@/services/master.service'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
+import SaveIcon from '@mui/icons-material/Save'
+import UpdateIcon from '@mui/icons-material/Update'
 
 export default function FAQHeadDialog({ open, editData, onClose, refreshList, showAlert }: any) {
   const local_service = new LocalStorageService()
@@ -55,21 +58,44 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [deleteIndex, setDeleteIndex] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
+  const [updateProgress, setUpdateProgress] = useState<{ total: number; completed: number } | null>(null)
 
   useEffect(() => {
     if (editData) {
+      // For edit, populate from existing data
       setFormData({
-        ...editData,
-        effectiveFromDate: editData?.effectiveFromDate?.split('T')[0],
-        effectiveToDate: editData?.effectiveToDate?.split('T')[0],
-        faqDetails: editData?.faqDetailMasters || [],
+        countryCode: editData.countryCode || '',
+        faqChannel: editData.faqChannel || '',
+        faqSectionLabelName: editData.faqSectionLabelName || '',
+        faqSectionDescription: editData.faqSectionDescription || '',
+        faqSubSectionLabelName: editData.faqSubSectionLabelName || '',
+        faqSubSectionDescription: editData.faqSubSectionDescription || '',
+        faqType: editData.faqType || '',
+        faqQuestionCount: editData.faqQuestionCount || 0,
+        active: editData.active !== undefined ? editData.active : true,
+        effectiveFromDate: editData.effectiveFromDate?.split('T')[0] || '',
+        effectiveToDate: editData.effectiveToDate?.split('T')[0] || '',
+        createdBy: editData.createdBy || local_service?.get_staff_id() || 'admin',
+        faqDetails:
+          editData.faqDetailMasters?.map((detail: any) => ({
+            faqDetailCode: detail.faqDetailCode, // Keep for update
+            faqQuestion: detail.faqQuestion || '',
+            faqAnswer: detail.faqAnswer || '',
+            effectiveFromDate: detail.effectiveFromDate?.split('T')[0] || '',
+            effectiveToDate: detail.effectiveToDate?.split('T')[0] || '9999-12-31',
+            active: detail.active !== undefined ? detail.active : true,
+            isNew: false, // Flag to identify existing records
+          })) || [],
       })
     } else {
-      // Get staff ID for createdBy - use the correct format
-      const staffId = local_service?.get_staff_id() || 'APSUAEAUH2026073000002'
+      // For new FAQ
+      const staffId = local_service?.get_staff_id() || 'admin'
       setFormData({
         ...initialFormState,
         createdBy: staffId,
+        effectiveFromDate: '',
+        effectiveToDate: '',
+        faqDetails: [],
       })
     }
   }, [editData, open])
@@ -83,7 +109,6 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
     setcountries(res || [])
   }, [])
 
-  // Initialize FAQ details based on count
   const initializeFaqDetails = (count: number) => {
     const currentDetails = formData.faqDetails || []
     const newDetails = [...currentDetails]
@@ -95,6 +120,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
         effectiveFromDate: formData.effectiveFromDate || '',
         effectiveToDate: formData.effectiveToDate || '9999-12-31',
         active: true,
+        isNew: true,
       })
     }
 
@@ -140,6 +166,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
       effectiveFromDate: formData.effectiveFromDate || '',
       effectiveToDate: formData.effectiveToDate || '9999-12-31',
       active: true,
+      isNew: true,
     })
     setFormData({
       ...formData,
@@ -235,55 +262,129 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
     setLoading(true)
 
     try {
-      // Get the staff ID - ensure it's in the correct format
-      const staffId = local_service?.get_staff_id() || 'APSUAEAUH2026073000002'
-
-      // Prepare payload
-      const payload = {
-        countryCode: formData.countryCode,
-        faqChannel: formData.faqChannel.toLowerCase(), // Make sure it's lowercase
-        faqSectionLabelName: formData.faqSectionLabelName,
-        faqSectionDescription: formData.faqSectionDescription,
-        faqSubSectionLabelName: formData.faqSubSectionLabelName,
-        faqSubSectionDescription: formData.faqSubSectionDescription,
-        faqType: formData.faqType,
-        faqQuestionCount: formData.faqQuestionCount,
-        createdBy: staffId,
-        effectiveFromDate: formData.effectiveFromDate + 'T00:00:00',
-        effectiveToDate: formData.effectiveToDate + 'T00:00:00',
-        faqDetails: formData.faqDetails?.map((detail: any) => ({
-          faqQuestion: detail.faqQuestion,
-          faqAnswer: detail.faqAnswer,
-          effectiveFromDate: detail.effectiveFromDate + 'T00:00:00',
-          effectiveToDate: detail.effectiveToDate + 'T00:00:00',
-        })),
-      }
-
-      console.log('Sending payload:', JSON.stringify(payload, null, 2))
-
       if (editData) {
-        // Update logic here
+        // UPDATE MODE - Update each FAQ Detail individually
+        await handleUpdate()
       } else {
-        const res = await master_service.createFaq(payload)
-
-        console.log('Response:', res)
-
-        if (res.status === false || !res.status) {
-          // Show the actual error message from the API
-          showAlert('error', res.message || 'Failed to create FAQ')
-        }
-        if (res.status) {
-          showAlert('success', res.message || 'FAQ created successfully')
-          refreshList()
-          onClose()
-        }
+        // CREATE MODE - Create new FAQ
+        await handleCreate()
       }
     } catch (error: any) {
-      console.error('Error creating FAQ:', error)
-      // Show the actual error message
+      console.error('Error saving FAQ:', error)
       showAlert('error', error?.message || error?.toString() || 'Operation failed')
     } finally {
       setLoading(false)
+      setUpdateProgress(null)
+    }
+  }
+
+  const handleCreate = async () => {
+    const payload = {
+      countryCode: formData.countryCode,
+      faqChannel: formData.faqChannel.toUpperCase(),
+      faqSectionLabelName: formData.faqSectionLabelName,
+      faqSectionDescription: formData.faqSectionDescription,
+      faqSubSectionLabelName: formData.faqSubSectionLabelName,
+      faqSubSectionDescription: formData.faqSubSectionDescription,
+      faqType: formData.faqType,
+      faqQuestionCount: Number(formData.faqQuestionCount),
+      createdBy: formData.createdBy || 'admin',
+      effectiveFromDate: formData.effectiveFromDate + 'T00:00:00',
+      effectiveToDate: formData.effectiveToDate + 'T00:00:00',
+      faqDetails: formData.faqDetails?.map((detail: any) => ({
+        faqQuestion: detail.faqQuestion,
+        faqAnswer: detail.faqAnswer,
+        effectiveFromDate: detail.effectiveFromDate + 'T00:00:00',
+        effectiveToDate: detail.effectiveToDate + 'T00:00:00',
+        active: detail.active !== undefined ? detail.active : true,
+      })),
+    }
+
+    const res = await master_service.createFaq(payload)
+
+    if (res.status) {
+      showAlert('success', res.message || 'FAQ created successfully')
+      refreshList()
+      onClose()
+    } else {
+      showAlert('error', res.message || 'Failed to create FAQ')
+    }
+  }
+
+  const handleUpdate = async () => {
+    const userId = local_service?.get_staff_id() || 'admin'
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Dubai'
+
+    // Separate existing and new FAQ details
+    const existingDetails = formData.faqDetails.filter((d: any) => !d.isNew && d.faqDetailCode)
+    const newDetails = formData.faqDetails.filter((d: any) => d.isNew || !d.faqDetailCode)
+
+    // Update existing details
+    const updatePromises = existingDetails.map(async (detail: any) => {
+      const updatePayload = {
+        faqQuestion: detail.faqQuestion,
+        faqAnswer: detail.faqAnswer,
+        active: detail.active !== undefined ? detail.active : true,
+        effectiveFromDate: detail.effectiveFromDate + 'T00:00:00',
+        effectiveToDate: detail.effectiveToDate + 'T00:00:00',
+        modifiedBy: userId,
+      }
+
+      try {
+        const response = await master_service.updateFaqDetail(detail.faqDetailCode, updatePayload)
+        return { success: true, detail, response }
+      } catch (error) {
+        console.error(`Failed to update FAQ detail ${detail.faqDetailCode}:`, error)
+        return { success: false, detail, error }
+      }
+    })
+
+    // Create new details (you'll need to add this to your MasterService)
+    const createPromises = newDetails.map(async (detail: any) => {
+      const createPayload = {
+        faqHeadCode: editData.faqHeadCode,
+        faqQuestion: detail.faqQuestion,
+        faqAnswer: detail.faqAnswer,
+        active: detail.active !== undefined ? detail.active : true,
+        effectiveFromDate: detail.effectiveFromDate + 'T00:00:00',
+        effectiveToDate: detail.effectiveToDate + 'T00:00:00',
+        createdBy: userId,
+      }
+
+      // You'll need to implement this method
+      try {
+        const response = await master_service.createFaqDetail(createPayload)
+        return { success: true, detail, response }
+      } catch (error) {
+        console.error('Failed to create new FAQ detail:', error)
+        return { success: false, detail, error }
+      }
+    })
+
+    // Execute all updates and creates
+    const allPromises = [...updatePromises, ...createPromises]
+    setUpdateProgress({ total: allPromises.length, completed: 0 })
+
+    const results = await Promise.allSettled(allPromises)
+
+    const successCount = results.filter((r) => r.status === 'fulfilled' && r.value.success).length
+    const failureCount = results.length - successCount
+
+    // Update progress
+    results.forEach((_, index) => {
+      setUpdateProgress({ total: results.length, completed: index + 1 })
+    })
+
+    if (failureCount === 0) {
+      showAlert('success', `All ${successCount} FAQ details updated successfully`)
+      refreshList()
+      onClose()
+    } else if (successCount > 0) {
+      showAlert('warning', `${successCount} updated successfully, ${failureCount} failed. Please check logs.`)
+      refreshList()
+      // Optionally keep modal open
+    } else {
+      showAlert('error', 'Failed to update FAQ details. Please try again.')
     }
   }
 
@@ -294,11 +395,30 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
     }
   }
 
+  // Determine if this is edit mode
+  const isEditMode = !!editData
+
   return (
     <>
       <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-        <DialogTitle>{editData ? 'Edit Faq' : 'Add Faq'}</DialogTitle>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {isEditMode ? (
+            <>
+              <UpdateIcon color="primary" />
+              Edit FAQ: {editData?.faqHeadCode}
+            </>
+          ) : (
+            'Add New FAQ'
+          )}
+        </DialogTitle>
         <DialogContent dividers>
+          {/* Show update progress if updating */}
+          {updateProgress && (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              Updating FAQ details... {updateProgress.completed}/{updateProgress.total} completed
+            </Alert>
+          )}
+
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={6}>
               <Autocomplete
@@ -316,18 +436,18 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
             <Grid item xs={6}>
               <TextField
                 fullWidth
-                label="Faq Channel"
+                label="FAQ Channel"
                 required
                 value={formData.faqChannel}
                 onChange={(e) => handleChange('faqChannel', e.target.value)}
-                helperText="Use lowercase letters (e.g., 'm' for mobile)"
+                helperText="Use uppercase: M (Mobile), W (Web), or A (App)"
               />
             </Grid>
 
             <Grid item xs={6}>
               <TextField
                 fullWidth
-                label="Faq Section Label Name"
+                label="FAQ Section Label Name"
                 required
                 value={formData.faqSectionLabelName}
                 onChange={(e) => handleChange('faqSectionLabelName', e.target.value)}
@@ -337,7 +457,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
             <Grid item xs={6}>
               <TextField
                 fullWidth
-                label="Faq Section Description"
+                label="FAQ Section Description"
                 required
                 value={formData.faqSectionDescription}
                 onChange={(e) => handleChange('faqSectionDescription', e.target.value)}
@@ -347,7 +467,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
             <Grid item xs={6}>
               <TextField
                 fullWidth
-                label="Faq Sub Section Label Name"
+                label="FAQ Sub Section Label Name"
                 required
                 value={formData.faqSubSectionLabelName}
                 onChange={(e) => handleChange('faqSubSectionLabelName', e.target.value)}
@@ -357,7 +477,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
             <Grid item xs={6}>
               <TextField
                 fullWidth
-                label="Faq Sub Section Description"
+                label="FAQ Sub Section Description"
                 required
                 value={formData.faqSubSectionDescription}
                 onChange={(e) => handleChange('faqSubSectionDescription', e.target.value)}
@@ -365,17 +485,18 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
             </Grid>
 
             <Grid item xs={3}>
-              <TextField fullWidth label="Faq Type" required value={formData.faqType} onChange={(e) => handleChange('faqType', e.target.value)} />
+              <TextField fullWidth label="FAQ Type" required value={formData.faqType} onChange={(e) => handleChange('faqType', e.target.value)} />
             </Grid>
 
             <Grid item xs={3}>
               <TextField
                 fullWidth
-                label="Faq Question Count"
+                label="FAQ Question Count"
                 value={formData.faqQuestionCount}
                 onChange={(e) => handleQuestionCountChange(e.target.value)}
                 placeholder="Enter number of questions"
                 helperText="Enter the number of FAQ questions"
+                disabled={isEditMode} // Disable count change in edit mode
               />
             </Grid>
 
@@ -433,6 +554,11 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
                 <Divider sx={{ my: 2 }}>
                   <Typography variant="h6" color="primary">
                     FAQ Questions & Answers
+                    {isEditMode && (
+                      <Typography component="span" variant="caption" sx={{ ml: 2, color: 'text.secondary' }}>
+                        (Updates will be saved individually)
+                      </Typography>
+                    )}
                   </Typography>
                 </Divider>
 
@@ -446,13 +572,26 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
                         mb: 2,
                         backgroundColor: index % 2 === 0 ? 'background.default' : 'background.paper',
                         border: faqDetailsErrors[index] ? '1px solid #f44336' : 'none',
+                        position: 'relative',
                       }}
                     >
                       <Grid container spacing={2}>
                         <Grid item xs={12} display="flex" justifyContent="space-between" alignItems="center">
-                          <Typography variant="subtitle1" color="primary">
-                            FAQ #{index + 1}
-                          </Typography>
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <Typography variant="subtitle1" color="primary">
+                              FAQ #{index + 1}
+                            </Typography>
+                            {detail.faqDetailCode && (
+                              <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '10px' }}>
+                                ID: {detail.faqDetailCode}
+                              </Typography>
+                            )}
+                            {detail.isNew && (
+                              <Typography variant="caption" sx={{ color: 'success.main', fontSize: '10px' }}>
+                                [New]
+                              </Typography>
+                            )}
+                          </Box>
                           <IconButton size="small" color="error" onClick={() => handleDeleteClick(index)} disabled={formData.faqDetails.length <= 1}>
                             <RemoveIcon />
                           </IconButton>
@@ -469,11 +608,6 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
                             onChange={(e) => handleFaqDetailChange(index, 'faqQuestion', e.target.value)}
                             error={!!faqDetailsErrors[index]?.faqQuestion}
                             helperText={faqDetailsErrors[index]?.faqQuestion}
-                            sx={{
-                              '& .MuiInputBase-root': {
-                                height: '80px',
-                              },
-                            }}
                           />
                         </Grid>
 
@@ -488,11 +622,6 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
                             onChange={(e) => handleFaqDetailChange(index, 'faqAnswer', e.target.value)}
                             error={!!faqDetailsErrors[index]?.faqAnswer}
                             helperText={faqDetailsErrors[index]?.faqAnswer}
-                            sx={{
-                              '& .MuiInputBase-root': {
-                                height: '80px',
-                              },
-                            }}
                           />
                         </Grid>
 
@@ -548,8 +677,14 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
           <Button onClick={onClose} color="inherit" disabled={loading}>
             Cancel
           </Button>
-          <Button variant="contained" onClick={handleSubmit} color="primary" disabled={loading}>
-            {loading ? 'Saving...' : editData ? 'Update' : 'Save'}
+          <Button
+            variant="contained"
+            onClick={handleSubmit}
+            color="primary"
+            disabled={loading}
+            startIcon={isEditMode ? <UpdateIcon /> : <SaveIcon />}
+          >
+            {loading ? 'Saving...' : isEditMode ? 'Update All' : 'Save'}
           </Button>
         </DialogActions>
       </Dialog>

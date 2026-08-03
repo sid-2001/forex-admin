@@ -58,16 +58,34 @@ instance.interceptors.request.use(
     const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().replace('Z', '') // Result: "2026-03-09T12:45:00.783"
 
     if (token) {
-      config.headers['Authorization'] = 'Bearer ' + token
-      config.headers['ngrok-skip-browser-warning'] = 'true'
+      // config.headers['Authorization'] = 'Bearer ' + token
+      // config.headers['ngrok-skip-browser-warning'] = 'true'
 
-      // Audit Headers
+      // // Audit Headers
+      // config.headers['timezone'] = timezone
+      // config.headers['offset'] = offset
+      // config.headers['localdatetime'] = localDateTime
+
+      // config.headers['X-Device-IP'] = ip
+      // config.headers['X-Device-Name'] = deviceName
+      const localStorageService = new LocalStorageService()
+
+      config.headers['Authorization'] = `Bearer ${token}`
+      config.headers['Content-Type'] = 'application/json'
+
+      // Required by backend
+      config.headers['X-User-Id'] = localStorageService.get_staff_id?.() || localStorage.getItem('staffId') || 'admin'
+
+      config.headers['X-Time-Zone'] = 'Asia/Dubai'
+
+      // Existing headers
       config.headers['timezone'] = timezone
       config.headers['offset'] = offset
       config.headers['localdatetime'] = localDateTime
 
       config.headers['X-Device-IP'] = ip
       config.headers['X-Device-Name'] = deviceName
+      config.headers['ngrok-skip-browser-warning'] = 'true'
     } else if (!token) {
       if (sessionStorage.getItem('deviceUUID')) {
         config.headers['x-device-id'] = sessionStorage.getItem('deviceUUID')

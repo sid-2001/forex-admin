@@ -390,10 +390,16 @@ const Faq: React.FC = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <IconButton
                       size="small"
+                      // onClick={(e) => {
+                      //   e.stopPropagation()
+                      //   // Handle edit action here
+                      //   console.log('Edit FAQ:', faqItem.faqHeadCode)
+                      // }}
                       onClick={(e) => {
                         e.stopPropagation()
-                        // Handle edit action here
-                        console.log('Edit FAQ:', faqItem.faqHeadCode)
+                        // Set the edit data and open modal
+                        setEditData(faqItem) // Pass the entire faqItem
+                        setOpenFaqHeadModal(true)
                       }}
                       sx={{
                         color: '#6b7280',
