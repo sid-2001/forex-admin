@@ -328,6 +328,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
         effectiveFromDate: detail.effectiveFromDate + 'T00:00:00',
         effectiveToDate: detail.effectiveToDate + 'T00:00:00',
         modifiedBy: userId,
+        // ...formData,
       }
 
       try {
@@ -684,7 +685,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
             disabled={loading}
             startIcon={isEditMode ? <UpdateIcon /> : <SaveIcon />}
           >
-            {loading ? 'Saving...' : isEditMode ? 'Update All' : 'Save'}
+            {loading ? 'Saving...' : isEditMode ? 'Update' : 'Save'}
           </Button>
         </DialogActions>
       </Dialog>
