@@ -351,6 +351,7 @@ const Faq: React.FC = () => {
                         fontWeight: 600,
                         fontSize: '15px',
                         color: '#111827',
+                        marginLeft: 2,
                       }}
                     >
                       {faqItem?.faqSectionLabelName}
