@@ -120,6 +120,7 @@ const ProfileMenu = () => {
   const currency_service = new ForexCurrencyService()
   const master_service = new MasterService()
   const auth_service = new AuthService()
+  const selectedCountry = local_service.get_staff_country()
 
   const [, setSidebarMenus] = useRecoilState(sidebarMenusState)
 
@@ -164,8 +165,9 @@ const ProfileMenu = () => {
   }, [])
 
   const CountrySelector = () => {
-    const staff = local_service?.get_staff_access()
     if (!staff) return null
+
+    console.log(staff, selectedCountry, '00000')
 
     const countryNames: Record<string, string> = {
       ZA: 'South Africa',
@@ -176,8 +178,6 @@ const ProfileMenu = () => {
     }
 
     const getFlag = (code: string) => (code ? code.toUpperCase().replace(/./g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0))) : '🏳️')
-
-    const selectedCountry = local_service.get_staff_country()
 
     console.log(selectedCountry, '------------------')
 

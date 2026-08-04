@@ -484,7 +484,7 @@ const Dashboard = () => {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.DASHBOARD}>
-      <Box sx={{ width: '85vw', overflowX: 'hidden', height: '85vh' }}>
+      <Box sx={{ width: '90vw', overflowX: 'hidden', height: '85vh' }}>
         <Typography variant="h4" gutterBottom sx={{ mt: 0, mb: 1 }}>
           <b>Dashboard</b>
         </Typography>

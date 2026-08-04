@@ -196,7 +196,7 @@ export default function ForexCurrencyMaster() {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Box p={2} sx={{ width: '85vw' }}>
+      <Box p={2} sx={{ width: '90vw' }}>
         <Stack direction="row" justifyContent="space-between" mb={2}>
           <Typography
             variant="h4"

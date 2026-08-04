@@ -222,7 +222,7 @@ export default function BopCategoryTypeMaster() {
 
   return (
     <HasPermission permission={'canRead'} module={localService.get_modules()?.MASTER_DATA}>
-      <Box p={2} sx={{ width: '85vw' }}>
+      <Box p={2} sx={{ width: '90vw' }}>
         <Stack direction="row" justifyContent="space-between" mb={2}>
           <Typography
             variant="h4"

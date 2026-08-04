@@ -351,7 +351,7 @@ export default function TermsConditionsGridPage() {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Box sx={{ height: '100vh', p: 3 }}>
+      <Box sx={{ height: '100vh', p: 3, width: '90vw' }}>
         <Stack direction="row" justifyContent="space-between" mb={2}>
           <Typography
             variant="h4"
@@ -393,24 +393,22 @@ export default function TermsConditionsGridPage() {
             + Create Terms
           </Button>
         </Stack>
-        <Box sx={{ height: 500, width: '100%' }}>
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            loading={loading}
-            slots={{ toolbar: GridToolbar }}
-            slotProps={{ toolbar: { showQuickFilter: true } }}
-            disableColumnMenu
-            getRowId={(r) => r.termsCode!}
-            initialState={{
-              pagination: {
-                paginationModel: {
-                  pageSize: 5,
-                },
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          loading={loading}
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
+          getRowId={(r) => r.termsCode!}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5,
               },
-            }}
-          />
-        </Box>
+            },
+          }}
+        />
 
         {/* ---------- DIALOG ---------- */}
         <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>

@@ -110,7 +110,7 @@ export default function BopCategoryMaster() {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
+      <Box p={3} sx={{ width: '90vw', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
         <Stack direction="row" justifyContent="space-between" mb={2}>
           <Typography
             variant="h4"

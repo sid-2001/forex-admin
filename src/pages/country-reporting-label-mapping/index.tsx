@@ -540,7 +540,7 @@ export default function CountryReportingMappingsGridPage() {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Box sx={{ height: '100vh', p: 3 }}>
+      <Box sx={{ height: '100vh', p: 3, width: '90vw' }}>
         <Stack direction="row" justifyContent="space-between" mb={2}>
           <Typography
             variant="h4"

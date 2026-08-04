@@ -138,7 +138,7 @@ export default function EmailTemplateManagement() {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Box>
+      <Box p={3} sx={{ width: '90vw' }}>
         <Stack direction="row" mb={2} mt={2} justifyContent={'space-between'}>
           <Typography
             variant="h4"
@@ -165,18 +165,17 @@ export default function EmailTemplateManagement() {
             Add
           </Button>
         </Stack>
-        <div style={{ height: 500, width: '100%' }}>
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            loading={loading}
-            getRowId={(row) => row.emailTemplateCode}
-            slots={{ toolbar: GridToolbar }}
-            slotProps={{ toolbar: { showQuickFilter: true } }}
-            disableColumnMenu
-            initialState={{ pagination: { paginationModel: { page: 0, pageSize: 5 } } }}
-          />
-        </div>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          loading={loading}
+          getRowId={(row) => row.emailTemplateCode}
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
+          initialState={{ pagination: { paginationModel: { page: 0, pageSize: 5 } } }}
+        />
+
         {open && (
           <EmailTemplateMasterDialog
             key={editData ? editData.emailTemplateCode : 'new'}
