@@ -32,29 +32,24 @@ class LocalStorageService {
 
   get_staff_access() {
     let staff_record: any = this.get('staff_access')
-    
+
     return JSON.parse(staff_record)
   }
 
   get_staff_id() {
     let staff_record: any = this.get('staff_access')
-    return JSON.parse(staff_record)?.staffId;
+    return JSON.parse(staff_record)?.staffId
   }
-  
+
   get_staff_country() {
-//@ts-ignore
-      let staff_record: any = this.get('userCountry')?.replace(/^"|"$/g, "");
-    return staff_record;
-
-    // let staff_record: any = this.get('staff_access')
-
-    
-    // return JSON.parse(staff_record)?.staffCountry
+    //@ts-ignore
+    let staff_record: any = this.get('userCountry')?.replace(/^"|"$/g, '')
+    return staff_record
   }
 
-  set_usercountry(user_country:any) {
-    let modules_record: any = this.set('userCountry',user_country);
-    return (modules_record)
+  set_usercountry(user_country: any) {
+    let modules_record: any = this.set('userCountry', user_country)
+    return modules_record
   }
 
   get_modules() {
@@ -68,17 +63,15 @@ class LocalStorageService {
   }
 
   set_staff_access(staff_data: any) {
+    //  this.set_usercountry(JSON.parse(staff_data)?.staffCountry);
+    this.set('userCountry', staff_data?.staffCountry)
 
+    if (staff_data?.staffCountries?.length > 1) {
+      this.set('userCountry', staff_data?.staffCountries[0])
+    }
 
-      //  this.set_usercountry(JSON.parse(staff_data)?.staffCountry);
-       this.set('userCountry',(staff_data)?.staffCountry);
-
-       if(staff_data?.staffCountries?.length>1){
-        this.set('userCountry',(staff_data)?.staffCountries[0]);
-       }
-
-       console.log("i m in the data")
-      //  console.log("setting data",(staff_data)?.staffCountry)
+    console.log('i m in the data')
+    //  console.log("setting data",(staff_data)?.staffCountry)
     // return JSON.parse(staff_record)?.staffCountry
     return this.set('staff_access', staff_data)
   }
@@ -98,9 +91,8 @@ class LocalStorageService {
   get_resetpasswordtoken() {
     return this.get('reset_password_token')
   }
-  get_userCurrency(){
-
-    return this.get("userCurrencyState")
+  get_userCurrency() {
+    return this.get('userCurrencyState')
   }
 }
 

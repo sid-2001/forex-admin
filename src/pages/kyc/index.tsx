@@ -406,12 +406,11 @@ const KYCPage = () => {
 
         <Box
           sx={{
-            width: '80vw',
+            //  width: '80vw',
             height: '70vh',
           }}
         >
           <DataGrid
-            sx={{ width: '100%' }}
             rows={filteredData || []}
             getRowId={(row) => row.kycId}
             columns={KycColumns || []}

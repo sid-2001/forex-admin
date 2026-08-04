@@ -274,7 +274,7 @@ const ReferralTable: React.FC = () => {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.REWARDS}>
-      <Box sx={{ width: '80vw', height: '70vh' }}>
+      <Box sx={{ width: '90vw', height: '70vh' }}>
         <Typography variant="h4" gutterBottom>
           <strong>Reward Redemption</strong>
         </Typography>

@@ -352,7 +352,7 @@ const UserAdd = () => {
           justifyContent: 'center',
           alignItems: 'center',
           height: '70vh',
-          width: '80vw',
+          width: '90vw',
         }}
       >
         <CircularProgress size={70} color="primary" />

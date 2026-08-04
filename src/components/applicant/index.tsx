@@ -242,7 +242,6 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
   return (
     <Box
       sx={{
-        width: '80vw',
         height: '70vh',
         '& .super-app-theme--header': {
           backgroundColor: '#005099',

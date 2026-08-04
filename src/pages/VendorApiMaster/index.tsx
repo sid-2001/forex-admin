@@ -106,7 +106,7 @@ export default function VendorApiMaster() {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Box p={3} sx={{ width: '100%', '& .header-bg': { fontWeight: 'bold', bgcolor: '#f5f5f5' } }}>
+      <Box p={3} sx={{ width: '90vw', '& .header-bg': { fontWeight: 'bold', bgcolor: '#f5f5f5' } }}>
         <Stack direction="row" justifyContent="space-between" mb={2}>
           <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
             VENDOR MASTER

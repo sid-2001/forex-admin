@@ -249,7 +249,17 @@ const ReconPage = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}> <Typography variant="h4" sx={{ fontWeight: 'bold' }}> Recon Transactions </Typography> <Button variant="outlined" startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)} > Back </Button> </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        {' '}
+        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+          {' '}
+          Recon Transactions{' '}
+        </Typography>{' '}
+        <Button variant="outlined" startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)}>
+          {' '}
+          Back{' '}
+        </Button>{' '}
+      </Box>
 
       <Box
         sx={{
@@ -404,7 +414,7 @@ const ReconPage = () => {
       <Box
         marginTop={2}
         sx={{
-          width: '80vw',
+          width: '90vw',
           height: '60vh', // fixed height for the table
         }}
       >
@@ -416,11 +426,10 @@ const ReconPage = () => {
           disableSelectionOnClick
           sx={{
             width: '100%',
-            height: '100%',  // fills parent Box
+            height: '100%', // fills parent Box
           }}
         />
       </Box>
-
 
       {/* Add Reconciliation Modal */}
       <Modal open={openModal} onClose={handleCloseModal}>
@@ -520,7 +529,7 @@ const ReconPage = () => {
           </Box>
         </Box>
       </Modal>
-    </LocalizationProvider >
+    </LocalizationProvider>
   )
 }
 

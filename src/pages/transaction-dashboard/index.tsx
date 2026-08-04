@@ -525,7 +525,7 @@ const TransactionDashboard = () => {
   }, [userCountry])
 
   return (
-    <Box className="transaction-dashboard-page" sx={{ width: '100%', minHeight: '70vh' }}>
+    <Box className="transaction-dashboard-page" sx={{ width: '90vw', minHeight: '70vh' }}>
       <Typography gutterBottom>
         <strong>Transaction Dashboard</strong>
       </Typography>

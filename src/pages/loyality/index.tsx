@@ -266,7 +266,7 @@ const Loyality = () => {
   )
 
   return (
-    <Box sx={{ width: '80vw', height: '70vh', p: 2 }}>
+    <Box sx={{ width: '90vw', height: '70vh', p: 2 }}>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.LOYALTY}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="h4">

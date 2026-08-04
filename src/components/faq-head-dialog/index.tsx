@@ -237,16 +237,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
   }
 
   const handleSubmit = async () => {
-    const mandatoryFields = [
-      'countryCode',
-      'faqSectionLabelName',
-      'faqSectionDescription',
-      'faqSubSectionLabelName',
-      'faqSubSectionDescription',
-      'faqType',
-      'effectiveFromDate',
-      'effectiveToDate',
-    ]
+    const mandatoryFields = ['countryCode', 'faqSectionLabelName', 'faqSectionDescription', 'faqType', 'effectiveFromDate', 'effectiveToDate']
 
     const isFormIncomplete = mandatoryFields.some((field) => !formData[field] || formData[field].toString().trim() === '')
 
@@ -485,7 +476,6 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
               <TextField
                 fullWidth
                 label="FAQ Sub Section Label Name"
-                required
                 value={formData.faqSubSectionLabelName}
                 onChange={(e) => handleChange('faqSubSectionLabelName', e.target.value)}
               />
@@ -495,7 +485,6 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
               <TextField
                 fullWidth
                 label="FAQ Sub Section Description"
-                required
                 value={formData.faqSubSectionDescription}
                 onChange={(e) => handleChange('faqSubSectionDescription', e.target.value)}
               />

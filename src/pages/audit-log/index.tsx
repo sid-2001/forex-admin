@@ -154,7 +154,7 @@ const AuditLogTable: React.FC = () => {
   }
 
   return (
-    <Box sx={{ width: '80vw', height: '70vh' }}>
+    <Box sx={{ width: '90vw', height: '70vh' }}>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.AUDIT_LOGS}>
         <Typography variant="h4" gutterBottom>
           <strong>Audit Logs</strong>

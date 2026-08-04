@@ -167,8 +167,6 @@ const ProfileMenu = () => {
   const CountrySelector = () => {
     if (!staff) return null
 
-    console.log(staff, selectedCountry, '00000')
-
     const countryNames: Record<string, string> = {
       ZA: 'South Africa',
       IN: 'India',
@@ -178,8 +176,6 @@ const ProfileMenu = () => {
     }
 
     const getFlag = (code: string) => (code ? code.toUpperCase().replace(/./g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0))) : '🏳️')
-
-    console.log(selectedCountry, '------------------')
 
     const handleApiCalls = async (countryCode: string) => {
       const [countryResp, currencyResp, menuResp] = await Promise.all([
@@ -235,6 +231,19 @@ const ProfileMenu = () => {
               </MenuItem>
             ))}
           </Select>
+        ) : staff.staffCountries.length === 1 ? (
+          <>
+            <Typography sx={{ fontSize: { xs: '12px', md: '1.5vh' } }}>{getFlag(staff.staffCountries[0])}</Typography>
+            <Typography
+              sx={{
+                fontSize: { xs: '12px', md: '1.5vh' },
+                color: 'white',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {countryNames[staff.staffCountries[0]] || staff.staffCountries[0]}
+            </Typography>
+          </>
         ) : (
           selectedCountry && (
             <>
