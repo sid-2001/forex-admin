@@ -219,7 +219,7 @@ export default function CountryKycDocManagement() {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Box p={3}>
+      <Box p={3} sx={{ width: '90vw' }}>
         <Stack direction="row" mb={2} justifyContent={'space-between'}>
           <Typography
             variant="h4"
@@ -247,24 +247,22 @@ export default function CountryKycDocManagement() {
           </Button>
         </Stack>
 
-        <div style={{ height: 500, width: '100%' }}>
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            loading={loading}
-            getRowId={(r) => r.kycDocCode}
-            slots={{ toolbar: GridToolbar }}
-            slotProps={{ toolbar: { showQuickFilter: true } }}
-            disableColumnMenu
-            initialState={{
-              pagination: {
-                paginationModel: {
-                  pageSize: 5,
-                },
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          loading={loading}
+          getRowId={(r) => r.kycDocCode}
+          slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: { showQuickFilter: true } }}
+          disableColumnMenu
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 5,
               },
-            }}
-          />
-        </div>
+            },
+          }}
+        />
 
         {open && (
           <CountryKycDocDialog

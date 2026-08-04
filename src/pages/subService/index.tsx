@@ -1,4 +1,4 @@
-import { Button, Stack, IconButton, Typography } from '@mui/material'
+import { Button, Stack, IconButton, Typography, Box } from '@mui/material'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import { useEffect, useState, useMemo } from 'react'
@@ -174,35 +174,35 @@ export default function SubServiceManagement() {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Stack direction="row" justifyContent="space-between" mb={2} mt={2} style={{ marginRight: -75 }}>
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{
-            fontWeight: 700,
-            // color: 'text.primary',
-            letterSpacing: '-0.02em',
-            display: 'grid',
-            placeItems: 'center',
-            // mb: 5,
-            color: '#0061B1',
-          }}
-        >
-          {'Sub Service Master'.toUpperCase()}
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setEditData(null)
-            setOpen(true)
-          }}
-          disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
-        >
-          Add
-        </Button>
-      </Stack>
+      <Box p={3} sx={{ width: '90vw', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
+        <Stack direction="row" justifyContent="space-between" mb={2} mt={2}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              // color: 'text.primary',
+              letterSpacing: '-0.02em',
+              display: 'grid',
+              placeItems: 'center',
+              // mb: 5,
+              color: '#0061B1',
+            }}
+          >
+            {'Sub Service Master'.toUpperCase()}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setEditData(null)
+              setOpen(true)
+            }}
+            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+          >
+            Add
+          </Button>
+        </Stack>
 
-      <div style={{ height: 500, width: '80vw' }}>
         <DataGrid
           rows={rows}
           columns={columns}
@@ -222,7 +222,7 @@ export default function SubServiceManagement() {
             },
           }}
         />
-      </div>
+      </Box>
 
       {open && (
         <SubServiceFormDialog open={open} onClose={() => setOpen(false)} editData={editData} onSubmit={editData ? handleUpdate : handleCreate} />

@@ -20,6 +20,7 @@ import {
   DialogContent as MuiDialogContent,
   DialogActions as MuiDialogActions,
   Alert,
+  MenuItem,
 } from '@mui/material'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { DynamicDatePicker, DynamicEndDatePicker } from '@/helpers/DynamicDatePicker'
@@ -434,7 +435,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
               />
             </Grid>
 
-            <Grid item xs={6}>
+            {/* <Grid item xs={6}>
               <TextField
                 fullWidth
                 label="FAQ Channel"
@@ -443,6 +444,21 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
                 onChange={(e) => handleChange('faqChannel', e.target.value)}
                 helperText="Use uppercase: M (Mobile), W (Web), or A (App)"
               />
+            </Grid> */}
+            <Grid item xs={6}>
+              <TextField
+                select
+                fullWidth
+                label="FAQ Channel"
+                required
+                value={formData.faqChannel}
+                onChange={(e) => handleChange('faqChannel', e.target.value)}
+                helperText="Select the channel"
+              >
+                <MenuItem value="M">Mobile (M)</MenuItem>
+                <MenuItem value="W">Web (W)</MenuItem>
+                {/* <MenuItem value="A">App (A)</MenuItem> */}
+              </TextField>
             </Grid>
 
             <Grid item xs={6}>
