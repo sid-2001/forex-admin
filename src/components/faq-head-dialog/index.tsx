@@ -241,10 +241,10 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
 
     const isFormIncomplete = mandatoryFields.some((field) => !formData[field] || formData[field].toString().trim() === '')
 
-    if (isFormIncomplete) {
-      showAlert('error', 'Please fill in all mandatory fields before saving.')
-      return
-    }
+    // if (isFormIncomplete) {
+    //   showAlert('error', 'Please fill in all mandatory fields before saving.')
+    //   return
+    // }
 
     if (!validateFaqDetails()) {
       showAlert('error', 'Please fill in all FAQ questions, answers, and dates.')
@@ -458,6 +458,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
                 label="FAQ Section Label Name"
                 required
                 value={formData.faqSectionLabelName}
+                inputProps={{ maxLength: 50 }}
                 onChange={(e) => handleChange('faqSectionLabelName', e.target.value)}
               />
             </Grid>
@@ -468,6 +469,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
                 label="FAQ Section Description"
                 required
                 value={formData.faqSectionDescription}
+                inputProps={{ maxLength: 255 }}
                 onChange={(e) => handleChange('faqSectionDescription', e.target.value)}
               />
             </Grid>
@@ -477,6 +479,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
                 fullWidth
                 label="FAQ Sub Section Label Name"
                 value={formData.faqSubSectionLabelName}
+                inputProps={{ maxLength: 50 }}
                 onChange={(e) => handleChange('faqSubSectionLabelName', e.target.value)}
               />
             </Grid>
@@ -486,12 +489,20 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
                 fullWidth
                 label="FAQ Sub Section Description"
                 value={formData.faqSubSectionDescription}
+                inputProps={{ maxLength: 255 }}
                 onChange={(e) => handleChange('faqSubSectionDescription', e.target.value)}
               />
             </Grid>
 
             <Grid item xs={3}>
-              <TextField fullWidth label="FAQ Type" required value={formData.faqType} onChange={(e) => handleChange('faqType', e.target.value)} />
+              <TextField
+                fullWidth
+                label="FAQ Type"
+                required
+                value={formData.faqType}
+                inputProps={{ maxLength: 50 }}
+                onChange={(e) => handleChange('faqType', e.target.value)}
+              />
             </Grid>
 
             <Grid item xs={3}>
@@ -593,9 +604,10 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
                               </Typography>
                             )}
                             {detail.isNew && (
-                              <Typography variant="caption" sx={{ color: 'success.main', fontSize: '10px' }}>
-                                [New]
-                              </Typography>
+                              <></>
+                              // <Typography variant="caption" sx={{ color: 'success.main', fontSize: '10px' }}>
+                              //   [New]
+                              // </Typography>
                             )}
                           </Box>
                           <IconButton size="small" color="error" onClick={() => handleDeleteClick(index)} disabled={formData.faqDetails.length <= 1}>
@@ -611,6 +623,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
                             multiline
                             rows={2}
                             value={detail.faqQuestion}
+                            inputProps={{ maxLength: 255 }}
                             onChange={(e) => handleFaqDetailChange(index, 'faqQuestion', e.target.value)}
                             error={!!faqDetailsErrors[index]?.faqQuestion}
                             helperText={faqDetailsErrors[index]?.faqQuestion}
@@ -625,6 +638,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
                             multiline
                             rows={3}
                             value={detail.faqAnswer}
+                            inputProps={{ maxLength: 255 }}
                             onChange={(e) => handleFaqDetailChange(index, 'faqAnswer', e.target.value)}
                             error={!!faqDetailsErrors[index]?.faqAnswer}
                             helperText={faqDetailsErrors[index]?.faqAnswer}

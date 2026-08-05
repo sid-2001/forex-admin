@@ -368,7 +368,7 @@ const Faq: React.FC = () => {
                           borderRadius: '12px',
                         }}
                       >
-                        {faqItem?.faqSubSectionDescription}
+                        {faqItem?.faqSubSectionDescription.slice(0, 50)}
                       </Typography>
                     )}
 
@@ -384,6 +384,19 @@ const Faq: React.FC = () => {
                     >
                       {faqItem?.faqQuestionCount} Q&A
                     </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: '#6b7280',
+                        fontSize: '12px',
+                        backgroundColor: '#f3f4f6',
+                        padding: '2px 12px',
+                        borderRadius: '12px',
+                      }}
+                    >
+                      {faqItem?.countryCode}
+                    </Typography>
+                    {/* countryCode */}
                   </Box>
 
                   {/* Edit Button */}
@@ -439,7 +452,12 @@ const Faq: React.FC = () => {
                             fontWeight: 600,
                             fontSize: '14px',
                             color: '#111827',
-                            marginBottom: '6px',
+                            mb: 1,
+                            whiteSpace: 'normal',
+                            wordBreak: 'break-word',
+                            overflowWrap: 'break-word',
+                            maxWidth: '80%',
+                            display: 'block',
                           }}
                         >
                           {faqDetail?.faqQuestion}
@@ -451,6 +469,11 @@ const Faq: React.FC = () => {
                             color: '#4b5563',
                             fontSize: '13px',
                             lineHeight: 1.7,
+                            whiteSpace: 'normal',
+                            wordBreak: 'break-word',
+                            overflowWrap: 'break-word',
+                            maxWidth: '80%',
+                            display: 'block',
                           }}
                         >
                           {faqDetail?.faqAnswer}
