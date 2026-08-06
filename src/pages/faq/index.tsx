@@ -166,7 +166,7 @@ const Faq: React.FC = () => {
     // Wait for state update then refetch
     setTimeout(() => {
       fetchFaqs()
-    }, 100)
+    }, 300)
   }
 
   const columns = [
