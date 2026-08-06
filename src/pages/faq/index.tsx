@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridFilterModel } from '@mui/x-data-grid'
-import { Box, Typography, Button, Stack, IconButton } from '@mui/material'
+import { Box, Typography, Button, Stack, IconButton, TextField, MenuItem, Select, FormControl, InputLabel } from '@mui/material'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
@@ -21,6 +21,8 @@ import MuiAccordion, { AccordionProps } from '@mui/material/Accordion'
 import MuiAccordionSummary, { AccordionSummaryProps, accordionSummaryClasses } from '@mui/material/AccordionSummary'
 import MuiAccordionDetails from '@mui/material/AccordionDetails'
 import DeleteIcon from '@mui/icons-material/Delete'
+import SearchIcon from '@mui/icons-material/Search'
+import ClearIcon from '@mui/icons-material/Clear'
 
 const Accordion = styled((props: AccordionProps) => <MuiAccordion disableGutters elevation={0} square {...props} />)(({ theme }) => ({
   border: `1px solid ${theme.palette.divider}`,
@@ -71,6 +73,20 @@ const Faq: React.FC = () => {
 
   const [expanded, setExpanded] = React.useState<string | false>('panel1')
 
+  // Filter state
+  const [filters, setFilters] = useState({
+    countryCode: '',
+    faqChannel: '',
+    faqType: '',
+    faqQuestion: '',
+    faqSectionLabelName: '',
+    faqSubSectionLabelName: '',
+  })
+
+  const [availableCountries, setAvailableCountries] = useState<string[]>([])
+  const [availableChannels, setAvailableChannels] = useState<string[]>([])
+  const [availableFaqTypes, setAvailableFaqTypes] = useState<string[]>([])
+
   const handleChange = (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
     console.log(event, '===========')
     setExpanded(newExpanded ? panel : false)
@@ -86,15 +102,71 @@ const Faq: React.FC = () => {
     fetchFaqs()
   }, [])
 
+  // Fetch FAQs with filters
   const fetchFaqs = async () => {
     try {
       setIsLoading(true)
-      const response = await masterService.getAllFaq()
+      // Build query parameters
+      const queryParams = new URLSearchParams()
+
+      // Add filters only if they have values
+      if (filters.countryCode) queryParams.append('countryCode', filters.countryCode.split('(')[0].trim())
+      if (filters.faqChannel) queryParams.append('faqChannel', filters.faqChannel)
+      if (filters.faqType) queryParams.append('faqType', filters.faqType)
+      if (filters.faqQuestion) queryParams.append('faqQuestion', filters.faqQuestion)
+      if (filters.faqSectionLabelName) queryParams.append('faqSectionLabelName', filters.faqSectionLabelName)
+      if (filters.faqSubSectionLabelName) queryParams.append('faqSubSectionLabelName', filters.faqSubSectionLabelName)
+
+      const queryString = queryParams.toString()
+      const response = await masterService.getAllFaq(queryString ? `?${queryString}` : '')
+
       setfaqData(response?.data)
+
+      // Extract available filter options from the data
+      if (response?.data && response.data.length > 0) {
+        const countries = [...new Set(response.data.map((item: any) => item.countryCode).filter(Boolean))] as string[]
+        const channels = [...new Set(response.data.map((item: any) => item.faqChannel).filter(Boolean))] as string[]
+        const faqTypes = [...new Set(response.data.map((item: any) => item.faqType).filter(Boolean))] as string[]
+
+        setAvailableCountries(countries)
+        setAvailableChannels(channels)
+        setAvailableFaqTypes(faqTypes)
+      }
+
       setIsLoading(false)
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error)
+      setIsLoading(false)
     }
+  }
+
+  // Handle filter change
+  const handleFilterChange = (field: string, value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      [field]: value,
+    }))
+  }
+
+  // Apply filters
+  const applyFilters = () => {
+    fetchFaqs()
+  }
+
+  // Reset filters
+  const resetFilters = () => {
+    setFilters({
+      countryCode: '',
+      faqChannel: '',
+      faqType: '',
+      faqQuestion: '',
+      faqSectionLabelName: '',
+      faqSubSectionLabelName: '',
+    })
+    // Wait for state update then refetch
+    setTimeout(() => {
+      fetchFaqs()
+    }, 100)
   }
 
   const columns = [
@@ -281,29 +353,43 @@ const Faq: React.FC = () => {
           </Box>
         </Stack>
 
-        {/* <div>
-          {faqData.map((faqItem: any, index: any) => (
-            <Accordion key={index} expanded={expanded === faqItem.faqHeadCode} onChange={handleChange(faqItem.faqHeadCode)}>
-              <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
-                <Box sx={{ direction: 'row', display: 'flex' }}>
-                  <Typography variant="body1">{faqItem?.faqSectionLabelName}</Typography>
-                  <Typography variant="body1">{faqItem?.faqSubSectionDescription}</Typography>
-                  <Typography variant="body1">{faqItem?.faqQuestionCount}</Typography>
-                </Box>
-              </AccordionSummary>
-              <AccordionDetails>
-                {faqItem?.faqDetailMasters.map((faqDetail: any, ind: any) => (
-                  <Box key={ind}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                      {faqDetail?.faqQuestion}
-                    </Typography>
-                    <Typography>{faqDetail?.faqAnswer}</Typography>
-                  </Box>
+        {/* Filter Section */}
+        <Box sx={{ mb: 3, p: 2, bgcolor: '#f8fafc', borderRadius: 2, border: '1px solid #e2e8f0' }}>
+          <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" useFlexGap>
+            <FormControl size="small" sx={{ minWidth: 150 }}>
+              <InputLabel>Country</InputLabel>
+              <Select value={filters.countryCode} label="Country" onChange={(e) => handleFilterChange('countryCode', e.target.value)}>
+                <MenuItem value="">All</MenuItem>
+                {availableCountries.map((country) => (
+                  <MenuItem key={country} value={country}>
+                    {country}
+                  </MenuItem>
                 ))}
-              </AccordionDetails>
-            </Accordion>
-          ))}
-        </div> */}
+              </Select>
+            </FormControl>
+
+            <FormControl size="small" sx={{ minWidth: 150 }}>
+              <InputLabel>Channel</InputLabel>
+              <Select value={filters.faqChannel} label="Channel" onChange={(e) => handleFilterChange('faqChannel', e.target.value)}>
+                <MenuItem value="">All</MenuItem>
+                {availableChannels.map((channel) => (
+                  <MenuItem key={channel} value={channel}>
+                    {channel}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <Button variant="contained" color="primary" startIcon={<SearchIcon />} onClick={applyFilters} sx={{ minWidth: 100 }}>
+              Search
+            </Button>
+
+            <Button variant="outlined" color="secondary" startIcon={<ClearIcon />} onClick={resetFilters} sx={{ minWidth: 100 }}>
+              Clear
+            </Button>
+          </Stack>
+        </Box>
+
         <div className="faq-container">
           {faqData.map((faqItem: any, index: any) => (
             <Accordion
@@ -368,7 +454,7 @@ const Faq: React.FC = () => {
                           borderRadius: '12px',
                         }}
                       >
-                        {faqItem?.faqSubSectionDescription.slice(0, 50)}
+                        {faqItem?.faqSubSectionLabelName?.slice(0, 50)}
                       </Typography>
                     )}
 
@@ -396,22 +482,14 @@ const Faq: React.FC = () => {
                     >
                       {faqItem?.countryCode}
                     </Typography>
-                    {/* countryCode */}
                   </Box>
 
-                  {/* Edit Button */}
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <IconButton
                       size="small"
-                      // onClick={(e) => {
-                      //   e.stopPropagation()
-                      //   // Handle edit action here
-                      //   console.log('Edit FAQ:', faqItem.faqHeadCode)
-                      // }}
                       onClick={(e) => {
                         e.stopPropagation()
-                        // Set the edit data and open modal
-                        setEditData(faqItem) // Pass the entire faqItem
+                        setEditData(faqItem)
                         setOpenFaqHeadModal(true)
                       }}
                       sx={{
@@ -425,8 +503,6 @@ const Faq: React.FC = () => {
                     >
                       <EditIcon sx={{ fontSize: '18px' }} />
                     </IconButton>
-
-                    {/* Optional: Delete button */}
                   </Box>
                 </Box>
               </AccordionSummary>
@@ -436,12 +512,12 @@ const Faq: React.FC = () => {
                   padding: '4px 20px 20px 20px',
                 }}
               >
-                {faqItem?.faqDetailMasters.map((faqDetail: any, ind: any) => (
+                {faqItem?.faqDetails?.map((faqDetail: any, ind: any) => (
                   <Box
                     key={ind}
                     sx={{
                       padding: '14px 0',
-                      borderBottom: ind !== faqItem.faqDetailMasters.length - 1 ? '1px solid #f3f4f6' : 'none',
+                      borderBottom: ind !== faqItem.faqDetails.length - 1 ? '1px solid #f3f4f6' : 'none',
                     }}
                   >
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -479,27 +555,6 @@ const Faq: React.FC = () => {
                           {faqDetail?.faqAnswer}
                         </Typography>
                       </Box>
-
-                      {/* Edit button for individual FAQ */}
-                      {/* <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          console.log('Edit question:', faqDetail)
-                        }}
-                        sx={{
-                          color: '#9ca3af',
-                          padding: '4px',
-                          marginLeft: '12px',
-                          flexShrink: 0,
-                          '&:hover': {
-                            backgroundColor: '#f3f4f6',
-                            color: '#374151',
-                          },
-                        }}
-                      >
-                        <EditIcon sx={{ fontSize: '16px' }} />
-                      </IconButton> */}
                     </Box>
                   </Box>
                 ))}

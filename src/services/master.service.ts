@@ -44,15 +44,15 @@ export default class MasterService extends BaseService {
   //   }
 
   // faq apis
-  async getAllFaq(): Promise<any> {
-    const url = 'api/static-table/faq_head_master/getAll'
-    try {
-      const response = await api1.get(url)
-      return response
-    } catch (err) {
-      return err as any
-    }
-  }
+  // async getAllFaq(): Promise<any> {
+  //   const url = 'api/static-table/faq_head_master/getAll'
+  //   try {
+  //     const response = await api1.get(url)
+  //     return response
+  //   } catch (err) {
+  //     return err as any
+  //   }
+  // }
 
   async createFaq(payload: Partial<any>): Promise<any> {
     const url = 'api/static-table/faq_head_master/create'
@@ -75,14 +75,19 @@ export default class MasterService extends BaseService {
   }
   // In master.service.ts
 
-  // Update individual FAQ detail
-  async updateFaqDetail(faqDetailCode: string, payload: any) {
+  async updateFaqDetail(faqDetailCode: string, payload: any): Promise<any> {
+    const url = `api/static-table/faq_detail_master/update/${faqDetailCode}`
     try {
-      const response = await api1.put(`/api/static-table/faq_detail_master/update/${faqDetailCode}`, payload)
-      return response.data
-    } catch (error) {
-      console.error('Error updating FAQ detail:', error)
-      throw error
+      console.log('=== UPDATE FAQ DETAIL ===')
+      console.log('URL:', url)
+      console.log('Payload:', payload)
+
+      const response = await api1.put(url, payload)
+      console.log('Update response:', response)
+      return response
+    } catch (err) {
+      console.error('Error updating FAQ detail:', err)
+      return err as any
     }
   }
 
@@ -94,6 +99,15 @@ export default class MasterService extends BaseService {
     } catch (error) {
       console.error('Error creating FAQ detail:', error)
       throw error
+    }
+  }
+  async getAllFaq(queryParams?: string): Promise<any> {
+    const url = queryParams ? `api/static-table/faq_head_master/getAll${queryParams}` : 'api/static-table/faq_head_master/getAll'
+    try {
+      const response = await api1.get(url)
+      return response
+    } catch (err) {
+      return err as any
     }
   }
 
