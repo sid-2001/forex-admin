@@ -90,6 +90,21 @@ export default class MasterService extends BaseService {
       return err as any
     }
   }
+  async updateFaqHead(faqHeadCode: string, payload: any): Promise<any> {
+    const url = `api/static-table/faq_head_master/update/${faqHeadCode}`
+    try {
+      console.log('=== UPDATE FAQ HEAD ===')
+      console.log('URL:', url)
+      console.log('Payload:', JSON.stringify(payload, null, 2))
+
+      const response = await api1.put(url, payload)
+      console.log('Update response:', response)
+      return response
+    } catch (err) {
+      console.error('Error updating FAQ head:', err)
+      return err as any
+    }
+  }
 
   // Create new FAQ detail for existing FAQ Head
   async createFaqDetail(payload: any) {

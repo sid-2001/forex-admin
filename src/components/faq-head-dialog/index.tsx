@@ -285,15 +285,48 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
     return !hasErrors
   }
 
+  // const handleSubmit = async () => {
+  //   const mandatoryFields = ['countryCode', 'faqSectionLabelName', 'faqSectionDescription', 'faqType', 'effectiveFromDate', 'effectiveToDate']
+
+  //   const isFormIncomplete = mandatoryFields.some((field) => !formData[field] || formData[field].toString().trim() === '')
+
+  //   // if (isFormIncomplete) {
+  //   //   showAlert('error', 'Please fill in all mandatory fields before saving.')
+  //   //   return
+  //   // }
+
+  //   if (!validateFaqDetails()) {
+  //     showAlert('error', 'Please fill in all FAQ questions, answers, and dates.')
+  //     return
+  //   }
+
+  //   setLoading(true)
+
+  //   try {
+  //     if (editData) {
+  //       // UPDATE MODE - Update each FAQ Detail individually
+  //       await handleUpdate()
+  //     } else {
+  //       // CREATE MODE - Create new FAQ
+  //       await handleCreate()
+  //     }
+  //   } catch (error: any) {
+  //     console.error('Error saving FAQ:', error)
+  //     showAlert('error', error?.message || error?.toString() || 'Operation failed')
+  //   } finally {
+  //     setLoading(false)
+  //     setUpdateProgress(null)
+  //   }
+  // }
   const handleSubmit = async () => {
     const mandatoryFields = ['countryCode', 'faqSectionLabelName', 'faqSectionDescription', 'faqType', 'effectiveFromDate', 'effectiveToDate']
 
     const isFormIncomplete = mandatoryFields.some((field) => !formData[field] || formData[field].toString().trim() === '')
 
-    // if (isFormIncomplete) {
-    //   showAlert('error', 'Please fill in all mandatory fields before saving.')
-    //   return
-    // }
+    if (isFormIncomplete) {
+      showAlert('error', 'Please fill in all mandatory fields before saving.')
+      return
+    }
 
     if (!validateFaqDetails()) {
       showAlert('error', 'Please fill in all FAQ questions, answers, and dates.')
@@ -304,7 +337,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
 
     try {
       if (editData) {
-        // UPDATE MODE - Update each FAQ Detail individually
+        // UPDATE MODE - Update the entire FAQ head
         await handleUpdate()
       } else {
         // CREATE MODE - Create new FAQ
@@ -430,9 +463,8 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
   //   }
   // }
   const handleUpdate = async () => {
+    // Build payload matching the working curl structure
     const userId = local_service?.get_staff_id() || 'admin'
-
-    // Build payload for updating the entire FAQ head
     const updatePayload = {
       countryCode: formData.countryCode,
       faqChannel: formData.faqChannel.toUpperCase(),
@@ -442,7 +474,6 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
       faqSubSectionDescription: formData.faqSubSectionDescription,
       faqType: formData.faqType,
       faqQuestionCount: Number(formData.faqQuestionCount),
-      createdBy: 'admin',
       modifiedBy: userId,
       active: formData.active !== undefined ? formData.active : true,
       effectiveFromDate: formData.effectiveFromDate + 'T00:00:00',
@@ -461,29 +492,17 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
       console.log('FAQ Head Code:', editData.faqHeadCode)
       console.log('Payload:', JSON.stringify(updatePayload, null, 2))
 
-      // Use the FAQ Head update endpoint
-      const token = localStorage.getItem('authToken') || localStorage.getItem('token') || localStorage.getItem('accessToken')
+      // Use master_service instead of direct fetch
+      const response = await master_service.updateFaqHead(editData.faqHeadCode, updatePayload)
 
-      const response = await fetch(`https://api.impronics.com/sit/api/static-table/faq_head_master/update/${editData.faqHeadCode}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': 'admin',
-          'X-Time-Zone': 'Asia/Dubai',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(updatePayload),
-      })
+      console.log('Update response:', response)
 
-      const data = await response.json()
-      console.log('Update response:', data)
-
-      if (response.ok && data.status) {
-        showAlert('success', data.message || 'FAQ updated successfully')
+      if (response && response.status !== false) {
+        showAlert('success', response.message || 'FAQ updated successfully')
         refreshList()
         onClose()
       } else {
-        showAlert('error', data.message || 'Failed to update FAQ')
+        showAlert('error', response?.message || 'Failed to update FAQ')
       }
     } catch (error: any) {
       console.error('Error updating FAQ:', error)
