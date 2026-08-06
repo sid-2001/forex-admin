@@ -475,6 +475,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
       faqType: formData.faqType,
       faqQuestionCount: Number(formData.faqQuestionCount),
       modifiedBy: userId,
+      createdBy: userId,
       active: formData.active !== undefined ? formData.active : true,
       effectiveFromDate: formData.effectiveFromDate + 'T00:00:00',
       effectiveToDate: formData.effectiveToDate + 'T00:00:00',
