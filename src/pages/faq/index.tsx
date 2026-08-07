@@ -4,7 +4,6 @@ import { Box, Typography, Button, Stack, IconButton, TextField, MenuItem, Select
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-import LoaderUI from '@/components/loader/loader'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
 import DownloadIcon from '@mui/icons-material/Download'
 import FindReplaceIcon from '@mui/icons-material/FindReplace'
@@ -57,13 +56,11 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
 
 const Faq: React.FC = () => {
   const [faqData, setfaqData] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
   const helper = new HelperService()
   const local_service = new LocalStorageService()
   const masterService = new MasterService()
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<Record<string, boolean>>({})
-  const apiRef = React.useRef<any>(null)
 
   const [openFaqHeadModal, setOpenFaqHeadModal] = useState(false)
   const [editData, setEditData] = useState<any>(null)
@@ -71,7 +68,7 @@ const Faq: React.FC = () => {
   const [, setText] = useRecoilState(alertTextState)
   const [, setType] = useRecoilState(alertTypeState)
 
-  const [expanded, setExpanded] = React.useState<string | false>('panel1')
+  const [expanded, setExpanded] = React.useState<string | false>('')
 
   // Filter state
   const [filters, setFilters] = useState({
@@ -105,7 +102,7 @@ const Faq: React.FC = () => {
   // Fetch FAQs with filters
   const fetchFaqs = async () => {
     try {
-      setIsLoading(true)
+      // setIsLoading(true)
       // Build query parameters
       const queryParams = new URLSearchParams()
 
@@ -133,10 +130,10 @@ const Faq: React.FC = () => {
         setAvailableFaqTypes(faqTypes)
       }
 
-      setIsLoading(false)
+      // setIsLoading(false)
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error)
-      setIsLoading(false)
+      // setIsLoading(false)
     }
   }
 

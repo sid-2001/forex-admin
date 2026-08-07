@@ -101,6 +101,7 @@ import Coupons from './pages/coupons'
 import MenuIems from './pages/menuItems'
 import Faq from './pages/faq'
 import { AuthService } from './services/auth.service'
+import Group from './pages/groups'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -328,6 +329,7 @@ function App() {
               <Route path="coupons" element={<Coupons />} />
               <Route path="menu-items" element={<MenuIems />} />
               <Route path="faq" element={<Faq />} />
+              <Route path="group" element={<Group />} />
 
               <Route path="*" element={<Dashboard />} />
             </Route>
