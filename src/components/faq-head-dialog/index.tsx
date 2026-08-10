@@ -61,11 +61,61 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
   const [loading, setLoading] = useState(false)
   const [updateProgress, setUpdateProgress] = useState<{ total: number; completed: number } | null>(null)
 
+  // useEffect(() => {
+  //   if (editData) {
+  //     // For edit, populate from existing data
+  //     setFormData({
+  //       countryCode: editData.countryCode || '',
+  //       faqChannel: editData.faqChannel || '',
+  //       faqSectionLabelName: editData.faqSectionLabelName || '',
+  //       faqSectionDescription: editData.faqSectionDescription || '',
+  //       faqSubSectionLabelName: editData.faqSubSectionLabelName || '',
+  //       faqSubSectionDescription: editData.faqSubSectionDescription || '',
+  //       faqType: editData.faqType || '',
+  //       faqQuestionCount: editData.faqQuestionCount || 0,
+  //       active: editData.active !== undefined ? editData.active : true,
+  //       effectiveFromDate: editData.effectiveFromDate?.split('T')[0] || '',
+  //       effectiveToDate: editData.effectiveToDate?.split('T')[0] || '',
+  //       createdBy: editData.createdBy || local_service?.get_staff_id() || 'admin',
+  //       faqDetails:
+  //         editData.faqDetailMasters?.map((detail: any) => ({
+  //           faqDetailCode: detail.faqDetailCode, // Keep for update
+  //           faqQuestion: detail.faqQuestion || '',
+  //           faqAnswer: detail.faqAnswer || '',
+  //           effectiveFromDate: detail.effectiveFromDate?.split('T')[0] || '',
+  //           effectiveToDate: detail.effectiveToDate?.split('T')[0] || '9999-12-31',
+  //           active: detail.active !== undefined ? detail.active : true,
+  //           isNew: false, // Flag to identify existing records
+  //         })) || [],
+  //     })
+  //   } else {
+  //     // For new FAQ
+  //     const staffId = local_service?.get_staff_id() || 'admin'
+  //     setFormData({
+  //       ...initialFormState,
+  //       createdBy: staffId,
+  //       effectiveFromDate: '',
+  //       effectiveToDate: '',
+  //       faqDetails: [],
+  //     })
+  //   }
+  // }, [editData, open])
   useEffect(() => {
     if (editData) {
+      console.log('----------------')
+      console.log(editData, 'bhanu')
+      console.log('----------------')
+
+      // Extract just the country code from "UAE (United Arab Emirates)"
+      let countryCode = editData.countryCode || ''
+      // If countryCode contains parentheses, extract just the code
+      if (countryCode.includes('(')) {
+        countryCode = countryCode.split('(')[0].trim()
+      }
+
       // For edit, populate from existing data
       setFormData({
-        countryCode: editData.countryCode || '',
+        countryCode: countryCode, // Use the extracted code
         faqChannel: editData.faqChannel || '',
         faqSectionLabelName: editData.faqSectionLabelName || '',
         faqSectionDescription: editData.faqSectionDescription || '',
@@ -78,14 +128,14 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
         effectiveToDate: editData.effectiveToDate?.split('T')[0] || '',
         createdBy: editData.createdBy || local_service?.get_staff_id() || 'admin',
         faqDetails:
-          editData.faqDetailMasters?.map((detail: any) => ({
-            faqDetailCode: detail.faqDetailCode, // Keep for update
+          editData.faqDetails?.map((detail: any, index: number) => ({
+            faqDetailCode: detail.faqDetailCode || detail.id || detail.code || detail.faqDetailId || `temp_${Date.now()}_${index}`,
             faqQuestion: detail.faqQuestion || '',
             faqAnswer: detail.faqAnswer || '',
             effectiveFromDate: detail.effectiveFromDate?.split('T')[0] || '',
             effectiveToDate: detail.effectiveToDate?.split('T')[0] || '9999-12-31',
             active: detail.active !== undefined ? detail.active : true,
-            isNew: false, // Flag to identify existing records
+            isNew: false,
           })) || [],
       })
     } else {
@@ -100,7 +150,6 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
       })
     }
   }, [editData, open])
-
   useEffect(() => {
     fetchCountryCodes()
   }, [])
@@ -236,17 +285,41 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
     return !hasErrors
   }
 
+  // const handleSubmit = async () => {
+  //   const mandatoryFields = ['countryCode', 'faqSectionLabelName', 'faqSectionDescription', 'faqType', 'effectiveFromDate', 'effectiveToDate']
+
+  //   const isFormIncomplete = mandatoryFields.some((field) => !formData[field] || formData[field].toString().trim() === '')
+
+  //   // if (isFormIncomplete) {
+  //   //   showAlert('error', 'Please fill in all mandatory fields before saving.')
+  //   //   return
+  //   // }
+
+  //   if (!validateFaqDetails()) {
+  //     showAlert('error', 'Please fill in all FAQ questions, answers, and dates.')
+  //     return
+  //   }
+
+  //   setLoading(true)
+
+  //   try {
+  //     if (editData) {
+  //       // UPDATE MODE - Update each FAQ Detail individually
+  //       await handleUpdate()
+  //     } else {
+  //       // CREATE MODE - Create new FAQ
+  //       await handleCreate()
+  //     }
+  //   } catch (error: any) {
+  //     console.error('Error saving FAQ:', error)
+  //     showAlert('error', error?.message || error?.toString() || 'Operation failed')
+  //   } finally {
+  //     setLoading(false)
+  //     setUpdateProgress(null)
+  //   }
+  // }
   const handleSubmit = async () => {
-    const mandatoryFields = [
-      'countryCode',
-      'faqSectionLabelName',
-      'faqSectionDescription',
-      'faqSubSectionLabelName',
-      'faqSubSectionDescription',
-      'faqType',
-      'effectiveFromDate',
-      'effectiveToDate',
-    ]
+    const mandatoryFields = ['countryCode', 'faqSectionLabelName', 'faqSectionDescription', 'faqType', 'effectiveFromDate', 'effectiveToDate']
 
     const isFormIncomplete = mandatoryFields.some((field) => !formData[field] || formData[field].toString().trim() === '')
 
@@ -264,7 +337,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
 
     try {
       if (editData) {
-        // UPDATE MODE - Update each FAQ Detail individually
+        // UPDATE MODE - Update the entire FAQ head
         await handleUpdate()
       } else {
         // CREATE MODE - Create new FAQ
@@ -312,81 +385,129 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
     }
   }
 
+  // const handleUpdate = async () => {
+  //   const userId = local_service?.get_staff_id() || 'admin'
+  //   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Dubai'
+
+  //   // Separate existing and new FAQ details
+  //   const existingDetails = formData.faqDetails.filter((d: any) => !d.isNew && d.faqDetailCode)
+  //   const newDetails = formData.faqDetails.filter((d: any) => d.isNew || !d.faqDetailCode)
+
+  //   // Update existing details
+  //   const updatePromises = existingDetails.map(async (detail: any) => {
+  //     const updatePayload = {
+  //       faqQuestion: detail.faqQuestion,
+  //       faqAnswer: detail.faqAnswer,
+  //       active: detail.active !== undefined ? detail.active : true,
+  //       effectiveFromDate: detail.effectiveFromDate + 'T00:00:00',
+  //       effectiveToDate: detail.effectiveToDate + 'T00:00:00',
+  //       modifiedBy: userId,
+  //       ...formData,
+  //     }
+
+  //     try {
+  //       const response = await master_service.updateFaqDetail(detail.faqDetailCode, updatePayload)
+  //       return { success: true, detail, response }
+  //     } catch (error) {
+  //       console.error(`Failed to update FAQ detail ${detail.faqDetailCode}:`, error)
+  //       return { success: false, detail, error }
+  //     }
+  //   })
+
+  //   // Create new details (you'll need to add this to your MasterService)
+  //   const createPromises = newDetails.map(async (detail: any) => {
+  //     const createPayload = {
+  //       faqHeadCode: editData.faqHeadCode,
+  //       faqQuestion: detail.faqQuestion,
+  //       faqAnswer: detail.faqAnswer,
+  //       active: detail.active !== undefined ? detail.active : true,
+  //       effectiveFromDate: detail.effectiveFromDate + 'T00:00:00',
+  //       effectiveToDate: detail.effectiveToDate + 'T00:00:00',
+  //       createdBy: userId,
+  //     }
+
+  //     // You'll need to implement this method
+  //     try {
+  //       const response = await master_service.createFaqDetail(createPayload)
+  //       return { success: true, detail, response }
+  //     } catch (error) {
+  //       console.error('Failed to create new FAQ detail:', error)
+  //       return { success: false, detail, error }
+  //     }
+  //   })
+
+  //   // Execute all updates and creates
+  //   const allPromises = [...updatePromises, ...createPromises]
+  //   setUpdateProgress({ total: allPromises.length, completed: 0 })
+
+  //   const results = await Promise.allSettled(allPromises)
+
+  //   const successCount = results.filter((r) => r.status === 'fulfilled' && r.value.success).length
+  //   const failureCount = results.length - successCount
+
+  //   // Update progress
+  //   results.forEach((_, index) => {
+  //     setUpdateProgress({ total: results.length, completed: index + 1 })
+  //   })
+
+  //   if (failureCount === 0) {
+  //     showAlert('success', `All ${successCount} FAQ details updated successfully`)
+  //     refreshList()
+  //     onClose()
+  //   } else if (successCount > 0) {
+  //     showAlert('warning', `${successCount} updated successfully, ${failureCount} failed. Please check logs.`)
+  //     refreshList()
+  //     // Optionally keep modal open
+  //   } else {
+  //     showAlert('error', 'Failed to update FAQ details. Please try again.')
+  //   }
+  // }
   const handleUpdate = async () => {
+    // Build payload matching the working curl structure
     const userId = local_service?.get_staff_id() || 'admin'
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Dubai'
-
-    // Separate existing and new FAQ details
-    const existingDetails = formData.faqDetails.filter((d: any) => !d.isNew && d.faqDetailCode)
-    const newDetails = formData.faqDetails.filter((d: any) => d.isNew || !d.faqDetailCode)
-
-    // Update existing details
-    const updatePromises = existingDetails.map(async (detail: any) => {
-      const updatePayload = {
+    const updatePayload = {
+      countryCode: formData.countryCode,
+      faqChannel: formData.faqChannel.toUpperCase(),
+      faqSectionLabelName: formData.faqSectionLabelName,
+      faqSectionDescription: formData.faqSectionDescription,
+      faqSubSectionLabelName: formData.faqSubSectionLabelName,
+      faqSubSectionDescription: formData.faqSubSectionDescription,
+      faqType: formData.faqType,
+      faqQuestionCount: Number(formData.faqQuestionCount),
+      modifiedBy: userId,
+      createdBy: userId,
+      active: formData.active !== undefined ? formData.active : true,
+      effectiveFromDate: formData.effectiveFromDate + 'T00:00:00',
+      effectiveToDate: formData.effectiveToDate + 'T00:00:00',
+      faqDetails: formData.faqDetails?.map((detail: any) => ({
         faqQuestion: detail.faqQuestion,
         faqAnswer: detail.faqAnswer,
-        active: detail.active !== undefined ? detail.active : true,
         effectiveFromDate: detail.effectiveFromDate + 'T00:00:00',
         effectiveToDate: detail.effectiveToDate + 'T00:00:00',
-        modifiedBy: userId,
-        // ...formData,
-      }
-
-      try {
-        const response = await master_service.updateFaqDetail(detail.faqDetailCode, updatePayload)
-        return { success: true, detail, response }
-      } catch (error) {
-        console.error(`Failed to update FAQ detail ${detail.faqDetailCode}:`, error)
-        return { success: false, detail, error }
-      }
-    })
-
-    // Create new details (you'll need to add this to your MasterService)
-    const createPromises = newDetails.map(async (detail: any) => {
-      const createPayload = {
-        faqHeadCode: editData.faqHeadCode,
-        faqQuestion: detail.faqQuestion,
-        faqAnswer: detail.faqAnswer,
         active: detail.active !== undefined ? detail.active : true,
-        effectiveFromDate: detail.effectiveFromDate + 'T00:00:00',
-        effectiveToDate: detail.effectiveToDate + 'T00:00:00',
-        createdBy: userId,
+      })),
+    }
+
+    try {
+      console.log('=== UPDATING FAQ HEAD ===')
+      console.log('FAQ Head Code:', editData.faqHeadCode)
+      console.log('Payload:', JSON.stringify(updatePayload, null, 2))
+
+      // Use master_service instead of direct fetch
+      const response = await master_service.updateFaqHead(editData.faqHeadCode, updatePayload)
+
+      console.log('Update response:', response)
+
+      if (response && response.status !== false) {
+        showAlert('success', response.message || 'FAQ updated successfully')
+        refreshList()
+        onClose()
+      } else {
+        showAlert('error', response?.message || 'Failed to update FAQ')
       }
-
-      // You'll need to implement this method
-      try {
-        const response = await master_service.createFaqDetail(createPayload)
-        return { success: true, detail, response }
-      } catch (error) {
-        console.error('Failed to create new FAQ detail:', error)
-        return { success: false, detail, error }
-      }
-    })
-
-    // Execute all updates and creates
-    const allPromises = [...updatePromises, ...createPromises]
-    setUpdateProgress({ total: allPromises.length, completed: 0 })
-
-    const results = await Promise.allSettled(allPromises)
-
-    const successCount = results.filter((r) => r.status === 'fulfilled' && r.value.success).length
-    const failureCount = results.length - successCount
-
-    // Update progress
-    results.forEach((_, index) => {
-      setUpdateProgress({ total: results.length, completed: index + 1 })
-    })
-
-    if (failureCount === 0) {
-      showAlert('success', `All ${successCount} FAQ details updated successfully`)
-      refreshList()
-      onClose()
-    } else if (successCount > 0) {
-      showAlert('warning', `${successCount} updated successfully, ${failureCount} failed. Please check logs.`)
-      refreshList()
-      // Optionally keep modal open
-    } else {
-      showAlert('error', 'Failed to update FAQ details. Please try again.')
+    } catch (error: any) {
+      console.error('Error updating FAQ:', error)
+      showAlert('error', error?.message || 'Operation failed')
     }
   }
 
@@ -467,6 +588,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
                 label="FAQ Section Label Name"
                 required
                 value={formData.faqSectionLabelName}
+                inputProps={{ maxLength: 50 }}
                 onChange={(e) => handleChange('faqSectionLabelName', e.target.value)}
               />
             </Grid>
@@ -477,6 +599,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
                 label="FAQ Section Description"
                 required
                 value={formData.faqSectionDescription}
+                inputProps={{ maxLength: 255 }}
                 onChange={(e) => handleChange('faqSectionDescription', e.target.value)}
               />
             </Grid>
@@ -485,8 +608,8 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
               <TextField
                 fullWidth
                 label="FAQ Sub Section Label Name"
-                required
                 value={formData.faqSubSectionLabelName}
+                inputProps={{ maxLength: 50 }}
                 onChange={(e) => handleChange('faqSubSectionLabelName', e.target.value)}
               />
             </Grid>
@@ -495,14 +618,21 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
               <TextField
                 fullWidth
                 label="FAQ Sub Section Description"
-                required
                 value={formData.faqSubSectionDescription}
+                inputProps={{ maxLength: 255 }}
                 onChange={(e) => handleChange('faqSubSectionDescription', e.target.value)}
               />
             </Grid>
 
             <Grid item xs={3}>
-              <TextField fullWidth label="FAQ Type" required value={formData.faqType} onChange={(e) => handleChange('faqType', e.target.value)} />
+              <TextField
+                fullWidth
+                label="FAQ Type"
+                required
+                value={formData.faqType}
+                inputProps={{ maxLength: 50 }}
+                onChange={(e) => handleChange('faqType', e.target.value)}
+              />
             </Grid>
 
             <Grid item xs={3}>
@@ -604,9 +734,10 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
                               </Typography>
                             )}
                             {detail.isNew && (
-                              <Typography variant="caption" sx={{ color: 'success.main', fontSize: '10px' }}>
-                                [New]
-                              </Typography>
+                              <></>
+                              // <Typography variant="caption" sx={{ color: 'success.main', fontSize: '10px' }}>
+                              //   [New]
+                              // </Typography>
                             )}
                           </Box>
                           <IconButton size="small" color="error" onClick={() => handleDeleteClick(index)} disabled={formData.faqDetails.length <= 1}>
@@ -622,6 +753,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
                             multiline
                             rows={2}
                             value={detail.faqQuestion}
+                            inputProps={{ maxLength: 255 }}
                             onChange={(e) => handleFaqDetailChange(index, 'faqQuestion', e.target.value)}
                             error={!!faqDetailsErrors[index]?.faqQuestion}
                             helperText={faqDetailsErrors[index]?.faqQuestion}
@@ -636,6 +768,7 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
                             multiline
                             rows={3}
                             value={detail.faqAnswer}
+                            inputProps={{ maxLength: 255 }}
                             onChange={(e) => handleFaqDetailChange(index, 'faqAnswer', e.target.value)}
                             error={!!faqDetailsErrors[index]?.faqAnswer}
                             helperText={faqDetailsErrors[index]?.faqAnswer}

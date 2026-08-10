@@ -12,7 +12,7 @@ const StaticData = () => {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.STATIC_DATA}>
-      <Box sx={{ width: '80vw', height: '70vh' }}>
+      <Box sx={{ width: '90vw', height: '70vh' }}>
         {/* Data Grid */}
         {staticTable?.api && (
           <StaticDataGrid

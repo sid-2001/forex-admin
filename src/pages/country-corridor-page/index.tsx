@@ -558,7 +558,7 @@ const CountryCorridorPage: React.FC = () => {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Box p={3} sx={{ width: '100%', bgcolor: 'background.default', minHeight: '100vh' }}>
+      <Box p={3} sx={{ width: '90vw', bgcolor: 'background.default', minHeight: '100vh' }}>
         {/* Header */}
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
           <Typography variant="h5" sx={{ fontWeight: 600, color: '#0061B1' }}>

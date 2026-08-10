@@ -502,6 +502,12 @@ const MASTER_MENU = [
     icon: <LocalOfferIcon fontSize="small" />,
     path: 'menu-items',
   },
+  {
+    label: 'Group',
+    name: 'Group',
+    icon: <LocalOfferIcon fontSize="small" />,
+    path: 'group',
+  },
 ]
 
 const chunkArray = (arr: any[], size: number) => {
@@ -839,26 +845,24 @@ const DashboardLayout = () => {
                   <ListItemButton
                     selected={selectedApp === item.menuName}
                     onClick={() => {
-                      if (item.menuName === 'Master Data') {
-                        setOpenSubMenu(true)
-                      } else {
-                        setSelectedApp(item.menuName)
-                        addToHistory(item.menuName)
-                        navigate(item.path.toLowerCase())
-                      }
-
-                      // if (item.children) {
-                      //   handleToggle(item.parentMenuName)
+                      // if (item.menuName === 'Master Data') {
+                      //   // setOpenSubMenu(true)
                       // } else {
-                      //   setSelectedApp(item.parentMenuName)
-                      //   addToHistory(item.parentMenuName)
+                      //   setSelectedApp(item.menuName)
+                      //   addToHistory(item.menuName)
                       //   navigate(item.path.toLowerCase())
                       // }
+
+                      if (item.children.length > 0) {
+                        // handleToggle(item.parentMenuName)
+                        setOpenSubMenu(true)
+                      } else {
+                        setSelectedApp(item.parentMenuName)
+                        addToHistory(item.parentMenuName)
+                        navigate(item.path.toLowerCase())
+                      }
                     }}
                   >
-                    {/* <ListItemIcon>{item.icon}</ListItemIcon>
-                    <ListItemText primary={item.menuName} /> */}
-
                     <Stack direction="column" alignItems="center" justifyContent="center" width="100%" spacing={1.5}>
                       <ListItemIcon
                         sx={{
@@ -894,12 +898,17 @@ const DashboardLayout = () => {
                             navigate(child.path.toLowerCase())
                           }}
                         >
-                          <ListItemText sx={{ color: '#fff' }} primary={`> ${child.childMenuName}`} />
+                          <ListItemIcon sx={{ color: '#fff' }}>
+                            <WaterfallChartIcon />
+                          </ListItemIcon>
+                          <ListItemText sx={{ color: '#fff' }} primary={child.childMenuName} />
                         </ListItemButton>
                       ))}
                     </List>
                   </Collapse>
                 )} */}
+
+                {/* <ListItemText sx={{ color: '#fff' }} primary={`> ${child.childMenuName}`} /> */}
               </React.Fragment>
             ))}
           </List>

@@ -189,7 +189,7 @@ export default function ChannelManagement() {
           </Button>
         </Stack>
 
-        <Box sx={{ height: 500, width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
+        <Box sx={{ height: 500, '& .super-app-theme--header': { fontWeight: 'bold' } }}>
           <DataGrid
             rows={rows}
             columns={columns}

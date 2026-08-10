@@ -246,6 +246,7 @@ const Notifications: React.FC = () => {
               loadingOverlay: LoaderUI.LoadingOverlay,
             }}
             sx={{
+              height: '70vh',
               '& .MuiDataGrid-columnHeaders': {
                 backgroundColor: '#005099',
                 color: 'white',

@@ -177,7 +177,7 @@ const NotificationDelivery: React.FC = () => {
   )
 
   return (
-    <Box sx={{ width: '80vw', height: '70vh' }}>
+    <Box sx={{ width: '90vw', height: '70vh' }}>
       <Typography variant="h4" gutterBottom>
         <strong>Notification Campaign Deliveries</strong>
       </Typography>

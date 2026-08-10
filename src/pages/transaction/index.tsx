@@ -863,12 +863,12 @@ const TransactionListing = () => {
       : inward_columns
 
   return (
-    <Box sx={{ width: '80vw', height: '70vh' }}>
+    <Box sx={{ width: '90vw', height: '70vh' }}>
       <Typography variant="h4" gutterBottom>
         <strong>Transactions</strong>
       </Typography>
 
-      <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'} sx={{ width: '80vw' }}>
+      <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'}>
         <Box>
           <ToggleButtonGroup value={transactionType} color="primary" exclusive onChange={handleToggleTransactionType} sx={{ mb: 2 }}>
             <ToggleButton id="imp-inward-button" value="inwards">
@@ -960,7 +960,7 @@ const TransactionListing = () => {
 
       <Box
         sx={{
-          width: '80vw',
+          // width: '80vw',
           height: '65vh',
           '& .super-app-theme--header': {
             backgroundColor: '#005099',
