@@ -127,8 +127,8 @@ const Faq: React.FC = () => {
         const channels = [...new Set(response.data.map((item: any) => item.faqChannel).filter(Boolean))] as string[]
         const faqTypes = [...new Set(response.data.map((item: any) => item.faqType).filter(Boolean))] as string[]
 
-        setAvailableCountries(countries)
-        setAvailableChannels(channels)
+        !queryString && setAvailableCountries(countries)
+        !queryString && setAvailableChannels(channels)
         setAvailableFaqTypes(faqTypes)
       }
 

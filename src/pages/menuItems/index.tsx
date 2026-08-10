@@ -60,7 +60,12 @@ const MenuIems: React.FC = () => {
   const [, setOpen] = useRecoilState(alertState)
   const [, setText] = useRecoilState(alertTextState)
   const [, setType] = useRecoilState(alertTypeState)
+
   const [filters, setFilters] = useState({
+    countryCode: '',
+  })
+
+  const [appliedFilters, setAppliedFilters] = useState({
     countryCode: '',
   })
 
@@ -75,39 +80,36 @@ const MenuIems: React.FC = () => {
     setExpanded(newExpanded ? panel : false)
   }
 
-  useEffect(() => {
-    fetchMenuItemsLists()
-  }, [])
-
   const fetchMenuItemsLists = useCallback(async () => {
     try {
-      // const response = await masterService.getAllMenus()
-      // console.log(response, '--------------')
-      // setMenusData(response?.data)
-
       const queryParams = new URLSearchParams()
 
-      console.log(filters, '------------')
-
-      // Add filters only if they have values
-      if (filters.countryCode) queryParams.append('countryCode', filters.countryCode.split('(')[0].trim())
+      if (appliedFilters.countryCode) {
+        queryParams.append('countryCode', appliedFilters.countryCode.split('(')[0].trim())
+      }
 
       const queryString = queryParams.toString()
-      console.log(queryString, 'string')
+
       const response = await masterService.getAllMenus(queryString ? `?${queryString}` : '')
 
-      setMenusData(response?.data)
-      if (response?.data && response.data.length > 0) {
-        const countries = [...new Set(response.data.map((item: any) => item.countryCode).filter(Boolean))] as string[]
-        setAvailableCountries(countries)
-      }
+      const data = Array.isArray(response?.data) ? response.data : []
+
+      const countries = [...new Set(response.data.map((item: any) => item.countryCode).filter(Boolean))] as string[]
+
+      !queryString && setAvailableCountries(countries)
+
+      setMenusData(data)
     } catch (error) {
-      console.error('There was a problem with the fetch operation:', error)
+      console.error(error)
+      setMenusData([])
     }
-  }, [])
+  }, [appliedFilters])
+
+  useEffect(() => {
+    fetchMenuItemsLists()
+  }, [fetchMenuItemsLists])
 
   const handleFilterChange = (field: string, value: string) => {
-    console.log(field, value, '0000')
     setFilters((prev) => ({
       ...prev,
       [field]: value,
@@ -116,18 +118,16 @@ const MenuIems: React.FC = () => {
 
   // Apply filters
   const applyFilters = () => {
-    fetchMenuItemsLists()
+    setAppliedFilters(filters)
   }
 
-  // Reset filters
   const resetFilters = () => {
-    setFilters({
+    const emptyFilters = {
       countryCode: '',
-    })
-    // Wait for state update then refetch
-    setTimeout(() => {
-      fetchMenuItemsLists()
-    }, 100)
+    }
+
+    setFilters(emptyFilters)
+    setAppliedFilters(emptyFilters)
   }
 
   return (
@@ -157,7 +157,14 @@ const MenuIems: React.FC = () => {
           <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" useFlexGap>
             <FormControl size="small" sx={{ minWidth: 150 }}>
               <InputLabel>Country</InputLabel>
-              <Select value={filters.countryCode} label="Country" onChange={(e) => handleFilterChange('countryCode', e.target.value)}>
+              <Select
+                value={filters.countryCode}
+                label="Country"
+                onChange={(e) => {
+                  console.log(e.target.value, '----------->bhanu')
+                  handleFilterChange('countryCode', e.target.value)
+                }}
+              >
                 <MenuItem value="">All</MenuItem>
                 {availableCountries.map((country) => (
                   <MenuItem key={country} value={country}>
@@ -190,59 +197,60 @@ const MenuIems: React.FC = () => {
         </Box>
 
         <div className="faq-container">
-          {menusData.map((menuItem: any, index: any) => (
-            <Accordion
-              key={index}
-              expanded={expanded === menuItem.menuCode}
-              onChange={handleChange(menuItem.menuCode)}
-              sx={{
-                marginBottom: '12px',
-                boxShadow: 'none',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px !important',
-                '&:before': { display: 'none' },
-                '&.Mui-expanded': {
-                  borderColor: '#d1d5db',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-                },
-              }}
-            >
-              <AccordionSummary
+          {menusData.length > 0 &&
+            menusData.map((menuItem: any, index: any) => (
+              <Accordion
+                key={index}
+                expanded={expanded === menuItem.menuCode}
+                onChange={handleChange(menuItem.menuCode)}
                 sx={{
-                  padding: '14px 20px',
-                  minHeight: 'auto',
-                  '& .MuiAccordionSummary-content': {
-                    margin: '0',
-                    alignItems: 'center',
-                  },
-                  '& .MuiAccordionSummary-expandIconWrapper': {
-                    color: '#6b7280',
-                    marginLeft: '8px',
+                  marginBottom: '12px',
+                  boxShadow: 'none',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px !important',
+                  '&:before': { display: 'none' },
+                  '&.Mui-expanded': {
+                    borderColor: '#d1d5db',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                   },
                 }}
               >
-                <Box
+                <AccordionSummary
                   sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    width: '100%',
+                    padding: '14px 20px',
+                    minHeight: 'auto',
+                    '& .MuiAccordionSummary-content': {
+                      margin: '0',
+                      alignItems: 'center',
+                    },
+                    '& .MuiAccordionSummary-expandIconWrapper': {
+                      color: '#6b7280',
+                      marginLeft: '8px',
+                    },
                   }}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: '15px',
-                        color: '#111827',
-                        marginLeft: 2,
-                      }}
-                    >
-                      {menuItem?.parentMenuName}
-                    </Typography>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      width: '100%',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: '15px',
+                          color: '#111827',
+                          marginLeft: 2,
+                        }}
+                      >
+                        {menuItem?.parentMenuName}
+                      </Typography>
 
-                    {/* {menuItem?.faqSubSectionDescription && (
+                      {/* {menuItem?.faqSubSectionDescription && (
                       <Typography
                         variant="caption"
                         sx={{
@@ -257,7 +265,7 @@ const MenuIems: React.FC = () => {
                       </Typography>
                     )} */}
 
-                    {/* <Typography
+                      {/* <Typography
                       variant="caption"
                       sx={{
                         color: '#6b7280',
@@ -269,86 +277,86 @@ const MenuIems: React.FC = () => {
                     >
                       {menuItem?.faqQuestionCount} Q&A
                     </Typography> */}
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: '#6b7280',
-                        fontSize: '12px',
-                        backgroundColor: '#f3f4f6',
-                        padding: '2px 12px',
-                        borderRadius: '12px',
-                      }}
-                    >
-                      {menuItem?.countryCode}
-                    </Typography>
-                    {/* countryCode */}
-                  </Box>
-
-                  {/* Edit Button */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <IconButton
-                      size="small"
-                      // onClick={(e) => {
-                      //   e.stopPropagation()
-                      //   // Handle edit action here
-                      //   console.log('Edit FAQ:', faqItem.faqHeadCode)
-                      // }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        // Set the edit data and open modal
-                        setEditData(menuItem) // Pass the entire faqItem
-                        setOpenMenuItemModal(true)
-                      }}
-                      sx={{
-                        color: '#6b7280',
-                        padding: '4px',
-                        '&:hover': {
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: '#6b7280',
+                          fontSize: '12px',
                           backgroundColor: '#f3f4f6',
-                          color: '#374151',
-                        },
+                          padding: '2px 12px',
+                          borderRadius: '12px',
+                        }}
+                      >
+                        {menuItem?.countryCode}
+                      </Typography>
+                      {/* countryCode */}
+                    </Box>
+
+                    {/* Edit Button */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <IconButton
+                        size="small"
+                        // onClick={(e) => {
+                        //   e.stopPropagation()
+                        //   // Handle edit action here
+                        //   console.log('Edit FAQ:', faqItem.faqHeadCode)
+                        // }}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          // Set the edit data and open modal
+                          setEditData(menuItem) // Pass the entire faqItem
+                          setOpenMenuItemModal(true)
+                        }}
+                        sx={{
+                          color: '#6b7280',
+                          padding: '4px',
+                          '&:hover': {
+                            backgroundColor: '#f3f4f6',
+                            color: '#374151',
+                          },
+                        }}
+                      >
+                        <EditIcon sx={{ fontSize: '18px' }} />
+                      </IconButton>
+
+                      {/* Optional: Delete button */}
+                    </Box>
+                  </Box>
+                </AccordionSummary>
+
+                <AccordionDetails
+                  sx={{
+                    padding: '4px 20px 20px 20px',
+                  }}
+                >
+                  {menuItem?.children.map((childDetail: any, ind: any) => (
+                    <Box
+                      key={ind}
+                      sx={{
+                        padding: '14px 0',
+                        borderBottom: ind !== menuItem.children.length - 1 ? '1px solid #f3f4f6' : 'none',
                       }}
                     >
-                      <EditIcon sx={{ fontSize: '18px' }} />
-                    </IconButton>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <Box sx={{ flex: 1 }}>
+                          <Typography
+                            variant="subtitle2"
+                            sx={{
+                              fontWeight: 600,
+                              fontSize: '14px',
+                              color: '#111827',
+                              mb: 1,
+                              whiteSpace: 'normal',
+                              wordBreak: 'break-word',
+                              overflowWrap: 'break-word',
+                              maxWidth: '80%',
+                              display: 'block',
+                            }}
+                          >
+                            {childDetail?.childMenuName}
+                          </Typography>
 
-                    {/* Optional: Delete button */}
-                  </Box>
-                </Box>
-              </AccordionSummary>
-
-              <AccordionDetails
-                sx={{
-                  padding: '4px 20px 20px 20px',
-                }}
-              >
-                {menuItem?.children.map((childDetail: any, ind: any) => (
-                  <Box
-                    key={ind}
-                    sx={{
-                      padding: '14px 0',
-                      borderBottom: ind !== menuItem.children.length - 1 ? '1px solid #f3f4f6' : 'none',
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <Box sx={{ flex: 1 }}>
-                        <Typography
-                          variant="subtitle2"
-                          sx={{
-                            fontWeight: 600,
-                            fontSize: '14px',
-                            color: '#111827',
-                            mb: 1,
-                            whiteSpace: 'normal',
-                            wordBreak: 'break-word',
-                            overflowWrap: 'break-word',
-                            maxWidth: '80%',
-                            display: 'block',
-                          }}
-                        >
-                          {childDetail?.childMenuName}
-                        </Typography>
-
-                        {/* <Typography
+                          {/* <Typography
                           variant="body2"
                           sx={{
                             color: '#4b5563',
@@ -363,10 +371,10 @@ const MenuIems: React.FC = () => {
                         >
                           {faqDetail?.faqAnswer}
                         </Typography> */}
-                      </Box>
+                        </Box>
 
-                      {/* Edit button for individual FAQ */}
-                      {/* <IconButton
+                        {/* Edit button for individual FAQ */}
+                        {/* <IconButton
                         size="small"
                         onClick={(e) => {
                           e.stopPropagation()
@@ -385,12 +393,12 @@ const MenuIems: React.FC = () => {
                       >
                         <EditIcon sx={{ fontSize: '16px' }} />
                       </IconButton> */}
+                      </Box>
                     </Box>
-                  </Box>
-                ))}
-              </AccordionDetails>
-            </Accordion>
-          ))}
+                  ))}
+                </AccordionDetails>
+              </Accordion>
+            ))}
         </div>
 
         <MenuItemsDialog

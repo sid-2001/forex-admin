@@ -24,18 +24,12 @@ const VALIDATION_RULES = {
     patternMessage: 'Only alphabets allowed',
     required: true,
   },
-  groupShortCode: {
-    message: 'Group Display Name is required',
-    pattern: /^[A-Za-z0-9\s]+$/,
-    patternMessage: 'Only alphabets allowed',
-    required: true,
-  },
+
   effectiveToDate: { required: true, message: 'To Date is required' },
   effectiveFromDate: { required: true, message: 'From Date is required' },
 }
 
 const initialForm = {
-  groupShortCode: '',
   groupShortName: '',
   groupName: '',
   groupDisplayName: '',
@@ -54,7 +48,6 @@ export default function GroupDialog({ open, onClose, onSubmit, editData }: any) 
       const tDate = editData.effectiveToDate || ''
 
       setForm({
-        groupShortCode: editData.groupShortCode || '',
         groupShortName: editData.groupShortName || '',
         groupName: editData.groupName || '',
         groupDisplayName: editData.groupDisplayName,
@@ -84,7 +77,7 @@ export default function GroupDialog({ open, onClose, onSubmit, editData }: any) 
 
         //@ts-ignore
         if (
-          (field === 'groupShortCode' || field === 'groupShortName' || field === 'groupName' || field === 'groupDisplayName') &&
+          (field === 'groupShortName' || field === 'groupName' || field === 'groupDisplayName') &&
           //@ts-ignore
           rule?.pattern &&
           //@ts-ignore
@@ -128,23 +121,11 @@ export default function GroupDialog({ open, onClose, onSubmit, editData }: any) 
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Group Short Code"
-              // inputProps={{ maxLength: 1 }}
-              value={form.groupShortCode}
-              required
-              onChange={(e) => setForm({ ...form, groupShortCode: e.target.value })}
-              error={!!errors.groupShortCode}
-              helperText={errors.groupShortCode}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
               label="Group Short Name"
-              // inputProps={{ maxLength: 1 }}
+              inputProps={{ maxLength: 10 }}
               value={form.groupShortName}
               required
-              onChange={(e) => setForm({ ...form, groupShortName: e.target.value })}
+              onChange={(e) => setForm({ ...form, groupShortName: e.target.value.toUpperCase() })}
               error={!!errors.groupShortName}
               helperText={errors.groupShortName}
             />
@@ -155,7 +136,7 @@ export default function GroupDialog({ open, onClose, onSubmit, editData }: any) 
               fullWidth
               label="Group Name"
               required
-              //  inputProps={{ maxLength: 15 }}
+              inputProps={{ maxLength: 15 }}
               value={form.groupName}
               onChange={(e) => setForm({ ...form, groupName: e.target.value })}
               error={!!errors.groupName}
@@ -168,7 +149,7 @@ export default function GroupDialog({ open, onClose, onSubmit, editData }: any) 
               fullWidth
               label="Group Display Name"
               required
-              //   inputProps={{ maxLength: 15 }}
+              inputProps={{ maxLength: 15 }}
               value={form.groupDisplayName}
               onChange={(e) => setForm({ ...form, groupDisplayName: e.target.value })}
               error={!!errors.groupDisplayName}
