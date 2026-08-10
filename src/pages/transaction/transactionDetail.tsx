@@ -79,30 +79,33 @@ const TransactionDetailScreen = () => {
                     {transactionDetails?.transactionNumber}
                   </Typography>
                 </Box>
-                <Box>
-                  <Typography
-                    sx={{
-                      fontSize: '0.9rem',
-                      color: '#334155',
-                      minHeight: 24,
-                      fontWeight: 700,
-                      letterSpacing: '1px',
-                    }}
-                  >
-                    Lulu Transaction ID
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: '0.9rem',
-                      color: '#334155',
-                      minHeight: 24,
-                      fontWeight: 700,
-                      letterSpacing: '1px',
-                    }}
-                  >
-                    {transactionDetails?.platformTransactionReferenceId}
-                  </Typography>
-                </Box>
+
+                {userCountry === 'UAE' && (
+                  <Box>
+                    <Typography
+                      sx={{
+                        fontSize: '0.9rem',
+                        color: '#334155',
+                        minHeight: 24,
+                        fontWeight: 700,
+                        letterSpacing: '1px',
+                      }}
+                    >
+                      Lulu Transaction ID
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: '0.9rem',
+                        color: '#334155',
+                        minHeight: 24,
+                        fontWeight: 700,
+                        letterSpacing: '1px',
+                      }}
+                    >
+                      {transactionDetails?.platformTransactionReferenceId}
+                    </Typography>
+                  </Box>
+                )}
 
                 <Box>
                   <Typography
@@ -149,7 +152,7 @@ const TransactionDetailScreen = () => {
                       letterSpacing: '1px',
                     }}
                   >
-                    {transactionDetails?.paymentStatus.replace('_', ' ')}
+                    {transactionDetails.paymentStatus ? transactionDetails.paymentStatus.replace(/_/g, ' ') : ''}
                   </Typography>
                 </Box>
                 <Box>

@@ -85,7 +85,7 @@ export default function Group() {
     }
   }
   const columns: GridColDef[] = [
-    { field: 'groupShortCode', headerName: 'Code', width: 80, headerClassName: 'super-app-theme--header' },
+    { field: 'groupCode', headerName: 'Group Code', width: 80, headerClassName: 'super-app-theme--header' },
     { field: 'groupShortName', headerName: 'Group Short Name', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'groupName', headerName: 'Group Name', width: 100, headerClassName: 'super-app-theme--header' },
     { field: 'groupDisplayName', headerName: 'Group Display Name', width: 100, headerClassName: 'super-app-theme--header' },

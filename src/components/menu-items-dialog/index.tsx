@@ -87,6 +87,7 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
             childMenuName: detail.childMenuName,
             icon: detail.icon,
             path: detail.path,
+            childIsVisible: detail.childIsVisible,
           })) || [],
       })
     } else {
@@ -165,6 +166,7 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
       // effectiveToDate: formData.effectiveToDate || '9999-12-31',
       // active: true,
       isNew: true,
+      childIsVisible: 'Y',
     })
     setFormData({
       ...formData,
@@ -202,6 +204,7 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
         // effectiveToDate: formData.effectiveToDate || '9999-12-31',
         // active: true,
         isNew: true,
+        childIsVisible: 'Y',
       })
     }
 
@@ -281,7 +284,7 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
   const handleCreate = async () => {
     const payload = {
       ...formData,
-      //createdBy: staffId || 'admin',
+      createdBy: staffId || 'admin',
       effectiveFromDate: formData.effectiveFromDate + 'T00:00:00',
       effectiveToDate: formData.effectiveToDate + 'T00:00:00',
       children: formData.children?.map((detail: any) => ({
@@ -289,6 +292,7 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
         childMenuName: detail.childMenuName,
         icon: detail.icon,
         path: detail.path,
+        childIsVisible: detail.childIsVisible,
       })),
       // path: formData.children > 0 ? '' : formData.path,
     }
@@ -320,6 +324,7 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
         childMenuName: detail.childMenuName,
         icon: detail.icon,
         path: detail.path,
+        childIsVisible: detail.childIsVisible,
       })),
     }
 
