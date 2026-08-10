@@ -199,21 +199,21 @@ const SendMoneyPage = () => {
       const tranId = localStorage.getItem('tranId') === null ? '' : localStorage.getItem('tranId')
       const rex = new RexPay()
       //@ts-ignore
-      rex
-        .VerifyPayment({
-          transactionReference: tranId,
-        })
-        .then(
-          //@ts-ignore
-          (response) => {
-            let amount = response?.data?.amount
-            if (amount) {
-              setState({ ...state, amount, transactions: response.data.history })
-            } else {
-              setState({ ...state, amount: '' })
-            }
-          },
-        )
+      // rex
+      //   .VerifyPayment({
+      //     transactionReference: tranId,
+      //   })
+      //   .then(
+      //     //@ts-ignore
+      //     (response) => {
+      //       let amount = response?.data?.amount
+      //       if (amount) {
+      //         setState({ ...state, amount, transactions: response.data.history })
+      //       } else {
+      //         setState({ ...state, amount: '' })
+      //       }
+      //     },
+      //   )
     } catch (error) {
       //handle error
       setState({ ...state, amount: '' })
@@ -238,11 +238,11 @@ const SendMoneyPage = () => {
         //      sendCountry:selectedCountry,
 
         //@ts-ignore
-        transaction_service
-          .getTransactionReferalsPoints(selectedUser?.applicantId, userCountry === 'ZA' ? 'ZAR' : 'INR', data?.calculatedCharge)
-          .then((referaldata) => {
-            //  setloyalityamount((referaldata?.data)?(referaldata?.data):0);
-          })
+        // transaction_service
+        //   .getTransactionReferalsPoints(selectedUser?.applicantId, userCountry === 'ZA' ? 'ZAR' : 'INR', data?.calculatedCharge)
+        //   .then((referaldata) => {
+        //     //  setloyalityamount((referaldata?.data)?(referaldata?.data):0);
+        //   })
       } else {
         setSelectedTimeCharge(0)
       }
