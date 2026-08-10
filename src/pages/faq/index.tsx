@@ -54,6 +54,8 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   borderTop: '1px solid rgba(0, 0, 0, .125)',
 }))
 
+const faqChannelList: any = { M: 'Mobile', W: 'Web' }
+
 const Faq: React.FC = () => {
   const [faqData, setfaqData] = useState([])
   const helper = new HelperService()
@@ -478,6 +480,19 @@ const Faq: React.FC = () => {
                       }}
                     >
                       {faqItem?.countryCode}
+                    </Typography>
+
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: '#6b7280',
+                        fontSize: '12px',
+                        backgroundColor: '#f3f4f6',
+                        padding: '2px 12px',
+                        borderRadius: '12px',
+                      }}
+                    >
+                      {faqChannelList[faqItem?.faqChannel]}
                     </Typography>
                   </Box>
 
