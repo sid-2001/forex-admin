@@ -33,8 +33,8 @@ export default class MasterService extends BaseService {
     }
   }
 
-  async updateMenu(payload: Partial<any>): Promise<any> {
-    const url = `/api/staff/menu-items/update`
+  async updateMenu(payload: Partial<any>, parentId: any): Promise<any> {
+    const url = `/api/staff/menu-items/updateMenuItems/${parentId}`
     try {
       const { data } = await api1.put(url, payload)
       return data
