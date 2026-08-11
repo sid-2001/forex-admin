@@ -38,7 +38,7 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
   const staffId = local_service.get_staff_id()
 
   const initialFormState = {
-    moduleCode: '',
+    moduleCode: 0,
     countryCode: '',
     groupCode: '',
     groupName: '',
@@ -47,13 +47,13 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
     menuDisplayName: '',
     parentMenuName: '',
     parentMenuDisplayName: '',
-    parentDisplayOrder: 9,
-    isVisible: 'Y',
+    parentDisplayOrder: '',
+    isVisible: false,
     menuType: '',
     effectiveFromDate: '',
     effectiveToDate: '',
     icon: '',
-    childCount: 0,
+    childCount: '',
     path: '',
     children: [] as any[],
   }
@@ -69,6 +69,7 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
 
   useEffect(() => {
     if (editData) {
+      console.log(editData, 'dtaa')
       let countryCode = editData.countryCode || ''
       // If countryCode contains parentheses, extract just the code
       if (countryCode.includes('(')) {
@@ -77,17 +78,16 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
       setFormData({
         ...editData,
         countryCode: countryCode, // Use the extracted code
-
         effectiveFromDate: editData.effectiveFromDate?.split('T')[0] || '',
         effectiveToDate: editData.effectiveToDate?.split('T')[0] || '',
+        isVisible: editData?.isVisible === 'Y' ? true : false,
+        childCount: editData?.children.length,
+        moduleCode: typeof editData?.moduleCode === 'string' ? Number(editData?.moduleCode) : editData?.moduleCode,
         children:
           editData.children?.map((detail: any) => ({
+            ...detail,
             isNew: false,
-            childDisplayOrder: detail.childDisplayOrder,
-            childMenuName: detail.childMenuName,
-            icon: detail.icon,
-            path: detail.path,
-            childIsVisible: detail.childIsVisible,
+            childIsVisible: detail.childIsVisible === 'Y' ? true : false,
           })) || [],
       })
     } else {
@@ -166,7 +166,7 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
       // effectiveToDate: formData.effectiveToDate || '9999-12-31',
       // active: true,
       isNew: true,
-      childIsVisible: 'Y',
+      childIsVisible: false,
     })
     setFormData({
       ...formData,
@@ -200,11 +200,8 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
         path: '',
         childMenuName: '',
         childDisplayOrder: '',
-        // effectiveFromDate: formData.effectiveFromDate || '',
-        // effectiveToDate: formData.effectiveToDate || '9999-12-31',
-        // active: true,
         isNew: true,
-        childIsVisible: 'Y',
+        childIsVisible: false,
       })
     }
 
@@ -254,7 +251,16 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
   }
 
   const handleSubmit = async () => {
-    const mandatoryFields = ['countryCode', 'moduleCode', 'groupCode', 'menuName', 'parentMenuName', 'effectiveFromDate', 'effectiveToDate']
+    const mandatoryFields = [
+      'countryCode',
+      'moduleCode',
+      'groupCode',
+      'menuName',
+      'parentMenuName',
+      'menuType',
+      'effectiveFromDate',
+      'effectiveToDate',
+    ]
 
     const isFormIncomplete = mandatoryFields.some((field) => !formData[field] || formData[field].toString().trim() === '')
 
@@ -287,12 +293,14 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
       createdBy: staffId || 'admin',
       effectiveFromDate: formData.effectiveFromDate + 'T00:00:00',
       effectiveToDate: formData.effectiveToDate + 'T00:00:00',
+      isVisible: formData.isVisible ? 'Y' : 'N',
       children: formData.children?.map((detail: any) => ({
-        childDisplayOrder: detail.childDisplayOrder,
-        childMenuName: detail.childMenuName,
-        icon: detail.icon,
-        path: detail.path,
-        childIsVisible: detail.childIsVisible,
+        ...detail,
+        // childDisplayOrder: detail.childDisplayOrder,
+        // childMenuName: detail.childMenuName,
+        // icon: detail.icon,
+        // path: detail.path,
+        childIsVisible: detail.childIsVisible ? 'Y' : 'N',
       })),
       // path: formData.children > 0 ? '' : formData.path,
     }
@@ -319,18 +327,21 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
       modifiedBy: staffId,
       effectiveFromDate: formData.effectiveFromDate + 'T00:00:00',
       effectiveToDate: formData.effectiveToDate + 'T00:00:00',
+      isVisible: formData.isVisible ? 'Y' : 'N',
+      createdBy: staffId,
       children: formData.children?.map((detail: any) => ({
-        childDisplayOrder: detail.childDisplayOrder,
-        childMenuName: detail.childMenuName,
-        icon: detail.icon,
-        path: detail.path,
-        childIsVisible: detail.childIsVisible,
+        ...detail,
+        // childDisplayOrder: detail.childDisplayOrder,
+        // childMenuName: detail.childMenuName,
+        // icon: detail.icon,
+        // path: detail.path,
+        childIsVisible: detail.childIsVisible ? 'Y' : 'N',
       })),
     }
 
     try {
       // Use master_service instead of direct fetch
-      const response = await master_service.updateFaqHead(editData.menuCode, updatePayload)
+      const response = await master_service.updateMenu(updatePayload, editData.parentMenuCode)
 
       console.log('Update response:', response)
 
@@ -493,12 +504,22 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
                 required
               />
             </Grid>
-            {/* <Grid item xs={12}>
+            <Grid item xs={6}>
               <FormControlLabel
-                control={<Checkbox checked={formData.active} onChange={(e) => handleChange('active', e.target.checked)} color="primary" />}
-                label="Active Status"
+                control={<Checkbox checked={formData.isVisible} onChange={(e) => handleChange('isVisible', e.target.checked)} color="primary" />}
+                label="Parent Visible"
               />
-            </Grid> */}
+            </Grid>
+
+            <Grid item xs={6}>
+              <TextField
+                fullWidth
+                label="Parent Display Order"
+                required
+                value={formData.parentDisplayOrder}
+                onChange={(e) => handleChange('parentDisplayOrder', e.target.value)}
+              />
+            </Grid>
 
             {formData.children && formData.children.length > 0 && (
               <Grid item xs={12}>
@@ -541,10 +562,10 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
                         <Grid item xs={6}>
                           <TextField
                             fullWidth
-                            label={`Child Menu ${index + 1}`}
+                            label={`Child Menu`}
                             required
                             value={detail.childMenuName}
-                            inputProps={{ maxLength: 255 }}
+                            inputProps={{ maxLength: 50 }}
                             onChange={(e) => handleChildMenuChange(index, 'childMenuName', e.target.value)}
                             error={!!childMenuErrors[index]?.childMenuName}
                             helperText={childMenuErrors[index]?.childMenuName}
@@ -554,7 +575,7 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
                         <Grid item xs={6}>
                           <TextField
                             fullWidth
-                            label={`Path ${index + 1}`}
+                            label={'Path'}
                             required
                             value={detail.path}
                             inputProps={{ maxLength: 255 }}
@@ -564,10 +585,10 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
                           />
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid item xs={6}>
                           <TextField
                             fullWidth
-                            label={`Icon ${index + 1}`}
+                            label={`Icon`}
                             value={detail.icon}
                             inputProps={{ maxLength: 255 }}
                             onChange={(e) => handleChildMenuChange(index, 'icon', e.target.value)}
@@ -575,6 +596,30 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
                             helperText={childMenuErrors[index]?.icon}
                           />
                         </Grid>
+
+                        <Grid item xs={3}>
+                          <TextField
+                            fullWidth
+                            label={`Child Display Order`}
+                            value={detail.childDisplayOrder}
+                            onChange={(e) => handleChildMenuChange(index, 'childDisplayOrder', e.target.value)}
+                            error={!!childMenuErrors[index]?.childDisplayOrder}
+                            helperText={childMenuErrors[index]?.childDisplayOrder}
+                          />
+                        </Grid>
+                      </Grid>
+                      <Grid item xs={3}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={detail.childIsVisible}
+                              onChange={(e) => handleChildMenuChange(index, 'childIsVisible', e.target.checked)}
+                              color="primary"
+                              disabled={!formData?.isVisible}
+                            />
+                          }
+                          label={`Child Visible`}
+                        />
                       </Grid>
                     </Paper>
                   ))}
