@@ -134,9 +134,7 @@ export default function TransactionPage() {
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
 
   const [loading, setLoading] = useState(false)
-  const [rows, setRows] = useState<
-    Partial<Pick<TransactionRow, 'id' | 'gatewayUsed' | 'senderCtryTransId' | 'rcvCtryTransId' | 'senderCtryGatewaySettlInd' | 'reconStatus'>>[]
-  >([])
+  const [rows, setRows] = useState<any>([])
   let trx_service = new TransactionService()
   const theme: any = useTheme()
 
@@ -266,7 +264,18 @@ export default function TransactionPage() {
       headerName: 'Mismatch Fields',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => <span>{params.value?.join(', ')}</span>,
+      renderCell: (params) => (
+        <Typography
+          variant="body2"
+          sx={{
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          {(params.value ?? []).join(', ')}
+        </Typography>
+      ),
     },
   ]
 
@@ -345,7 +354,7 @@ export default function TransactionPage() {
   return (
     <Box
       sx={{
-        height: '80vh',
+        height: '70vh',
         width: '90vw',
       }}
     >
@@ -594,6 +603,9 @@ export default function TransactionPage() {
           },
           '& .MuiDataGrid-cell': {
             fontSize: '14px',
+            whiteSpace: 'normal',
+            lineHeight: 1.4,
+            py: 1,
           },
           '& .super-app-theme--header': {
             fontSize: '16px',
@@ -602,10 +614,10 @@ export default function TransactionPage() {
         rows={rows}
         columns={columns}
         getRowId={(row: any) => row.transactionId}
-        initialState={{
-          pagination: { paginationModel: { pageSize: 20, page: 0 } },
-        }}
-        pageSizeOptions={[10, 20, 50]}
+        // initialState={{
+        //   pagination: { paginationModel: { pageSize: 50, page: 0 } },
+        // }}
+        // pageSizeOptions={[10, 20, 50]}
         slots={{
           loadingOverlay: LoaderUI.LoadingOverlay,
           toolbar: CustomToolbar, // 👈 Toolbar with reset filters
