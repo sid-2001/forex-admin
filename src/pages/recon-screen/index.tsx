@@ -267,17 +267,6 @@ export default function TransactionPage() {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => <span>{params.value?.join(', ')}</span>,
-      // renderCell: (params: any) => {
-      //   if (params.row.mismatchFields.length > 0) {
-      //     return (
-      //       <ul>
-      //         {params.row.mismatchFields.map((item: string, ind: number) => (
-      //           <li key={ind}>{item}</li>
-      //         ))}
-      //       </ul>
-      //     )
-      //   }
-      // },
     },
   ]
 
@@ -314,7 +303,16 @@ export default function TransactionPage() {
     const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false)
     const headers = visibleCols.map((col) => col.headerName).join(',')
     //@ts-ignore
-    const mappedRows = rows.map((row) => visibleCols.map((col) => row[col.field] ?? '').join(','))
+    // const mappedRows = rows.map((row) => visibleCols.map((col) => row[col.field] ?? '').join(','))
+
+    const mappedRows = rows.map((row: any) =>
+      visibleCols.map((col) => {
+        if (col.field === 'mismatchFields') return row.mismatchFields.join(', ')
+        if (col.field === 'status') return convertStrToTitleCase(row.status)
+        return row[col.field] || ''
+      }),
+    )
+
     const csv = [headers, ...mappedRows].join('\n')
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
