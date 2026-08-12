@@ -161,7 +161,6 @@ const MenuIems: React.FC = () => {
                 value={filters.countryCode}
                 label="Country"
                 onChange={(e) => {
-                  console.log(e.target.value, '----------->bhanu')
                   handleFilterChange('countryCode', e.target.value)
                 }}
               >
@@ -197,12 +196,14 @@ const MenuIems: React.FC = () => {
         </Box>
 
         <div className="faq-container">
-          {menusData.length > 0 &&
-            menusData.map((menuItem: any, index: any) => (
+          {menusData.map((menuItem: any, index: number) => {
+            const hasChildren = Array.isArray(menuItem?.children) && menuItem.children.length > 0
+
+            return (
               <Accordion
                 key={index}
-                expanded={expanded === menuItem.menuCode}
-                onChange={handleChange(menuItem.menuCode)}
+                expanded={hasChildren && expanded === menuItem.menuCode}
+                onChange={hasChildren ? handleChange(menuItem.menuCode) : undefined}
                 sx={{
                   marginBottom: '12px',
                   boxShadow: 'none',
@@ -216,6 +217,7 @@ const MenuIems: React.FC = () => {
                 }}
               >
                 <AccordionSummary
+                  expandIcon={hasChildren ? <ArrowForwardIosSharpIcon sx={{ fontSize: '0.9rem' }} /> : null}
                   sx={{
                     padding: '14px 20px',
                     minHeight: 'auto',
@@ -229,6 +231,7 @@ const MenuIems: React.FC = () => {
                     },
                   }}
                 >
+                  {/* your existing content */}
                   <Box
                     sx={{
                       display: 'flex',
@@ -265,18 +268,6 @@ const MenuIems: React.FC = () => {
                       </Typography>
                     )} */}
 
-                      {/* <Typography
-                      variant="caption"
-                      sx={{
-                        color: '#6b7280',
-                        fontSize: '12px',
-                        backgroundColor: '#f3f4f6',
-                        padding: '2px 12px',
-                        borderRadius: '12px',
-                      }}
-                    >
-                      {menuItem?.faqQuestionCount} Q&A
-                    </Typography> */}
                       <Typography
                         variant="caption"
                         sx={{
@@ -290,17 +281,26 @@ const MenuIems: React.FC = () => {
                         {menuItem?.countryCode}
                       </Typography>
                       {/* countryCode */}
+
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: '#6b7280',
+                          fontSize: '12px',
+                          backgroundColor: '#f3f4f6',
+                          padding: '2px 12px',
+                          borderRadius: '12px',
+                        }}
+                      >
+                        {Array.isArray(menuItem?.children) ? menuItem.children.length : 0}{' '}
+                        {Array.isArray(menuItem?.children) && menuItem.children.length === 1 ? 'child' : 'children'}
+                      </Typography>
                     </Box>
 
                     {/* Edit Button */}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <IconButton
                         size="small"
-                        // onClick={(e) => {
-                        //   e.stopPropagation()
-                        //   // Handle edit action here
-                        //   console.log('Edit FAQ:', faqItem.faqHeadCode)
-                        // }}
                         onClick={(e) => {
                           e.stopPropagation()
                           // Set the edit data and open modal
@@ -329,34 +329,36 @@ const MenuIems: React.FC = () => {
                     padding: '4px 20px 20px 20px',
                   }}
                 >
-                  {menuItem?.children.map((childDetail: any, ind: any) => (
-                    <Box
-                      key={ind}
-                      sx={{
-                        padding: '14px 0',
-                        borderBottom: ind !== menuItem.children.length - 1 ? '1px solid #f3f4f6' : 'none',
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <Box sx={{ flex: 1 }}>
-                          <Typography
-                            variant="subtitle2"
-                            sx={{
-                              fontWeight: 600,
-                              fontSize: '14px',
-                              color: '#111827',
-                              mb: 1,
-                              whiteSpace: 'normal',
-                              wordBreak: 'break-word',
-                              overflowWrap: 'break-word',
-                              maxWidth: '80%',
-                              display: 'block',
-                            }}
-                          >
-                            {childDetail?.childMenuName}
-                          </Typography>
+                  {hasChildren &&
+                    menuItem.children.map((childDetail: any, ind: number) => (
+                      // your existing child content
+                      <Box
+                        key={ind}
+                        sx={{
+                          padding: '14px 0',
+                          borderBottom: ind !== menuItem.children.length - 1 ? '1px solid #f3f4f6' : 'none',
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <Box sx={{ flex: 1 }}>
+                            <Typography
+                              variant="subtitle2"
+                              sx={{
+                                fontWeight: 600,
+                                fontSize: '14px',
+                                color: '#111827',
+                                mb: 1,
+                                whiteSpace: 'normal',
+                                wordBreak: 'break-word',
+                                overflowWrap: 'break-word',
+                                maxWidth: '80%',
+                                display: 'block',
+                              }}
+                            >
+                              {childDetail?.childMenuName}
+                            </Typography>
 
-                          {/* <Typography
+                            {/* <Typography
                           variant="body2"
                           sx={{
                             color: '#4b5563',
@@ -371,10 +373,10 @@ const MenuIems: React.FC = () => {
                         >
                           {faqDetail?.faqAnswer}
                         </Typography> */}
-                        </Box>
+                          </Box>
 
-                        {/* Edit button for individual FAQ */}
-                        {/* <IconButton
+                          {/* Edit button for individual FAQ */}
+                          {/* <IconButton
                         size="small"
                         onClick={(e) => {
                           e.stopPropagation()
@@ -393,12 +395,13 @@ const MenuIems: React.FC = () => {
                       >
                         <EditIcon sx={{ fontSize: '16px' }} />
                       </IconButton> */}
+                        </Box>
                       </Box>
-                    </Box>
-                  ))}
+                    ))}
                 </AccordionDetails>
               </Accordion>
-            ))}
+            )
+          })}
         </div>
 
         <MenuItemsDialog

@@ -46,6 +46,16 @@ export default class CouponService extends BaseService {
     }
   }
 
+  async exportCouponsList() {
+    const url = '/api/bop/gender/export-coupons'
+    try {
+      const response = await api1.get(url)
+      return response
+    } catch (err) {
+      return err as any
+    }
+  }
+
   async bulkUploadCouponCodes(file: File) {
     const url = '/api/bop/gender/coupon-codes/bulk-upload'
     try {

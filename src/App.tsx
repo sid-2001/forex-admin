@@ -71,12 +71,12 @@ import EmailTemplateManagement from './pages/emailTemplateMaster'
 import VerificationPartnerManagement from './pages/verification-partner'
 import CountryKycDocManagement from './pages/country-kyc-doc'
 import TermsConditionsPage from './pages/termscondition'
-import VendorApiMaster from './pages/VendorApiMaster'
+import VendorMaster from './pages/VendorMaster'
 import CountryLabelFieldsGridPage from './pages/country-label-field-master'
 import CountryReportingMappingsGridPage from './pages/country-reporting-label-mapping'
 import CountryLabelCodesGridPage from './pages/country-label-codes'
 import UrlTypeMaster from './pages/UrlTypeMaster'
-import VendorApiMasterTable from './pages/VendorApiMasterTable'
+import VendorApiMaster from './pages/VendorApiMaster'
 import CountryCorridorPage from './pages/country-corridor-page'
 import KycLimitTypeMaster from './pages/kyc-limit'
 import ResidentTypeMaster from './pages/resident-type-master'
@@ -284,8 +284,8 @@ function App() {
               <Route path="verification-partner" element={<VerificationPartnerManagement />} />
               <Route path="urlmaster" element={<UrlTypeMaster />} />
               <Route path="country-Kyc-doc-management" element={<CountryKycDocManagement />} />
-              <Route path="vendorapimaster" element={<VendorApiMaster />} />
-              <Route path="vendorapimastertable" element={<VendorApiMasterTable />} />
+              <Route path="vendor-master" element={<VendorMaster />} />
+              <Route path="vendor-api-master" element={<VendorApiMaster />} />
               {/* VendorApiMasterTable */}
               <Route path="subservice" element={<SubServiceManagement />} />
               <Route path="channel" element={<ChannelManagement />} />

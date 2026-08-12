@@ -83,6 +83,7 @@ export default function MenuItemsDialog({ open, editData, onClose, refreshList, 
         isVisible: editData?.isVisible === 'Y' ? true : false,
         childCount: editData?.children.length,
         moduleCode: typeof editData?.moduleCode === 'string' ? Number(editData?.moduleCode) : editData?.moduleCode,
+        menuType: editData?.menuType,
         children:
           editData.children?.map((detail: any) => ({
             ...detail,
