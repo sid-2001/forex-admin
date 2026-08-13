@@ -507,7 +507,7 @@ const MasterDropdownIcon = ({ setSelectedApp, addToHistory, selectedApp, childDa
                   selected={selectedApp === item.childMenuName}
                   onClick={() => handleNavigate(item)}
                 >
-                  <ListItemIcon sx={{ color: 'primary.main' }}>{item.icon}</ListItemIcon>
+                  <ListItemIcon sx={{ color: 'primary.main' }}>{item.icon ? item.icon : <BadgeIcon fontSize="small" />}</ListItemIcon>
                   <ListItemText primary={item.childMenuName} />
                 </MenuItem>
               </Box>
