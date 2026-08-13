@@ -119,12 +119,12 @@ export default function TransactionPage() {
   const [open, setOpen] = useRecoilState(alertState)
   const [reconStatus, setreconStatus] = useState('')
   const [amountDetails, setAmountDetails] = useState({
-    aedAmount: 0,
-    inrPayout: 0,
-    luluFee: 0,
-    platformFee: 0,
-    vatOnFee: 0,
-    vatOnLuluFee: 0,
+    settlementAmount: 0,
+    principalAmount: 0,
+    charges: 0,
+    vat: 0,
+    luluCommission: 0,
+    vatOnLuluCommission: 0,
   })
   const [filters, setFilters] = useState({
     fromDate: null,
@@ -237,24 +237,36 @@ export default function TransactionPage() {
 
     { field: 'transactionId', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
 
-    { field: 'sender', headerName: 'Settlement Country', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'aedAmount', headerName: 'Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'sourceCurrency', headerName: 'Settlement Currency', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'improPayTransactionNumber', headerName: 'ImproPay Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
 
-    { field: 'recipient', headerName: 'Principal Country', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'inrPayout', headerName: 'Principal Amount', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'payoutCurrency', headerName: 'Principal Currency', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorSettlementCountry', headerName: 'Settlement Country', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorSettlementAmount', headerName: 'Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'improPaySettlementAmount', headerName: 'ImproPay Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorSettlementCurrency', headerName: 'Settlement Currency', flex: 1, headerClassName: 'super-app-theme--header' },
 
-    { field: 'luluFxRate', headerName: 'LULU FX Rate', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'improPayFxRate', headerName: 'IMPROPAY FX Rate', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'fxMargin', headerName: 'FX Margin', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorPrincipalCountry', headerName: 'Principal Country', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorPrincipalAmount', headerName: 'Principal Amount', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'improPayPrincipalAmount', headerName: 'ImproPay Principal Amount', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorPrincipalCurrency', headerName: 'Principal Currency', flex: 1, headerClassName: 'super-app-theme--header' },
 
-    { field: 'platformFee', headerName: 'Charges', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'vatOnFee', headerName: 'VAT', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'luluFee', headerName: 'LULU Commission', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorCharges', headerName: 'Charges', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'improPayCharges', headerName: 'ImproPay Charges', flex: 1, headerClassName: 'super-app-theme--header' },
+
+    { field: 'vendorVat', headerName: 'VAT', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'improPayVat', headerName: 'ImproPay VAT', flex: 1, headerClassName: 'super-app-theme--header' },
+
+    { field: 'vendorFxRate', headerName: 'FX Rate', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'improPayFxRate', headerName: 'ImproPay FX Rate', flex: 1, headerClassName: 'super-app-theme--header' },
+
+    { field: 'vendorFxMargin', headerName: 'FX Margin', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'fxMargin', headerName: 'ImproPay FX Margin', flex: 1, headerClassName: 'super-app-theme--header' },
+
+    { field: 'vendorStatus', headerName: 'Status', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'improPayStatus', headerName: 'ImproPay Status', flex: 1, headerClassName: 'super-app-theme--header' },
+
     {
       field: 'status',
-      headerName: 'Status',
+      headerName: 'Comparision Status',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => convertStrToTitleCase(params.row.status),
@@ -455,7 +467,7 @@ export default function TransactionPage() {
                   letterSpacing: '1px',
                 }}
               >
-                {amountDetails?.aedAmount}
+                {amountDetails?.settlementAmount}
               </Typography>
             </Box>
 
@@ -480,7 +492,7 @@ export default function TransactionPage() {
                   letterSpacing: '1px',
                 }}
               >
-                {amountDetails?.inrPayout}
+                {amountDetails?.principalAmount}
               </Typography>
             </Box>
 
@@ -494,7 +506,7 @@ export default function TransactionPage() {
                   letterSpacing: '1px',
                 }}
               >
-                Impro Fee
+                Charges
               </Typography>
               <Typography
                 sx={{
@@ -505,7 +517,7 @@ export default function TransactionPage() {
                   letterSpacing: '1px',
                 }}
               >
-                {amountDetails?.platformFee}
+                {amountDetails?.charges}
               </Typography>
             </Box>
 
@@ -530,7 +542,7 @@ export default function TransactionPage() {
                   letterSpacing: '1px',
                 }}
               >
-                {amountDetails?.vatOnFee}
+                {amountDetails?.vat}
               </Typography>
             </Box>
 
@@ -544,7 +556,7 @@ export default function TransactionPage() {
                   letterSpacing: '1px',
                 }}
               >
-                Lulu Commission
+                Vendor Commission
               </Typography>
               <Typography
                 sx={{
@@ -555,7 +567,7 @@ export default function TransactionPage() {
                   letterSpacing: '1px',
                 }}
               >
-                {amountDetails?.luluFee}
+                {amountDetails?.luluCommission}
               </Typography>
             </Box>
 
