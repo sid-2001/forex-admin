@@ -4,26 +4,27 @@ import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SearchIcon from '@mui/icons-material/Search'
-import UrlTypeApiService, { IUrlType } from '../../services/urlType.api.service'
-import UrlTypeFormDialog from '../../components/UrlTypeFormDialog'
+import VendorApiService, { IVendor } from '../../services/vendor.api.service'
+import VendorApiFormDialog from '../../components/VendorApiFormDialog'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
+import { formatTableDate } from '@/helpers/dateformate'
 import HasPermission from '@/components/permissionWrapper'
-import { LocalStorageService } from '@/helpers/local-storage-service'
 import { HelperService } from '@/helpers/helper'
+import { LocalStorageService } from '@/helpers/local-storage-service'
 
-export default function UrlTypeMaster() {
-  const [rows, setRows] = useState<IUrlType[]>([])
+export default function VendorApiMaster() {
+  const [rows, setRows] = useState<IVendor[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [editData, setEditData] = useState<IUrlType | null>(null)
+  const [editData, setEditData] = useState<IVendor | null>(null)
 
   const [, setOpen] = useRecoilState(alertState)
   const [, setText] = useRecoilState(alertTextState)
   const [, setType] = useRecoilState(alertTypeState)
 
-  const service = useMemo(() => new UrlTypeApiService(), [])
+  const service = useMemo(() => new VendorApiService(), [])
   const local_service = new LocalStorageService()
   const helper = new HelperService()
 
@@ -39,22 +40,22 @@ export default function UrlTypeMaster() {
   }, [])
 
   const columns: GridColDef[] = [
-    { field: 'urlCode', headerName: 'URL Code', flex: 0.5, headerClassName: 'super-app-theme--header' },
-    { field: 'urlType', headerName: 'URL Type', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'urlDescription', headerName: 'Description', flex: 1.2, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorCode', headerName: 'Code', flex: 0.4, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorName', headerName: 'Vendor Name', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorEmail', headerName: 'Email', flex: 0.8, headerClassName: 'super-app-theme--header' },
     {
       field: 'effectiveFromDate',
-      headerName: 'From Date',
-      flex: 0.6,
+      headerName: 'Effective From',
+      flex: 0.5,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => (params.value ? String(params.value).split('T')[0] : '-'),
+      renderCell: (params) => formatTableDate(params?.value),
     },
     {
       field: 'effectiveToDate',
-      headerName: 'To Date',
-      flex: 0.6,
+      headerName: 'Effective to',
+      flex: 0.5,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => (params.value ? String(params.value).split('T')[0] : '-'),
+      renderCell: (params) => formatTableDate(params?.value),
     },
     {
       field: 'active',
@@ -81,21 +82,34 @@ export default function UrlTypeMaster() {
           >
             <EditIcon fontSize="small" />
           </IconButton>
+          {/* <IconButton
+            color="error"
+            size="small"
+            onClick={async () => {
+              if (confirm(`Deactivate ${params.row.vendorCode}?`)) {
+                await service.delete(params.row.vendorCode)
+                setType('success')
+                setText('Deactivated')
+                setOpen(true)
+                fetchData()
+              }
+            }}
+          >
+            <DeleteIcon fontSize="small" />
+          </IconButton> */}
         </Stack>
       ),
     },
   ]
 
-  const filteredRows = rows.filter((row) =>
-    Object.values(row).some((val) => val !== null && String(val).toLowerCase().includes(searchQuery.toLowerCase())),
-  )
+  const filteredRows = rows.filter((row) => Object.values(row).some((val) => String(val).toLowerCase().includes(searchQuery.toLowerCase())))
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
       <Box p={3} sx={{ width: '90vw', '& .header-bg': { fontWeight: 'bold', bgcolor: '#f5f5f5' } }}>
         <Stack direction="row" justifyContent="space-between" mb={2}>
           <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
-            URL TYPE MASTER
+            VENDOR MASTER
           </Typography>
           <Button
             variant="contained"
@@ -113,11 +127,12 @@ export default function UrlTypeMaster() {
           rows={filteredRows}
           columns={columns}
           loading={loading}
-          getRowId={(row) => row.urlCode}
+          getRowId={(row) => row.vendorCode}
           autoHeight
           slots={{ toolbar: GridToolbar }}
           slotProps={{ toolbar: { showQuickFilter: true } }}
           disableColumnMenu
+          // initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
           initialState={{
             pagination: {
               paginationModel: {
@@ -128,7 +143,7 @@ export default function UrlTypeMaster() {
           sx={{ bgcolor: 'white' }}
         />
 
-        <UrlTypeFormDialog
+        <VendorApiFormDialog
           open={dialogOpen}
           editData={editData}
           onClose={() => setDialogOpen(false)}

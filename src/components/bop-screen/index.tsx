@@ -322,7 +322,7 @@ const BopScreen: React.FC = () => {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.PAYMENT_INFORMATION}>
-      <Box style={{ width: '80vw', height: '80vh', overflowY: 'scroll', padding: '10px 20px' }}>
+      <Box style={{ width: '90vw', height: '80vh', overflowY: 'scroll', padding: '10px 20px' }}>
         {!hideForUAE && (
           <Box sx={{ textAlign: 'right', marginBottom: '10px' }}>
             <Button variant="contained" sx={{ marginRight: '0.8%' }} onClick={() => setIsEditing(true)} disabled={isEditing}>

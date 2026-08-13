@@ -28,7 +28,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Autocomplete,
   IconButton,
 } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
@@ -37,7 +36,6 @@ import VerifiedIcon from '@mui/icons-material/Verified'
 import PaymentMethodsTable from '@/components/paymentmethod'
 import BeneficiaryForm from '@/components/benificeary'
 import { ApplicantService } from '@/services/applicant.service'
-import { Beneficiary } from '@/types/transaction.type'
 import { TransactionService } from '@/services/transaction.service'
 import GifModal from '@/components/successModal'
 import { KycService } from '@/services/kyc.service'
@@ -52,7 +50,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { useTheme } from '@emotion/react'
 import staticdataService from '@/services/staticdata.service'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import RexPay from "../../helpers/rexpay";
+import RexPay from '../../helpers/rexpay'
 
 const { VITE_APP_URL } = import.meta.env
 
@@ -62,9 +60,6 @@ const applicant_service = new ApplicantService()
 const transaction_service = new TransactionService()
 const kyc_service = new KycService()
 const static_service = new staticdataService()
-
-
-
 
 const ConfirmAndPayButton = ({ handleClick = () => {}, imgUrl = '' }) => {
   return (
@@ -94,8 +89,8 @@ const SendMoneyPage = () => {
   const [selectedTime, setSelectedTime] = useState({})
   const [selectedTimeTableRow, setSelectedTimeTableRow] = useState<number | null>(null)
   const [finalamount, setFinalAmount] = useState(0)
-    const [userCurrency, setUserCurrency] = useRecoilState(userCurrencyState)
-    //@ts-ignore
+  const [userCurrency, setUserCurrency] = useRecoilState(userCurrencyState)
+  //@ts-ignore
   const [sourceCountry, setSourceCountry] = useState(userCurrency?.currencyCode)
   const [gatewayCharge, setGatewayCharge] = useState(0)
   const [selectedBenficary, setSelectedBenificary] = useState({})
@@ -107,21 +102,20 @@ const SendMoneyPage = () => {
   const [selectedTimeChange, setSelectedTimeCharge] = useState<number>(0)
   const [selectedUser, setSelectedUser] = useState<{ name: string; accountNumber: string; profilePhoto: string; applicantId: string } | null>(null)
   const [category, setCategory] = useState<string>('')
-  const[loyalityamout,setloyalityamount]=useState(0)
+  const [loyalityamout, setloyalityamount] = useState(0)
   const [selectedCountry, setSelectedCountry] = useState<string>('')
-    const [isSecondTabEnabled, setIsSecondTabEnabled] = useState(false);
-    const [error, setError] = useState(false);
-    const[finalcharges,setfinalcharges]=useState(0);
+  const [isSecondTabEnabled, setIsSecondTabEnabled] = useState(false)
+  const [error, setError] = useState(false)
+  const [finalcharges, setfinalcharges] = useState(0)
 
   const [currency, setCurrency] = useState<string>('')
   const [forexRate, setForexRate] = useState<string>('')
   const [amount, setAmount] = useState<number>(0)
   const [selectedTransferMethod, setSelectedTransferMethod] = useState('Bank Transfer')
-  const[gatewayId,setgatewayId]=useState(null)
+  const [gatewayId, setgatewayId] = useState(null)
   const [countries, setCountries] = useRecoilState(countyState)
-   const [included, setIncluded] = useState(false);
-   const[live ,islive]=useState(false)
-   
+  const [included, setIncluded] = useState(false)
+  const [live, islive] = useState(false)
 
   const [remittanceList, setRemittanceList] = useState<
     {
@@ -152,108 +146,103 @@ const SendMoneyPage = () => {
     { id: 3, time: '2 days', charges: 0.5, total: 200 },
   ]
 
-
- const [state, setState] = useState({
-    amount: "",
+  const [state, setState] = useState({
+    amount: '',
     loading: false,
     transactions: [],
-  });
+  })
   function OnClickPayButton() {
-    let transactionId = "Test" + Math.floor(Math.random() * 1000000);
-    setState({ ...state, loading: true });
-    const rex = new RexPay();
+    let transactionId = 'Test' + Math.floor(Math.random() * 1000000)
+    setState({ ...state, loading: true })
+    const rex = new RexPay()
     // rex.apiUrl=
     try {
       // rex.apiUrl="https://checkout-dev.globalaccelerex.com/pay/17642458VziKSogBww"
       //   rex.testUrl="https://checkout-dev.globalaccelerex.com/pay/17642458VziKSogBww"
-      rex.initializePayment({
-        reference: transactionId,
-        amount: 100,
-        currency: "NGN",
-        userId: "test@gmail.com",
-        callbackUrl: "https://webhook.site/16fd3edc-f043-4a2b-b475-2825b56fc80c",
-        mode: "Debug",
-        metadata: {
-          email: "test@gmail.com",
-          customerName: "Test User",
-        },
-      }).then((response) => {
-        console.log(response);
-        //@ts-ignore
-        if (response.success) {
-          setState({ ...state, loading: false });
-          sessionStorage.setItem("tranId", transactionId); // it can be saved to Database.
+      rex
+        .initializePayment({
+          reference: transactionId,
+          amount: 100,
+          currency: 'NGN',
+          userId: 'test@gmail.com',
+          callbackUrl: 'https://webhook.site/16fd3edc-f043-4a2b-b475-2825b56fc80c',
+          mode: 'Debug',
+          metadata: {
+            email: 'test@gmail.com',
+            customerName: 'Test User',
+          },
+        })
+        .then((response) => {
+          console.log(response)
           //@ts-ignore
-          sessionStorage.setItem("reference", response.data?.reference); // it can be saved to Database
-          //@ts-ignore
-          window.location.href = response.data?.authorizeUrl;
-        } else {
-          setState({ ...state, loading: false });
-          //@ts-ignore
-          window.location.href = response.data?.authorizeUrl;
-        }
-      });
+          if (response.success) {
+            setState({ ...state, loading: false })
+            sessionStorage.setItem('tranId', transactionId) // it can be saved to Database.
+            //@ts-ignore
+            sessionStorage.setItem('reference', response.data?.reference) // it can be saved to Database
+            //@ts-ignore
+            window.location.href = response.data?.authorizeUrl
+          } else {
+            setState({ ...state, loading: false })
+            //@ts-ignore
+            window.location.href = response.data?.authorizeUrl
+          }
+        })
     } catch (error) {
       //handle error
-      console.log(error);
+      console.log(error)
     }
   }
 
   function VerifyPayment() {
     try {
-      const tranId =
-        localStorage.getItem("tranId") === null
-          ? ""
-          : localStorage.getItem("tranId");
-     const rex = new RexPay();
-     //@ts-ignore
-      rex.VerifyPayment({
-        transactionReference: tranId,
-
-      }).then(
-        //@ts-ignore
-        (response) => {
-        let amount = response?.data?.amount;
-        if (amount) {
-          setState({ ...state, amount, transactions: response.data.history });
-        } else {
-          setState({ ...state, amount: "" });
-        }
-      });
+      const tranId = localStorage.getItem('tranId') === null ? '' : localStorage.getItem('tranId')
+      const rex = new RexPay()
+      //@ts-ignore
+      // rex
+      //   .VerifyPayment({
+      //     transactionReference: tranId,
+      //   })
+      //   .then(
+      //     //@ts-ignore
+      //     (response) => {
+      //       let amount = response?.data?.amount
+      //       if (amount) {
+      //         setState({ ...state, amount, transactions: response.data.history })
+      //       } else {
+      //         setState({ ...state, amount: '' })
+      //       }
+      //     },
+      //   )
     } catch (error) {
       //handle error
-      setState({ ...state, amount: "" });
+      setState({ ...state, amount: '' })
     }
   }
   useEffect(() => {
     // or ComponentDidMount if you are using class component
-    VerifyPayment();
-  }, []);
+    VerifyPayment()
+  }, [])
 
-
-
-
-  const getCharges = (principla_amount:any) => {
+  const getCharges = (principla_amount: any) => {
     kyc_service.getCharges(userCountry, sendCountry, principla_amount, 0, selectedUser?.applicantId).then(({ data }) => {
       console.log(data)
       setloyalityamount(data?.loyaltyDiscountAmt)
-      
+
       if (data) {
         setSelectedTimeCharge(data?.calculatedCharge)
         setfinalcharges(data?.finalCharges)
 
+        //    applicantId: selectedUser?.applicantId,
+        //  receiveCountry:selectedCountry,
+        //      sendCountry:selectedCountry,
 
-          //    applicantId: selectedUser?.applicantId,
-          //  receiveCountry:selectedCountry,
-          //      sendCountry:selectedCountry,
-             
-
-          //@ts-ignore
-        transaction_service.getTransactionReferalsPoints( selectedUser?.applicantId, userCountry === 'ZA' ? 'ZAR' : 'INR',(data?.calculatedCharge)).then(referaldata=>{
-
-//  setloyalityamount((referaldata?.data)?(referaldata?.data):0);
-        })
-       
+        //@ts-ignore
+        // transaction_service
+        //   .getTransactionReferalsPoints(selectedUser?.applicantId, userCountry === 'ZA' ? 'ZAR' : 'INR', data?.calculatedCharge)
+        //   .then((referaldata) => {
+        //     //  setloyalityamount((referaldata?.data)?(referaldata?.data):0);
+        //   })
       } else {
         setSelectedTimeCharge(0)
       }
@@ -274,7 +263,7 @@ const SendMoneyPage = () => {
               console.log(data)
               if (data) {
                 setSelectedTimeCharge(data.minimumCharges)
-                   setloyalityamount((data?.loyaltyDiscountAmt)?(data?.loyaltyDiscountAmt):0);
+                setloyalityamount(data?.loyaltyDiscountAmt ? data?.loyaltyDiscountAmt : 0)
               } else {
                 setSelectedTimeCharge(0)
               }
@@ -489,7 +478,7 @@ const SendMoneyPage = () => {
         //@ts-ignore
         // setCurrency(selected.currency)
         //@ts-ignore
-        
+
         setsendCountry(selected.countryCode)
         //@ts-ignore
         setSourceCountry(userCurrency?.currencyCode)
@@ -547,66 +536,53 @@ const SendMoneyPage = () => {
   }
 
   const transactionPayload = {
-   
-
     // amount: amount,
     // fcmToken: "",
     //@ts-ignore
-  
 
-  
     //  bopId: 79,
- 
-  
 
-
- 
     // forex: forexRate?forexRate:4.5,
-   
-   
+
     // selectedTimeMethod: {
     //   time: '2 hours',
     //   charges: selectedTimeChange,
     //   total: Number(amount) + Number(selectedTimeChange) + Number(gatewayCharge),
     // },
-   
 
     // sourceCountry: userCountry,
     // //@ts-ignore
     // timecharge: selectedTime?.time,
     // totalpaybleamount: Number(amount) + Number(selectedTimeChange) + Number(gatewayCharge),
 
-
     transferMethod: selectedTransferMethod,
     //@ts-ignore
-      receiverId: selectedBenficary?.benificaryId,
-         applicantId: selectedUser?.applicantId,
-           receiveCountry:selectedCountry,
-               sendCountry:userCountry,
-             
-     principalAmount: helper.roundToTwoFixed( (Number(amount)-Number(selectedTimeChange)) * Number(forexRate)),
+    receiverId: selectedBenficary?.benificaryId,
+    applicantId: selectedUser?.applicantId,
+    receiveCountry: selectedCountry,
+    sendCountry: userCountry,
+
+    principalAmount: helper.roundToTwoFixed((Number(amount) - Number(selectedTimeChange)) * Number(forexRate)),
 
     principalCurrency: currency,
-       settlementCurrency: sourceCountry,
-        settlementAmount: Number(amount) ,
-          
+    settlementCurrency: sourceCountry,
+    settlementAmount: Number(amount),
 
     gatewayStatus: 'Success',
 
+    rewardPoints: 23.7,
+    exchangeRates: helper.roundToTwoFixed(forexRate),
+    vatCharges: 50.0,
 
-      rewardPoints: 23.7,
-     exchangeRates: helper.roundToTwoFixed(forexRate),
-  vatCharges: 50.0,
-    
     bopId: category,
 
- gatewayId: 'IMPGW009',
+    gatewayId: 'IMPGW009',
     charges: finalcharges,
-      loyaltyDiscountAmt:loyalityamout,
-     
-//@ts-nocheck
-//@ts-ignore
-     finalCharges: finalcharges,
+    loyaltyDiscountAmt: loyalityamout,
+
+    //@ts-nocheck
+    //@ts-ignore
+    finalCharges: finalcharges,
     // transactionId: "ZAOWRM250814IN2524",
   }
 
@@ -686,9 +662,7 @@ const SendMoneyPage = () => {
         setcommonloader(false)
 
         navigate('/transaction')
-  
       }
-     
 
       if (data.id) {
         // HTML content for the current tab
@@ -748,8 +722,6 @@ const SendMoneyPage = () => {
 
   const handleCashfreePaymentClick = async () => {
     try {
-     
-
       const { data } = await transaction_service.createDealcover(dealCoverPayload)
 
       if (data?.dealNumber) {
@@ -766,7 +738,6 @@ const SendMoneyPage = () => {
           setOpen(true)
           setcommonloader(false)
           // navigate('/transaction')
-
 
           //@ts-ignore
           const response = await transaction_service.createOrder({ amount: transactionPayload?.amount, transactionId: txnResponse?.data })
@@ -832,9 +803,11 @@ const SendMoneyPage = () => {
           setcommonloader(false)
           // navigate('/transaction')
 
-
           //@ts-ignore
-          const response = await transaction_service.createAdumoOrder({ amount: transactionPayload?.principalAmount, transactionId: txnResponse?.data })
+          const response = await transaction_service.createAdumoOrder({
+            amount: transactionPayload?.principalAmount,
+            transactionId: txnResponse?.data,
+          })
           const { data } = response
 
           console.log(data)
@@ -843,9 +816,7 @@ const SendMoneyPage = () => {
             alert('Failed to get session ID')
             return
           }
-          window.location.replace((data)?.url)
-
-         
+          window.location.replace(data?.url)
         }
       }
     } catch (error) {
@@ -854,16 +825,12 @@ const SendMoneyPage = () => {
     }
   }
 
-
-    const handleSquadPaymentClick = async () => {
+  const handleSquadPaymentClick = async () => {
     try {
       const { data } = await transaction_service.createDealcover(dealCoverPayload)
 
       if (data?.dealNumber) {
-        const txnResponse = await transaction_service.createTransaction({...transactionPayload,gatewayId:"IMPGW009"
-
-
-        })
+        const txnResponse = await transaction_service.createTransaction({ ...transactionPayload, gatewayId: 'IMPGW009' })
         if (txnResponse?.status) {
           setCommonLoader(true)
           if (txnResponse?.data) {
@@ -877,7 +844,6 @@ const SendMoneyPage = () => {
           setcommonloader(false)
           // navigate('/transaction')
 
-
           //@ts-ignore
           const response = await transaction_service.createSquadOrder({ amount: amount, transactionNumber: txnResponse?.data })
           const { data } = response
@@ -888,9 +854,7 @@ const SendMoneyPage = () => {
           //   alert('Failed to get session ID')
           //   return
           // }
-          window.location.replace((data)?.checkout_url)
-
-         
+          window.location.replace(data?.checkout_url)
         }
       }
     } catch (error) {
@@ -904,8 +868,7 @@ const SendMoneyPage = () => {
       const { data } = await transaction_service.createDealcover(dealCoverPayload)
 
       if (data?.dealNumber) {
-        const txnResponse = await transaction_service.createTransaction({...transactionPayload,gatewayId:'IMPGW010'
-        })
+        const txnResponse = await transaction_service.createTransaction({ ...transactionPayload, gatewayId: 'IMPGW010' })
         if (txnResponse?.status) {
           setCommonLoader(true)
           if (txnResponse?.data) {
@@ -919,20 +882,17 @@ const SendMoneyPage = () => {
           setcommonloader(false)
           // navigate('/transaction')
 
-
           //@ts-ignore
           const response = await transaction_service.createRexoayOrder({ amount: amount, transactionNumber: txnResponse?.data })
           const { data } = response
 
           console.log(data)
-OnClickPayButton()
+          OnClickPayButton()
           // if (!data) {
           //   alert('Failed to get session ID')
           //   return
           // }
           // window.location.replace((data)?.checkout_url)
-
-         
         }
       }
     } catch (error) {
@@ -942,26 +902,23 @@ OnClickPayButton()
   }
 
   const payfastCredentials = {
-  payUrlSandbox: "https://sandbox.payfast.co.za/eng/process",
-  payUrlLive: "https://www.payfast.co.za/eng/process",
-  merchant_id: "10000100",
-  merchant_key: "46f0cd694581a",
-  m_payment_id: "01AB",
-  return_url: `${VITE_APP_URL}/transaction/response&status=success&payfastdata=${
-JSON.stringify({...transactionPayload,gatewayStatus:"Success"})
+    payUrlSandbox: 'https://sandbox.payfast.co.za/eng/process',
+    payUrlLive: 'https://www.payfast.co.za/eng/process',
+    merchant_id: '10000100',
+    merchant_key: '46f0cd694581a',
+    m_payment_id: '01AB',
+    return_url: `${VITE_APP_URL}/transaction/response&status=success&payfastdata=${JSON.stringify({
+      ...transactionPayload,
+      gatewayStatus: 'Success',
+    })}`,
+    cancel_url: `${VITE_APP_URL}/transaction/response&status=fail&payfastdata=${JSON.stringify({ ...transactionPayload, gatewayStatus: 'Fail' })}`,
+    notify_url: 'https://example.com/notify',
+  }
 
-  }`,
-  cancel_url: `${VITE_APP_URL}/transaction/response&status=fail&payfastdata=${
-JSON.stringify({...transactionPayload,gatewayStatus:"Fail"})
-  }`,
-  notify_url: "https://example.com/notify",
-};
+  const handlePayfast = () => {
+    const payfastURL = 'https://sandbox.payfast.co.za/eng/process'
 
- const handlePayfast = () => {
-    const payfastURL ="https://sandbox.payfast.co.za/eng/process"
-
-    console.log(JSON.stringify({...transactionPayload,gatewayStatus:"Success"})
-)
+    console.log(JSON.stringify({ ...transactionPayload, gatewayStatus: 'Success' }))
 
     const payfastForm = `
       <html>
@@ -977,14 +934,14 @@ JSON.stringify({...transactionPayload,gatewayStatus:"Fail"})
             <input type="hidden" name="name_last" value="kauhsij" />
             <input type="hidden" name="email_address" value="siddhant@gmail.com" />
             <input type="hidden" name="cell_number" value="+27831231234" />
-            <input type="hidden" name="return_url" value=${ VITE_APP_URL}/transaction/response?status=success&payfastdata=${encodeURIComponent(
-JSON.stringify(( {...transactionPayload,gatewayStatus:"Success"})))
-  } />
+            <input type="hidden" name="return_url" value=${VITE_APP_URL}/transaction/response?status=success&payfastdata=${encodeURIComponent(
+              JSON.stringify({ ...transactionPayload, gatewayStatus: 'Success' }),
+            )} />
 
 <input
   type="hidden"
   name="cancel_url"
-  value=${VITE_APP_URL}/transaction/response?status=cancelled&payfastdata=${encodeURIComponent(JSON.stringify({ ...transactionPayload, gatewayStatus: "Failed" }))}
+  value=${VITE_APP_URL}/transaction/response?status=cancelled&payfastdata=${encodeURIComponent(JSON.stringify({ ...transactionPayload, gatewayStatus: 'Failed' }))}
 />
 
 
@@ -994,18 +951,16 @@ JSON.stringify(( {...transactionPayload,gatewayStatus:"Success"})))
           </form>
         </body>
       </html>
-    `;
+    `
 
     // Open the form in a new tab and auto-submit
     // const document = window.open("", "_blank");
     // newWindow.document.write(payfastForm);
     // newWindow.document.close();
-    document.open();
-document.write(payfastForm);
-document.close();
-
-  };
-
+    document.open()
+    document.write(payfastForm)
+    document.close()
+  }
 
   const handleUserSelect = (user: { name: string; accountNumber: string; profilePhoto: string; applicantId: string }) => {
     setSelectedUser(user)
@@ -1019,7 +974,7 @@ document.close();
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.TRANSACTION_OUTWARD}>
       <Box
         sx={{
-          width: '80vw',
+          width: '90vw',
         }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -1037,15 +992,14 @@ document.close();
         <TabContext value={tabValue}>
           <Tabs value={tabValue} onChange={handleChange} sx={{ marginBottom: 3 }}>
             <Tab label="Create Transaction" value="1" />
-            <Tab label="Pay Now" value="2" disabled={!(selectedUser?.applicantId && userCountry && category)}></Tab> 
+            <Tab label="Pay Now" value="2" disabled={!(selectedUser?.applicantId && userCountry && category)}></Tab>
           </Tabs>
           <TabPanel value="1">
             <Box>
               <Grid container spacing={2} marginBottom={2}>
                 <Grid item xs={12} md={6}>
-              
                   <TextField
-                  //   label="Select User"
+                    //   label="Select User"
                     variant="filled"
                     fullWidth
                     value={searchText}
@@ -1112,20 +1066,19 @@ document.close();
                 </Grid>
                 <Grid item xs={12} md={6}>
                   {selectedUser && (
-
-                 <Typography style={{ marginTop: '20px', textAlign: 'center', color: 'grey' }}>
-  <VerifiedIcon
-    sx={{
-      mr: 3,
-      color: 'green',
-    }}
-  />
-  {selectedUser.name +
-    ' ' +
-    //@ts-ignore
-    selectedUser?.lastname}{' '}
-  (Account: {selectedUser.applicantId})
-</Typography>
+                    <Typography style={{ marginTop: '20px', textAlign: 'center', color: 'grey' }}>
+                      <VerifiedIcon
+                        sx={{
+                          mr: 3,
+                          color: 'green',
+                        }}
+                      />
+                      {selectedUser.name +
+                        ' ' +
+                        //@ts-ignore
+                        selectedUser?.lastname}{' '}
+                      (Account: {selectedUser.applicantId})
+                    </Typography>
                   )}
                 </Grid>
               </Grid>
@@ -1141,80 +1094,78 @@ document.close();
                         onChange={handleCountryChange}
                         displayEmpty
                       >
-                        {
-                          //(userCountry === 'IN' ? countries : countries)
-                          countries
-                            ?.filter((item) => item.status === 'A' && item.countryCode !== userCountry)
-                            .map((country) => (
-                              <MenuItem
-                                //@ts-ignore
-                                key={country?.countryCode}
-                                value={country.countryCode}
-                              >
-                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                  <Typography>{country?.countryName}</Typography>
-                                </div>
-                              </MenuItem>
-                            ))
-                        }
+                        {//(userCountry === 'IN' ? countries : countries)
+                        countries
+                          ?.filter((item) => item.status === 'A' && item.countryCode !== userCountry)
+                          .map((country) => (
+                            <MenuItem
+                              //@ts-ignore
+                              key={country?.countryCode}
+                              value={country.countryCode}
+                            >
+                              <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <Typography>{country?.countryName}</Typography>
+                              </div>
+                            </MenuItem>
+                          ))}
                       </Select>
                     </FormControl>
                   </Grid>
 
                   {/* Amount Input */}
-             <Grid item xs={12} md={3}>
-  <TextField
-    type="number"
-    //@ts-ignore
-    label={`Amount In ${userCurrency?.currencyCode ?? ""}`}
-    variant="filled"
-    fullWidth
-    inputProps={{ min: 1 }}
-    value={amount ?? ""}
-    onChange={(e) => {
-      let rawValue = e.target.value;
+                  <Grid item xs={12} md={3}>
+                    <TextField
+                      type="number"
+                      //@ts-ignore
+                      label={`Amount In ${userCurrency?.currencyCode ?? ''}`}
+                      variant="filled"
+                      fullWidth
+                      inputProps={{ min: 1 }}
+                      value={amount ?? ''}
+                      onChange={(e) => {
+                        let rawValue = e.target.value
 
-      // ✅ allow clearing
-      if (rawValue === "") {
-        //@ts-ignore
-        setAmount(null);
-        setError(false);
-        return;
-      }
+                        // ✅ allow clearing
+                        if (rawValue === '') {
+                          //@ts-ignore
+                          setAmount(null)
+                          setError(false)
+                          return
+                        }
 
-      // ⛔ remove leading zeros (0, 01, 0005 → 5)
-      rawValue = rawValue.replace(/^0+/, "");
+                        // ⛔ remove leading zeros (0, 01, 0005 → 5)
+                        rawValue = rawValue.replace(/^0+/, '')
 
-      // if only zeros were entered → clear input
-      if (rawValue === "") {
-        //@ts-ignore
-        setAmount(null);
-        return;
-      }
+                        // if only zeros were entered → clear input
+                        if (rawValue === '') {
+                          //@ts-ignore
+                          setAmount(null)
+                          return
+                        }
 
-      const value = Number(rawValue);
+                        const value = Number(rawValue)
 
-      // ⛔ block negative or invalid
-      if (isNaN(value) || value < 0) return;
+                        // ⛔ block negative or invalid
+                        if (isNaN(value) || value < 0) return
 
-      setAmount(value);
+                        setAmount(value)
 
-      if (value < 100) {
-        setError(true);
-      } else {
-        setError(false);
-        setSelectedTimeCharge(0);
-        getCharges(value);
-      }
-    }}
-  />
+                        if (value < 100) {
+                          setError(true)
+                        } else {
+                          setError(false)
+                          setSelectedTimeCharge(0)
+                          getCharges(value)
+                        }
+                      }}
+                    />
 
-  {error && (
-    <Typography variant="body2" color="error" sx={{ mt: 0.5, ml: 1 }}>
-      Amount must be at least 100
-    </Typography>
-  )}
-</Grid>
+                    {error && (
+                      <Typography variant="body2" color="error" sx={{ mt: 0.5, ml: 1 }}>
+                        Amount must be at least 100
+                      </Typography>
+                    )}
+                  </Grid>
 
                   {/* Currency (Auto-populated and Disabled) */}
                   <Grid item xs={12} md={3}>
@@ -1243,8 +1194,6 @@ document.close();
                   </Grid>
                 </Grid>
                 <Grid container spacing={2} marginBottom={2}>
-                  
-
                   {selectedGateway ? (
                     <>
                       <Grid
@@ -1281,19 +1230,18 @@ document.close();
 
               <BeneficiaryForm
                 beneficiaryId={beneficiaryId || ''}
-                choosedBenificiary={ selectedBenficary }
+                choosedBenificiary={selectedBenficary}
                 //@ts-ignore
                 beneficiaries={beneficiaryId ? [] : selectedUser?.benificary}
                 handleSetBenificiaryData={(record: any) => {
                   setSelectedBenificary(record)
-              
                 }}
               />
 
               <Divider sx={{ marginY: 2 }} />
 
               <Typography variant="h6" gutterBottom>
-            {userCountry=="Ng"||"In"?" Purpose Code":"BOP Category"}     
+                {userCountry == 'Ng' || 'In' ? ' Purpose Code' : 'BOP Category'}
               </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={12} md={12}>
@@ -1307,33 +1255,35 @@ document.close();
                 </Grid>
               </Grid>
               <Box sx={{ textAlign: 'left', marginTop: 2 }}>
+                <Typography variant="body2">
+                  Platform Fees: {selectedTimeChange ? selectedTimeChange : 0 + ' ' + sourceCountry}{' '}
+                  <i
+                    style={{
+                      fontSize: '100',
+                    }}
+                  >
+                    (VAT Inclusive)
+                  </i>
+                </Typography>
+                <Typography variant="body2">Loyalty Discount: {loyalityamout ? loyalityamout : 0 + ' ' + sourceCountry}</Typography>
 
-                  <Typography variant="body2" >
-                  Platform Fees: {selectedTimeChange ? selectedTimeChange : 0 + ' ' + sourceCountry}  <i style={{
-                    fontSize:'100'
-                  }}>(VAT Inclusive)</i>
-                </Typography>
-                       <Typography variant="body2" >
-          Loyalty Discount: {loyalityamout ? loyalityamout : 0 + ' ' + sourceCountry}
-                </Typography>
-               
-                 <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-          Final Charges: {finalcharges ? finalcharges : 0 + ' ' + sourceCountry}
+                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                  Final Charges: {finalcharges ? finalcharges : 0 + ' ' + sourceCountry}
                 </Typography>
 
-                
-  <br></br>
+                <br></br>
 
                 {/* <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                   Settlement Amount: {Number(amount) + Number(selectedTimeChange) + ' ' + sourceCountry}
                 </Typography> */}
 
-                    <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                  Net Payable Amount (Settlement Amount): {Number(amount) + ' ' + sourceCountry} 
+                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                  Net Payable Amount (Settlement Amount): {Number(amount) + ' ' + sourceCountry}
                 </Typography>
 
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }} >
-            Beneficiary will Receive (Principal Amount): {helper.roundToTwoFixed( (Number(amount)-Number(selectedTimeChange)) * Number(forexRate)) + ' ' + currency}
+                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                  Beneficiary will Receive (Principal Amount):{' '}
+                  {helper.roundToTwoFixed((Number(amount) - Number(selectedTimeChange)) * Number(forexRate)) + ' ' + currency}
                 </Typography>
                 {/* <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                   Base Amount: {amount + ' ' + sourceCountry}
@@ -1341,12 +1291,8 @@ document.close();
                 {/* <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
         Gateway Fee: {  gatewayCharge +" " +sourceCountry }
       </Typography> */}
-              
 
-
-         
-
-                 {/* <Stack direction="row" alignItems="center" spacing={1}>
+                {/* <Stack direction="row" alignItems="center" spacing={1}>
       <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
         Referal Amount Available: {loyalityamout ? loyalityamout : 0} {sourceCountry}
       </Typography>
@@ -1457,7 +1403,7 @@ document.close();
                     <TableRow>
                       <TableCell>Principal Amount</TableCell>
                       <TableCell align="right">
-   {helper.roundToTwoFixed( (Number(amount)-Number(selectedTimeChange)) * Number(forexRate)) + ' ' + currency}
+                        {helper.roundToTwoFixed((Number(amount) - Number(selectedTimeChange)) * Number(forexRate)) + ' ' + currency}
                       </TableCell>
                     </TableRow>
 
@@ -1469,13 +1415,13 @@ document.close();
                       <TableCell>Platform Charges</TableCell>
                       <TableCell align="right">{finalcharges ? finalcharges : 0 + ' ' + sourceCountry}</TableCell>
                     </TableRow>
-                  
+
                     <TableRow>
                       <TableCell>
                         <strong>Net Payable</strong>
                       </TableCell>
                       <TableCell align="right">
-                        <strong>{Number(amount)  +" "+ sourceCountry}</strong>
+                        <strong>{Number(amount) + ' ' + sourceCountry}</strong>
                       </TableCell>
                     </TableRow>
                   </TableBody>
@@ -1483,47 +1429,32 @@ document.close();
               </TableContainer>
               {userCountry === 'ZA' ? (
                 <>
-              
-
                   <ConfirmAndPayButton
                     imgUrl="https://media.licdn.com/dms/image/v2/D4D0BAQFafwhXng3fkQ/company-logo_200_200/company-logo_200_200/0/1730292941961/adumo_online_logo?e=2147483647&v=beta&t=agng3yUCjdKlMYt76saZvTJHFC3Tx1BC9uaGlVTLh4c"
                     handleClick={() => handleAdumoPaymentClick()}
                   />
-                  
 
                   <ConfirmAndPayButton
                     imgUrl="https://zapper.gitbook.io/zapper-platform/~gitbook/image?url=https%3A%2F%2F3889691800-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F-M4tIVi0eT23PM2ng2_g%252Ficon%252Ffg6xU4qKsy5lQJ83OvI0%252FRounded.svg%3Falt%3Dmedia%26token%3D28b1c6cc-492e-43da-a8d8-230b9ac27b70&width=32&dpr=4&quality=100&sign=9960cbd3&sv=2"
                     handleClick={() => handleZapperPaymentGateway()}
                   />
-                    <ConfirmAndPayButton
+                  <ConfirmAndPayButton
                     imgUrl="https://media.licdn.com/dms/image/v2/D4E0BAQEz9WJPKYSK0A/company-logo_200_200/B4EZpNyegnKsAI-/0/1762241671815?e=1764806400&v=beta&t=09XanxAnaCDQCwm9VDqNzu0_IpVEAWGqFzGDf_74O8E"
                     handleClick={() => handlePayfast()}
                   />
                 </>
-              ) : (
-                
-                (userCountry === 'NG')?
-                
+              ) : userCountry === 'NG' ? (
                 <>
-                   <ConfirmAndPayButton
-                    imgUrl="https://squadco.com/assets/squadbyhabari.svg"
-                    handleClick={() => handleSquadPaymentClick()}
-                  />
-                     <ConfirmAndPayButton
-                    imgUrl="https://www.myrexpay.com/assets/landingimages/App-Logo.svg"
-                    handleClick={() => RexPaymentClick()}
-                  />
-
-
-                </>:<>
-                
+                  <ConfirmAndPayButton imgUrl="https://squadco.com/assets/squadbyhabari.svg" handleClick={() => handleSquadPaymentClick()} />
+                  <ConfirmAndPayButton imgUrl="https://www.myrexpay.com/assets/landingimages/App-Logo.svg" handleClick={() => RexPaymentClick()} />
+                </>
+              ) : (
+                <>
                   <ConfirmAndPayButton
                     imgUrl="https://cashfreelogo.cashfree.com/website/landings-cache/landings/logo-lightbg_3x.webp"
                     handleClick={() => handleCashfreePaymentClick()}
                   />
                 </>
-
-
               )}
             </Box>
           </TabPanel>

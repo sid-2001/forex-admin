@@ -348,7 +348,7 @@ export default function PrivacyPolicy() {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Box sx={{ height: '100vh', p: 3 }}>
+      <Box sx={{ height: '100vh', p: 3, width: '90vw' }}>
         <Stack direction="row" justifyContent="space-between" mb={2}>
           <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#0061B1', textAlign: 'center' }}>
             Privacy Policy

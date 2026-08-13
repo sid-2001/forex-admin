@@ -304,7 +304,7 @@ export default function CountryCorridorProductMaster() {
     {
       field: 'countryCorridorCode',
       headerName: 'Corridor',
-      width: 120,
+
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => {
         const countryCode = getCountryCode(params.row)
@@ -322,7 +322,7 @@ export default function CountryCorridorProductMaster() {
     {
       field: 'productCode',
       headerName: 'Product',
-      width: 100,
+
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Tooltip title={getProductName(params.value)}>
@@ -333,43 +333,41 @@ export default function CountryCorridorProductMaster() {
     {
       field: 'productServiceCode',
       headerName: 'Service',
-      width: 130,
+
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'dateFormat',
       headerName: 'Date Format',
-      width: 120,
+
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'timeFormat',
       headerName: 'Time Format',
-      width: 120,
+
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'currencyFormat',
       headerName: 'Currency',
-      width: 100,
+
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'decimalPrecision',
       headerName: 'Precision',
-      width: 90,
+
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'decimalRoundOff',
       headerName: 'Round Off',
-      width: 90,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'active',
       headerName: 'Active',
-      width: 90,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (
         <Chip
@@ -388,21 +386,19 @@ export default function CountryCorridorProductMaster() {
     {
       field: 'effectiveFromDate',
       headerName: 'From',
-      width: 100,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => formatTableDate(params.value),
     },
     {
       field: 'effectiveToDate',
       headerName: 'To',
-      width: 100,
       headerClassName: 'super-app-theme--header',
       renderCell: (params) => (params.value?.includes('9999') ? '∞' : formatTableDate(params.value)),
     },
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 80,
+
       headerClassName: 'super-app-theme--header',
       sortable: false,
       renderCell: (params) => (
@@ -424,7 +420,7 @@ export default function CountryCorridorProductMaster() {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Box p={3} sx={{ width: '100%', '& .super-app-theme--header': { backgroundColor: '#f5f5f5', fontWeight: 'bold' } }}>
+      <Box p={3} sx={{ width: '90vw', '& .super-app-theme--header': { backgroundColor: '#f5f5f5', fontWeight: 'bold' } }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography
             variant="h4"

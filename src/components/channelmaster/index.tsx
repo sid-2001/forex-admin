@@ -161,7 +161,7 @@ export default function ChannelManagement() {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Box p={3}>
+      <Box p={3} sx={{ width: '90vw' }}>
         <Stack direction="row" justifyContent="space-between" mb={2}>
           <Typography
             variant="h4"
@@ -189,7 +189,7 @@ export default function ChannelManagement() {
           </Button>
         </Stack>
 
-        <Box sx={{ height: 500, width: '100%', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
+        <Box sx={{ height: 500, '& .super-app-theme--header': { fontWeight: 'bold' } }}>
           <DataGrid
             rows={rows}
             columns={columns}

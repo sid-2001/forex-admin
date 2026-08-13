@@ -54,9 +54,10 @@ const UserAdd = () => {
   const [passwordError, setPasswordError] = useState('')
   const [countryList, setCountryList] = useRecoilState(countyState)
   const [branchList, setBranchList] = useState([])
-  const userCountry = local_service?.get_staff_country()
   const [loading, setLoading] = useState(true) // ✅ loader state
   const [isbuttondisabled, setIsbuttondisabled] = useState(true)
+  const loggedInStaffUser = local_service?.get_staff_access()
+  const userCountry = local_service?.get_staff_country()
 
   const { staffId } = useParams()
   const navigate = useNavigate()
@@ -172,6 +173,18 @@ const UserAdd = () => {
   }
   useEffect(() => {
     fetchAllData()
+
+    const readonlyMode = staffId ? (staffId === loggedInStaffUser.staffId ? false : true) : false
+    setIsEditable(readonlyMode)
+    // if (!staffId) {
+    //   setIsEditable(false)
+    // } else {
+    //   if (staffId === loggedInStaffUser.staffId) {
+    //     setIsEditable(false)
+    //   } else {
+    //     setIsEditable(true)
+    //   }
+    // }
   }, [staffId])
 
   const fetchRolesList = async () => {
@@ -274,45 +287,53 @@ const UserAdd = () => {
   }
 
   const handleAddUpdateUser = () => {
-    if (staffId) {
-      //@ts-ignore
-      delete staffData?.password
-
-      user_service
-        .editStaff(
-          { ...staffData, roleId: selectedRole, staffID: staffData?.staffId, modified_by: local_service.get_staff_id() },
-          local_service.get_staff_id(),
-        )
-        .then((data) => {
-          if (data) {
-            settype('success')
-            setText('Staff updated successfully!')
-            navigate('/user')
-          } else {
-            settype('error')
-            setText(data?.message)
-          }
-          setOpen(true)
-        })
+    //@ts-ignore
+    if (!staffData?.staffCountries.length) {
+      setOpen(true)
+      settype('error')
+      setText('Atleast 1 staff access country must be required.')
+      return
     } else {
-      user_service
-        .createStaff({
-          ...staffData,
-          staffIdType: 'Aadhar',
-          roleId: selectedRole,
-          createdBy: local_service.get_staff_id(),
-        })
-        .then((data) => {
-          if (data.status) {
-            settype('success')
-            setText('Staff created successfully!')
-            navigate('/user')
-          } else {
-            setText(data?.message)
-            settype('error')
-          }
-          setOpen(true)
-        })
+      if (staffId) {
+        //@ts-ignore
+        delete staffData?.password
+
+        user_service
+          .editStaff(
+            { ...staffData, roleId: selectedRole, staffID: staffData?.staffId, modified_by: local_service.get_staff_id() },
+            local_service.get_staff_id(),
+          )
+          .then((data) => {
+            if (data) {
+              settype('success')
+              setText('Staff updated successfully!')
+              navigate('/user')
+            } else {
+              settype('error')
+              setText(data?.message)
+            }
+            setOpen(true)
+          })
+      } else {
+        user_service
+          .createStaff({
+            ...staffData,
+            staffIdType: 'Aadhar',
+            roleId: selectedRole,
+            createdBy: local_service.get_staff_id(),
+          })
+          .then((data) => {
+            if (data.status) {
+              settype('success')
+              setText('Staff created successfully!')
+              navigate('/user')
+            } else {
+              setText(data?.message)
+              settype('error')
+            }
+            setOpen(true)
+          })
+      }
     }
   }
 
@@ -352,7 +373,7 @@ const UserAdd = () => {
           justifyContent: 'center',
           alignItems: 'center',
           height: '70vh',
-          width: '80vw',
+          width: '90vw',
         }}
       >
         <CircularProgress size={70} color="primary" />
@@ -386,7 +407,7 @@ const UserAdd = () => {
                   const value = handleRegexChange(e, /^[a-zA-Z]*$/)
                   if (value !== null) handleChange(e)
                 }}
-                InputProps={{ readOnly: !isEditable }}
+                InputProps={{ readOnly: isEditable }}
               />
             </Grid>
 
@@ -400,7 +421,7 @@ const UserAdd = () => {
                 }}
                 name="staffLastName"
                 fullWidth
-                InputProps={{ readOnly: !isEditable }}
+                InputProps={{ readOnly: isEditable }}
               />
             </Grid>
 
@@ -414,24 +435,10 @@ const UserAdd = () => {
                 }}
                 name="staffContactNumber"
                 fullWidth
+                InputProps={{ readOnly: isEditable }}
                 type="text" // Use text instead of number to enforce length
               />
             </Grid>
-            {/* <Grid item xs={12} sm={3}>
-              <label style={inputLabelStyle}>
-                In
-              </label>
-              <TextField
-                value={staffData?.staffContactNumber || ''}
-                onChange={(e) => {
-                  const value = handleRegexChange(e, /^\d{0,10}$/) // Allow only numbers and limit to 10 digits
-                  if (value !== null) handleChange(e)
-                }}
-                name="staffContactNumber"
-                fullWidth
-                type="text" // Use text instead of number to enforce length
-              />
-            </Grid> */}
 
             <Grid item xs={12} sm={3}>
               <label style={inputLabelStyle}>Email</label>
@@ -452,7 +459,7 @@ const UserAdd = () => {
                 name="email"
                 type="email"
                 fullWidth
-                InputProps={{ readOnly: !isEditable }}
+                InputProps={{ readOnly: isEditable }}
                 error={!!emailError}
                 helperText={emailError}
               />
@@ -493,7 +500,7 @@ const UserAdd = () => {
                   const value = handleRegexChange(e, /^[a-zA-Z0-9]*$/) // ALLOW ONLY UPPER AND LOWER CASE LETTERS
                   if (value !== null) handleChange(e)
                 }}
-                InputProps={{ readOnly: !isEditable }}
+                InputProps={{ readOnly: isEditable }}
               />
             </Grid>
           </Grid>
@@ -511,6 +518,7 @@ const UserAdd = () => {
                   const value = handleRegexChange(e, /^[a-zA-Z0-9\s,.\-]*$/)
                   if (value !== null) handleChange(e)
                 }}
+                InputProps={{ readOnly: isEditable }}
               />
             </Grid>
 
@@ -524,7 +532,7 @@ const UserAdd = () => {
                   const value = handleRegexChange(e, /^[a-zA-Z0-9\s,.\-]*$/)
                   if (value !== null) handleChange(e)
                 }}
-                // InputProps={{ readOnly: !isEditable }}
+                InputProps={{ readOnly: isEditable }}
               />
             </Grid>
 
@@ -535,7 +543,7 @@ const UserAdd = () => {
                 name="staffSuburb"
                 value={staffData?.staffSuburb || ''}
                 onChange={handleChange}
-                InputProps={{ readOnly: !isEditable }}
+                InputProps={{ readOnly: isEditable }}
               />
             </Grid>
 
@@ -546,7 +554,7 @@ const UserAdd = () => {
                 name="staffCity"
                 value={staffData?.staffCity || ''}
                 onChange={handleChange}
-                InputProps={{ readOnly: !isEditable }}
+                InputProps={{ readOnly: isEditable }}
               />
             </Grid>
             <Grid item xs={12} sm={2}>
@@ -557,7 +565,7 @@ const UserAdd = () => {
                 name="staffCountry"
                 value={staffData?.staffCountry || ''}
                 onChange={handleChange}
-                InputProps={{ readOnly: !isEditable }}
+                InputProps={{ readOnly: isEditable }}
                 SelectProps={{ native: true }}
               >
                 <option value="">-- Select Country --</option>
@@ -579,7 +587,7 @@ const UserAdd = () => {
                 //@ts-ignore
                 value={staffData?.staffCountries || []}
                 onChange={handleChange}
-                InputProps={{ readOnly: !isEditable }}
+                InputProps={{ readOnly: isEditable }}
                 SelectProps={{
                   multiple: true,
 
@@ -645,7 +653,7 @@ const UserAdd = () => {
                     handleChange(e)
                   }
                 }}
-                InputProps={{ readOnly: !isEditable }}
+                InputProps={{ readOnly: isEditable }}
               />
             </Grid>
             <Grid item xs={12} sm={2}>
@@ -657,7 +665,7 @@ const UserAdd = () => {
                 label
                 value={staffData?.staffBranch || ''}
                 onChange={handleChange}
-                InputProps={{ readOnly: !isEditable }}
+                InputProps={{ readOnly: isEditable }}
                 SelectProps={{ native: true }}
               >
                 <option value="">-- Select Branch --</option>

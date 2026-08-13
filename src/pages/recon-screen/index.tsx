@@ -119,12 +119,12 @@ export default function TransactionPage() {
   const [open, setOpen] = useRecoilState(alertState)
   const [reconStatus, setreconStatus] = useState('')
   const [amountDetails, setAmountDetails] = useState({
-    aedAmount: 0,
-    inrPayout: 0,
-    luluFee: 0,
-    platformFee: 0,
-    vatOnFee: 0,
-    vatOnLuluFee: 0,
+    settlementAmount: 0,
+    principalAmount: 0,
+    charges: 0,
+    vat: 0,
+    luluCommission: 0,
+    vatOnLuluCommission: 0,
   })
   const [filters, setFilters] = useState({
     fromDate: null,
@@ -134,9 +134,7 @@ export default function TransactionPage() {
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
 
   const [loading, setLoading] = useState(false)
-  const [rows, setRows] = useState<
-    Partial<Pick<TransactionRow, 'id' | 'gatewayUsed' | 'senderCtryTransId' | 'rcvCtryTransId' | 'senderCtryGatewaySettlInd' | 'reconStatus'>>[]
-  >([])
+  const [rows, setRows] = useState<any>([])
   let trx_service = new TransactionService()
   const theme: any = useTheme()
 
@@ -237,29 +235,59 @@ export default function TransactionPage() {
     //   getActions: (params) => [<GridActionsCellItem icon={<VisibilityIcon />} label="View More" onClick={() => handleViewMore(params.row.id)} />],
     // },
 
-    { field: 'transactionId', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'transactionId', headerName: 'Vendor Reference Id', flex: 1, headerClassName: 'super-app-theme--header' },
 
-    { field: 'sender', headerName: 'Settlement Country', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'aedAmount', headerName: 'Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' },
-    // { field: 'senderCurrency', headerName: 'Settlement Currency', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'improPayTransactionNumber', headerName: 'ImproPay Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
 
-    { field: 'recipient', headerName: 'Principal Country', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'inrPayout', headerName: 'Principal Amount', flex: 1, headerClassName: 'super-app-theme--header' },
-    // { field: 'receiverCurrency', headerName: 'Principal Currency', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorSettlementCountry', headerName: 'Vendor Settlement Country', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorSettlementAmount', headerName: 'Vendor Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'improPaySettlementAmount', headerName: 'ImproPay Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorSettlementCurrency', headerName: 'Vendor Settlement Currency', flex: 1, headerClassName: 'super-app-theme--header' },
 
-    { field: 'luluFxRate', headerName: 'LULU FX Rate', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'improPayFxRate', headerName: 'IMPROPAY FX Rate', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'fxMargin', headerName: 'FX Margin', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorPrincipalCountry', headerName: 'Vendor Principal Country', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorPrincipalAmount', headerName: 'Vendor Principal Amount', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'improPayPrincipalAmount', headerName: 'ImproPay Principal Amount', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorPrincipalCurrency', headerName: 'Vendor Principal Currency', flex: 1, headerClassName: 'super-app-theme--header' },
 
-    { field: 'platformFee', headerName: 'Charges', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'vatOnFee', headerName: 'VAT', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'luluFee', headerName: 'LULU Commission', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorCharges', headerName: 'Vendor Charges', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'improPayCharges', headerName: 'ImproPay Charges', flex: 1, headerClassName: 'super-app-theme--header' },
+
+    { field: 'vendorVat', headerName: 'Vendor VAT', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'improPayVat', headerName: 'ImproPay VAT', flex: 1, headerClassName: 'super-app-theme--header' },
+
+    { field: 'vendorFxRate', headerName: 'Vendor FX Rate', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'improPayFxRate', headerName: 'ImproPay FX Rate', flex: 1, headerClassName: 'super-app-theme--header' },
+
+    { field: 'vendorFxMargin', headerName: 'Vendor FX Margin', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'fxMargin', headerName: 'ImproPay FX Margin', flex: 1, headerClassName: 'super-app-theme--header' },
+
+    { field: 'vendorStatus', headerName: 'Vendor Status', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'improPayStatus', headerName: 'ImproPay Status', flex: 1, headerClassName: 'super-app-theme--header' },
+
     {
       field: 'status',
-      headerName: 'Status',
+      headerName: 'Comparision Status',
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => convertStrToTitleCase(params.row.status),
+    },
+    {
+      field: 'mismatchFields',
+      headerName: 'Mismatch Fields',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => (
+        <Typography
+          variant="body2"
+          sx={{
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          {(params.value ?? []).join(', ')}
+        </Typography>
+      ),
     },
   ]
 
@@ -296,7 +324,16 @@ export default function TransactionPage() {
     const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false)
     const headers = visibleCols.map((col) => col.headerName).join(',')
     //@ts-ignore
-    const mappedRows = rows.map((row) => visibleCols.map((col) => row[col.field] ?? '').join(','))
+    // const mappedRows = rows.map((row) => visibleCols.map((col) => row[col.field] ?? '').join(','))
+
+    const mappedRows = rows.map((row: any) =>
+      visibleCols.map((col) => {
+        if (col.field === 'mismatchFields') return (row.mismatchFields ?? []).join(', ')
+        if (col.field === 'status') return convertStrToTitleCase(row.status)
+        return row[col.field] || ''
+      }),
+    )
+
     const csv = [headers, ...mappedRows].join('\n')
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
@@ -430,7 +467,7 @@ export default function TransactionPage() {
                   letterSpacing: '1px',
                 }}
               >
-                {amountDetails?.aedAmount}
+                {amountDetails?.settlementAmount}
               </Typography>
             </Box>
 
@@ -455,7 +492,7 @@ export default function TransactionPage() {
                   letterSpacing: '1px',
                 }}
               >
-                {amountDetails?.inrPayout}
+                {amountDetails?.principalAmount}
               </Typography>
             </Box>
 
@@ -469,7 +506,7 @@ export default function TransactionPage() {
                   letterSpacing: '1px',
                 }}
               >
-                Impro Fee
+                Charges
               </Typography>
               <Typography
                 sx={{
@@ -480,7 +517,7 @@ export default function TransactionPage() {
                   letterSpacing: '1px',
                 }}
               >
-                {amountDetails?.platformFee}
+                {amountDetails?.charges}
               </Typography>
             </Box>
 
@@ -505,7 +542,7 @@ export default function TransactionPage() {
                   letterSpacing: '1px',
                 }}
               >
-                {amountDetails?.vatOnFee}
+                {amountDetails?.vat}
               </Typography>
             </Box>
 
@@ -519,7 +556,7 @@ export default function TransactionPage() {
                   letterSpacing: '1px',
                 }}
               >
-                Lulu Commission
+                Vendor Commission
               </Typography>
               <Typography
                 sx={{
@@ -530,7 +567,7 @@ export default function TransactionPage() {
                   letterSpacing: '1px',
                 }}
               >
-                {amountDetails?.luluFee}
+                {amountDetails?.luluCommission}
               </Typography>
             </Box>
 
@@ -578,6 +615,9 @@ export default function TransactionPage() {
           },
           '& .MuiDataGrid-cell': {
             fontSize: '14px',
+            whiteSpace: 'normal',
+            lineHeight: 1.4,
+            py: 1,
           },
           '& .super-app-theme--header': {
             fontSize: '16px',
@@ -586,10 +626,10 @@ export default function TransactionPage() {
         rows={rows}
         columns={columns}
         getRowId={(row: any) => row.transactionId}
-        initialState={{
-          pagination: { paginationModel: { pageSize: 20, page: 0 } },
-        }}
-        pageSizeOptions={[10, 20, 50]}
+        // initialState={{
+        //   pagination: { paginationModel: { pageSize: 50, page: 0 } },
+        // }}
+        // pageSizeOptions={[10, 20, 50]}
         slots={{
           loadingOverlay: LoaderUI.LoadingOverlay,
           toolbar: CustomToolbar, // 👈 Toolbar with reset filters

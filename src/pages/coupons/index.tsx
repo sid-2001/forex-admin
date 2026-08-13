@@ -249,6 +249,11 @@ const Coupons: React.FC = () => {
     //  fetchCouponListingData()
   }
 
+  const exportCoupon = async () => {
+    const response = await couponService.exportCouponsList()
+    console.log(response, '----------')
+  }
+
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
       <Box p={3} sx={{ width: '90vw', height: '80vh' }}>
@@ -266,6 +271,16 @@ const Coupons: React.FC = () => {
                 </Button>
               </label>
             </>
+
+            <Button
+              variant="contained"
+              onClick={() => exportCoupon}
+              sx={{ ml: 2 }}
+              disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canRead')}
+            >
+              Export Coupon
+            </Button>
+
             <Button
               variant="contained"
               onClick={() => {

@@ -120,6 +120,7 @@ const ProfileMenu = () => {
   const currency_service = new ForexCurrencyService()
   const master_service = new MasterService()
   const auth_service = new AuthService()
+  const selectedCountry = local_service.get_staff_country()
 
   const [, setSidebarMenus] = useRecoilState(sidebarMenusState)
 
@@ -164,7 +165,6 @@ const ProfileMenu = () => {
   }, [])
 
   const CountrySelector = () => {
-    const staff = local_service?.get_staff_access()
     if (!staff) return null
 
     const countryNames: Record<string, string> = {
@@ -176,10 +176,6 @@ const ProfileMenu = () => {
     }
 
     const getFlag = (code: string) => (code ? code.toUpperCase().replace(/./g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0))) : '🏳️')
-
-    const selectedCountry = local_service.get_staff_country()
-
-    console.log(selectedCountry, '------------------')
 
     const handleApiCalls = async (countryCode: string) => {
       const [countryResp, currencyResp, menuResp] = await Promise.all([
@@ -235,6 +231,19 @@ const ProfileMenu = () => {
               </MenuItem>
             ))}
           </Select>
+        ) : staff.staffCountries.length === 1 ? (
+          <>
+            <Typography sx={{ fontSize: { xs: '12px', md: '1.5vh' } }}>{getFlag(staff.staffCountries[0])}</Typography>
+            <Typography
+              sx={{
+                fontSize: { xs: '12px', md: '1.5vh' },
+                color: 'white',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {countryNames[staff.staffCountries[0]] || staff.staffCountries[0]}
+            </Typography>
+          </>
         ) : (
           selectedCountry && (
             <>

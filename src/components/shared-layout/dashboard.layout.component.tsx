@@ -16,6 +16,8 @@ import {
   Dialog,
   ListItemButton,
   Collapse,
+  TextField,
+  InputAdornment,
 } from '@mui/material'
 import { styled } from '@mui/system'
 import { LogoWhite } from '@/assets/images'
@@ -27,6 +29,8 @@ import { menuHistoryState, sidebarMenusState, themeModeState } from '@/states/st
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import AddToQueueIcon from '@mui/icons-material/AddToQueue'
 import CompactLocationBar from '../location'
+import SearchIcon from '@mui/icons-material/Search'
+
 import {
   ArrowBack,
   Brightness4,
@@ -94,8 +98,6 @@ import PrivacyTipIcon from '@mui/icons-material/PrivacyTip'
 import CampaignIcon from '@mui/icons-material/Campaign'
 import LocalOfferIcon from '@mui/icons-material/LocalOffer'
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
-import ExpandLess from '@mui/icons-material/ExpandLess'
-import ExpandMore from '@mui/icons-material/ExpandMore'
 
 const mapMenuIcons: any = {
   Modules: <ViewModuleIcon />,
@@ -109,6 +111,7 @@ const mapMenuIcons: any = {
   BOP: <SourceIcon />,
   'Transaction Dashboard': <CompareArrowsIcon />,
   'Master Data': <BubbleChartIcon />,
+  'Regulatory Information': <SourceIcon />,
 }
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -141,89 +144,6 @@ const MainContent = styled(Box)({
   padding: '1rem',
   marginLeft: 120,
 })
-
-const CountrySelector = () => {
-  const staff = local_service?.get_staff_access()
-
-  if (!staff) return null
-
-  const countryNames: Record<string, string> = {
-    ZA: 'South Africa',
-    IN: 'India',
-    US: 'United States',
-    UK: 'United Kingdom',
-    AE: 'UAE',
-  }
-
-  const getFlag = (code: string) => (code ? code.toUpperCase().replace(/./g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0))) : '🏳️')
-
-  /** 🔹 Auto select first country if not selected */
-  useEffect(() => {
-    if (!staff.staffCountry && staff.staffCountries?.length) {
-      local_service.set_usercountry(staff.staffCountries[0])
-    }
-  }, [staff])
-
-  const selectedCountry = local_service.get_staff_country()
-
-  return (
-    <Typography>
-      <Stack direction="row" alignItems="center" spacing={0.6} sx={{ mt: '2px' }}>
-        {/* 🔹 MULTIPLE COUNTRIES → DROPDOWN */}
-        {staff.staffCountries?.length > 1 ? (
-          <Select
-            size="small"
-            value={selectedCountry}
-            onChange={(e) => {
-              local_service.set_usercountry(e.target.value)
-              window.location.reload()
-            }}
-            sx={{
-              fontSize: { xs: '11px', md: '1.4vh' },
-              color: 'white',
-              backgroundColor: 'rgba(255,255,255,0.15)',
-              borderRadius: '20px',
-              '& .MuiSelect-icon': { color: 'white' },
-
-              '& fieldset': { border: 'none' },
-            }}
-          >
-            {staff.staffCountries.map((code: string) => (
-              <MenuItem key={code} value={code}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1,
-                  }}
-                >
-                  <span>{getFlag(code)}</span>
-                  <span>{countryNames[code] || code}</span>
-                </Box>
-              </MenuItem>
-            ))}
-          </Select>
-        ) : (
-          /* 🔹 SINGLE COUNTRY → TEXT */
-          selectedCountry && (
-            <>
-              <Typography sx={{ fontSize: { xs: '12px', md: '1.5vh' } }}>{getFlag(selectedCountry)}</Typography>
-              <Typography
-                sx={{
-                  fontSize: { xs: '12px', md: '1.5vh' },
-                  color: 'white',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {countryNames[selectedCountry] || selectedCountry}
-              </Typography>
-            </>
-          )
-        )}
-      </Stack>
-    </Typography>
-  )
-}
 
 const MASTER_MENU = [
   // {
@@ -502,60 +422,100 @@ const MASTER_MENU = [
     icon: <LocalOfferIcon fontSize="small" />,
     path: 'menu-items',
   },
+  {
+    label: 'Group',
+    name: 'Group',
+    icon: <LocalOfferIcon fontSize="small" />,
+    path: 'group',
+  },
 ]
 
-const chunkArray = (arr: any[], size: number) => {
-  const chunks = []
-  for (let i = 0; i < arr.length; i += size) {
-    chunks.push(arr.slice(i, i + size))
-  }
-  return chunks
-}
-
-const MasterDropdownIcon = ({ setSelectedApp, addToHistory, selectedApp, onClose, isOpen }: any) => {
+const MasterDropdownIcon = ({ setSelectedApp, addToHistory, selectedApp, childData, onClose, isOpen }: any) => {
   const navigate = useNavigate()
+  const [search, setSearch] = useState('')
 
   const handleClose = () => onClose()
 
   const handleNavigate = (item: any) => {
-    setSelectedApp(item.label)
-    addToHistory(item.label)
+    setSelectedApp(item.childMenuName)
+    addToHistory(item.childMenuName)
     navigate(item.path)
     handleClose()
   }
 
-  const menuChunks = chunkArray(MASTER_MENU, 10)
+  const filteredSubMenusData = childData.filter((menuItem: any) => {
+    const searchText = search.toLowerCase().trim()
+
+    if (!searchText) return true
+
+    return menuItem?.childMenuName?.toLowerCase().includes(searchText)
+  })
 
   return (
-    <>
-      <Dialog open={isOpen} onClose={handleClose} maxWidth="md" fullWidth>
-        <DialogContent
-          sx={{
-            display: 'flex',
-            gap: 2,
-            overflowX: 'auto', // 🔥 horizontal scroll if many columns
-          }}
-        >
-          {menuChunks.map((group, index) => (
-            <Box
-              key={index}
-              sx={{
-                minWidth: 300,
-                borderRight: index !== menuChunks.length - 1 ? '1px solid #eee' : 'none',
-                pr: 1,
-              }}
-            >
-              {group.map((item) => (
-                <MenuItem key={item.name} selected={selectedApp === item.label} onClick={() => handleNavigate(item)}>
-                  <ListItemIcon sx={{ color: 'primary.main' }}>{item.icon}</ListItemIcon>
-                  <ListItemText primary={item.label} />
+    <Dialog
+      open={isOpen}
+      onClose={handleClose}
+      maxWidth="xs"
+      PaperProps={{
+        sx: {
+          position: 'absolute',
+          left: 140,
+          top: '25vh',
+          bottom: 0,
+          margin: 0,
+          width: '400px',
+          maxWidth: '100%',
+          height: '60vh',
+          borderRadius: '4px',
+        },
+      }}
+    >
+      <DialogContent sx={{ overflow: 'hidden' }}>
+        <>
+          <TextField
+            size="small"
+            placeholder="Search..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            sx={{
+              width: 350,
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '8px',
+              },
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ color: '#6b7280' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <Box
+            sx={{
+              overflowY: 'scroll',
+              height: '100%',
+              padding: '20px 0px',
+            }}
+          >
+            {filteredSubMenusData.map((item: any, index: number) => (
+              <Box key={index}>
+                <MenuItem
+                  sx={{ paddingLeft: 0, paddingRight: 0 }}
+                  key={index}
+                  selected={selectedApp === item.childMenuName}
+                  onClick={() => handleNavigate(item)}
+                >
+                  <ListItemIcon sx={{ color: 'primary.main' }}>{item.icon ? item.icon : <BadgeIcon fontSize="small" />}</ListItemIcon>
+                  <ListItemText primary={item.childMenuName} />
                 </MenuItem>
-              ))}
-            </Box>
-          ))}
-        </DialogContent>
-      </Dialog>
-    </>
+              </Box>
+            ))}
+          </Box>
+        </>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -567,6 +527,7 @@ const DashboardLayout = () => {
   const [openloader, setopenloader] = useRecoilState(loaderStateNew)
   const [isDrawerOpen, setDrawerOpen] = useState(false)
   const [openSubMenu, setOpenSubMenu] = useState(false)
+  const [submenusData, setSubMenuData] = useState([])
 
   const sidebarMenus = useRecoilValue(sidebarMenusState)
 
@@ -574,14 +535,6 @@ const DashboardLayout = () => {
   const theme = useTheme()
 
   const [history, setHistory] = useRecoilState(menuHistoryState)
-  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({})
-
-  const handleToggle = (menu: string) => {
-    setOpenMenus((prev) => ({
-      ...prev,
-      [menu]: !prev[menu],
-    }))
-  }
 
   // 1. ADD: Adds item to the end (prevents duplicates if desired)
   const addToHistory = (menuName: string) => {
@@ -839,26 +792,16 @@ const DashboardLayout = () => {
                   <ListItemButton
                     selected={selectedApp === item.menuName}
                     onClick={() => {
-                      if (item.menuName === 'Master Data') {
+                      if (item.children.length > 0) {
                         setOpenSubMenu(true)
+                        setSubMenuData(item.children)
                       } else {
-                        setSelectedApp(item.menuName)
-                        addToHistory(item.menuName)
+                        setSelectedApp(item.parentMenuName)
+                        addToHistory(item.parentMenuName)
                         navigate(item.path.toLowerCase())
                       }
-
-                      // if (item.children) {
-                      //   handleToggle(item.parentMenuName)
-                      // } else {
-                      //   setSelectedApp(item.parentMenuName)
-                      //   addToHistory(item.parentMenuName)
-                      //   navigate(item.path.toLowerCase())
-                      // }
                     }}
                   >
-                    {/* <ListItemIcon>{item.icon}</ListItemIcon>
-                    <ListItemText primary={item.menuName} /> */}
-
                     <Stack direction="column" alignItems="center" justifyContent="center" width="100%" spacing={1.5}>
                       <ListItemIcon
                         sx={{
@@ -875,31 +818,8 @@ const DashboardLayout = () => {
                         {item.menuName}
                       </Typography>
                     </Stack>
-
-                    {/* {item.children && (openMenus[item.menuName] ? <ExpandLess sx={{ color: '#fff' }} /> : <ExpandMore sx={{ color: '#fff' }} />)} */}
                   </ListItemButton>
                 </ListItem>
-
-                {/* {item.children && (
-                  <Collapse in={openMenus[item.parentMenuName]} timeout="auto" unmountOnExit>
-                    <List component="div" disablePadding>
-                      {item.children.map((child: any, childIndex: number) => (
-                        <ListItemButton
-                          key={childIndex}
-                          //sx={{ pl: 2 }}
-                          selected={selectedApp === child.childMenuName}
-                          onClick={() => {
-                            setSelectedApp(child.childMenuName)
-                            addToHistory(child.childMenuName)
-                            navigate(child.path.toLowerCase())
-                          }}
-                        >
-                          <ListItemText sx={{ color: '#fff' }} primary={`> ${child.childMenuName}`} />
-                        </ListItemButton>
-                      ))}
-                    </List>
-                  </Collapse>
-                )} */}
               </React.Fragment>
             ))}
           </List>
@@ -937,7 +857,7 @@ const DashboardLayout = () => {
             addToHistory={addToHistory}
             //@ts-ignore
             selectedApp={selectedApp}
-            item={undefined}
+            childData={submenusData}
             onClose={() => setOpenSubMenu(false)}
             isOpen={openSubMenu}
           />

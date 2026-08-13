@@ -290,7 +290,7 @@ const ModuleTable: React.FC = () => {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MODULE}>
-      <Box sx={{ width: '80vw', height: '70vh' }}>
+      <Box sx={{ width: '90vw', height: '70vh' }}>
         <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'}>
           <Box>
             <Typography variant="h4" gutterBottom>

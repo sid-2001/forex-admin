@@ -1,34 +1,59 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridFilterModel } from '@mui/x-data-grid'
-import { Box, Typography, Button, Stack, IconButton } from '@mui/material'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Box, Typography, Button, Stack, IconButton, FormControl, MenuItem, InputLabel, Select } from '@mui/material'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-import LoaderUI from '@/components/loader/loader'
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
-import DownloadIcon from '@mui/icons-material/Download'
-import FindReplaceIcon from '@mui/icons-material/FindReplace'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
-import CouponService from '@/services/coupons.service'
-import CouponDialog from '@/components/couponFormDialog'
 import EditIcon from '@mui/icons-material/Edit'
 import MasterService from '@/services/master.service'
 import MenuItemsDialog from '@/components/menu-items-dialog'
+import { styled } from '@mui/material/styles'
+import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp'
+import MuiAccordion, { AccordionProps } from '@mui/material/Accordion'
+import MuiAccordionSummary, { AccordionSummaryProps, accordionSummaryClasses } from '@mui/material/AccordionSummary'
+import MuiAccordionDetails from '@mui/material/AccordionDetails'
+import SearchIcon from '@mui/icons-material/Search'
+import ClearIcon from '@mui/icons-material/Clear'
+
+const Accordion = styled((props: AccordionProps) => <MuiAccordion disableGutters elevation={0} square {...props} />)(({ theme }) => ({
+  border: `1px solid ${theme.palette.divider}`,
+  '&:not(:last-child)': {
+    borderBottom: 0,
+  },
+  '&::before': {
+    display: 'none',
+  },
+}))
+
+const AccordionSummary = styled((props: AccordionSummaryProps) => (
+  <MuiAccordionSummary expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: '0.9rem' }} />} {...props} />
+))(({ theme }) => ({
+  backgroundColor: 'rgba(0, 0, 0, .03)',
+  flexDirection: 'row-reverse',
+  [`& .${accordionSummaryClasses.expandIconWrapper}.${accordionSummaryClasses.expanded}`]: {
+    transform: 'rotate(90deg)',
+  },
+  [`& .${accordionSummaryClasses.content}`]: {
+    marginLeft: theme.spacing(1),
+  },
+  ...theme.applyStyles('dark', {
+    backgroundColor: 'rgba(255, 255, 255, .05)',
+  }),
+}))
+
+const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
+  padding: theme.spacing(2),
+  borderTop: '1px solid rgba(0, 0, 0, .125)',
+}))
 
 const MenuIems: React.FC = () => {
   const [menusData, setMenusData] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
-  const navigate = useNavigate()
   const helper = new HelperService()
   const local_service = new LocalStorageService()
   const masterService = new MasterService()
-  const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
-  const [columnVisibilityModel, setColumnVisibilityModel] = useState<Record<string, boolean>>({})
-  const apiRef = React.useRef<any>(null)
+  const [expanded, setExpanded] = React.useState<string | false>('')
+  const [availableCountries, setAvailableCountries] = useState<string[]>([])
 
   const [openMenuItemModal, setOpenMenuItemModal] = useState(false)
   const [editData, setEditData] = useState<any>(null)
@@ -36,194 +61,74 @@ const MenuIems: React.FC = () => {
   const [, setText] = useRecoilState(alertTextState)
   const [, setType] = useRecoilState(alertTypeState)
 
+  const [filters, setFilters] = useState({
+    countryCode: '',
+  })
+
+  const [appliedFilters, setAppliedFilters] = useState({
+    countryCode: '',
+  })
+
   const showAlert = (t: 'success' | 'error', m: string) => {
     setType(t)
     setText(m)
     setOpen(true)
   }
 
-  useEffect(() => {
-    fetchMenuItemsLists()
-  }, [])
+  const handleChange = (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+    console.log(event, '===========')
+    setExpanded(newExpanded ? panel : false)
+  }
 
   const fetchMenuItemsLists = useCallback(async () => {
     try {
-      setIsLoading(true)
-      const response = await masterService.getAllMenus()
-      console.log(response, '--------------')
-      setMenusData(response?.data)
-      setIsLoading(false)
+      const queryParams = new URLSearchParams()
+
+      if (appliedFilters.countryCode) {
+        queryParams.append('countryCode', appliedFilters.countryCode.split('(')[0].trim())
+      }
+
+      const queryString = queryParams.toString()
+
+      const response = await masterService.getAllMenus(queryString ? `?${queryString}` : '')
+
+      const data = Array.isArray(response?.data) ? response.data : []
+
+      const countries = [...new Set(response.data.map((item: any) => item.countryCode).filter(Boolean))] as string[]
+
+      !queryString && setAvailableCountries(countries)
+
+      setMenusData(data)
     } catch (error) {
-      console.error('There was a problem with the fetch operation:', error)
+      console.error(error)
+      setMenusData([])
     }
-  }, [])
+  }, [appliedFilters])
 
-  const columns = [
-    {
-      field: 'menuCode',
-      headerName: 'Menu Code',
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'menuName',
-      headerName: 'Menu Name',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'groupCode',
-      headerName: 'Group Code',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'groupName',
-      headerName: 'Group Name',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'menuType',
-      headerName: 'Menu Type',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'parentMenuCode',
-      headerName: 'Parent Menu Code',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'parentMenuName',
-      headerName: 'Parent Menu Name',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'childMenuCode',
-      headerName: 'Child Menu Code',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'childMenuName',
-      headerName: 'Child Menu Name',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'path',
-      headerName: 'Path',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'createdLocalDateTime',
-      headerName: 'Date',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return helper.convertDateAndTime(params.row.createdLocalDateTime)
-      },
-    },
-    {
-      field: 'action',
-      headerName: 'Action',
-      width: 120,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => (
-        <Stack direction="row" spacing={1}>
-          <IconButton
-            color="primary"
-            onClick={() => {
-              setEditData(params.row)
-              setOpenMenuItemModal(true)
-            }}
-            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
-          >
-            <EditIcon />
-          </IconButton>
-        </Stack>
-      ),
-    },
-  ]
+  useEffect(() => {
+    fetchMenuItemsLists()
+  }, [fetchMenuItemsLists])
 
-  const getVisibleFilteredRows = () => {
-    const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false && col.field !== 'action')
-
-    const filteredRows = menusData.filter((row: any) =>
-      filterModel.items.every((filter) => {
-        if (!filter.value) return true
-        const cellValue = row[filter.field]?.toString().toLowerCase() || ''
-        return cellValue.includes(filter.value.toLowerCase())
-      }),
-    )
-
-    return { visibleCols, filteredRows }
+  const handleFilterChange = (field: string, value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      [field]: value,
+    }))
   }
 
-  const handleExportCSV = () => {
-    const { visibleCols, filteredRows } = getVisibleFilteredRows()
-
-    if (!filteredRows.length) {
-      alert('No matching rows to export!')
-      return
-    }
-
-    const headers = visibleCols.map((col) => col.headerName).join(',')
-    const rows = filteredRows.map((row: any) => visibleCols.map((col) => `"${row[col.field] || ''}"`).join(','))
-
-    const csv = [headers, ...rows].join('\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
-    link.setAttribute('download', 'menus.csv')
-    link.click()
+  // Apply filters
+  const applyFilters = () => {
+    setAppliedFilters(filters)
   }
 
-  const handleExportPDF = () => {
-    const { visibleCols, filteredRows } = getVisibleFilteredRows()
-
-    if (!filteredRows.length) {
-      alert('No matching rows to export!')
-      return
+  const resetFilters = () => {
+    const emptyFilters = {
+      countryCode: '',
     }
 
-    const headers = visibleCols.map((col) => col.headerName)
-    const data = filteredRows.map((row: any) => visibleCols.map((col) => row[col.field] || ''))
-
-    const doc = new jsPDF({ unit: 'pt' })
-    doc.setFontSize(14)
-    doc.text('Menu Items Report', 40, 40)
-    autoTable(doc, {
-      head: [headers],
-      body: data,
-      startY: 60,
-      styles: { fontSize: 9, cellPadding: 6 },
-      headStyles: { fillColor: [0, 80, 153], textColor: 255 },
-    })
-    doc.save('Menus.pdf')
+    setFilters(emptyFilters)
+    setAppliedFilters(emptyFilters)
   }
-
-  const CustomToolbar = () => (
-    <GridToolbarContainer sx={{ justifyContent: 'flex-start', gap: 1, py: 1 }}>
-      <GridToolbarColumnsButton />
-      <GridToolbarFilterButton />
-
-      <Button variant="outlined" color="primary" size="small" startIcon={<DownloadIcon />} onClick={handleExportCSV}>
-        CSV
-      </Button>
-
-      <Button variant="outlined" color="primary" size="small" startIcon={<PictureAsPdfIcon />} onClick={handleExportPDF}>
-        PDF
-      </Button>
-
-      <Button variant="outlined" color="primary" size="small" startIcon={<FindReplaceIcon />} onClick={() => setFilterModel({ items: [] })}>
-        Reset Filters
-      </Button>
-    </GridToolbarContainer>
-  )
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
@@ -247,38 +152,257 @@ const MenuIems: React.FC = () => {
           </Box>
         </Stack>
 
-        {menusData && (
-          <DataGrid
-            apiRef={apiRef}
-            rows={menusData || []}
-            //@ts-ignore
-            columns={columns}
-            filterModel={filterModel}
-            onFilterModelChange={(model) => setFilterModel(model)}
-            columnVisibilityModel={columnVisibilityModel}
-            onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
-            initialState={{
-              pagination: { paginationModel: { pageSize: 20, page: 0 } },
-            }}
-            pageSizeOptions={[10, 20, 50]}
-            disableRowSelectionOnClick
-            loading={isLoading}
-            getRowId={(row: any) => row.menuCode}
-            slots={{
-              toolbar: CustomToolbar,
-              loadingOverlay: LoaderUI.LoadingOverlay,
-            }}
-            sx={{
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#005099',
-                color: 'white',
-              },
-              '& .MuiDataGrid-cell': { fontSize: '14px' },
-              '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold', fontSize: '16px' },
-            }}
-            disableColumnMenu
-          />
-        )}
+        {/* Filter Section */}
+        <Box sx={{ mb: 3, p: 2, bgcolor: '#f8fafc', borderRadius: 2, border: '1px solid #e2e8f0' }}>
+          <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" useFlexGap>
+            <FormControl size="small" sx={{ minWidth: 150 }}>
+              <InputLabel>Country</InputLabel>
+              <Select
+                value={filters.countryCode}
+                label="Country"
+                onChange={(e) => {
+                  handleFilterChange('countryCode', e.target.value)
+                }}
+              >
+                <MenuItem value="">All</MenuItem>
+                {availableCountries.map((country) => (
+                  <MenuItem key={country} value={country}>
+                    {country}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            {/* <FormControl size="small" sx={{ minWidth: 150 }}>
+                      <InputLabel>Channel</InputLabel>
+                      <Select value={filters.faqChannel} label="Channel" onChange={(e) => handleFilterChange('faqChannel', e.target.value)}>
+                        <MenuItem value="">All</MenuItem>
+                        {availableChannels.map((channel) => (
+                          <MenuItem key={channel} value={channel}>
+                            {channel}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl> */}
+
+            <Button variant="contained" color="primary" startIcon={<SearchIcon />} onClick={applyFilters} sx={{ minWidth: 100 }}>
+              Search
+            </Button>
+
+            <Button variant="outlined" color="secondary" startIcon={<ClearIcon />} onClick={resetFilters} sx={{ minWidth: 100 }}>
+              Clear
+            </Button>
+          </Stack>
+        </Box>
+
+        <div className="faq-container">
+          {menusData.map((menuItem: any, index: number) => {
+            const hasChildren = Array.isArray(menuItem?.children) && menuItem.children.length > 0
+
+            return (
+              <Accordion
+                key={index}
+                expanded={hasChildren && expanded === menuItem.menuCode}
+                onChange={hasChildren ? handleChange(menuItem.menuCode) : undefined}
+                sx={{
+                  marginBottom: '12px',
+                  boxShadow: 'none',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px !important',
+                  '&:before': { display: 'none' },
+                  '&.Mui-expanded': {
+                    borderColor: '#d1d5db',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                  },
+                }}
+              >
+                <AccordionSummary
+                  expandIcon={hasChildren ? <ArrowForwardIosSharpIcon sx={{ fontSize: '0.9rem' }} /> : null}
+                  sx={{
+                    padding: '14px 20px',
+                    minHeight: 'auto',
+                    '& .MuiAccordionSummary-content': {
+                      margin: '0',
+                      alignItems: 'center',
+                    },
+                    '& .MuiAccordionSummary-expandIconWrapper': {
+                      color: '#6b7280',
+                      marginLeft: '8px',
+                    },
+                  }}
+                >
+                  {/* your existing content */}
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      width: '100%',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: '15px',
+                          color: '#111827',
+                          marginLeft: 2,
+                        }}
+                      >
+                        {menuItem?.parentMenuName}
+                      </Typography>
+
+                      {/* {menuItem?.faqSubSectionDescription && (
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: '#6b7280',
+                          fontSize: '12px',
+                          backgroundColor: '#f3f4f6',
+                          padding: '2px 12px',
+                          borderRadius: '12px',
+                        }}
+                      >
+                        {menuItem?.faqSubSectionDescription.slice(0, 50)}
+                      </Typography>
+                    )} */}
+
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: '#6b7280',
+                          fontSize: '12px',
+                          backgroundColor: '#f3f4f6',
+                          padding: '2px 12px',
+                          borderRadius: '12px',
+                        }}
+                      >
+                        {menuItem?.countryCode}
+                      </Typography>
+                      {/* countryCode */}
+
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: '#6b7280',
+                          fontSize: '12px',
+                          backgroundColor: '#f3f4f6',
+                          padding: '2px 12px',
+                          borderRadius: '12px',
+                        }}
+                      >
+                        {Array.isArray(menuItem?.children) ? menuItem.children.length : 0}{' '}
+                        {Array.isArray(menuItem?.children) && menuItem.children.length === 1 ? 'child' : 'children'}
+                      </Typography>
+                    </Box>
+
+                    {/* Edit Button */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          // Set the edit data and open modal
+                          setEditData(menuItem) // Pass the entire faqItem
+                          setOpenMenuItemModal(true)
+                        }}
+                        sx={{
+                          color: '#6b7280',
+                          padding: '4px',
+                          '&:hover': {
+                            backgroundColor: '#f3f4f6',
+                            color: '#374151',
+                          },
+                        }}
+                      >
+                        <EditIcon sx={{ fontSize: '18px' }} />
+                      </IconButton>
+
+                      {/* Optional: Delete button */}
+                    </Box>
+                  </Box>
+                </AccordionSummary>
+
+                <AccordionDetails
+                  sx={{
+                    padding: '4px 20px 20px 20px',
+                  }}
+                >
+                  {hasChildren &&
+                    menuItem.children.map((childDetail: any, ind: number) => (
+                      // your existing child content
+                      <Box
+                        key={ind}
+                        sx={{
+                          padding: '14px 0',
+                          borderBottom: ind !== menuItem.children.length - 1 ? '1px solid #f3f4f6' : 'none',
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <Box sx={{ flex: 1 }}>
+                            <Typography
+                              variant="subtitle2"
+                              sx={{
+                                fontWeight: 600,
+                                fontSize: '14px',
+                                color: '#111827',
+                                mb: 1,
+                                whiteSpace: 'normal',
+                                wordBreak: 'break-word',
+                                overflowWrap: 'break-word',
+                                maxWidth: '80%',
+                                display: 'block',
+                              }}
+                            >
+                              {childDetail?.childMenuName}
+                            </Typography>
+
+                            {/* <Typography
+                          variant="body2"
+                          sx={{
+                            color: '#4b5563',
+                            fontSize: '13px',
+                            lineHeight: 1.7,
+                            whiteSpace: 'normal',
+                            wordBreak: 'break-word',
+                            overflowWrap: 'break-word',
+                            maxWidth: '80%',
+                            display: 'block',
+                          }}
+                        >
+                          {faqDetail?.faqAnswer}
+                        </Typography> */}
+                          </Box>
+
+                          {/* Edit button for individual FAQ */}
+                          {/* <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          console.log('Edit question:', faqDetail)
+                        }}
+                        sx={{
+                          color: '#9ca3af',
+                          padding: '4px',
+                          marginLeft: '12px',
+                          flexShrink: 0,
+                          '&:hover': {
+                            backgroundColor: '#f3f4f6',
+                            color: '#374151',
+                          },
+                        }}
+                      >
+                        <EditIcon sx={{ fontSize: '16px' }} />
+                      </IconButton> */}
+                        </Box>
+                      </Box>
+                    ))}
+                </AccordionDetails>
+              </Accordion>
+            )
+          })}
+        </div>
 
         <MenuItemsDialog
           open={openMenuItemModal}

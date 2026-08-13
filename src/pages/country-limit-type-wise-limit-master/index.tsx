@@ -377,7 +377,7 @@ export default function CountryLimitTypeWiseLimitMaster() {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Box p={3}>
+      <Box p={3} sx={{ width: '90vw' }}>
         <Typography
           variant="h5"
           sx={{
@@ -411,34 +411,32 @@ export default function CountryLimitTypeWiseLimitMaster() {
           </Button>
         </Stack>
 
-        <Paper elevation={2} sx={{ p: 2 }}>
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            getRowId={(row: CountryLimitTypeWiseLimitData) => row.countryLimitTypeLimitCode}
-            autoHeight
-            slots={{ toolbar: GridToolbar }}
-            loading={loading}
-            disableRowSelectionOnClick
-            pageSizeOptions={[5, 10, 25, 50]}
-            sx={{
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#f5f5f5',
-                fontWeight: 'bold',
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={(row: CountryLimitTypeWiseLimitData) => row.countryLimitTypeLimitCode}
+          autoHeight
+          slots={{ toolbar: GridToolbar }}
+          loading={loading}
+          disableRowSelectionOnClick
+          pageSizeOptions={[5, 10, 25, 50]}
+          sx={{
+            '& .MuiDataGrid-columnHeaders': {
+              backgroundColor: '#f5f5f5',
+              fontWeight: 'bold',
+            },
+          }}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 10,
               },
-            }}
-            initialState={{
-              pagination: {
-                paginationModel: {
-                  pageSize: 10,
-                },
-              },
-              sorting: {
-                sortModel: [{ field: 'createdLocalDateTime', sort: 'desc' }],
-              },
-            }}
-          />
-        </Paper>
+            },
+            sorting: {
+              sortModel: [{ field: 'createdLocalDateTime', sort: 'desc' }],
+            },
+          }}
+        />
 
         <CountryLimitTypeWiseLimitFormDialog
           open={dialogopen}
