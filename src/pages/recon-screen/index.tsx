@@ -241,11 +241,11 @@ export default function TransactionPage() {
 
     { field: 'sender', headerName: 'Settlement Country', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'aedAmount', headerName: 'Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'senderCurrency', headerName: 'Settlement Currency', flex: 1, headerClassName: 'super-app-theme--header' },
+    // { field: 'senderCurrency', headerName: 'Settlement Currency', flex: 1, headerClassName: 'super-app-theme--header' },
 
     { field: 'recipient', headerName: 'Principal Country', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'inrPayout', headerName: 'Principal Amount', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'receiverCurrency', headerName: 'Principal Currency', flex: 1, headerClassName: 'super-app-theme--header' },
+    // { field: 'receiverCurrency', headerName: 'Principal Currency', flex: 1, headerClassName: 'super-app-theme--header' },
 
     { field: 'luluFxRate', headerName: 'LULU FX Rate', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'improPayFxRate', headerName: 'IMPROPAY FX Rate', flex: 1, headerClassName: 'super-app-theme--header' },

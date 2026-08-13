@@ -186,7 +186,7 @@ const ProfileMenu = () => {
         //@ts-ignore
         product_service.getByCountryCode(countryCode),
         currency_service.getCurrencyByCountryCode(countryCode),
-        master_service.getAllSideBarMenus(countryCode, staff?.roleId),
+        master_service.getAllSideBarMenus(countryCode, staff?.roleId, staff?.staffId),
       ])
       localStorage.setItem('countryConfig', JSON.stringify(countryResp[0]))
       localStorage.setItem('staffAccessCurrency', currencyResp?.currencyCode)

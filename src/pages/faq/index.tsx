@@ -70,9 +70,10 @@ const Faq: React.FC = () => {
 
   const [expanded, setExpanded] = React.useState<string | false>('panel1')
 
-  //   const handleChange = (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
-  //     setExpanded(newExpanded ? panel : false)
-  //   }
+  const handleChange = (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+    console.log(event, '===========')
+    setExpanded(newExpanded ? panel : false)
+  }
 
   const showAlert = (t: 'success' | 'error', m: string) => {
     setType(t)
@@ -280,73 +281,28 @@ const Faq: React.FC = () => {
         </Stack>
 
         <div>
-          {/* <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
-            <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
-              <Typography component="span">Collapsible Group Item #1</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem
-                ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.
-              </Typography>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion expanded={expanded === 'panel2'} onChange={handleChange('panel2')}>
-            <AccordionSummary aria-controls="panel2d-content" id="panel2d-header">
-              <Typography component="span">Collapsible Group Item #2</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem
-                ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.
-              </Typography>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion expanded={expanded === 'panel3'} onChange={handleChange('panel3')}>
-            <AccordionSummary aria-controls="panel3d-content" id="panel3d-header">
-              <Typography component="span">Collapsible Group Item #3</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem
-                ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.
-              </Typography>
-            </AccordionDetails>
-          </Accordion> */}
+          {faqData.map((faqItem: any, index: any) => (
+            <Accordion key={index} expanded={expanded === faqItem.faqHeadCode} onChange={handleChange(faqItem.faqHeadCode)}>
+              <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
+                <Box sx={{ direction: 'row', display: 'flex' }}>
+                  <Typography variant="body1">{faqItem?.faqSectionLabelName}</Typography>
+                  <Typography variant="body1">{faqItem?.faqSubSectionDescription}</Typography>
+                  <Typography variant="body1">{faqItem?.faqQuestionCount}</Typography>
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails>
+                {faqItem?.faqDetailMasters.map((faqDetail: any, ind: any) => (
+                  <Box key={ind}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                      {faqDetail?.faqQuestion}
+                    </Typography>
+                    <Typography>{faqDetail?.faqAnswer}</Typography>
+                  </Box>
+                ))}
+              </AccordionDetails>
+            </Accordion>
+          ))}
         </div>
-
-        {/* {faqData && (
-          <DataGrid
-            apiRef={apiRef}
-            rows={faqData || []}
-            //@ts-ignore
-            columns={columns}
-            filterModel={filterModel}
-            onFilterModelChange={(model) => setFilterModel(model)}
-            columnVisibilityModel={columnVisibilityModel}
-            onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
-            initialState={{
-              pagination: { paginationModel: { pageSize: 20, page: 0 } },
-            }}
-            pageSizeOptions={[10, 20, 50]}
-            disableRowSelectionOnClick
-            loading={isLoading}
-            getRowId={(row: any) => row.faqHeadCode}
-            slots={{
-              toolbar: CustomToolbar,
-              loadingOverlay: LoaderUI.LoadingOverlay,
-            }}
-            sx={{
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#005099',
-                color: 'white',
-              },
-              '& .MuiDataGrid-cell': { fontSize: '14px' },
-              '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold', fontSize: '16px' },
-            }}
-            disableColumnMenu
-          />
-        )}
 
         <FAQHeadDialog
           open={openFaqHeadModal}
@@ -354,7 +310,7 @@ const Faq: React.FC = () => {
           onClose={() => setOpenFaqHeadModal(false)}
           refreshList={fetchFaqs}
           showAlert={showAlert}
-        /> */}
+        />
       </Box>
     </HasPermission>
   )
