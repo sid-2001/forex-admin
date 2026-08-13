@@ -328,7 +328,7 @@ export default function TransactionPage() {
 
     const mappedRows = rows.map((row: any) =>
       visibleCols.map((col) => {
-        if (col.field === 'mismatchFields') return row.mismatchFields.join(', ')
+        if (col.field === 'mismatchFields') return (row.mismatchFields ?? []).join(', ')
         if (col.field === 'status') return convertStrToTitleCase(row.status)
         return row[col.field] || ''
       }),
