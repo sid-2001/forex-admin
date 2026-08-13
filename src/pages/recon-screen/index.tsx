@@ -235,33 +235,33 @@ export default function TransactionPage() {
     //   getActions: (params) => [<GridActionsCellItem icon={<VisibilityIcon />} label="View More" onClick={() => handleViewMore(params.row.id)} />],
     // },
 
-    { field: 'transactionId', headerName: 'Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'transactionId', headerName: 'Vendor Reference Id', flex: 1, headerClassName: 'super-app-theme--header' },
 
     { field: 'improPayTransactionNumber', headerName: 'ImproPay Transaction ID', flex: 1, headerClassName: 'super-app-theme--header' },
 
-    { field: 'vendorSettlementCountry', headerName: 'Settlement Country', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'vendorSettlementAmount', headerName: 'Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorSettlementCountry', headerName: 'Vendor Settlement Country', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorSettlementAmount', headerName: 'Vendor Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'improPaySettlementAmount', headerName: 'ImproPay Settlement Amount', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'vendorSettlementCurrency', headerName: 'Settlement Currency', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorSettlementCurrency', headerName: 'Vendor Settlement Currency', flex: 1, headerClassName: 'super-app-theme--header' },
 
-    { field: 'vendorPrincipalCountry', headerName: 'Principal Country', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'vendorPrincipalAmount', headerName: 'Principal Amount', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorPrincipalCountry', headerName: 'Vendor Principal Country', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorPrincipalAmount', headerName: 'Vendor Principal Amount', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'improPayPrincipalAmount', headerName: 'ImproPay Principal Amount', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'vendorPrincipalCurrency', headerName: 'Principal Currency', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorPrincipalCurrency', headerName: 'Vendor Principal Currency', flex: 1, headerClassName: 'super-app-theme--header' },
 
-    { field: 'vendorCharges', headerName: 'Charges', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorCharges', headerName: 'Vendor Charges', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'improPayCharges', headerName: 'ImproPay Charges', flex: 1, headerClassName: 'super-app-theme--header' },
 
-    { field: 'vendorVat', headerName: 'VAT', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorVat', headerName: 'Vendor VAT', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'improPayVat', headerName: 'ImproPay VAT', flex: 1, headerClassName: 'super-app-theme--header' },
 
-    { field: 'vendorFxRate', headerName: 'FX Rate', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorFxRate', headerName: 'Vendor FX Rate', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'improPayFxRate', headerName: 'ImproPay FX Rate', flex: 1, headerClassName: 'super-app-theme--header' },
 
-    { field: 'vendorFxMargin', headerName: 'FX Margin', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorFxMargin', headerName: 'Vendor FX Margin', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'fxMargin', headerName: 'ImproPay FX Margin', flex: 1, headerClassName: 'super-app-theme--header' },
 
-    { field: 'vendorStatus', headerName: 'Status', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorStatus', headerName: 'Vendor Status', flex: 1, headerClassName: 'super-app-theme--header' },
     { field: 'improPayStatus', headerName: 'ImproPay Status', flex: 1, headerClassName: 'super-app-theme--header' },
 
     {
