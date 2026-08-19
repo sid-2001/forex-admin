@@ -38,9 +38,12 @@ const AddUpdateModuleDialog: React.FC<any> = ({ action = 'Add', handleClose, han
     try {
       let response
       if (selectedModuleData?.moduleId) {
-        response = await user_service.updateModule({ ...moduleData, moduleId: selectedModuleData?.moduleId }, local_service.get_staff_id())
+        response = await user_service.updateModule(
+          { ...moduleData, moduleId: selectedModuleData?.moduleId, modifiedBy: local_service.get_staff_id() },
+          local_service.get_staff_id(),
+        )
       } else {
-        response = await user_service.createModule(moduleData, local_service.get_staff_id())
+        response = await user_service.createModule({ ...moduleData, createdBy: local_service.get_staff_id() }, local_service.get_staff_id())
       }
       setModuleData({})
       handleSubmit({ ...response.data })

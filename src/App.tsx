@@ -102,6 +102,7 @@ import MenuIems from './pages/menuItems'
 import Faq from './pages/faq'
 import { AuthService } from './services/auth.service'
 import Group from './pages/groups'
+import EmailReport from './pages/reportsEmail'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -330,6 +331,7 @@ function App() {
               <Route path="menu-items" element={<MenuIems />} />
               <Route path="faq" element={<Faq />} />
               <Route path="group" element={<Group />} />
+              <Route path="email-report" element={<EmailReport />} />
 
               <Route path="*" element={<Dashboard />} />
             </Route>

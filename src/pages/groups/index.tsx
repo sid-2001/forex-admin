@@ -40,6 +40,7 @@ export default function Group() {
   const fetchData = useCallback(async () => {
     const res: any = await master_service.getAllGroups()
     const responseData = res?.data || res
+    console.log(responseData, '----------------')
     setRows(Array.isArray(responseData) ? responseData : [])
   }, [master_service])
 
@@ -85,10 +86,10 @@ export default function Group() {
     }
   }
   const columns: GridColDef[] = [
-    { field: 'groupCode', headerName: 'Group Code', width: 80, headerClassName: 'super-app-theme--header' },
+    { field: 'groupCode', headerName: 'Group Code', width: 150, headerClassName: 'super-app-theme--header' },
     { field: 'groupShortName', headerName: 'Group Short Name', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'groupName', headerName: 'Group Name', width: 100, headerClassName: 'super-app-theme--header' },
-    { field: 'groupDisplayName', headerName: 'Group Display Name', width: 100, headerClassName: 'super-app-theme--header' },
+    { field: 'groupName', headerName: 'Group Name', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'groupDisplayName', headerName: 'Group Display Name', flex: 1, headerClassName: 'super-app-theme--header' },
     {
       field: 'effectivefromdate',
       headerName: 'Effective From',
@@ -134,7 +135,7 @@ export default function Group() {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Box p={3} sx={{ width: '90vw' }}>
+      <Box p={3} sx={{ width: '90vw', height: '75vh' }}>
         <Stack direction="row" justifyContent="space-between" mb={2}>
           <Typography
             variant="h4"
@@ -164,23 +165,14 @@ export default function Group() {
         <DataGrid
           rows={rows}
           columns={columns}
-          getRowId={(row: any) => `${row.groupShortCode}`}
-          autoHeight
+          getRowId={(row: any) => `${row.groupCode}`}
           disableRowSelectionOnClick
-          pageSizeOptions={[5]}
           slots={{ toolbar: GridToolbar }}
           slotProps={{ toolbar: { showQuickFilter: true } }}
           disableColumnMenu
           sx={{
             '& .super-app-theme--header': {
               fontWeight: 'bold',
-            },
-          }}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 5,
-              },
             },
           }}
         />
