@@ -78,7 +78,7 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
         effectiveFromDate: editData.effectiveFromDate?.split('T')[0] || '',
         effectiveToDate: editData.effectiveToDate?.split('T')[0] || '',
         emailDetails:
-          editData.emailDetails?.map((detail: any, index: number) => ({
+          editData.emailDetails?.map((detail: any) => ({
             ...detail,
             effectiveFromDate: detail.effectiveFromDate?.split('T')[0] || '',
             effectiveToDate: detail.effectiveToDate?.split('T')[0] || '9999-12-31',
