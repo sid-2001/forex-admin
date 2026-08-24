@@ -147,4 +147,39 @@ export default class MasterService extends BaseService {
       throw error
     }
   }
+
+  // email reports api
+  async createEmailDetail(payload: Partial<any>): Promise<any> {
+    const url = '/api/static-table/country-module-report-email-head/createAll'
+    try {
+      const data = await api1.post(url, payload)
+      return data
+    } catch (err) {
+      return err as any
+    }
+  }
+
+  async updateEmailDetail(code: string, payload: any) {
+    try {
+      const response = await api1.put(`/api/static-table/country-module-report-email-head/updateAll/${code}`, payload)
+      return response.data
+    } catch (error) {
+      console.error('Error updating group detail:', error)
+      throw error
+    }
+  }
+
+  async getAllDetailEmails(queryParams?: string): Promise<any> {
+    const url = queryParams
+      ? `api/static-table/country-module-report-email-head/getAll${queryParams}`
+      : 'api/static-table/country-module-report-email-head/getAll'
+
+    // const url = '/api/static-table/country-module-report-email-head/getAll?countryCode=UAE'
+    try {
+      const response = await api1.get(url)
+      return response
+    } catch (err) {
+      return err as any
+    }
+  }
 }
