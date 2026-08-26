@@ -185,7 +185,7 @@ export default class MasterService extends BaseService {
 
   // country corridor exchange rate api
   async createCountryCorridorExchangeRate(payload: Partial<any>): Promise<any> {
-    const url = '/api/static-table/country-module-report-email-head/createAll'
+    const url = '/api/static-table/corridor-exchange-rate-master/create'
     try {
       const data = await api1.post(url, payload)
       return data
@@ -196,16 +196,16 @@ export default class MasterService extends BaseService {
 
   async updateCountryCorridorExchangeRate(code: string, payload: any) {
     try {
-      const response = await api1.put(`/api/static-table/country-module-report-email-head/updateAll/${code}`, payload)
+      const response = await api1.put(`/api/static-table/corridor-exchange-rate-master/update/${code}`, payload)
       return response.data
     } catch (error) {
-      console.error('Error updating group detail:', error)
+      console.error('Error updating detail:', error)
       throw error
     }
   }
 
   async getAllCountryCorridorExchangeRatesList(): Promise<any> {
-    const url = 'api/static-table/corridor-exchange-rate-master/getAll'
+    const url = '/api/static-table/corridor-exchange-rate-master/getAll'
 
     try {
       const response = await api1.get(url)

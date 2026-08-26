@@ -11,6 +11,7 @@ import HasPermission from '@/components/permissionWrapper'
 import { HelperService } from '@/helpers/helper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import MasterService from '@/services/master.service'
+import CorridorExchangeRateDialog from '@/components/corridorExchangeRateDialog'
 
 export default function CountryCorridorExchangeRateMaster() {
   //   const service = useMemo(() => new BankMasterService(), [])
@@ -24,6 +25,8 @@ export default function CountryCorridorExchangeRateMaster() {
   const helper = new HelperService()
   const local_service = useMemo(() => new LocalStorageService(), [])
   const master_service = useMemo(() => new MasterService(), [])
+
+  const staffId = local_service?.get_staff_id() || 'admin'
 
   const showAlert = (alertType: 'Success' | 'Fail', alertText: string) => {
     setType(alertType)
@@ -52,15 +55,15 @@ export default function CountryCorridorExchangeRateMaster() {
     }
 
     const res = isUpdate
-      ? await master_service.updateCountryCorridorExchangeRate(editData!.bankMasterCode, data)
-      : await master_service.createCountryCorridorExchangeRate(data)
+      ? await master_service.updateCountryCorridorExchangeRate(editData!.corridorExchangeRateCode, { ...data, modifiedBy: staffId })
+      : await master_service.createCountryCorridorExchangeRate({ ...data, createdBy: staffId })
 
     if (
       res.status ||
       //@ts-ignore
       res.success
     ) {
-      showAlert('Success', `Bank ${isUpdate ? 'Updated' : 'Created'} Successfully`)
+      showAlert('Success', res.message)
       setDialogOpen(false)
       fetchCorridorExchangeRatesData()
     } else {
@@ -74,11 +77,25 @@ export default function CountryCorridorExchangeRateMaster() {
       headerName: 'Corridor Exchange Rate',
       flex: 0.7,
       headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return params?.row?.corridorExchangeRateMaster?.corridorExchangeRateCode || ''
+      },
     },
-    { field: 'businessCorridorReceivingCountry', headerName: 'Receiving Country', flex: 1.2, headerClassName: 'super-app-theme--header' },
-    { field: 'exchangeRatePartnerCode', headerName: 'Partner Code', flex: 0.8, headerClassName: 'super-app-theme--header' },
-    // { field: 'bankIfscBicCode', headerName: 'IFSC/BIC', flex: 1, headerClassName: 'super-app-theme--header' },
-    // { field: 'bankCity', headerName: 'City', flex: 0.7, headerClassName: 'super-app-theme--header' },
+
+    {
+      field: 'corridorCode',
+      headerName: 'Corridor Code',
+      flex: 0.7,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return params?.row?.corridorExchangeRateMaster?.countryCorridorMaster?.countryCorridorCode || ''
+      },
+    },
+
+    { field: 'senderCountry', headerName: 'Sender Country', flex: 1.2, headerClassName: 'super-app-theme--header' },
+
+    { field: 'businessReceivingCountry', headerName: 'Receiving Country', flex: 1.2, headerClassName: 'super-app-theme--header' },
+    { field: 'vendorCode', headerName: 'Vendor Code', flex: 0.8, headerClassName: 'super-app-theme--header' },
     {
       field: 'effectiveFromDate',
       headerName: 'Effective From',
@@ -87,7 +104,7 @@ export default function CountryCorridorExchangeRateMaster() {
       headerClassName: 'super-app-theme--header',
       //@ts-ignore
       valueGetter: (value, row) => {
-        const date = row?.effectiveFromDate
+        const date = row?.corridorExchangeRateMaster?.effectiveFromDate
 
         return date ? formatTableDate(date) : ''
       },
@@ -100,26 +117,18 @@ export default function CountryCorridorExchangeRateMaster() {
       minWidth: 150,
       //@ts-ignore
       valueGetter: (value, row) => {
-        const date = row?.effectiveToDate
+        const date = row?.corridorExchangeRateMaster?.effectiveToDate
 
         return date ? formatTableDate(date) : ''
       },
     },
-    {
-      field: 'countryCode',
-      headerName: 'Country',
-      flex: 0.6,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return params.row.countryCorridorMaster.countryCode
-      },
-    },
+
     {
       field: 'active',
       headerName: 'Active',
       width: 100,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => (params.row?.active ? 'Yes' : 'No'),
+      renderCell: (params) => (params?.row?.corridorExchangeRateMaster?.active ? 'Yes' : 'No'),
     },
     {
       field: 'actions',
@@ -175,7 +184,7 @@ export default function CountryCorridorExchangeRateMaster() {
         <DataGrid
           rows={rows}
           columns={columns}
-          getRowId={(row) => row.corridorExchangeRateCode || Math.random()}
+          getRowId={(row) => row?.corridorExchangeRateMaster?.corridorExchangeRateCode || Math.random()}
           autoHeight
           disableRowSelectionOnClick
           slots={{ toolbar: GridToolbar }}
@@ -190,12 +199,12 @@ export default function CountryCorridorExchangeRateMaster() {
           }}
         />
 
-        {/* <BankMasterDialog
+        <CorridorExchangeRateDialog
           open={dialogOpen}
           onClose={() => setDialogOpen(false)}
           editData={editData}
           onSubmit={(data: any) => handleAction(data, !!editData)}
-        /> */}
+        />
       </Box>
     </HasPermission>
   )
