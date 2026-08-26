@@ -41,13 +41,13 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
     reportName: '',
     subject: '',
     action: '',
-    moduleCode: '',
+    moduleFeatureCode: '',
     emailCount: 0,
     active: true,
     effectiveFromDate: '',
     effectiveToDate: '',
     createdBy: '',
-    emailReportDetails: [] as any[],
+    emailDetails: [] as any[],
   }
 
   const [formData, setFormData] = useState<any>(initialFormState)
@@ -63,7 +63,6 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
   useEffect(() => {
     if (editData) {
       console.log(editData, 'bhanu')
-
       // Extract just the country code from "UAE (United Arab Emirates)"
       let countryCode = editData.countryCode || ''
       // If countryCode contains parentheses, extract just the code
@@ -73,26 +72,17 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
 
       // For edit, populate from existing data
       setFormData({
+        ...editData,
         countryCode: countryCode, // Use the extracted code
-        moduleCode: editData.moduleCode || '',
-        action: editData.action || '',
-        reportName: editData.reportName || '',
-        subject: editData.subject || '',
-
-        emailCount: editData.emailCount || 0,
-        active: editData.active !== undefined ? editData.active : true,
+        emailCount: editData.emailDetails.length || 0,
         effectiveFromDate: editData.effectiveFromDate?.split('T')[0] || '',
         effectiveToDate: editData.effectiveToDate?.split('T')[0] || '',
-        createdBy: editData.createdBy || local_service?.get_staff_id() || 'admin',
-        emailReportDetails:
-          editData.emailReportDetails?.map((detail: any, index: number) => ({
-            faqDetailCode: detail.faqDetailCode || detail.id || detail.code || detail.faqDetailId || `temp_${Date.now()}_${index}`,
-            faqQuestion: detail.faqQuestion || '',
-            faqAnswer: detail.faqAnswer || '',
+        emailDetails:
+          editData.emailDetails?.map((detail: any) => ({
+            ...detail,
             effectiveFromDate: detail.effectiveFromDate?.split('T')[0] || '',
             effectiveToDate: detail.effectiveToDate?.split('T')[0] || '9999-12-31',
-            active: detail.active !== undefined ? detail.active : true,
-            isNew: false,
+            // active: detail.active !== undefined ? detail.active : true,
           })) || [],
       })
     } else {
@@ -103,7 +93,7 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
         createdBy: staffId,
         effectiveFromDate: '',
         effectiveToDate: '',
-        emailReportDetails: [],
+        emailDetails: [],
       })
     }
   }, [editData, open])
@@ -124,7 +114,7 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
   }, [])
 
   const initializeEmailReportDetails = (count: number) => {
-    const currentDetails = formData.emailReportDetails || []
+    const currentDetails = formData.emailDetails || []
     const newDetails = [...currentDetails]
 
     while (newDetails.length < count) {
@@ -132,12 +122,11 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
         firstName: '',
         lastName: '',
         middleName: '',
-        email: '',
+        emailId: '',
         fullName: '',
         effectiveFromDate: formData.effectiveFromDate || '',
         effectiveToDate: formData.effectiveToDate || '9999-12-31',
         active: true,
-        isNew: true,
       })
     }
 
@@ -147,7 +136,7 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
 
     setFormData((prev: any) => ({
       ...prev,
-      emailReportDetails: newDetails,
+      emailDetails: newDetails,
       emailCount: count,
     }))
   }
@@ -161,9 +150,9 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
   }
 
   const handleEmailDetailChange = (index: number, field: string, value: any) => {
-    const updatedDetails = [...(formData.emailReportDetails || [])]
+    const updatedDetails = [...(formData.emailDetails || [])]
     updatedDetails[index] = { ...updatedDetails[index], [field]: value }
-    setFormData({ ...formData, emailReportDetails: updatedDetails })
+    setFormData({ ...formData, emailDetails: updatedDetails })
 
     if (emailDetailsErrors[index]?.[field]) {
       const newErrors = { ...emailDetailsErrors }
@@ -175,20 +164,23 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
     }
   }
 
-  const addFaqDetail = () => {
-    const newDetails = [...(formData.emailReportDetails || [])]
+  const addEmailDetail = () => {
+    const newDetails = [...(formData.emailDetails || [])]
     newDetails.push({
-      faqQuestion: '',
-      faqAnswer: '',
       effectiveFromDate: formData.effectiveFromDate || '',
       effectiveToDate: formData.effectiveToDate || '9999-12-31',
-      active: true,
-      isNew: true,
+      active: false,
+      salutation: '',
+      firstName: '',
+      middleName: '',
+      lastName: '',
+      fullName: '',
+      emailId: '',
     })
     setFormData({
       ...formData,
-      emailReportDetails: newDetails,
-      faqQuestionCount: newDetails.length,
+      emailDetails: newDetails,
+      emailCount: newDetails.length,
     })
   }
 
@@ -199,11 +191,11 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
 
   const handleDeleteConfirm = () => {
     if (deleteIndex !== null) {
-      const newDetails = [...(formData.emailReportDetails || [])]
+      const newDetails = [...(formData.emailDetails || [])]
       newDetails.splice(deleteIndex, 1)
       setFormData({
         ...formData,
-        emailReportDetails: newDetails,
+        emailDetails: newDetails,
         faqQuestionCount: newDetails.length,
       })
       setDeleteConfirmOpen(false)
@@ -216,20 +208,33 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
     setDeleteIndex(null)
   }
 
-  const validateFaqDetails = () => {
+  const validateEmailDetails = () => {
     const detailsErrors: any = {}
     let hasErrors = false
 
-    formData.emailReportDetails?.forEach((detail: any, index: number) => {
+    formData.emailDetails?.forEach((detail: any, index: number) => {
       const detailErrors: any = {}
 
-      if (!detail.faqQuestion || detail.faqQuestion.trim() === '') {
-        detailErrors.faqQuestion = 'FAQ Question is required'
+      if (!detail.salutation || detail.salutation.trim() === '') {
+        detailErrors.salutation = 'Salutation is required'
         hasErrors = true
       }
 
-      if (!detail.faqAnswer || detail.faqAnswer.trim() === '') {
-        detailErrors.faqAnswer = 'FAQ Answer is required'
+      if (!detail.firstName || detail.firstName.trim() === '') {
+        detailErrors.firstName = 'FirstName is required'
+        hasErrors = true
+      }
+
+      if (!detail.lastName || detail.lastName.trim() === '') {
+        detailErrors.lastName = 'LastName is required'
+        hasErrors = true
+      }
+      if (!detail.fullName || detail.fullName.trim() === '') {
+        detailErrors.fullName = 'FullName is required'
+        hasErrors = true
+      }
+      if (!detail.emailId || detail.emailId.trim() === '') {
+        detailErrors.emailId = 'Email Id is required'
         hasErrors = true
       }
 
@@ -253,7 +258,7 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
   }
 
   const handleSubmit = async () => {
-    const mandatoryFields = ['countryCode', 'faqSectionLabelName', 'faqSectionDescription', 'faqType', 'effectiveFromDate', 'effectiveToDate']
+    const mandatoryFields = ['countryCode', 'reportName', 'subject', 'moduleFeatureCode', 'action', 'effectiveFromDate', 'effectiveToDate']
 
     const isFormIncomplete = mandatoryFields.some((field) => !formData[field] || formData[field].toString().trim() === '')
 
@@ -262,10 +267,10 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
       return
     }
 
-    if (!validateFaqDetails()) {
-      showAlert('error', 'Please fill in all FAQ questions, answers, and dates.')
-      return
-    }
+    // if (!validateEmailDetails()) {
+    //   showAlert('error', 'Please fill in all details and dates.')
+    //   return
+    // }
 
     setLoading(true)
 
@@ -278,7 +283,7 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
         await handleCreate()
       }
     } catch (error: any) {
-      console.error('Error saving FAQ:', error)
+      console.error('Error saving details:', error)
       showAlert('error', error?.message || error?.toString() || 'Operation failed')
     } finally {
       setLoading(false)
@@ -287,35 +292,30 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
   }
 
   const handleCreate = async () => {
+    console.log(formData, '--------------')
     const payload = {
-      countryCode: formData.countryCode,
-      faqChannel: formData.faqChannel.toUpperCase(),
-      faqSectionLabelName: formData.faqSectionLabelName,
-      faqSectionDescription: formData.faqSectionDescription,
-      faqSubSectionLabelName: formData.faqSubSectionLabelName,
-      faqSubSectionDescription: formData.faqSubSectionDescription,
-      faqType: formData.faqType,
-      faqQuestionCount: Number(formData.faqQuestionCount),
+      ...formData,
       createdBy: formData.createdBy || 'admin',
       effectiveFromDate: formData.effectiveFromDate + 'T00:00:00',
       effectiveToDate: formData.effectiveToDate + 'T00:00:00',
-      emailReportDetails: formData.emailReportDetails?.map((detail: any) => ({
-        faqQuestion: detail.faqQuestion,
-        faqAnswer: detail.faqAnswer,
+      emailDetails: formData.emailDetails?.map((detail: any) => ({
+        ...detail,
         effectiveFromDate: detail.effectiveFromDate + 'T00:00:00',
         effectiveToDate: detail.effectiveToDate + 'T00:00:00',
         active: detail.active !== undefined ? detail.active : true,
       })),
     }
 
-    const res = await master_service.createFaq(payload)
+    delete payload.emailCount
+
+    const res = await master_service.createEmailDetail(payload)
 
     if (res.status) {
-      showAlert('success', res.message || 'FAQ created successfully')
+      showAlert('success', res.message)
       refreshList()
       onClose()
     } else {
-      showAlert('error', res.message || 'Failed to create FAQ')
+      showAlert('error', res.message || 'Failed to create Details')
     }
   }
 
@@ -323,22 +323,12 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
     // Build payload matching the working curl structure
     const userId = local_service?.get_staff_id() || 'admin'
     const updatePayload = {
-      countryCode: formData.countryCode,
-      faqChannel: formData.faqChannel.toUpperCase(),
-      faqSectionLabelName: formData.faqSectionLabelName,
-      faqSectionDescription: formData.faqSectionDescription,
-      faqSubSectionLabelName: formData.faqSubSectionLabelName,
-      faqSubSectionDescription: formData.faqSubSectionDescription,
-      faqType: formData.faqType,
-      faqQuestionCount: Number(formData.faqQuestionCount),
+      ...formData,
       modifiedBy: userId,
-      createdBy: userId,
-      active: formData.active !== undefined ? formData.active : true,
       effectiveFromDate: formData.effectiveFromDate + 'T00:00:00',
       effectiveToDate: formData.effectiveToDate + 'T00:00:00',
-      emailReportDetails: formData.emailReportDetails?.map((detail: any) => ({
-        firstName: detail.faqQuestion,
-        faqAnswer: detail.faqAnswer,
+      emailDetails: formData.emailDetails?.map((detail: any) => ({
+        ...detail,
         effectiveFromDate: detail.effectiveFromDate + 'T00:00:00',
         effectiveToDate: detail.effectiveToDate + 'T00:00:00',
         active: detail.active !== undefined ? detail.active : true,
@@ -346,24 +336,20 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
     }
 
     try {
-      console.log('=== UPDATING FAQ HEAD ===')
-      console.log('FAQ Head Code:', editData.faqHeadCode)
-      console.log('Payload:', JSON.stringify(updatePayload, null, 2))
-
       // Use master_service instead of direct fetch
-      const response = await master_service.updateFaqHead(editData.faqHeadCode, updatePayload)
+      const response = await master_service.updateEmailDetail(editData.countryModuleReportEmailHeadCode, updatePayload)
 
       console.log('Update response:', response)
 
       if (response && response.status !== false) {
-        showAlert('success', response.message || 'FAQ updated successfully')
+        showAlert('success', response.message)
         refreshList()
         onClose()
       } else {
-        showAlert('error', response?.message || 'Failed to update FAQ')
+        showAlert('error', response?.message || 'Failed to update Details')
       }
     } catch (error: any) {
-      console.error('Error updating FAQ:', error)
+      console.error('Error updating details:', error)
       showAlert('error', error?.message || 'Operation failed')
     }
   }
@@ -385,17 +371,17 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
           {isEditMode ? (
             <>
               <UpdateIcon color="primary" />
-              Edit FAQ: {editData?.faqHeadCode}
+              Edit Module Report: {editData?.countryModuleReportEmailHeadCode}
             </>
           ) : (
-            'Add New FAQ'
+            'Add New Module Report'
           )}
         </DialogTitle>
         <DialogContent dividers>
           {/* Show update progress if updating */}
           {updateProgress && (
             <Alert severity="info" sx={{ mb: 2 }}>
-              Updating FAQ details... {updateProgress.completed}/{updateProgress.total} completed
+              Updating Module Report Details... {updateProgress.completed}/{updateProgress.total} completed
             </Alert>
           )}
 
@@ -422,7 +408,7 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
                 onChange={(_, newValue) => {
                   setFormData({ ...formData, moduleFeatureCode: newValue ? newValue.moduleFeatureCode : '' })
                 }}
-                renderInput={(params) => <TextField {...params} label="Module Feature Type" fullWidth />}
+                renderInput={(params) => <TextField {...params} label="Module Feature Type" fullWidth required />}
               />
             </Grid>
 
@@ -448,7 +434,7 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
                 helperText="Select action"
               >
                 <MenuItem value="M">Manual (M)</MenuItem>
-                <MenuItem value="W">Auto (A)</MenuItem>
+                <MenuItem value="A">Auto (A)</MenuItem>
               </TextField>
             </Grid>
 
@@ -463,15 +449,21 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
               />
             </Grid>
 
-            <Grid item xs={3}>
+            <Grid item xs={6}>
               <TextField
                 fullWidth
                 label="Email Count"
                 value={formData.emailCount}
                 onChange={(e) => handleEmailCountChange(e.target.value)}
-                placeholder="Enter number of email report details"
-                helperText="Enter the number of email report details"
-                disabled={isEditMode} // Disable count change in edit mode
+                placeholder="Enter number of email report count details"
+                // helperText="Enter the number of email report count details"
+                //  disabled={isEditMode} // Disable count change in edit mode
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <FormControlLabel
+                control={<Checkbox checked={formData.active} onChange={(e) => handleChange('active', e.target.checked)} color="primary" />}
+                label="Active Status"
               />
             </Grid>
 
@@ -481,12 +473,12 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
                 value={formData.effectiveFromDate}
                 onChange={(val: string) => {
                   setFormData({ ...formData, effectiveFromDate: val })
-                  if (formData.emailReportDetails) {
-                    const updatedDetails = formData.emailReportDetails.map((detail: any) => ({
+                  if (formData.emailDetails) {
+                    const updatedDetails = formData.emailDetails.map((detail: any) => ({
                       ...detail,
                       effectiveFromDate: val,
                     }))
-                    setFormData((prev: any) => ({ ...prev, emailReportDetails: updatedDetails }))
+                    setFormData((prev: any) => ({ ...prev, emailDetails: updatedDetails }))
                   }
                 }}
                 error={!!errors.effectiveFromDate}
@@ -502,12 +494,12 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
                 minDate={formData.effectiveFromDate}
                 onChange={(val: string) => {
                   setFormData({ ...formData, effectiveToDate: val })
-                  if (formData.emailReportDetails) {
-                    const updatedDetails = formData.emailReportDetails.map((detail: any) => ({
+                  if (formData.emailDetails) {
+                    const updatedDetails = formData.emailDetails.map((detail: any) => ({
                       ...detail,
                       effectiveToDate: val,
                     }))
-                    setFormData((prev: any) => ({ ...prev, emailReportDetails: updatedDetails }))
+                    setFormData((prev: any) => ({ ...prev, emailDetails: updatedDetails }))
                   }
                 }}
                 error={!!errors.effectiveToDate}
@@ -516,15 +508,8 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
               />
             </Grid>
 
-            <Grid item xs={12}>
-              <FormControlLabel
-                control={<Checkbox checked={formData.active} onChange={(e) => handleChange('active', e.target.checked)} color="primary" />}
-                label="Active Status"
-              />
-            </Grid>
-
             {/* FAQ Details Section */}
-            {formData.emailReportDetails && formData.emailReportDetails.length > 0 && (
+            {formData.emailDetails && formData.emailDetails.length > 0 && (
               <Grid item xs={12}>
                 <Divider sx={{ my: 2 }}>
                   <Typography variant="h6" color="primary">
@@ -538,7 +523,7 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
                 </Divider>
 
                 <Box sx={{ maxHeight: '400px', overflowY: 'auto', pr: 1 }}>
-                  {formData.emailReportDetails.map((detail: any, index: number) => (
+                  {formData.emailDetails.map((detail: any, index: number) => (
                     <Paper
                       key={index}
                       elevation={2}
@@ -554,38 +539,32 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
                         <Grid item xs={12} display="flex" justifyContent="space-between" alignItems="center">
                           <Box display="flex" alignItems="center" gap={1}>
                             <Typography variant="subtitle1" color="primary">
-                              FAQ #{index + 1}
+                              Module Report #{index + 1}
                             </Typography>
                             {detail.faqDetailCode && (
                               <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '10px' }}>
-                                ID: {detail.faqDetailCode}
+                                ID: {detail.countryModuleReportEmailDetailCode}
                               </Typography>
-                            )}
-                            {detail.isNew && (
-                              <></>
-                              // <Typography variant="caption" sx={{ color: 'success.main', fontSize: '10px' }}>
-                              //   [New]
-                              // </Typography>
                             )}
                           </Box>
                           <IconButton
                             size="small"
                             color="error"
                             onClick={() => handleDeleteClick(index)}
-                            disabled={formData.emailReportDetails.length <= 1}
+                            disabled={formData.emailDetails.length <= 1}
                           >
                             <RemoveIcon />
                           </IconButton>
                         </Grid>
 
-                        <Grid item xs={6}>
+                        <Grid item xs={3}>
                           <TextField
                             select
                             fullWidth
                             label="Salutation"
                             required
                             value={formData.salutation}
-                            onChange={(e) => handleChange('salutation', e.target.value)}
+                            onChange={(e) => handleEmailDetailChange(index, 'salutation', e.target.value)}
                             helperText="Select salutation"
                           >
                             <MenuItem value="Mr">Mr</MenuItem>
@@ -593,10 +572,10 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
                           </TextField>
                         </Grid>
 
-                        <Grid item xs={4}>
+                        <Grid item xs={3}>
                           <TextField
                             fullWidth
-                            label={`First Name ${index + 1}`}
+                            label={`First Name`}
                             required
                             value={detail.firstName}
                             inputProps={{ maxLength: 50 }}
@@ -606,11 +585,10 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
                           />
                         </Grid>
 
-                        <Grid item xs={4}>
+                        <Grid item xs={3}>
                           <TextField
                             fullWidth
-                            label={`Middle Name ${index + 1}`}
-                            required
+                            label={`Middle Name`}
                             value={detail.middleName}
                             inputProps={{ maxLength: 50 }}
                             onChange={(e) => handleEmailDetailChange(index, 'middleName', e.target.value)}
@@ -619,10 +597,10 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
                           />
                         </Grid>
 
-                        <Grid item xs={4}>
+                        <Grid item xs={3}>
                           <TextField
                             fullWidth
-                            label={`Last Name ${index + 1}`}
+                            label={`Last Name`}
                             required
                             value={detail.lastName}
                             inputProps={{ maxLength: 50 }}
@@ -632,7 +610,7 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
                           />
                         </Grid>
 
-                        <Grid item xs={4}>
+                        <Grid item xs={6}>
                           <TextField
                             fullWidth
                             label={`Full Name ${index + 1}`}
@@ -645,22 +623,35 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
                           />
                         </Grid>
 
-                        <Grid item xs={4}>
+                        <Grid item xs={6}>
                           <TextField
                             fullWidth
                             label={`Email ${index + 1}`}
                             required
-                            value={detail.email}
+                            value={detail.emailId}
                             inputProps={{ maxLength: 100 }}
-                            onChange={(e) => handleEmailDetailChange(index, 'email', e.target.value)}
-                            error={!!emailDetailsErrors[index]?.email}
-                            helperText={emailDetailsErrors[index]?.email}
+                            // onChange={(e) => handleEmailDetailChange(index, 'emailId', e.target.value)}
+                            onChange={(e) => {
+                              const value = e.target.value
+                              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+                              // Validate and update
+                              if (!emailRegex.test(value)) {
+                                setEmailDetailsErrors({ emailId: 'Invalid email format' })
+                              } else {
+                                setEmailDetailsErrors({ emailId: '' })
+                              }
+                              handleEmailDetailChange(index, 'emailId', e.target.value) // Call your existing handler
+                            }}
+                            type="email"
+                            error={!!emailDetailsErrors[index]?.emailId}
+                            helperText={emailDetailsErrors[index]?.emailId}
                           />
                         </Grid>
 
                         <Grid item xs={6}>
                           <DynamicDatePicker
-                            label={`Effective From (Q${index + 1})`}
+                            label={`Effective From`}
                             value={detail.effectiveFromDate}
                             onChange={(val: string) => handleEmailDetailChange(index, 'effectiveFromDate', val)}
                             error={!!emailDetailsErrors[index]?.effectiveFromDate}
@@ -671,7 +662,7 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
 
                         <Grid item xs={6}>
                           <DynamicEndDatePicker
-                            label={`Effective To (Q${index + 1})`}
+                            label={`Effective To`}
                             value={detail.effectiveToDate}
                             minDate={detail.effectiveFromDate}
                             onChange={(val: string) => handleEmailDetailChange(index, 'effectiveToDate', val)}
@@ -699,7 +690,7 @@ export default function ReportEmailDialog({ open, editData, onClose, refreshList
                   ))}
                 </Box>
 
-                <Button variant="outlined" startIcon={<AddIcon />} onClick={addFaqDetail} sx={{ mt: 1 }} fullWidth>
+                <Button variant="outlined" startIcon={<AddIcon />} onClick={addEmailDetail} sx={{ mt: 1 }} fullWidth>
                   Add Email Detail
                 </Button>
               </Grid>
