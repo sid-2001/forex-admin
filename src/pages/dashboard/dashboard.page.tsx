@@ -212,7 +212,7 @@ const Dashboard = () => {
     },
     {
       field: 'amount',
-      headerName: 'Amount',
+      headerName: `Sender's Amount`,
       flex: 1,
       renderCell: (params: any) => {
         return (
@@ -234,6 +234,32 @@ const Dashboard = () => {
         )
       },
     },
+
+    {
+      field: 'principalAmount',
+      headerName: `Receiver's Amount`,
+      flex: 1,
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                color: 'green',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
+    },
+
     { field: 'reported', headerName: 'Reported', flex: 0.8 },
     { field: 'date', headerName: 'Date & Time', flex: 1 },
     {
@@ -268,6 +294,8 @@ const Dashboard = () => {
         sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
         receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
         amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
+        principalAmount: `${transaction?.transactionOutward?.principalAmount} ${transaction?.transactionOutward?.principalCurrency}`,
+
         //  reported: transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
         date: helper.convertDateAndTime(transaction?.transactionOutward?.createdLocaldatetime),
         status: transaction?.transactionOutward?.reportingStatus,
@@ -298,6 +326,8 @@ const Dashboard = () => {
         sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
         receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
         amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
+        principalAmount: `${transaction?.transactionOutward?.principalAmount} ${transaction?.transactionOutward?.principalCurrency}`,
+
         //  reported: transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
         date: helper.convertDateAndTime(transaction?.transactionOutward?.createdLocaldatetime),
         status: transaction?.transactionOutward?.reportingStatus,
@@ -632,6 +662,8 @@ const Dashboard = () => {
                         sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
                         receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
                         amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
+                        principalAmount: `${transaction?.transactionOutward?.principalAmount} ${transaction?.transactionOutward?.principalCurrency}`,
+
                         reported:
                           transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
                         date: helper.convertDateAndTime(transaction?.transactionOutward?.createdLocalDateTime),

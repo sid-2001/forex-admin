@@ -766,9 +766,9 @@ export default function FAQHeadDialog({ open, editData, onClose, refreshList, sh
                             label={`Answer ${index + 1}`}
                             required
                             multiline
-                            rows={3}
+                            //   rows={3}
                             value={detail.faqAnswer}
-                            inputProps={{ maxLength: 255 }}
+                            inputProps={{ maxLength: 500 }}
                             onChange={(e) => handleFaqDetailChange(index, 'faqAnswer', e.target.value)}
                             error={!!faqDetailsErrors[index]?.faqAnswer}
                             helperText={faqDetailsErrors[index]?.faqAnswer}
