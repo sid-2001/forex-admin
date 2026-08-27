@@ -103,6 +103,7 @@ import Faq from './pages/faq'
 import { AuthService } from './services/auth.service'
 import Group from './pages/groups'
 import EmailReport from './pages/reportsEmail'
+import CountryCorridorExchangeRateMaster from './pages/countryCorridorExchangeRate'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -332,6 +333,7 @@ function App() {
               <Route path="faq" element={<Faq />} />
               <Route path="group" element={<Group />} />
               <Route path="email-report" element={<EmailReport />} />
+              <Route path="country-corridor-exchange-rate" element={<CountryCorridorExchangeRateMaster />} />
 
               <Route path="*" element={<Dashboard />} />
             </Route>

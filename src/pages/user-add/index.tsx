@@ -30,6 +30,66 @@ function sortAscending(arr, key) {
   })
 }
 
+const VALIDATION_RULES = {
+  staffFirstName: {
+    message: 'First Name is required',
+    required: true,
+  },
+  staffLastName: {
+    message: 'Last Name is required',
+    required: true,
+  },
+  phone: {
+    message: 'Phone is required',
+    required: true,
+  },
+  email: {
+    message: 'Email is required',
+    required: true,
+  },
+
+  password: {
+    message: 'Password is required',
+    required: true,
+    min: 8,
+  },
+  username: {
+    message: 'Username is required',
+    required: true,
+    min: 5,
+    max: 20,
+  },
+  staffAddressLine1: {
+    message: 'Address Line 1 is required',
+    required: true,
+  },
+  staffAddressLine2: {
+    message: 'Address Line 2 is required',
+    required: true,
+  },
+
+  staffSuburb: {
+    message: 'Suburb is required',
+    required: true,
+  },
+  staffCity: {
+    message: 'City required',
+    required: true,
+  },
+  staffCountry: {
+    message: 'Residence Country is required',
+    required: true,
+  },
+  staffPostalCode: {
+    message: 'Postal Code is required',
+    required: true,
+  },
+  staffBranch: {
+    message: 'Branch is required',
+    required: true,
+  },
+}
+
 const UserAdd = () => {
   const theme: any = useTheme() // ✅ Move this INSIDE the component
 
