@@ -320,26 +320,67 @@ export default function TransactionPage() {
     fetchReconTxns('')
   }
 
+  // const handleExportCSV = () => {
+  //   const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false)
+  //   const headers = visibleCols.map((col) => col.headerName).join(',')
+  //   //@ts-ignore
+  //   // const mappedRows = rows.map((row) => visibleCols.map((col) => row[col.field] ?? '').join(','))
+
+  //   const mappedRows = rows.map((row: any) =>
+  //     visibleCols.map((col) => {
+  //       if (col.field === 'mismatchFields') return (row.mismatchFields ?? []).join(', ')
+  //       if (col.field === 'status') return convertStrToTitleCase(row.status)
+  //       return row[col.field] || ''
+  //     }),
+  //   )
+
+  //   const csv = [headers, ...mappedRows].join('\n')
+  //   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  //   const link = document.createElement('a')
+  //   link.href = URL.createObjectURL(blob)
+  //   link.setAttribute('download', 'reconcilation.csv')
+  //   link.click()
+  // }
+
+  const escapeCSV = (value: any) => {
+    const str = String(value ?? '')
+    return `"${str.replace(/"/g, '""')}"`
+  }
+
   const handleExportCSV = () => {
     const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false)
-    const headers = visibleCols.map((col) => col.headerName).join(',')
-    //@ts-ignore
-    // const mappedRows = rows.map((row) => visibleCols.map((col) => row[col.field] ?? '').join(','))
+
+    const headers = visibleCols.map((col) => escapeCSV(col.headerName)).join(',')
 
     const mappedRows = rows.map((row: any) =>
-      visibleCols.map((col) => {
-        if (col.field === 'mismatchFields') return (row.mismatchFields ?? []).join(', ')
-        if (col.field === 'status') return convertStrToTitleCase(row.status)
-        return row[col.field] || ''
-      }),
+      visibleCols
+        .map((col) => {
+          if (col.field === 'mismatchFields') {
+            return escapeCSV((row.mismatchFields ?? []).join(', '))
+          }
+
+          if (col.field === 'status') {
+            return escapeCSV(convertStrToTitleCase(row.status))
+          }
+
+          return escapeCSV(row[col.field] ?? '')
+        })
+        .join(','),
     )
 
     const csv = [headers, ...mappedRows].join('\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+
+    const blob = new Blob([csv], {
+      type: 'text/csv;charset=utf-8;',
+    })
+
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
-    link.setAttribute('download', 'reconcilation.csv')
+    link.setAttribute('download', 'reconciliation.csv')
+    document.body.appendChild(link)
     link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(link.href)
   }
 
   const CustomToolbar = () => {
