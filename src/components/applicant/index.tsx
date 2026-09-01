@@ -167,6 +167,9 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
       headerName: 'Gender',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      valueGetter: (value) => {
+        return value === 'M' ? 'Male' : value === 'F' ? 'Female' : ''
+      },
       renderCell: (params: any) => (params.row.gender === 'M' ? 'Male' : 'Female'),
     },
     { field: 'dob', headerName: 'DOB', flex: 1, headerClassName: 'super-app-theme--header' },
