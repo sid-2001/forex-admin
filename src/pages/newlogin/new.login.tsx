@@ -7,6 +7,7 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { Logo, SecondLogo } from '@/assets/images'
 
 import { useRecoilState } from 'recoil'
+import Phone from '@/assets/images/phone.png'
 import {
   countyState,
   inactivityTiming,
@@ -323,15 +324,31 @@ const LoginPage = () => {
       </Grid>
 
       {/* RIGHT SECTION */}
+
       <Grid
         item
         xs={false}
         md={8}
         sx={{
-          display: { xs: 'none', md: 'block' },
+          display: { xs: 'none', md: 'flex' },
+          alignItems: 'center',
+          justifyContent: 'center',
           background: 'linear-gradient(to bottom, #004080, #0361B1)',
+          overflow: 'hidden',
         }}
-      />
+      >
+        <Box
+          component="img"
+          src={Phone}
+          alt="Login"
+          sx={{
+            width: '400px',
+            height: '600px',
+            objectFit: 'contain',
+            display: 'block',
+          }}
+        />
+      </Grid>
 
       <LoaderUI.LoaderBackdrop openloader={commonloader} />
 
