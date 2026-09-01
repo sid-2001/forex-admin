@@ -8,6 +8,7 @@ import { Logo, SecondLogo } from '@/assets/images'
 
 import { useRecoilState } from 'recoil'
 import Phone from '@/assets/images/phone.png'
+import Phone1 from '@/assets/images/phone1.png'
 import {
   countyState,
   inactivityTiming,
@@ -342,12 +343,36 @@ const LoginPage = () => {
           src={Phone}
           alt="Login"
           sx={{
+            width: '800px',
+            height: '700px',
+            objectFit: 'contain',
+            display: 'block',
+            marginTop: 17.5,
+          }}
+        />
+        <Box
+          component="img"
+          src={Phone1}
+          alt="Login"
+          sx={{
+            width: '800px',
+            height: '700px',
+            objectFit: 'contain',
+            display: 'block',
+            marginTop: 17,
+          }}
+        />
+        {/* <Box
+          component="img"
+          src={Phone1}
+          alt="Login"
+          sx={{
             width: '400px',
             height: '600px',
             objectFit: 'contain',
             display: 'block',
           }}
-        />
+        /> */}
       </Grid>
 
       <LoaderUI.LoaderBackdrop openloader={commonloader} />
