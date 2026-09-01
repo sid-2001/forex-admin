@@ -175,6 +175,12 @@ const BopTable: React.FC = () => {
       },
     },
     {
+      field: 'residence_country',
+      headerName: 'Country code',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
       field: 'id1',
       headerName: 'Action',
       flex: 1,

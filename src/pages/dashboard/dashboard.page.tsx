@@ -21,6 +21,7 @@ import { ApplicantService } from '@/services/applicant.service'
 import CompactLocationBar from '@/components/location'
 import ProductConfigService from '@/services/product.config.service'
 import HasPermission from '@/components/permissionWrapper'
+import { renderTransactionStatus } from '@/contants/utils'
 
 const Dashboard = () => {
   // const [applicatnData, setapplicantData] = useState<
@@ -262,6 +263,7 @@ const Dashboard = () => {
 
     { field: 'reported', headerName: 'Reported', flex: 0.8 },
     { field: 'date', headerName: 'Date & Time', flex: 1 },
+    { field: 'transactionStatus', headerName: 'Transaction Status', flex: 1 },
     {
       field: 'action',
       headerName: 'Action',
@@ -299,6 +301,7 @@ const Dashboard = () => {
         //  reported: transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
         date: helper.convertDateAndTime(transaction?.transactionOutward?.createdLocaldatetime),
         status: transaction?.transactionOutward?.reportingStatus,
+        transactionStatus: renderTransactionStatus(transaction?.transactionOutward?.transactionStatus),
       }
 
       return visibleCols.map((col) => rowData[col.field]).join(',')
@@ -331,6 +334,7 @@ const Dashboard = () => {
         //  reported: transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
         date: helper.convertDateAndTime(transaction?.transactionOutward?.createdLocaldatetime),
         status: transaction?.transactionOutward?.reportingStatus,
+        transactionStatus: renderTransactionStatus(transaction?.transactionOutward?.transactionStatus),
       }
 
       return visibleCols.map((col) => rowData[col.field])
@@ -500,7 +504,7 @@ const Dashboard = () => {
       subLabel: 'Verified',
       count: consumersData?.kycVerified ?? 0,
       label: 'Users',
-      hidden: userCountry === 'UAE',
+      // hidden: userCountry === 'UAE',
     },
     {
       background: 'linear-gradient(to bottom, #81C784,rgb(40, 124, 44))',
@@ -668,6 +672,7 @@ const Dashboard = () => {
                           transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
                         date: helper.convertDateAndTime(transaction?.transactionOutward?.createdLocalDateTime),
                         status: transaction?.transactionOutward?.reportingStatus,
+                        transactionStatus: renderTransactionStatus(transaction?.transactionOutward?.transactionStatus),
                       }))}
                       columns={filteredRecentTransColumns}
                       filterModel={filterModel}

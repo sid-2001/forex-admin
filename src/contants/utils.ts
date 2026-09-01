@@ -47,3 +47,11 @@ export const convertStrToTitleCase = (str: string) => {
         .join(' ')
     : ''
 }
+
+export const renderTransactionStatus = (transStatus: string) => {
+  if (transStatus === 'IN_PROGRESS') {
+    return 'IN PROGRESS'
+  } else {
+    return transStatus
+  }
+}
