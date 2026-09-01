@@ -344,10 +344,10 @@ const LoginPage = () => {
           alt="Login"
           sx={{
             width: '800px',
-            height: '700px',
+            height: '900px',
             objectFit: 'contain',
             display: 'block',
-            marginTop: 17.5,
+            marginTop: -7,
           }}
         />
         <Box
@@ -356,10 +356,11 @@ const LoginPage = () => {
           alt="Login"
           sx={{
             width: '800px',
-            height: '700px',
+            height: '900px',
             objectFit: 'contain',
             display: 'block',
-            marginTop: 17,
+            marginTop: -7,
+            marginLeft: -20,
           }}
         />
         {/* <Box
