@@ -49,6 +49,7 @@ const RoleModal = ({
     const local_service = new LocalStorageService()
     const [selectOpen, setSelectOpen] = useState(false)
     const [inactivitytime, setinactivitytime] = useState(0)
+    const [errors, setErrors] = useState<any>({})
 
     const getModuleList = () => {
       try {
@@ -160,7 +161,23 @@ const RoleModal = ({
       },
     ]
 
+    const validate = () => {
+      const newErrors: any = {}
+
+      // Required field validation
+      if (!roleName) {
+        newErrors.roleName = 'Role Name is required'
+      } else if (!inactivitytime) {
+        newErrors.inactivitytime = 'Inactivity Time is required'
+      }
+
+      setErrors(newErrors)
+      return Object.keys(newErrors).length === 0
+    }
+
     const handleSave = async () => {
+      if (!validate()) return
+
       var payload
 
       if (roleId) {
@@ -220,12 +237,21 @@ const RoleModal = ({
       <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
         <DialogTitle> {roleId ? 'Edit Role' : 'Add Role'} </DialogTitle>
         <DialogContent>
-          <TextField fullWidth margin="normal" label="Role Name" value={roleName} onChange={(e) => setRoleName(e.target.value)} />
-          {/* <TextField fullWidth  type="number" margin="normal" label="Timing" value={inactivitytime} onChange={(e) => setinactivitytime( e.target.value)} /> */}
+          <TextField
+            fullWidth
+            label="Role Name"
+            required
+            value={roleName}
+            error={!!errors.roleName}
+            helperText={errors.roleName}
+            onChange={(e) => setRoleName(e.target.value)}
+          />
           <TextField
             fullWidth
             type="number"
             margin="normal"
+            required
+            label="Inactivity time"
             inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
             value={inactivitytime}
             onChange={(e) =>
@@ -241,6 +267,7 @@ const RoleModal = ({
               value={selectedModules}
               onChange={handleModuleChange}
               input={<OutlinedInput label="Select Modules" />}
+              required
               renderValue={(selected) => (
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                   {selected.map((id) => {

@@ -152,16 +152,11 @@ const LoginPage = () => {
 
         localStorage.setItem('staffAccessCurrency', staffAccessCurrencyResp?.currencyCode)
 
-        // const menuResp = await master_service.getAllSideBarMenus(data.staffCountries[0], data?.roleId)
         setSidebarMenus(menuResp?.data)
 
-        //  const currency = await static_service.getCountryCurrency(data?.staffCountry)
         setUserCurrency(currency as any)
 
-        // const countries = await static_service.getCountryList()
         setCountry(countries)
-
-        //  await transaction_service.getAllValidationsList(data?.staffCountry)
 
         setUserAccessCountry(data?.staffCountries)
         setInactivityTiming(data?.inactivityTime)
