@@ -38,9 +38,8 @@ export default function ProductBusinessCountryMapping() {
   const fetchList = useCallback(async () => {
     try {
       const res: any = await service.getList()
-      console.log('Fetched Data Sample:', res[0])
       product_service.getProductsData().then((data) => {
-        setProductlist(data)
+        setProductlist(data || [])
       })
       setRows(Array.isArray(res) ? res : res?.data || [])
     } catch (err) {
@@ -221,7 +220,7 @@ export default function ProductBusinessCountryMapping() {
         </Stack>
 
         <DataGrid
-          rows={rows}
+          rows={rows || []}
           columns={columns}
           getRowId={(row) => row.businessMapCode || Math.random()}
           autoHeight

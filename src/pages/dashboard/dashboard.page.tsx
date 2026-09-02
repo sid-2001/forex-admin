@@ -23,6 +23,50 @@ import ProductConfigService from '@/services/product.config.service'
 import HasPermission from '@/components/permissionWrapper'
 import { renderTransactionStatus } from '@/contants/utils'
 
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Navigation, Pagination, Autoplay } from 'swiper/modules'
+
+import bannerImg1 from '@/assets/Impro_Card_1.jpg'
+import bannerImg2 from '@/assets/Impro_Card_2.png'
+
+import bannerImg3 from '@/assets/Impro_Card_3.jpg'
+
+import 'swiper/css'
+import 'swiper/css/navigation'
+import 'swiper/css/pagination'
+
+const Carousel = ({ items }: any) => {
+  return (
+    <Swiper
+      modules={[Navigation, Pagination, Autoplay]}
+      navigation={false}
+      pagination={{ clickable: true }}
+      autoplay={{ delay: 3000 }}
+      spaceBetween={16}
+      slidesPerView={1}
+      breakpoints={{
+        0: {
+          slidesPerView: 1,
+        },
+        600: {
+          slidesPerView: 2,
+        },
+        900: {
+          slidesPerView: 1,
+        },
+      }}
+    >
+      {items.map((item: any) => (
+        <SwiperSlide key={item.id}>
+          <Card>
+            <CardMedia component="img" height="200" image={item} alt={'image'} />
+          </Card>
+        </SwiperSlide>
+      ))}
+    </Swiper>
+  )
+}
+
 const Dashboard = () => {
   // const [applicatnData, setapplicantData] = useState<
   //   Array<{
@@ -626,6 +670,14 @@ const Dashboard = () => {
                     </Grid>
                   </CardContent>
                 </Card>
+
+                {userCountry === 'UAE' && (
+                  <Card>
+                    <CardContent>
+                      <Carousel items={[bannerImg1, bannerImg2, bannerImg3]} />
+                    </CardContent>
+                  </Card>
+                )}
               </Grid>
 
               <Grid item xs={12} md={7}>

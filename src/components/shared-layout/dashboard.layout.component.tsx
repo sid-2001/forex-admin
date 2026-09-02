@@ -668,7 +668,7 @@ const DashboardLayout = () => {
             {/* Left side - Logo + Dark/Light Mode (UNCHANGED) */}
 
             <Box sx={{ display: 'flex', alignItems: 'left', gap: 2 }}>
-              <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+              {/* <Tooltip title={mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
                 <IconButton
                   id="imp-change-appearence"
                   onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
@@ -681,7 +681,7 @@ const DashboardLayout = () => {
                 >
                   {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
                 </IconButton>
-              </Tooltip>
+              </Tooltip> */}
 
               <IconButton
                 onClick={() => {

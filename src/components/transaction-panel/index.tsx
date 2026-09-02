@@ -219,6 +219,10 @@ const TransactionPanel = () => {
 
   let static_service = new staticdataService()
   let local_service = new LocalStorageService()
+  const selectedCountryCurrency = localStorage.getItem('staffAccessCurrency')
+
+  console.log(selectedCountryCurrency, 'curre')
+
   const theme = useTheme()
 
   useEffect(() => {
@@ -270,6 +274,7 @@ const TransactionPanel = () => {
 
     transactions: selectedMonth ? item.transactionCount : item.totalCount,
 
+    // amount: `${item.totalAmount} (${selectedCountryCurrency})`,
     amount: item.totalAmount,
   }))
 
@@ -297,7 +302,7 @@ const TransactionPanel = () => {
         type: 'line',
         xKey: 'name',
         yKey: 'amount',
-        yName: 'Amount',
+        yName: `Amount (${selectedCountryCurrency})`,
       },
     ],
 
