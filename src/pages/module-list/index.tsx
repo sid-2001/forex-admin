@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton } from '@mui/x-data-grid'
-import { Box, Typography, Button, Modal, Grid, TextField, FormControl, MenuItem, Select } from '@mui/material'
+import { Box, Typography, FormControlLabel, Button, Modal, Grid, Checkbox, TextField } from '@mui/material'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
@@ -19,14 +19,27 @@ const user_service = new UserService()
 const helper = new HelperService()
 const local_service = new LocalStorageService()
 
+const VALIDATION_RULES = {
+  moduleDescription: {
+    message: 'Module Description is required',
+    required: true,
+  },
+  moduleName: {
+    message: 'Module Name is required',
+    required: true,
+  },
+  moduleLink: {
+    message: 'Module Link is required',
+    required: true,
+  },
+}
+
 const AddUpdateModuleDialog: React.FC<any> = ({ action = 'Add', handleClose, handleSubmit, isOpen, selectedModuleData = {} }) => {
   const [moduleData, setModuleData] = useState<any>({})
-  const inputLabelStyle = {
-    color: 'black',
-    textDecoration: 'bold',
-    fontWeight: 800,
-    fontStyle: 'bold',
-  }
+  const [errors, setErrors] = useState<any>({})
+  const [openmodal, setOpen] = useRecoilState(alertState)
+  const [text, setText] = useRecoilState(alertTextState)
+  const [type, settype] = useRecoilState(alertTypeState)
 
   useEffect(() => {
     if (selectedModuleData?.moduleId) {
@@ -34,8 +47,22 @@ const AddUpdateModuleDialog: React.FC<any> = ({ action = 'Add', handleClose, han
     }
   }, [selectedModuleData])
 
+  const validate = () => {
+    const newErrors: any = {}
+
+    Object.keys(VALIDATION_RULES).forEach((field) => {
+      const rule = VALIDATION_RULES[field as keyof typeof VALIDATION_RULES]
+      const value = moduleData[field as keyof typeof moduleData]
+
+      if (!value && rule.required) newErrors[field] = rule.message
+    })
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   const handleModuleSubmit = async () => {
     try {
+      if (!validate()) return
       let response
       if (selectedModuleData?.moduleId) {
         response = await user_service.updateModule(
@@ -46,6 +73,9 @@ const AddUpdateModuleDialog: React.FC<any> = ({ action = 'Add', handleClose, han
         response = await user_service.createModule({ ...moduleData, createdBy: local_service.get_staff_id() }, local_service.get_staff_id())
       }
       setModuleData({})
+      settype('success')
+      setText(response.message)
+      setOpen(true)
       handleSubmit({ ...response.data })
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error)
@@ -91,35 +121,49 @@ const AddUpdateModuleDialog: React.FC<any> = ({ action = 'Add', handleClose, han
         <Box mt={4}>
           <Grid container spacing={2} mb={2}>
             <Grid item xs={12} sm={12}>
-              <label style={inputLabelStyle}>Module Name</label>
-              <TextField value={moduleData?.moduleName || ''} onChange={handleChange} fullWidth name="moduleName" />
+              <TextField
+                value={moduleData?.moduleName || ''}
+                error={!!errors.moduleName}
+                helperText={errors.moduleName}
+                required
+                onChange={handleChange}
+                fullWidth
+                name="moduleName"
+                label="Module Name"
+              />
             </Grid>
             <Grid item xs={12} sm={12}>
-              <label style={inputLabelStyle}>Module Description</label>
-              <TextField value={moduleData?.moduleDescription || ''} onChange={handleChange} fullWidth name="moduleDescription" rows={5} />
+              <TextField
+                value={moduleData?.moduleDescription || ''}
+                error={!!errors.moduleDescription}
+                helperText={errors.moduleDescription}
+                required
+                onChange={handleChange}
+                fullWidth
+                name="moduleDescription"
+                label="Module Description"
+                rows={5}
+              />
             </Grid>
             <Grid item xs={12} sm={12}>
-              <label style={inputLabelStyle}>Module Link</label>
-              <TextField value={moduleData?.moduleLink || ''} onChange={handleChange} fullWidth name="moduleLink" />
+              <TextField
+                value={moduleData?.moduleLink || ''}
+                error={!!errors.moduleLink}
+                helperText={errors.moduleLink}
+                required
+                onChange={handleChange}
+                fullWidth
+                name="moduleLink"
+                label="Module Link"
+              />
             </Grid>
             <Grid item xs={12} sm={12}>
-              <FormControl fullWidth>
-                <label style={inputLabelStyle}>Module Status</label>
-                <Select
-                  variant="outlined"
-                  name="moduleStatus"
-                  value={moduleData.moduleStatus || ''}
-                  onChange={(e) => {
-                    setModuleData((prev: any) => ({
-                      ...prev,
-                      moduleStatus: e.target.value,
-                    }))
-                  }}
-                >
-                  <MenuItem value={'active'}>Active</MenuItem>
-                  <MenuItem value={'inactive'}>Inactive</MenuItem>
-                </Select>
-              </FormControl>
+              <FormControlLabel
+                control={
+                  <Checkbox checked={moduleData.moduleStatus} onChange={(e) => setModuleData({ ...moduleData, moduleStatus: e.target.checked })} />
+                }
+                label="Active Status"
+              />
             </Grid>
           </Grid>
         </Box>
@@ -148,10 +192,6 @@ const ModuleTable: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedModule, setSelectedModule] = useState<any>({})
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<Record<string, boolean>>({})
-
-  const [open, setOpen] = useRecoilState(alertState)
-  const [text, setText] = useRecoilState(alertTextState)
-  const [type, settype] = useRecoilState(alertTypeState)
 
   const MODULE_COLUMNS = [
     {
@@ -231,17 +271,9 @@ const ModuleTable: React.FC = () => {
       const filteredItems = moduleData.map((x: any) => (x.moduleId === data.moduleId ? data : x))
       setModuleData([...filteredItems])
     } else {
-      setModuleData([...moduleData, data])
+      setModuleData([data, ...moduleData])
     }
     setIsModalOpen(false)
-    settype('success')
-    setText(selectedModule?.moduleId ? 'Module updated successfully!' : 'Module created successfully!')
-    setOpen(true)
-
-    setTimeout(() => {
-      window.location.reload()
-    }, 1200)
-
     setSelectedModule({})
   }
   const theme = useTheme()
