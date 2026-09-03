@@ -672,11 +672,15 @@ const Dashboard = () => {
                 </Card>
 
                 {userCountry === 'UAE' && (
-                  <Card>
-                    <CardContent>
-                      <Carousel items={[bannerImg1, bannerImg2, bannerImg3]} />
-                    </CardContent>
-                  </Card>
+                  <Box>
+                    <img src={bannerImg1} alt="bannerImg" width={710} />
+                  </Box>
+                  // <Card>
+
+                  // {/* <CardContent>
+                  //   <Carousel items={[bannerImg1, bannerImg2, bannerImg3]} />
+                  // </CardContent> */}
+                  // </Card>
                 )}
               </Grid>
 

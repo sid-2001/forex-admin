@@ -9,7 +9,7 @@ import {
   GridFilterModel,
 } from '@mui/x-data-grid'
 import { useNavigate } from 'react-router-dom'
-import { Box, Button, Tooltip } from '@mui/material'
+import { Box, Button, Tooltip, Switch } from '@mui/material'
 import LoaderUI from '@/components/loader/loader'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
@@ -19,6 +19,7 @@ import DownloadIcon from '@mui/icons-material/Download'
 import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import { convertStrToTitleCase } from '@/contants/utils'
+import { KycService } from '@/services/kyc.service'
 
 interface Applicant {
   applicantId: string
@@ -43,12 +44,14 @@ interface Props {
   data: {
     applicant: Applicant
     applicantContactDetails: ContactDetails[]
+    betaStatus: string
   }[]
   loading: boolean
 }
 
 const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
   const local_service = new LocalStorageService()
+  const kyc_service = new KycService()
   const userCountry = local_service?.get_staff_country()
   const navigate = useNavigate()
 
@@ -58,6 +61,7 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     ...item.applicant,
     email: item?.applicantContactDetails?.find((contactItem: any) => contactItem.contactType === 'email')?.contactDetails,
     phone: item?.applicantContactDetails?.find((contactItem: any) => contactItem.contactType === 'phone')?.contactDetails,
+    betaStatus: item?.betaStatus,
   }))
 
   // 🧹 Filter model state
@@ -193,38 +197,6 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (params.row.activeStatus ? 'Active' : 'Inactive'),
     },
-
-    // {
-    //   field: 'residentialAddressCountry',
-    //   headerName: 'Residence Country',
-    //   flex: 1,
-    //   headerClassName: 'super-app-theme--header',
-    //   renderCell: (params: any) => {
-    //     return (
-    //       <Tooltip title={params?.value} placement="top">
-    //         <Box
-    //           component="span"
-    //           sx={{
-    //             cursor: 'pointer',
-    //             color: 'text.primary',
-    //             '&:hover': {
-    //               color: 'primary.main',
-    //             },
-    //           }}
-    //         >
-    //           {params?.value?.replace(/\s*\(.*?\)/, '')}
-    //         </Box>
-    //       </Tooltip>
-    //     )
-    //   },
-    // },
-
-    // str
-    // .toLowerCase()
-    // .split(" ")
-    // .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    // .join(" ");
-
     {
       field: 'kycStatus',
       headerName: 'KYC Status',
@@ -239,9 +211,35 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => convertStrToTitleCase(params.row.amlKycStatus),
     },
+    {
+      field: 'betaStatus',
+      headerName: 'Beta Status',
+      flex: 1,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params) => (
+        <Switch
+          checked={params.value}
+          onChange={(event) => {
+            const enabled = event.target.checked
+            // Call your API here
+            changeBetaStatus(params.row.id)
+          }}
+        />
+      ),
+      // renderCell: (params: any) => (params.row.betaStatus ? 'Active' : 'Inactive'),
+    },
   ]
 
   const filteredColumns = userCountry !== 'UAE' ? columns.filter((item) => item.field !== 'platformReferenceId') : columns
+
+  const changeBetaStatus = async (id: any) => {
+    const response = await kyc_service.updateBetaStatus(id)
+
+    setTimeout(() => {
+      window.location.reload()
+    }, 3000)
+    console.log(response)
+  }
 
   return (
     <Box

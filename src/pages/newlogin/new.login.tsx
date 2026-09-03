@@ -7,8 +7,8 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { Logo, SecondLogo } from '@/assets/images'
 
 import { useRecoilState } from 'recoil'
-import Phone from '@/assets/images/phone.png'
-import Phone1 from '@/assets/images/phone1.png'
+import Group1 from '@/assets/images/Group1.png'
+import Group2 from '@/assets/images/Group2.png'
 import {
   countyState,
   inactivityTiming,
@@ -335,7 +335,7 @@ const LoginPage = () => {
       >
         <Box
           component="img"
-          src={Phone}
+          src={Group1}
           alt="Login"
           sx={{
             width: '800px',
@@ -347,7 +347,7 @@ const LoginPage = () => {
         />
         <Box
           component="img"
-          src={Phone1}
+          src={Group2}
           alt="Login"
           sx={{
             width: '800px',
@@ -358,17 +358,6 @@ const LoginPage = () => {
             marginLeft: -20,
           }}
         />
-        {/* <Box
-          component="img"
-          src={Phone1}
-          alt="Login"
-          sx={{
-            width: '400px',
-            height: '600px',
-            objectFit: 'contain',
-            display: 'block',
-          }}
-        /> */}
       </Grid>
 
       <LoaderUI.LoaderBackdrop openloader={commonloader} />
