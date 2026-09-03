@@ -1,7 +1,8 @@
 .transaction-dashboard-page {
-  width: 113% !important;
+  width: 100% !important;
   margin-left: 10px !important;
   padding: 1rem !important;
+  height: calc(100vh - 64px) !important;
 }
 
 .css-bb9zc0 {
