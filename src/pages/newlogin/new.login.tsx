@@ -128,7 +128,7 @@ const LoginPage = () => {
         password,
       })
 
-      console.log(response, '-------------')
+      console.log(response, '-------------bhanu')
 
       if (response?.data) {
         console.log(response.data, '------data-------')
@@ -141,8 +141,6 @@ const LoginPage = () => {
         local_service.set_role(data?.roleDescription)
 
         const [currency, countries, txnValidations, menuResp, staffAccessCurrencyResp] = await Promise.all([
-          //@ts-ignore
-          // fetchAllModulesList(),
           static_service.getCountryCurrency(data?.staffCountry),
           static_service.getCountryList(),
           transaction_service.getAllValidationsList(data?.staffCountry),
@@ -171,9 +169,12 @@ const LoginPage = () => {
         setType('error')
         setOpen(true)
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
-      setText('Login failed')
+
+      const errorMessage = err?.response?.data?.message || err?.message || 'Login failed'
+      console.log(errorMessage, 'bhanu')
+      setText(errorMessage)
       setType('error')
       setOpen(true)
     } finally {

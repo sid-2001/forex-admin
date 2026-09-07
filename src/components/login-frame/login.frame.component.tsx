@@ -1,29 +1,28 @@
-import { FunctionComponent, useMemo, type CSSProperties } from "react";
-import { TextField } from "@mui/material";
-import "./login.frame.css";
+import { FunctionComponent, useMemo, type CSSProperties } from 'react'
+import { TextField } from '@mui/material'
+import './login.frame.css'
 // import "."
 
-import {Logo} from "../../assets/images";
-
+import { Logo } from '../../assets/images'
 
 export type FrameComponentType = {
-  className?: string;
-  headquarters?: string;
-  signInButton?: string;
-  qiqNewLogos1?: string;
+  className?: string
+  headquarters?: string
+  signInButton?: string
+  qiqNewLogos1?: string
 
   /** Style props */
-  frameDivMargin?: CSSProperties["margin"];
-  frameDivTextDecoration?: CSSProperties["textDecoration"];
-  frameDivMargin1?: CSSProperties["margin"];
-  frameDivTextDecoration1?: CSSProperties["textDecoration"];
-};
+  frameDivMargin?: CSSProperties['margin']
+  frameDivTextDecoration?: CSSProperties['textDecoration']
+  frameDivMargin1?: CSSProperties['margin']
+  frameDivTextDecoration1?: CSSProperties['textDecoration']
+}
 
 const FrameComponent: FunctionComponent<FrameComponentType> = ({
-  className = "",
+  className = '',
   headquarters,
   signInButton,
-//   qiqNewLogos1,
+  //   qiqNewLogos1,
   frameDivMargin,
   frameDivTextDecoration,
   frameDivMargin1,
@@ -33,16 +32,15 @@ const FrameComponent: FunctionComponent<FrameComponentType> = ({
     return {
       margin: frameDivMargin,
       textDecoration: frameDivTextDecoration,
-      
-    };
-  }, [frameDivMargin, frameDivTextDecoration]);
+    }
+  }, [frameDivMargin, frameDivTextDecoration])
 
   const signInStyle: CSSProperties = useMemo(() => {
     return {
       margin: frameDivMargin1,
       textDecoration: frameDivTextDecoration1,
-    };
-  }, [frameDivMargin1, frameDivTextDecoration1]);
+    }
+  }, [frameDivMargin1, frameDivTextDecoration1])
 
   return (
     <section className={`rectangle-parent ${className}`}>
@@ -66,14 +64,14 @@ const FrameComponent: FunctionComponent<FrameComponentType> = ({
               placeholder="Please enter your email"
               variant="outlined"
               sx={{
-                "& fieldset": { borderColor: "#66c1fc" },
-                "& .MuiInputBase-root": {
-                  height: "28px",
-                  backgroundColor: "#fff",
-                  borderRadius: "5px",
-                  fontSize: "10px",
+                '& fieldset': { borderColor: '#66c1fc' },
+                '& .MuiInputBase-root': {
+                  height: '28px',
+                  backgroundColor: '#fff',
+                  borderRadius: '5px',
+                  fontSize: '10px',
                 },
-                "& .MuiInputBase-input": { color: "#c1c1c1" },
+                '& .MuiInputBase-input': { color: '#c1c1c1' },
               }}
             />
           </div>
@@ -84,14 +82,14 @@ const FrameComponent: FunctionComponent<FrameComponentType> = ({
               placeholder="Please enter your password"
               variant="outlined"
               sx={{
-                "& fieldset": { borderColor: "#66c1fc" },
-                "& .MuiInputBase-root": {
-                  height: "28px",
-                  backgroundColor: "#fff",
-                  borderRadius: "5px",
-                  fontSize: "10px",
+                '& fieldset': { borderColor: '#66c1fc' },
+                '& .MuiInputBase-root': {
+                  height: '28px',
+                  backgroundColor: '#fff',
+                  borderRadius: '5px',
+                  fontSize: '10px',
                 },
-                "& .MuiInputBase-input": { color: "#c1c1c1" },
+                '& .MuiInputBase-input': { color: '#c1c1c1' },
               }}
             />
             <i className="forgot-password1">Forgot Password?</i>
@@ -115,17 +113,12 @@ const FrameComponent: FunctionComponent<FrameComponentType> = ({
           <div className="logo" />
         </div>
         <div className="qiq-newlogos-1-wrapper">
-          <img
-            className="qiq-newlogos-1-icon"
-            loading="lazy"
-            alt=""
-            src={Logo}
-          />
+          <img className="qiq-newlogos-1-icon" loading="lazy" alt="" src={Logo} />
         </div>
       </div>
     </section>
-  );
-};
+  )
+}
 
 // import st from ""
-export default FrameComponent;
+export default FrameComponent
