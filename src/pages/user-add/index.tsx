@@ -542,7 +542,9 @@ const UserAdd = () => {
         <Box>
           <Grid container spacing={2} mb={2}>
             <Grid item xs={12} sm={4}>
-              <label style={inputLabelStyle}>First Name</label>
+              <label style={inputLabelStyle}>
+                First Name<span style={{ color: 'red' }}>*</span>
+              </label>
               <TextField
                 name="staffFirstName"
                 fullWidth
@@ -556,7 +558,9 @@ const UserAdd = () => {
             </Grid>
 
             <Grid item xs={12} sm={4}>
-              <label style={inputLabelStyle}>Last Name</label>
+              <label style={inputLabelStyle}>
+                Last Name<span style={{ color: 'red' }}>*</span>
+              </label>
               <TextField
                 value={staffData?.staffLastName || ''}
                 name="staffLastName"
@@ -570,7 +574,9 @@ const UserAdd = () => {
             </Grid>
 
             <Grid item xs={12} sm={3}>
-              <label style={inputLabelStyle}>Phone</label>
+              <label style={inputLabelStyle}>
+                Phone<span style={{ color: 'red' }}>*</span>
+              </label>
               <TextField
                 value={staffData?.staffContactNumber || ''}
                 onChange={handleChange}
@@ -585,7 +591,9 @@ const UserAdd = () => {
             </Grid>
 
             <Grid item xs={12} sm={3}>
-              <label style={inputLabelStyle}>Email</label>
+              <label style={inputLabelStyle}>
+                Email<span style={{ color: 'red' }}>*</span>
+              </label>
               <TextField
                 value={staffData?.email || ''}
                 onChange={handleChange}
@@ -602,7 +610,7 @@ const UserAdd = () => {
 
             <Grid item xs={12} sm={3}>
               <label style={inputLabelStyle}>
-                <b>Password</b>
+                Password<span style={{ color: 'red' }}>*</span>
               </label>
               <TextField
                 fullWidth
@@ -618,7 +626,9 @@ const UserAdd = () => {
             </Grid>
 
             <Grid item xs={12} sm={3}>
-              <label style={inputLabelStyle}>Username</label>
+              <label style={inputLabelStyle}>
+                Username<span style={{ color: 'red' }}>*</span>
+              </label>
               <TextField
                 fullWidth
                 name="username"
@@ -637,7 +647,9 @@ const UserAdd = () => {
         <Box>
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={12} sm={6}>
-              <label style={inputLabelStyle}>Address Line 1</label>
+              <label style={inputLabelStyle}>
+                Address Line 1<span style={{ color: 'red' }}>*</span>
+              </label>
               <TextField
                 fullWidth
                 name="staffAddressLine1"
@@ -651,7 +663,9 @@ const UserAdd = () => {
             </Grid>
 
             <Grid item xs={12} sm={6}>
-              <label style={inputLabelStyle}>Address Line 2</label>
+              <label style={inputLabelStyle}>
+                Address Line 2<span style={{ color: 'red' }}>*</span>
+              </label>
               <TextField
                 fullWidth
                 name="staffAddressLine2"
@@ -665,7 +679,9 @@ const UserAdd = () => {
             </Grid>
 
             <Grid item xs={12} sm={2}>
-              <label style={inputLabelStyle}>Suburb</label>
+              <label style={inputLabelStyle}>
+                Suburb<span style={{ color: 'red' }}>*</span>
+              </label>
               <TextField
                 fullWidth
                 name="staffSuburb"
@@ -679,7 +695,9 @@ const UserAdd = () => {
             </Grid>
 
             <Grid item xs={12} sm={2}>
-              <label style={inputLabelStyle}>City</label>
+              <label style={inputLabelStyle}>
+                City<span style={{ color: 'red' }}>*</span>
+              </label>
               <TextField
                 fullWidth
                 name="staffCity"
@@ -692,7 +710,9 @@ const UserAdd = () => {
               />
             </Grid>
             <Grid item xs={12} sm={2}>
-              <label style={inputLabelStyle}>Residence Country</label>
+              <label style={inputLabelStyle}>
+                Residence Country<span style={{ color: 'red' }}>*</span>
+              </label>
               <TextField
                 select
                 fullWidth
@@ -714,7 +734,9 @@ const UserAdd = () => {
             </Grid>
 
             <Grid item xs={12} sm={2}>
-              <label style={inputLabelStyle}>Access Country</label>
+              <label style={inputLabelStyle}>
+                Access Country<span style={{ color: 'red' }}>*</span>
+              </label>
 
               <TextField
                 select
@@ -778,7 +800,9 @@ const UserAdd = () => {
               </TextField>
             </Grid>
             <Grid item xs={12} sm={2}>
-              <label style={inputLabelStyle}>Postal Code</label>
+              <label style={inputLabelStyle}>
+                Postal Code<span style={{ color: 'red' }}>*</span>
+              </label>
               <TextField
                 fullWidth
                 name="staffPostalCode"
@@ -799,7 +823,9 @@ const UserAdd = () => {
               />
             </Grid>
             <Grid item xs={12} sm={2}>
-              <label style={inputLabelStyle}>Branch</label>
+              <label style={inputLabelStyle}>
+                Branch<span style={{ color: 'red' }}>*</span>
+              </label>
               <TextField
                 select
                 fullWidth
