@@ -128,7 +128,7 @@ const LoginPage = () => {
         password,
       })
 
-      console.log(response, '-------------')
+      console.log(response, '-------------bhanu')
 
       if (response?.data) {
         console.log(response.data, '------data-------')
@@ -141,8 +141,6 @@ const LoginPage = () => {
         local_service.set_role(data?.roleDescription)
 
         const [currency, countries, txnValidations, menuResp, staffAccessCurrencyResp] = await Promise.all([
-          //@ts-ignore
-          // fetchAllModulesList(),
           static_service.getCountryCurrency(data?.staffCountry),
           static_service.getCountryList(),
           transaction_service.getAllValidationsList(data?.staffCountry),
@@ -152,17 +150,9 @@ const LoginPage = () => {
 
         localStorage.setItem('staffAccessCurrency', staffAccessCurrencyResp?.currencyCode)
 
-        // const menuResp = await master_service.getAllSideBarMenus(data.staffCountries[0], data?.roleId)
         setSidebarMenus(menuResp?.data)
-
-        //  const currency = await static_service.getCountryCurrency(data?.staffCountry)
         setUserCurrency(currency as any)
-
-        // const countries = await static_service.getCountryList()
         setCountry(countries)
-
-        //  await transaction_service.getAllValidationsList(data?.staffCountry)
-
         setUserAccessCountry(data?.staffCountries)
         setInactivityTiming(data?.inactivityTime)
 
@@ -176,9 +166,12 @@ const LoginPage = () => {
         setType('error')
         setOpen(true)
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
-      setText('Login failed')
+
+      const errorMessage = err?.response?.data?.message || err?.message || 'Login failed'
+      console.log(errorMessage, 'bhanu')
+      setText(errorMessage)
       setType('error')
       setOpen(true)
     } finally {
