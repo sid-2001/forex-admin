@@ -673,14 +673,8 @@ const Dashboard = () => {
 
                 {userCountry === 'UAE' && (
                   <Box>
-                    <img src={bannerImg1} alt="bannerImg" width={710} />
+                    <img src={bannerImg1} alt="bannerImg" style={{ objectFit: 'contain', width: '100%' }} />
                   </Box>
-                  // <Card>
-
-                  // {/* <CardContent>
-                  //   <Carousel items={[bannerImg1, bannerImg2, bannerImg3]} />
-                  // </CardContent> */}
-                  // </Card>
                 )}
               </Grid>
 

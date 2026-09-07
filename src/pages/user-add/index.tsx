@@ -30,66 +30,6 @@ function sortAscending(arr, key) {
   })
 }
 
-const VALIDATION_RULES = {
-  staffFirstName: {
-    message: 'First Name is required',
-    required: true,
-  },
-  staffLastName: {
-    message: 'Last Name is required',
-    required: true,
-  },
-  phone: {
-    message: 'Phone is required',
-    required: true,
-  },
-  email: {
-    message: 'Email is required',
-    required: true,
-  },
-
-  password: {
-    message: 'Password is required',
-    required: true,
-    min: 8,
-  },
-  username: {
-    message: 'Username is required',
-    required: true,
-    min: 5,
-    max: 20,
-  },
-  staffAddressLine1: {
-    message: 'Address Line 1 is required',
-    required: true,
-  },
-  staffAddressLine2: {
-    message: 'Address Line 2 is required',
-    required: true,
-  },
-
-  staffSuburb: {
-    message: 'Suburb is required',
-    required: true,
-  },
-  staffCity: {
-    message: 'City required',
-    required: true,
-  },
-  staffCountry: {
-    message: 'Residence Country is required',
-    required: true,
-  },
-  staffPostalCode: {
-    message: 'Postal Code is required',
-    required: true,
-  },
-  staffBranch: {
-    message: 'Branch is required',
-    required: true,
-  },
-}
-
 const UserAdd = () => {
   const theme: any = useTheme() // ✅ Move this INSIDE the component
 
@@ -111,13 +51,12 @@ const UserAdd = () => {
   const user_service = new UserService()
   const helper_service = new HelperService()
   const [emailError, setEmailError] = useState('')
-  const [passwordError, setPasswordError] = useState('')
   const [countryList, setCountryList] = useRecoilState(countyState)
   const [branchList, setBranchList] = useState([])
   const [loading, setLoading] = useState(true) // ✅ loader state
   const [isbuttondisabled, setIsbuttondisabled] = useState(true)
   const loggedInStaffUser = local_service?.get_staff_access()
-  const userCountry = local_service?.get_staff_country()
+  const [errors, setErrors] = useState<any>({})
 
   const { staffId } = useParams()
   const navigate = useNavigate()
@@ -127,6 +66,96 @@ const UserAdd = () => {
     GR: 5, // Example for Greece
     UAE: 5,
     ZAF: 4,
+  }
+
+  const VALIDATION_RULES = {
+    staffFirstName: {
+      required: true,
+      message: '',
+      pattern: /^[A-Za-z\s]+$/,
+      patternMessage: 'Only alphabets allowed',
+    },
+    staffLastName: {
+      required: true,
+      message: '',
+      pattern: /^[A-Za-z\s]+$/,
+      patternMessage: 'Only alphabets allowed',
+    },
+    staffContactNumber: {
+      message: 'Contact number must be between 10 to 15',
+      required: true,
+      pattern: /^\d{0,10}$/,
+      patternMessage: 'Only digits allowed',
+      max: 15,
+      min: 10,
+    },
+    email: {
+      required: true,
+      message: '',
+      pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      patternMessage: 'Invalid email format',
+    },
+
+    password: {
+      message: 'Password must be between 8 to 20 characters.',
+      required: true,
+      patternMessage: 'Min 8 chars, include upper, lower, number & special char',
+      pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/,
+      min: 8,
+      max: 20,
+    },
+    username: {
+      message: 'Username must be between 5 to 20 characters.',
+      required: true,
+      min: 5,
+      max: 20,
+      pattern: /^[a-zA-Z0-9]*$/,
+      patternMessage: 'Only alphabets and digits are allowed.',
+    },
+    staffAddressLine1: {
+      required: true,
+      message: '',
+      pattern: /^[a-zA-Z0-9\s,.\-]*$/,
+      patternMessage: 'Only alphabets, digits and some special characters are allowed',
+    },
+    staffAddressLine2: {
+      required: true,
+      message: '',
+      pattern: /^[a-zA-Z0-9\s,.\-]*$/,
+      patternMessage: 'Only alphabets, digits and some special characters are allowed',
+    },
+
+    staffSuburb: {
+      required: true,
+      message: '',
+      pattern: /^[A-Za-z\s]+$/,
+      patternMessage: 'Only alphabets allowed',
+    },
+    staffCity: {
+      message: '',
+      required: true,
+      pattern: /^[A-Za-z\s]+$/,
+      patternMessage: 'Only alphabets allowed',
+    },
+    staffCountry: {
+      message: '',
+      required: true,
+    },
+    staffPostalCode: {
+      message: '',
+      required: true,
+      pattern: /^\d/,
+      patternMessage: 'Only digits allowed',
+      // max: postalCodeMaxLengthMap[staffData?.staffCountry] || 0,
+    },
+    staffBranch: {
+      message: '',
+      required: true,
+    },
+    staffCountries: {
+      message: '',
+      required: true,
+    },
   }
 
   const handleToggleChangePermisson = (
@@ -317,21 +346,13 @@ const UserAdd = () => {
     }
   }
 
-  const handleRegexChange = (e: any, regex: any) => {
-    const value = e.target.value
-    if (regex.test(value)) {
-      return value
-    }
-    return null // Return null if the value doesn't match the regex
-  }
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: any; value: any }>) => {
     const { name, value } = e.target
     if (name === 'staffCountry') {
       fetchBranches(value)
     }
 
-    if (name == 'staffCountries') {
+    if (name === 'staffCountries') {
       setStaffData((prev: any) => ({
         ...prev,
         [name]: typeof value === 'string' ? value.split(',') : value,
@@ -341,17 +362,80 @@ const UserAdd = () => {
         ...prev,
         [name]: value,
       }))
+      setErrors({
+        ...errors,
+        [name]: '',
+      })
     }
 
     setIsbuttondisabled(false)
   }
 
+  const validate = () => {
+    const newErrors: any = {}
+
+    Object.keys(VALIDATION_RULES).forEach((field) => {
+      const rule = VALIDATION_RULES[field as keyof typeof VALIDATION_RULES]
+      const value = staffData[field as keyof typeof staffData]
+
+      console.log(rule, '------------')
+
+      if (value) {
+        // Max length validation
+        //@ts-ignore
+        if (rule.min && value.length < rule.min) {
+          newErrors[field] = rule.message
+        }
+        //@ts-ignore
+        if (rule.max && value.length > rule.max) {
+          newErrors[field] = rule.message
+        }
+
+        //@ts-ignore
+        if (
+          (field === 'email' ||
+            field === 'staffFirstName' ||
+            field === 'staffLastName' ||
+            field === 'staffContactNumber' ||
+            field === 'password' ||
+            field === 'username' ||
+            field === 'staffAddressLine1' ||
+            field === 'staffAddressLine2' ||
+            field === 'staffSuburb' ||
+            field === 'staffCity' ||
+            field === 'staffPostalCode') &&
+          //@ts-ignore
+          rule.pattern &&
+          //@ts-ignore
+          !rule.pattern.test(value)
+        ) {
+          //@ts-ignore
+          newErrors[field] = rule.patternMessage
+        }
+      } else if (
+        //@ts-ignore
+        rule.required
+      ) {
+        newErrors[field] = 'This field is required'
+      }
+    })
+    setErrors(newErrors)
+    console.log(newErrors, 'ERROS')
+    return Object.keys(newErrors).length === 0
+  }
+
   const handleAddUpdateUser = () => {
+    if (!validate()) return
     //@ts-ignore
     if (!staffData?.staffCountries.length) {
       setOpen(true)
       settype('error')
       setText('Atleast 1 staff access country must be required.')
+      return
+    } else if (!selectedRole) {
+      setOpen(true)
+      settype('error')
+      setText('Please select role.')
       return
     } else {
       if (staffId) {
@@ -463,11 +547,11 @@ const UserAdd = () => {
                 name="staffFirstName"
                 fullWidth
                 value={staffData?.staffFirstName || ''}
-                onChange={(e) => {
-                  const value = handleRegexChange(e, /^[a-zA-Z]*$/)
-                  if (value !== null) handleChange(e)
-                }}
                 InputProps={{ readOnly: isEditable }}
+                onChange={handleChange}
+                required
+                error={!!errors.staffFirstName}
+                helperText={errors.staffFirstName || ''}
               />
             </Grid>
 
@@ -475,13 +559,13 @@ const UserAdd = () => {
               <label style={inputLabelStyle}>Last Name</label>
               <TextField
                 value={staffData?.staffLastName || ''}
-                onChange={(e) => {
-                  const value = handleRegexChange(e, /^[a-zA-Z]*$/)
-                  if (value !== null) handleChange(e)
-                }}
                 name="staffLastName"
                 fullWidth
                 InputProps={{ readOnly: isEditable }}
+                onChange={handleChange}
+                required
+                error={!!errors.staffLastName}
+                helperText={errors.staffLastName || ''}
               />
             </Grid>
 
@@ -489,10 +573,10 @@ const UserAdd = () => {
               <label style={inputLabelStyle}>Phone</label>
               <TextField
                 value={staffData?.staffContactNumber || ''}
-                onChange={(e) => {
-                  const value = handleRegexChange(e, /^\d{0,10}$/) // Allow only numbers and limit to 10 digits
-                  if (value !== null) handleChange(e)
-                }}
+                onChange={handleChange}
+                required
+                error={!!errors.staffContactNumber}
+                helperText={errors.staffContactNumber || ''}
                 name="staffContactNumber"
                 fullWidth
                 InputProps={{ readOnly: isEditable }}
@@ -504,24 +588,15 @@ const UserAdd = () => {
               <label style={inputLabelStyle}>Email</label>
               <TextField
                 value={staffData?.email || ''}
-                onChange={(e) => {
-                  const value = e.target.value
-                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-                  // Validate and update
-                  if (!emailRegex.test(value)) {
-                    setEmailError('Invalid email format')
-                  } else {
-                    setEmailError('')
-                  }
-                  handleChange(e) // Call your existing handler
-                }}
+                onChange={handleChange}
+                required
+                error={!!errors.email}
+                helperText={errors.email || ''}
                 name="email"
                 type="email"
                 fullWidth
                 InputProps={{ readOnly: isEditable }}
-                error={!!emailError}
-                helperText={emailError}
+                autoComplete="new-password"
               />
             </Grid>
 
@@ -533,20 +608,12 @@ const UserAdd = () => {
                 fullWidth
                 type="password"
                 name="password"
+                onChange={handleChange}
                 value={staffData?.password || ''}
-                onChange={(e) => {
-                  const value = e.target.value
-                  const isValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(value)
-                  if (!isValid && value !== '') {
-                    setPasswordError('Min 8 chars, include upper, lower, number & special char')
-                  } else {
-                    setPasswordError('')
-                  }
-                  handleChange(e)
-                }}
                 disabled={!!staffId} // shorthand for: staffId ? true : false
-                error={!!passwordError}
-                helperText={passwordError}
+                error={!!errors.password}
+                helperText={errors.password || ''}
+                autoComplete="new-password"
               />
             </Grid>
 
@@ -556,11 +623,12 @@ const UserAdd = () => {
                 fullWidth
                 name="username"
                 value={staffData?.username || ''}
-                onChange={(e) => {
-                  const value = handleRegexChange(e, /^[a-zA-Z0-9]*$/) // ALLOW ONLY UPPER AND LOWER CASE LETTERS
-                  if (value !== null) handleChange(e)
-                }}
+                onChange={handleChange}
+                required
+                error={!!errors.username}
+                helperText={errors.username || ''}
                 InputProps={{ readOnly: isEditable }}
+                autoComplete="new-password"
               />
             </Grid>
           </Grid>
@@ -574,11 +642,11 @@ const UserAdd = () => {
                 fullWidth
                 name="staffAddressLine1"
                 value={staffData?.staffAddressLine1 || ''}
-                onChange={(e) => {
-                  const value = handleRegexChange(e, /^[a-zA-Z0-9\s,.\-]*$/)
-                  if (value !== null) handleChange(e)
-                }}
+                onChange={handleChange}
                 InputProps={{ readOnly: isEditable }}
+                required
+                error={!!errors.staffAddressLine1}
+                helperText={errors.staffAddressLine1 || ''}
               />
             </Grid>
 
@@ -588,11 +656,11 @@ const UserAdd = () => {
                 fullWidth
                 name="staffAddressLine2"
                 value={staffData?.staffAddressLine2 || ''}
-                onChange={(e) => {
-                  const value = handleRegexChange(e, /^[a-zA-Z0-9\s,.\-]*$/)
-                  if (value !== null) handleChange(e)
-                }}
+                onChange={handleChange}
                 InputProps={{ readOnly: isEditable }}
+                required
+                error={!!errors.staffAddressLine2}
+                helperText={errors.staffAddressLine2 || ''}
               />
             </Grid>
 
@@ -604,6 +672,9 @@ const UserAdd = () => {
                 value={staffData?.staffSuburb || ''}
                 onChange={handleChange}
                 InputProps={{ readOnly: isEditable }}
+                required
+                error={!!errors.staffSuburb}
+                helperText={errors.staffSuburb || ''}
               />
             </Grid>
 
@@ -615,6 +686,9 @@ const UserAdd = () => {
                 value={staffData?.staffCity || ''}
                 onChange={handleChange}
                 InputProps={{ readOnly: isEditable }}
+                required
+                error={!!errors.staffCity}
+                helperText={errors.staffCity || ''}
               />
             </Grid>
             <Grid item xs={12} sm={2}>
@@ -627,6 +701,8 @@ const UserAdd = () => {
                 onChange={handleChange}
                 InputProps={{ readOnly: isEditable }}
                 SelectProps={{ native: true }}
+                error={!!errors.staffCountry}
+                helperText={errors.staffCountry || ''}
               >
                 <option value="">-- Select Country --</option>
                 {countryList.map((country: any) => (
@@ -648,9 +724,11 @@ const UserAdd = () => {
                 value={staffData?.staffCountries || []}
                 onChange={handleChange}
                 InputProps={{ readOnly: isEditable }}
+                error={!!errors.staffCountries}
+                helperText={errors.staffCountries || ''}
+                required
                 SelectProps={{
                   multiple: true,
-
                   renderValue: (selected: any) => (
                     <Box
                       sx={{
@@ -705,15 +783,19 @@ const UserAdd = () => {
                 fullWidth
                 name="staffPostalCode"
                 value={staffData?.staffPostalCode || ''}
-                onChange={(e) => {
-                  const value = e.target.value
-                  const country = staffData?.staffCountry
-                  const maxLength = postalCodeMaxLengthMap[country] || 0
-                  if (value.length <= maxLength) {
-                    handleChange(e)
-                  }
-                }}
+                // onChange={(e) => {
+                //   const value = e.target.value
+                //   const country = staffData?.staffCountry
+                //   const maxLength = postalCodeMaxLengthMap[country] || 0
+                //   if (value.length <= maxLength) {
+                //     handleChange(e)
+                //   }
+                // }}
+                onChange={handleChange}
                 InputProps={{ readOnly: isEditable }}
+                required
+                error={!!errors.staffPostalCode}
+                helperText={errors.staffPostalCode || ''}
               />
             </Grid>
             <Grid item xs={12} sm={2}>
@@ -727,6 +809,8 @@ const UserAdd = () => {
                 onChange={handleChange}
                 InputProps={{ readOnly: isEditable }}
                 SelectProps={{ native: true }}
+                error={!!errors.staffBranch}
+                helperText={errors.staffBranch || ''}
               >
                 <option value="">-- Select Branch --</option>
                 {branchList.map((branch: any) => (

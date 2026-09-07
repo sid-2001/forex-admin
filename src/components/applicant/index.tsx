@@ -226,7 +226,6 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
           }}
         />
       ),
-      // renderCell: (params: any) => (params.row.betaStatus ? 'Active' : 'Inactive'),
     },
   ]
 
