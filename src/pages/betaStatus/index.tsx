@@ -243,7 +243,7 @@ const BetaStatus = () => {
 
   return (
     <Box sx={{ width: '90vw', height: '70vh' }}>
-      <HasPermission permission={'canRead'} module={local_service.get_modules()?.CUSTOMER}>
+      <HasPermission permission={'canRead'} module={local_service.get_modules()?.BETA_STATUS}>
         <Typography variant="h4" gutterBottom>
           <strong>Allow Customers To Become Beta Tester</strong>
         </Typography>

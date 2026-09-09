@@ -44,7 +44,6 @@ interface Props {
   data: {
     applicant: Applicant
     applicantContactDetails: ContactDetails[]
-    betaStatus: string
   }[]
   loading: boolean
 }
@@ -61,7 +60,6 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     ...item.applicant,
     email: item?.applicantContactDetails?.find((contactItem: any) => contactItem.contactType === 'email')?.contactDetails,
     phone: item?.applicantContactDetails?.find((contactItem: any) => contactItem.contactType === 'phone')?.contactDetails,
-    betaStatus: item?.betaStatus,
   }))
 
   // 🧹 Filter model state
@@ -210,22 +208,6 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
       flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => convertStrToTitleCase(params.row.amlKycStatus),
-    },
-    {
-      field: 'betaStatus',
-      headerName: 'Beta Status',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params) => (
-        <Switch
-          checked={params.value}
-          onChange={(event) => {
-            const enabled = event.target.checked
-            // Call your API here
-            changeBetaStatus(params.row.id)
-          }}
-        />
-      ),
     },
   ]
 

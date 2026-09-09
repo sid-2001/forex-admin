@@ -24,7 +24,7 @@ import staticdataService from '@/services/staticdata.service'
 import LoaderUI from '@/components/loader/loader'
 import { TransactionService } from '@/services/transaction.service'
 import { FieldValidationService } from '@/services/fieldvalidstion.service'
-import { CountryLabelData, LoginPageLabel } from '@/types/field.validation.type'
+import { LoginPageLabel } from '@/types/field.validation.type'
 import MasterService from '@/services/master.service'
 import ForexCurrencyService from '@/services/forex-currency.service'
 
