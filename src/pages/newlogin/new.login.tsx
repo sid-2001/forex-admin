@@ -67,10 +67,10 @@ const LoginPage = () => {
     const phoneRegex = /^[6-9]\d{9}$/
 
     // username:
-    // - 3 to 20 chars
+    // - 5 to 20 chars
     // - letters, numbers, _ .
     // - must contain at least one letter
-    const usernameRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9_.]{3,20}$/
+    const usernameRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9_.]{5,20}$/
 
     if (emailRegex.test(trimmed)) {
       return 'email'
@@ -94,7 +94,7 @@ const LoginPage = () => {
 
     if (detectedType === 'invalid') {
       //@ts-ignore
-      setError(validataion?.username_validataion_msg ? validataion?.username_validataion_msg : 'No Message From Backend')
+      setError(validataion?.username_validataion_msg ? validataion?.username_validataion_msg : '')
     } else {
       setError('')
       setLoginType(detectedType)
@@ -193,19 +193,19 @@ const LoginPage = () => {
       let username_data = data?.data?.countryReportingLabelDTO?.filter((e) => e.countryLabelFieldNameAndValidation?.fieldName == 'username')
       let password_data = data?.data?.countryReportingLabelDTO?.filter((e) => e.countryLabelFieldNameAndValidation?.fieldName == 'password')
       let validation_data: LoginPageLabel = {
-        usename: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.label : 'username',
+        username: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.label : 'username',
         password: password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation?.label : 'password',
         username_validataion_msg:
           username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation.validationMessageMandatory : 'Please enter a valid Username',
         Password_validataion_msg:
           password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation.validationMessageMandatory : 'Please enter a valid Password',
 
-        username_minimum_legth: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.minLength : 1,
+        username_minimum_legth: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.minLength : 5,
 
-        username_max_length: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.maxLength : 40,
+        username_max_length: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.maxLength : 20,
         username_regx: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.validationRegex : '^.*$',
-        Password_minimum_legth: password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation?.minLength : 1,
-        Password_max_length: password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation?.maxLength : 40,
+        Password_minimum_legth: password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation?.minLength : 8,
+        Password_max_length: password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation?.maxLength : 20,
         Password_regx: password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation?.validationRegex : '^.*$',
       }
       setValidation(validation_data)
@@ -262,7 +262,7 @@ const LoginPage = () => {
           >
             <TextField
               //@ts-ignore
-              placeholder={validataion?.usename || 'Username/Email/Phone'}
+              placeholder={validataion?.username || 'Username/Email/Phone'}
               fullWidth
               margin="normal"
               value={email}
@@ -286,7 +286,7 @@ const LoginPage = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               //@ts-ignore
-              error={!!password && password.length < (validataion?.Password_minimum_legth || 1)} // Add validation
+              error={!!password && password.length < (validataion?.Password_minimum_legth || 8)} // Add validation
               // helperText={password ? validataion?.Password_validataion_msg : ''}
               // helperText={   validataion?.Password_validataion_msg}
               inputProps={{

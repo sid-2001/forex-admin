@@ -94,6 +94,7 @@ const UserTable: React.FC = () => {
       headerName: 'Name',
       flex: 1,
       headerClassName: 'super-app-theme--header',
+      //@ts-ignore
       valueGetter: (value: any, row) => `${row.staffFirstName || ''} ${row.staffLastName || ''}`.trim(),
       renderCell: (params) => <span>{params.value}</span>,
     },
