@@ -102,7 +102,39 @@ const TransactionListing = () => {
       sortable: false,
       headerClassName: 'super-app-theme--header',
     },
+    {
+      field: 'platformTransactionReferenceId',
+      headerName: 'Lulu Transaction Id',
+      width: 200,
+      sortable: false,
+      headerClassName: 'super-app-theme--header',
+    },
 
+    {
+      field: 'applicant',
+      headerName: 'Customer Id',
+      width: 200,
+      minWidth: 200,
+      maxWidth: 200,
+      sortable: false,
+      resizable: false,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        const nameOrId = params.value?.name || params.value?.applicantId || 'N/A'
+        return (
+          <span
+            onClick={() => handleNavigation(`/customer-details/${params.value?.applicantId}`)}
+            style={{
+              cursor: 'pointer',
+              color: theme.palette.text.primary,
+              textDecoration: 'underline',
+            }}
+          >
+            {nameOrId}
+          </span>
+        )
+      },
+    },
     {
       field: 'destination',
       headerName: 'Destination',
@@ -128,34 +160,15 @@ const TransactionListing = () => {
       },
     },
     {
-      field: 'value',
+      field: 'principalAmount',
       headerName: 'Principal Amount',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => params?.value?.toFixed(2),
-    },
-    {
-      field: 'principalCurrency',
-      headerName: 'Principal Currency',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return (
-          <Tooltip title={params?.value} placement="top">
-            <Box
-              component="span"
-              sx={{
-                cursor: 'pointer',
-                color: 'text.primary',
-                '&:hover': {
-                  color: 'primary.main',
-                },
-              }}
-            >
-              {params?.value?.replace(/\s*\(.*?\)/, '')}
-            </Box>
-          </Tooltip>
-        )
+      valueGetter: (_value: any, row: any) => {
+        const amount = Number(row?.value)
+        const currency = row?.principalCurrency?.replace(/\s*\(.*?\)/, '')
+
+        return `${!isNaN(amount) ? amount.toFixed(2) : '0.00'} ${currency || ''}`
       },
     },
     {
@@ -163,61 +176,11 @@ const TransactionListing = () => {
       headerName: 'Settlement Amount',
       flex: 1,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        if (!isNaN(params?.value)) {
-          return params?.value?.toFixed(2)
-        } else {
-          return 0
-        }
-      },
-    },
-    {
-      field: 'settlementCurrency',
-      headerName: 'Settlement Currency',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return (
-          <Tooltip title={params?.value} placement="top">
-            <Box
-              component="span"
-              sx={{
-                cursor: 'pointer',
-                color: 'text.primary',
-                '&:hover': {
-                  color: 'primary.main',
-                },
-              }}
-            >
-              {params?.value?.replace(/\s*\(.*?\)/, '')}
-            </Box>
-          </Tooltip>
-        )
-      },
-    },
-    {
-      field: 'applicant',
-      headerName: 'Customer Id',
-      width: 200,
-      minWidth: 200,
-      maxWidth: 200,
-      sortable: false,
-      resizable: false,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        const nameOrId = params.value?.name || params.value?.applicantId || 'N/A'
-        return (
-          <span
-            onClick={() => handleNavigation(`/customer-details/${params.value?.applicantId}`)}
-            style={{
-              cursor: 'pointer',
-              color: theme.palette.text.primary,
-              textDecoration: 'underline',
-            }}
-          >
-            {nameOrId}
-          </span>
-        )
+      valueGetter: (_value: any, row: any) => {
+        const amount = Number(row?.settlementAmount)
+        const currency = row?.settlementCurrency?.replace(/\s*\(.*?\)/, '')
+
+        return `${!isNaN(amount) ? amount.toFixed(2) : '0.00'} ${currency || ''}`
       },
     },
 
@@ -289,15 +252,15 @@ const TransactionListing = () => {
         )
       },
     },
-    {
-      field: 'paymentStatus',
-      headerName: 'Transaction Sub Status',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return <span>{params?.row?.paymentStatus ? params.row.paymentStatus.replace(/_/g, ' ') : ''}</span>
-      },
-    },
+    // {
+    //   field: 'paymentStatus',
+    //   headerName: 'Transaction Sub Status',
+    //   flex: 1,
+    //   headerClassName: 'super-app-theme--header',
+    //   renderCell: (params: any) => {
+    //     return <span>{params?.row?.paymentStatus ? params.row.paymentStatus.replace(/_/g, ' ') : ''}</span>
+    //   },
+    // },
 
     {
       field: 'stpError',
@@ -855,7 +818,9 @@ const TransactionListing = () => {
   }
 
   const filteredOutwardColumns =
-    userCountry === 'UAE' ? columns_outward.filter((col) => col.field !== 'gateway_status' && col.field !== 'stpError') : columns_outward
+    userCountry === 'UAE'
+      ? columns_outward.filter((col) => col.field !== 'gateway_status' && col.field !== 'stpError' && col.field !== 'transactionInwardNumber')
+      : columns_outward
 
   const filteredInwardColumns =
     userCountry === 'UAE'
