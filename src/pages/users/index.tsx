@@ -74,7 +74,7 @@ const UserTable: React.FC = () => {
     {
       field: 'staffId',
       headerName: 'Staff ID',
-      flex: 1,
+      width: 250,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return (
@@ -92,19 +92,19 @@ const UserTable: React.FC = () => {
     {
       field: 'id1',
       headerName: 'Name',
-      flex: 1,
       headerClassName: 'super-app-theme--header',
+      width: 250,
       //@ts-ignore
       valueGetter: (value: any, row) => `${row.staffFirstName || ''} ${row.staffLastName || ''}`.trim(),
       renderCell: (params) => <span>{params.value}</span>,
     },
-    { field: 'roleDescription', headerName: 'Role', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'staffBranch', headerName: 'Staff Branch', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'staffContactNumber', headerName: 'Contact', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'roleDescription', width: 200, headerName: 'Role', headerClassName: 'super-app-theme--header' },
+    { field: 'staffBranch', headerName: 'Staff Branch', width: 100, headerClassName: 'super-app-theme--header' },
+    { field: 'staffContactNumber', headerName: 'Contact', width: 150, headerClassName: 'super-app-theme--header' },
     {
       field: 'staffCountry',
       headerName: 'Country',
-      flex: 1,
+      width: 100,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return (
@@ -125,12 +125,12 @@ const UserTable: React.FC = () => {
         )
       },
     },
-    { field: 'username', headerName: 'Username', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'email', headerName: 'Email', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'username', headerName: 'Username', width: 150, headerClassName: 'super-app-theme--header' },
+    { field: 'email', headerName: 'Email', width: 250, headerClassName: 'super-app-theme--header' },
     {
       field: 'createdLocalDateTime',
       headerName: 'Date',
-      flex: 1,
+      width: 200,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => helper_service.convertDateAndTime(params?.row?.createdLocalDateTime),
     },

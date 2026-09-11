@@ -151,7 +151,7 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     {
       field: 'applicantId',
       headerName: 'Customer ID',
-      flex: 1,
+      width: 200,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: GridRenderCellParams) => (
         <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate(`/customer-details/${params.value}`)}>
@@ -159,55 +159,89 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
         </span>
       ),
     },
-    { field: 'platformReferenceId', headerName: 'Lulu Customer ID', flex: 1, headerClassName: 'super-app-theme--header' },
+    {
+      field: 'platformReferenceId',
+      headerName: 'Lulu Customer ID',
 
-    { field: 'firstName', headerName: 'First Name', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'lastName', headerName: 'Last Name', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'username', headerName: 'Username', flex: 1, headerClassName: 'super-app-theme--header' },
+      headerClassName: 'super-app-theme--header',
+      width: 200,
+    },
+
+    {
+      field: 'firstName',
+      headerName: 'First Name',
+
+      headerClassName: 'super-app-theme--header',
+      width: 150,
+    },
+    {
+      field: 'lastName',
+      headerName: 'Last Name',
+
+      headerClassName: 'super-app-theme--header',
+      width: 150,
+    },
+    {
+      field: 'username',
+      headerName: 'Username',
+
+      headerClassName: 'super-app-theme--header',
+      width: 120,
+    },
     {
       field: 'gender',
       headerName: 'Gender',
-      flex: 1,
+
       headerClassName: 'super-app-theme--header',
       valueGetter: (_value, row) => {
         if (row.gender === 'M') return 'Male'
         if (row.gender === 'F') return 'Female'
         return ''
       },
+      width: 100,
     },
-    { field: 'dob', headerName: 'DOB', flex: 1, headerClassName: 'super-app-theme--header' },
+    {
+      field: 'dob',
+      headerName: 'DOB',
+
+      headerClassName: 'super-app-theme--header',
+      width: 100,
+    },
     {
       field: 'email',
       headerName: 'Email',
-      flex: 1,
+
       headerClassName: 'super-app-theme--header',
+      width: 250,
     },
     {
       field: 'phone',
       headerName: 'Phone No',
-      flex: 1,
+
       headerClassName: 'super-app-theme--header',
+      width: 150,
     },
     {
       field: 'active',
       headerName: 'Active/Inactive',
-      flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (params.row.activeStatus ? 'Active' : 'Inactive'),
+      width: 100,
     },
     {
       field: 'kycStatus',
       headerName: 'KYC Status',
-      flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => convertStrToTitleCase(params.row.kycStatus),
+      width: 100,
     },
     {
       field: 'amlKycStatus',
       headerName: 'AML Status',
-      flex: 1,
+      // flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => convertStrToTitleCase(params.row.amlKycStatus),
+      width: 100,
     },
   ]
 

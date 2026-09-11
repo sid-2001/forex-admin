@@ -278,7 +278,7 @@ const TransactionDetailScreen = () => {
             </Typography>
             <Grid container spacing={2} mb={2}>
               <Grid item xs={12} md={6}>
-                <TextField label="Account Number" fullWidth defaultValue={transactionDetails?.accountNumber} size="small" disabled />
+                <TextField label="Account Number / IBAN" fullWidth defaultValue={transactionDetails?.accountNumber} size="small" disabled />
               </Grid>
               {userCountry !== 'UAE' && (
                 <Grid item xs={12} md={6}>
