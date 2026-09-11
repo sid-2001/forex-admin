@@ -78,8 +78,7 @@ const TransactionListing = () => {
     {
       field: 'id',
       headerName: 'Transaction ID',
-      width: 200,
-      sortable: false,
+      width: 250,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <span
@@ -98,15 +97,13 @@ const TransactionListing = () => {
     {
       field: 'transactionInwardNumber',
       headerName: 'Inward ID',
-      width: 200,
-      sortable: false,
+      width: 250,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'platformTransactionReferenceId',
       headerName: 'Lulu Transaction Id',
       width: 200,
-      sortable: false,
       headerClassName: 'super-app-theme--header',
     },
 
@@ -114,10 +111,7 @@ const TransactionListing = () => {
       field: 'applicant',
       headerName: 'Customer Id',
       width: 200,
-      minWidth: 200,
-      maxWidth: 200,
-      sortable: false,
-      resizable: false,
+
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         const nameOrId = params.value?.name || params.value?.applicantId || 'N/A'
@@ -138,7 +132,7 @@ const TransactionListing = () => {
     {
       field: 'destination',
       headerName: 'Destination',
-      flex: 1,
+      width: 100,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return (
@@ -162,7 +156,7 @@ const TransactionListing = () => {
     {
       field: 'principalAmount',
       headerName: 'Principal Amount',
-      flex: 1,
+      width: 200,
       headerClassName: 'super-app-theme--header',
       valueGetter: (_value: any, row: any) => {
         const amount = Number(row?.value)
@@ -174,7 +168,7 @@ const TransactionListing = () => {
     {
       field: 'settlementAmount',
       headerName: 'Settlement Amount',
-      flex: 1,
+      width: 200,
       headerClassName: 'super-app-theme--header',
       valueGetter: (_value: any, row: any) => {
         const amount = Number(row?.settlementAmount)
@@ -187,13 +181,13 @@ const TransactionListing = () => {
     {
       field: 'forex',
       headerName: 'Exchange Rate',
-      flex: 1,
+      width: 100,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'charges',
       headerName: 'Charges (Inc Vat)',
-      flex: 1,
+      width: 100,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => params.row.charges + params.row.vatCharges,
     },
@@ -206,14 +200,14 @@ const TransactionListing = () => {
     {
       field: 'date',
       headerName: 'Date',
-      flex: 1,
+      width: 200,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => helper.convertDateAndTime(params?.row?.date),
     },
     {
       field: 'gateway_status',
       headerName: 'Gateway Status',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         const value = params?.row?.gateway_status?.toUpperCase()
@@ -234,7 +228,7 @@ const TransactionListing = () => {
     {
       field: 'status',
       headerName: 'Transaction Status',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         const value = renderTransactionStatus(params?.row?.status?.toUpperCase())
@@ -265,7 +259,7 @@ const TransactionListing = () => {
     {
       field: 'stpError',
       headerName: 'STP',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <Chip
@@ -283,7 +277,7 @@ const TransactionListing = () => {
     {
       field: 'bopAction',
       headerName: columnHeaderMap[userCountry] || columnHeaderMap.DEFAULT,
-      flex: 1,
+      width: 100,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <IconButton
@@ -375,12 +369,12 @@ const TransactionListing = () => {
   }
 
   const inward_columns = [
-    { field: 'transactionNumberIw', headerName: 'Transaction Number IW', width: 200, headerClassName: 'super-app-theme--header' },
-    { field: 'owTransactionNumber', headerName: 'OW Transaction Number', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'transactionNumberIw', headerName: 'Transaction Number IW', width: 250, headerClassName: 'super-app-theme--header' },
+    { field: 'owTransactionNumber', headerName: 'OW Transaction Number', width: 250, headerClassName: 'super-app-theme--header' },
     {
       field: 'sendingCountry',
       headerName: 'Sending Country',
-      width: 130,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return (
@@ -404,7 +398,7 @@ const TransactionListing = () => {
     {
       field: 'receivingCountry',
       headerName: 'Receiving Country',
-      width: 130,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return (
@@ -464,7 +458,7 @@ const TransactionListing = () => {
     {
       field: 'createdLocaldatetime',
       headerName: 'Created Date',
-      flex: 1,
+      width: 200,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         console.log(params)
@@ -480,7 +474,7 @@ const TransactionListing = () => {
     {
       field: 'charges',
       headerName: 'Charges (Inc Vat)',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => params.row.charges + params.row.vatCharges,
     },
@@ -488,7 +482,7 @@ const TransactionListing = () => {
     {
       field: 'transactionStatus',
       headerName: 'Status',
-      flex: 1,
+      width: 200,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         const value = renderTransactionStatus(params?.row?.transactionStatus?.toUpperCase())
@@ -509,7 +503,7 @@ const TransactionListing = () => {
     {
       field: 'stpError',
       headerName: 'STP',
-      flex: 1,
+      width: 200,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <Chip
@@ -527,7 +521,7 @@ const TransactionListing = () => {
     {
       field: 'action',
       headerName: 'Action',
-      flex: 1,
+      width: 100,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <IconButton

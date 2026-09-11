@@ -196,7 +196,7 @@ export default function ForexCurrencyMaster() {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Box p={2} sx={{ width: '90vw' }}>
+      <Box p={2} sx={{ width: '90vw', height: '70vh' }}>
         <Stack direction="row" justifyContent="space-between" mb={2}>
           <Typography
             variant="h4"
@@ -232,10 +232,10 @@ export default function ForexCurrencyMaster() {
           slots={{ toolbar: GridToolbar }}
           slotProps={{ toolbar: { showQuickFilter: true } }}
           disableColumnMenu
-          pageSizeOptions={[5]}
           initialState={{
-            pagination: { paginationModel: { page: 0, pageSize: 5 } },
+            pagination: { paginationModel: { pageSize: 20, page: 0 } },
           }}
+          pageSizeOptions={[10, 20, 50]}
         />
 
         <ForexCurrencyDialog

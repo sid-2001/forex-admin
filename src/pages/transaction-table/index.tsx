@@ -41,7 +41,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
     {
       field: 'transactionNumber',
       headerName: 'Transaction ID',
-      flex: 1,
+      width: 250,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <span
@@ -58,14 +58,14 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
     {
       field: 'platformTransactionReferenceId',
       headerName: 'Lulu Transaction ID',
-      flex: 1,
+      width: 200,
       headerClassName: 'super-app-theme--header',
     },
 
     {
       field: 'sendCountry',
       headerName: 'Sender Country',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return (
@@ -89,7 +89,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
     {
       field: 'currency',
       headerName: 'Sender Currency',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return (
@@ -113,7 +113,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
     {
       field: 'receiveCountry',
       headerName: 'Receiver Country',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return (
@@ -137,7 +137,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
     {
       field: 'principalCurrency',
       headerName: 'Receiver Currency',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return (
@@ -161,20 +161,20 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transaction, applic
     {
       field: 'beneficiaryName',
       headerName: 'Beneficiary Name',
-      flex: 1,
+      width: 250,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => <div>{renderBeneficiaryFullName(params?.row)}</div>,
     },
     {
       field: 'amount',
       headerName: 'Amount',
-      flex: 0.5,
+      width: 150,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'transactionStatus',
       headerName: 'Transaction Status',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => <div>{renderTransactionStatus(params?.row?.transactionStatus)}</div>,
     },

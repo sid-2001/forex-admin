@@ -206,12 +206,12 @@ const Dashboard = () => {
 
   // 🔝 Put this at the top of your file (before the component)
   const RECENT_TRANSACTIONS_COLUMNS = [
-    { field: 'sno', headerName: 'Sno.', flex: 0.5 },
-    { field: 'transactionId', headerName: 'Transaction ID', flex: 1 },
+    { field: 'sno', headerName: 'Sno.', width: 100 },
+    { field: 'transactionId', headerName: 'Transaction ID', width: 250 },
     {
       field: 'sentFrom',
       headerName: 'Sent From',
-      flex: 1,
+      width: 150,
       renderCell: (params: any) => {
         return (
           <Tooltip title={params?.value} placement="top">
@@ -235,7 +235,7 @@ const Dashboard = () => {
     {
       field: 'receivedIn',
       headerName: 'Received In',
-      flex: 1,
+      width: 150,
       renderCell: (params: any) => {
         return (
           <Tooltip title={params?.value} placement="top">
@@ -258,7 +258,7 @@ const Dashboard = () => {
     {
       field: 'amount',
       headerName: `Sender's Amount`,
-      flex: 1,
+      width: 200,
       renderCell: (params: any) => {
         return (
           <Tooltip title={params?.value} placement="top">
@@ -283,7 +283,7 @@ const Dashboard = () => {
     {
       field: 'principalAmount',
       headerName: `Receiver's Amount`,
-      flex: 1,
+      width: 200,
       renderCell: (params: any) => {
         return (
           <Tooltip title={params?.value} placement="top">
@@ -305,13 +305,13 @@ const Dashboard = () => {
       },
     },
 
-    { field: 'reported', headerName: 'Reported', flex: 0.8 },
-    { field: 'date', headerName: 'Date & Time', flex: 1 },
-    { field: 'transactionStatus', headerName: 'Transaction Status', flex: 1 },
+    { field: 'reported', headerName: 'Reported', width: 100 },
+    { field: 'date', headerName: 'Date & Time', width: 180 },
+    { field: 'transactionStatus', headerName: 'Transaction Status', width: 200 },
     {
       field: 'action',
       headerName: 'Action',
-      flex: 1,
+      width: 100,
       renderCell: (params: any) => (
         <Link to={`/transaction-detail/${params?.row?.transactionId}`}>
           <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>View detail</span>
