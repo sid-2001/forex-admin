@@ -204,10 +204,34 @@ const Dashboard = () => {
       .map((part: any) => part.trim().replace(/\s*\(.*?\)/, ''))
       .join(' | ')
 
+  const handleNavigation = (url: string) => {
+    navigate(url)
+  }
+
   // 🔝 Put this at the top of your file (before the component)
   const RECENT_TRANSACTIONS_COLUMNS = [
     { field: 'sno', headerName: 'Sno.', width: 100 },
-    { field: 'transactionId', headerName: 'Transaction ID', width: 250 },
+    {
+      field: 'transactionId',
+      headerName: 'Transaction ID',
+      width: 250,
+      renderCell: (params: any) => (
+        <span
+          onClick={() => handleNavigation(`/transaction-detail/${params.value}`)}
+          style={{
+            cursor: 'pointer',
+            textDecoration: 'underline',
+          }}
+        >
+          {params?.value}
+        </span>
+      ),
+    },
+    {
+      field: 'platformTransactionReferenceId',
+      headerName: 'Lulu Transaction Id',
+      width: 200,
+    },
     {
       field: 'sentFrom',
       headerName: 'Sent From',
@@ -308,16 +332,16 @@ const Dashboard = () => {
     { field: 'reported', headerName: 'Reported', width: 100 },
     { field: 'date', headerName: 'Date & Time', width: 180 },
     { field: 'transactionStatus', headerName: 'Transaction Status', width: 200 },
-    {
-      field: 'action',
-      headerName: 'Action',
-      width: 100,
-      renderCell: (params: any) => (
-        <Link to={`/transaction-detail/${params?.row?.transactionId}`}>
-          <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>View detail</span>
-        </Link>
-      ),
-    },
+    // {
+    //   field: 'action',
+    //   headerName: 'Action',
+    //   width: 100,
+    //   renderCell: (params: any) => (
+    //     <Link to={`/transaction-detail/${params?.row?.transactionId}`}>
+    //       <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>View detail</span>
+    //     </Link>
+    //   ),
+    // },
   ]
 
   const filteredRecentTransColumns =
@@ -337,6 +361,7 @@ const Dashboard = () => {
       const rowData: Record<string, any> = {
         sno: index + 1,
         transactionId: transaction?.transactionOutward?.transactionNumber,
+        platformTransactionReferenceId: transaction?.transactionOutward?.platformTransactionReferenceId,
         sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
         receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
         amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
@@ -370,6 +395,8 @@ const Dashboard = () => {
       const rowData: Record<string, any> = {
         sno: index + 1,
         transactionId: transaction?.transactionOutward?.transactionNumber,
+        platformTransactionReferenceId: transaction?.transactionOutward?.platformTransactionReferenceId,
+
         sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
         receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
         amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
@@ -688,69 +715,70 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             </Grid>
-          </Grid>
 
-          {/* Recent Transactions */}
+            {/* Recent Transactions */}
 
-          <Grid item xs={12} md={12}>
-            <Box sx={{ mt: 0, mb: 1, marginTop: '20px' }}>
-              <Typography variant="h4" gutterBottom fontWeight="bold" color="primary">
-                Recent Transactions
-              </Typography>
-              <Box sx={{ height: 400, width: '100%' }}>
-                {isLoading ? (
-                  <>
-                    <Skeleton variant="rectangular" height={40} sx={{ mb: 1 }} />
-                    <Skeleton variant="rectangular" height={40} sx={{ mb: 1 }} />
-                  </>
-                ) : recentTransaction?.length === 0 ? (
-                  <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
-                    No data found
-                  </Typography>
-                ) : (
-                  <DataGrid
-                    rows={recentTransaction.map((transaction: any, index: number) => ({
-                      id: index + 1,
-                      sno: index + 1,
-                      transactionId: transaction?.transactionOutward?.transactionNumber,
-                      sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
-                      receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
-                      amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
-                      principalAmount: `${transaction?.transactionOutward?.principalAmount} ${transaction?.transactionOutward?.principalCurrency}`,
+            <Grid item xs={12} md={12}>
+              <Box sx={{ mt: 0, mb: 1, marginTop: '20px' }}>
+                <Typography variant="h4" gutterBottom fontWeight="bold" color="primary">
+                  Recent Transactions
+                </Typography>
+                <Box sx={{ height: 400, width: '100%' }}>
+                  {isLoading ? (
+                    <>
+                      <Skeleton variant="rectangular" height={40} sx={{ mb: 1 }} />
+                      <Skeleton variant="rectangular" height={40} sx={{ mb: 1 }} />
+                    </>
+                  ) : recentTransaction?.length === 0 ? (
+                    <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                      No data found
+                    </Typography>
+                  ) : (
+                    <DataGrid
+                      rows={recentTransaction.map((transaction: any, index: number) => ({
+                        id: index + 1,
+                        sno: index + 1,
+                        transactionId: transaction?.transactionOutward?.transactionNumber,
+                        platformTransactionReferenceId: transaction?.transactionOutward?.platformTransactionReferenceId,
+                        sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
+                        receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
+                        amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
+                        principalAmount: `${transaction?.transactionOutward?.principalAmount} ${transaction?.transactionOutward?.principalCurrency}`,
 
-                      reported:
-                        transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
-                      date: helper.convertDateAndTime(transaction?.transactionOutward?.createdLocalDateTime),
-                      status: transaction?.transactionOutward?.reportingStatus,
-                      transactionStatus: renderTransactionStatus(transaction?.transactionOutward?.transactionStatus),
-                    }))}
-                    columns={filteredRecentTransColumns}
-                    filterModel={filterModel}
-                    onFilterModelChange={(model) => setFilterModel(model)}
-                    columnVisibilityModel={columnVisibilityModel}
-                    onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
-                    initialState={{
-                      pagination: { paginationModel: { pageSize: 10, page: 0 } },
-                    }}
-                    pageSizeOptions={[5, 10, 20]}
-                    disableRowSelectionOnClick
-                    slots={{ toolbar: CustomToolbar }}
-                    sx={{
-                      '& .MuiDataGrid-cell': { borderBottom: '1px solid #e0e0e0' },
-                      '& .MuiDataGrid-columnHeaders': {
-                        fontWeight: 'bold',
-                        borderBottom: '2px solid #1976d2',
-                      },
-                      '& .MuiDataGrid-columnHeaderTitle': {
-                        fontWeight: 'bold',
-                        fontSize: '1.1rem',
-                      },
-                    }}
-                    disableColumnMenu
-                  />
-                )}
+                        reported:
+                          transaction?.transactionOutward?.reportingStatus === 'Completed' ? 'Yes' : transaction?.transactionOutward?.reportingStatus,
+                        date: helper.convertDateAndTime(transaction?.transactionOutward?.createdLocalDateTime),
+                        status: transaction?.transactionOutward?.reportingStatus,
+                        transactionStatus: renderTransactionStatus(transaction?.transactionOutward?.transactionStatus),
+                      }))}
+                      columns={filteredRecentTransColumns}
+                      filterModel={filterModel}
+                      onFilterModelChange={(model) => setFilterModel(model)}
+                      columnVisibilityModel={columnVisibilityModel}
+                      onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
+                      initialState={{
+                        pagination: { paginationModel: { pageSize: 10, page: 0 } },
+                      }}
+                      pageSizeOptions={[5, 10, 20]}
+                      disableRowSelectionOnClick
+                      slots={{ toolbar: CustomToolbar }}
+                      sx={{
+                        '& .MuiDataGrid-cell': { borderBottom: '1px solid #e0e0e0' },
+                        '& .MuiDataGrid-columnHeaders': {
+                          fontWeight: 'bold',
+                          borderBottom: '2px solid #1976d2',
+                        },
+                        '& .MuiDataGrid-columnHeaderTitle': {
+                          fontWeight: 'bold',
+                          fontSize: '1.1rem',
+                        },
+                      }}
+                      disableColumnMenu
+                    />
+                  )}
+                </Box>
               </Box>
-            </Box>
+            </Grid>
           </Grid>
         </Grid>
 
