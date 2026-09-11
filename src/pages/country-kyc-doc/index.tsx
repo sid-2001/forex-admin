@@ -109,7 +109,7 @@ export default function CountryKycDocManagement() {
     {
       field: 'kycDocCode',
       headerName: 'kyc Doc Code',
-      flex: 1,
+      width: 200,
       headerClassName: 'super-app-theme--header',
     },
     {

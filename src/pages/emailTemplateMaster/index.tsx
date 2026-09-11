@@ -86,9 +86,9 @@ export default function EmailTemplateManagement() {
 
   const columns: GridColDef[] = [
     { field: 'emailTemplateCode', headerName: 'Code', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'templateName', headerName: 'Name', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'emailSubject', headerName: 'Subject', flex: 1.5, headerClassName: 'super-app-theme--header' },
-    { field: 'fromEmail', headerName: 'From', flex: 1.2, headerClassName: 'super-app-theme--header' },
+    { field: 'templateName', headerName: 'Name', width: 300, headerClassName: 'super-app-theme--header' },
+    { field: 'emailSubject', headerName: 'Subject', width: 400, headerClassName: 'super-app-theme--header' },
+    { field: 'fromEmail', headerName: 'From', width: 250, headerClassName: 'super-app-theme--header' },
     {
       field: 'effective_from_date',
       headerName: 'Effective From',

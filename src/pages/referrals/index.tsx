@@ -151,14 +151,24 @@ const ReferralTable: React.FC = () => {
       renderCell: (params: any) => (
         <>
           {params?.row?.status === 'PENDING' && (
-            <Box
-              style={{ fontWeight: 'bold', cursor: 'pointer' }}
-              onClick={() => {
-                setActionModal(true)
-                setFormData((prev) => ({ ...prev, id: params?.row?.id }))
-              }}
-            >
-              Approve | Reject
+            <Box style={{ fontWeight: 'bold', cursor: 'pointer', display: 'flex' }}>
+              <Box
+                onClick={() => {
+                  setActionModal(true)
+                  setFormData((prev) => ({ ...prev, id: params?.row?.id, action: 'APPROVE' }))
+                }}
+              >
+                Approve
+              </Box>
+              <Box sx={{ padding: '0px 2px' }}>|</Box>
+              <Box
+                onClick={() => {
+                  setActionModal(true)
+                  setFormData((prev) => ({ ...prev, id: params?.row?.id, action: 'REJECT' }))
+                }}
+              >
+                Reject
+              </Box>
             </Box>
           )}
         </>

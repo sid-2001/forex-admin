@@ -181,13 +181,13 @@ const TransactionListing = () => {
     {
       field: 'forex',
       headerName: 'Exchange Rate',
-      width: 100,
+      width: 200,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'charges',
       headerName: 'Charges (Inc Vat)',
-      width: 100,
+      width: 200,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => params.row.charges + params.row.vatCharges,
     },
@@ -277,7 +277,7 @@ const TransactionListing = () => {
     {
       field: 'bopAction',
       headerName: columnHeaderMap[userCountry] || columnHeaderMap.DEFAULT,
-      width: 100,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <IconButton
@@ -474,7 +474,7 @@ const TransactionListing = () => {
     {
       field: 'charges',
       headerName: 'Charges (Inc Vat)',
-      width: 150,
+      width: 200,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => params.row.charges + params.row.vatCharges,
     },
