@@ -165,6 +165,12 @@ const Dashboard = () => {
     { field: 'sno', headerName: 'Sno.', flex: 0.5 },
     { field: 'transactionId', headerName: 'Transaction ID', flex: 1 },
     {
+      field: 'platformTransactionReferenceId',
+      headerName: 'Lulu Transaction Id',
+      width: 200,
+      sortable: false,
+    },
+    {
       field: 'sentFrom',
       headerName: 'Sent From',
       flex: 1,
@@ -293,6 +299,7 @@ const Dashboard = () => {
       const rowData: Record<string, any> = {
         sno: index + 1,
         transactionId: transaction?.transactionOutward?.transactionNumber,
+        platformTransactionReferenceId: transaction?.transactionOutward?.platformTransactionReferenceId,
         sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
         receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
         amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
@@ -326,6 +333,8 @@ const Dashboard = () => {
       const rowData: Record<string, any> = {
         sno: index + 1,
         transactionId: transaction?.transactionOutward?.transactionNumber,
+        platformTransactionReferenceId: transaction?.transactionOutward?.platformTransactionReferenceId,
+
         sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
         receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
         amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
@@ -663,6 +672,7 @@ const Dashboard = () => {
                         id: index + 1,
                         sno: index + 1,
                         transactionId: transaction?.transactionOutward?.transactionNumber,
+                        platformTransactionReferenceId: transaction?.transactionOutward?.platformTransactionReferenceId,
                         sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
                         receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
                         amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
