@@ -55,7 +55,7 @@ const BeneficiaryTable = ({ beneficiary }: { beneficiary: any }) => {
     {
       field: 'beneficiaryId',
       headerName: 'Beneficiary ID',
-      flex: 1.3,
+      width: 300,
       headerClassName: 'super-app-theme--header',
       renderCell: (
         //@ts-ignore
@@ -75,7 +75,7 @@ const BeneficiaryTable = ({ beneficiary }: { beneficiary: any }) => {
     {
       field: 'beneficiaryName',
       headerName: 'Beneficiary Name',
-      flex: 1,
+      width: 300,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return <div>{renderBeneficiaryFullName(params?.row)}</div>
@@ -84,25 +84,25 @@ const BeneficiaryTable = ({ beneficiary }: { beneficiary: any }) => {
     {
       field: 'bankName',
       headerName: 'Bank Name',
-      flex: 1,
+      width: 250,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: userCountry === 'UAE' ? 'ifscCode' : 'bankBicCode',
       headerName: userCountry === 'UAE' ? 'Bank Code' : 'BIC Code',
-      flex: 1,
+      width: 250,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'accountNumber',
       headerName: 'Beneficiary Account Number',
-      flex: 1,
+      width: 300,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'idType',
       headerName: 'ID Type',
-      flex: 1,
+      width: 250,
       headerClassName: 'super-app-theme--header',
     },
   ]

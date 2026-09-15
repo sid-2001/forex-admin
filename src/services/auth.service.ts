@@ -61,7 +61,7 @@ class AuthService extends BaseService {
       let { data } = await api1.post(url, payload)
       return data
     } catch (err) {
-      throw new Error("Can't Verify your Identiy")
+      throw err
     }
   }
 
@@ -71,7 +71,7 @@ class AuthService extends BaseService {
       let data = await api1.post(url, payload)
       return data
     } catch (err) {
-      throw new Error("Can't Verify your Identiy")
+      throw err
     }
   }
 

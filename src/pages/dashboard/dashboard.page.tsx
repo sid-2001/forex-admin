@@ -204,14 +204,38 @@ const Dashboard = () => {
       .map((part: any) => part.trim().replace(/\s*\(.*?\)/, ''))
       .join(' | ')
 
+  const handleNavigation = (url: string) => {
+    navigate(url)
+  }
+
   // 🔝 Put this at the top of your file (before the component)
   const RECENT_TRANSACTIONS_COLUMNS = [
-    { field: 'sno', headerName: 'Sno.', flex: 0.5 },
-    { field: 'transactionId', headerName: 'Transaction ID', flex: 1 },
+    { field: 'sno', headerName: 'Sno.', width: 100 },
+    {
+      field: 'transactionId',
+      headerName: 'Transaction ID',
+      width: 250,
+      renderCell: (params: any) => (
+        <span
+          onClick={() => handleNavigation(`/transaction-detail/${params.value}`)}
+          style={{
+            cursor: 'pointer',
+            textDecoration: 'underline',
+          }}
+        >
+          {params?.value}
+        </span>
+      ),
+    },
+    {
+      field: 'platformTransactionReferenceId',
+      headerName: 'Lulu Transaction Id',
+      width: 200,
+    },
     {
       field: 'sentFrom',
       headerName: 'Sent From',
-      flex: 1,
+      width: 150,
       renderCell: (params: any) => {
         return (
           <Tooltip title={params?.value} placement="top">
@@ -235,7 +259,7 @@ const Dashboard = () => {
     {
       field: 'receivedIn',
       headerName: 'Received In',
-      flex: 1,
+      width: 150,
       renderCell: (params: any) => {
         return (
           <Tooltip title={params?.value} placement="top">
@@ -258,7 +282,7 @@ const Dashboard = () => {
     {
       field: 'amount',
       headerName: `Sender's Amount`,
-      flex: 1,
+      width: 200,
       renderCell: (params: any) => {
         return (
           <Tooltip title={params?.value} placement="top">
@@ -283,7 +307,7 @@ const Dashboard = () => {
     {
       field: 'principalAmount',
       headerName: `Receiver's Amount`,
-      flex: 1,
+      width: 200,
       renderCell: (params: any) => {
         return (
           <Tooltip title={params?.value} placement="top">
@@ -305,19 +329,19 @@ const Dashboard = () => {
       },
     },
 
-    { field: 'reported', headerName: 'Reported', flex: 0.8 },
-    { field: 'date', headerName: 'Date & Time', flex: 1 },
-    { field: 'transactionStatus', headerName: 'Transaction Status', flex: 1 },
-    {
-      field: 'action',
-      headerName: 'Action',
-      flex: 1,
-      renderCell: (params: any) => (
-        <Link to={`/transaction-detail/${params?.row?.transactionId}`}>
-          <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>View detail</span>
-        </Link>
-      ),
-    },
+    { field: 'reported', headerName: 'Reported', width: 100 },
+    { field: 'date', headerName: 'Date & Time', width: 180 },
+    { field: 'transactionStatus', headerName: 'Transaction Status', width: 200 },
+    // {
+    //   field: 'action',
+    //   headerName: 'Action',
+    //   width: 100,
+    //   renderCell: (params: any) => (
+    //     <Link to={`/transaction-detail/${params?.row?.transactionId}`}>
+    //       <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>View detail</span>
+    //     </Link>
+    //   ),
+    // },
   ]
 
   const filteredRecentTransColumns =
@@ -337,6 +361,7 @@ const Dashboard = () => {
       const rowData: Record<string, any> = {
         sno: index + 1,
         transactionId: transaction?.transactionOutward?.transactionNumber,
+        platformTransactionReferenceId: transaction?.transactionOutward?.platformTransactionReferenceId,
         sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
         receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
         amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
@@ -370,6 +395,8 @@ const Dashboard = () => {
       const rowData: Record<string, any> = {
         sno: index + 1,
         transactionId: transaction?.transactionOutward?.transactionNumber,
+        platformTransactionReferenceId: transaction?.transactionOutward?.platformTransactionReferenceId,
+
         sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
         receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
         amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
@@ -561,135 +588,132 @@ const Dashboard = () => {
   const visibleAnalytics = userAnalytics.filter((p) => !p.hidden)
 
   return (
-    <HasPermission permission={'canRead'} module={local_service.get_modules()?.DASHBOARD}>
-      <Box sx={{ width: '90vw', overflowX: 'hidden', height: '85vh' }}>
-        <Typography variant="h4" gutterBottom sx={{ mt: 0, mb: 1 }}>
-          <b>Dashboard</b>
-        </Typography>
-        <CompactLocationBar />
-        <Grid container spacing={2}>
-          {/* LEFT SIDE (Balances + Consumers + Volume + Recent Transactions) */}
-          <Grid item xs={12} md={12}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={5}>
-                {/* Available Balances */}
+    // <HasPermission permission={'canRead'} module={local_service.get_modules()?.DASHBOARD}>
+    <Box sx={{ width: '90vw', overflowX: 'hidden', height: '85vh' }}>
+      <Typography variant="h4" gutterBottom sx={{ mt: 0, mb: 1 }}>
+        <b>Dashboard</b>
+      </Typography>
+      <CompactLocationBar />
+      <Grid container spacing={2}>
+        {/* LEFT SIDE (Balances + Consumers + Volume + Recent Transactions) */}
+        <Grid item xs={12} md={12}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={5}>
+              {/* Available Balances */}
 
-                {userCountry !== 'UAE' && (
-                  <Card sx={{ border: '2px solid', borderColor: '#79CBF0', mb: 2, p: 1 }}>
-                    <CardContent sx={{}}>
-                      <Grid container spacing={2}>
-                        <HorizontalCardCarousel />
+              {userCountry !== 'UAE' && (
+                <Card sx={{ border: '2px solid', borderColor: '#79CBF0', mb: 2, p: 1 }}>
+                  <CardContent sx={{}}>
+                    <Grid container spacing={2}>
+                      <HorizontalCardCarousel />
 
-                        {bankAccounts
-                          .filter((e) => e.country == userCountry)
-                          .map((bank, index) => {
-                            const colors = ['green', 'red', 'goldenrod'] // cycle
-                            const borderColor = colors[index % colors.length]
-                            const isActive = bank.name.toLowerCase().includes('icici')
+                      {bankAccounts
+                        .filter((e) => e.country == userCountry)
+                        .map((bank, index) => {
+                          const colors = ['green', 'red', 'goldenrod'] // cycle
+                          const borderColor = colors[index % colors.length]
+                          const isActive = bank.name.toLowerCase().includes('icici')
 
-                            return (
-                              <Grid item xs={6} key={index}>
+                          return (
+                            <Grid item xs={6} key={index}>
+                              <Box
+                                sx={{
+                                  border: `3px solid ${borderColor}`,
+                                  borderRadius: 2,
+                                  p: 2,
+                                  mb: 0,
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+
+                                  flexDirection: 'column',
+                                  // alignItems: 'center',
+                                  opacity: isActive ? 1 : 0.5,
+
+                                  pointerEvents: isActive ? 'auto' : 'none',
+                                }}
+                              >
+                                {/* Left side: Country + Bank */}
                                 <Box
                                   sx={{
-                                    border: `3px solid ${borderColor}`,
-                                    borderRadius: 2,
-                                    p: 2,
-                                    mb: 0,
+                                    minWidth: '40%',
                                     display: 'flex',
                                     justifyContent: 'space-between',
-
-                                    flexDirection: 'column',
-                                    // alignItems: 'center',
-                                    opacity: isActive ? 1 : 0.5,
-
-                                    pointerEvents: isActive ? 'auto' : 'none',
+                                    flexDirection: 'row',
                                   }}
                                 >
-                                  {/* Left side: Country + Bank */}
-                                  <Box
-                                    sx={{
-                                      minWidth: '40%',
-                                      display: 'flex',
-                                      justifyContent: 'space-between',
-                                      flexDirection: 'row',
-                                    }}
-                                  >
-                                    <Typography variant="body2" color="text.secondary">
-                                      <strong> {bank.name}</strong>
-                                    </Typography>
-                                    <Typography variant="body2" fontWeight="bold" sx={{ color: 'primary.main' }}>
-                                      {bank.country}
-                                    </Typography>
-                                  </Box>
-
-                                  <Box>
-                                    <Typography fontWeight="bold" variant="body1" sx={{ textAlign: 'center', mt: 1 }}>
-                                      {
-                                        //@ts-ignore
-                                        bank.balance.toLocaleString('en-IN')
-                                      }
-                                    </Typography>
-                                  </Box>
+                                  <Typography variant="body2" color="text.secondary">
+                                    <strong> {bank.name}</strong>
+                                  </Typography>
+                                  <Typography variant="body2" fontWeight="bold" sx={{ color: 'primary.main' }}>
+                                    {bank.country}
+                                  </Typography>
                                 </Box>
-                              </Grid>
-                            )
-                          })}
-                      </Grid>
-                    </CardContent>
-                  </Card>
-                )}
 
-                {/* Consumers */}
-                <Card sx={{ border: '2px solid', borderColor: '#79CBF0' }}>
-                  <CardContent>
-                    <Typography variant="subtitle1" fontWeight={700} gutterBottom>
-                      User Analytics
-                    </Typography>
-                    <Grid container spacing={2}>
-                      {visibleAnalytics.map((userItem: any) => (
-                        <Grid item xs={Math.floor(12 / visibleAnalytics.length)}>
-                          <Box
-                            sx={{
-                              background: userItem.background,
-                              borderRadius: 2,
-                              p: 2,
-                              textAlign: 'center',
-                              color: 'black',
-                            }}
-                          >
-                            <Typography variant="h6" fontWeight={700}>
-                              {userItem.count}
-                            </Typography>
-                            <Typography variant="body2">{userItem.label}</Typography>
-                            <Typography variant="caption" fontWeight="bold">
-                              {userItem.subLabel}
-                            </Typography>
-                          </Box>
-                        </Grid>
-                      ))}
+                                <Box>
+                                  <Typography fontWeight="bold" variant="body1" sx={{ textAlign: 'center', mt: 1 }}>
+                                    {
+                                      //@ts-ignore
+                                      bank.balance.toLocaleString('en-IN')
+                                    }
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            </Grid>
+                          )
+                        })}
                     </Grid>
                   </CardContent>
                 </Card>
+              )}
 
-                {userCountry === 'UAE' && (
-                  <Card>
-                    <CardContent>
-                      <Carousel items={[bannerImg1, bannerImg2, bannerImg3]} />
-                    </CardContent>
-                  </Card>
-                )}
-              </Grid>
+              {/* Consumers */}
+              <Card sx={{ border: '2px solid', borderColor: '#79CBF0' }}>
+                <CardContent>
+                  <Typography variant="subtitle1" fontWeight={700} gutterBottom>
+                    User Analytics
+                  </Typography>
+                  <Grid container spacing={2}>
+                    {visibleAnalytics.map((userItem: any) => (
+                      <Grid item xs={Math.floor(12 / visibleAnalytics.length)}>
+                        <Box
+                          sx={{
+                            background: userItem.background,
+                            borderRadius: 2,
+                            p: 2,
+                            textAlign: 'center',
+                            color: 'black',
+                          }}
+                        >
+                          <Typography variant="h6" fontWeight={700}>
+                            {userItem.count}
+                          </Typography>
+                          <Typography variant="body2">{userItem.label}</Typography>
+                          <Typography variant="caption" fontWeight="bold">
+                            {userItem.subLabel}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </CardContent>
+              </Card>
 
-              <Grid item xs={12} md={7}>
-                <Card sx={{ border: '2px solid', borderColor: '#79CBF0', height: '100%' }}>
-                  <CardContent>
-                    <Typography variant="subtitle1" fontWeight={700}>
-                      Volume
-                    </Typography>
-                    <TransactionPanel />
-                  </CardContent>
-                </Card>
-              </Grid>
+              {userCountry === 'UAE' && (
+                <Box>
+                  <img src={bannerImg1} alt="bannerImg" style={{ objectFit: 'contain', width: '100%' }} />
+                </Box>
+              )}
+            </Grid>
+
+            <Grid item xs={12} md={7}>
+              <Card sx={{ border: '2px solid', borderColor: '#79CBF0', height: '100%' }}>
+                <CardContent>
+                  <Typography variant="subtitle1" fontWeight={700}>
+                    Volume
+                  </Typography>
+                  <TransactionPanel />
+                </CardContent>
+              </Card>
             </Grid>
 
             {/* Recent Transactions */}
@@ -715,6 +739,7 @@ const Dashboard = () => {
                         id: index + 1,
                         sno: index + 1,
                         transactionId: transaction?.transactionOutward?.transactionNumber,
+                        platformTransactionReferenceId: transaction?.transactionOutward?.platformTransactionReferenceId,
                         sentFrom: `${transaction?.transactionOutward?.sendCountry} | ${transaction?.transactionOutward?.settlementCurrency}`,
                         receivedIn: `${transaction?.transactionOutward?.receiveCountry} | ${transaction?.transactionOutward?.principalCurrency}`,
                         amount: `${transaction?.transactionOutward?.settlementAmount} ${transaction?.transactionOutward?.settlementCurrency}`,
@@ -755,11 +780,12 @@ const Dashboard = () => {
               </Box>
             </Grid>
           </Grid>
-
-          {/* RIGHT SIDE (Active Channels + Integrations) */}
         </Grid>
-      </Box>
-    </HasPermission>
+
+        {/* RIGHT SIDE (Active Channels + Integrations) */}
+      </Grid>
+    </Box>
+    // </HasPermission>
   )
 }
 

@@ -35,7 +35,7 @@ const ApplicantEnquiry = () => {
         <Typography variant="h4" gutterBottom>
           <strong>All Customers</strong>
         </Typography>
-        <ApplicantDataGrid data={applicantList} loading={isLoading} />
+        <ApplicantDataGrid data={applicantList || []} loading={isLoading} />
       </HasPermission>
     </Box>
   )

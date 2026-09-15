@@ -13,6 +13,7 @@ import {
   Checkbox,
   OutlinedInput,
   Chip,
+  Grid,
   Box,
 } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
@@ -48,7 +49,7 @@ const RoleModal = ({
     const user_service = new UserService()
     const local_service = new LocalStorageService()
     const [selectOpen, setSelectOpen] = useState(false)
-    const [inactivitytime, setinactivitytime] = useState(0)
+    const [inactivitytime, setinactivitytime] = useState('')
     const [errors, setErrors] = useState<any>({})
 
     const getModuleList = () => {
@@ -167,7 +168,8 @@ const RoleModal = ({
       // Required field validation
       if (!roleName) {
         newErrors.roleName = 'Role Name is required'
-      } else if (!inactivitytime) {
+      }
+      if (!inactivitytime) {
         newErrors.inactivitytime = 'Inactivity Time is required'
       }
 
@@ -177,6 +179,12 @@ const RoleModal = ({
 
     const handleSave = async () => {
       if (!validate()) return
+      if (!selectedModules.length) {
+        setOpen(true)
+        settype('error')
+        setText('Atleast 1 module selection must be required.')
+        return
+      }
 
       var payload
 
@@ -231,34 +239,53 @@ const RoleModal = ({
       setText(roleId ? 'Role updated succesfully!' : 'Role created succesfully!')
       setOpen(true)
       setSelectedRole(null)
-      window.location.reload()
+      // window.location.reload()
     }
     return (
       <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
         <DialogTitle> {roleId ? 'Edit Role' : 'Add Role'} </DialogTitle>
         <DialogContent>
-          <TextField
-            fullWidth
-            label="Role Name"
-            required
-            value={roleName}
-            error={!!errors.roleName}
-            helperText={errors.roleName}
-            onChange={(e) => setRoleName(e.target.value)}
-          />
-          <TextField
-            fullWidth
-            type="number"
-            margin="normal"
-            required
-            label="Inactivity time"
-            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-            value={inactivitytime}
-            onChange={(e) =>
-              //@ts-ignore
-              setinactivitytime(e.target.value)
-            }
-          />
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid item xs={6}>
+              <TextField
+                label="Role Name"
+                required
+                fullWidth
+                value={roleName}
+                error={!!errors.roleName}
+                helperText={errors.roleName}
+                onChange={(e) => setRoleName(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                required
+                fullWidth
+                label="Inactivity time"
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                value={inactivitytime}
+                onChange={(e) => {
+                  const value = e.target.value
+                  if (value && !/^\d+$/.test(value)) {
+                    setErrors({
+                      ...errors,
+                      inactivitytime: 'Only digits are allowed',
+                    })
+                  } else {
+                    setErrors({
+                      ...errors,
+                      inactivitytime: '',
+                    })
+                  }
+
+                  setinactivitytime(value)
+                }}
+                error={!!errors.inactivitytime}
+                helperText={errors.inactivitytime}
+              />
+            </Grid>
+          </Grid>
+
           <FormControl fullWidth margin="normal">
             <InputLabel id="module-select-label">Select Modules</InputLabel>
             <Select

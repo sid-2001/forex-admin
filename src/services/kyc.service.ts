@@ -145,4 +145,14 @@ export class KycService extends BaseService {
       console.log(err)
     }
   }
+
+  async updateBetaStatus(id: string) {
+    const url = `/api/kyc/auth/beta-status/${id}/toggle`
+    try {
+      const data = await api1.put(url, {})
+      return data
+    } catch (err: any) {
+      console.log(err)
+    }
+  }
 }

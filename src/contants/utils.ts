@@ -31,6 +31,7 @@ export const notificationStatus = [
   { label: 'PENDING', value: 'PENDING', color: '#ED6D03', disabled: false },
   { label: 'DRAFT', value: 'DRAFT', color: 'black', disabled: false },
   { label: 'COMPLETED', value: 'COMPLETED', color: 'green', disabled: false },
+  { label: 'INACTIVE', value: 'INACTIVE', color: '#F44336', disabled: false },
 ]
 
 export const targetTypeMap = Object.fromEntries(targetTypes.map((item) => [item.value, item.label]))

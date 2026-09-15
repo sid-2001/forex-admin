@@ -7,8 +7,8 @@ import { LocalStorageService } from '@/helpers/local-storage-service'
 import { Logo, SecondLogo } from '@/assets/images'
 
 import { useRecoilState } from 'recoil'
-import Phone from '@/assets/images/phone.png'
-import Phone1 from '@/assets/images/phone1.png'
+import Group1 from '@/assets/images/Group1.png'
+import Group2 from '@/assets/images/Group2.png'
 import {
   countyState,
   inactivityTiming,
@@ -24,7 +24,7 @@ import staticdataService from '@/services/staticdata.service'
 import LoaderUI from '@/components/loader/loader'
 import { TransactionService } from '@/services/transaction.service'
 import { FieldValidationService } from '@/services/fieldvalidstion.service'
-import { CountryLabelData, LoginPageLabel } from '@/types/field.validation.type'
+import { LoginPageLabel } from '@/types/field.validation.type'
 import MasterService from '@/services/master.service'
 import ForexCurrencyService from '@/services/forex-currency.service'
 
@@ -67,10 +67,10 @@ const LoginPage = () => {
     const phoneRegex = /^[6-9]\d{9}$/
 
     // username:
-    // - 3 to 20 chars
+    // - 5 to 20 chars
     // - letters, numbers, _ .
     // - must contain at least one letter
-    const usernameRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9_.]{3,20}$/
+    const usernameRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9_.]{5,20}$/
 
     if (emailRegex.test(trimmed)) {
       return 'email'
@@ -94,7 +94,7 @@ const LoginPage = () => {
 
     if (detectedType === 'invalid') {
       //@ts-ignore
-      setError(validataion?.username_validataion_msg ? validataion?.username_validataion_msg : 'No Message From Backend')
+      setError(validataion?.username_validataion_msg ? validataion?.username_validataion_msg : '')
     } else {
       setError('')
       setLoginType(detectedType)
@@ -128,7 +128,7 @@ const LoginPage = () => {
         password,
       })
 
-      console.log(response, '-------------')
+      console.log(response, '-------------bhanu')
 
       if (response?.data) {
         console.log(response.data, '------data-------')
@@ -141,8 +141,6 @@ const LoginPage = () => {
         local_service.set_role(data?.roleDescription)
 
         const [currency, countries, txnValidations, menuResp, staffAccessCurrencyResp] = await Promise.all([
-          //@ts-ignore
-          // fetchAllModulesList(),
           static_service.getCountryCurrency(data?.staffCountry),
           static_service.getCountryList(),
           transaction_service.getAllValidationsList(data?.staffCountry),
@@ -171,9 +169,12 @@ const LoginPage = () => {
         setType('error')
         setOpen(true)
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
-      setText('Login failed')
+
+      const errorMessage = err?.response?.data?.message || err?.message || 'Login failed'
+      console.log(errorMessage, 'bhanu')
+      setText(errorMessage)
       setType('error')
       setOpen(true)
     } finally {
@@ -192,19 +193,19 @@ const LoginPage = () => {
       let username_data = data?.data?.countryReportingLabelDTO?.filter((e) => e.countryLabelFieldNameAndValidation?.fieldName == 'username')
       let password_data = data?.data?.countryReportingLabelDTO?.filter((e) => e.countryLabelFieldNameAndValidation?.fieldName == 'password')
       let validation_data: LoginPageLabel = {
-        usename: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.label : 'username',
+        username: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.label : 'username',
         password: password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation?.label : 'password',
         username_validataion_msg:
           username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation.validationMessageMandatory : 'Please enter a valid Username',
         Password_validataion_msg:
           password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation.validationMessageMandatory : 'Please enter a valid Password',
 
-        username_minimum_legth: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.minLength : 1,
+        username_minimum_legth: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.minLength : 5,
 
-        username_max_length: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.maxLength : 40,
+        username_max_length: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.maxLength : 20,
         username_regx: username_data.length > 0 ? username_data[0].countryLabelFieldNameAndValidation?.validationRegex : '^.*$',
-        Password_minimum_legth: password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation?.minLength : 1,
-        Password_max_length: password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation?.maxLength : 40,
+        Password_minimum_legth: password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation?.minLength : 8,
+        Password_max_length: password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation?.maxLength : 20,
         Password_regx: password_data.length > 0 ? password_data[0].countryLabelFieldNameAndValidation?.validationRegex : '^.*$',
       }
       setValidation(validation_data)
@@ -261,7 +262,7 @@ const LoginPage = () => {
           >
             <TextField
               //@ts-ignore
-              placeholder={validataion?.usename || 'Username/Email/Phone'}
+              placeholder={validataion?.username || 'Username/Email/Phone'}
               fullWidth
               margin="normal"
               value={email}
@@ -285,7 +286,7 @@ const LoginPage = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               //@ts-ignore
-              error={!!password && password.length < (validataion?.Password_minimum_legth || 1)} // Add validation
+              error={!!password && password.length < (validataion?.Password_minimum_legth || 8)} // Add validation
               // helperText={password ? validataion?.Password_validataion_msg : ''}
               // helperText={   validataion?.Password_validataion_msg}
               inputProps={{
@@ -335,7 +336,7 @@ const LoginPage = () => {
       >
         <Box
           component="img"
-          src={Phone}
+          src={Group1}
           alt="Login"
           sx={{
             width: '800px',
@@ -347,7 +348,7 @@ const LoginPage = () => {
         />
         <Box
           component="img"
-          src={Phone1}
+          src={Group2}
           alt="Login"
           sx={{
             width: '800px',
@@ -358,17 +359,6 @@ const LoginPage = () => {
             marginLeft: -20,
           }}
         />
-        {/* <Box
-          component="img"
-          src={Phone1}
-          alt="Login"
-          sx={{
-            width: '400px',
-            height: '600px',
-            objectFit: 'contain',
-            display: 'block',
-          }}
-        /> */}
       </Grid>
 
       <LoaderUI.LoaderBackdrop openloader={commonloader} />

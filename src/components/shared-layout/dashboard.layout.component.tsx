@@ -798,6 +798,7 @@ const DashboardLayout = () => {
                       } else {
                         setSelectedApp(item.parentMenuName)
                         addToHistory(item.parentMenuName)
+                        setOpenSubMenu(false)
                         navigate(item.path.toLowerCase())
                       }
                     }}

@@ -116,7 +116,7 @@ export class UserService extends BaseService {
   async updateModule(payload: any, staffId: number): Promise<any> {
     let url = `/api/staff/staff-modules/updateModule/${staffId}`
     try {
-      let data = await api1.put(url, payload)
+      let { data } = await api1.put(url, payload)
       return data
     } catch (err) {
       throw new Error(err as any)

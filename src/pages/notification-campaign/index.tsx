@@ -63,35 +63,36 @@ const NotificationCampaign: React.FC = () => {
       field: 'campaignId',
       headerName: 'Campaign Id',
       headerClassName: 'super-app-theme--header',
+      width: 120,
     },
     {
       field: 'campaignName',
       headerName: 'Campaign Name',
-      flex: 1,
+      width: 250,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'countryCode',
       headerName: 'Country Code',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'startDate',
       headerName: 'Start Date',
-      flex: 1,
+      width: 120,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'endDate',
       headerName: 'End Date',
-      flex: 1,
+      width: 120,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'frequencyType',
       headerName: 'Frequency Type',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return freqTypeMap[params?.row?.frequencyType]
@@ -100,7 +101,7 @@ const NotificationCampaign: React.FC = () => {
     {
       field: 'targetType',
       headerName: 'Target Type',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return targetTypeMap[params?.row?.targetType]
@@ -109,26 +110,26 @@ const NotificationCampaign: React.FC = () => {
     {
       field: 'frequencyUnit',
       headerName: 'Frequency Unit',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'frequencyValue',
       headerName: 'Frequency Value',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'maxRetryCount',
       headerName: 'Retry Count',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
     },
 
     {
       field: 'status',
       headerName: 'Status',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         const value = params?.row?.status?.toUpperCase()
@@ -150,7 +151,7 @@ const NotificationCampaign: React.FC = () => {
     {
       field: 'scheduledAt',
       headerName: 'Scheduled At',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return helper.convertDateAndTime(params?.row?.schedule?.scheduledAt)
@@ -160,7 +161,7 @@ const NotificationCampaign: React.FC = () => {
     {
       field: 'createdLocalDateTime',
       headerName: 'Date',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return helper.convertDateAndTime(params.row.createdLocalDateTime)
@@ -170,7 +171,7 @@ const NotificationCampaign: React.FC = () => {
     {
       field: 'actions',
       headerName: 'Actions',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <Stack direction="row" padding={'8px 0px'}>

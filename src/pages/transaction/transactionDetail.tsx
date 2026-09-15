@@ -190,7 +190,6 @@ const TransactionDetailScreen = () => {
               <Grid item xs={12} md={6}>
                 <TextField
                   label="Destination"
-                  variant="filled"
                   fullWidth
                   //@ts-ignore
                   defaultValue={transactionDetails?.receiveCountry}
@@ -201,7 +200,6 @@ const TransactionDetailScreen = () => {
               <Grid item xs={12} md={6}>
                 <TextField
                   label="Transaction Date"
-                  variant="filled"
                   fullWidth
                   //@ts-ignore
                   defaultValue={helper.convertDateAndTime(transactionDetails.createdLocalDateTime)}
@@ -213,7 +211,6 @@ const TransactionDetailScreen = () => {
               <Grid item xs={12} md={6}>
                 <TextField
                   label="Receiver's Currency"
-                  variant="filled"
                   fullWidth
                   //@ts-ignore
                   defaultValue={transactionDetails?.principalCurrency}
@@ -225,7 +222,6 @@ const TransactionDetailScreen = () => {
               <Grid item xs={12} md={6}>
                 <TextField
                   label="Receiver's Amount"
-                  variant="filled"
                   fullWidth
                   //@ts-ignore
                   defaultValue={transactionDetails.principalAmount?.toFixed(2)}
@@ -237,7 +233,6 @@ const TransactionDetailScreen = () => {
               <Grid item xs={12} md={6}>
                 <TextField
                   label="Sender's Currency"
-                  variant="filled"
                   fullWidth
                   //@ts-ignore
                   defaultValue={transactionDetails.settlementCurrency}
@@ -248,7 +243,6 @@ const TransactionDetailScreen = () => {
               <Grid item xs={12} md={6}>
                 <TextField
                   label="Sender's Amount"
-                  variant="filled"
                   fullWidth
                   //@ts-ignore
                   defaultValue={transactionDetails.settlementAmount}
@@ -259,7 +253,6 @@ const TransactionDetailScreen = () => {
               <Grid item xs={12} md={6}>
                 <TextField
                   label="Charges"
-                  variant="filled"
                   fullWidth
                   //@ts-ignore
                   defaultValue={transactionDetails.charges}
@@ -270,7 +263,6 @@ const TransactionDetailScreen = () => {
               <Grid item xs={12} md={6}>
                 <TextField
                   label="Vat charges"
-                  variant="filled"
                   fullWidth
                   //@ts-ignore
                   defaultValue={transactionDetails.vatCharges}
@@ -286,17 +278,16 @@ const TransactionDetailScreen = () => {
             </Typography>
             <Grid container spacing={2} mb={2}>
               <Grid item xs={12} md={6}>
-                <TextField label="Account Number" variant="filled" fullWidth defaultValue={transactionDetails?.accountNumber} size="small" disabled />
+                <TextField label="Account Number / IBAN" fullWidth defaultValue={transactionDetails?.accountNumber} size="small" disabled />
               </Grid>
               {userCountry !== 'UAE' && (
                 <Grid item xs={12} md={6}>
-                  <TextField label="Bank" variant="filled" fullWidth defaultValue={transactionDetails?.bankName} size="small" disabled />
+                  <TextField label="Bank" fullWidth defaultValue={transactionDetails?.bankName} size="small" disabled />
                 </Grid>
               )}
               <Grid item xs={12} md={6}>
                 <TextField
                   label="Bank Code"
-                  variant="filled"
                   fullWidth
                   defaultValue={transactionDetails?.receiveCountry === 'IN' ? transactionDetails?.ifscCode : transactionDetails?.bankBicCode}
                   size="small"
@@ -306,7 +297,6 @@ const TransactionDetailScreen = () => {
               <Grid item xs={12} md={6}>
                 <TextField
                   label="Beneficiary Name"
-                  variant="filled"
                   fullWidth
                   defaultValue={
                     transactionDetails?.beneficiaryMiddleName
@@ -318,14 +308,7 @@ const TransactionDetailScreen = () => {
                 />
               </Grid>
               <Grid item xs={12} md={6}>
-                <TextField
-                  label="Nationality"
-                  variant="filled"
-                  fullWidth
-                  defaultValue={transactionDetails?.beneficiaryNationality}
-                  size="small"
-                  disabled
-                />
+                <TextField label="Nationality" fullWidth defaultValue={transactionDetails?.beneficiaryNationality} size="small" disabled />
               </Grid>
             </Grid>
             <Divider sx={{ my: 2 }} />
@@ -334,10 +317,10 @@ const TransactionDetailScreen = () => {
             </Typography>
             <Grid container spacing={2} mb={2}>
               <Grid item xs={12} md={6}>
-                <TextField label="Customer Id" variant="filled" fullWidth defaultValue={transactionDetails?.applicantId} size="small" disabled />
+                <TextField label="Customer Id" fullWidth defaultValue={transactionDetails?.applicantId} size="small" disabled />
               </Grid>
               <Grid item xs={12} md={6}>
-                <TextField label="Customer Name" variant="filled" fullWidth defaultValue={renderfullName()} size="small" disabled />
+                <TextField label="Customer Name" fullWidth defaultValue={renderfullName()} size="small" disabled />
               </Grid>
             </Grid>
           </Box>

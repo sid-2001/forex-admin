@@ -104,6 +104,7 @@ import { AuthService } from './services/auth.service'
 import Group from './pages/groups'
 import EmailReport from './pages/reportsEmail'
 import CountryCorridorExchangeRateMaster from './pages/countryCorridorExchangeRate'
+import BetaStatus from './pages/betaStatus'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -212,19 +213,25 @@ function App() {
   })
 
   const handleInactivity = () => {
-    if (local_service.get_accesstoken() != null) {
+    if (local_service.get_accesstoken() !== null) {
       setWarningOpen(true)
     }
   }
 
   const handleLogout = useCallback(async () => {
-    if (local_service?.get_accesstoken() != null) {
-      const response = await auth_service.staffLogout(staff.staffId)
-      if (response?.status) {
-        localStorage.clear()
-        sessionStorage.clear()
-        window.location.reload()
+    try {
+      const staffToken = localStorage.get_accesstoken()
+
+      if (staffToken) {
+        const response = await auth_service.staffLogout(staff.staffId)
       }
+    } catch (error) {
+      console.error('Auto logout API error:', error)
+    } finally {
+      localStorage.clear()
+      sessionStorage.clear()
+
+      window.location.replace('/login')
     }
   }, [])
 
@@ -334,6 +341,7 @@ function App() {
               <Route path="group" element={<Group />} />
               <Route path="email-report" element={<EmailReport />} />
               <Route path="country-corridor-exchange-rate" element={<CountryCorridorExchangeRateMaster />} />
+              <Route path="beta-status" element={<BetaStatus />} />
 
               <Route path="*" element={<Dashboard />} />
             </Route>

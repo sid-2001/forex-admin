@@ -1,9 +1,7 @@
 /* eslint-disable no-useless-catch */
-import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig, AxiosRequestHeaders, AxiosProgressEvent, AxiosError } from 'axios'
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosRequestHeaders, AxiosProgressEvent, AxiosError } from 'axios'
 import { redirect } from 'react-router-dom'
 import { LocalStorageService } from '../../helpers/local-storage-service'
-import { BaseError } from '../../types/error.type'
-import { logger } from '../../helpers/logger'
 import { publicIpv4 } from 'public-ip'
 
 const { VITE_APP_BACKEND } = import.meta.env
@@ -21,6 +19,8 @@ const instance: AxiosInstance = axios.create({
   responseType: 'json',
 })
 
+const localStorageService = new LocalStorageService()
+
 // Fetch device info with fallback
 export async function getDeviceInfo(): Promise<{ ip: string; deviceName: string }> {
   let ip = 'unknown'
@@ -35,9 +35,15 @@ export async function getDeviceInfo(): Promise<{ ip: string; deviceName: string 
 
   return { ip, deviceName }
 }
+
+const forceLogout = () => {
+  localStorage.clear()
+  sessionStorage.clear()
+  window.location.replace('/login')
+}
+
 instance.interceptors.request.use(
   async (config: AdaptAxiosRequestConfig) => {
-    const localStorageService = new LocalStorageService()
     const { ip, deviceName } = await getDeviceInfo()
     const token = (localStorageService.get_accesstoken() as any)?.replaceAll(`"`, '')
 
@@ -58,18 +64,6 @@ instance.interceptors.request.use(
     const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().replace('Z', '') // Result: "2026-03-09T12:45:00.783"
 
     if (token) {
-      // config.headers['Authorization'] = 'Bearer ' + token
-      // config.headers['ngrok-skip-browser-warning'] = 'true'
-
-      // // Audit Headers
-      // config.headers['timezone'] = timezone
-      // config.headers['offset'] = offset
-      // config.headers['localdatetime'] = localDateTime
-
-      // config.headers['X-Device-IP'] = ip
-      // config.headers['X-Device-Name'] = deviceName
-      const localStorageService = new LocalStorageService()
-
       config.headers['Authorization'] = `Bearer ${token}`
       config.headers['Content-Type'] = 'application/json'
 
@@ -102,128 +96,6 @@ instance.interceptors.request.use(
     return Promise.reject(error)
   },
 )
-// instance.interceptors.request.use(
-//   async (config: AdaptAxiosRequestConfig) => {
-//     const localStorageService = new LocalStorageService()
-//     const { ip, deviceName } = await getDeviceInfo()
-//     const token = (localStorageService.get_accesstoken() as any)?.replaceAll(`"`, '')
-//  const now = new Date();
-
-//   // Timezone offset in minutes → convert to ±HH:MM
-//   const offsetMinutes = -now.getTimezoneOffset();
-//   const sign = offsetMinutes >= 0 ? "+" : "-";
-//   const hours = String(Math.floor(Math.abs(offsetMinutes) / 60)).padStart(2, "0");
-//   const minutes = String(Math.abs(offsetMinutes) % 60).padStart(2, "0");
-//   const offset = `${sign}${hours}:${minutes}`;
-// const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-//   const localDateTime = now.toISOString().slice(0, 19);
-//     if (token) {
-//       config.headers['Authorization'] = 'Bearer ' + token
-//       config.headers['ngrok-skip-browser-warning'] = '69420'
-//       // "ngrok-skip-browser-warning": true;
-//       config.headers['access-control-allow-credentials'] = 'true'
-//       config.headers['access-control-allow-origin'] = '*'
-//       config.headers['ngrok-skip-browser-warning'] = 'true'
-//       config.headers['X-Device-IP'] = ip
-//       config.headers['X-Device-Name'] = deviceName
-//    config.headers["timezone"] = timezone;
-//   config.headers["offset"] = offset;
-//   config.headers["localdatetime"] = localDateTime;
-//     }
-//     return config
-//   },
-//   (error: any) => {
-//     // Handle request error
-//     logger.error('Request Interceptor Error:', error)
-//     return Promise.reject(error)
-//   },
-// )
-
-// Response interceptor
-// instance.interceptors.response.use(
-//   async (response: AxiosResponse) => {
-//     console.log(response, 'respp')
-//     if (response.status == 401) {
-//       const newToken = await refreshToken()
-//       window.location.reload()
-//     }
-//     if (response.status == 403) {
-//     }
-//     return response
-//   },
-//   async (error: AxiosError) => {
-//     console.log(error.status, error, 'error')
-
-//     if (error.status === 401) {
-//       try {
-//         const newToken = await refreshToken()
-//         error.config.headers['Authorization'] = 'Bearer ' + newToken
-//         return instance.request(error.config) // Retry the original request
-//       } catch (refreshError) {
-//         localStorage.clear()
-//         window.location.replace('/login')
-//         return Promise.reject(refreshError)
-//       }
-//     } else {
-//       const err = new BaseError()
-//       err.error_message = error?.response?.data || 'Bad Response'
-//       err.error_code = String(error?.response?.status)
-//       logger.error('Response Interceptor Error:', err)
-//       return Promise.reject(err)
-//     }
-//   },
-// )
-
-// instance.interceptors.response.use(
-//   async (response: AxiosResponse) => {
-//     // Only for 2xx responses
-//     return response
-//   },
-
-//   async (error: AxiosError) => {
-//     const status = error?.response?.status
-
-//     console.log(status, error, 'error')
-
-//     // 🔐 Handle Unauthorized (401)
-//     if (status === 401) {
-//       try {
-//         const newToken = await refreshToken()
-
-//         if (error.config && newToken) {
-//           error.config.headers['Authorization'] = 'Bearer ' + newToken
-
-//           return instance.request(error.config) // retry request
-//         }
-//       } catch (refreshError) {
-//         localStorage.clear()
-//         window.location.replace('/login')
-//         return Promise.reject(refreshError)
-//       }
-//     }
-
-//     // 🚫 Handle Forbidden
-//     if (status === 403) {
-//       console.warn('Access Denied')
-//     }
-
-//     // 💥 Handle Server Error (500)
-//     if (status === 500) {
-//       console.error('Internal Server Error')
-//     }
-
-//     // 🧠 Standard Error Object
-//     const err = new BaseError()
-//     //@ts-ignore
-//     err.error_message = error?.response?.data?.message || error.response?.data || 'Something went wrong'
-//     err.error_code = String(status || 500)
-
-//     logger.error('Response Interceptor Error:', err)
-
-//     return Promise.reject(err)
-//   },
-// )
 
 instance.interceptors.response.use(
   (response) => response,
@@ -242,13 +114,22 @@ instance.interceptors.response.use(
         error.config._retry = true
         const newToken = await refreshToken()
 
+        if (!newToken) {
+          forceLogout()
+          return Promise.reject(error)
+        }
+
         if (error.config) {
-          error.config.headers['Authorization'] = 'Bearer ' + newToken
+          error.config.headers = error.config.headers || {}
+          error.config.headers['Authorization'] = `Bearer ${newToken}`
+
           return instance.request(error.config)
+
+          // error.config.headers['Authorization'] = 'Bearer ' + newToken
+          // return instance.request(error.config)
         }
       } catch (refreshError) {
-        localStorage.clear()
-        window.location.replace('/login')
+        forceLogout()
         return Promise.reject(refreshError)
       }
     }
@@ -265,29 +146,41 @@ instance.interceptors.response.use(
 
 const refreshToken = async () => {
   try {
-    let local_service = new LocalStorageService()
     const response = await axios.get(`${BaseUrl}/auth/refresh-token`, {
       headers: {
-        Authorization: 'Bearer ' + local_service.get_accesstoken(),
+        Authorization: 'Bearer ' + localStorageService.get_accesstoken(),
       },
     })
+    if (typeof response?.data === 'string' && response?.data.trim().startsWith('<!DOCTYPE html')) {
+      throw new Error('Refresh token API returned HTML instead of an access token')
+    }
 
-    const newAccessToken = response.data as any
+    const newAccessToken = typeof response?.data === 'string' ? response?.data : response.data?.accessToken || response.data?.access_token
 
-    local_service.set_accesstoken(newAccessToken) // update token in storage
+    if (!newAccessToken) {
+      throw new Error('No access token returned from refresh API')
+    }
+
+    localStorageService.set_accesstoken(newAccessToken)
+
     return newAccessToken
-  } catch (error) {
-    redirect('/')
-    return Promise.reject(error)
-  }
-}
 
-const init = () => {
-  // instance.defaults.headers['Cache-Control'] = 'no-cache'
-  // // Access-Control-Allow-Origin: *,
-  // instance.defaults.headers['Access-Control-Allow-Origin'] = '*'
-  // instance.defaults.headers['ngrok-skip-browser-warning']="f434"
-  // instance.defaults.withCredentials = true;
+    // const newAccessToken = response?.data as any
+
+    // localStorageService.set_accesstoken(newAccessToken) // update token in storage
+    // return newAccessToken
+  } catch (error) {
+    console.error('Refresh token failed:', error)
+
+    localStorage.clear()
+    sessionStorage.clear()
+
+    window.location.replace('/login')
+
+    return Promise.reject(error)
+    // redirect('/')
+    // return Promise.reject(error)
+  }
 }
 
 const get = async (url: string) => {
@@ -316,7 +209,7 @@ const put = async (url: string, object: any) => {
     throw error
   }
 }
-//
+
 const patch = async (url: string, object: any) => {
   try {
     console.log('i hav alld data1', url, object)
@@ -360,7 +253,6 @@ const upload = async (url: string, formData: any, onUploadProgress: (progressEve
 const api1 = {
   baseUrl,
   instance,
-  init,
   get,
   post,
   put,

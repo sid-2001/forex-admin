@@ -78,8 +78,7 @@ const TransactionListing = () => {
     {
       field: 'id',
       headerName: 'Transaction ID',
-      width: 200,
-      sortable: false,
+      width: 250,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <span
@@ -98,111 +97,21 @@ const TransactionListing = () => {
     {
       field: 'transactionInwardNumber',
       headerName: 'Inward ID',
+      width: 250,
+      headerClassName: 'super-app-theme--header',
+    },
+    {
+      field: 'platformTransactionReferenceId',
+      headerName: 'Lulu Transaction Id',
       width: 200,
-      sortable: false,
       headerClassName: 'super-app-theme--header',
     },
 
     {
-      field: 'destination',
-      headerName: 'Destination',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return (
-          <Tooltip title={params?.value} placement="top">
-            <Box
-              component="span"
-              sx={{
-                cursor: 'pointer',
-                color: 'text.primary',
-                '&:hover': {
-                  color: 'primary.main',
-                },
-              }}
-            >
-              {params?.value?.replace(/\s*\(.*?\)/, '')}
-            </Box>
-          </Tooltip>
-        )
-      },
-    },
-    {
-      field: 'value',
-      headerName: 'Principal Amount',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => params?.value?.toFixed(2),
-    },
-    {
-      field: 'principalCurrency',
-      headerName: 'Principal Currency',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return (
-          <Tooltip title={params?.value} placement="top">
-            <Box
-              component="span"
-              sx={{
-                cursor: 'pointer',
-                color: 'text.primary',
-                '&:hover': {
-                  color: 'primary.main',
-                },
-              }}
-            >
-              {params?.value?.replace(/\s*\(.*?\)/, '')}
-            </Box>
-          </Tooltip>
-        )
-      },
-    },
-    {
-      field: 'settlementAmount',
-      headerName: 'Settlement Amount',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        if (!isNaN(params?.value)) {
-          return params?.value?.toFixed(2)
-        } else {
-          return 0
-        }
-      },
-    },
-    {
-      field: 'settlementCurrency',
-      headerName: 'Settlement Currency',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return (
-          <Tooltip title={params?.value} placement="top">
-            <Box
-              component="span"
-              sx={{
-                cursor: 'pointer',
-                color: 'text.primary',
-                '&:hover': {
-                  color: 'primary.main',
-                },
-              }}
-            >
-              {params?.value?.replace(/\s*\(.*?\)/, '')}
-            </Box>
-          </Tooltip>
-        )
-      },
-    },
-    {
       field: 'applicant',
       headerName: 'Customer Id',
       width: 200,
-      minWidth: 200,
-      maxWidth: 200,
-      sortable: false,
-      resizable: false,
+
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         const nameOrId = params.value?.name || params.value?.applicantId || 'N/A'
@@ -220,17 +129,65 @@ const TransactionListing = () => {
         )
       },
     },
+    {
+      field: 'destination',
+      headerName: 'Destination',
+      width: 100,
+      headerClassName: 'super-app-theme--header',
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params?.value} placement="top">
+            <Box
+              component="span"
+              sx={{
+                cursor: 'pointer',
+                color: 'text.primary',
+                '&:hover': {
+                  color: 'primary.main',
+                },
+              }}
+            >
+              {params?.value?.replace(/\s*\(.*?\)/, '')}
+            </Box>
+          </Tooltip>
+        )
+      },
+    },
+    {
+      field: 'principalAmount',
+      headerName: 'Principal Amount',
+      width: 200,
+      headerClassName: 'super-app-theme--header',
+      valueGetter: (_value: any, row: any) => {
+        const amount = Number(row?.value)
+        const currency = row?.principalCurrency?.replace(/\s*\(.*?\)/, '')
+
+        return `${!isNaN(amount) ? amount.toFixed(2) : '0.00'} ${currency || ''}`
+      },
+    },
+    {
+      field: 'settlementAmount',
+      headerName: 'Settlement Amount',
+      width: 200,
+      headerClassName: 'super-app-theme--header',
+      valueGetter: (_value: any, row: any) => {
+        const amount = Number(row?.settlementAmount)
+        const currency = row?.settlementCurrency?.replace(/\s*\(.*?\)/, '')
+
+        return `${!isNaN(amount) ? amount.toFixed(2) : '0.00'} ${currency || ''}`
+      },
+    },
 
     {
       field: 'forex',
       headerName: 'Exchange Rate',
-      flex: 1,
+      width: 200,
       headerClassName: 'super-app-theme--header',
     },
     {
       field: 'charges',
       headerName: 'Charges (Inc Vat)',
-      flex: 1,
+      width: 200,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => params.row.charges + params.row.vatCharges,
     },
@@ -243,14 +200,14 @@ const TransactionListing = () => {
     {
       field: 'date',
       headerName: 'Date',
-      flex: 1,
+      width: 200,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => helper.convertDateAndTime(params?.row?.date),
     },
     {
       field: 'gateway_status',
       headerName: 'Gateway Status',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         const value = params?.row?.gateway_status?.toUpperCase()
@@ -271,7 +228,7 @@ const TransactionListing = () => {
     {
       field: 'status',
       headerName: 'Transaction Status',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         const value = renderTransactionStatus(params?.row?.status?.toUpperCase())
@@ -289,20 +246,20 @@ const TransactionListing = () => {
         )
       },
     },
-    {
-      field: 'paymentStatus',
-      headerName: 'Transaction Sub Status',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return <span>{params?.row?.paymentStatus ? params.row.paymentStatus.replace(/_/g, ' ') : ''}</span>
-      },
-    },
+    // {
+    //   field: 'paymentStatus',
+    //   headerName: 'Transaction Sub Status',
+    //   flex: 1,
+    //   headerClassName: 'super-app-theme--header',
+    //   renderCell: (params: any) => {
+    //     return <span>{params?.row?.paymentStatus ? params.row.paymentStatus.replace(/_/g, ' ') : ''}</span>
+    //   },
+    // },
 
     {
       field: 'stpError',
       headerName: 'STP',
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <Chip
@@ -320,7 +277,7 @@ const TransactionListing = () => {
     {
       field: 'bopAction',
       headerName: columnHeaderMap[userCountry] || columnHeaderMap.DEFAULT,
-      flex: 1,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <IconButton
@@ -412,12 +369,12 @@ const TransactionListing = () => {
   }
 
   const inward_columns = [
-    { field: 'transactionNumberIw', headerName: 'Transaction Number IW', width: 200, headerClassName: 'super-app-theme--header' },
-    { field: 'owTransactionNumber', headerName: 'OW Transaction Number', flex: 1, headerClassName: 'super-app-theme--header' },
+    { field: 'transactionNumberIw', headerName: 'Transaction Number IW', width: 250, headerClassName: 'super-app-theme--header' },
+    { field: 'owTransactionNumber', headerName: 'OW Transaction Number', width: 250, headerClassName: 'super-app-theme--header' },
     {
       field: 'sendingCountry',
       headerName: 'Sending Country',
-      width: 130,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return (
@@ -441,7 +398,7 @@ const TransactionListing = () => {
     {
       field: 'receivingCountry',
       headerName: 'Receiving Country',
-      width: 130,
+      width: 150,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         return (
@@ -501,7 +458,7 @@ const TransactionListing = () => {
     {
       field: 'createdLocaldatetime',
       headerName: 'Created Date',
-      flex: 1,
+      width: 200,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         console.log(params)
@@ -517,7 +474,7 @@ const TransactionListing = () => {
     {
       field: 'charges',
       headerName: 'Charges (Inc Vat)',
-      flex: 1,
+      width: 200,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => params.row.charges + params.row.vatCharges,
     },
@@ -525,7 +482,7 @@ const TransactionListing = () => {
     {
       field: 'transactionStatus',
       headerName: 'Status',
-      flex: 1,
+      width: 200,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => {
         const value = renderTransactionStatus(params?.row?.transactionStatus?.toUpperCase())
@@ -546,7 +503,7 @@ const TransactionListing = () => {
     {
       field: 'stpError',
       headerName: 'STP',
-      flex: 1,
+      width: 200,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <Chip
@@ -564,7 +521,7 @@ const TransactionListing = () => {
     {
       field: 'action',
       headerName: 'Action',
-      flex: 1,
+      width: 100,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => (
         <IconButton
@@ -855,7 +812,9 @@ const TransactionListing = () => {
   }
 
   const filteredOutwardColumns =
-    userCountry === 'UAE' ? columns_outward.filter((col) => col.field !== 'gateway_status' && col.field !== 'stpError') : columns_outward
+    userCountry === 'UAE'
+      ? columns_outward.filter((col) => col.field !== 'gateway_status' && col.field !== 'stpError' && col.field !== 'transactionInwardNumber')
+      : columns_outward
 
   const filteredInwardColumns =
     userCountry === 'UAE'
@@ -976,7 +935,7 @@ const TransactionListing = () => {
                 //@ts-ignore
                 columns={transactionType === 'inwards' ? filteredInwardColumns : filteredOutwardColumns}
                 getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
-                pageSizeOptions={[10, 20, 50]}
+                pageSizeOptions={[10, 20, 50, 100]}
                 // paginationMode="server"
                 // filterMode="server"
                 // paginationModel={paginationInwardModel}
@@ -1014,7 +973,7 @@ const TransactionListing = () => {
                 //@ts-ignore
                 columns={transactionType === 'inwards' ? filteredInwardColumns : filteredOutwardColumns}
                 getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
-                pageSizeOptions={[10, 20, 50]}
+                pageSizeOptions={[10, 20, 50, 100]}
                 // paginationMode="server"
                 // filterMode="server"
                 // paginationModel={paginationModel}
@@ -1107,7 +1066,7 @@ const TransactionListing = () => {
             }}
             filterMode="server"
             onFilterModelChange={handleFilterChange}
-            pageSizeOptions={[10]}
+            pageSizeOptions={[5, 10, 20]}
             getRowId={(row: any) => row.id} // Ensure proper row ID handling
           />
           <Button variant="outlined" onClick={() => setmodalOpen(false)} sx={{ mt: 2 }}>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton } from '@mui/x-data-grid'
-import { Box, Typography, FormControlLabel, Button, Modal, Grid, Checkbox, TextField } from '@mui/material'
+import { Box, Typography, FormControlLabel, Button, Modal, Grid, Checkbox, TextField, Select, FormControl, MenuItem, InputLabel } from '@mui/material'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
@@ -158,12 +158,26 @@ const AddUpdateModuleDialog: React.FC<any> = ({ action = 'Add', handleClose, han
               />
             </Grid>
             <Grid item xs={12} sm={12}>
-              <FormControlLabel
-                control={
-                  <Checkbox checked={moduleData.moduleStatus} onChange={(e) => setModuleData({ ...moduleData, moduleStatus: e.target.checked })} />
-                }
-                label="Active Status"
-              />
+              <FormControl fullWidth>
+                <InputLabel id="module-status">Active Status</InputLabel>
+
+                <Select
+                  labelId="module-status"
+                  id="module-status"
+                  name="moduleStatus"
+                  value={moduleData?.moduleStatus || 'active'}
+                  label="Active Status"
+                  onChange={(e) => {
+                    setModuleData((prev: any) => ({
+                      ...prev,
+                      moduleStatus: e.target.value,
+                    }))
+                  }}
+                >
+                  <MenuItem value="active">Active</MenuItem>
+                  <MenuItem value="inactive">Inactive</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
           </Grid>
         </Box>

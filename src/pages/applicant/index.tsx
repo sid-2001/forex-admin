@@ -161,7 +161,7 @@ const ApplicantPage = () => {
     }
     try {
       const response = await applicant_service.searchByApplicantId(applicantId)
-      const { applicant, applicantContactDetails, beneficiaryList, kycId, kycStatus, rewards, loyaltyResponse }: any = response
+      const { applicant, applicantContactDetails, beneficiaryList, kycId, kycStatus, rewards, loyaltyResponse, betaStatus }: any = response
 
       setApplicantDetails({
         ...applicant,
@@ -171,6 +171,7 @@ const ApplicantPage = () => {
         // kycStatus,
         rewards,
         loyaltyResponse,
+        betaStatus,
         // kyc_Status: applicant?.kycStatus,
       })
 
@@ -466,6 +467,31 @@ const ApplicantPage = () => {
                           }}
                         >
                           {convertStrToTitleCase(applicantDetails?.amlKycStatus)}
+                        </Typography>
+                      </Box>
+
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          Beta Status
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: '0.9rem',
+                            color: '#334155',
+                            minHeight: 24,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          {applicantDetails?.betaStatus ? 'Active' : 'Inactive'}
                         </Typography>
                       </Box>
                     </Box>

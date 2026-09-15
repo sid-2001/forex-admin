@@ -28,7 +28,7 @@ export default function NotificationCampaignDialog({ open, editData, onClose, re
     frequencyValue: 0,
     frequencyUnit: '',
     scheduledAt: '',
-    // status: '',
+    status: '',
   }
 
   const [formData, setFormData] = useState<any>(initialFormState)
@@ -106,7 +106,7 @@ export default function NotificationCampaignDialog({ open, editData, onClose, re
           frequencyUnit: formData?.frequencyUnit,
           modifiedBy: local_service?.get_staff_id(),
           scheduledAt: formData.scheduledAt?.format('YYYY-MM-DDTHH:mm:ss'),
-          //  status: formData?.status,
+          status: formData?.status,
         })
         if (res.status === false) {
           showAlert('fail', res.message)
@@ -328,7 +328,7 @@ export default function NotificationCampaignDialog({ open, editData, onClose, re
               onChange={(_, newValue) => {
                 handleChange('status', newValue?.value)
               }}
-              disabled={!editData}
+              //  disabled={!editData}
               renderInput={(params) => <TextField {...params} required label="Status" fullWidth />}
               getOptionDisabled={(option) => option.disabled}
               renderOption={(props, option) => (
