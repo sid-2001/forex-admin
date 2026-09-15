@@ -175,7 +175,7 @@ const refreshToken = async () => {
     localStorage.clear()
     sessionStorage.clear()
 
-    redirect('/')
+    window.location.replace('/login')
 
     return Promise.reject(error)
     // redirect('/')

@@ -935,7 +935,7 @@ const TransactionListing = () => {
                 //@ts-ignore
                 columns={transactionType === 'inwards' ? filteredInwardColumns : filteredOutwardColumns}
                 getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
-                pageSizeOptions={[10, 20, 50]}
+                pageSizeOptions={[10, 20, 50, 100]}
                 // paginationMode="server"
                 // filterMode="server"
                 // paginationModel={paginationInwardModel}
@@ -973,7 +973,7 @@ const TransactionListing = () => {
                 //@ts-ignore
                 columns={transactionType === 'inwards' ? filteredInwardColumns : filteredOutwardColumns}
                 getRowId={(row: any) => (transactionType === 'inwards' ? row?.transactionNumberIw : row.id)}
-                pageSizeOptions={[10, 20, 50]}
+                pageSizeOptions={[10, 20, 50, 100]}
                 // paginationMode="server"
                 // filterMode="server"
                 // paginationModel={paginationModel}
@@ -1066,7 +1066,7 @@ const TransactionListing = () => {
             }}
             filterMode="server"
             onFilterModelChange={handleFilterChange}
-            pageSizeOptions={[10]}
+            pageSizeOptions={[5, 10, 20]}
             getRowId={(row: any) => row.id} // Ensure proper row ID handling
           />
           <Button variant="outlined" onClick={() => setmodalOpen(false)} sx={{ mt: 2 }}>

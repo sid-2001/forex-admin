@@ -219,13 +219,19 @@ function App() {
   }
 
   const handleLogout = useCallback(async () => {
-    if (local_service?.get_accesstoken() !== null) {
-      const response = await auth_service.staffLogout(staff.staffId)
-      if (response?.status) {
-        localStorage.clear()
-        sessionStorage.clear()
-        window.location.reload()
+    try {
+      const staffToken = localStorage.get_accesstoken()
+
+      if (staffToken) {
+        const response = await auth_service.staffLogout(staff.staffId)
       }
+    } catch (error) {
+      console.error('Auto logout API error:', error)
+    } finally {
+      localStorage.clear()
+      sessionStorage.clear()
+
+      window.location.replace('/login')
     }
   }, [])
 
