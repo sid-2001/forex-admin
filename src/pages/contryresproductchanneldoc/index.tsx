@@ -546,11 +546,10 @@ export default function CountryResProductChannelDocRequiredMaster() {
           rows={rows}
           columns={columns}
           getRowId={(row: DocRequiredData) => row.reqDocCode}
-          autoHeight
           loading={loading}
           slots={{ toolbar: GridToolbar }}
           disableRowSelectionOnClick
-          pageSizeOptions={[5, 10, 25, 50]}
+          pageSizeOptions={[5, 10, 20, 50, 100]}
           sx={{
             '& .MuiDataGrid-columnHeaders': {
               backgroundColor: '#f5f5f5',

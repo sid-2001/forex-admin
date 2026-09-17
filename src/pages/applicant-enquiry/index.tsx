@@ -30,7 +30,7 @@ const ApplicantEnquiry = () => {
   }, [])
 
   return (
-    <Box sx={{ width: '90vw', height: '70vh' }}>
+    <Box sx={{ width: '90vw', height: '80vh' }}>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.CUSTOMER}>
         <Typography variant="h4" gutterBottom>
           <strong>All Customers</strong>

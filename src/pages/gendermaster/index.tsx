@@ -156,7 +156,7 @@ export default function GenderMaster() {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Box p={3} sx={{ width: '90vw' }}>
+      <Box p={3} sx={{ width: '90vw', height: '80vh' }}>
         <Stack direction="row" justifyContent="space-between" mb={2}>
           <Typography
             variant="h4"
@@ -187,9 +187,8 @@ export default function GenderMaster() {
           rows={rows}
           columns={columns}
           getRowId={(row: any) => `${row.gendercode}-${row.countrycode}`}
-          autoHeight
           disableRowSelectionOnClick
-          pageSizeOptions={[5]}
+          pageSizeOptions={[5, 10, 20, 50, 100]}
           slots={{ toolbar: GridToolbar }}
           slotProps={{ toolbar: { showQuickFilter: true } }}
           disableColumnMenu
@@ -197,6 +196,7 @@ export default function GenderMaster() {
             '& .super-app-theme--header': {
               fontWeight: 'bold',
             },
+            height: '70vh',
           }}
           initialState={{
             pagination: {

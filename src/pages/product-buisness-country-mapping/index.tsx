@@ -191,7 +191,7 @@ export default function ProductBusinessCountryMapping() {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Box p={3} sx={{ width: '90vw', '& .super-app-theme--header': { backgroundColor: '#f5f5f5', fontWeight: 'bold' } }}>
+      <Box sx={{ width: '90vw', height: '80vh' }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography
             variant="h4"
@@ -219,39 +219,33 @@ export default function ProductBusinessCountryMapping() {
           </Button>
         </Stack>
 
-        <DataGrid
-          rows={rows || []}
-          columns={columns}
-          getRowId={(row) => row.businessMapCode || Math.random()}
-          autoHeight
-          disableRowSelectionOnClick
-          slots={{ toolbar: GridToolbar }}
-          slotProps={{ toolbar: { showQuickFilter: true } }}
-          disableColumnMenu
-          // density="standard"
-          //@ts-ignore
-          slotProps={{
-            toolbar: {
-              showQuickFilter: true,
-              showDensitySelector: true, // ✅ enable density
-            },
-          }}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 5,
+        <Box sx={{ height: '70vh' }}>
+          <DataGrid
+            rows={rows || []}
+            columns={columns}
+            getRowId={(row) => row.businessMapCode || Math.random()}
+            disableRowSelectionOnClick
+            slots={{ toolbar: GridToolbar }}
+            slotProps={{ toolbar: { showQuickFilter: true } }}
+            disableColumnMenu
+            // density="standard"
+            //@ts-ignore
+            slotProps={{
+              toolbar: {
+                showQuickFilter: true,
+                showDensitySelector: true, // ✅ enable density
               },
-            },
-          }}
-          sx={{
-            boxShadow: 2,
-            border: 2,
-            borderColor: '#f5f5f5',
-            '& .MuiDataGrid-cell:hover': {
-              color: 'primary.main',
-            },
-          }}
-        />
+            }}
+            pageSizeOptions={[5, 10, 20, 50, 100]}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 10,
+                },
+              },
+            }}
+          />
+        </Box>
 
         <ProductBusinessCountryMappingDialog
           open={open}

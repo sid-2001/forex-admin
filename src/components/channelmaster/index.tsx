@@ -161,7 +161,7 @@ export default function ChannelManagement() {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Box p={3} sx={{ width: '90vw' }}>
+      <Box p={3} sx={{ width: '90vw', height: '80vh' }}>
         <Stack direction="row" justifyContent="space-between" mb={2}>
           <Typography
             variant="h4"
@@ -189,7 +189,7 @@ export default function ChannelManagement() {
           </Button>
         </Stack>
 
-        <Box sx={{ height: 500, '& .super-app-theme--header': { fontWeight: 'bold' } }}>
+        <Box sx={{ height: '70vh', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
           <DataGrid
             rows={rows}
             columns={columns}
@@ -199,9 +199,9 @@ export default function ChannelManagement() {
             slotProps={{ toolbar: { showQuickFilter: true } }}
             disableColumnMenu
             disableRowSelectionOnClick
-            pageSizeOptions={[5, 10, 20]}
+            pageSizeOptions={[5, 10, 20, 50, 100]}
             initialState={{
-              pagination: { paginationModel: { pageSize: 5 } },
+              pagination: { paginationModel: { pageSize: 10 } },
             }}
           />
         </Box>

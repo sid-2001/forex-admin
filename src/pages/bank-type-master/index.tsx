@@ -134,7 +134,7 @@ export default function BankTypeMaster() {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Box p={3} sx={{ width: '90vw', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
+      <Box p={3} sx={{ width: '90vw', height: '80vh' }}>
         <Stack direction="row" justifyContent="space-between" mb={2}>
           <Typography
             variant="h4"
@@ -162,24 +162,25 @@ export default function BankTypeMaster() {
             Add
           </Button>
         </Stack>
-
-        <DataGrid
-          rows={rows}
-          getRowId={(row) => `${row.business_type_code || row.businessTypeCode}-${row.countryCode || Math.random()}`}
-          columns={columns}
-          autoHeight
-          disableRowSelectionOnClick
-          slots={{ toolbar: GridToolbar }}
-          slotProps={{ toolbar: { showQuickFilter: true } }}
-          disableColumnMenu
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 5,
+        <Box sx={{ height: '70vh', '& .super-app-theme--header': { fontWeight: 'bold' } }}>
+          <DataGrid
+            rows={rows}
+            getRowId={(row) => `${row.business_type_code || row.businessTypeCode}-${row.countryCode || Math.random()}`}
+            columns={columns}
+            disableRowSelectionOnClick
+            slots={{ toolbar: GridToolbar }}
+            slotProps={{ toolbar: { showQuickFilter: true } }}
+            disableColumnMenu
+            pageSizeOptions={[5, 10, 20, 50, 100]}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 10,
+                },
               },
-            },
-          }}
-        />
+            }}
+          />
+        </Box>
 
         <BankTypeDialog
           open={dialogOpen}

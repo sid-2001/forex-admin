@@ -822,7 +822,7 @@ const TransactionListing = () => {
       : inward_columns
 
   return (
-    <Box sx={{ width: '90vw', height: '70vh' }}>
+    <Box sx={{ width: '90vw', height: '80vh' }}>
       <Typography variant="h4" gutterBottom>
         <strong>Transactions</strong>
       </Typography>
@@ -917,16 +917,7 @@ const TransactionListing = () => {
         </Box>
       </Box>
 
-      <Box
-        sx={{
-          // width: '80vw',
-          height: '65vh',
-          '& .super-app-theme--header': {
-            backgroundColor: '#005099',
-            color: 'white',
-          },
-        }}
-      >
+      <Box>
         {helper.checkUserHasPermission(getTransactionPermission(), 'canRead') &&
           (transactionType == 'inwards' ? (
             <>
@@ -963,6 +954,7 @@ const TransactionListing = () => {
                   '& .MuiDataGrid-columnHeaders': {
                     backgroundColor: '#f5f5f5', // optional: better header visibility
                   },
+                  height: '65vh',
                 }}
               />
             </>
@@ -1003,6 +995,7 @@ const TransactionListing = () => {
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                   },
+                  height: '65vh',
                 }}
               />
             </>

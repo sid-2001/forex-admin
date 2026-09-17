@@ -723,7 +723,7 @@ const Dashboard = () => {
                 <Typography variant="h4" gutterBottom fontWeight="bold" color="primary">
                   Recent Transactions
                 </Typography>
-                <Box sx={{ height: 400, width: '100%' }}>
+                <Box sx={{ height: '400px', width: '100%' }}>
                   {isLoading ? (
                     <>
                       <Skeleton variant="rectangular" height={40} sx={{ mb: 1 }} />
@@ -759,7 +759,7 @@ const Dashboard = () => {
                       initialState={{
                         pagination: { paginationModel: { pageSize: 10, page: 0 } },
                       }}
-                      pageSizeOptions={[5, 10, 20]}
+                      pageSizeOptions={[10, 20, 100]}
                       disableRowSelectionOnClick
                       slots={{ toolbar: CustomToolbar }}
                       sx={{
@@ -772,6 +772,7 @@ const Dashboard = () => {
                           fontWeight: 'bold',
                           fontSize: '1.1rem',
                         },
+                        height: '400px',
                       }}
                       disableColumnMenu
                     />

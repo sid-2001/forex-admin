@@ -868,7 +868,7 @@ const ApplicantPage = () => {
                       Loyalty Tier{' '}
                     </Typography>
                     <Typography variant="h6" fontWeight={600}>
-                      {applicantDetails?.userTier}
+                      {applicantDetails?.loyaltyResponse?.currentLevel?.userTier}
                     </Typography>
                   </Box>
                 </Grid>

@@ -67,7 +67,7 @@ export default function ServiceSubServiceMapping() {
 
   // Pagination
   const [page, setPage] = useState(0)
-  const [pageSize, setPageSize] = useState(5)
+  const [pageSize, setPageSize] = useState(10)
 
   const [uniqueCountries, setUniqueCountries] = useState<string[]>([])
   const [uniqueServices, setUniqueServices] = useState<string[]>([])
@@ -580,7 +580,7 @@ export default function ServiceSubServiceMapping() {
   // ==================== RENDER ====================
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>
-      <Box p={3} sx={{ width: '90vw', '& .super-app-theme--header': { backgroundColor: '#f5f5f5', fontWeight: 'bold' } }}>
+      <Box p={3} sx={{ width: '90vw', height: '80vh' }}>
         {/* Header */}
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography
@@ -617,7 +617,6 @@ export default function ServiceSubServiceMapping() {
           rows={filteredRows}
           columns={columns}
           getRowId={(row) => row.serviceSubServiceMapCode || Math.random()}
-          autoHeight
           disableRowSelectionOnClick
           slotProps={{
             toolbar: {
@@ -633,14 +632,9 @@ export default function ServiceSubServiceMapping() {
             setPage(model.page)
             setPageSize(model.pageSize)
           }}
-          pageSizeOptions={[5, 10, 25, 50]}
+          pageSizeOptions={[5, 10, 20, 50, 100]}
           sx={{
-            boxShadow: 2,
-            border: 2,
-            borderColor: '#f5f5f5',
-            '& .MuiDataGrid-cell:hover': {
-              color: 'primary.main',
-            },
+            height: '70vh',
             '& .MuiDataGrid-columnHeaders': {
               backgroundColor: '#f5f5f5',
             },

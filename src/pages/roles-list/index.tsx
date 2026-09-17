@@ -170,7 +170,7 @@ const RoleManagementPage: React.FC = () => {
 
   return (
     <HasPermission module={local_service.get_modules()?.ROLE} permission="canRead">
-      <Box sx={{ width: '90vw', height: '70vh' }}>
+      <Box sx={{ width: '90vw', height: '80vh' }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="h4">
             <strong>Roles</strong>
@@ -194,7 +194,7 @@ const RoleManagementPage: React.FC = () => {
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={(model) => setColumnVisibilityModel(model)}
           initialState={{ pagination: { paginationModel: { pageSize: 20, page: 0 } } }}
-          pageSizeOptions={[10, 20, 50]}
+          pageSizeOptions={[10, 20, 50, 100]}
           disableRowSelectionOnClick
           loading={roles.length === 0}
           slots={{ toolbar: CustomToolbar, loadingOverlay: LoaderUI.LoadingOverlay }}
@@ -202,6 +202,7 @@ const RoleManagementPage: React.FC = () => {
             '& .MuiDataGrid-columnHeaders': { backgroundColor: '#005099', color: 'white' },
             '& .MuiDataGrid-cell': { fontSize: '14px' },
             '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold', fontSize: '16px' },
+            height: '70vh',
           }}
           disableColumnMenu
         />

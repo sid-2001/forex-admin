@@ -228,7 +228,7 @@ const UserTable: React.FC = () => {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.USER}>
-      <Box sx={{ width: '90vw', height: '70vh' }}>
+      <Box sx={{ width: '90vw', height: '80vh' }}>
         <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'}>
           <Box>
             <Typography variant="h4" gutterBottom>
@@ -263,7 +263,7 @@ const UserTable: React.FC = () => {
               paginationModel: { pageSize: 20, page: 0 },
             },
           }}
-          pageSizeOptions={[10, 20, 50]}
+          pageSizeOptions={[10, 20, 50, 100]}
           disableRowSelectionOnClick
           getRowId={(row) => row.staffId}
           loading={staffList.length === 0}
@@ -272,6 +272,7 @@ const UserTable: React.FC = () => {
             loadingOverlay: LoaderUI.LoadingOverlay,
           }}
           disableColumnMenu
+          sx={{ height: '75vh' }}
         />
 
         <RoleModal open={open} setOpen={setOpen}></RoleModal>

@@ -284,7 +284,7 @@ const ReferralTable: React.FC = () => {
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.REWARDS}>
-      <Box sx={{ width: '90vw', height: '70vh' }}>
+      <Box sx={{ width: '90vw', height: '80vh' }}>
         <Typography variant="h4" gutterBottom>
           <strong>Reward Redemption</strong>
         </Typography>
@@ -300,7 +300,7 @@ const ReferralTable: React.FC = () => {
             initialState={{
               pagination: { paginationModel: { pageSize: 20, page: 0 } },
             }}
-            pageSizeOptions={[10, 20, 50]}
+            pageSizeOptions={[10, 20, 50, 100]}
             disableRowSelectionOnClick
             loading={isLoading}
             getRowId={(row: any) => row.id}
@@ -315,6 +315,7 @@ const ReferralTable: React.FC = () => {
               },
               '& .MuiDataGrid-cell': { fontSize: '14px' },
               '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold', fontSize: '16px' },
+              height: '75vh',
             }}
             disableColumnMenu
           />
