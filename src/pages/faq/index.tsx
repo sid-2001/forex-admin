@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridFilterModel } from '@mui/x-data-grid'
-import { Box, Typography, Button, Stack, IconButton, TextField, MenuItem, Select, FormControl, InputLabel } from '@mui/material'
+import { Box, Typography, Button, Stack, IconButton, MenuItem, Select, FormControl, InputLabel } from '@mui/material'
 import { HelperService } from '@/helpers/helper'
 import HasPermission from '@/components/permissionWrapper'
 import { LocalStorageService } from '@/helpers/local-storage-service'
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
-import DownloadIcon from '@mui/icons-material/Download'
-import FindReplaceIcon from '@mui/icons-material/FindReplace'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
+
 import { useRecoilState } from 'recoil'
 import { alertState, alertTextState, alertTypeState } from '@/states/state'
 import EditIcon from '@mui/icons-material/Edit'
@@ -19,7 +14,6 @@ import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp'
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion'
 import MuiAccordionSummary, { AccordionSummaryProps, accordionSummaryClasses } from '@mui/material/AccordionSummary'
 import MuiAccordionDetails from '@mui/material/AccordionDetails'
-import DeleteIcon from '@mui/icons-material/Delete'
 import SearchIcon from '@mui/icons-material/Search'
 import ClearIcon from '@mui/icons-material/Clear'
 
@@ -61,8 +55,6 @@ const Faq: React.FC = () => {
   const helper = new HelperService()
   const local_service = new LocalStorageService()
   const masterService = new MasterService()
-  const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
-  const [columnVisibilityModel, setColumnVisibilityModel] = useState<Record<string, boolean>>({})
 
   const [openFaqHeadModal, setOpenFaqHeadModal] = useState(false)
   const [editData, setEditData] = useState<any>(null)
@@ -167,167 +159,6 @@ const Faq: React.FC = () => {
       fetchFaqs()
     }, 300)
   }
-
-  const columns = [
-    {
-      field: 'faqHeadCode',
-      headerName: 'FAQ Head Code',
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'faqChannel',
-      headerName: 'Channel',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'faqQuestion',
-      headerName: 'FAQ Question',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'faqSectionDescription',
-      headerName: 'FAQ Section Description',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'faqSectionLabelName',
-      headerName: 'FAQ Section Label Name',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'faqSubSectionDescription',
-      headerName: 'FAQ Sub Section Description',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'faqSubSectionLabelName',
-      headerName: 'FAQ Sub Section Label Name',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'faqType',
-      headerName: 'FAQ Type',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'countryCode',
-      headerName: 'Country Code',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-    },
-    {
-      field: 'createdLocalDateTime',
-      headerName: 'Date',
-      flex: 1,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => {
-        return helper.convertDateAndTime(params.row.createdLocalDateTime)
-      },
-    },
-    {
-      field: 'action',
-      headerName: 'Action',
-      width: 120,
-      headerClassName: 'super-app-theme--header',
-      renderCell: (params: any) => (
-        <Stack direction="row" spacing={1}>
-          <IconButton
-            color="primary"
-            onClick={() => {
-              setEditData(params.row)
-              setOpenFaqHeadModal(true)
-            }}
-            disabled={!helper.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canUpdate')}
-          >
-            <EditIcon />
-          </IconButton>
-        </Stack>
-      ),
-    },
-  ]
-
-  const getVisibleFilteredRows = () => {
-    const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false && col.field !== 'action')
-
-    const filteredRows = faqData.filter((row: any) =>
-      filterModel.items.every((filter) => {
-        if (!filter.value) return true
-        const cellValue = row[filter.field]?.toString().toLowerCase() || ''
-        return cellValue.includes(filter.value.toLowerCase())
-      }),
-    )
-
-    return { visibleCols, filteredRows }
-  }
-
-  const handleExportCSV = () => {
-    const { visibleCols, filteredRows } = getVisibleFilteredRows()
-
-    if (!filteredRows.length) {
-      alert('No matching rows to export!')
-      return
-    }
-
-    const headers = visibleCols.map((col) => col.headerName).join(',')
-    const rows = filteredRows.map((row: any) => visibleCols.map((col) => `"${row[col.field] || ''}"`).join(','))
-
-    const csv = [headers, ...rows].join('\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
-    link.setAttribute('download', 'faq.csv')
-    link.click()
-  }
-
-  const handleExportPDF = () => {
-    const { visibleCols, filteredRows } = getVisibleFilteredRows()
-
-    if (!filteredRows.length) {
-      alert('No matching rows to export!')
-      return
-    }
-
-    const headers = visibleCols.map((col) => col.headerName)
-    const data = filteredRows.map((row: any) => visibleCols.map((col) => row[col.field] || ''))
-
-    const doc = new jsPDF({ unit: 'pt' })
-    doc.setFontSize(14)
-    doc.text('FAQ Report', 40, 40)
-    autoTable(doc, {
-      head: [headers],
-      body: data,
-      startY: 60,
-      styles: { fontSize: 9, cellPadding: 6 },
-      headStyles: { fillColor: [0, 80, 153], textColor: 255 },
-    })
-    doc.save('Faq.pdf')
-  }
-
-  const CustomToolbar = () => (
-    <GridToolbarContainer sx={{ justifyContent: 'flex-start', gap: 1, py: 1 }}>
-      <GridToolbarColumnsButton />
-      <GridToolbarFilterButton />
-
-      <Button variant="outlined" color="primary" size="small" startIcon={<DownloadIcon />} onClick={handleExportCSV}>
-        CSV
-      </Button>
-
-      <Button variant="outlined" color="primary" size="small" startIcon={<PictureAsPdfIcon />} onClick={handleExportPDF}>
-        PDF
-      </Button>
-
-      <Button variant="outlined" color="primary" size="small" startIcon={<FindReplaceIcon />} onClick={() => setFilterModel({ items: [] })}>
-        Reset Filters
-      </Button>
-    </GridToolbarContainer>
-  )
 
   return (
     <HasPermission permission={'canRead'} module={local_service.get_modules()?.MASTER_DATA}>

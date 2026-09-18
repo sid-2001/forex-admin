@@ -89,6 +89,16 @@ export default class SequenceApiService extends BaseService {
     }
   }
 
+  async getActiveRecipientCountryCorridors(countryCode: string): Promise<any[]> {
+    try {
+      const { data } = await api1.get(`/api/static-table/product-business-country-mapping/recipient-country?countryCode=${countryCode}`)
+      return Array.isArray(data) ? data : data?.data || []
+    } catch (error) {
+      console.error('Fetch Error:', error)
+      return []
+    }
+  }
+
   async createBulkSequence(payload: any): Promise<{ status: boolean; message: string }> {
     const url = '/api/static-table/generate-sequence/create/bulk'
     try {

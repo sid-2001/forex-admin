@@ -1,16 +1,29 @@
-import React, { useCallback, useEffect, useState, useRef } from 'react'
-import { Box, Card, CardContent, Typography, Grid, CardMedia, Switch, Skeleton, Button, Tooltip } from '@mui/material'
+import React, { useCallback, useEffect, useState } from 'react'
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  CardMedia,
+  Switch,
+  Skeleton,
+  Button,
+  Tooltip,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+} from '@mui/material'
 import { TransactionService } from '@/services/transaction.service'
 import { PaymentGateway } from '@/types/static.type'
 import staticdataService from '@/services/staticdata.service'
 import { useRecoilState } from 'recoil'
-import { selectedAppState, alertState, alertTextState, alertTypeState, loaderState, availableBalanceState } from '@/states/state'
+import { selectedAppState, loaderState, availableBalanceState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import TransactionPanel from '@/components/transaction-panel'
 import { HelperService } from '@/helpers/helper'
-import { Link, useNavigate } from 'react-router-dom'
-import { AgChartOptions } from 'ag-charts-community'
-import TransactionModal from '@/components/transaction-panel'
+import { useNavigate } from 'react-router-dom'
 import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridFilterModel } from '@mui/x-data-grid'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
 import DownloadIcon from '@mui/icons-material/Download'
@@ -20,52 +33,13 @@ import autoTable from 'jspdf-autotable'
 import { ApplicantService } from '@/services/applicant.service'
 import CompactLocationBar from '@/components/location'
 import ProductConfigService from '@/services/product.config.service'
-import HasPermission from '@/components/permissionWrapper'
 import { renderTransactionStatus } from '@/contants/utils'
-
-import { Swiper, SwiperSlide } from 'swiper/react'
-import { Navigation, Pagination, Autoplay } from 'swiper/modules'
-
 import bannerImg1 from '@/assets/Impro_Card_1.jpg'
-import bannerImg2 from '@/assets/Impro_Card_2.png'
-
-import bannerImg3 from '@/assets/Impro_Card_3.jpg'
-
-import 'swiper/css'
-import 'swiper/css/navigation'
-import 'swiper/css/pagination'
-
-const Carousel = ({ items }: any) => {
-  return (
-    <Swiper
-      modules={[Navigation, Pagination, Autoplay]}
-      navigation={false}
-      pagination={{ clickable: true }}
-      autoplay={{ delay: 3000 }}
-      spaceBetween={16}
-      slidesPerView={1}
-      breakpoints={{
-        0: {
-          slidesPerView: 1,
-        },
-        600: {
-          slidesPerView: 2,
-        },
-        900: {
-          slidesPerView: 1,
-        },
-      }}
-    >
-      {items.map((item: any) => (
-        <SwiperSlide key={item.id}>
-          <Card>
-            <CardMedia component="img" height="200" image={item} alt={'image'} />
-          </Card>
-        </SwiperSlide>
-      ))}
-    </Swiper>
-  )
-}
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import dayjs from 'dayjs'
+import SequenceApiService from '@/services/sequence.api.service'
 
 const Dashboard = () => {
   // const [applicatnData, setapplicantData] = useState<
@@ -80,7 +54,6 @@ const Dashboard = () => {
   const [cards, setCards] = useState<Array<PaymentGateway>>([])
   const [balance, setBalance] = useRecoilState(availableBalanceState)
   const [loader, setLoader] = useRecoilState(loaderState)
-  const [enabled, setEnabled] = useState(true)
   const [consumersData, setConsumersData] = useState<any>(null)
   const applicant_service = new ApplicantService()
   const transaction_service = new TransactionService()
@@ -92,12 +65,19 @@ const Dashboard = () => {
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<{ [key: string]: boolean }>({})
 
+  const [filters, setFilters] = useState({
+    country: '',
+    fromDate: null,
+    toDate: null,
+  })
+  const [loading, setLoading] = useState(false)
+  const [countryCorridors, setCountryCorridors] = useState([])
+  const isFilterEmpty = !filters.country && !filters.fromDate && !filters.toDate
+
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
   const navigate = useNavigate()
-  const [open, setOpen] = useRecoilState(alertState)
-  const [text, setText] = useRecoilState(alertTextState)
-  const [type, settype] = useRecoilState(alertTypeState)
   const service = new ProductConfigService()
+  const seqService = new SequenceApiService()
 
   const getGatewayList = () => {
     static_service.getStaticPaymentGateway(local_service?.get_staff_country()).then((data: any) => {
@@ -119,14 +99,21 @@ const Dashboard = () => {
 
   const getOutwardTransactionsList = useCallback(async () => {
     const data = await transaction_service.getOutwardAllTransaction(userCountry, 0, 20)
-
     setrecentTransaction(data || [])
     setIsLoading(false)
   }, [])
 
-  const fetchConsumersData = async () => {
+  const getRecipientCountryCorridors = useCallback(async (countryCode: string) => {
+    const data: any = await seqService.getActiveRecipientCountryCorridors(countryCode)
+    setCountryCorridors(data || [])
+    setIsLoading(false)
+  }, [])
+
+  const fetchConsumersData = async (valStr: string) => {
     try {
-      const data = await applicant_service.getConsumersData(local_service?.get_staff_country())
+      // valStr = local_service?.get_staff_country();
+      const { data } = await applicant_service.getConsumersData(valStr)
+      console.log(data, '------------')
       setConsumersData(data)
     } catch (error) {
       console.error('Failed to load dashboard data:', error)
@@ -137,10 +124,11 @@ const Dashboard = () => {
     // commented out for uae corridor
     // getGatewayList()
     // fetchProductConfig('IN')
-    fetchConsumersData()
+    fetchConsumersData('')
     setIsLoading(true)
     getOutwardTransactionsList()
     setSelectedApp('Dashboard')
+    getRecipientCountryCorridors('UAE')
 
     // transaction_service.getTransactionSummary(userCountry).then((data) => {
 
@@ -332,16 +320,6 @@ const Dashboard = () => {
     { field: 'reported', headerName: 'Reported', width: 100 },
     { field: 'date', headerName: 'Date & Time', width: 180 },
     { field: 'transactionStatus', headerName: 'Transaction Status', width: 200 },
-    // {
-    //   field: 'action',
-    //   headerName: 'Action',
-    //   width: 100,
-    //   renderCell: (params: any) => (
-    //     <Link to={`/transaction-detail/${params?.row?.transactionId}`}>
-    //       <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>View detail</span>
-    //     </Link>
-    //   ),
-    // },
   ]
 
   const filteredRecentTransColumns =
@@ -584,11 +562,48 @@ const Dashboard = () => {
       label: 'Users',
       hidden: false,
     },
+    {
+      background: 'linear-gradient(to bottom, #FEF3C7, #D97706)',
+      hidden: false,
+      subLabel: `Total Amount (${consumersData?.totalTransactionAmount})`,
+      count: consumersData?.totalTransactions ?? 0,
+      label: 'Total Transactions',
+    },
   ]
   const visibleAnalytics = userAnalytics.filter((p) => !p.hidden)
 
+  const handleFilterValueChange = (key: string, value: any) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: value,
+    }))
+  }
+
+  const handleSearch = async () => {
+    const payload = {
+      ...filters,
+      fromDate: filters.fromDate ? `${dayjs(filters.fromDate).format('YYYY-MM-DD')}T00:00:00` : '',
+      toDate: filters.toDate ? `${dayjs(filters.toDate).format('YYYY-MM-DD')}T00:00:00` : '',
+    }
+    const queryString = new URLSearchParams(Object.fromEntries(Object.entries(payload).filter(([_, v]) => v))).toString()
+    try {
+      setLoading(true)
+      await fetchConsumersData(queryString)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleClear = () => {
+    setFilters({
+      country: '',
+      fromDate: null,
+      toDate: null,
+    })
+    fetchConsumersData('')
+  }
+
   return (
-    // <HasPermission permission={'canRead'} module={local_service.get_modules()?.DASHBOARD}>
     <Box sx={{ width: '90vw', overflowX: 'hidden', height: '85vh' }}>
       <Typography variant="h4" gutterBottom sx={{ mt: 0, mb: 1 }}>
         <b>Dashboard</b>
@@ -598,7 +613,7 @@ const Dashboard = () => {
         {/* LEFT SIDE (Balances + Consumers + Volume + Recent Transactions) */}
         <Grid item xs={12} md={12}>
           <Grid container spacing={2}>
-            <Grid item xs={12} md={5}>
+            <Grid item xs={12} md={6}>
               {/* Available Balances */}
 
               {userCountry !== 'UAE' && (
@@ -672,6 +687,79 @@ const Dashboard = () => {
                   <Typography variant="subtitle1" fontWeight={700} gutterBottom>
                     User Analytics
                   </Typography>
+
+                  <Box mb={2} display="flex" gap={1} alignItems="center" flexWrap="wrap">
+                    <FormControl sx={{ minWidth: 180 }} size="small">
+                      <InputLabel id="target-country-label">Select Country</InputLabel>
+                      <Select
+                        labelId="target-country-label"
+                        value={filters?.country}
+                        size="small"
+                        //@ts-ignore
+                        onChange={(e) => handleFilterValueChange('country', e.target.value)}
+                        label="Select Country"
+                        MenuProps={{
+                          PaperProps: {
+                            style: {
+                              maxHeight: 300, // limit dropdown height if many options
+                            },
+                          },
+                          anchorOrigin: {
+                            vertical: 'bottom',
+                            horizontal: 'left',
+                          },
+                          transformOrigin: {
+                            vertical: 'top',
+                            horizontal: 'left',
+                          },
+                          //@ts-ignore
+                          getContentAnchorEl: null,
+                        }}
+                      >
+                        {countryCorridors.map((item: any, index: number) => (
+                          <MenuItem key={index} value={item.countryCode}>
+                            {item.countryCode} ({item.countryName})
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        label="From Date"
+                        //@ts-ignore
+                        format="YYYY-MM-DD"
+                        value={filters?.fromDate}
+                        onChange={(newValue: any) => handleFilterValueChange('fromDate', newValue)}
+                        slotProps={{ textField: { size: 'small', sx: { width: 150 } } }}
+                        //@ts-ignore
+                        renderInput={(params) => <TextField {...params} fullWidth variant="outlined" />}
+                      />
+
+                      <DatePicker
+                        label="To Date"
+                        value={filters?.toDate}
+                        onChange={(newValue: any) => handleFilterValueChange('toDate', newValue)}
+                        minDate={filters?.fromDate}
+                        format="YYYY-MM-DD"
+                        slotProps={{
+                          textField: {
+                            size: 'small',
+                            sx: { width: 150 },
+                          },
+                        }}
+                      />
+                    </LocalizationProvider>
+
+                    <Button variant="contained" onClick={handleSearch} sx={{ height: '40px' }} disabled={isFilterEmpty || loading}>
+                      {loading ? 'Searching...' : 'Search'}
+                    </Button>
+
+                    <Button disabled={loading} variant="outlined" onClick={handleClear} sx={{ height: '40px' }}>
+                      Clear
+                    </Button>
+                  </Box>
+
                   <Grid container spacing={2}>
                     {visibleAnalytics.map((userItem: any) => (
                       <Grid item xs={Math.floor(12 / visibleAnalytics.length)}>
@@ -705,7 +793,7 @@ const Dashboard = () => {
               )}
             </Grid>
 
-            <Grid item xs={12} md={7}>
+            <Grid item xs={12} md={6}>
               <Card sx={{ border: '2px solid', borderColor: '#79CBF0', height: '100%' }}>
                 <CardContent>
                   <Typography variant="subtitle1" fontWeight={700}>
@@ -786,7 +874,6 @@ const Dashboard = () => {
         {/* RIGHT SIDE (Active Channels + Integrations) */}
       </Grid>
     </Box>
-    // </HasPermission>
   )
 }
 
