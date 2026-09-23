@@ -105,6 +105,7 @@ import Group from './pages/groups'
 import EmailReport from './pages/reportsEmail'
 import CountryCorridorExchangeRateMaster from './pages/countryCorridorExchangeRate'
 import BetaStatus from './pages/betaStatus'
+import ReferralCampaign from './pages/referral-campaign'
 
 function App() {
   const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -342,7 +343,7 @@ function App() {
               <Route path="email-report" element={<EmailReport />} />
               <Route path="country-corridor-exchange-rate" element={<CountryCorridorExchangeRateMaster />} />
               <Route path="beta-status" element={<BetaStatus />} />
-
+              <Route path="referral-campaign" element={<ReferralCampaign />} />
               <Route path="*" element={<Dashboard />} />
             </Route>
 

@@ -14,6 +14,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  FormControlLabel,
 } from '@mui/material'
 import { TransactionService } from '@/services/transaction.service'
 import { PaymentGateway } from '@/types/static.type'
@@ -64,15 +65,17 @@ const Dashboard = () => {
   const trx_service = new TransactionService()
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<{ [key: string]: boolean }>({})
+  const [isAutoRefreshEnabled, setIsAutoRefreshEnabled] = useState(false)
+  const [refreshTime, setRefreshTime] = useState(0)
 
   const [filters, setFilters] = useState({
-    country: '',
+    citizenship: '',
     fromDate: null,
     toDate: null,
   })
   const [loading, setLoading] = useState(false)
   const [countryCorridors, setCountryCorridors] = useState([])
-  const isFilterEmpty = !filters.country && !filters.fromDate && !filters.toDate
+  const isFilterEmpty = !filters.citizenship && !filters.fromDate && !filters.toDate
 
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
   const navigate = useNavigate()
@@ -80,7 +83,7 @@ const Dashboard = () => {
   const seqService = new SequenceApiService()
 
   const getGatewayList = () => {
-    static_service.getStaticPaymentGateway(local_service?.get_staff_country()).then((data: any) => {
+    static_service.getStaticPaymentGateway(userCountry).then((data: any) => {
       setCards(data?.data?.sort((e: any) => e.costFee))
     })
   }
@@ -120,21 +123,71 @@ const Dashboard = () => {
     }
   }
 
+  const fetchStaticData = async () => {
+    try {
+      const data = await static_service.getRefreshTimeOnDashboard(userCountry)
+      console.log(data, '--jgjhgjgj----------')
+      setRefreshTime(data.value1)
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error)
+    }
+  }
+
   useEffect(() => {
     // commented out for uae corridor
     // getGatewayList()
     // fetchProductConfig('IN')
-    fetchConsumersData('')
+
     setIsLoading(true)
+    fetchStaticData()
     getOutwardTransactionsList()
     setSelectedApp('Dashboard')
-    getRecipientCountryCorridors('UAE')
+    getRecipientCountryCorridors(userCountry)
 
     // transaction_service.getTransactionSummary(userCountry).then((data) => {
 
     //   setapplicantData(data?.data)
     // })
+    // Call immediately
   }, [])
+
+  const isWithinAllowedTime = () => {
+    const now = new Date()
+    const hour = now.getHours()
+
+    return hour >= 8 && hour < 20
+  }
+
+  useEffect(() => {
+    // Switch OFF → don't create interval
+    if (!isAutoRefreshEnabled) {
+      return
+    }
+
+    const callApi = async () => {
+      // Only between 8 AM and 8 PM
+      if (!isWithinAllowedTime()) {
+        return
+      }
+
+      try {
+        await fetchConsumersData('')
+      } catch (error) {
+        console.error('API error:', error)
+      }
+    }
+
+    // Optional initial call
+    callApi()
+
+    // Create interval only when switch is ON
+    const intervalId = setInterval(callApi, refreshTime * 60 * 1000)
+
+    // Switch OFF / component unmount → clear interval
+    return () => {
+      clearInterval(intervalId)
+    }
+  }, [isAutoRefreshEnabled])
 
   const bankAccounts = [
     {
@@ -584,6 +637,7 @@ const Dashboard = () => {
       ...filters,
       fromDate: filters.fromDate ? `${dayjs(filters.fromDate).format('YYYY-MM-DD')}T00:00:00` : '',
       toDate: filters.toDate ? `${dayjs(filters.toDate).format('YYYY-MM-DD')}T00:00:00` : '',
+      country: userCountry,
     }
     const queryString = new URLSearchParams(Object.fromEntries(Object.entries(payload).filter(([_, v]) => v))).toString()
     try {
@@ -596,11 +650,15 @@ const Dashboard = () => {
 
   const handleClear = () => {
     setFilters({
-      country: '',
+      citizenship: '',
       fromDate: null,
       toDate: null,
     })
     fetchConsumersData('')
+  }
+
+  const handleAutoRefreshChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsAutoRefreshEnabled(event.target.checked)
   }
 
   return (
@@ -684,19 +742,22 @@ const Dashboard = () => {
               {/* Consumers */}
               <Card sx={{ border: '2px solid', borderColor: '#79CBF0' }}>
                 <CardContent>
-                  <Typography variant="subtitle1" fontWeight={700} gutterBottom>
-                    User Analytics
-                  </Typography>
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight={700} gutterBottom>
+                      User Analytics
+                    </Typography>
+                    <FormControlLabel control={<Switch checked={isAutoRefreshEnabled} onChange={handleAutoRefreshChange} />} label="Auto Refresh" />
+                  </Box>
 
                   <Box mb={2} display="flex" gap={1} alignItems="center" flexWrap="wrap">
                     <FormControl sx={{ minWidth: 180 }} size="small">
-                      <InputLabel id="target-country-label">Select Country</InputLabel>
+                      <InputLabel id="target-country-label">Select Citizenship</InputLabel>
                       <Select
                         labelId="target-country-label"
-                        value={filters?.country}
+                        value={filters?.citizenship}
                         size="small"
                         //@ts-ignore
-                        onChange={(e) => handleFilterValueChange('country', e.target.value)}
+                        onChange={(e) => handleFilterValueChange('citizenship', e.target.value)}
                         label="Select Country"
                         MenuProps={{
                           PaperProps: {
