@@ -75,7 +75,7 @@ const CompactLocationBar = () => {
                 ...prev,
                 location: `${city}, ${state}, ${country}`,
               }))
-              fetchProductConfig(countryCode)
+              //  fetchProductConfig(countryCode)
             } else {
               setGurugramFallback()
             }

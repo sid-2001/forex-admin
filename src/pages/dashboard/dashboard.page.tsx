@@ -145,10 +145,8 @@ const Dashboard = () => {
     getRecipientCountryCorridors(userCountry)
 
     // transaction_service.getTransactionSummary(userCountry).then((data) => {
-
     //   setapplicantData(data?.data)
     // })
-    // Call immediately
   }, [])
 
   const isWithinAllowedTime = () => {
@@ -191,13 +189,13 @@ const Dashboard = () => {
 
   const bankAccounts = [
     {
-      name: 'ICICI ',
+      name: 'ICICI',
       balance,
       image_url: 'https://pbs.twimg.com/profile_images/1477924435969462272/ZQADGPv5_400x400.png  ',
       country: 'In',
     },
     {
-      name: 'SB ',
+      name: 'SB',
       balance: 'No Data',
       image_url:
         'https://media.licdn.com/dms/image/v2/C4D0BAQEMo-EgURgpnA/company-logo_200_200/company-logo_200_200/0/1630561374295/standard_bank_group_logo?e=1763596800&v=beta&t=SA9TooJjIAO9AO3sO0Y_bMebCjTauJ4XnBz2gI8JTtI',
@@ -205,21 +203,21 @@ const Dashboard = () => {
     },
 
     {
-      name: 'SA ',
+      name: 'SA',
       balance: 'No Data',
       image_url:
         'https://media.licdn.com/dms/image/v2/C4D0BAQEMo-EgURgpnA/company-logo_200_200/company-logo_200_200/0/1630561374295/standard_bank_group_logo?e=1763596800&v=beta&t=SA9TooJjIAO9AO3sO0Y_bMebCjTauJ4XnBz2gI8JTtI',
       country: 'SA',
     },
     {
-      name: 'Standard Bank ',
+      name: 'Standard Bank',
       balance: 'No Data',
       image_url:
         'https://media.licdn.com/dms/image/v2/C4D0BAQEMo-EgURgpnA/company-logo_200_200/company-logo_200_200/0/1630561374295/standard_bank_group_logo?e=1763596800&v=beta&t=SA9TooJjIAO9AO3sO0Y_bMebCjTauJ4XnBz2gI8JTtI',
       country: 'NG',
     },
     {
-      name: 'Tatum Bank ',
+      name: 'Tatum Bank',
       balance: 'No Data',
       image_url:
         'https://media.licdn.com/dms/image/v2/C4D0BAQEMo-EgURgpnA/company-logo_200_200/company-logo_200_200/0/1630561374295/standard_bank_group_logo?e=1763596800&v=beta&t=SA9TooJjIAO9AO3sO0Y_bMebCjTauJ4XnBz2gI8JTtI',
@@ -697,11 +695,9 @@ const Dashboard = () => {
                                   mb: 0,
                                   display: 'flex',
                                   justifyContent: 'space-between',
-
                                   flexDirection: 'column',
                                   // alignItems: 'center',
                                   opacity: isActive ? 1 : 0.5,
-
                                   pointerEvents: isActive ? 'auto' : 'none',
                                 }}
                               >
