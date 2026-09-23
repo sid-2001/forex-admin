@@ -8,7 +8,6 @@ export interface Gender {
   active?: boolean
 }
 export default class staticdataService extends BaseService {
-
   async staticData(
     url: '',
     payload: any,
@@ -82,7 +81,6 @@ export default class staticdataService extends BaseService {
     } catch (err) {}
   }
 
-
   async getGenderList(): Promise<{
     success: boolean
     count: number
@@ -124,12 +122,7 @@ export default class staticdataService extends BaseService {
   /**
    * Update Gender
    */
-  async updateGender(payload: {
-    username: string
-    gendercode: string
-    countrycode: string
-    description: string
-  }): Promise<{
+  async updateGender(payload: { username: string; gendercode: string; countrycode: string; description: string }): Promise<{
     status: boolean
     message: string
   }> {
@@ -145,16 +138,23 @@ export default class staticdataService extends BaseService {
   /**
    * Delete Gender
    */
-  async deleteGender(payload: {
-    gendercode: string
-    countrycode: string
-  }): Promise<{
+  async deleteGender(payload: { gendercode: string; countrycode: string }): Promise<{
     status: boolean
     message: string
   }> {
     const url = '/api/gender/delete'
     try {
       const { data } = await api1.post(url, payload)
+      return data
+    } catch (err) {
+      return err as any
+    }
+  }
+
+  async getRefreshTimeOnDashboard(countryCode: string): Promise<any> {
+    const url = `/api/static-table/static-data/web-panel/refreshUserAnalyticsDashboard/countryCode/${countryCode}`
+    try {
+      const { data } = await api1.get(url)
       return data
     } catch (err) {
       return err as any

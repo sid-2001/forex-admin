@@ -165,7 +165,6 @@ export default function BankMasterScreen() {
           rows={rows}
           columns={columns}
           getRowId={(row) => row.bankMasterCode || Math.random()}
-          autoHeight
           disableRowSelectionOnClick
           slots={{ toolbar: GridToolbar }}
           slotProps={{ toolbar: { showQuickFilter: true } }}
@@ -173,10 +172,12 @@ export default function BankMasterScreen() {
           initialState={{
             pagination: {
               paginationModel: {
-                pageSize: 5, // Default to 5
+                pageSize: 10, // Default to 5
               },
             },
           }}
+          pageSizeOptions={[5, 10, 20, 50, 100]}
+          sx={{ height: '70vh' }}
         />
 
         <BankMasterDialog

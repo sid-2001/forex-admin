@@ -211,15 +211,15 @@ const CountryBusinessPayoutPartner = () => {
           rows={rows}
           columns={columns}
           loading={loading}
-          autoHeight
           slots={{ toolbar: GridToolbar }}
           slotProps={{ toolbar: { showQuickFilter: true } }}
           disableColumnMenu
           getRowId={(row) => row.countryBusinessPayoutPartnerCode || Math.random()}
+          pageSizeOptions={[5, 10, 20, 50, 100]}
           initialState={{
             pagination: {
               paginationModel: {
-                pageSize: 5,
+                pageSize: 10,
               },
             },
           }}

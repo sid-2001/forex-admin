@@ -162,7 +162,6 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     {
       field: 'platformReferenceId',
       headerName: 'Lulu Customer ID',
-
       headerClassName: 'super-app-theme--header',
       width: 200,
     },
@@ -170,21 +169,24 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     {
       field: 'firstName',
       headerName: 'First Name',
-
       headerClassName: 'super-app-theme--header',
       width: 150,
     },
     {
       field: 'lastName',
       headerName: 'Last Name',
-
       headerClassName: 'super-app-theme--header',
       width: 150,
     },
     {
       field: 'username',
       headerName: 'Username',
-
+      headerClassName: 'super-app-theme--header',
+      width: 120,
+    },
+    {
+      field: 'nationality',
+      headerName: 'Nationality',
       headerClassName: 'super-app-theme--header',
       width: 120,
     },
@@ -203,21 +205,18 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     {
       field: 'dob',
       headerName: 'DOB',
-
       headerClassName: 'super-app-theme--header',
       width: 100,
     },
     {
       field: 'email',
       headerName: 'Email',
-
       headerClassName: 'super-app-theme--header',
       width: 250,
     },
     {
       field: 'phone',
       headerName: 'Phone No',
-
       headerClassName: 'super-app-theme--header',
       width: 150,
     },
@@ -238,7 +237,6 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
     {
       field: 'amlKycStatus',
       headerName: 'AML Status',
-      // flex: 1,
       headerClassName: 'super-app-theme--header',
       renderCell: (params: any) => convertStrToTitleCase(params.row.amlKycStatus),
       width: 100,
@@ -246,15 +244,6 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
   ]
 
   const filteredColumns = userCountry !== 'UAE' ? columns.filter((item) => item.field !== 'platformReferenceId') : columns
-
-  const changeBetaStatus = async (id: any) => {
-    const response = await kyc_service.updateBetaStatus(id)
-
-    setTimeout(() => {
-      window.location.reload()
-    }, 3000)
-    console.log(response)
-  }
 
   return (
     <Box
@@ -274,7 +263,7 @@ const ApplicantDataGrid: React.FC<Props> = ({ data, loading }) => {
         initialState={{
           pagination: { paginationModel: { pageSize: 20, page: 0 } },
         }}
-        pageSizeOptions={[10, 20, 50]}
+        pageSizeOptions={[10, 20, 50, 100]}
         loading={loading}
         slots={{
           loadingOverlay: LoaderUI.LoadingOverlay,

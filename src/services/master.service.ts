@@ -214,4 +214,35 @@ export default class MasterService extends BaseService {
       return err as any
     }
   }
+
+  // referral campaign apis
+  async getAllReferralCampaign(): Promise<any> {
+    const url = `/api/static-table/referral-campaign?countryCode=UAE&active=true'`
+    try {
+      const response = await api1.get(url)
+      return response
+    } catch (err) {
+      return err as any
+    }
+  }
+
+  async createReferralCampaign(payload: Partial<any>): Promise<any> {
+    const url = '/api/static-table/referral-campaign'
+    try {
+      const data = await api1.post(url, payload)
+      return data
+    } catch (err) {
+      return err as any
+    }
+  }
+
+  async updateReferralCampaign(code: string, payload: any) {
+    try {
+      const response = await api1.put(`/api/static-table/referral-campaign/${code}`, payload)
+      return response.data
+    } catch (error) {
+      console.error('Error updating detail:', error)
+      throw error
+    }
+  }
 }

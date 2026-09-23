@@ -254,17 +254,17 @@ export default function BopCategoryTypeMaster() {
           rows={rows}
           columns={columns}
           getRowId={(row) => row.bopCategoryTypeCode}
-          autoHeight
           slots={{ toolbar: CustomToolbar }}
           slotProps={{ toolbar: { showQuickFilter: true } }}
           disableColumnMenu
           initialState={{
             pagination: {
               paginationModel: {
-                pageSize: 5,
+                pageSize: 10,
               },
             },
           }}
+          pageSizeOptions={[5, 10, 20, 50, 100]}
         />
 
         <BopCategoryTypeFormDialog

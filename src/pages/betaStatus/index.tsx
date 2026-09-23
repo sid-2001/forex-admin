@@ -242,7 +242,7 @@ const BetaStatus = () => {
   }
 
   return (
-    <Box sx={{ width: '90vw', height: '70vh' }}>
+    <Box sx={{ width: '90vw', height: '80vh' }}>
       <HasPermission permission={'canRead'} module={local_service.get_modules()?.BETA_STATUS}>
         <Typography variant="h4" gutterBottom>
           <strong>Allow Customers To Become Beta Tester</strong>
@@ -256,13 +256,14 @@ const BetaStatus = () => {
           initialState={{
             pagination: { paginationModel: { pageSize: 20, page: 0 } },
           }}
-          pageSizeOptions={[10, 20, 50]}
+          pageSizeOptions={[10, 20, 50, 100]}
           loading={isLoading}
           slots={{
             loadingOverlay: LoaderUI.LoadingOverlay,
             toolbar: CustomToolbar, // 👈 Toolbar with reset filters
           }}
           disableColumnMenu
+          sx={{ height: '75vh' }}
         />
 
         {openConfirmModal && (

@@ -144,16 +144,14 @@ export default function BopCategoryMaster() {
           columns={columns}
           loading={loading}
           getRowId={(row) => row.bopPurposeCategoryCode}
-          autoHeight
           slots={{ toolbar: GridToolbar }}
           slotProps={{ toolbar: { showQuickFilter: true } }}
           disableColumnMenu
-          // initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
-          // pageSizeOptions={[5, 10, 20]}
+          pageSizeOptions={[5, 10, 20]}
           initialState={{
             pagination: {
               paginationModel: {
-                pageSize: 5,
+                pageSize: 10,
               },
             },
           }}

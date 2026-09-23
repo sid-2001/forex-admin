@@ -108,7 +108,7 @@ class ApplicantService extends BaseService {
   async getDocumentByApplicantId(applicantId: string): Promise<any> {
     const url = `/api/kyc/kyc/document-status/${applicantId}`
     try {
-      const data  = await api1.get(url)
+      const data = await api1.get(url)
       console.log(data)
       return data?.data
     } catch (err) {
@@ -116,8 +116,10 @@ class ApplicantService extends BaseService {
     }
   }
 
-  async getConsumersData(user_country:any): Promise<any> {
-    const url = `/api/applicant/applicant/overview?country=${user_country}`
+  async getConsumersData(queryString: any): Promise<any> {
+    // const url = `/api/applicant/applicant/overview?country=${user_country}`
+    const url = queryString ? `/api/applicant/applicant/overview?${queryString}` : `/api/applicant/applicant/overview`
+
     try {
       const response = await api1.get(url)
       return response

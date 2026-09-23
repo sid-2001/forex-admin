@@ -1,16 +1,30 @@
-import React, { useCallback, useEffect, useState, useRef } from 'react'
-import { Box, Card, CardContent, Typography, Grid, CardMedia, Switch, Skeleton, Button, Tooltip } from '@mui/material'
+import React, { useCallback, useEffect, useState } from 'react'
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  CardMedia,
+  Switch,
+  Skeleton,
+  Button,
+  Tooltip,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  FormControlLabel,
+} from '@mui/material'
 import { TransactionService } from '@/services/transaction.service'
 import { PaymentGateway } from '@/types/static.type'
 import staticdataService from '@/services/staticdata.service'
 import { useRecoilState } from 'recoil'
-import { selectedAppState, alertState, alertTextState, alertTypeState, loaderState, availableBalanceState } from '@/states/state'
+import { selectedAppState, loaderState, availableBalanceState } from '@/states/state'
 import { LocalStorageService } from '@/helpers/local-storage-service'
 import TransactionPanel from '@/components/transaction-panel'
 import { HelperService } from '@/helpers/helper'
-import { Link, useNavigate } from 'react-router-dom'
-import { AgChartOptions } from 'ag-charts-community'
-import TransactionModal from '@/components/transaction-panel'
+import { useNavigate } from 'react-router-dom'
 import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridFilterModel } from '@mui/x-data-grid'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
 import DownloadIcon from '@mui/icons-material/Download'
@@ -20,52 +34,13 @@ import autoTable from 'jspdf-autotable'
 import { ApplicantService } from '@/services/applicant.service'
 import CompactLocationBar from '@/components/location'
 import ProductConfigService from '@/services/product.config.service'
-import HasPermission from '@/components/permissionWrapper'
 import { renderTransactionStatus } from '@/contants/utils'
-
-import { Swiper, SwiperSlide } from 'swiper/react'
-import { Navigation, Pagination, Autoplay } from 'swiper/modules'
-
 import bannerImg1 from '@/assets/Impro_Card_1.jpg'
-import bannerImg2 from '@/assets/Impro_Card_2.png'
-
-import bannerImg3 from '@/assets/Impro_Card_3.jpg'
-
-import 'swiper/css'
-import 'swiper/css/navigation'
-import 'swiper/css/pagination'
-
-const Carousel = ({ items }: any) => {
-  return (
-    <Swiper
-      modules={[Navigation, Pagination, Autoplay]}
-      navigation={false}
-      pagination={{ clickable: true }}
-      autoplay={{ delay: 3000 }}
-      spaceBetween={16}
-      slidesPerView={1}
-      breakpoints={{
-        0: {
-          slidesPerView: 1,
-        },
-        600: {
-          slidesPerView: 2,
-        },
-        900: {
-          slidesPerView: 1,
-        },
-      }}
-    >
-      {items.map((item: any) => (
-        <SwiperSlide key={item.id}>
-          <Card>
-            <CardMedia component="img" height="200" image={item} alt={'image'} />
-          </Card>
-        </SwiperSlide>
-      ))}
-    </Swiper>
-  )
-}
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import dayjs from 'dayjs'
+import SequenceApiService from '@/services/sequence.api.service'
 
 const Dashboard = () => {
   // const [applicatnData, setapplicantData] = useState<
@@ -80,7 +55,6 @@ const Dashboard = () => {
   const [cards, setCards] = useState<Array<PaymentGateway>>([])
   const [balance, setBalance] = useRecoilState(availableBalanceState)
   const [loader, setLoader] = useRecoilState(loaderState)
-  const [enabled, setEnabled] = useState(true)
   const [consumersData, setConsumersData] = useState<any>(null)
   const applicant_service = new ApplicantService()
   const transaction_service = new TransactionService()
@@ -91,16 +65,25 @@ const Dashboard = () => {
   const trx_service = new TransactionService()
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<{ [key: string]: boolean }>({})
+  const [isAutoRefreshEnabled, setIsAutoRefreshEnabled] = useState(false)
+  const [refreshTime, setRefreshTime] = useState(0)
+
+  const [filters, setFilters] = useState({
+    citizenship: '',
+    fromDate: null,
+    toDate: null,
+  })
+  const [loading, setLoading] = useState(false)
+  const [countryCorridors, setCountryCorridors] = useState([])
+  const isFilterEmpty = !filters.citizenship && !filters.fromDate && !filters.toDate
 
   const [selectedApp, setSelectedApp] = useRecoilState(selectedAppState)
   const navigate = useNavigate()
-  const [open, setOpen] = useRecoilState(alertState)
-  const [text, setText] = useRecoilState(alertTextState)
-  const [type, settype] = useRecoilState(alertTypeState)
   const service = new ProductConfigService()
+  const seqService = new SequenceApiService()
 
   const getGatewayList = () => {
-    static_service.getStaticPaymentGateway(local_service?.get_staff_country()).then((data: any) => {
+    static_service.getStaticPaymentGateway(userCountry).then((data: any) => {
       setCards(data?.data?.sort((e: any) => e.costFee))
     })
   }
@@ -119,15 +102,32 @@ const Dashboard = () => {
 
   const getOutwardTransactionsList = useCallback(async () => {
     const data = await transaction_service.getOutwardAllTransaction(userCountry, 0, 20)
-
     setrecentTransaction(data || [])
     setIsLoading(false)
   }, [])
 
-  const fetchConsumersData = async () => {
+  const getRecipientCountryCorridors = useCallback(async (countryCode: string) => {
+    const data: any = await seqService.getActiveRecipientCountryCorridors(countryCode)
+    setCountryCorridors(data || [])
+    setIsLoading(false)
+  }, [])
+
+  const fetchConsumersData = async (valStr: string) => {
     try {
-      const data = await applicant_service.getConsumersData(local_service?.get_staff_country())
+      // valStr = local_service?.get_staff_country();
+      const { data } = await applicant_service.getConsumersData(valStr)
+      console.log(data, '------------')
       setConsumersData(data)
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error)
+    }
+  }
+
+  const fetchStaticData = async () => {
+    try {
+      const data = await static_service.getRefreshTimeOnDashboard(userCountry)
+      console.log(data, '--jgjhgjgj----------')
+      setRefreshTime(data.value1)
     } catch (error) {
       console.error('Failed to load dashboard data:', error)
     }
@@ -137,26 +137,65 @@ const Dashboard = () => {
     // commented out for uae corridor
     // getGatewayList()
     // fetchProductConfig('IN')
-    fetchConsumersData()
+
     setIsLoading(true)
+    fetchStaticData()
     getOutwardTransactionsList()
     setSelectedApp('Dashboard')
+    getRecipientCountryCorridors(userCountry)
 
     // transaction_service.getTransactionSummary(userCountry).then((data) => {
-
     //   setapplicantData(data?.data)
     // })
   }, [])
 
+  const isWithinAllowedTime = () => {
+    const now = new Date()
+    const hour = now.getHours()
+
+    return hour >= 8 && hour < 20
+  }
+
+  useEffect(() => {
+    // Switch OFF → don't create interval
+    if (!isAutoRefreshEnabled) {
+      return
+    }
+
+    const callApi = async () => {
+      // Only between 8 AM and 8 PM
+      if (!isWithinAllowedTime()) {
+        return
+      }
+
+      try {
+        await fetchConsumersData('')
+      } catch (error) {
+        console.error('API error:', error)
+      }
+    }
+
+    // Optional initial call
+    callApi()
+
+    // Create interval only when switch is ON
+    const intervalId = setInterval(callApi, refreshTime * 60 * 1000)
+
+    // Switch OFF / component unmount → clear interval
+    return () => {
+      clearInterval(intervalId)
+    }
+  }, [isAutoRefreshEnabled])
+
   const bankAccounts = [
     {
-      name: 'ICICI ',
+      name: 'ICICI',
       balance,
       image_url: 'https://pbs.twimg.com/profile_images/1477924435969462272/ZQADGPv5_400x400.png  ',
       country: 'In',
     },
     {
-      name: 'SB ',
+      name: 'SB',
       balance: 'No Data',
       image_url:
         'https://media.licdn.com/dms/image/v2/C4D0BAQEMo-EgURgpnA/company-logo_200_200/company-logo_200_200/0/1630561374295/standard_bank_group_logo?e=1763596800&v=beta&t=SA9TooJjIAO9AO3sO0Y_bMebCjTauJ4XnBz2gI8JTtI',
@@ -164,21 +203,21 @@ const Dashboard = () => {
     },
 
     {
-      name: 'SA ',
+      name: 'SA',
       balance: 'No Data',
       image_url:
         'https://media.licdn.com/dms/image/v2/C4D0BAQEMo-EgURgpnA/company-logo_200_200/company-logo_200_200/0/1630561374295/standard_bank_group_logo?e=1763596800&v=beta&t=SA9TooJjIAO9AO3sO0Y_bMebCjTauJ4XnBz2gI8JTtI',
       country: 'SA',
     },
     {
-      name: 'Standard Bank ',
+      name: 'Standard Bank',
       balance: 'No Data',
       image_url:
         'https://media.licdn.com/dms/image/v2/C4D0BAQEMo-EgURgpnA/company-logo_200_200/company-logo_200_200/0/1630561374295/standard_bank_group_logo?e=1763596800&v=beta&t=SA9TooJjIAO9AO3sO0Y_bMebCjTauJ4XnBz2gI8JTtI',
       country: 'NG',
     },
     {
-      name: 'Tatum Bank ',
+      name: 'Tatum Bank',
       balance: 'No Data',
       image_url:
         'https://media.licdn.com/dms/image/v2/C4D0BAQEMo-EgURgpnA/company-logo_200_200/company-logo_200_200/0/1630561374295/standard_bank_group_logo?e=1763596800&v=beta&t=SA9TooJjIAO9AO3sO0Y_bMebCjTauJ4XnBz2gI8JTtI',
@@ -332,16 +371,6 @@ const Dashboard = () => {
     { field: 'reported', headerName: 'Reported', width: 100 },
     { field: 'date', headerName: 'Date & Time', width: 180 },
     { field: 'transactionStatus', headerName: 'Transaction Status', width: 200 },
-    // {
-    //   field: 'action',
-    //   headerName: 'Action',
-    //   width: 100,
-    //   renderCell: (params: any) => (
-    //     <Link to={`/transaction-detail/${params?.row?.transactionId}`}>
-    //       <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>View detail</span>
-    //     </Link>
-    //   ),
-    // },
   ]
 
   const filteredRecentTransColumns =
@@ -584,11 +613,53 @@ const Dashboard = () => {
       label: 'Users',
       hidden: false,
     },
+    {
+      background: 'linear-gradient(to bottom, #FEF3C7, #D97706)',
+      hidden: false,
+      subLabel: `Total Amount (${consumersData?.totalTransactionAmount})`,
+      count: consumersData?.totalTransactions ?? 0,
+      label: 'Total Transactions',
+    },
   ]
   const visibleAnalytics = userAnalytics.filter((p) => !p.hidden)
 
+  const handleFilterValueChange = (key: string, value: any) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: value,
+    }))
+  }
+
+  const handleSearch = async () => {
+    const payload = {
+      ...filters,
+      fromDate: filters.fromDate ? `${dayjs(filters.fromDate).format('YYYY-MM-DD')}T00:00:00` : '',
+      toDate: filters.toDate ? `${dayjs(filters.toDate).format('YYYY-MM-DD')}T00:00:00` : '',
+      country: userCountry,
+    }
+    const queryString = new URLSearchParams(Object.fromEntries(Object.entries(payload).filter(([_, v]) => v))).toString()
+    try {
+      setLoading(true)
+      await fetchConsumersData(queryString)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleClear = () => {
+    setFilters({
+      citizenship: '',
+      fromDate: null,
+      toDate: null,
+    })
+    fetchConsumersData('')
+  }
+
+  const handleAutoRefreshChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsAutoRefreshEnabled(event.target.checked)
+  }
+
   return (
-    // <HasPermission permission={'canRead'} module={local_service.get_modules()?.DASHBOARD}>
     <Box sx={{ width: '90vw', overflowX: 'hidden', height: '85vh' }}>
       <Typography variant="h4" gutterBottom sx={{ mt: 0, mb: 1 }}>
         <b>Dashboard</b>
@@ -598,7 +669,7 @@ const Dashboard = () => {
         {/* LEFT SIDE (Balances + Consumers + Volume + Recent Transactions) */}
         <Grid item xs={12} md={12}>
           <Grid container spacing={2}>
-            <Grid item xs={12} md={5}>
+            <Grid item xs={12} md={6}>
               {/* Available Balances */}
 
               {userCountry !== 'UAE' && (
@@ -624,11 +695,9 @@ const Dashboard = () => {
                                   mb: 0,
                                   display: 'flex',
                                   justifyContent: 'space-between',
-
                                   flexDirection: 'column',
                                   // alignItems: 'center',
                                   opacity: isActive ? 1 : 0.5,
-
                                   pointerEvents: isActive ? 'auto' : 'none',
                                 }}
                               >
@@ -669,9 +738,85 @@ const Dashboard = () => {
               {/* Consumers */}
               <Card sx={{ border: '2px solid', borderColor: '#79CBF0' }}>
                 <CardContent>
-                  <Typography variant="subtitle1" fontWeight={700} gutterBottom>
-                    User Analytics
-                  </Typography>
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight={700} gutterBottom>
+                      User Analytics
+                    </Typography>
+                    <FormControlLabel control={<Switch checked={isAutoRefreshEnabled} onChange={handleAutoRefreshChange} />} label="Auto Refresh" />
+                  </Box>
+
+                  <Box mb={2} display="flex" gap={1} alignItems="center" flexWrap="wrap">
+                    <FormControl sx={{ minWidth: 180 }} size="small">
+                      <InputLabel id="target-country-label">Select Citizenship</InputLabel>
+                      <Select
+                        labelId="target-country-label"
+                        value={filters?.citizenship}
+                        size="small"
+                        //@ts-ignore
+                        onChange={(e) => handleFilterValueChange('citizenship', e.target.value)}
+                        label="Select Country"
+                        MenuProps={{
+                          PaperProps: {
+                            style: {
+                              maxHeight: 300, // limit dropdown height if many options
+                            },
+                          },
+                          anchorOrigin: {
+                            vertical: 'bottom',
+                            horizontal: 'left',
+                          },
+                          transformOrigin: {
+                            vertical: 'top',
+                            horizontal: 'left',
+                          },
+                          //@ts-ignore
+                          getContentAnchorEl: null,
+                        }}
+                      >
+                        {countryCorridors.map((item: any, index: number) => (
+                          <MenuItem key={index} value={item.countryCode}>
+                            {item.countryCode} ({item.countryName})
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        label="From Date"
+                        //@ts-ignore
+                        format="YYYY-MM-DD"
+                        value={filters?.fromDate}
+                        onChange={(newValue: any) => handleFilterValueChange('fromDate', newValue)}
+                        slotProps={{ textField: { size: 'small', sx: { width: 150 } } }}
+                        //@ts-ignore
+                        renderInput={(params) => <TextField {...params} fullWidth variant="outlined" />}
+                      />
+
+                      <DatePicker
+                        label="To Date"
+                        value={filters?.toDate}
+                        onChange={(newValue: any) => handleFilterValueChange('toDate', newValue)}
+                        minDate={filters?.fromDate}
+                        format="YYYY-MM-DD"
+                        slotProps={{
+                          textField: {
+                            size: 'small',
+                            sx: { width: 150 },
+                          },
+                        }}
+                      />
+                    </LocalizationProvider>
+
+                    <Button variant="contained" onClick={handleSearch} sx={{ height: '40px' }} disabled={isFilterEmpty || loading}>
+                      {loading ? 'Searching...' : 'Search'}
+                    </Button>
+
+                    <Button disabled={loading} variant="outlined" onClick={handleClear} sx={{ height: '40px' }}>
+                      Clear
+                    </Button>
+                  </Box>
+
                   <Grid container spacing={2}>
                     {visibleAnalytics.map((userItem: any) => (
                       <Grid item xs={Math.floor(12 / visibleAnalytics.length)}>
@@ -705,7 +850,7 @@ const Dashboard = () => {
               )}
             </Grid>
 
-            <Grid item xs={12} md={7}>
+            <Grid item xs={12} md={6}>
               <Card sx={{ border: '2px solid', borderColor: '#79CBF0', height: '100%' }}>
                 <CardContent>
                   <Typography variant="subtitle1" fontWeight={700}>
@@ -723,7 +868,7 @@ const Dashboard = () => {
                 <Typography variant="h4" gutterBottom fontWeight="bold" color="primary">
                   Recent Transactions
                 </Typography>
-                <Box sx={{ height: 400, width: '100%' }}>
+                <Box sx={{ height: '400px', width: '100%' }}>
                   {isLoading ? (
                     <>
                       <Skeleton variant="rectangular" height={40} sx={{ mb: 1 }} />
@@ -759,7 +904,7 @@ const Dashboard = () => {
                       initialState={{
                         pagination: { paginationModel: { pageSize: 10, page: 0 } },
                       }}
-                      pageSizeOptions={[5, 10, 20]}
+                      pageSizeOptions={[10, 20, 100]}
                       disableRowSelectionOnClick
                       slots={{ toolbar: CustomToolbar }}
                       sx={{
@@ -772,6 +917,7 @@ const Dashboard = () => {
                           fontWeight: 'bold',
                           fontSize: '1.1rem',
                         },
+                        height: '400px',
                       }}
                       disableColumnMenu
                     />
@@ -785,7 +931,6 @@ const Dashboard = () => {
         {/* RIGHT SIDE (Active Channels + Integrations) */}
       </Grid>
     </Box>
-    // </HasPermission>
   )
 }
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { DataGrid, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridFilterModel, GridColDef } from '@mui/x-data-grid'
 import { Box, Typography, Button } from '@mui/material'
 import { UserService } from '@/services/user.service'
@@ -13,16 +13,12 @@ import FindReplaceIcon from '@mui/icons-material/FindReplace'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { Edit } from '@mui/icons-material'
+import MasterService from '@/services/master.service'
+import dayjs from 'dayjs'
 
-interface Role {
-  roleId: string | number
-  roleDescription: string
-  roleStatus: string
-}
-
-const RoleManagementPage: React.FC = () => {
-  const [roles, setRoles] = useState<Role[]>([])
-  const [selectedRole, setSelectedRole] = useState<Role | 'create' | null>(null)
+const ReferralCampaign: React.FC = () => {
+  const [referralData, setReferralData] = useState<any>([])
+  const [selectedData, setSelectedData] = useState<any>(null)
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<Record<string, boolean>>({})
   const apiRef = React.useRef<any>(null)
@@ -30,56 +26,51 @@ const RoleManagementPage: React.FC = () => {
   const api_service = new UserService()
   const local_service = new LocalStorageService()
   const helper_service = new HelperService()
+  const master_service = new MasterService()
 
-  const fetchRoles = async () => {
-    const data = await api_service.getRolesList()
-    setRoles(data)
-  }
-
-  useEffect(() => {
-    fetchRoles()
+  const fetchReferralCampaignList = useCallback(async () => {
+    const { data } = await master_service.getAllReferralCampaign()
+    console.log(data, '-=-=-=-=-=')
+    setReferralData(data || [])
   }, [])
 
-  const handleSave = (updatedRole: Role) => {
-    api_service.addRole(updatedRole, local_service.get_staff_id())
-    setSelectedRole(null)
+  useEffect(() => {
+    // fetchReferralCampaignList()
+  }, [])
+
+  const handleSave = () => {
+    // master_service.addRole(updatedRole, local_service.get_staff_id())
+    // setSelectedData(null)
     // window.location.reload()
   }
 
   const columns: GridColDef[] = [
-    { field: 'roleDescription', headerName: 'Role Name', flex: 1, headerClassName: 'super-app-theme--header' },
-    { field: 'roleStatus', headerName: 'Status', flex: 1, headerClassName: 'super-app-theme--header' },
-
+    { field: 'campaignName', headerName: 'Campaign Name', flex: 150, headerClassName: 'super-app-theme--header' },
+    { field: 'description', headerName: 'Description', width: 200, headerClassName: 'super-app-theme--header' },
     {
-      field: 'action',
-      headerName: 'Actions',
-      flex: 1,
+      field: 'startDateTime',
+      headerName: 'Start Date & Time',
+      flex: 150,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => (
-        <Button
-          variant="outlined"
-          color="primary"
-          size="small"
-          startIcon={<Edit />}
-          onClick={() => setSelectedRole(params.row)}
-          disabled={!helper_service.checkUserHasPermission(local_service.get_modules()?.ROLE, 'canUpdate')}
-        >
-          Edit
-        </Button>
-      ),
+      renderCell: (params) => (params.row?.startDateTime ? dayjs(params.row?.startDateTime).format('YYYY-MM-DD') : ''),
     },
     {
-      field: 'totalModules',
-      headerName: 'Total Modules',
-      flex: 1,
+      field: 'endDateTime',
+      headerName: 'End Date & Time',
+      flex: 150,
       headerClassName: 'super-app-theme--header',
-      renderCell: (params) => params?.row?.modules?.length,
+      renderCell: (params) => (params.row?.endDateTime ? dayjs(params.row?.endDateTime).format('YYYY-MM-DD') : ''),
     },
+    { field: 'countryCode', headerName: 'Country Code', flex: 150, headerClassName: 'super-app-theme--header' },
+    { field: 'referralCode', headerName: 'Referral Code', flex: 150, headerClassName: 'super-app-theme--header' },
+    { field: 'conversionRate', headerName: 'Conversion Rate', flex: 150, headerClassName: 'super-app-theme--header' },
+    { field: 'points', headerName: 'Points', flex: 150, headerClassName: 'super-app-theme--header' },
+    { field: 'marketSegmentCode', headerName: 'Market Segment Code', flex: 150, headerClassName: 'super-app-theme--header' },
   ]
 
   const getVisibleFilteredRows = () => {
     const visibleCols = columns.filter((col) => columnVisibilityModel[col.field] !== false && col.field !== 'action')
-    const filteredRows = roles.filter((row) =>
+    const filteredRows = referralData.filter((row: any) =>
       filterModel.items.every((filter) => {
         if (!filter.value) return true
         const cellValue = (row as any)[filter.field]?.toString().toLowerCase() || ''
@@ -97,14 +88,6 @@ const RoleManagementPage: React.FC = () => {
     }
 
     const headers = visibleCols.map((col) => col.headerName).join(',')
-    // const rows = filteredRows.map((row) => visibleCols.map((col) => `"${(row as any)[col.field] || ''}"`).join(','))
-
-    //  const rows = filteredRows.map((row: any) =>
-    //    visibleCols.map((col) => {
-    //      if (col.field === 'totalModules') return `${row.modules.length}`
-    //      return row[col.field] || ''
-    //    }),
-    //  )
 
     const rows = filteredRows.map((row: any) =>
       visibleCols
@@ -169,26 +152,26 @@ const RoleManagementPage: React.FC = () => {
   )
 
   return (
-    <HasPermission module={local_service.get_modules()?.ROLE} permission="canRead">
-      <Box sx={{ width: '90vw', height: '80vh' }}>
+    <HasPermission module={local_service.get_modules()?.MASTER_DATA} permission="canRead">
+      <Box sx={{ width: '90vw', height: '75vh' }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="h4">
-            <strong>Roles</strong>
+            <strong>Referral Campaigns</strong>
           </Typography>
           <Button
             variant="contained"
-            disabled={!helper_service.checkUserHasPermission(local_service.get_modules()?.ROLE, 'canCreate')}
-            onClick={() => setSelectedRole('create')}
+            disabled={!helper_service.checkUserHasPermission(local_service.get_modules()?.MASTER_DATA, 'canCreate')}
+            // onClick={() => setSelectedRole('create')}
           >
-            Add Role
+            Add Referral Campaign
           </Button>
         </Box>
 
         <DataGrid
           apiRef={apiRef}
-          rows={roles}
+          rows={referralData || []}
           columns={columns}
-          getRowId={(row) => row.roleId}
+          getRowId={(row) => row.id}
           filterModel={filterModel}
           onFilterModelChange={(model) => setFilterModel(model)}
           columnVisibilityModel={columnVisibilityModel}
@@ -196,18 +179,17 @@ const RoleManagementPage: React.FC = () => {
           initialState={{ pagination: { paginationModel: { pageSize: 20, page: 0 } } }}
           pageSizeOptions={[10, 20, 50, 100]}
           disableRowSelectionOnClick
-          loading={roles.length === 0}
+          loading={referralData.length === 0}
           slots={{ toolbar: CustomToolbar, loadingOverlay: LoaderUI.LoadingOverlay }}
           sx={{
             '& .MuiDataGrid-columnHeaders': { backgroundColor: '#005099', color: 'white' },
             '& .MuiDataGrid-cell': { fontSize: '14px' },
             '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold', fontSize: '16px' },
-            height: '70vh',
           }}
           disableColumnMenu
         />
-
-        {selectedRole && (
+        {/* 
+        {selectedData && (
           <RoleModal
             setSelectedRole={setSelectedRole}
             open={!!selectedRole}
@@ -215,10 +197,10 @@ const RoleManagementPage: React.FC = () => {
             onClose={() => setSelectedRole(null)}
             onSave={handleSave}
           />
-        )}
+        )} */}
       </Box>
     </HasPermission>
   )
 }
 
-export default RoleManagementPage
+export default ReferralCampaign

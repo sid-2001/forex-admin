@@ -582,7 +582,6 @@ const CountryCorridorPage: React.FC = () => {
           rows={filteredRows}
           columns={columns}
           getRowId={(row) => row.countryCorridorCode}
-          autoHeight
           loading={loading}
           disableRowSelectionOnClick
           slots={{ toolbar: GridToolbar }}
@@ -597,7 +596,7 @@ const CountryCorridorPage: React.FC = () => {
             setPage(model.page)
             setPageSize(model.pageSize)
           }}
-          pageSizeOptions={[5, 10, 25, 50]}
+          pageSizeOptions={[5, 10, 20, 50, 100]}
         />
 
         {/* Create Dialog */}
