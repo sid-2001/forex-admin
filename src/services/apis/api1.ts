@@ -18,6 +18,18 @@ const instance: AxiosInstance = axios.create({
   baseURL: baseUrl,
   responseType: 'json',
 })
+const generateDeviceUUID = (): string => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+
+  // Fallback for browsers/environments without crypto.randomUUID()
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0
+    const v = c === 'x' ? r : (r & 0x3) | 0x8
+    return v.toString(16)
+  })
+}
 
 const localStorageService = new LocalStorageService()
 
@@ -84,7 +96,7 @@ instance.interceptors.request.use(
       if (sessionStorage.getItem('deviceUUID')) {
         config.headers['x-device-id'] = sessionStorage.getItem('deviceUUID')
       } else {
-        const deviceUUID = crypto.randomUUID()
+        const deviceUUID = generateDeviceUUID();
         sessionStorage.setItem('deviceUUID', deviceUUID)
         config.headers['x-device-id'] = deviceUUID
       }
